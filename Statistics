@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>E-Bike Sales Companion</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .spec-card:hover { transform: translateY(-2px); transition: all 0.2s; }
+        .sticky-header { position: sticky; top: 0; z-index: 50; }
+    </style>
+</head>
+<body class="bg-gray-50 pb-20">
+
+    <header class="bg-slate-900 text-white p-4 sticky-header shadow-lg">
+        <div class="max-w-4xl mx-auto flex justify-between items-center">
+            <h1 class="text-xl font-bold">E-Bike Sales Pro</h1>
+            <input type="text" id="searchInput" onkeyup="filterBikes()" placeholder="Search models (e.g. Ranger)..." class="p-2 rounded text-black w-1/2">
+        </div>
+    </header>
+
+    <main class="max-w-4xl mx-auto p-4">
+        <div id="compareSection" class="mb-8 bg-blue-50 border border-blue-200 rounded-xl p-4 hidden">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="font-bold text-blue-800">Model Comparison</h2>
+                <button onclick="clearComparison()" class="text-sm text-blue-600 underline">Clear</button>
+            </div>
+            <div id="compareGrid" class="grid grid-cols-2 gap-4">
+                </div>
+        </div>
+
+        <div id="bikeGrid" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            </div>
+    </main>
+
+    <script>
+        const bikes = [
+            { brand: "Heybike", model: "Alpha", type: "Step Over/Thru", motor: "500W (930W Peak)", range: "60 miles", speed: "28 mph", torque: "105 NM", sensor: "Torque", score: 87.2 },
+            { brand: "Heybike", model: "Ranger S 1000", type: "Folding", motor: "1000W (1800W Peak)", range: "65 miles", speed: "32 mph", torque: "100 NM", sensor: "Torque", score: 86.1 },
+            { brand: "Heybike", model: "Ranger 3.0 Pro", type: "Folding", motor: "750W (1200W Peak)", range: "90 miles", speed: "28 mph", torque: "80 NM", sensor: "Torque", score: 85.3 },
+            { brand: "Velotric", model: "Nomad 2X", type: "Fat Tire", motor: "750W (1400W Peak)", range: "75 miles", speed: "28 mph", torque: "105 NM", sensor: "SensorSwap", score: 83.6 },
+            { brand: "Velotric", model: "Summit 2", type: "All Terrain", motor: "750W (1400W Peak)", range: "75 miles", speed: "28 mph", torque: "105 NM", sensor: "SensorSwap", score: "N/A" },
+            { brand: "Velotric", model: "Discover 3", type: "Commuter", motor: "750W (1100W Peak)", range: "80 miles", speed: "28 mph", torque: "75 NM", sensor: "SensorSwap", score: "N/A" },
+            { brand: "Heybike", model: "Mars 1.0", type: "Folding", motor: "500W", range: "48 miles", speed: "20 mph", torque: "60 NM", sensor: "Cadence", score: 51.8 }
+        ];
+
+        let compareList = [];
+
+        function renderBikes() {
+            const grid = document.getElementById('bikeGrid');
+            grid.innerHTML = bikes.map((bike, index) => `
+                <div class="bike-card bg-white p-5 rounded-lg shadow-sm border border-gray-200 spec-card" data-name="${bike.brand} ${bike.model}">
+                    <div class="flex justify-between items-start mb-2">
+                        <div>
+                            <span class="text-xs font-bold text-blue-600 uppercase">${bike.brand}</span>
+                            <h3 class="text-lg font-bold text-gray-800">${bike.model}</h3>
+                        </div>
+                        <span class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full font-bold">Score: ${bike.score}</span>
+                    </div>
+                    <p class="text-sm text-gray-500 mb-4 italic">${bike.type}</p>
+                    <div class="grid grid-cols-2 gap-y-2 text-sm border-t pt-3">
+                        <div class="text-gray-500 font-medium">Range: <span class="text-gray-900">${bike.range}</span></div>
+                        <div class="text-gray-500 font-medium">Speed: <span class="text-gray-900">${bike.speed}</span></div>
+                        <div class="text-gray-500 font-medium">Motor: <span class="text-gray-900">${bike.motor}</span></div>
+                        <div class="text-gray-500 font-medium">Sensor: <span class="text-gray-900">${bike.sensor}</span></div>
+                    </div>
+                    <button onclick="addToCompare(${index})" class="mt-4 w-full bg-slate-100 hover:bg-slate-200 text-slate-700 py-2 rounded font-semibold text-sm">
+                        + Compare This Bike
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        function filterBikes() {
+            const input = document.getElementById('searchInput').value.toLowerCase();
+            const cards = document.getElementsByClassName('bike-card');
+            Array.from(cards).forEach(card => {
+                const name = card.getAttribute('data-name').toLowerCase();
+                card.style.display = name.includes(input) ? "block" : "none";
+            });
+        }
+
+        function addToCompare(index) {
+            if (compareList.length >= 2) compareList.shift();
+            compareList.push(bikes[index]);
+            updateCompareUI();
+        }
+
+        function clearComparison() {
+            compareList = [];
+            updateCompareUI();
+        }
+
+        function updateCompareUI() {
+            const section = document.getElementById('compareSection');
+            const grid = document.getElementById('compareGrid');
+            if (compareList.length === 0) {
+                section.classList.add('hidden');
+                return;
+            }
+            section.classList.remove('hidden');
+            grid.innerHTML = compareList.map(bike => `
+                <div class="bg-white p-3 rounded shadow-inner text-xs border-l-4 border-blue-500">
+                    <div class="font-bold text-sm">${bike.model}</div>
+                    <div>Torque: ${bike.torque}</div>
+                    <div>Motor: ${bike.motor}</div>
+                </div>
+            `).join('');
+        }
+
+        renderBikes();
+    </script>
+</body>
+</html>
