@@ -33,20 +33,22 @@ body{font-family:'DM Sans',sans-serif;background:var(--cream);min-height:100vh;p
 .tab{padding:11px 0;font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;border:none;border-bottom:3px solid transparent;color:#94a3b8;cursor:pointer;background:none;flex:1;font-family:'DM Sans',sans-serif;transition:all .15s;}
 .tab.on{color:var(--forest);border-color:var(--sage);}
 .btn{border:none;border-radius:12px;font-weight:900;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .15s;}
-.btn-g{background:var(--forest);color:white;padding:13px 0;}
+.btn-g{background:var(--forest);color:white;}
 .btn-g:hover{background:var(--dark);}
-.btn-s{background:var(--sage);color:white;padding:13px 0;}
+.btn-s{background:var(--sage);color:white;}
 .btn-s:hover{background:var(--forest);}
-.btn-o{background:none;border:2px solid #e2e8f0;color:#64748b;padding:10px 16px;}
+.btn-o{background:none;border:2px solid #e2e8f0;color:#64748b;}
 .btn-o:hover{border-color:#94a3b8;}
 .btn-e{background:#e8f0e9;color:#2D4A32;padding:8px 14px;}
 .btn-r{background:#fef2f2;color:#dc2626;padding:8px 14px;}
 .fi{width:100%;padding:9px 11px;border:2px solid #e2e8f0;border-radius:10px;font-size:13px;font-weight:600;outline:none;font-family:'DM Sans',sans-serif;transition:border-color .15s;}
 .fi:focus{border-color:var(--sage);}
 .fl{font-size:9px;font-weight:800;letter-spacing:.15em;text-transform:uppercase;color:#94a3b8;margin-bottom:5px;display:block;}
-.ai-box{background:linear-gradient(135deg,#1a2e1c,#2D4A32);border-radius:16px;padding:18px;color:white;}
-@keyframes pulse{0%,100%{opacity:.6}50%{opacity:1}}
-.shimmer{animation:pulse 1.4s infinite;background:#e2e8f0;border-radius:8px;}
+/* site pill */
+.site-pill{display:inline-flex;align-items:center;gap:5px;font-size:10px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;padding:5px 12px;border-radius:99px;text-decoration:none;transition:opacity .15s;border:2px solid;}
+.site-pill:hover{opacity:.75;}
+.pill-H{background:#e8f0e9;color:#2D4A32;border-color:#6B8F71;}
+.pill-V{background:#fdf3e0;color:#7a5a20;border-color:#C9A96E;}
 #toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#1a2e1c;color:white;padding:10px 22px;border-radius:99px;font-size:12px;font-weight:700;z-index:999;opacity:0;transition:opacity .3s;pointer-events:none;white-space:nowrap;}
 #toast.show{opacity:1;}
 .arow{background:white;border-radius:14px;border:1px solid #e2e8f0;padding:13px 15px;display:flex;align-items:center;gap:12px;margin-bottom:8px;}
@@ -58,16 +60,14 @@ body{font-family:'DM Sans',sans-serif;background:var(--cream);min-height:100vh;p
 </head>
 <body>
 
-<!-- ══════════════════════════════════
-  SALES VIEW
-══════════════════════════════════ -->
+<!-- ══════════════════ SALES VIEW ══════════════════ -->
 <div id="vSales">
   <header class="sticky" style="background:#1a2e1c;padding:16px;box-shadow:0 4px 24px rgba(0,0,0,.3);">
     <div class="wrap">
       <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;">
         <div>
           <div class="disp" style="font-size:1.7rem;color:#C9A96E;line-height:1;">CRUISE THE CREEK</div>
-          <div style="font-size:10px;color:#86efac;font-weight:700;letter-spacing:3px;margin-top:2px;">SALES PRO · AI PRICING EDITION</div>
+          <div style="font-size:10px;color:#86efac;font-weight:700;letter-spacing:3px;margin-top:2px;">SALES PRO · YOUNGSTOWN, OHIO</div>
         </div>
         <div style="display:flex;align-items:center;gap:10px;">
           <div style="text-align:right;">
@@ -82,16 +82,18 @@ body{font-family:'DM Sans',sans-serif;background:var(--cream);min-height:100vh;p
     </div>
   </header>
 
+  <!-- Compare bar -->
   <div id="compareBar" style="display:none;background:#2D4A32;padding:12px 16px;">
     <div class="wrap">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
         <span class="disp" style="color:white;font-size:1.1rem;">COMPARE</span>
-        <button onclick="compareList=[];renderCompare();renderCards();" style="color:#86efac;font-size:11px;font-weight:700;background:none;border:none;cursor:pointer;">RESET</button>
+        <button onclick="compareList=[];renderCmp();renderCards();" style="color:#86efac;font-size:11px;font-weight:700;background:none;border:none;cursor:pointer;">RESET</button>
       </div>
       <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;" id="compareGrid"></div>
     </div>
   </div>
 
+  <!-- Sort bar -->
   <div class="wrap" style="display:flex;justify-content:space-between;align-items:center;margin:14px auto;">
     <span id="countLbl" style="font-size:11px;font-weight:700;color:#94a3b8;letter-spacing:2px;"></span>
     <select id="sortSel" onchange="renderCards()" style="font-size:11px;font-weight:700;border:2px solid #e2e8f0;border-radius:12px;padding:7px 12px;background:white;outline:none;cursor:pointer;font-family:'DM Sans',sans-serif;">
@@ -105,9 +107,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--cream);min-height:100vh;p
   <div class="wrap"><div class="grid2" id="bikeGrid"></div></div>
 </div>
 
-<!-- ══════════════════════════════════
-  ADMIN VIEW
-══════════════════════════════════ -->
+<!-- ══════════════════ ADMIN VIEW ══════════════════ -->
 <div id="vAdmin" style="display:none;">
   <header class="sticky" style="background:#1a2e1c;padding:16px;box-shadow:0 4px 24px rgba(0,0,0,.3);">
     <div class="wrap" style="display:flex;justify-content:space-between;align-items:center;">
@@ -117,33 +117,33 @@ body{font-family:'DM Sans',sans-serif;background:var(--cream);min-height:100vh;p
       </div>
       <div style="display:flex;gap:8px;">
         <button onclick="startAdd()" id="addBtn" class="btn btn-s" style="padding:9px 14px;">+ Add Bike</button>
-        <button onclick="closeAdmin()" class="btn btn-o" style="color:rgba(255,255,255,.7);border-color:rgba(255,255,255,.2);">← Sales</button>
+        <button onclick="closeAdmin()" class="btn btn-o" style="padding:9px 14px;color:rgba(255,255,255,.7);border-color:rgba(255,255,255,.2);">← Sales</button>
       </div>
     </div>
   </header>
   <div class="wrap" style="margin-top:16px;">
-    <!-- Edit/Add form -->
     <div id="editForm" style="display:none;background:white;border-radius:20px;border:1px solid #e2e8f0;padding:22px;margin-bottom:16px;box-shadow:0 4px 20px rgba(0,0,0,.06);">
       <div class="disp" style="font-size:1.2rem;color:#1a2e1c;margin-bottom:14px;" id="formTitle">ADD NEW BIKE</div>
-      <div id="fPreview" style="background:#f8fafc;border-radius:14px;padding:12px;margin-bottom:14px;border:1px solid #e2e8f0;display:flex;align-items:center;gap:12px;"></div>
+      <div id="fPrev" style="background:#f8fafc;border-radius:14px;padding:12px;margin-bottom:14px;border:1px solid #e2e8f0;display:flex;align-items:center;gap:12px;"></div>
       <div class="gf" id="formFields"></div>
       <div style="margin-top:10px;">
+        <label class="fl">Product Page URL (optional override)</label>
+        <input type="text" id="fUrl" class="fi" placeholder="https://...">
+      </div>
+      <div style="margin-top:10px;">
         <label class="fl">Key Features</label>
-        <textarea id="fFeatures" rows="3" class="fi" style="resize:vertical;line-height:1.6;"></textarea>
+        <textarea id="fFeat" rows="3" class="fi" style="resize:vertical;line-height:1.6;"></textarea>
       </div>
       <div style="display:flex;gap:10px;margin-top:16px;">
-        <button onclick="saveBike()" class="btn btn-g" style="flex:1;" id="saveBtn">Save Bike</button>
+        <button onclick="saveBike()" class="btn btn-g" style="flex:1;padding:13px;" id="saveBtn">Save Bike</button>
         <button onclick="cancelEdit()" class="btn btn-o" style="padding:13px 16px;">Cancel</button>
       </div>
     </div>
-    <!-- List -->
     <div id="adminList"></div>
   </div>
 </div>
 
-<!-- ══════════════════════════════════
-  LOGIN MODAL
-══════════════════════════════════ -->
+<!-- ══════════════════ LOGIN MODAL ══════════════════ -->
 <div class="modal" id="mLogin">
   <div style="background:white;border-radius:24px;padding:32px;width:100%;max-width:340px;text-align:center;box-shadow:0 25px 60px rgba(0,0,0,.4);">
     <div style="font-size:42px;margin-bottom:12px;">🔐</div>
@@ -157,11 +157,10 @@ body{font-family:'DM Sans',sans-serif;background:var(--cream);min-height:100vh;p
   </div>
 </div>
 
-<!-- ══════════════════════════════════
-  QUOTE MODAL
-══════════════════════════════════ -->
+<!-- ══════════════════ QUOTE MODAL ══════════════════ -->
 <div class="modal" id="mQuote">
   <div class="mbox">
+    <!-- Header -->
     <div style="background:#1a2e1c;padding:18px 20px 14px;flex-shrink:0;">
       <div style="display:flex;align-items:flex-start;gap:12px;">
         <div id="mSc" class="sr sr-l">—</div>
@@ -172,69 +171,72 @@ body{font-family:'DM Sans',sans-serif;background:var(--cream);min-height:100vh;p
         </div>
         <button onclick="closeM('mQuote')" style="color:#94a3b8;background:none;border:none;font-size:22px;cursor:pointer;line-height:1;margin-top:2px;">✕</button>
       </div>
+      <!-- Site link inside header -->
+      <div style="margin-top:12px;" id="mSiteLink"></div>
     </div>
+    <!-- Tabs -->
     <div style="display:flex;border-bottom:2px solid #f1f5f9;background:white;flex-shrink:0;">
-      <button class="tab on" onclick="swTab('tAI',this)">AI Pricing</button>
-      <button class="tab" onclick="swTab('tCalc',this)">Quote Calc</button>
+      <button class="tab on" onclick="swTab('tCalc',this)">Quote Calc</button>
       <button class="tab" onclick="swTab('tSpec',this)">Full Specs</button>
     </div>
+    <!-- Body -->
     <div style="overflow-y:auto;flex:1;padding:20px;">
 
-      <!-- AI PRICING -->
-      <div id="tAI">
-        <div id="pIdle" style="text-align:center;padding-top:12px;">
-          <div style="font-size:44px;margin-bottom:14px;">🤖</div>
-          <p style="font-size:13px;color:#64748b;margin-bottom:20px;line-height:1.6;">Tap below to fetch the <strong>current retail price</strong> using live AI web search directly from the manufacturer's website.</p>
-          <button onclick="fetchPrice()" class="btn btn-g" style="width:100%;padding:14px;font-size:13px;">🔍 Get Live Price</button>
-          <p id="pSiteNote" style="font-size:10px;color:#94a3b8;margin-top:10px;"></p>
-        </div>
-        <div id="pLoad" style="display:none;text-align:center;padding-top:16px;">
-          <div style="font-size:38px;margin-bottom:12px;">🔍</div>
-          <div class="disp" style="font-size:1.3rem;color:#1e293b;margin-bottom:6px;">Searching live...</div>
-          <div id="pLoadNote" style="font-size:12px;color:#94a3b8;margin-bottom:20px;"></div>
-          <div class="shimmer" style="height:13px;width:70%;margin:0 auto 8px;"></div>
-          <div class="shimmer" style="height:13px;width:50%;margin:0 auto 8px;"></div>
-          <div class="shimmer" style="height:22px;width:55%;margin:0 auto;"></div>
-        </div>
-        <div id="pRes" style="display:none;">
-          <div class="ai-box" style="margin-bottom:14px;">
-            <div style="font-size:9px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:#86efac;margin-bottom:4px;">Current Retail Price</div>
-            <div class="disp" id="pPrice" style="font-size:3rem;color:#C9A96E;line-height:1;"></div>
-            <div id="pNote" style="font-size:11px;color:#94a3b8;margin-top:6px;"></div>
-          </div>
-          <div id="pSum" style="background:#f8fafc;border-radius:14px;padding:14px;font-size:12px;color:#475569;line-height:1.7;border:1px solid #e2e8f0;margin-bottom:12px;"></div>
-          <div id="pTime" style="font-size:10px;color:#94a3b8;margin-bottom:12px;"></div>
-          <button onclick="goQuote()" class="btn btn-s" style="width:100%;margin-bottom:8px;">→ Open Quote Calculator</button>
-          <button onclick="fetchPrice()" class="btn btn-o" style="width:100%;">Refresh Price</button>
-        </div>
-        <div id="pErr" style="display:none;text-align:center;padding-top:16px;">
-          <div style="font-size:38px;margin-bottom:10px;">⚠️</div>
-          <p id="pErrMsg" style="font-size:13px;color:#64748b;margin-bottom:16px;"></p>
-          <button onclick="fetchPrice()" class="btn btn-g" style="width:100%;padding:13px;">Try Again</button>
-        </div>
-      </div>
-
       <!-- QUOTE CALC -->
-      <div id="tCalc" style="display:none;">
-        <div id="qPre" style="display:none;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:12px;padding:10px 14px;font-size:12px;color:#166534;font-weight:600;margin-bottom:14px;"></div>
-        <label class="fl">Retail Price ($)</label>
+      <div id="tCalc">
+
+        <!-- Customer name -->
+        <label class="fl">Customer Name (optional)</label>
+        <input type="text" id="qCustomer" placeholder="e.g. John Smith"
+          style="width:100%;padding:10px 13px;background:#f8fafc;border:2px solid #e2e8f0;border-radius:12px;font-size:13px;font-weight:600;outline:none;font-family:'DM Sans',sans-serif;margin-bottom:14px;">
+
+        <!-- Bike price row -->
+        <label class="fl">Bike Price ($)</label>
         <input type="number" id="qIn" oninput="calcQ()" placeholder="0.00"
-          style="width:100%;padding:14px;background:#f8fafc;border:2px solid #e2e8f0;border-radius:14px;font-size:1.4rem;font-weight:800;outline:none;font-family:'DM Sans',sans-serif;margin-bottom:14px;">
+          style="width:100%;padding:14px;background:#f8fafc;border:2px solid #e2e8f0;border-radius:14px;font-size:1.4rem;font-weight:800;outline:none;font-family:'DM Sans',sans-serif;margin-bottom:6px;">
+        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px;">
+          <button onclick="setQ(799)"  class="btn btn-o" style="padding:6px 11px;font-size:11px;">$799</button>
+          <button onclick="setQ(999)"  class="btn btn-o" style="padding:6px 11px;font-size:11px;">$999</button>
+          <button onclick="setQ(1199)" class="btn btn-o" style="padding:6px 11px;font-size:11px;">$1,199</button>
+          <button onclick="setQ(1499)" class="btn btn-o" style="padding:6px 11px;font-size:11px;">$1,499</button>
+          <button onclick="setQ(1799)" class="btn btn-o" style="padding:6px 11px;font-size:11px;">$1,799</button>
+          <button onclick="setQ(2299)" class="btn btn-o" style="padding:6px 11px;font-size:11px;">$2,299</button>
+        </div>
+
+        <!-- Accessories section -->
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+          <label class="fl" style="margin-bottom:0;">Accessories / Add-ons</label>
+          <button onclick="addAccessory()" class="btn btn-s" style="padding:5px 12px;font-size:10px;">+ Add Item</button>
+        </div>
+        <!-- Preset accessories -->
+        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;" id="accPresets">
+          <button onclick="addPreset('Helmet',49.99)"    class="btn btn-o" style="padding:5px 10px;font-size:10px;">🪖 Helmet</button>
+          <button onclick="addPreset('Lock',29.99)"       class="btn btn-o" style="padding:5px 10px;font-size:10px;">🔒 Lock</button>
+          <button onclick="addPreset('Fender Kit',39.99)" class="btn btn-o" style="padding:5px 10px;font-size:10px;">🛡️ Fenders</button>
+          <button onclick="addPreset('Rear Rack',49.99)"  class="btn btn-o" style="padding:5px 10px;font-size:10px;">📦 Rack</button>
+          <button onclick="addPreset('Lights Kit',34.99)" class="btn btn-o" style="padding:5px 10px;font-size:10px;">💡 Lights</button>
+          <button onclick="addPreset('Setup Fee',100)"    class="btn btn-o" style="padding:5px 10px;font-size:10px;">🔧 Setup</button>
+          <button onclick="addPreset('Tune-Up',125)"      class="btn btn-o" style="padding:5px 10px;font-size:10px;">⚙️ Tune-Up</button>
+        </div>
+        <div id="accList" style="display:flex;flex-direction:column;gap:6px;margin-bottom:14px;"></div>
+
+        <!-- Totals -->
         <div style="background:#1a2e1c;border-radius:16px;padding:18px;color:white;margin-bottom:14px;">
-          <div style="display:flex;justify-content:space-between;color:#94a3b8;font-size:13px;margin-bottom:8px;"><span>Subtotal:</span><span id="qSub">$0.00</span></div>
-          <div style="display:flex;justify-content:space-between;color:#94a3b8;font-size:13px;margin-bottom:8px;"><span>Ohio Sales Tax (5.75%):</span><span id="qTax">$0.00</span></div>
+          <div style="display:flex;justify-content:space-between;color:#94a3b8;font-size:13px;margin-bottom:6px;"><span>Bike:</span><span id="qBikeLine">$0.00</span></div>
+          <div id="qAccLines"></div>
+          <div style="display:flex;justify-content:space-between;color:#94a3b8;font-size:13px;margin-bottom:6px;border-top:1px solid #334155;padding-top:10px;"><span>Subtotal:</span><span id="qSub">$0.00</span></div>
+          <div style="display:flex;justify-content:space-between;color:#94a3b8;font-size:13px;margin-bottom:10px;"><span>Ohio Tax (5.75%):</span><span id="qTax">$0.00</span></div>
           <div style="display:flex;justify-content:space-between;border-top:1px solid #334155;padding-top:12px;">
             <span class="disp" style="font-size:1.5rem;">TOTAL</span>
             <span class="disp" style="font-size:1.5rem;color:#C9A96E;" id="qTot">$0.00</span>
           </div>
         </div>
-        <div style="font-size:10px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:#94a3b8;margin-bottom:8px;">Quick Scenarios</div>
-        <div style="display:flex;gap:8px;flex-wrap:wrap;">
-          <button onclick="setQ(999)"  class="btn btn-o" style="padding:8px 13px;font-size:12px;">$999</button>
-          <button onclick="setQ(1199)" class="btn btn-o" style="padding:8px 13px;font-size:12px;">$1,199</button>
-          <button onclick="setQ(1499)" class="btn btn-o" style="padding:8px 13px;font-size:12px;">$1,499</button>
-          <button onclick="setQ(1799)" class="btn btn-o" style="padding:8px 13px;font-size:12px;">$1,799</button>
-          <button onclick="setQ(2299)" class="btn btn-o" style="padding:8px 13px;font-size:12px;">$2,299</button>
+
+        <!-- Export to Sheets -->
+        <button onclick="saveToSheets()" class="btn btn-g" style="width:100%;padding:13px;font-size:12px;">📊 Save Quote to Google Sheets</button>
+        <div id="sheetsMsg" style="display:none;text-align:center;font-size:11px;font-weight:700;margin-top:8px;"></div>
+        <div style="text-align:center;margin-top:10px;">
+          <button onclick="openSheetSetup()" style="background:none;border:none;font-size:11px;color:#94a3b8;cursor:pointer;font-weight:700;text-decoration:underline;font-family:'DM Sans',sans-serif;">⚙️ Configure Sheets URL</button>
         </div>
       </div>
 
@@ -246,6 +248,41 @@ body{font-family:'DM Sans',sans-serif;background:var(--cream);min-height:100vh;p
   </div>
 </div>
 
+<!-- ══════════════════ SHEETS SETUP MODAL ══════════════════ -->
+<div class="modal" id="mSheetSetup">
+  <div style="background:white;border-radius:24px;padding:28px;width:100%;max-width:420px;box-shadow:0 25px 60px rgba(0,0,0,.4);max-height:90vh;overflow-y:auto;">
+    <div class="disp" style="font-size:1.6rem;color:#1a2e1c;margin-bottom:4px;">&#128202; GOOGLE SHEETS SETUP</div>
+    <p style="font-size:12px;color:#64748b;margin-bottom:18px;line-height:1.6;">Follow these steps once. After that, every quote saves directly to your sheet with one tap.</p>
+    <div style="display:flex;flex-direction:column;gap:14px;margin-bottom:16px;">
+      <div style="display:flex;gap:12px;align-items:flex-start;">
+        <div style="background:#1a2e1c;color:white;border-radius:50%;width:24px;height:24px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;flex-shrink:0;">1</div>
+        <div style="font-size:12px;color:#334155;line-height:1.6;"><strong>Create a new Google Sheet.</strong> Name it "CTC Quotes" or anything you like.</div>
+      </div>
+      <div style="display:flex;gap:12px;align-items:flex-start;">
+        <div style="background:#1a2e1c;color:white;border-radius:50%;width:24px;height:24px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;flex-shrink:0;">2</div>
+        <div style="font-size:12px;color:#334155;line-height:1.6;"><strong>Open Extensions &rarr; Apps Script.</strong> Delete any code there, paste the script below, then click Save.</div>
+      </div>
+      <div style="background:#f1f5f9;border:1px solid #e2e8f0;border-radius:10px;padding:12px;font-size:10.5px;font-family:monospace;color:#1e293b;white-space:pre-wrap;line-height:1.7;user-select:all;" id="appsScriptCode"></div>
+      <button onclick="copyScript()" class="btn btn-s" style="padding:8px 14px;font-size:11px;">&#128203; Copy Script</button>
+      <div id="scriptCopied" style="display:none;text-align:center;font-size:11px;color:#6B8F71;font-weight:700;">&#10003; Copied!</div>
+      <div style="display:flex;gap:12px;align-items:flex-start;">
+        <div style="background:#1a2e1c;color:white;border-radius:50%;width:24px;height:24px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;flex-shrink:0;">3</div>
+        <div style="font-size:12px;color:#334155;line-height:1.6;"><strong>Click Deploy &rarr; New Deployment.</strong> Set Type = Web App, Execute as = Me, Who has access = Anyone. Click Deploy &amp; copy the URL.</div>
+      </div>
+      <div style="display:flex;gap:12px;align-items:flex-start;">
+        <div style="background:#1a2e1c;color:white;border-radius:50%;width:24px;height:24px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;flex-shrink:0;">4</div>
+        <div style="font-size:12px;color:#334155;line-height:1.6;"><strong>Paste your deployment URL below and hit Save.</strong></div>
+      </div>
+    </div>
+    <label class="fl">Apps Script Deployment URL</label>
+    <input type="url" id="sheetsURL" placeholder="https://script.google.com/macros/s/..." class="fi" style="margin-bottom:14px;font-size:12px;">
+    <div style="display:flex;gap:8px;">
+      <button onclick="saveSheetURL()" class="btn btn-g" style="flex:1;padding:12px;font-size:12px;">Save URL</button>
+      <button onclick="closeM('mSheetSetup')" class="btn btn-o" style="flex:1;padding:12px;">Close</button>
+    </div>
+  </div>
+</div>
+
 <!-- DELETE CONFIRM -->
 <div class="modal" id="mDel">
   <div style="background:white;border-radius:20px;padding:28px;max-width:320px;width:100%;text-align:center;">
@@ -253,7 +290,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--cream);min-height:100vh;p
     <div class="disp" style="font-size:1.3rem;color:#1e293b;margin-bottom:6px;">Delete <span id="delName"></span>?</div>
     <p style="font-size:13px;color:#64748b;margin-bottom:20px;">This cannot be undone this session.</p>
     <div style="display:flex;gap:10px;">
-      <button onclick="confirmDel()" style="flex:1;padding:12px;background:#dc2626;color:white;border:none;border-radius:12px;font-weight:900;font-size:12px;letter-spacing:1px;cursor:pointer;font-family:'DM Sans',sans-serif;">Yes, Delete</button>
+      <button onclick="confirmDel()" style="flex:1;padding:12px;background:#dc2626;color:white;border:none;border-radius:12px;font-weight:900;font-size:12px;cursor:pointer;font-family:'DM Sans',sans-serif;">Yes, Delete</button>
       <button onclick="closeM('mDel')" class="btn btn-o" style="flex:1;padding:12px;">Cancel</button>
     </div>
   </div>
@@ -262,70 +299,72 @@ body{font-family:'DM Sans',sans-serif;background:var(--cream);min-height:100vh;p
 <div id="toast"></div>
 
 <script>
-// ──────────────────────────────────────────
-// DATA
-// ──────────────────────────────────────────
+// ──────────────────────────────────────────────────────
+// BIKE DATA  (url = exact product page)
+// ──────────────────────────────────────────────────────
 let bikes=[
-{id:1,brand:"Heybike",score:87.2,model:"Alpha",type:"Step Over/Step Thru",motorN:500,motorP:930,volts:48,wh:680,ah:14.2,range:60,torque:105,speed:28,sensor:"Torque",weight:71.6,payload:400,features:'Mid-drive motor feel, hydraulic brakes, torque sensor, 8-speed drivetrain, 26" wheels'},
-{id:2,brand:"Heybike",score:86.1,model:"Ranger S 1000",type:"Folding, Step-Thru",motorN:1000,motorP:1800,volts:48,wh:692,ah:14.4,range:65,torque:100,speed:32,sensor:"Torque",weight:72,payload:400,features:"Step-thru frame, hydraulic brakes, fast charger included"},
-{id:3,brand:"Heybike",score:85.3,model:"Ranger 3.0 Pro",type:"Folding, Step-Thru",motorN:750,motorP:1200,volts:48,wh:720,ah:15.0,range:90,torque:80,speed:28,sensor:"Torque",weight:77,payload:440,features:"Full suspension (air shock rear), torque sensor, hydraulic disc brakes, 8-speed drivetrain"},
-{id:4,brand:"Velotric",score:83.6,model:"Nomad 2X",type:"Fat Tire, Step-Thru/High-Step",motorN:750,motorP:1400,volts:48,wh:801.6,ah:16.7,range:75,torque:105,speed:28,sensor:"SensorSwap",weight:80,payload:560,features:"Full air suspension, higher payload capacity, larger battery"},
-{id:5,brand:"Heybike",score:83.5,model:"Mars 3.0",type:"Folding, Fat Tire",motorN:750,motorP:1400,volts:48,wh:624,ah:13.0,range:65,torque:95,speed:28,sensor:"Torque",weight:72,payload:440,features:"Upgraded with full suspension, hydraulic disc brakes, higher payload"},
-{id:6,brand:"Heybike",score:82.3,model:"Hero",type:"Step-Over, Fat Tire",motorN:750,motorP:1000,volts:48,wh:864,ah:18.0,range:60,torque:160,speed:35,sensor:"Torque",weight:75,payload:400,features:"Carbon fiber frame, mid-drive motor option, hydraulic disc brakes, full suspension"},
-{id:7,brand:"Heybike",score:82.2,model:"Hero Hub",type:"Step-Over, Fat Tire",motorN:1000,motorP:1800,volts:48,wh:864,ah:18.0,range:60,torque:100,speed:35,sensor:"Torque",weight:75,payload:400,features:"Carbon fiber frame, hub motor, hydraulic disc brakes, full suspension"},
-{id:8,brand:"Velotric",score:79.5,model:"Summit 1",type:"Hybrid/Mountain",motorN:750,motorP:1300,volts:48,wh:705.6,ah:14.7,range:70,torque:90,speed:28,sensor:"SensorSwap",weight:65,payload:440,features:"Versatile hybrid trail and road riding"},
-{id:9,brand:"Velotric",score:79.5,model:"Discover 2",type:"Commuter, Step-Thru",motorN:750,motorP:1200,volts:48,wh:706,ah:14.7,range:75,torque:75,speed:28,sensor:"SensorSwap",weight:68,payload:440,features:"Upgraded motor and battery, hydraulic brakes, SensorSwap technology"},
-{id:10,brand:"Heybike",score:76,model:"Hauler",type:"Step-Thru, Cargo",motorN:750,motorP:1400,volts:48,wh:864,ah:18.0,range:85,torque:80,speed:28,sensor:"Cadence",weight:88,payload:440,features:"Cargo design, optional dual-battery, foldable footboards, hydraulic disc brakes"},
-{id:11,brand:"Heybike",score:75.1,model:"Brawn",type:"Step-Over, Fat Tire",motorN:750,motorP:1400,volts:48,wh:864,ah:18.0,range:65,torque:80,speed:28,sensor:"Cadence",weight:78.3,payload:400,features:"All-terrain fat tire e-bike with hydraulic disc brakes"},
-{id:12,brand:"Velotric",score:74.6,model:"Breeze 1",type:"Cruiser, Step-Thru/High-Step",motorN:750,motorP:1150,volts:48,wh:627,ah:13.1,range:70,torque:65,speed:28,sensor:"SensorSwap",weight:48,payload:330,features:"Lightweight cruiser, powerful motor, high-range battery"},
-{id:13,brand:"Heybike",score:72.6,model:"Ranger S 750",type:"Folding, Step-Thru",motorN:750,motorP:1400,volts:48,wh:692,ah:14.4,range:55,torque:100,speed:28,sensor:"Cadence",weight:72,payload:400,features:"Step-thru frame, hydraulic brakes, fast charger"},
-{id:14,brand:"Velotric",score:71.7,model:"Triker",type:"Electric Tricycle",motorN:750,motorP:1300,volts:48,wh:705.6,ah:14.7,range:60,torque:90,speed:20,sensor:"SensorSwap",weight:85.8,payload:500,features:"Three-wheeled e-trike for stability and comfort"},
-{id:15,brand:"Heybike",score:70.6,model:"Horizon",type:"Folding, Fat Tire",motorN:750,motorP:1400,volts:48,wh:692,ah:14.4,range:55,torque:80,speed:28,sensor:"Cadence",weight:79.4,payload:330,features:"Full suspension and hydraulic disc brakes for off-road comfort"},
-{id:16,brand:"Velotric",score:69.8,model:"Fold 1 Plus",type:"Folding, Step-Thru",motorN:750,motorP:1050,volts:48,wh:608,ah:12.7,range:68,torque:75,speed:28,sensor:"SensorSwap",weight:63,payload:450,features:"Compact folding, hydraulic brakes, torque sensor"},
-{id:17,brand:"Velotric",score:69.7,model:"Nomad 2",type:"Fat Tire, Step-Thru/High-Step",motorN:750,motorP:1300,volts:48,wh:705,ah:14.7,range:65,torque:90,speed:28,sensor:"SensorSwap",weight:75,payload:440,features:"All-terrain fat tires, hydraulic disc brakes, front suspension"},
-{id:18,brand:"Velotric",score:69.7,model:"Discover 1 Plus",type:"Step-Thru, Commuter",motorN:500,motorP:900,volts:48,wh:691,ah:14.4,range:65,torque:65,speed:28,sensor:"Cadence",weight:60,payload:440,features:"Reliable commuter with cadence sensor"},
-{id:19,brand:"Velotric",score:68.2,model:"Fold 1",type:"Folding, Step-Thru",motorN:750,motorP:1050,volts:48,wh:608,ah:12.7,range:55,torque:70,speed:28,sensor:"Cadence",weight:63,payload:440,features:"Compact folding design, hydraulic brakes"},
-{id:20,brand:"Velotric",score:68,model:"Nomad 1 Plus",type:"Step-Thru/High-Step, Fat Tire",motorN:750,motorP:1200,volts:48,wh:691.2,ah:14.4,range:55,torque:75,speed:28,sensor:"Cadence",weight:73,payload:440,features:"Fat tire all-terrain performance"},
-{id:21,brand:"Heybike",score:67.6,model:"Cityrun",type:"Step-Thru, Commuter",motorN:500,motorP:1000,volts:48,wh:720,ah:15.0,range:55,torque:55,speed:28,sensor:"Cadence",weight:61.7,payload:350,features:"Hydraulic front suspension, turn signals, step-thru frame"},
-{id:22,brand:"Velotric",score:64.9,model:"Packer 1",type:"Utility/Cargo",motorN:750,motorP:1200,volts:48,wh:804,ah:16.8,range:52,torque:75,speed:20,sensor:"Cadence",weight:75,payload:440,features:"Cargo-focused, 4-piston hydraulic brakes, front suspension"},
-{id:23,brand:"Heybike",score:64,model:"Mars 2.0 750",type:"Folding, Step-Over",motorN:750,motorP:1400,volts:48,wh:600,ah:12.5,range:45,torque:80,speed:28,sensor:"Cadence",weight:75,payload:330,features:"Fat tires, full suspension, folding design"},
-{id:24,brand:"Heybike",score:63.5,model:"Race Max",type:"Mountain Bike",motorN:500,motorP:1200,volts:48,wh:600,ah:12.5,range:40,torque:65,speed:20,sensor:"Cadence",weight:52.9,payload:264,features:"High-step mountain frame, front suspension, powerful peak motor"},
-{id:25,brand:"Heybike",score:63,model:"Mars 2.0 1000",type:"Folding, Fat Tire",motorN:1000,motorP:1800,volts:48,wh:600,ah:12.5,range:45,torque:100,speed:32,sensor:"Cadence",weight:75,payload:330,features:"Fat tires, full suspension, folding design, 1000W motor"},
-{id:26,brand:"Velotric",score:62.7,model:"Go 1",type:"Compact, Step-Thru",motorN:500,motorP:900,volts:48,wh:691.2,ah:14.4,range:55,torque:65,speed:20,sensor:"Cadence",weight:65,payload:440,features:'High payload, hydraulic disc brakes, 20" wheels'},
-{id:27,brand:"Velotric",score:61.9,model:"T1 ST Plus",type:"Fitness, Step-Over",motorN:350,motorP:600,volts:36,wh:352.8,ah:9.8,range:70,torque:40,speed:25,sensor:"Torque",weight:39,payload:330,features:"Lightweight, torque sensor, Apple Find My support"},
-{id:28,brand:"Heybike",score:55,model:"Ranger 1.0",type:"Step Thru",motorN:500,motorP:800,volts:48,wh:600,ah:12.5,range:55,torque:60,speed:25,sensor:"Cadence",weight:72,payload:330,features:"Entry-level step-thru folding design"},
-{id:29,brand:"Velotric",score:53.6,model:"Fold 1 Lite",type:"Folding, Step-Thru",motorN:500,motorP:800,volts:48,wh:691.2,ah:14.4,range:48,torque:65,speed:28,sensor:"Cadence",weight:61,payload:440,features:"Lighter, more affordable folding option"},
-{id:30,brand:"Heybike",score:51.8,model:"Mars 1.0",type:"Step Over",motorN:500,motorP:800,volts:48,wh:720,ah:15.0,range:48,torque:60,speed:20,sensor:"Cadence",weight:66,payload:330,features:"Entry-level fat tire e-bike"},
-{id:31,brand:"Heybike",score:44.9,model:"Cityscape 2.0",type:"Step-Thru, Commuter",motorN:500,motorP:800,volts:36,wh:360,ah:10.0,range:50,torque:65,speed:20,sensor:"Cadence",weight:61.7,payload:264,features:"Lightweight, affordable city commuting, step-thru frame, front suspension"},
-{id:32,brand:"Velotric",score:null,model:"Summit 2",type:"All Terrain",motorN:750,motorP:1400,volts:48,wh:801.6,ah:16.7,range:75,torque:105,speed:28,sensor:"SensorSwap",weight:80,payload:560,features:"Full air suspension, upgraded power over Summit 1"},
-{id:33,brand:"Velotric",score:null,model:"Discover 3",type:"Commuter, Step-Thru",motorN:750,motorP:1100,volts:48,wh:730,ah:15.2,range:80,torque:75,speed:28,sensor:"SensorSwap",weight:null,payload:null,features:"Upgraded motor and battery, hydraulic brakes, SensorSwap technology"},
-{id:34,brand:"Velotric",score:null,model:"Discover M",type:"Commuter, Step-Thru",motorN:500,motorP:960,volts:48,wh:801.6,ah:16.7,range:95,torque:100,speed:28,sensor:"Torque",weight:null,payload:null,features:"Mid-drive motor, hydraulic brakes, torque sensor, 9-speed drivetrain"},
-{id:35,brand:"Heybike",score:null,model:"Venus",type:"Cruiser, Step-Thru/High-Step",motorN:750,motorP:750,volts:null,wh:680,ah:null,range:85,torque:null,speed:28,sensor:"—",weight:45,payload:350,features:"Cruiser style design"},
-{id:36,brand:"Heybike",score:null,model:"Helio F",type:"Compact Folding",motorN:250,motorP:250,volts:36,wh:360,ah:10.0,range:75,torque:40,speed:20,sensor:"Torque",weight:39.68,payload:330,features:"Ultra-compact folding commuter, torque sensor"},
+{id:1, brand:"Heybike", score:87.2, model:"Alpha",          type:"Step Over/Step Thru",          motorN:500,  motorP:930,  volts:48, wh:680,   ah:14.2, range:60, torque:105, speed:28, sensor:"Torque",     weight:71.6, payload:400, url:"https://www.heybike.com/products/alpha",            features:'Mid-drive motor feel, hydraulic brakes, torque sensor, 8-speed drivetrain, 26" wheels'},
+{id:2, brand:"Heybike", score:86.1, model:"Ranger S 1000",  type:"Folding, Step-Thru",           motorN:1000, motorP:1800, volts:48, wh:692,   ah:14.4, range:65, torque:100, speed:32, sensor:"Torque",     weight:72,   payload:400, url:"https://www.heybike.com/products/ranger-s",          features:"Step-thru frame, hydraulic brakes, fast charger included"},
+{id:3, brand:"Heybike", score:85.3, model:"Ranger 3.0 Pro", type:"Folding, Step-Thru",           motorN:750,  motorP:1200, volts:48, wh:720,   ah:15.0, range:90, torque:80,  speed:28, sensor:"Torque",     weight:77,   payload:440, url:"https://www.heybike.com/products/ranger-3-0-pro",    features:"Full suspension (air shock rear), torque sensor, hydraulic disc brakes, 8-speed drivetrain"},
+{id:4, brand:"Velotric",score:83.6, model:"Nomad 2X",       type:"Fat Tire, Step-Thru/High-Step",motorN:750,  motorP:1400, volts:48, wh:801.6, ah:16.7, range:75, torque:105, speed:28, sensor:"SensorSwap", weight:80,   payload:560, url:"https://www.velotricbike.com/products/velotric-nomad-2x",                  features:"Full air suspension, higher payload capacity, larger battery"},
+{id:5, brand:"Heybike", score:83.5, model:"Mars 3.0",       type:"Folding, Fat Tire",            motorN:750,  motorP:1400, volts:48, wh:624,   ah:13.0, range:65, torque:95,  speed:28, sensor:"Torque",     weight:72,   payload:440, url:"https://www.heybike.com/products/mars-3-0",          features:"Upgraded with full suspension, hydraulic disc brakes, higher payload"},
+{id:6, brand:"Heybike", score:82.3, model:"Hero",           type:"Step-Over, Fat Tire",          motorN:750,  motorP:1000, volts:48, wh:864,   ah:18.0, range:60, torque:160, speed:35, sensor:"Torque",     weight:75,   payload:400, url:"https://www.heybike.com/products/hero",             features:"Carbon fiber frame, mid-drive motor option, hydraulic disc brakes, full suspension"},
+{id:7, brand:"Heybike", score:82.2, model:"Hero Hub",       type:"Step-Over, Fat Tire",          motorN:1000, motorP:1800, volts:48, wh:864,   ah:18.0, range:60, torque:100, speed:35, sensor:"Torque",     weight:75,   payload:400, url:"https://www.heybike.com/products/hero-hub",         features:"Carbon fiber frame, hub motor, hydraulic disc brakes, full suspension"},
+{id:8, brand:"Velotric",score:79.5, model:"Summit 1",       type:"Hybrid/Mountain",              motorN:750,  motorP:1300, volts:48, wh:705.6, ah:14.7, range:70, torque:90,  speed:28, sensor:"SensorSwap", weight:65,   payload:440, url:"https://www.velotricbike.com/products/velotric-summit-1",                  features:"Versatile hybrid trail and road riding"},
+{id:9, brand:"Velotric",score:79.5, model:"Discover 2",     type:"Commuter, Step-Thru",          motorN:750,  motorP:1200, volts:48, wh:706,   ah:14.7, range:75, torque:75,  speed:28, sensor:"SensorSwap", weight:68,   payload:440, url:"https://www.velotricbike.com/products/velotric-discover-2",                features:"Upgraded motor and battery, hydraulic brakes, SensorSwap technology"},
+{id:10,brand:"Heybike", score:76,   model:"Hauler",         type:"Step-Thru, Cargo",             motorN:750,  motorP:1400, volts:48, wh:864,   ah:18.0, range:85, torque:80,  speed:28, sensor:"Cadence",    weight:88,   payload:440, url:"https://www.heybike.com/products/hauler",            features:"Cargo design, optional dual-battery, foldable footboards, hydraulic disc brakes"},
+{id:11,brand:"Heybike", score:75.1, model:"Brawn",          type:"Step-Over, Fat Tire",          motorN:750,  motorP:1400, volts:48, wh:864,   ah:18.0, range:65, torque:80,  speed:28, sensor:"Cadence",    weight:78.3, payload:400, url:"https://www.heybike.com/products/brawn",             features:"All-terrain fat tire e-bike with hydraulic disc brakes"},
+{id:12,brand:"Velotric",score:74.6, model:"Breeze 1",       type:"Cruiser, Step-Thru/High-Step", motorN:750,  motorP:1150, volts:48, wh:627,   ah:13.1, range:70, torque:65,  speed:28, sensor:"SensorSwap", weight:48,   payload:330, url:"https://www.velotricbike.com/products/velotric-breeze-1",                  features:"Lightweight cruiser, powerful motor, high-range battery"},
+{id:13,brand:"Heybike", score:72.6, model:"Ranger S 750",   type:"Folding, Step-Thru",           motorN:750,  motorP:1400, volts:48, wh:692,   ah:14.4, range:55, torque:100, speed:28, sensor:"Cadence",    weight:72,   payload:400, url:"https://www.heybike.com/products/ranger-s",          features:"Step-thru frame, hydraulic brakes, fast charger"},
+{id:14,brand:"Velotric",score:71.7, model:"Triker",         type:"Electric Tricycle",            motorN:750,  motorP:1300, volts:48, wh:705.6, ah:14.7, range:60, torque:90,  speed:20, sensor:"SensorSwap", weight:85.8, payload:500, url:"https://www.velotricbike.com/products/velotric-triker",                    features:"Three-wheeled e-trike for stability and comfort"},
+{id:15,brand:"Heybike", score:70.6, model:"Horizon",        type:"Folding, Fat Tire",            motorN:750,  motorP:1400, volts:48, wh:692,   ah:14.4, range:55, torque:80,  speed:28, sensor:"Cadence",    weight:79.4, payload:330, url:"https://www.heybike.com/products/horizon",           features:"Full suspension and hydraulic disc brakes for off-road comfort"},
+{id:16,brand:"Velotric",score:69.8, model:"Fold 1 Plus",    type:"Folding, Step-Thru",           motorN:750,  motorP:1050, volts:48, wh:608,   ah:12.7, range:68, torque:75,  speed:28, sensor:"SensorSwap", weight:63,   payload:450, url:"https://www.velotricbike.com/products/velotric-fold-1-plus",               features:"Compact folding, hydraulic brakes, torque sensor"},
+{id:17,brand:"Velotric",score:69.7, model:"Nomad 2",        type:"Fat Tire, Step-Thru/High-Step",motorN:750,  motorP:1300, volts:48, wh:705,   ah:14.7, range:65, torque:90,  speed:28, sensor:"SensorSwap", weight:75,   payload:440, url:"https://www.velotricbike.com/products/velotric-nomad-2",                   features:"All-terrain fat tires, hydraulic disc brakes, front suspension"},
+{id:18,brand:"Velotric",score:69.7, model:"Discover 1 Plus",type:"Step-Thru, Commuter",          motorN:500,  motorP:900,  volts:48, wh:691,   ah:14.4, range:65, torque:65,  speed:28, sensor:"Cadence",    weight:60,   payload:440, url:"https://www.velotricbike.com/products/velotric-discover-1-plus",           features:"Reliable commuter with cadence sensor"},
+{id:19,brand:"Velotric",score:68.2, model:"Fold 1",         type:"Folding, Step-Thru",           motorN:750,  motorP:1050, volts:48, wh:608,   ah:12.7, range:55, torque:70,  speed:28, sensor:"Cadence",    weight:63,   payload:440, url:"https://www.velotricbike.com/products/velotric-fold-1",                    features:"Compact folding design, hydraulic brakes"},
+{id:20,brand:"Velotric",score:68,   model:"Nomad 1 Plus",   type:"Step-Thru/High-Step, Fat Tire",motorN:750,  motorP:1200, volts:48, wh:691.2, ah:14.4, range:55, torque:75,  speed:28, sensor:"Cadence",    weight:73,   payload:440, url:"https://www.velotricbike.com/products/velotric-nomad-1-plus",              features:"Fat tire all-terrain performance"},
+{id:21,brand:"Heybike", score:67.6, model:"Cityrun",        type:"Step-Thru, Commuter",          motorN:500,  motorP:1000, volts:48, wh:720,   ah:15.0, range:55, torque:55,  speed:28, sensor:"Cadence",    weight:61.7, payload:350, url:"https://www.heybike.com/products/cityrun",           features:"Hydraulic front suspension, turn signals, step-thru frame"},
+{id:22,brand:"Velotric",score:64.9, model:"Packer 1",       type:"Utility/Cargo",                motorN:750,  motorP:1200, volts:48, wh:804,   ah:16.8, range:52, torque:75,  speed:20, sensor:"Cadence",    weight:75,   payload:440, url:"https://www.velotricbike.com/products/velotric-packer-1",                  features:"Cargo-focused, 4-piston hydraulic brakes, front suspension"},
+{id:23,brand:"Heybike", score:64,   model:"Mars 2.0 750",   type:"Folding, Step-Over",           motorN:750,  motorP:1400, volts:48, wh:600,   ah:12.5, range:45, torque:80,  speed:28, sensor:"Cadence",    weight:75,   payload:330, url:"https://www.heybike.com/products/mars-2-0",          features:"Fat tires, full suspension, folding design"},
+{id:24,brand:"Heybike", score:63.5, model:"Race Max",       type:"Mountain Bike",                motorN:500,  motorP:1200, volts:48, wh:600,   ah:12.5, range:40, torque:65,  speed:20, sensor:"Cadence",    weight:52.9, payload:264, url:"https://www.heybike.com/products/race-max",          features:"High-step mountain frame, front suspension, powerful peak motor"},
+{id:25,brand:"Heybike", score:63,   model:"Mars 2.0 1000",  type:"Folding, Fat Tire",            motorN:1000, motorP:1800, volts:48, wh:600,   ah:12.5, range:45, torque:100, speed:32, sensor:"Cadence",    weight:75,   payload:330, url:"https://www.heybike.com/products/mars-2-0",          features:"Fat tires, full suspension, folding design, 1000W motor"},
+{id:26,brand:"Velotric",score:62.7, model:"Go 1",           type:"Compact, Step-Thru",           motorN:500,  motorP:900,  volts:48, wh:691.2, ah:14.4, range:55, torque:65,  speed:20, sensor:"Cadence",    weight:65,   payload:440, url:"https://www.velotricbike.com/products/velotric-go-1",                      features:'High payload, hydraulic disc brakes, 20" wheels'},
+{id:27,brand:"Velotric",score:61.9, model:"T1 ST Plus",     type:"Fitness, Step-Over",           motorN:350,  motorP:600,  volts:36, wh:352.8, ah:9.8,  range:70, torque:40,  speed:25, sensor:"Torque",     weight:39,   payload:330, url:"https://www.velotricbike.com/products/velotric-t1-st-plus",                features:"Lightweight, torque sensor, Apple Find My support"},
+{id:28,brand:"Heybike", score:55,   model:"Ranger 1.0",     type:"Step Thru",                    motorN:500,  motorP:800,  volts:48, wh:600,   ah:12.5, range:55, torque:60,  speed:25, sensor:"Cadence",    weight:72,   payload:330, url:"https://www.heybike.com/products/ranger",            features:"Entry-level step-thru folding design"},
+{id:29,brand:"Velotric",score:53.6, model:"Fold 1 Lite",    type:"Folding, Step-Thru",           motorN:500,  motorP:800,  volts:48, wh:691.2, ah:14.4, range:48, torque:65,  speed:28, sensor:"Cadence",    weight:61,   payload:440, url:"https://www.velotricbike.com/products/velotric-fold-1-lite",               features:"Lighter, more affordable folding option"},
+{id:30,brand:"Heybike", score:51.8, model:"Mars 1.0",       type:"Step Over",                    motorN:500,  motorP:800,  volts:48, wh:720,   ah:15.0, range:48, torque:60,  speed:20, sensor:"Cadence",    weight:66,   payload:330, url:"https://www.heybike.com/products/mars",             features:"Entry-level fat tire e-bike"},
+{id:31,brand:"Heybike", score:44.9, model:"Cityscape 2.0",  type:"Step-Thru, Commuter",          motorN:500,  motorP:800,  volts:36, wh:360,   ah:10.0, range:50, torque:65,  speed:20, sensor:"Cadence",    weight:61.7, payload:264, url:"https://www.heybike.com/products/cityscape",         features:"Lightweight, affordable city commuting, step-thru frame, front suspension"},
+{id:32,brand:"Velotric",score:null, model:"Summit 2",       type:"All Terrain",                  motorN:750,  motorP:1400, volts:48, wh:801.6, ah:16.7, range:75, torque:105, speed:28, sensor:"SensorSwap", weight:80,   payload:560, url:"https://www.velotricbike.com/products/velotric-summit-2",                  features:"Full air suspension, upgraded power over Summit 1"},
+{id:33,brand:"Velotric",score:null, model:"Discover 3",     type:"Commuter, Step-Thru",          motorN:750,  motorP:1100, volts:48, wh:730,   ah:15.2, range:80, torque:75,  speed:28, sensor:"SensorSwap", weight:null, payload:null,url:"https://www.velotricbike.com/products/velotric-discover-3",                features:"Upgraded motor and battery, hydraulic brakes, SensorSwap technology"},
+{id:34,brand:"Velotric",score:null, model:"Discover M",     type:"Commuter, Step-Thru",          motorN:500,  motorP:960,  volts:48, wh:801.6, ah:16.7, range:95, torque:100, speed:28, sensor:"Torque",     weight:null, payload:null,url:"https://www.velotricbike.com/products/velotric-discover-m",                features:"Mid-drive motor, hydraulic brakes, torque sensor, 9-speed drivetrain"},
+{id:35,brand:"Heybike", score:null, model:"Venus",          type:"Cruiser, Step-Thru/High-Step", motorN:750,  motorP:750,  volts:null,wh:680,   ah:null, range:85, torque:null,speed:28, sensor:"—",          weight:45,   payload:350, url:"https://www.heybike.com/products/venus",             features:"Cruiser style design"},
+{id:36,brand:"Heybike", score:null, model:"Helio F",        type:"Compact Folding",              motorN:250,  motorP:250,  volts:36, wh:360,   ah:10.0, range:75, torque:40,  speed:20, sensor:"Torque",     weight:39.68,payload:330, url:"https://www.heybike.com/products/helio-f",           features:"Ultra-compact folding commuter, torque sensor"},
 ];
 
-// ──────────────────────────────────────────
+// ──────────────────────────────────────────────────────
 // STATE
-// ──────────────────────────────────────────
-let activeFilter='All', compareList=[], priceCache={}, curBikeId=null, curLivePrice=null, editingId=null, delId=null;
+// ──────────────────────────────────────────────────────
+let activeFilter='All', compareList=[], curBike=null, editingId=null, delId=null;
 const PASS='creek2024';
 const FILTERS=['All','Heybike','Velotric','Folding','Fat Tire','Commuter','Cargo','Torque Sensor'];
 
-// ──────────────────────────────────────────
+// ──────────────────────────────────────────────────────
 // UTILS
-// ──────────────────────────────────────────
+// ──────────────────────────────────────────────────────
 const fmt=n=>'$'+n.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
 const scCls=s=>!s?'sr-l':s>=80?'sr-h':s>=65?'sr-m':'sr-l';
 const bdgCls=b=>b==='Velotric'?'bV':'bH';
+const pillCls=b=>b==='Velotric'?'pill-V':'pill-H';
+const siteName=b=>b==='Velotric'?'velotricbike.com':'heybike.com';
 const srHTML=s=>`<div class="sr ${scCls(s)}">${s?parseFloat(s).toFixed(1):'—'}</div>`;
-function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500);}
+function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500);}
 function openM(id){document.getElementById(id).classList.add('open');}
 function closeM(id){document.getElementById(id).classList.remove('open');}
 document.querySelectorAll('.modal').forEach(m=>m.addEventListener('click',e=>{if(e.target===m)m.classList.remove('open');}));
 
-// ──────────────────────────────────────────
+// ──────────────────────────────────────────────────────
 // FILTER BAR
-// ──────────────────────────────────────────
+// ──────────────────────────────────────────────────────
 function buildFilters(){
   document.getElementById('filterBar').innerHTML=FILTERS.map(f=>
     `<button class="fp${f===activeFilter?' on':''}" onclick="setFilter('${f}',this)">${f}</button>`
@@ -333,15 +372,15 @@ function buildFilters(){
 }
 function setFilter(v,btn){activeFilter=v;document.querySelectorAll('.fp').forEach(b=>b.classList.remove('on'));btn.classList.add('on');renderCards();}
 
-// ──────────────────────────────────────────
+// ──────────────────────────────────────────────────────
 // CARDS
-// ──────────────────────────────────────────
+// ──────────────────────────────────────────────────────
 function getFiltered(){
   const q=(document.getElementById('sSearch')?.value||'').toLowerCase();
   const s=document.getElementById('sortSel')?.value||'score';
   return bikes.filter(b=>{
     const h=`${b.brand} ${b.model} ${b.type} ${b.sensor} ${b.features}`.toLowerCase();
-    return (!q||h.includes(q))&&(activeFilter==='All'||b.brand===activeFilter||b.type.toLowerCase().includes(activeFilter.toLowerCase())||(activeFilter==='Torque Sensor'&&b.sensor==='Torque'));
+    return(!q||h.includes(q))&&(activeFilter==='All'||b.brand===activeFilter||b.type.toLowerCase().includes(activeFilter.toLowerCase())||(activeFilter==='Torque Sensor'&&b.sensor==='Torque'));
   }).sort((a,b)=>{
     if(s==='score')  return(b.score||0)-(a.score||0);
     if(s==='torque') return(b.torque||0)-(a.torque||0);
@@ -352,26 +391,30 @@ function getFiltered(){
   });
 }
 
+function sitePillHTML(b){
+  return`<a href="${b.url}" target="_blank" rel="noopener" class="site-pill ${pillCls(b.brand)}">
+    <span>🔗</span><span>View on ${siteName(b.brand)}</span>
+  </a>`;
+}
+
 function renderCards(){
   const list=getFiltered();
   document.getElementById('countLbl').textContent=`${list.length} BIKES`;
   document.getElementById('hCount').textContent=bikes.length;
   const g=document.getElementById('bikeGrid');
-  if(!list.length){g.innerHTML=`<div style="grid-column:span 2;text-align:center;padding:60px 0;color:#94a3b8;font-weight:700;">No bikes match your search.</div>`;return;}
-  g.innerHTML=list.map(b=>{
-    const pc=priceCache[b.id],cached=pc?.status==='done';
-    return`<div class="card"><div style="padding:20px;">
-      <div style="display:flex;align-items:flex-start;gap:12px;margin-bottom:14px;">
+  if(!list.length){g.innerHTML=`<div style="grid-column:span 2;text-align:center;padding:60px 0;color:#94a3b8;font-weight:700;">No bikes match.</div>`;return;}
+  g.innerHTML=list.map(b=>`
+    <div class="card"><div style="padding:20px;">
+      <div style="display:flex;align-items:flex-start;gap:12px;margin-bottom:12px;">
         ${srHTML(b.score)}
         <div style="flex:1;min-width:0;">
           <span class="badge ${bdgCls(b.brand)}">${b.brand}</span>
           <div style="font-weight:900;font-size:1.2rem;color:#1e293b;line-height:1.1;">${b.model}</div>
           <div style="font-size:10px;color:#94a3b8;font-weight:600;margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${b.type}</div>
         </div>
-        <div style="font-size:13px;font-weight:800;color:${cached?'#2D4A32':'#94a3b8'};font-style:${cached?'normal':'italic'};text-align:right;flex-shrink:0;">${cached?pc.price:'—'}</div>
       </div>
       <div class="grid3" style="margin-bottom:10px;">
-        <div class="sb"><div class="sl">Motor</div><div class="sv">${b.motorN}W<span style="color:#94a3b8;font-weight:500;font-size:10px;">/${b.motorP}W</span></div></div>
+        <div class="sb"><div class="sl">Motor</div><div class="sv">${b.motorN}W<span style="color:#94a3b8;font-size:10px;">/${b.motorP}W</span></div></div>
         <div class="sb"><div class="sl">Torque</div><div class="sv">${b.torque??'—'} NM</div></div>
         <div class="sb"><div class="sl">Speed</div><div class="sv">${b.speed} mph</div></div>
         <div class="sb"><div class="sl">Range</div><div class="sv">${b.range} mi</div></div>
@@ -379,125 +422,280 @@ function renderCards(){
         <div class="sb"><div class="sl">Payload</div><div class="sv">${b.payload?b.payload+' lbs':'—'}</div></div>
       </div>
       <div style="display:flex;align-items:center;gap:6px;margin-bottom:10px;font-size:10px;">
-        <span style="font-weight:800;color:#94a3b8;text-transform:uppercase;letter-spacing:1px;">Sensor:</span>
+        <span style="font-weight:800;color:#94a3b8;letter-spacing:1px;text-transform:uppercase;">Sensor:</span>
         <span style="font-weight:700;color:#475569;">${b.sensor}</span>
         <span style="margin-left:auto;color:#94a3b8;font-weight:700;">${b.volts??'—'}V · ${b.ah??'—'}Ah</span>
       </div>
-      <p style="font-size:11px;color:#64748b;line-height:1.5;margin-bottom:14px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">${b.features}</p>
+      <p style="font-size:11px;color:#64748b;line-height:1.5;margin-bottom:13px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">${b.features}</p>
+      <!-- Site link pill on card -->
+      <div style="margin-bottom:11px;">${sitePillHTML(b)}</div>
       <div style="display:flex;gap:8px;">
-        <button onclick="openQuote(${b.id},'tAI')" class="btn btn-g" style="flex:1;">${cached?'✓ View Quote':'🔍 AI Price + Quote'}</button>
+        <button onclick="openQuote(${b.id})" class="btn btn-g" style="flex:1;padding:12px;">📋 Quote</button>
         <button onclick="addCmp(${b.id})" style="padding:12px 16px;background:#e8f0e9;color:#2D4A32;border:none;border-radius:12px;font-weight:900;font-size:18px;cursor:pointer;">+</button>
       </div>
-    </div></div>`;
-  }).join('');
+    </div></div>`
+  ).join('');
 }
 
-// ──────────────────────────────────────────
+// ──────────────────────────────────────────────────────
 // COMPARE
-// ──────────────────────────────────────────
+// ──────────────────────────────────────────────────────
 function addCmp(id){if(compareList.length>=2)compareList.shift();if(!compareList.includes(id))compareList.push(id);renderCmp();window.scrollTo({top:0,behavior:'smooth'});}
 function renderCmp(){
-  const bar=document.getElementById('compareBar'),g=document.getElementById('compareGrid');
+  const bar=document.getElementById('compareBar');
   if(!compareList.length){bar.style.display='none';return;}
   bar.style.display='block';
-  g.innerHTML=compareList.map(id=>{const b=bikes.find(x=>x.id===id),pc=priceCache[id];if(!b)return'';
-    return`<div onclick="openQuote(${id},'tAI')" style="background:rgba(255,255,255,.1);border-radius:12px;padding:10px 12px;cursor:pointer;">
+  document.getElementById('compareGrid').innerHTML=compareList.map(id=>{
+    const b=bikes.find(x=>x.id===id);if(!b)return'';
+    return`<div onclick="openQuote(${id})" style="background:rgba(255,255,255,.1);border-radius:12px;padding:10px 12px;cursor:pointer;">
       <div style="color:#C9A96E;font-weight:900;font-size:14px;">${b.model}</div>
       <div style="color:white;font-size:11px;font-weight:700;margin-top:2px;">${b.motorN}W · ${b.torque??'—'}NM · ${b.range}mi</div>
-      <div style="color:#94a3b8;font-size:10px;margin-top:2px;">${pc?.status==='done'?pc.price:b.wh+'Wh · '+b.sensor}</div>
+      <div style="color:#94a3b8;font-size:10px;margin-top:2px;">${b.wh}Wh · ${b.sensor}</div>
     </div>`;
   }).join('');
 }
 
-// ──────────────────────────────────────────
+// ──────────────────────────────────────────────────────
 // QUOTE MODAL
-// ──────────────────────────────────────────
-function openQuote(id,tab){
-  curBikeId=id; curLivePrice=null;
-  const b=bikes.find(x=>x.id===id);
+// ──────────────────────────────────────────────────────
+function openQuote(id){
+  curBike=bikes.find(x=>x.id===id);
+  const b=curBike;
+  // Header
   document.getElementById('mSc').className=`sr ${scCls(b.score)}`;
   document.getElementById('mSc').textContent=b.score?parseFloat(b.score).toFixed(1):'—';
   document.getElementById('mBdg').textContent=b.brand;
   document.getElementById('mBdg').className=`badge ${bdgCls(b.brand)}`;
   document.getElementById('mTtl').textContent=b.model;
   document.getElementById('mTyp').textContent=b.type;
+  // Site link in modal header
+  document.getElementById('mSiteLink').innerHTML=sitePillHTML(b);
   // Specs
-  const specs=[['Motor (Nom.)',b.motorN+'W'],['Motor (Peak)',b.motorP+'W'],['Volts',(b.volts??'—')+'V'],['Battery',b.wh+' Wh'],['Amp Hours',(b.ah??'—')+' Ah'],['Range',b.range+' mi'],['Torque',(b.torque??'—')+' NM'],['Top Speed',b.speed+' mph'],['Sensor',b.sensor],['Weight',b.weight?b.weight+' lbs':'—'],['Payload',b.payload?b.payload+' lbs':'—'],['Score',b.score?parseFloat(b.score).toFixed(1):'—']];
-  document.getElementById('specGrid').innerHTML=specs.map(([l,v])=>`<div class="sb"><div class="sl">${l}</div><div class="sv">${v}</div></div>`).join('')+
-    `<div class="sb" style="grid-column:span 2;"><div class="sl">Key Features</div><div style="font-size:11px;color:#475569;line-height:1.6;margin-top:3px;">${b.features}</div></div>`;
-  // Price state
-  const site=b.brand==='Velotric'?'velotric.com':'heybike.com';
-  document.getElementById('pSiteNote').textContent=`Searches ${site} in real time`;
-  document.getElementById('pLoadNote').textContent=`Contacting ${site}...`;
-  const pc=priceCache[id];
-  if(pc?.status==='done'){showPR(pc);}
-  else if(pc?.status==='loading'){pState('pLoad');}
-  else if(pc?.status==='error'){document.getElementById('pErrMsg').textContent=pc.msg;pState('pErr');}
-  else{pState('pIdle');}
+  const specs=[
+    ['Motor (Nom.)',b.motorN+'W'],['Motor (Peak)',b.motorP+'W'],
+    ['Volts',(b.volts??'—')+'V'],['Battery',b.wh+' Wh'],
+    ['Amp Hours',(b.ah??'—')+' Ah'],['Range',b.range+' mi'],
+    ['Torque',(b.torque??'—')+' NM'],['Top Speed',b.speed+' mph'],
+    ['Sensor',b.sensor],['Weight',b.weight?b.weight+' lbs':'—'],
+    ['Payload',b.payload?b.payload+' lbs':'—'],['Score',b.score?parseFloat(b.score).toFixed(1):'—'],
+  ];
+  document.getElementById('specGrid').innerHTML=
+    specs.map(([l,v])=>`<div class="sb"><div class="sl">${l}</div><div class="sv">${v}</div></div>`).join('')+
+    `<div class="sb" style="grid-column:span 2;"><div class="sl">Key Features</div><div style="font-size:11px;color:#475569;line-height:1.6;margin-top:3px;">${b.features}</div></div>`+
+    `<div class="sb" style="grid-column:span 2;padding:12px;"><div class="sl" style="margin-bottom:8px;">Product Page</div>${sitePillHTML(b)}</div>`;
+  // Reset calc & accessories
   document.getElementById('qIn').value='';
-  document.getElementById('qPre').style.display='none';
-  calcQ();
-  swTab(tab||'tAI',document.querySelector('#mQuote .tab'));
+  document.getElementById('qCustomer').value='';
+  accessories=[];accNextId=1;
+  renderAccList();calcQ();
+  document.getElementById('sheetsMsg').style.display='none';
+  swTab('tCalc',document.querySelector('#mQuote .tab'));
   openM('mQuote');
-}
-
-function pState(id){['pIdle','pLoad','pRes','pErr'].forEach(x=>document.getElementById(x).style.display='none');document.getElementById(id).style.display='block';}
-function showPR(pc){
-  document.getElementById('pPrice').textContent=pc.price;
-  document.getElementById('pNote').textContent=pc.note||'';
-  document.getElementById('pSum').innerHTML=(pc.summary||'').replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>');
-  document.getElementById('pTime').textContent='🕐 Fetched at '+pc.time;
-  curLivePrice=pc.price; pState('pRes');
 }
 
 function swTab(id,btn){
   document.querySelectorAll('#mQuote .tab').forEach(t=>t.classList.remove('on'));
-  ['tAI','tCalc','tSpec'].forEach(t=>document.getElementById(t).style.display='none');
+  ['tCalc','tSpec'].forEach(t=>document.getElementById(t).style.display='none');
   document.getElementById(id).style.display='block';
   if(btn)btn.classList.add('on');
-  else{const i=['tAI','tCalc','tSpec'].indexOf(id);const ts=document.querySelectorAll('#mQuote .tab');if(ts[i])ts[i].classList.add('on');}
+  else{const i=['tCalc','tSpec'].indexOf(id);const ts=document.querySelectorAll('#mQuote .tab');if(ts[i])ts[i].classList.add('on');}
 }
 
-function goQuote(){
-  if(curLivePrice){const n=parseFloat(curLivePrice.replace(/[^0-9.]/g,''));if(!isNaN(n)){document.getElementById('qIn').value=n;const p=document.getElementById('qPre');p.textContent='✓ Pre-filled from live lookup: '+curLivePrice;p.style.display='block';calcQ();}}
-  swTab('tCalc',document.querySelectorAll('#mQuote .tab')[1]);
+// ── Accessories state ──
+let accessories = []; // [{id, name, price}]
+let accNextId = 1;
+
+function addAccessory(name='', price='') {
+  const id = accNextId++;
+  accessories.push({id, name, price: parseFloat(price)||0});
+  renderAccList();
+  calcQ();
 }
-function calcQ(){const v=parseFloat(document.getElementById('qIn').value)||0,t=v*0.0575;document.getElementById('qSub').textContent=fmt(v);document.getElementById('qTax').textContent=fmt(t);document.getElementById('qTot').textContent=fmt(v+t);}
+
+function addPreset(name, price) {
+  addAccessory(name, price);
+}
+
+function removeAcc(id) {
+  accessories = accessories.filter(a=>a.id!==id);
+  renderAccList();
+  calcQ();
+}
+
+function updateAcc(id, field, val) {
+  const a = accessories.find(x=>x.id===id);
+  if (!a) return;
+  if (field==='name') a.name = val;
+  if (field==='price') a.price = parseFloat(val)||0;
+  calcQ();
+}
+
+function renderAccList() {
+  const el = document.getElementById('accList');
+  if (!accessories.length) { el.innerHTML=''; return; }
+  el.innerHTML = accessories.map(a=>`
+    <div style="display:flex;gap:6px;align-items:center;">
+      <input type="text" value="${a.name}" oninput="updateAcc(${a.id},'name',this.value)" placeholder="Item name"
+        style="flex:1;padding:8px 10px;border:2px solid #e2e8f0;border-radius:10px;font-size:12px;font-weight:600;outline:none;font-family:'DM Sans',sans-serif;">
+      <input type="number" value="${a.price||''}" oninput="updateAcc(${a.id},'price',this.value)" placeholder="0.00"
+        style="width:80px;padding:8px 10px;border:2px solid #e2e8f0;border-radius:10px;font-size:12px;font-weight:700;outline:none;font-family:'DM Sans',sans-serif;text-align:right;">
+      <button onclick="removeAcc(${a.id})" style="background:#fef2f2;color:#dc2626;border:none;border-radius:8px;width:30px;height:34px;cursor:pointer;font-size:14px;font-weight:900;font-family:'DM Sans',sans-serif;flex-shrink:0;">×</button>
+    </div>`).join('');
+}
+
+function calcQ() {
+  const bike = parseFloat(document.getElementById('qIn').value)||0;
+  const accTotal = accessories.reduce((s,a)=>s+(a.price||0),0);
+  const subtotal = bike + accTotal;
+  const tax = subtotal * 0.0575;
+  const total = subtotal + tax;
+
+  document.getElementById('qBikeLine').textContent = fmt(bike);
+  document.getElementById('qSub').textContent = fmt(subtotal);
+  document.getElementById('qTax').textContent = fmt(tax);
+  document.getElementById('qTot').textContent = fmt(total);
+
+  // Accessory lines in totals box
+  const accLines = document.getElementById('qAccLines');
+  accLines.innerHTML = accessories.filter(a=>a.name||a.price).map(a=>
+    `<div style="display:flex;justify-content:space-between;color:#94a3b8;font-size:12px;margin-bottom:5px;">
+      <span>${a.name||'Item'}</span><span>${fmt(a.price||0)}</span>
+    </div>`
+  ).join('');
+}
+
 function setQ(p){document.getElementById('qIn').value=p;calcQ();}
 
-// ──────────────────────────────────────────
-// AI PRICE FETCH (direct Claude API)
-// ──────────────────────────────────────────
-async function fetchPrice(){
-  const b=bikes.find(x=>x.id===curBikeId);if(!b)return;
-  priceCache[b.id]={status:'loading'}; pState('pLoad');
-  const site=b.brand==='Velotric'?'velotric.com':'heybike.com';
-  const prompt=`Search ${site} right now for the current retail price of the ${b.brand} ${b.model} e-bike.\nReturn ONLY valid JSON (no markdown, no backticks):\n{"price":"$X,XXX or Not found","note":"brief source note with today's date","summary":"2-3 sentences: positioning, any active sale or promo, and one dealer closing point. Use **bold** for key phrases."}`;
-  try{
-    const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:600,tools:[{type:'web_search_20250305',name:'web_search'}],messages:[{role:'user',content:prompt}]})});
-    if(!res.ok)throw new Error('API error '+res.status);
-    const data=await res.json();
-    let raw=data.content.filter(c=>c.type==='text').map(c=>c.text).join('').trim().replace(/```json|```/g,'').trim();
-    const s=raw.indexOf('{'),e=raw.lastIndexOf('}');
-    if(s===-1||e===-1)throw new Error('Could not parse response');
-    const p=JSON.parse(raw.slice(s,e+1));
-    const result={status:'done',price:p.price||'Not found',note:p.note||'',summary:p.summary||'',time:new Date().toLocaleTimeString()};
-    priceCache[b.id]=result; showPR(result); renderCards();
-  }catch(err){
-    priceCache[b.id]={status:'error',msg:err.message};
-    document.getElementById('pErrMsg').textContent=err.message; pState('pErr');
-  }
+// ── Export helpers ──
+function getQuoteData() {
+  const b = curBike;
+  const customer = document.getElementById('qCustomer').value.trim() || 'Customer';
+  const bikePrice = parseFloat(document.getElementById('qIn').value)||0;
+  const accTotal = accessories.reduce((s,a)=>s+(a.price||0),0);
+  const subtotal = bikePrice + accTotal;
+  const tax = subtotal * 0.0575;
+  const total = subtotal + tax;
+  const date = new Date().toLocaleDateString('en-US');
+  return {b, customer, bikePrice, accessories, subtotal, tax, total, date};
 }
 
-// ──────────────────────────────────────────
+// ── Apps Script / Google Sheets integration ──
+const SHEET_KEY = 'ctc_sheets_url';
+
+function loadSheetURL() {
+  return localStorage.getItem(SHEET_KEY) || '';
+}
+
+function saveSheetURL() {
+  const url = document.getElementById('sheetsURL').value.trim();
+  if (!url.startsWith('https://script.google.com')) {
+    toast('⚠️ Paste a valid Apps Script URL');
+    return;
+  }
+  localStorage.setItem(SHEET_KEY, url);
+  closeM('mSheetSetup');
+  toast('✅ Sheets URL saved!');
+}
+
+// Populate URL field when modal opens
+function openSheetSetup() {
+  document.getElementById('sheetsURL').value = loadSheetURL();
+  // Render the script code
+  document.getElementById('appsScriptCode').textContent = getAppsScript();
+  openM('mSheetSetup');
+}
+
+function copyScript() {
+  navigator.clipboard.writeText(getAppsScript()).then(() => {
+    const el = document.getElementById('scriptCopied');
+    el.style.display = 'block';
+    setTimeout(() => el.style.display = 'none', 2000);
+  });
+}
+
+function getAppsScript() {
+  return `function doPost(e) {
+  try {
+    var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+    var rows = JSON.parse(e.postData.contents);
+    // Write header if sheet is empty
+    if (sheet.getLastRow() === 0) {
+      sheet.appendRow([
+        "Quote ID","Date","Customer","Bike",
+        "Item Type","Item Name","Qty","Unit Price","Line Total",
+        "Subtotal","Tax (5.75%)","Grand Total"
+      ]);
+      sheet.getRange(1,1,1,12).setFontWeight("bold")
+           .setBackground("#1a2e1c").setFontColor("#ffffff");
+    }
+    rows.forEach(function(r) { sheet.appendRow(r); });
+    return ContentService.createTextOutput(
+      JSON.stringify({status:"ok",rows:rows.length})
+    ).setMimeType(ContentService.MimeType.JSON);
+  } catch(err) {
+    return ContentService.createTextOutput(
+      JSON.stringify({status:"error",message:err.toString()})
+    ).setMimeType(ContentService.MimeType.JSON);
+  }
+}`;
+}
+
+async function saveToSheets() {
+  const url = loadSheetURL();
+  if (!url) {
+    openSheetSetup();
+    return;
+  }
+  const {b, customer, bikePrice, accessories, subtotal, tax, total, date} = getQuoteData();
+  const quoteId = 'Q-' + Date.now().toString().slice(-6);
+  const rows = [];
+  const base = [quoteId, date, customer, `${b.brand} ${b.model}`];
+  // Bike row
+  rows.push([...base, 'Bike', `${b.brand} ${b.model}`, 1,
+    bikePrice.toFixed(2), bikePrice.toFixed(2),
+    subtotal.toFixed(2), tax.toFixed(2), total.toFixed(2)]);
+  // Accessory rows
+  accessories.filter(a => a.name || a.price).forEach(a => {
+    rows.push([...base, 'Accessory', a.name || 'Item', 1,
+      (a.price||0).toFixed(2), (a.price||0).toFixed(2), '', '', '']);
+  });
+  // Tax row
+  rows.push([...base, 'Tax', 'Ohio Sales Tax (5.75%)', '', '',
+    tax.toFixed(2), '', '', '']);
+
+  const msg = document.getElementById('sheetsMsg');
+  msg.style.display = 'block';
+  msg.style.color = '#94a3b8';
+  msg.textContent = '⏳ Saving to Google Sheets...';
+
+  try {
+    const res = await fetch(url, {
+      method: 'POST',
+      body: JSON.stringify(rows),
+      headers: {'Content-Type': 'application/json'}
+    });
+    const json = await res.json().catch(() => ({status:'ok'}));
+    if (json.status === 'ok' || res.ok) {
+      msg.style.color = '#6B8F71';
+      msg.textContent = `✅ Saved! Quote ${quoteId} — ${rows.length} rows added.`;
+    } else {
+      throw new Error(json.message || 'Unknown error');
+    }
+  } catch(err) {
+    msg.style.color = '#dc2626';
+    msg.textContent = '❌ Save failed. Check your URL in ⚙️ Configure Sheets.';
+  }
+  setTimeout(() => msg.style.display = 'none', 5000);
+}
+
+// ──────────────────────────────────────────────────────
 // ADMIN
-// ──────────────────────────────────────────
+// ──────────────────────────────────────────────────────
 function openAdmin(){openM('mLogin');setTimeout(()=>document.getElementById('passIn').focus(),100);}
 function tryLogin(){
   if(document.getElementById('passIn').value===PASS){
     closeM('mLogin');document.getElementById('passIn').value='';document.getElementById('passErr').style.display='none';
-    document.getElementById('vSales').style.display='none';document.getElementById('vAdmin').style.display='block';
-    renderAdminList();
+    document.getElementById('vSales').style.display='none';document.getElementById('vAdmin').style.display='block';renderAdminList();
   }else{document.getElementById('passErr').style.display='block';}
 }
 function closeAdmin(){cancelEdit();document.getElementById('vAdmin').style.display='none';document.getElementById('vSales').style.display='block';renderCards();}
@@ -510,9 +708,9 @@ function renderAdminList(){
       <div style="flex:1;min-width:0;">
         <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
           <span class="badge ${bdgCls(b.brand)}" style="margin-bottom:0;">${b.brand}</span>
-          <span style="font-weight:900;font-size:1rem;color:#1e293b;">${b.model}</span>
+          <span style="font-weight:900;color:#1e293b;">${b.model}</span>
         </div>
-        <div style="font-size:11px;color:#94a3b8;font-weight:600;margin-top:2px;">${b.type} · ${b.motorN}W/${b.motorP}W · ${b.torque??'—'}NM · ${b.range}mi</div>
+        <div style="font-size:11px;color:#94a3b8;font-weight:600;margin-top:2px;">${b.type} · ${b.motorN}W/${b.motorP}W · ${b.range}mi</div>
       </div>
       <div style="display:flex;gap:6px;flex-shrink:0;">
         <button onclick="startEdit(${b.id})" class="btn btn-e">Edit</button>
@@ -521,17 +719,16 @@ function renderAdminList(){
     </div>`).join('');
 }
 
-// Form field definitions
 const FF=[
   {k:'brand',l:'Brand',t:'select',o:['Heybike','Velotric','Jasion']},
   {k:'model',l:'Model Name',t:'text'},
   {k:'type',l:'Frame Type',t:'text'},
-  {k:'score',l:'Overall Score',t:'number'},
-  {k:'motorN',l:'Motor Nom. (W)',t:'number'},
+  {k:'score',l:'Score',t:'number'},
+  {k:'motorN',l:'Motor Nom (W)',t:'number'},
   {k:'motorP',l:'Motor Peak (W)',t:'number'},
   {k:'volts',l:'Volts',t:'number'},
   {k:'wh',l:'Battery (Wh)',t:'number'},
-  {k:'ah',l:'Amp Hours (Ah)',t:'number'},
+  {k:'ah',l:'Amp Hours',t:'number'},
   {k:'range',l:'Range (mi)',t:'number'},
   {k:'torque',l:'Torque (NM)',t:'number'},
   {k:'speed',l:'Top Speed (mph)',t:'number'},
@@ -548,29 +745,27 @@ function buildForm(d){
       :`<input type="${f.t}" id="ff_${f.k}" value="${v}" class="fi" oninput="updPrev()">`
     }</div>`;
   }).join('');
-  document.getElementById('fFeatures').value=d.features||'';
+  document.getElementById('fUrl').value=d.url||'';
+  document.getElementById('fFeat').value=d.features||'';
   updPrev();
 }
-
 function getForm(id){
   const d={id};
   FF.forEach(f=>{const el=document.getElementById('ff_'+f.k);if(!el)return;const v=el.value.trim();d[f.k]=f.t==='number'?(v===''?null:parseFloat(v)):v;});
-  d.features=document.getElementById('fFeatures').value.trim();
+  d.url=document.getElementById('fUrl').value.trim();
+  d.features=document.getElementById('fFeat').value.trim();
   return d;
 }
-
 function updPrev(){
   const brand=document.getElementById('ff_brand')?.value||'Brand';
   const model=document.getElementById('ff_model')?.value||'Model';
   const type=document.getElementById('ff_type')?.value||'Type';
   const score=document.getElementById('ff_score')?.value||null;
-  document.getElementById('fPreview').innerHTML=srHTML(score)+`<div><span class="badge ${bdgCls(brand)}">${brand}</span><div style="font-weight:900;font-size:1.1rem;color:#1e293b;">${model}</div><div style="font-size:10px;color:#94a3b8;">${type}</div></div>`;
+  document.getElementById('fPrev').innerHTML=srHTML(score)+`<div><span class="badge ${bdgCls(brand)}">${brand}</span><div style="font-weight:900;font-size:1.1rem;color:#1e293b;">${model}</div><div style="font-size:10px;color:#94a3b8;">${type}</div></div>`;
 }
-
 function startAdd(){editingId='new';document.getElementById('formTitle').textContent='➕ ADD NEW BIKE';document.getElementById('saveBtn').textContent='Save New Bike';document.getElementById('addBtn').style.display='none';buildForm({brand:'Heybike',sensor:'Torque'});document.getElementById('editForm').style.display='block';document.getElementById('editForm').scrollIntoView({behavior:'smooth'});}
 function startEdit(id){editingId=id;const b=bikes.find(x=>x.id===id);document.getElementById('formTitle').textContent='✏️ EDITING: '+b.model;document.getElementById('saveBtn').textContent='Save Changes';document.getElementById('addBtn').style.display='none';buildForm(b);document.getElementById('editForm').style.display='block';document.getElementById('editForm').scrollIntoView({behavior:'smooth'});}
 function cancelEdit(){editingId=null;document.getElementById('editForm').style.display='none';document.getElementById('addBtn').style.display='inline-block';}
-
 function saveBike(){
   const nid=editingId==='new'?Date.now():editingId;
   const d=getForm(nid);
@@ -579,18 +774,16 @@ function saveBike(){
   else{bikes=bikes.map(b=>b.id===nid?d:b);toast('✓ '+d.model+' updated');}
   cancelEdit();renderAdminList();
 }
-
 function askDel(id){delId=id;const b=bikes.find(x=>x.id===id);document.getElementById('delName').textContent=b?.model||'bike';openM('mDel');}
 function confirmDel(){
-  if(!delId)return;
-  const b=bikes.find(x=>x.id===delId);
-  bikes=bikes.filter(x=>x.id!==delId);compareList=compareList.filter(x=>x!==delId);delete priceCache[delId];
+  if(!delId)return;const b=bikes.find(x=>x.id===delId);
+  bikes=bikes.filter(x=>x.id!==delId);compareList=compareList.filter(x=>x!==delId);
   delId=null;closeM('mDel');toast('🗑️ '+(b?.model||'Bike')+' removed');renderAdminList();
 }
 
-// ──────────────────────────────────────────
+// ──────────────────────────────────────────────────────
 // INIT
-// ──────────────────────────────────────────
+// ──────────────────────────────────────────────────────
 buildFilters();
 renderCards();
 </script>
