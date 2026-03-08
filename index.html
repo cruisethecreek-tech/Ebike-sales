@@ -232,12 +232,9 @@ body{font-family:'DM Sans',sans-serif;background:var(--cream);min-height:100vh;p
           </div>
         </div>
 
-        <!-- Export to Sheets -->
-        <button onclick="saveToSheets()" class="btn btn-g" style="width:100%;padding:13px;font-size:12px;">📊 Save Quote to Google Sheets</button>
-        <div id="sheetsMsg" style="display:none;text-align:center;font-size:11px;font-weight:700;margin-top:8px;"></div>
-        <div style="text-align:center;margin-top:10px;">
-          <button onclick="openSheetSetup()" style="background:none;border:none;font-size:11px;color:#94a3b8;cursor:pointer;font-weight:700;text-decoration:underline;font-family:'DM Sans',sans-serif;">⚙️ Configure Sheets URL</button>
-        </div>
+        <!-- Quote Preview -->
+        <button onclick="openQuotePreview()" class="btn btn-g" style="width:100%;padding:14px;font-size:13px;letter-spacing:1px;">📋 View Quote Summary</button>
+        <div style="text-align:center;margin-top:8px;font-size:11px;color:#94a3b8;font-weight:600;">Screenshot to use as invoice reference</div>
       </div>
 
       <!-- FULL SPECS -->
@@ -248,38 +245,71 @@ body{font-family:'DM Sans',sans-serif;background:var(--cream);min-height:100vh;p
   </div>
 </div>
 
-<!-- ══════════════════ SHEETS SETUP MODAL ══════════════════ -->
-<div class="modal" id="mSheetSetup">
-  <div style="background:white;border-radius:24px;padding:28px;width:100%;max-width:420px;box-shadow:0 25px 60px rgba(0,0,0,.4);max-height:90vh;overflow-y:auto;">
-    <div class="disp" style="font-size:1.6rem;color:#1a2e1c;margin-bottom:4px;">&#128202; GOOGLE SHEETS SETUP</div>
-    <p style="font-size:12px;color:#64748b;margin-bottom:18px;line-height:1.6;">Follow these steps once. After that, every quote saves directly to your sheet with one tap.</p>
-    <div style="display:flex;flex-direction:column;gap:14px;margin-bottom:16px;">
-      <div style="display:flex;gap:12px;align-items:flex-start;">
-        <div style="background:#1a2e1c;color:white;border-radius:50%;width:24px;height:24px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;flex-shrink:0;">1</div>
-        <div style="font-size:12px;color:#334155;line-height:1.6;"><strong>Create a new Google Sheet.</strong> Name it "CTC Quotes" or anything you like.</div>
-      </div>
-      <div style="display:flex;gap:12px;align-items:flex-start;">
-        <div style="background:#1a2e1c;color:white;border-radius:50%;width:24px;height:24px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;flex-shrink:0;">2</div>
-        <div style="font-size:12px;color:#334155;line-height:1.6;"><strong>Open Extensions &rarr; Apps Script.</strong> Delete any code there, paste the script below, then click Save.</div>
-      </div>
-      <div style="background:#f1f5f9;border:1px solid #e2e8f0;border-radius:10px;padding:12px;font-size:10.5px;font-family:monospace;color:#1e293b;white-space:pre-wrap;line-height:1.7;user-select:all;" id="appsScriptCode"></div>
-      <button onclick="copyScript()" class="btn btn-s" style="padding:8px 14px;font-size:11px;">&#128203; Copy Script</button>
-      <div id="scriptCopied" style="display:none;text-align:center;font-size:11px;color:#6B8F71;font-weight:700;">&#10003; Copied!</div>
-      <div style="display:flex;gap:12px;align-items:flex-start;">
-        <div style="background:#1a2e1c;color:white;border-radius:50%;width:24px;height:24px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;flex-shrink:0;">3</div>
-        <div style="font-size:12px;color:#334155;line-height:1.6;"><strong>Click Deploy &rarr; New Deployment.</strong> Set Type = Web App, Execute as = Me, Who has access = Anyone. Click Deploy &amp; copy the URL.</div>
-      </div>
-      <div style="display:flex;gap:12px;align-items:flex-start;">
-        <div style="background:#1a2e1c;color:white;border-radius:50%;width:24px;height:24px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;flex-shrink:0;">4</div>
-        <div style="font-size:12px;color:#334155;line-height:1.6;"><strong>Paste your deployment URL below and hit Save.</strong></div>
+<!-- ══════════════════ QUOTE PREVIEW MODAL ══════════════════ -->
+<div class="modal" id="mQuotePreview" style="padding:0;align-items:stretch;justify-content:stretch;">
+  <div style="background:#f5f0e8;width:100%;height:100%;overflow-y:auto;display:flex;flex-direction:column;">
+
+    <!-- Top bar (hidden on screenshot via class) -->
+    <div class="preview-bar" style="background:#1a2e1c;padding:14px 20px;display:flex;justify-content:space-between;align-items:center;flex-shrink:0;">
+      <span style="color:#C9A96E;font-family:'Bebas Neue',sans-serif;font-size:1.3rem;letter-spacing:.08em;">QUOTE PREVIEW</span>
+      <div style="display:flex;gap:10px;align-items:center;">
+        <span style="color:#94a3b8;font-size:11px;font-weight:600;">Screenshot this screen</span>
+        <button onclick="closeM('mQuotePreview')" style="color:white;background:rgba(255,255,255,.15);border:none;border-radius:8px;padding:6px 12px;font-size:12px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;">✕ Close</button>
       </div>
     </div>
-    <label class="fl">Apps Script Deployment URL</label>
-    <input type="url" id="sheetsURL" placeholder="https://script.google.com/macros/s/..." class="fi" style="margin-bottom:14px;font-size:12px;">
-    <div style="display:flex;gap:8px;">
-      <button onclick="saveSheetURL()" class="btn btn-g" style="flex:1;padding:12px;font-size:12px;">Save URL</button>
-      <button onclick="closeM('mSheetSetup')" class="btn btn-o" style="flex:1;padding:12px;">Close</button>
-    </div>
+
+    <!-- The card — this is what gets screenshotted -->
+    <div id="quoteCard" style="margin:20px auto;width:100%;max-width:480px;padding:0 16px 32px;">
+
+      <!-- Header -->
+      <div style="background:#1a2e1c;border-radius:20px 20px 0 0;padding:24px 24px 20px;">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px;">
+          <div>
+            <div style="font-family:'Bebas Neue',sans-serif;font-size:2rem;color:white;letter-spacing:.06em;line-height:1;">CRUISE THE CREEK</div>
+            <div style="font-size:11px;color:#6B8F71;font-weight:700;letter-spacing:.15em;text-transform:uppercase;">Youngstown, Ohio · cruisethecreek.com</div>
+          </div>
+          <div style="text-align:right;">
+            <div style="font-family:'Bebas Neue',sans-serif;font-size:1.1rem;color:#C9A96E;letter-spacing:.06em;" id="pvQuoteId"></div>
+            <div style="font-size:11px;color:#94a3b8;font-weight:600;" id="pvDate"></div>
+          </div>
+        </div>
+        <!-- Customer -->
+        <div style="background:rgba(255,255,255,.07);border-radius:12px;padding:12px 16px;display:flex;justify-content:space-between;align-items:center;">
+          <div style="font-size:10px;font-weight:800;letter-spacing:.15em;text-transform:uppercase;color:#6B8F71;">Customer</div>
+          <div style="font-size:15px;font-weight:800;color:white;" id="pvCustomer"></div>
+        </div>
+      </div>
+
+      <!-- Bike highlight -->
+      <div style="background:#2d4a32;padding:16px 24px;display:flex;align-items:center;gap:14px;" id="pvBikeBlock">
+      </div>
+
+      <!-- Line items -->
+      <div style="background:white;padding:20px 24px;">
+        <div style="font-size:10px;font-weight:800;letter-spacing:.15em;text-transform:uppercase;color:#94a3b8;margin-bottom:12px;display:flex;justify-content:space-between;">
+          <span>Item</span><span>Price</span>
+        </div>
+        <div id="pvLineItems" style="display:flex;flex-direction:column;gap:0;"></div>
+      </div>
+
+      <!-- Totals -->
+      <div style="background:#1a2e1c;border-radius:0 0 20px 20px;padding:20px 24px;">
+        <div style="display:flex;justify-content:space-between;color:#94a3b8;font-size:13px;margin-bottom:8px;">
+          <span>Subtotal</span><span id="pvSubtotal"></span>
+        </div>
+        <div style="display:flex;justify-content:space-between;color:#94a3b8;font-size:13px;margin-bottom:14px;">
+          <span>Ohio Sales Tax (5.75%)</span><span id="pvTax"></span>
+        </div>
+        <div style="display:flex;justify-content:space-between;border-top:1px solid #334155;padding-top:14px;align-items:center;">
+          <span style="font-family:'Bebas Neue',sans-serif;font-size:1.8rem;color:white;letter-spacing:.06em;">TOTAL DUE</span>
+          <span style="font-family:'Bebas Neue',sans-serif;font-size:1.8rem;color:#C9A96E;" id="pvTotal"></span>
+        </div>
+        <div style="margin-top:14px;padding-top:14px;border-top:1px solid #334155;font-size:11px;color:#64748b;text-align:center;font-weight:600;">
+          Quote valid 7 days · Cruise the Creek · (330) 123-4567
+        </div>
+      </div>
+
+    </div><!-- /quoteCard -->
   </div>
 </div>
 
@@ -488,7 +518,7 @@ function openQuote(id){
   document.getElementById('qCustomer').value='';
   accessories=[];accNextId=1;
   renderAccList();calcQ();
-  document.getElementById('sheetsMsg').style.display='none';
+  
   swTab('tCalc',document.querySelector('#mQuote .tab'));
   openM('mQuote');
 }
@@ -579,6 +609,130 @@ function getQuoteData() {
   return {b, customer, bikePrice, accessories, subtotal, tax, total, date};
 }
 
+// ── Quote Preview ──
+function openQuotePreview() {
+  const {b, customer, bikePrice, accessories, subtotal, tax, total, date} = getQuoteData();
+  const quoteId = 'Q-' + new Date().getFullYear().toString().slice(-2) +
+    String(new Date().getMonth()+1).padStart(2,'0') +
+    String(new Date().getDate()).padStart(2,'0') + '-' +
+    Math.floor(Math.random()*900+100);
+
+  document.getElementById('pvQuoteId').textContent = quoteId;
+  document.getElementById('pvDate').textContent = date;
+  document.getElementById('pvCustomer').textContent = customer;
+
+  // Bike block
+  const scoreCol = b.score >= 80 ? '#6B8F71' : b.score >= 65 ? '#C9A96E' : '#94a3b8';
+  document.getElementById('pvBikeBlock').innerHTML = `
+    <div style="width:52px;height:52px;border-radius:50%;border:3px solid ${scoreCol};display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:1rem;color:white;flex-shrink:0;">${b.score||'—'}</div>
+    <div style="flex:1;">
+      <div style="font-size:10px;font-weight:800;letter-spacing:.15em;text-transform:uppercase;color:#6B8F71;margin-bottom:2px;">${b.brand}</div>
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:1.5rem;color:white;line-height:1;letter-spacing:.04em;">${b.model}</div>
+      <div style="font-size:11px;color:#94a3b8;margin-top:3px;">${b.type} · ${b.motorN}W motor · ${b.range}mi range</div>
+    </div>
+    <div style="font-family:'Bebas Neue',sans-serif;font-size:1.5rem;color:#C9A96E;">${fmt(bikePrice)}</div>`;
+
+  // Line items
+  const accs = accessories.filter(a => a.name || a.price);
+  const allItems = [
+    {label: b.brand + ' ' + b.model, sub: b.type, price: bikePrice, type: 'bike'},
+    ...accs.map(a => ({label: a.name||'Item', sub: 'Accessory', price: a.price||0, type: 'acc'}))
+  ];
+
+  document.getElementById('pvLineItems').innerHTML = allItems.map((item, i) => `
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:11px 0;${i < allItems.length-1 ? 'border-bottom:1px solid #f1f5f9;' : ''}">
+      <div>
+        <div style="font-size:13px;font-weight:700;color:#1e293b;">${item.label}</div>
+        <div style="font-size:11px;color:#94a3b8;font-weight:600;">${item.sub}</div>
+      </div>
+      <div style="font-size:14px;font-weight:800;color:#1e293b;">${fmt(item.price)}</div>
+    </div>`).join('');
+
+  document.getElementById('pvSubtotal').textContent = fmt(subtotal);
+  document.getElementById('pvTax').textContent = fmt(tax);
+  document.getElementById('pvTotal').textContent = fmt(total);
+
+  openM('mQuotePreview');
+}
+
+// ── Accessories state ──// ── Accessories state ──
+let accessories = []; // [{id, name, price}]
+let accNextId = 1;
+
+function addAccessory(name='', price='') {
+  const id = accNextId++;
+  accessories.push({id, name, price: parseFloat(price)||0});
+  renderAccList();
+  calcQ();
+}
+
+function addPreset(name, price) {
+  addAccessory(name, price);
+}
+
+function removeAcc(id) {
+  accessories = accessories.filter(a=>a.id!==id);
+  renderAccList();
+  calcQ();
+}
+
+function updateAcc(id, field, val) {
+  const a = accessories.find(x=>x.id===id);
+  if (!a) return;
+  if (field==='name') a.name = val;
+  if (field==='price') a.price = parseFloat(val)||0;
+  calcQ();
+}
+
+function renderAccList() {
+  const el = document.getElementById('accList');
+  if (!accessories.length) { el.innerHTML=''; return; }
+  el.innerHTML = accessories.map(a=>`
+    <div style="display:flex;gap:6px;align-items:center;">
+      <input type="text" value="${a.name}" oninput="updateAcc(${a.id},'name',this.value)" placeholder="Item name"
+        style="flex:1;padding:8px 10px;border:2px solid #e2e8f0;border-radius:10px;font-size:12px;font-weight:600;outline:none;font-family:'DM Sans',sans-serif;">
+      <input type="number" value="${a.price||''}" oninput="updateAcc(${a.id},'price',this.value)" placeholder="0.00"
+        style="width:80px;padding:8px 10px;border:2px solid #e2e8f0;border-radius:10px;font-size:12px;font-weight:700;outline:none;font-family:'DM Sans',sans-serif;text-align:right;">
+      <button onclick="removeAcc(${a.id})" style="background:#fef2f2;color:#dc2626;border:none;border-radius:8px;width:30px;height:34px;cursor:pointer;font-size:14px;font-weight:900;font-family:'DM Sans',sans-serif;flex-shrink:0;">×</button>
+    </div>`).join('');
+}
+
+function calcQ() {
+  const bike = parseFloat(document.getElementById('qIn').value)||0;
+  const accTotal = accessories.reduce((s,a)=>s+(a.price||0),0);
+  const subtotal = bike + accTotal;
+  const tax = subtotal * 0.0575;
+  const total = subtotal + tax;
+
+  document.getElementById('qBikeLine').textContent = fmt(bike);
+  document.getElementById('qSub').textContent = fmt(subtotal);
+  document.getElementById('qTax').textContent = fmt(tax);
+  document.getElementById('qTot').textContent = fmt(total);
+
+  // Accessory lines in totals box
+  const accLines = document.getElementById('qAccLines');
+  accLines.innerHTML = accessories.filter(a=>a.name||a.price).map(a=>
+    `<div style="display:flex;justify-content:space-between;color:#94a3b8;font-size:12px;margin-bottom:5px;">
+      <span>${a.name||'Item'}</span><span>${fmt(a.price||0)}</span>
+    </div>`
+  ).join('');
+}
+
+function setQ(p){document.getElementById('qIn').value=p;calcQ();}
+
+// ── Export helpers ──
+function getQuoteData() {
+  const b = curBike;
+  const customer = document.getElementById('qCustomer').value.trim() || 'Customer';
+  const bikePrice = parseFloat(document.getElementById('qIn').value)||0;
+  const accTotal = accessories.reduce((s,a)=>s+(a.price||0),0);
+  const subtotal = bikePrice + accTotal;
+  const tax = subtotal * 0.0575;
+  const total = subtotal + tax;
+  const date = new Date().toLocaleDateString('en-US');
+  return {b, customer, bikePrice, accessories, subtotal, tax, total, date};
+}
+
 // ── Apps Script / Google Sheets integration ──
 const SHEET_KEY = 'ctc_sheets_url';
 
@@ -586,107 +740,6 @@ function loadSheetURL() {
   return localStorage.getItem(SHEET_KEY) || '';
 }
 
-function saveSheetURL() {
-  const url = document.getElementById('sheetsURL').value.trim();
-  if (!url.startsWith('https://script.google.com')) {
-    toast('⚠️ Paste a valid Apps Script URL');
-    return;
-  }
-  localStorage.setItem(SHEET_KEY, url);
-  closeM('mSheetSetup');
-  toast('✅ Sheets URL saved!');
-}
-
-// Populate URL field when modal opens
-function openSheetSetup() {
-  document.getElementById('sheetsURL').value = loadSheetURL();
-  // Render the script code
-  document.getElementById('appsScriptCode').textContent = getAppsScript();
-  openM('mSheetSetup');
-}
-
-function copyScript() {
-  navigator.clipboard.writeText(getAppsScript()).then(() => {
-    const el = document.getElementById('scriptCopied');
-    el.style.display = 'block';
-    setTimeout(() => el.style.display = 'none', 2000);
-  });
-}
-
-function getAppsScript() {
-  return `function doPost(e) {
-  try {
-    var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
-    var rows = JSON.parse(e.postData.contents);
-    // Write header if sheet is empty
-    if (sheet.getLastRow() === 0) {
-      sheet.appendRow([
-        "Quote ID","Date","Customer","Bike",
-        "Item Type","Item Name","Qty","Unit Price","Line Total",
-        "Subtotal","Tax (5.75%)","Grand Total"
-      ]);
-      sheet.getRange(1,1,1,12).setFontWeight("bold")
-           .setBackground("#1a2e1c").setFontColor("#ffffff");
-    }
-    rows.forEach(function(r) { sheet.appendRow(r); });
-    return ContentService.createTextOutput(
-      JSON.stringify({status:"ok",rows:rows.length})
-    ).setMimeType(ContentService.MimeType.JSON);
-  } catch(err) {
-    return ContentService.createTextOutput(
-      JSON.stringify({status:"error",message:err.toString()})
-    ).setMimeType(ContentService.MimeType.JSON);
-  }
-}`;
-}
-
-async function saveToSheets() {
-  const url = loadSheetURL();
-  if (!url) {
-    openSheetSetup();
-    return;
-  }
-  const {b, customer, bikePrice, accessories, subtotal, tax, total, date} = getQuoteData();
-  const quoteId = 'Q-' + Date.now().toString().slice(-6);
-  const rows = [];
-  const base = [quoteId, date, customer, `${b.brand} ${b.model}`];
-  // Bike row
-  rows.push([...base, 'Bike', `${b.brand} ${b.model}`, 1,
-    bikePrice.toFixed(2), bikePrice.toFixed(2),
-    subtotal.toFixed(2), tax.toFixed(2), total.toFixed(2)]);
-  // Accessory rows
-  accessories.filter(a => a.name || a.price).forEach(a => {
-    rows.push([...base, 'Accessory', a.name || 'Item', 1,
-      (a.price||0).toFixed(2), (a.price||0).toFixed(2), '', '', '']);
-  });
-  // Tax row
-  rows.push([...base, 'Tax', 'Ohio Sales Tax (5.75%)', '', '',
-    tax.toFixed(2), '', '', '']);
-
-  const msg = document.getElementById('sheetsMsg');
-  msg.style.display = 'block';
-  msg.style.color = '#94a3b8';
-  msg.textContent = '⏳ Saving to Google Sheets...';
-
-  try {
-    const res = await fetch(url, {
-      method: 'POST',
-      body: JSON.stringify(rows),
-      headers: {'Content-Type': 'application/json'}
-    });
-    const json = await res.json().catch(() => ({status:'ok'}));
-    if (json.status === 'ok' || res.ok) {
-      msg.style.color = '#6B8F71';
-      msg.textContent = `✅ Saved! Quote ${quoteId} — ${rows.length} rows added.`;
-    } else {
-      throw new Error(json.message || 'Unknown error');
-    }
-  } catch(err) {
-    msg.style.color = '#dc2626';
-    msg.textContent = '❌ Save failed. Check your URL in ⚙️ Configure Sheets.';
-  }
-  setTimeout(() => msg.style.display = 'none', 5000);
-}
 
 // ──────────────────────────────────────────────────────
 // ADMIN
