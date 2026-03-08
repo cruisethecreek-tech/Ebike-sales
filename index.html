@@ -3,45 +3,69 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>E-Bike Sales Companion</title>
+    <title>Cruise the Creek | Sales Pro</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        .spec-card:hover { transform: translateY(-2px); transition: all 0.2s; }
+        .spec-card:active { transform: scale(0.98); }
         .sticky-header { position: sticky; top: 0; z-index: 50; }
+        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); align-items: center; justify-content: center; z-index: 100; }
+        .modal.active { display: flex; }
     </style>
 </head>
-<body class="bg-gray-50 pb-20">
+<body class="bg-slate-50 pb-10">
 
-    <header class="bg-slate-900 text-white p-4 sticky-header shadow-lg">
-        <div class="max-w-4xl mx-auto flex justify-between items-center">
-            <h1 class="text-xl font-bold">E-Bike Sales Pro</h1>
-            <input type="text" id="searchInput" onkeyup="filterBikes()" placeholder="Search models (e.g. Ranger)..." class="p-2 rounded text-black w-1/2">
+    <header class="bg-slate-900 text-white p-4 sticky-header shadow-md">
+        <div class="max-w-4xl mx-auto flex flex-col gap-3">
+            <div class="flex justify-between items-center">
+                <h1 class="text-xl font-bold tracking-tight">Cruise the Creek</h1>
+                <div class="text-xs bg-blue-600 px-2 py-1 rounded">Tax: 2.75%</div>
+            </div>
+            <input type="text" id="searchInput" onkeyup="filterBikes()" placeholder="Search models (e.g. Nomad, Ranger)..." class="p-3 rounded-lg text-black w-full shadow-inner">
         </div>
     </header>
 
     <main class="max-w-4xl mx-auto p-4">
-        <div id="compareSection" class="mb-8 bg-blue-50 border border-blue-200 rounded-xl p-4 hidden">
-            <div class="flex justify-between items-center mb-4">
-                <h2 class="font-bold text-blue-800">Model Comparison</h2>
-                <button onclick="clearComparison()" class="text-sm text-blue-600 underline">Clear</button>
+        <div id="compareSection" class="mb-6 bg-white border-2 border-blue-500 rounded-xl p-4 hidden shadow-sm">
+            <div class="flex justify-between items-center mb-3">
+                <h2 class="font-bold text-slate-800">Head-to-Head Comparison</h2>
+                <button onclick="clearComparison()" class="text-xs font-bold text-red-500 uppercase">Clear</button>
             </div>
-            <div id="compareGrid" class="grid grid-cols-2 gap-4">
-                </div>
+            <div id="compareGrid" class="grid grid-cols-2 gap-4"></div>
         </div>
 
-        <div id="bikeGrid" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            </div>
+        <div id="bikeGrid" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
     </main>
+
+    <div id="quoteModal" class="modal p-4" onclick="closeModal(event)">
+        <div class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl" onclick="event.stopPropagation()">
+            <h2 id="modalTitle" class="text-2xl font-bold mb-1">Model Name</h2>
+            <p id="modalSub" class="text-slate-500 mb-6 text-sm italic"></p>
+            
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 uppercase">Base Price ($)</label>
+                    <input type="number" id="basePrice" class="w-full p-3 border-2 border-slate-200 rounded-xl text-lg" oninput="calculate()">
+                </div>
+                <div class="bg-slate-50 p-4 rounded-xl space-y-2">
+                    <div class="flex justify-between text-slate-600"><span>Subtotal:</span><span id="resSub">$0.00</span></div>
+                    <div class="flex justify-between text-slate-500 text-sm"><span>State Tax (2.75%):</span><span id="resTax">$0.00</span></div>
+                    <div class="flex justify-between font-bold text-xl text-slate-900 border-t pt-2"><span>Total:</span><span id="resTotal">$0.00</span></div>
+                </div>
+                <button onclick="closeModal()" class="w-full py-3 bg-slate-900 text-white rounded-xl font-bold">Close Quote</button>
+            </div>
+        </div>
+    </div>
 
     <script>
         const bikes = [
-            { brand: "Heybike", model: "Alpha", type: "Step Over/Thru", motor: "500W (930W Peak)", range: "60 miles", speed: "28 mph", torque: "105 NM", sensor: "Torque", score: 87.2 },
-            { brand: "Heybike", model: "Ranger S 1000", type: "Folding", motor: "1000W (1800W Peak)", range: "65 miles", speed: "32 mph", torque: "100 NM", sensor: "Torque", score: 86.1 },
-            { brand: "Heybike", model: "Ranger 3.0 Pro", type: "Folding", motor: "750W (1200W Peak)", range: "90 miles", speed: "28 mph", torque: "80 NM", sensor: "Torque", score: 85.3 },
-            { brand: "Velotric", model: "Nomad 2X", type: "Fat Tire", motor: "750W (1400W Peak)", range: "75 miles", speed: "28 mph", torque: "105 NM", sensor: "SensorSwap", score: 83.6 },
-            { brand: "Velotric", model: "Summit 2", type: "All Terrain", motor: "750W (1400W Peak)", range: "75 miles", speed: "28 mph", torque: "105 NM", sensor: "SensorSwap", score: "N/A" },
-            { brand: "Velotric", model: "Discover 3", type: "Commuter", motor: "750W (1100W Peak)", range: "80 miles", speed: "28 mph", torque: "75 NM", sensor: "SensorSwap", score: "N/A" },
-            { brand: "Heybike", model: "Mars 1.0", type: "Folding", motor: "500W", range: "48 miles", speed: "20 mph", torque: "60 NM", sensor: "Cadence", score: 51.8 }
+            { brand: "Heybike", model: "Alpha", type: "Step Over / Step Thru", motor: "500W (930W Peak)", range: "60 mi", speed: "28 mph", torque: "105 NM", sensor: "Torque", score: 87.2, features: "Mid-drive, Hydraulic Brakes" },
+            { brand: "Heybike", model: "Ranger S 1000", type: "Folding Step-Thru", motor: "1000W (1800W Peak)", range: "65 mi", speed: "32 mph", torque: "100 NM", sensor: "Torque", score: 86.1, features: "Fast Charger, Hydraulic Brakes" },
+            { brand: "Heybike", model: "Ranger 3.0 Pro", type: "Folding Step-Thru", motor: "750W (1200W Peak)", range: "90 mi", speed: "28 mph", torque: "80 NM", sensor: "Torque", score: 85.3, features: "Air Shock Rear, Full Suspension" },
+            { brand: "Velotric", model: "Nomad 2X", type: "Fat Tire", motor: "750W (1400W Peak)", range: "75 mi", speed: "28 mph", torque: "105 NM", sensor: "SensorSwap", score: 83.6, features: "Fat Tire, All-Weather" },
+            { brand: "Velotric", model: "Summit 2", type: "All Terrain", motor: "750W (1400W Peak)", range: "75 mi", speed: "28 mph", torque: "105 NM", sensor: "SensorSwap", score: 85.0, features: "15.0Ah Battery, Hydraulic Brakes" },
+            { brand: "Velotric", model: "Discover 3", type: "Commuter Step-Thru", motor: "750W (1100W Peak)", range: "80 mi", speed: "28 mph", torque: "75 NM", sensor: "SensorSwap", score: 82.5, features: "SensorSwap Tech, 80mi Range" },
+            { brand: "Heybike", model: "Mars 2.0", type: "Folding", motor: "750W (1200W Peak)", range: "45 mi", speed: "28 mph", torque: "80 NM", sensor: "Cadence", score: 78.4, features: "Rear Rack, Folding Frame" },
+            { brand: "Heybike", model: "Mars 1.0", type: "Folding", motor: "500W (800W Peak)", range: "48 mi", speed: "20 mph", torque: "60 NM", sensor: "Cadence", score: 51.8, features: "Compact, Budget-Friendly" }
         ];
 
         let compareList = [];
@@ -49,66 +73,12 @@
         function renderBikes() {
             const grid = document.getElementById('bikeGrid');
             grid.innerHTML = bikes.map((bike, index) => `
-                <div class="bike-card bg-white p-5 rounded-lg shadow-sm border border-gray-200 spec-card" data-name="${bike.brand} ${bike.model}">
+                <div class="bike-card bg-white p-5 rounded-2xl shadow-sm border border-slate-200" data-name="${bike.brand} ${bike.model}">
                     <div class="flex justify-between items-start mb-2">
                         <div>
-                            <span class="text-xs font-bold text-blue-600 uppercase">${bike.brand}</span>
-                            <h3 class="text-lg font-bold text-gray-800">${bike.model}</h3>
+                            <span class="text-[10px] font-black text-blue-600 uppercase tracking-widest">${bike.brand}</span>
+                            <h3 class="text-xl font-bold text-slate-800">${bike.model}</h3>
                         </div>
-                        <span class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full font-bold">Score: ${bike.score}</span>
-                    </div>
-                    <p class="text-sm text-gray-500 mb-4 italic">${bike.type}</p>
-                    <div class="grid grid-cols-2 gap-y-2 text-sm border-t pt-3">
-                        <div class="text-gray-500 font-medium">Range: <span class="text-gray-900">${bike.range}</span></div>
-                        <div class="text-gray-500 font-medium">Speed: <span class="text-gray-900">${bike.speed}</span></div>
-                        <div class="text-gray-500 font-medium">Motor: <span class="text-gray-900">${bike.motor}</span></div>
-                        <div class="text-gray-500 font-medium">Sensor: <span class="text-gray-900">${bike.sensor}</span></div>
-                    </div>
-                    <button onclick="addToCompare(${index})" class="mt-4 w-full bg-slate-100 hover:bg-slate-200 text-slate-700 py-2 rounded font-semibold text-sm">
-                        + Compare This Bike
-                    </button>
-                </div>
-            `).join('');
-        }
-
-        function filterBikes() {
-            const input = document.getElementById('searchInput').value.toLowerCase();
-            const cards = document.getElementsByClassName('bike-card');
-            Array.from(cards).forEach(card => {
-                const name = card.getAttribute('data-name').toLowerCase();
-                card.style.display = name.includes(input) ? "block" : "none";
-            });
-        }
-
-        function addToCompare(index) {
-            if (compareList.length >= 2) compareList.shift();
-            compareList.push(bikes[index]);
-            updateCompareUI();
-        }
-
-        function clearComparison() {
-            compareList = [];
-            updateCompareUI();
-        }
-
-        function updateCompareUI() {
-            const section = document.getElementById('compareSection');
-            const grid = document.getElementById('compareGrid');
-            if (compareList.length === 0) {
-                section.classList.add('hidden');
-                return;
-            }
-            section.classList.remove('hidden');
-            grid.innerHTML = compareList.map(bike => `
-                <div class="bg-white p-3 rounded shadow-inner text-xs border-l-4 border-blue-500">
-                    <div class="font-bold text-sm">${bike.model}</div>
-                    <div>Torque: ${bike.torque}</div>
-                    <div>Motor: ${bike.motor}</div>
-                </div>
-            `).join('');
-        }
-
-        renderBikes();
-    </script>
-</body>
-</html>
+                        <div class="text-right">
+                            <span class="block text-[10px] text-slate-400 font-bold uppercase">Rating</span>
+                            
