@@ -210,7 +210,7 @@
                 </div>
                 <div class="bg-[#1a2e1c] text-white p-5 rounded-2xl space-y-2">
                     <div class="flex justify-between text-slate-400 text-sm"><span>Subtotal:</span><span id="resSub">$0.00</span></div>
-                    <div class="flex justify-between text-slate-400 text-sm"><span>Sales Tax (2.75%):</span><span id="resTax">$0.00</span></div>
+                    <div class="flex justify-between text-slate-400 text-sm"><span>Sales Tax (5.75%):</span><span id="resTax">$0.00</span></div>
                     <div class="flex justify-between border-t border-slate-700 pt-3">
                         <span class="display text-2xl">TOTAL</span>
                         <span id="resTotal" class="display text-2xl text-[#C9A96E]">$0.00</span>
@@ -521,7 +521,7 @@ function setScenario(price) {
 
 function calculate() {
     const val = parseFloat(document.getElementById('basePrice').value)||0;
-    const tax = val*0.0275;
+    const tax = val*0.0575;
     const fmt = n=>'$'+n.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
     document.getElementById('resSub').textContent = fmt(val);
     document.getElementById('resTax').textContent = fmt(tax);
