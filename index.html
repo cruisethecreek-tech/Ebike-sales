@@ -74,6 +74,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--cream);min-height:100vh;p
             <div class="disp" style="font-size:1.4rem;color:#C9A96E;" id="hCount">36</div>
             <div style="font-size:9px;color:#94a3b8;font-weight:700;letter-spacing:2px;">BIKES</div>
           </div>
+          <button onclick="openErrors()" style="background:rgba(255,165,0,.15);border:2px solid rgba(255,165,0,.3);border-radius:10px;padding:7px 12px;color:#fbbf24;font-size:11px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;letter-spacing:1px;">⚠️ ERRORS</button>
           <button onclick="openAdmin()" style="background:rgba(255,255,255,.08);border:2px solid rgba(255,255,255,.15);border-radius:10px;padding:7px 12px;color:rgba(255,255,255,.65);font-size:11px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;letter-spacing:1px;">⚙️ ADMIN</button>
         </div>
       </div>
@@ -105,6 +106,32 @@ body{font-family:'DM Sans',sans-serif;background:var(--cream);min-height:100vh;p
     </select>
   </div>
   <div class="wrap"><div class="grid2" id="bikeGrid"></div></div>
+</div>
+
+
+<!-- ══════════════════ ERROR CODES VIEW ══════════════════ -->
+<div id="vErrors" style="display:none;">
+  <header class="sticky" style="background:#1a2e1c;padding:16px;box-shadow:0 4px 24px rgba(0,0,0,.3);">
+    <div class="wrap">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+        <div>
+          <div class="disp" style="font-size:1.6rem;color:#fbbf24;line-height:1;">⚠️ ERROR CODES</div>
+          <div style="font-size:10px;color:#86efac;font-weight:700;letter-spacing:3px;margin-top:2px;">HEYBIKE · VELOTRIC DIAGNOSTIC GUIDE</div>
+        </div>
+        <button onclick="closeErrors()" style="background:rgba(255,255,255,.08);border:2px solid rgba(255,255,255,.15);border-radius:10px;padding:7px 12px;color:rgba(255,255,255,.65);font-size:11px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;">← BACK</button>
+      </div>
+      <input type="text" id="errSearch" oninput="renderErrors()" placeholder="Search code, description, symptom..." style="width:100%;padding:10px 14px;border-radius:12px;border:none;font-size:14px;font-weight:500;outline:none;font-family:'DM Sans',sans-serif;margin-bottom:10px;">
+      <div style="display:flex;gap:8px;">
+        <button class="fp on" onclick="setErrFilter('all',this)">All</button>
+        <button class="fp" onclick="setErrFilter('Heybike',this)">Heybike</button>
+        <button class="fp" onclick="setErrFilter('Velotric',this)">Velotric</button>
+      </div>
+    </div>
+  </header>
+  <div class="wrap" style="padding-top:16px;padding-bottom:80px;">
+    <div id="errCount" style="font-size:11px;font-weight:700;color:#94a3b8;letter-spacing:2px;margin-bottom:12px;"></div>
+    <div id="errGrid" style="display:flex;flex-direction:column;gap:8px;"></div>
+  </div>
 </div>
 
 <!-- ══════════════════ ADMIN VIEW ══════════════════ -->
@@ -751,6 +778,600 @@ function confirmDel(){
 // ──────────────────────────────────────────────────────
 // INIT
 // ──────────────────────────────────────────────────────
+// ══════════════════════════════════════════════════════
+// ERROR CODES DATA
+// ══════════════════════════════════════════════════════
+const ERROR_CODES = [
+
+  // ── HEYBIKE ──────────────────────────────────────────
+  {
+    brand:'Heybike', code:'21', label:'Abnormal Current',
+    category:'Motor / PAS',
+    symptom:'Motor doesn't work; PAS mode ineffective.',
+    steps:[
+      'Check all cable connections — look for loose connectors, bent pins, misaligned arrows, broken or shorted wires.',
+      'Reconnect or replace any damaged wire found.',
+      'Disconnect the PAS sensor and restart the display. If the bike runs normally → replace PAS sensor.',
+      'If error persists after PAS swap → replace the controller.'
+    ],
+    models:'Cityscape, Mars, Race, Ranger, Explore, Cityrun, Brawn, Tyson, Ranger S, Horizon, Mars 2.0, Hauler, Hero'
+  },
+  {
+    brand:'Heybike', code:'22', label:'Throttle Error',
+    category:'Throttle',
+    symptom:'Throttle does not accelerate, or bike accelerates without throttle input.',
+    steps:[
+      'Check throttle connection — look for loose connectors, bent pins, misaligned arrows, broken or shorted wires.',
+      'Reconnect or replace any damaged wire found.',
+      'If connections are fine → replace the throttle.',
+      'If error persists after throttle swap → replace the main cable or controller.'
+    ],
+    models:'Cityscape, Mars, Race, Ranger, Explore, Cityrun, Brawn, Tyson, Ranger S, Horizon, Mars 2.0, Hauler, Hero'
+  },
+  {
+    brand:'Heybike', code:'23', label:'Motor Phase Loss',
+    category:'Motor',
+    symptom:'Abnormal or ineffective acceleration; abnormal motor sound or vibration.',
+    steps:[
+      'Check motor wire and controller connection for poor contact or damage.',
+      'Reconnect or replace any damaged parts.',
+      'If connections are fine → replace the motor.'
+    ],
+    models:'Cityscape, Mars, Race, Ranger, Explore, Cityrun, Brawn, Tyson, Ranger S, Horizon, Mars 2.0, Hauler, Hero'
+  },
+  {
+    brand:'Heybike', code:'24', label:'Abnormal Hall Sensor Signal',
+    category:'Motor',
+    symptom:'Abnormal or ineffective acceleration.',
+    steps:[
+      'Check motor wire and controller connection for poor contact or damage.',
+      'Reconnect or replace any damaged parts.',
+      'If connections are fine → replace the motor.'
+    ],
+    models:'Cityscape, Mars, Race, Ranger, Explore, Cityrun, Brawn, Tyson, Ranger S, Horizon, Mars 2.0, Hauler, Hero'
+  },
+  {
+    brand:'Heybike', code:'25', label:'Brake Failure',
+    category:'Brakes',
+    symptom:'Bike cannot accelerate successfully.',
+    steps:[
+      'Check left and right brakes are fully released to normal position.',
+      'Check brake cable connections — bent pins, misaligned arrows, broken or shorted wires.',
+      'Unplug left brake connector and restart. No error → left brake is faulty → replace it.',
+      'Unplug right brake connector and restart. No error → right brake is faulty → replace it.',
+      'For hydraulic brakes: rotate the power-cut sensor fixed screw (bottom of brake lever) counterclockwise half a turn.',
+      'If no brake issues found → replace the controller.'
+    ],
+    models:'Cityrun, Brawn, Tyson, Ranger S, Horizon, Mars 2.0, Hauler, Hero'
+  },
+  {
+    brand:'Heybike', code:'30', label:'Communication Error',
+    category:'Display / Communication',
+    symptom:'Display fails to receive controller data; bike cannot accelerate.',
+    steps:[
+      'Check display, main cable, and controller connections — bent pins, misaligned arrows, broken or shorted wires.',
+      'Disconnect PAS sensor and controller, then restart display.',
+      'If error clears → PAS sensor is faulty → replace PAS sensor.',
+      'If error persists → replace the controller.',
+      'If still unresolved → replace the main cable or display.'
+    ],
+    models:'Cityscape, Mars, Race, Ranger, Explore, Cityrun, Brawn, Tyson, Ranger S, Horizon, Mars 2.0, Hauler, Hero'
+  },
+
+  // ── VELOTRIC — System Communication ─────────────────
+  {
+    brand:'Velotric', code:'E02', label:'Display Communication Failure',
+    category:'System / Communication',
+    symptom:'Display loses communication with system.',
+    note:'If E02, E03, and E04 appear together, replace the display first.',
+    steps:[
+      'Check wiring harness for looseness, damage, or breaks.',
+      'Unplug connectors and inspect for bent pins, improper contact, or foreign objects causing a short.',
+      'If above steps fail → replace the display.'
+    ]
+  },
+  {
+    brand:'Velotric', code:'E03', label:'Display Communication Failure with Battery',
+    category:'System / Communication',
+    symptom:'Display cannot communicate with battery.',
+    note:'If E02, E03, and E04 appear together, replace the display first.',
+    steps:[
+      'Check power plug pins on the battery (male/female) for looseness, foreign objects, or enlarged female pins.',
+      'If step 1 fails → replace the motor controller.',
+      'If step 2 fails → replace the battery.'
+    ]
+  },
+  {
+    brand:'Velotric', code:'E04', label:'Display and Motor Controller Communication Failure',
+    category:'System / Communication',
+    symptom:'Display and motor controller cannot communicate.',
+    note:'If E02, E03, and E04 appear together, replace the display first.',
+    steps:[
+      'Check wiring harness for looseness, damage, or breaks.',
+      'Unplug connectors and inspect for bent pins, improper contact, or foreign objects.',
+      'If above steps fail → replace the motor controller.'
+    ]
+  },
+
+  // ── VELOTRIC — Display ───────────────────────────────
+  {brand:'Velotric',code:'E10',label:'Photosensitive Sensor Abnormality',category:'Display',symptom:'Auto-brightness sensor malfunction.',steps:['Replace the display.']},
+  {brand:'Velotric',code:'E11',label:'Abnormal 5V Voltage',category:'Display',symptom:'Display internal voltage fault.',steps:['Replace the display.']},
+  {
+    brand:'Velotric', code:'E12', label:'Excessive Power Supply to Front Light',
+    category:'Display / Lights',
+    symptom:'Front light overpowered.',
+    steps:[
+      'If light turns on/off normally → no action needed.',
+      'If light does not respond → replace the display.'
+    ]
+  },
+  {
+    brand:'Velotric', code:'E13', label:'Front Light Power Supply Too Low',
+    category:'Display / Lights',
+    symptom:'Front light underpowered.',
+    steps:[
+      'If light turns on/off normally → no action needed.',
+      'If light does not respond → replace the display.'
+    ]
+  },
+  {
+    brand:'Velotric', code:'E14', label:'Open Circuit in Front Light',
+    category:'Display / Lights',
+    symptom:'Front light open circuit.',
+    steps:[
+      'Check for damage or breaks in front light wiring harness, loose connectors.',
+      'Unplug connectors and check for bent pins or foreign objects.',
+      'If above steps fail → replace the front light.'
+    ]
+  },
+  {
+    brand:'Velotric', code:'E16', label:'Overcurrent in Front Light',
+    category:'Display / Lights',
+    symptom:'Front light drawing excess current.',
+    steps:[
+      'Check for damage or breaks in front light wiring harness, loose connectors.',
+      'Unplug connectors and check for bent pins or foreign objects.',
+      'If above steps fail → replace the front light.'
+    ]
+  },
+  {
+    brand:'Velotric', code:'E17', label:'Short Circuit in Front Light',
+    category:'Display / Lights',
+    symptom:'Front light short circuit.',
+    steps:[
+      'Check for damage or short circuits in front light wiring harness.',
+      'Unplug front light connector and check for bent pins, improper contact, or foreign objects.',
+      'If above steps fail → replace the front light.'
+    ]
+  },
+  {brand:'Velotric',code:'E18',label:'Display Bluetooth Malfunction',category:'Display',symptom:'Bluetooth not functioning.',steps:['Replace the display.']},
+  {
+    brand:'Velotric', code:'E20', label:'Excessive Power Supply to Display',
+    category:'Display',
+    symptom:'Overvoltage to display — usually during high-speed gliding with motor freewheeling, or from non-Velotric battery.',
+    steps:['No action needed in most cases.','Note: Typically occurs during high-speed coasting or with non-Velotric batteries/external power supplies.']
+  },
+  {brand:'Velotric',code:'E21',label:'Low Power Supply to Display',category:'Display / Battery',symptom:'Battery too low to power display.',steps:['Charge the battery.']},
+
+  // ── VELOTRIC — Motor Controller ──────────────────────
+  {brand:'Velotric',code:'E30',label:'Current Sensor Malfunction',category:'Motor Controller',symptom:'Current sensor failure in controller.',steps:['Replace the motor controller.']},
+  {brand:'Velotric',code:'E31',label:'MOS Drive Voltage Too High',category:'Motor Controller',symptom:'Controller MOS gate voltage too high.',steps:['Replace the motor controller.']},
+  {brand:'Velotric',code:'E32',label:'MOS Drive Voltage Too Low',category:'Motor Controller',symptom:'Controller MOS gate voltage too low.',steps:['Replace the motor controller.']},
+  {brand:'Velotric',code:'E33',label:'MOS Short Circuit',category:'Motor Controller',symptom:'Short circuit in controller MOS.',steps:['Replace the motor controller.']},
+  {brand:'Velotric',code:'E34',label:'Abnormal 5V Voltage',category:'Motor Controller',symptom:'5V rail abnormality in controller.',steps:['Replace the motor controller.']},
+  {
+    brand:'Velotric', code:'E35', label:'Throttle Open Circuit',
+    category:'Throttle',
+    symptom:'Throttle circuit open.',
+    steps:[
+      'Check for damage or breaks in throttle wiring harness, loose connectors.',
+      'Unplug connectors and check for bent pins or foreign objects.',
+      'If above steps fail → replace the throttle.'
+    ]
+  },
+  {
+    brand:'Velotric', code:'E36', label:'Throttle Overcurrent',
+    category:'Throttle',
+    symptom:'Throttle drawing excess current.',
+    steps:[
+      'Check for damage or short circuits in throttle wiring harness.',
+      'Unplug throttle connector and check for bent pins, improper contact, or foreign objects.',
+      'If above steps fail → replace the throttle.'
+    ]
+  },
+  {
+    brand:'Velotric', code:'E37', label:'Throttle Ground Wire Protection',
+    category:'Throttle',
+    symptom:'Throttle ground wire issue.',
+    steps:[
+      'Check for damage or breaks in throttle wiring harness.',
+      'Unplug throttle connector and check for bent pins, corrosion, oxidation, or foreign objects.',
+      'If above steps fail → replace the throttle.'
+    ]
+  },
+  {
+    brand:'Velotric', code:'E40', label:'Overcurrent Protection',
+    category:'Motor Controller',
+    symptom:'System overcurrent detected.',
+    steps:[
+      'Stop riding, turn off the bike, and restart.',
+      'If fault recurs repeatedly → replace the motor controller.'
+    ]
+  },
+  {
+    brand:'Velotric', code:'E41', label:'Throttle Not Reset',
+    category:'Throttle',
+    symptom:'Throttle stuck or not returning to zero on startup.',
+    steps:[
+      'Check if throttle is rubbing against other components. If so, adjust installation spacing or angle.',
+      'Check if throttle spring is weak. If so → replace the throttle.'
+    ]
+  },
+  {
+    brand:'Velotric', code:'E42', label:'Anti-Flyaway Protection',
+    category:'Throttle',
+    symptom:'Throttle signal abnormal on startup.',
+    steps:[
+      'Reset/reposition the throttle to clear the code.',
+      'If step 1 fails → follow E37 / E41 diagnostic steps.'
+    ]
+  },
+  {brand:'Velotric',code:'E43',label:'Low Voltage Protection',category:'Battery',symptom:'Battery voltage too low to operate.',steps:['Charge the battery.']},
+  {
+    brand:'Velotric', code:'E44', label:'Overvoltage Protection',
+    category:'Battery',
+    symptom:'Battery voltage too high — usually during high-speed coasting or with non-Velotric battery.',
+    steps:['No action needed in most cases.','Note: Typically occurs during high-speed coasting or with non-Velotric batteries/external power supplies.']
+  },
+  {
+    brand:'Velotric', code:'E45', label:'MC High-Temperature Protection',
+    category:'Motor Controller',
+    symptom:'Motor controller overheating — power output will decrease then stop.',
+    steps:['Stop riding. Allow bike to rest 20+ minutes in a cool, ventilated area until controller cools to safe range.']
+  },
+  {
+    brand:'Velotric', code:'E46', label:'Stall Protection',
+    category:'Motor',
+    symptom:'Motor stalled.',
+    steps:['Stop riding, reset the throttle to zero, then resume riding.']
+  },
+  {
+    brand:'Velotric', code:'E47', label:'Brake Sensor Abnormal',
+    category:'Brakes',
+    symptom:'Brake sensor signal fault.',
+    steps:[
+      'Disconnect left brake sensor connector and check if error clears → if yes, left brake sensor is faulty.',
+      'Disconnect right brake sensor connector and check if error clears → if yes, right brake sensor is faulty.',
+      'Inspect brake sensor wiring for damage or short circuits.',
+      'Replace the brake sensor on the faulty side.',
+      'Summit 1 only: Rotate grip distance adjustment screw clockwise until 2–3 threads are exposed. If no improvement, replace brake sensor.',
+      'If sensor replacement fails → replace the integrated cable.',
+      'If integrated cable fails → replace motor controller (rare).'
+    ]
+  },
+  {
+    brand:'Velotric', code:'E50', label:'5V Power Supply Overcurrent',
+    category:'Motor Controller',
+    symptom:'5V rail overcurrent — likely torque sensor or motor wiring issue.',
+    steps:[
+      'Check for damage or short circuits in torque sensor and motor wiring harness.',
+      'Unplug torque sensor and motor connectors and check for bent pins, improper contact, or foreign objects.',
+      'Disconnect torque sensor and motor wiring harness connectors separately.',
+      'If error clears when a specific connector is disconnected → replace the component on that connector.'
+    ]
+  },
+
+  // ── VELOTRIC — Motor ─────────────────────────────────
+  {brand:'Velotric',code:'E51',label:'Motor Hall A Phase Damage',category:'Motor',symptom:'Hall sensor phase A fault.',steps:['Check motor wiring harness for damage or short circuits.','Unplug motor connector and check for bent pins, foreign objects, or shorts.','Replace the motor.','If motor replacement fails → replace motor controller.']},
+  {brand:'Velotric',code:'E52',label:'Motor Hall B Phase Damage',category:'Motor',symptom:'Hall sensor phase B fault.',steps:['Check motor wiring harness for damage or short circuits.','Unplug motor connector and check for bent pins, foreign objects, or shorts.','Replace the motor.','If motor replacement fails → replace motor controller.']},
+  {brand:'Velotric',code:'E53',label:'Motor Hall C Phase Damage',category:'Motor',symptom:'Hall sensor phase C fault.',steps:['Check motor wiring harness for damage or short circuits.','Unplug motor connector and check for bent pins, foreign objects, or shorts.','Replace the motor.','If motor replacement fails → replace motor controller.']},
+  {brand:'Velotric',code:'E54',label:'Motor Phase Line Short Circuit',category:'Motor',symptom:'Short circuit in motor phase wiring.',steps:['Check motor wiring harness for damage or short circuits.','Unplug motor connector and check for bent pins, foreign objects, or shorts.','Replace the motor.','If motor replacement fails → replace motor controller.']},
+  {brand:'Velotric',code:'E55',label:'Speed Sensor Malfunction',category:'Motor',symptom:'Motor speed sensor fault.',steps:['Check motor wiring harness for damage or short circuits.','Unplug motor connector and check for bent pins, foreign objects, or shorts.','Replace the motor.','If motor replacement fails → replace motor controller.']},
+  {brand:'Velotric',code:'E56',label:'Motor Temperature Sensor Malfunction',category:'Motor',symptom:'Motor temp sensor fault.',steps:['Check motor wiring harness for damage or short circuits.','Unplug motor connector and check for bent pins, foreign objects, or shorts.','Replace the motor.','If motor replacement fails → replace motor controller.']},
+  {
+    brand:'Velotric', code:'E5A', label:'Motor Overheating',
+    category:'Motor',
+    symptom:'Motor overheated — power output will decrease then stop.',
+    steps:['Stop riding. Allow bike to rest 20+ minutes in a cool, ventilated area until motor cools to safe range.']
+  },
+
+  // ── VELOTRIC — Torque Sensor ─────────────────────────
+  {
+    brand:'Velotric', code:'E60', label:'Torque Sensor Open Circuit',
+    category:'Torque Sensor',
+    symptom:'Torque sensor circuit open.',
+    steps:[
+      'Check for damage or breaks in torque sensor wiring harness.',
+      'Unplug torque sensor connector and check for bent pins or foreign objects.',
+      'Replace the torque sensor and check if error clears. If it persists → restart system.',
+      'If error persists after restart → replace the motor controller.'
+    ]
+  },
+  {
+    brand:'Velotric', code:'E61', label:'Torque Sensor Overcurrent',
+    category:'Torque Sensor',
+    symptom:'Torque sensor drawing excess current.',
+    steps:[
+      'Check for damage or short circuits in torque sensor wiring harness.',
+      'Unplug torque sensor connector and check for bent pins or foreign objects.',
+      'Disconnect torque sensor connector and check if error clears.',
+      'If error clears → replace the torque sensor.',
+      'If error persists → restart system. If still present → replace motor controller.'
+    ]
+  },
+  {
+    brand:'Velotric', code:'E62', label:'Abnormal Output from Torque Sensor',
+    category:'Torque Sensor',
+    symptom:'Incorrect torque signal output.',
+    steps:[
+      'First: Pedal two full rotations then restart the system. If fault clears, no further action needed.',
+      'Check for damage or breaks in torque sensor wiring harness.',
+      'Unplug torque sensor connector and check for bent pins or foreign objects.',
+      'Replace the torque sensor and check if error clears. If it persists → restart system.',
+      'If error persists after restart → replace the motor controller.'
+    ]
+  },
+  {
+    brand:'Velotric', code:'E63', label:'Abnormal Cadence Signal',
+    category:'Torque Sensor',
+    symptom:'Cadence sensor signal fault.',
+    steps:[
+      'First: Pedal two full rotations then restart the system. If fault clears, no further action needed.',
+      'Check for damage or breaks in torque sensor wiring harness.',
+      'Unplug torque sensor connector and check for bent pins or foreign objects.',
+      'Replace the torque sensor and check if error clears. If it persists → restart system.',
+      'If error persists after restart → replace the motor controller.'
+    ]
+  },
+  {
+    brand:'Velotric', code:'E64', label:'Sensor Zero Point Abnormality',
+    category:'Torque Sensor',
+    symptom:'Torque sensor zero calibration lost.',
+    steps:[
+      'Calibrate: Turn power switch on and off 20 times.',
+      'If calibration fails → replace the motor controller.',
+      'After calibration, if no power assist and torque value does not change while pedaling → replace the torque sensor.',
+      'Certified techs: Connect to Velotric host computer, check torque signal zero point and real-time value, use calibration button.'
+    ]
+  },
+
+  // ── VELOTRIC — Lights ────────────────────────────────
+  {
+    brand:'Velotric', code:'E70', label:'Tail Light Open Circuit',
+    category:'Lights',
+    symptom:'Rear light not illuminated / open circuit.',
+    steps:[
+      'Check for damage or breaks in rear light wiring harness, loose connectors.',
+      'Unplug connector and check for bent pins or foreign objects.',
+      'If above steps fail → replace the rear light.'
+    ]
+  },
+  {
+    brand:'Velotric', code:'E71', label:'Tail Light Overcurrent',
+    category:'Lights',
+    symptom:'Rear light drawing excess current.',
+    steps:[
+      'Check for damage or breaks in rear light wiring harness, loose connectors.',
+      'Unplug connector and check for bent pins or foreign objects.',
+      'If above steps fail → replace the rear light.'
+    ]
+  },
+  {
+    brand:'Velotric', code:'E73', label:'Front Light Overvoltage',
+    category:'Lights',
+    symptom:'Front light overvoltage from controller.',
+    steps:[
+      'If front light turns on/off normally → no action needed.',
+      'If front light does not respond → replace the motor controller.'
+    ]
+  },
+  {
+    brand:'Velotric', code:'E74', label:'Front Light Undervoltage',
+    category:'Lights',
+    symptom:'Front light undervoltage from controller.',
+    steps:[
+      'If front light turns on/off normally → no action needed.',
+      'If front light does not respond → replace the motor controller.'
+    ]
+  },
+  {
+    brand:'Velotric', code:'E75', label:'Front Light Open Circuit',
+    category:'Lights',
+    symptom:'Front light not illuminated / open circuit.',
+    steps:[
+      'Check for damage or breaks in front light wiring harness, loose connectors.',
+      'Unplug connector and check for bent pins or foreign objects.',
+      'If above steps fail → replace the front light.'
+    ]
+  },
+  {
+    brand:'Velotric', code:'E76', label:'Front Light Overcurrent',
+    category:'Lights',
+    symptom:'Front light drawing excess current.',
+    steps:[
+      'Check for damage or breaks in front light wiring harness, loose connectors.',
+      'Unplug connector and check for bent pins or foreign objects.',
+      'If above steps fail → replace the front light.'
+    ]
+  },
+  {
+    brand:'Velotric', code:'E77', label:'Front Light Short Circuit',
+    category:'Lights',
+    symptom:'Front light short circuit — not illuminated.',
+    steps:[
+      'Check for damage or breaks in front light wiring harness, loose connectors.',
+      'Unplug connector and check for bent pins or foreign objects.',
+      'If above steps fail → replace the front light.'
+    ]
+  },
+
+  // ── VELOTRIC — Battery ───────────────────────────────
+  {
+    brand:'Velotric', code:'E90–E98 / E9A / E9E / E9F / EA0', label:'Battery Hardware Abnormal',
+    category:'Battery',
+    symptom:'Internal battery BMS hardware fault.',
+    steps:['Replace the battery.']
+  },
+  {
+    brand:'Velotric', code:'EA1', label:'Cell Low Temperature — Cannot Charge',
+    category:'Battery',
+    symptom:'Battery too cold to charge.',
+    steps:['Bring battery indoors for 1+ hour. Once temperature rises above 43°F (6°C), charging will resume normally.']
+  },
+  {
+    brand:'Velotric', code:'EA2', label:'Cell Low Temperature — Cannot Discharge',
+    category:'Battery',
+    symptom:'Battery too cold to discharge.',
+    steps:['Bring battery indoors for 1+ hour. Once temperature rises above 12°F (-11°C), battery will operate normally.']
+  },
+  {
+    brand:'Velotric', code:'EA3', label:'Cell High Temperature — Charging Protection',
+    category:'Battery',
+    symptom:'Battery too hot to charge.',
+    steps:['Place battery in a cool, ventilated area for 1+ hour. Once temperature decreases, charging will resume normally.']
+  },
+  {
+    brand:'Velotric', code:'EA4', label:'Cell High Temperature — Discharge Protection',
+    category:'Battery',
+    symptom:'Battery too hot to discharge.',
+    steps:['Place battery in a cool, ventilated area for 1+ hour. Once temperature decreases, battery will operate normally.']
+  },
+  {
+    brand:'Velotric', code:'EA5', label:'MOS High Temperature Protection',
+    category:'Battery',
+    symptom:'Battery MOS transistor overheating.',
+    steps:['Stop riding or charging. Place battery in cool, ventilated area for 1+ hour before resuming charge.']
+  },
+  {
+    brand:'Velotric', code:'EA6', label:'Overcurrent Protection During Charging',
+    category:'Battery',
+    symptom:'Charger causing overcurrent.',
+    steps:['Stop charging and inspect the charger.','If error persists → replace the charger.']
+  },
+  {
+    brand:'Velotric', code:'EA7', label:'First-Level Overcurrent — Discharge',
+    category:'Battery',
+    symptom:'Battery discharge overcurrent (level 1).',
+    steps:['Restart the system.','If error recurs frequently → replace the motor controller.']
+  },
+  {
+    brand:'Velotric', code:'EA8', label:'Second-Level Overcurrent — Discharge',
+    category:'Battery',
+    symptom:'Battery discharge overcurrent (level 2) — system overcurrent.',
+    steps:['Restart the system.','If error recurs frequently → replace the motor controller.']
+  },
+  {
+    brand:'Velotric', code:'EA9', label:'Discharge Short Circuit Protection',
+    category:'Battery',
+    symptom:'Short circuit detected during discharge.',
+    steps:[
+      'Remove battery and charge separately. If battery level indicator shows normal, battery is likely OK.',
+      'Check wiring harnesses for short circuits.',
+      'Inspect power connectors for foreign objects, pin misalignment, or shorts.',
+      'If above steps fail → replace the motor controller.'
+    ]
+  },
+  {
+    brand:'Velotric', code:'EAA', label:'Abnormal Charging Protection',
+    category:'Battery',
+    symptom:'Charger signal abnormal.',
+    steps:['Inspect the charger.','If error persists → replace the charger.']
+  },
+  {
+    brand:'Velotric', code:'EAB', label:'Loss of DET Present Signal',
+    category:'Battery',
+    symptom:'Battery presence signal lost.',
+    steps:[
+      'Check battery power connector for looseness, expanded contacts, or foreign objects.',
+      'Test with a known-good replacement battery.',
+      'Remove lower base panel and inspect battery socket harness for damage.'
+    ]
+  },
+  {brand:'Velotric',code:'EAD',label:'Battery State of Health Abnormal',category:'Battery',symptom:'Battery end-of-life reached.',steps:['Replace the battery.']},
+  {
+    brand:'Velotric', code:'EAR', label:'BUS Voltage Exceeds Standard Value',
+    category:'Battery',
+    symptom:'Bus voltage too high — typically during high-speed coasting or with non-Velotric battery.',
+    steps:['No action needed in most cases.','Note: Typically occurs during high-speed coasting or with non-Velotric/illegal batteries or external power supply.']
+  },
+];
+
+// ── Error Codes UI ────────────────────────────────────
+let errFilter = 'all';
+
+function openErrors() {
+  document.getElementById('vSales').style.display = 'none';
+  document.getElementById('vErrors').style.display = 'block';
+  renderErrors();
+}
+
+function closeErrors() {
+  document.getElementById('vErrors').style.display = 'none';
+  document.getElementById('vSales').style.display = 'block';
+}
+
+function setErrFilter(f, btn) {
+  errFilter = f;
+  document.querySelectorAll('#vErrors .fp').forEach(b => b.classList.remove('on'));
+  btn.classList.add('on');
+  renderErrors();
+}
+
+function renderErrors() {
+  const q = (document.getElementById('errSearch').value || '').toLowerCase();
+  let filtered = ERROR_CODES.filter(e => {
+    if (errFilter !== 'all' && e.brand !== errFilter) return false;
+    if (!q) return true;
+    return (e.code + e.label + e.category + (e.symptom||'') + (e.models||'')).toLowerCase().includes(q);
+  });
+
+  document.getElementById('errCount').textContent =
+    filtered.length + ' CODE' + (filtered.length !== 1 ? 'S' : '') + ' SHOWN';
+
+  const brandColor = b => b === 'Heybike' ? {bg:'#e8f0e9',color:'#2D4A32',border:'#6B8F71'} : {bg:'#fdf3e0',color:'#7a5a20',border:'#C9A96E'};
+  const catIcon = c => ({
+    'Motor':'⚙️','Motor Controller':'🔌','Throttle':'🕹️','Brakes':'🛑',
+    'Battery':'🔋','Display':'🖥️','Display / Communication':'🖥️',
+    'Display / Lights':'💡','Lights':'💡','Torque Sensor':'📡',
+    'System / Communication':'📶','Motor / PAS':'⚙️'
+  }[c] || '⚠️');
+
+  document.getElementById('errGrid').innerHTML = filtered.map(e => {
+    const bc = brandColor(e.brand);
+    const stepsHTML = e.steps.map((s,i) =>
+      `<div style="display:flex;gap:10px;margin-bottom:6px;">
+        <div style="background:#f1f5f9;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:#64748b;flex-shrink:0;margin-top:1px;">${i+1}</div>
+        <div style="font-size:12px;color:#334155;line-height:1.6;">${s}</div>
+      </div>`
+    ).join('');
+    const noteHTML = e.note ? `<div style="background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:8px 12px;font-size:11px;color:#92400e;font-weight:600;margin-bottom:10px;">📌 ${e.note}</div>` : '';
+    const modelsHTML = e.models ? `<div style="font-size:10px;color:#94a3b8;font-weight:600;margin-top:10px;padding-top:10px;border-top:1px solid #f1f5f9;">Models: ${e.models}</div>` : '';
+
+    return `<div style="background:white;border-radius:16px;border:1px solid #e2e8f0;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.05);">
+      <!-- Card header -->
+      <div style="padding:14px 16px 10px;display:flex;align-items:flex-start;gap:12px;border-bottom:1px solid #f1f5f9;">
+        <div style="background:#1a2e1c;border-radius:10px;padding:6px 10px;flex-shrink:0;text-align:center;">
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:1.3rem;color:#fbbf24;line-height:1;letter-spacing:.04em;">${e.code}</div>
+        </div>
+        <div style="flex:1;min-width:0;">
+          <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:3px;">
+            <span style="font-size:9px;font-weight:800;letter-spacing:.15em;text-transform:uppercase;padding:2px 8px;border-radius:99px;background:${bc.bg};color:${bc.color};border:1px solid ${bc.border};">${e.brand}</span>
+            <span style="font-size:10px;font-weight:700;color:#94a3b8;">${catIcon(e.category)} ${e.category}</span>
+          </div>
+          <div style="font-size:13px;font-weight:800;color:#1e293b;line-height:1.3;">${e.label}</div>
+          ${e.symptom ? `<div style="font-size:11px;color:#64748b;margin-top:3px;font-style:italic;">${e.symptom}</div>` : ''}
+        </div>
+      </div>
+      <!-- Steps -->
+      <div style="padding:12px 16px 4px;">
+        ${noteHTML}
+        ${stepsHTML}
+        ${modelsHTML}
+      </div>
+    </div>`;
+  }).join('');
+}
+
 buildFilters();
 renderCards();
 </script>
