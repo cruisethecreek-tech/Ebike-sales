@@ -49,6 +49,8 @@ body{font-family:'DM Sans',sans-serif;background:var(--cream);min-height:100vh;p
 .site-pill:hover{opacity:.75;}
 .pill-H{background:#e8f0e9;color:#2D4A32;border-color:#6B8F71;}
 .pill-V{background:#fdf3e0;color:#7a5a20;border-color:#C9A96E;}
+.bJ{background:#fce7e7;color:#7f1d1d;}
+.pill-J{background:#fee2e2;color:#991b1b;border:1px solid #fca5a5;}
 #toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#1a2e1c;color:white;padding:10px 22px;border-radius:99px;font-size:12px;font-weight:700;z-index:999;opacity:0;transition:opacity .3s;pointer-events:none;white-space:nowrap;}
 #toast.show{opacity:1;}
 /* Price badge */
@@ -130,21 +132,39 @@ body{font-family:'DM Sans',sans-serif;background:var(--cream);min-height:100vh;p
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
         <div>
           <div class="disp" style="font-size:1.6rem;color:#fbbf24;line-height:1;">⚠️ ERROR CODES</div>
-          <div style="font-size:10px;color:#86efac;font-weight:700;letter-spacing:3px;margin-top:2px;">HEYBIKE · VELOTRIC DIAGNOSTIC GUIDE</div>
+          <div style="font-size:10px;color:#86efac;font-weight:700;letter-spacing:3px;margin-top:2px;">HEYBIKE · VELOTRIC · JASION DIAGNOSTIC GUIDE</div>
         </div>
-        <button onclick="closeErrors()" style="background:rgba(255,255,255,.08);border:2px solid rgba(255,255,255,.15);border-radius:10px;padding:7px 12px;color:rgba(255,255,255,.65);font-size:11px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;">← BACK</button>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <button onclick="toggleTroubleshooting()" id="tsToggleBtn" style="background:rgba(255,165,0,.15);border:2px solid rgba(255,165,0,.3);border-radius:10px;padding:7px 12px;color:#fbbf24;font-size:11px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;">🔧 GUIDE</button>
+          <button onclick="closeErrors()" style="background:rgba(255,255,255,.08);border:2px solid rgba(255,255,255,.15);border-radius:10px;padding:7px 12px;color:rgba(255,255,255,.65);font-size:11px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;">← BACK</button>
+        </div>
       </div>
       <input type="text" id="errSearch" oninput="renderErrors()" placeholder="Search code, description, symptom..." style="width:100%;padding:10px 14px;border-radius:12px;border:none;font-size:14px;font-weight:500;outline:none;font-family:'DM Sans',sans-serif;margin-bottom:10px;">
       <div style="display:flex;gap:8px;">
         <button class="fp on" onclick="setErrFilter('all',this)">All</button>
         <button class="fp" onclick="setErrFilter('Heybike',this)">Heybike</button>
         <button class="fp" onclick="setErrFilter('Velotric',this)">Velotric</button>
+        <button class="fp" onclick="setErrFilter('Jasion',this)">Jasion</button>
       </div>
     </div>
   </header>
   <div class="wrap" style="padding-top:16px;padding-bottom:80px;">
     <div id="errCount" style="font-size:11px;font-weight:700;color:#94a3b8;letter-spacing:2px;margin-bottom:12px;"></div>
     <div id="errGrid" style="display:flex;flex-direction:column;gap:8px;"></div>
+  </div>
+
+  <!-- TROUBLESHOOTING GUIDE PANEL -->
+  <div id="tsPanel" style="display:none;position:fixed;inset:0;z-index:999;overflow-y:auto;background:#f8fafc;">
+    <div style="background:#1a2e1c;padding:16px;position:sticky;top:0;z-index:10;box-shadow:0 4px 24px rgba(0,0,0,.3);">
+      <div class="wrap" style="display:flex;justify-content:space-between;align-items:center;">
+        <div>
+          <div class="disp" style="font-size:1.4rem;color:#fbbf24;">🔧 GENERAL TROUBLESHOOTING</div>
+          <div style="font-size:10px;color:#86efac;font-weight:700;letter-spacing:3px;margin-top:2px;">JASION · ALL MODELS</div>
+        </div>
+        <button onclick="toggleTroubleshooting()" style="background:rgba(255,255,255,.08);border:2px solid rgba(255,255,255,.15);border-radius:10px;padding:7px 12px;color:rgba(255,255,255,.65);font-size:11px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;">← CODES</button>
+      </div>
+    </div>
+    <div class="wrap" style="padding-top:16px;padding-bottom:80px;" id="tsContent"></div>
   </div>
 </div>
 
@@ -178,6 +198,10 @@ body{font-family:'DM Sans',sans-serif;background:var(--cream);min-height:100vh;p
       <div id="fPrev" style="background:#f8fafc;border-radius:14px;padding:12px;margin-bottom:14px;border:1px solid #e2e8f0;display:flex;align-items:center;gap:12px;"></div>
       <div class="gf" id="formFields"></div>
 
+      <div style="margin-top:10px;">
+        <label class="fl">Product Page URL (optional override)</label>
+        <input type="text" id="fUrl" class="fi" placeholder="https://...">
+      </div>
       <div style="margin-top:10px;">
         <label class="fl">Key Features</label>
         <textarea id="fFeat" rows="3" class="fi" style="resize:vertical;line-height:1.6;"></textarea>
@@ -444,7 +468,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--cream);min-height:100vh;p
           <span style="font-family:'Bebas Neue',sans-serif;font-size:1.8rem;color:#C9A96E;" id="pvTotal"></span>
         </div>
         <div style="margin-top:14px;padding-top:14px;border-top:1px solid #334155;font-size:11px;color:#64748b;text-align:center;font-weight:600;">
-          Quote valid 7 days · Cruise the Creek · (330) 123-4567
+          Quote valid 7 days · Cruise the Creek · 330.406.9682
         </div>
       </div>
 
@@ -508,6 +532,18 @@ let bikes=[
 {id:34,brand:"Velotric",score:null, model:"Discover M",     type:"Commuter, Step-Thru",          motorN:500,  motorP:960,  volts:48, wh:801.6, ah:16.7, range:95, torque:100, speed:28, sensor:"Torque",     weight:null, payload:null,url:"https://www.velotricbike.com/products/velotric-discover-m",                features:"Mid-drive motor, hydraulic brakes, torque sensor, 9-speed drivetrain"},
 {id:35,brand:"Heybike", score:null, model:"Venus",          type:"Cruiser, Step-Thru/High-Step", motorN:750,  motorP:750,  volts:null,wh:680,   ah:null, range:85, torque:null,speed:28, sensor:"—",          weight:45,   payload:350, url:"https://www.heybike.com/products/venus",             features:"Cruiser style design"},
 {id:36,brand:"Heybike", score:null, model:"Helio F",        type:"Compact Folding",              motorN:250,  motorP:250,  volts:36, wh:360,   ah:10.0, range:75, torque:40,  speed:20, sensor:"Torque",     weight:39.68,payload:330, url:"https://www.heybike.com/products/helio-f",           features:"Ultra-compact folding commuter, torque sensor"},
+
+// ── JASION ────────────────────────────────────────────
+{id:37,brand:"Jasion", score:83.1, model:"Thunder Pro",    type:"Fat Tire, Step-Over",          motorN:1200, motorP:2000, volts:52, wh:1040, ah:20,   range:90, torque:115, speed:35, sensor:"Cadence", weight:82.5, payload:500, url:"https://www.jasionbike.com/products/thunder-pro",              features:'Highest torque in Jasion lineup, 52V system, fat tires, long range, highest payload'},
+{id:38,brand:"Jasion", score:82.8, model:"Thunder Pro ST", type:"Fat Tire, Step-Thru",          motorN:1200, motorP:2000, volts:52, wh:1040, ah:20,   range:90, torque:115, speed:35, sensor:"Cadence", weight:82.5, payload:500, url:"https://www.jasionbike.com/products/thunder-pro",              features:'Step-thru version of Thunder Pro — same 52V/115Nm powerplant, highest payload in Jasion lineup'},
+{id:39,brand:"Jasion", score:80.4, model:"RetroVolt Pro",  type:"Retro/Cruiser, Step-Over",     motorN:1000, motorP:2000, volts:52, wh:1040, ah:20,   range:90, torque:99,  speed:38, sensor:"Cadence", weight:82,   payload:330, url:"https://www.jasionbike.com/products/retrovolt-pro",            features:'Retro moped styling, 52V system, highest top speed in Jasion lineup, long range'},
+{id:40,brand:"Jasion", score:79.7, model:"Hunter Pro",     type:"Folding, Fat Tire",            motorN:1000, motorP:1800, volts:48, wh:720,  ah:15,   range:80, torque:95,  speed:30, sensor:"Cadence", weight:82,   payload:400, url:"https://www.jasionbike.com/products/hunter-pro",              features:'Foldable fat tire design, high torque, strong motor for a folding bike'},
+{id:41,brand:"Jasion", score:77.2, model:"X-Hunter",       type:"Folding, Fat Tire",            motorN:750,  motorP:1400, volts:48, wh:624,  ah:13,   range:70, torque:85,  speed:28, sensor:"Cadence", weight:70,   payload:480, url:"https://www.jasionbike.com/products/jasion-x-hunter",         features:'High payload folding fat tire, 85Nm torque, good range for class'},
+{id:42,brand:"Jasion", score:76.9, model:"X-Hunter ST",    type:"Folding, Fat Tire, Step-Thru", motorN:750,  motorP:1400, volts:48, wh:624,  ah:13,   range:70, torque:85,  speed:28, sensor:"Cadence", weight:70,   payload:480, url:"https://www.jasionbike.com/products/x-hunter-st",             features:'Step-thru version of X-Hunter — folding fat tire with high payload capacity'},
+{id:43,brand:"Jasion", score:75.8, model:"Thunder",        type:"Fat Tire, Step-Over",          motorN:1000, motorP:1800, volts:48, wh:864,  ah:18,   range:80, torque:85,  speed:30, sensor:"Cadence", weight:82,   payload:400, url:"https://www.jasionbike.com/products/thunder",                 features:'Large 864Wh battery, 1000W motor, fat tires, solid all-terrain performance'},
+{id:44,brand:"Jasion", score:64.8, model:"EB7 2.0",        type:"Folding, Fat Tire",            motorN:850,  motorP:1200, volts:48, wh:480,  ah:10,   range:55, torque:55,  speed:28, sensor:"Cadence", weight:62,   payload:330, url:"https://www.jasionbike.com/products/eb7-2-0",                 features:'Compact folding fat tire, lightest Jasion folder, entry-level price point'},
+{id:45,brand:"Jasion", score:63.2, model:"EB5 Roamer",     type:"Cruiser, Step-Over",           motorN:750,  motorP:1200, volts:48, wh:528,  ah:11,   range:62, torque:60,  speed:28, sensor:"Cadence", weight:65,   payload:330, url:"https://www.jasionbike.com/products/jasion-eb5-roamer-ebike", features:'Lightweight urban cruiser, affordable entry point, step-over frame'},
+{id:46,brand:"Jasion", score:62.9, model:"EB5 Roamer ST",  type:"Cruiser, Step-Thru",           motorN:750,  motorP:1200, volts:48, wh:528,  ah:11,   range:62, torque:60,  speed:28, sensor:"Cadence", weight:65,   payload:330, url:"https://www.jasionbike.com/products/jasion-eb5-st-roamer-ebike",features:'Step-thru version of EB5 Roamer — easy mount/dismount, lightweight urban commuter'},
 ];
 
 // ──────────────────────────────────────────────────────
@@ -584,9 +620,9 @@ const FILTERS=['All','Heybike','Velotric','Folding','Fat Tire','Commuter','Cargo
 // ──────────────────────────────────────────────────────
 const fmt=n=>'$'+n.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
 const scCls=s=>!s?'sr-l':s>=80?'sr-h':s>=65?'sr-m':'sr-l';
-const bdgCls=b=>b==='Velotric'?'bV':'bH';
-const pillCls=b=>b==='Velotric'?'pill-V':'pill-H';
-const siteName=b=>b==='Velotric'?'velotricbike.com':'heybike.com';
+const bdgCls=b=>b==='Velotric'?'bV':b==='Jasion'?'bJ':'bH';
+const pillCls=b=>b==='Velotric'?'pill-V':b==='Jasion'?'pill-J':'pill-H';
+const siteName=b=>b==='Velotric'?'velotricbike.com':b==='Jasion'?'jasionbike.com':'heybike.com';
 const srHTML=s=>`<div class="sr ${scCls(s)}">${s?parseFloat(s).toFixed(1):'—'}</div>`;
 function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500);}
 function openM(id){document.getElementById(id).classList.add('open');}
@@ -986,12 +1022,14 @@ function buildForm(d){
       :`<input type="${f.t}" id="ff_${f.k}" value="${v}" class="fi" oninput="updPrev()">`
     }</div>`;
   }).join('');
+  document.getElementById('fUrl').value=d.url||'';
   document.getElementById('fFeat').value=d.features||'';tElementById('fFeat').value=d.features||'';
   updPrev();
 }
 function getForm(id){
   const d={id};
   FF.forEach(f=>{const el=document.getElementById('ff_'+f.k);if(!el)return;const v=el.value.trim();d[f.k]=f.t==='number'?(v===''?null:parseFloat(v)):v;});
+  d.url=document.getElementById('fUrl').value.trim();
   d.features=document.getElementById('fFeat').value.trim();
   return d;
 }
@@ -1067,6 +1105,110 @@ function confirmDel(){
 // ERROR CODES DATA
 // ══════════════════════════════════════════════════════
 const ERROR_CODES = [
+
+  // ── JASION (community-sourced) ───────────────────────
+  {
+    brand:'Jasion', code:'E03/E30', label:'Communication Failure',
+    category:'System / Communication',
+    symptom:'Display shows error, bike cannot accelerate or respond.',
+    note:'Community-sourced. Not officially published by Jasion. Check 9-pin connector between handlebars first.',
+    steps:[
+      'Turn off the bike and disconnect the battery for 30 seconds.',
+      'Inspect the 9-pin connector between the handlebars — look for bent pins, corrosion, or loose fit.',
+      'Check the cable running from the display to the controller for any damage or pinched sections.',
+      'Reconnect all connectors firmly and restart.',
+      'If error persists — replace the display first, then the controller if still unresolved.'
+    ]
+  },
+  {
+    brand:'Jasion', code:'E07', label:'Motor Cable Connection Fault',
+    category:'Motor',
+    symptom:'Bike will not run; motor unresponsive.',
+    note:'Community-sourced. Most commonly a loose connector near the rear tire.',
+    steps:[
+      'Locate the thick motor cable running to the rear hub motor.',
+      'Trace it to the connector near the rear dropout — disconnect and firmly reconnect.',
+      'Inspect for pinching, fraying, or damage from road debris.',
+      'Check the same cable at the controller end for secure seating.',
+      'If connections are good but error persists — test motor continuity or replace motor cable.'
+    ]
+  },
+  {
+    brand:'Jasion', code:'E10', label:'Display / Controller Communication Fault',
+    category:'Display / Communication',
+    symptom:'Flashing battery indicator; assist not working.',
+    note:'Community-sourced. Reported on X-Hunter models. Try battery reseat first.',
+    steps:[
+      'Remove the battery fully, wait 60 seconds, and firmly reseat it.',
+      'Inspect display cable connector for loose or damaged pins.',
+      'Disconnect and reconnect the display connector at both ends.',
+      'If error persists after reseating — replace the display.'
+    ]
+  },
+  {
+    brand:'Jasion', code:'E24', label:'Motor Cable or Brake Sensor Fault',
+    category:'Motor',
+    symptom:'Assist cuts out intermittently or completely.',
+    note:'Community-sourced. May also indicate brake sensor trigger issue.',
+    steps:[
+      'Check left and right brake levers are fully released.',
+      'Disconnect each brake sensor connector one at a time — restart and test after each.',
+      'If removing a brake sensor clears the error — that sensor or lever is faulty, replace it.',
+      'Inspect motor cable connector at the rear hub and at the controller.',
+      'Reconnect or replace any damaged wiring.'
+    ]
+  },
+  {
+    brand:'Jasion', code:'E25', label:'Motor Cable or Brake Sensor Fault (Alt)',
+    category:'Brakes',
+    symptom:'Assist cuts out; may appear alongside E24.',
+    note:'Community-sourced. Same diagnostic path as E24.',
+    steps:[
+      'Check both brake levers are fully released and not mechanically sticking.',
+      'Unplug left brake sensor — restart and test. Then unplug right brake sensor — restart and test.',
+      'Faulty sensor will clear the error when disconnected — replace that brake sensor.',
+      'If no brake fault found — inspect motor cable connections at hub and controller.'
+    ]
+  },
+  {
+    brand:'Jasion', code:'E36', label:'Hall Sensor / Motor Control Fault',
+    category:'Motor Controller',
+    symptom:'Motor fault; may stop suddenly or refuse to engage.',
+    note:'Community-sourced. Check cables before replacing parts.',
+    steps:[
+      'Inspect motor cable connections at the hub and at the controller for looseness or damage.',
+      'Check voltage at the battery with a multimeter — a low battery can mimic motor faults.',
+      'Disconnect the motor cable, inspect Hall sensor wires for damage.',
+      'Reconnect firmly — if error persists, Hall sensor may need replacement.',
+      'If Hall sensor swap does not resolve — the controller may be faulty.'
+    ]
+  },
+  {
+    brand:'Jasion', code:'E62', label:'Motor Thermal Overload',
+    category:'Motor',
+    symptom:'Bike shuts down mid-ride, especially on steep climbs.',
+    note:'Community-sourced. Motor overheated — let it cool before riding again.',
+    steps:[
+      'Stop riding immediately and power off the bike.',
+      'Allow the motor 15-20 minutes to cool — do not restart while hot.',
+      'After cooling, restart — E62 should clear on its own.',
+      'If recurring: use a lower PAS level on steep grades.',
+      'Check that motor vents are not clogged with debris.'
+    ]
+  },
+  {
+    brand:'Jasion', code:'E64', label:'Unknown — Possible Sensor Fault',
+    category:'Motor',
+    symptom:'Throttle and PAS cutting out intermittently across all assist levels.',
+    note:'Community-sourced. Jasion has not published an official description. Contact support@jasionbike.com.',
+    steps:[
+      'Check all cable connections — motor, throttle, PAS sensor, and brake sensors.',
+      'Disconnect and reconnect PAS sensor — test if assist stabilizes.',
+      'Disconnect throttle connector and reconnect — test throttle response.',
+      'If issue persists across both throttle and PAS — likely a controller or wiring harness fault.',
+      'Contact Jasion support (support@jasionbike.com) — may be warranty-eligible.'
+    ]
+  },
 
   // ── HEYBIKE ──────────────────────────────────────────
   {
@@ -1581,6 +1723,77 @@ const ERROR_CODES = [
   },
 ];
 
+
+function toggleTroubleshooting() {
+  const panel = document.getElementById('tsPanel');
+  const isHidden = panel.style.display === 'none';
+  if (isHidden) {
+    panel.style.display = 'block';
+    buildTsContent();
+    document.getElementById('tsToggleBtn').textContent = '← CODES';
+  } else {
+    panel.style.display = 'none';
+    document.getElementById('tsToggleBtn').textContent = '🔧 GUIDE';
+  }
+}
+
+const TS_SECTIONS = [
+  { icon:'🔋', title:"E-Bike Won't Power On", steps:[
+    '<strong>Battery Charge & Condition:</strong> Confirm battery has sufficient charge. Some batteries have internal safety cutoffs that prevent power-on when overcharged or fully drained.',
+    '<strong>Battery Connector & Contacts:</strong> Corroded or loose contacts are a common culprit. Clean terminals with electrical contact cleaner and check for rust or wear.',
+    '<strong>Circuit Breaker / Fuse:</strong> A blown fuse or tripped breaker prevents startup. Locate the fuse (see your model manual), then reset or replace.',
+    '<strong>Power Button:</strong> Buttons can stick or fail from wear. Press firmly for tactile feedback. If unresponsive, check wiring behind the button or replace it.'
+  ]},
+  { icon:'⚡', title:'Battery Not Charging', steps:[
+    '<strong>Charger & Power Source:</strong> Confirm outlet is live. Plug directly into wall — not a power strip. Test charger on another device if possible.',
+    '<strong>Charging Ports:</strong> Dust and corrosion in ports disrupt connection. Clean the bike port, charger port, and battery port with a dry cloth or contact cleaner.',
+    '<strong>Indicator Lights:</strong> Check charger LED — solid red often signals a fault, green means charging, blinking may mean low power. Refer to your model manual.',
+    '<strong>Temperature Sensitivity:</strong> Extreme heat or cold causes inefficient charging. Always charge in a cool, dry, temperate space.'
+  ]},
+  { icon:'🖥️', title:'Display Not Working', steps:[
+    '<strong>Loose Wires:</strong> Inspect display cables and connectors — loose connection is the most common cause.',
+    '<strong>Reset the Display:</strong> Turn off bike, disconnect battery for 30 seconds, then reconnect. Clears most temporary glitches.',
+    '<strong>Display Fuse:</strong> Some displays have internal fuses for surge protection. Check and replace if blown.',
+    '<strong>Controller Issues:</strong> A faulty controller can knock out the display. Inspect controller for damage or corrosion.'
+  ]},
+  { icon:'⚙️', title:'Motor Hesitation or Loss of Power', steps:[
+    '<strong>Battery Voltage Drop:</strong> Test battery voltage with a multimeter. A failing or undercharged battery delivers reduced voltage and cuts motor output.',
+    '<strong>Motor Connection Issues:</strong> Loose wiring between motor and controller causes intermittent power loss. Check all motor, controller, and battery connections.',
+    '<strong>Motor Bearings & Internal Damage:</strong> Grinding noise or sluggishness indicates worn bearings or internal damage. Inspect motor casing for debris or wear.',
+    '<strong>Controller Failure:</strong> The controller regulates motor power. Reset first; replace if problem persists.'
+  ]},
+  { icon:'🕹️', title:'Pedal Assist or Throttle Issues', steps:[
+    '<strong>PAS Sensor Alignment:</strong> The pedal movement sensor can shift or get dirty. Clean the sensor magnet and ring; check mounting position.',
+    '<strong>Throttle Response:</strong> Sticky or unresponsive throttle — clean the throttle housing and inspect cables for friction or wear.',
+    '<strong>Throttle Wiring:</strong> Trace the throttle cable to the controller. Loose or damaged wires cause erratic behavior. Secure all connections.'
+  ]},
+  { icon:'🛑', title:'Brake System Issues', steps:[
+    '<strong>Brake Pad Wear:</strong> Pads worn to metal must be replaced immediately. Worn pads also trigger motor cutoff error codes.',
+    '<strong>Hydraulic Brake Fluid:</strong> Reduced stopping power on hydraulic brakes often means low fluid or air in the line. Top up or bleed the system.',
+    '<strong>Mechanical Brake Alignment:</strong> Misaligned calipers cause uneven or weak braking. Realign so pads contact the rotor evenly.'
+  ]}
+];
+
+function buildTsContent() {
+  const el = document.getElementById('tsContent');
+  if (el.innerHTML) return;
+  let html = '<div style="background:#fffbeb;border:1px solid #fde68a;border-radius:12px;padding:12px 16px;margin-bottom:16px;font-size:11px;color:#92400e;font-weight:600;">📌 Source: Jasion official troubleshooting guide. Steps apply to all current Jasion models unless otherwise noted.</div>';
+  TS_SECTIONS.forEach(sec => {
+    html += '<div style="background:white;border-radius:16px;border:1px solid #e2e8f0;overflow:hidden;margin-bottom:10px;box-shadow:0 1px 4px rgba(0,0,0,.05);">';
+    html += '<div style="background:#1a2e1c;padding:12px 16px;display:flex;align-items:center;gap:10px;">';
+    html += '<span style="font-size:1.2rem;">' + sec.icon + '</span>';
+    html += '<div style="font-family:Bebas Neue,sans-serif;font-size:1.05rem;color:#fbbf24;letter-spacing:.04em;">' + sec.title + '</div>';
+    html += '</div><div style="padding:12px 16px;">';
+    sec.steps.forEach((s, i) => {
+      html += '<div style="display:flex;gap:10px;margin-bottom:8px;">';
+      html += '<div style="background:#f1f5f9;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:#64748b;flex-shrink:0;margin-top:1px;">' + (i+1) + '</div>';
+      html += '<div style="font-size:12px;color:#334155;line-height:1.6;">' + s + '</div></div>';
+    });
+    html += '</div></div>';
+  });
+  el.innerHTML = html;
+}
+
 // ── Error Codes UI ────────────────────────────────────
 let errFilter = 'all';
 
@@ -1613,7 +1826,7 @@ function renderErrors() {
   document.getElementById('errCount').textContent =
     filtered.length + ' CODE' + (filtered.length !== 1 ? 'S' : '') + ' SHOWN';
 
-  const brandColor = b => b === 'Heybike' ? {bg:'#e8f0e9',color:'#2D4A32',border:'#6B8F71'} : {bg:'#fdf3e0',color:'#7a5a20',border:'#C9A96E'};
+  const brandColor = b => b === 'Heybike' ? {bg:'#e8f0e9',color:'#2D4A32',border:'#6B8F71'} : b === 'Jasion' ? {bg:'#fce7e7',color:'#7f1d1d',border:'#f87171'} : {bg:'#fdf3e0',color:'#7a5a20',border:'#C9A96E'};
   const catIcon = c => ({
     'Motor':'⚙️','Motor Controller':'🔌','Throttle':'🕹️','Brakes':'🛑',
     'Battery':'🔋','Display':'🖥️','Display / Communication':'🖥️',
