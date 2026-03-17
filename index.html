@@ -91,6 +91,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--cream);min-height:100vh;p
             <div style="font-size:9px;color:#94a3b8;font-weight:700;letter-spacing:2px;">BIKES</div>
           </div>
           <button onclick="openErrors()" style="background:rgba(255,165,0,.15);border:2px solid rgba(255,165,0,.3);border-radius:10px;padding:7px 12px;color:#fbbf24;font-size:11px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;letter-spacing:1px;">⚠️ ERRORS</button>
+          <button onclick="openDistTracker()" style="background:rgba(134,239,172,.12);border:2px solid rgba(134,239,172,.25);border-radius:10px;padding:7px 12px;color:#86efac;font-size:11px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;letter-spacing:1px;">🗺️ MILES</button>
           <button onclick="openAdmin()" style="background:rgba(255,255,255,.08);border:2px solid rgba(255,255,255,.15);border-radius:10px;padding:7px 12px;color:rgba(255,255,255,.65);font-size:11px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;letter-spacing:1px;">⚙️ ADMIN</button>
         </div>
       </div>
@@ -373,15 +374,56 @@ body{font-family:'DM Sans',sans-serif;background:var(--cream);min-height:100vh;p
         </div>
         <!-- Preset accessories -->
         <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;" id="accPresets">
-          <button onclick="addPreset('Helmet',49.99)"    class="btn btn-o" style="padding:5px 10px;font-size:10px;">🪖 Helmet</button>
-          <button onclick="addPreset('Lock',29.99)"       class="btn btn-o" style="padding:5px 10px;font-size:10px;">🔒 Lock</button>
-          <button onclick="addPreset('Fender Kit',39.99)" class="btn btn-o" style="padding:5px 10px;font-size:10px;">🛡️ Fenders</button>
-          <button onclick="addPreset('Rear Rack',49.99)"  class="btn btn-o" style="padding:5px 10px;font-size:10px;">📦 Rack</button>
-          <button onclick="addPreset('Lights Kit',34.99)" class="btn btn-o" style="padding:5px 10px;font-size:10px;">💡 Lights</button>
-          <button onclick="addPreset('Setup Fee',100)"    class="btn btn-o" style="padding:5px 10px;font-size:10px;">🔧 Setup</button>
-          <button onclick="addPreset('Tune-Up',125)"      class="btn btn-o" style="padding:5px 10px;font-size:10px;">⚙️ Tune-Up</button>
+          <button onclick="addPreset('Mirror',25)"          class="btn btn-o" style="padding:5px 10px;font-size:10px;">🪞 Mirror</button>
+          <button onclick="addPreset('Bag',40)"             class="btn btn-o" style="padding:5px 10px;font-size:10px;">👜 Bag</button>
+          <button onclick="addPreset('Lock',15)"            class="btn btn-o" style="padding:5px 10px;font-size:10px;">🔒 Lock</button>
+          <button onclick="addPreset('Phone Holder',0)"     class="btn btn-o" style="padding:5px 10px;font-size:10px;">📱 Phone Holder</button>
+          <button onclick="addPreset('Water Bottle',0)"     class="btn btn-o" style="padding:5px 10px;font-size:10px;">💧 Water Bottle</button>
+          <button onclick="addPreset('Lights Kit',34.99)"   class="btn btn-o" style="padding:5px 10px;font-size:10px;">💡 Lights</button>
+          <button onclick="addPreset('Setup Fee',100)"      class="btn btn-o" style="padding:5px 10px;font-size:10px;">🔧 Setup</button>
+          <button onclick="addPreset('Tune-Up',125)"        class="btn btn-o" style="padding:5px 10px;font-size:10px;">⚙️ Tune-Up</button>
         </div>
         <div id="accList" style="display:flex;flex-direction:column;gap:6px;margin-bottom:14px;"></div>
+
+        <!-- Delivery Calculator -->
+        <div style="background:#f0fdf4;border:2px solid #86efac;border-radius:14px;padding:14px;margin-bottom:14px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;cursor:pointer;" onclick="toggleDelivery()">
+            <div style="font-size:10px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:#166534;">🚗 DELIVERY CALCULATOR</div>
+            <span id="delivChev" style="font-size:11px;color:#16a34a;font-weight:800;">▼ ADD</span>
+          </div>
+          <div id="delivBody" style="display:none;">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;">
+              <div>
+                <label style="font-size:9px;font-weight:800;color:#16a34a;text-transform:uppercase;letter-spacing:.1em;display:block;margin-bottom:4px;">Round Trip Miles</label>
+                <input type="number" id="dMiles" oninput="calcDelivery()" placeholder="e.g. 20"
+                  style="width:100%;padding:8px 10px;border:2px solid #86efac;border-radius:10px;font-size:13px;font-weight:700;outline:none;font-family:'DM Sans',sans-serif;background:white;">
+              </div>
+              <div>
+                <label style="font-size:9px;font-weight:800;color:#16a34a;text-transform:uppercase;letter-spacing:.1em;display:block;margin-bottom:4px;">MPG</label>
+                <input type="number" id="dMpg" oninput="calcDelivery()" value="25"
+                  style="width:100%;padding:8px 10px;border:2px solid #86efac;border-radius:10px;font-size:13px;font-weight:700;outline:none;font-family:'DM Sans',sans-serif;background:white;">
+              </div>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;">
+              <div>
+                <label style="font-size:9px;font-weight:800;color:#16a34a;text-transform:uppercase;letter-spacing:.1em;display:block;margin-bottom:4px;">Gas Price ($/gal)</label>
+                <input type="number" id="dGas" oninput="calcDelivery()" value="3.20" step="0.01"
+                  style="width:100%;padding:8px 10px;border:2px solid #86efac;border-radius:10px;font-size:13px;font-weight:700;outline:none;font-family:'DM Sans',sans-serif;background:white;">
+              </div>
+              <div>
+                <label style="font-size:9px;font-weight:800;color:#16a34a;text-transform:uppercase;letter-spacing:.1em;display:block;margin-bottom:4px;">Trip Time (hrs)</label>
+                <input type="number" id="dTime" oninput="calcDelivery()" placeholder="e.g. 1.5" step="0.25"
+                  style="width:100%;padding:8px 10px;border:2px solid #86efac;border-radius:10px;font-size:13px;font-weight:700;outline:none;font-family:'DM Sans',sans-serif;background:white;">
+              </div>
+            </div>
+            <div id="delivResult" style="display:none;background:white;border-radius:10px;padding:10px 12px;border:1px solid #86efac;margin-bottom:10px;">
+              <div style="display:flex;justify-content:space-between;font-size:11px;color:#94a3b8;margin-bottom:4px;"><span>Gas cost:</span><span id="dGasCost">—</span></div>
+              <div style="display:flex;justify-content:space-between;font-size:11px;color:#94a3b8;margin-bottom:4px;"><span>Time cost (@$25/hr):</span><span id="dTimeCost">—</span></div>
+              <div style="display:flex;justify-content:space-between;font-size:12px;font-weight:900;color:#166534;border-top:1px solid #86efac;padding-top:6px;margin-top:4px;"><span>Total Delivery Fee:</span><span id="dTotal">—</span></div>
+            </div>
+            <button onclick="applyDelivery()" id="dApplyBtn" style="display:none;width:100%;background:#16a34a;color:white;border:none;border-radius:10px;padding:9px;font-size:11px;font-weight:800;cursor:pointer;letter-spacing:.08em;font-family:'DM Sans',sans-serif;">+ ADD TO QUOTE</button>
+          </div>
+        </div>
 
         <!-- Totals -->
         <div style="background:#1a2e1c;border-radius:16px;padding:18px;color:white;margin-bottom:14px;">
@@ -488,6 +530,66 @@ body{font-family:'DM Sans',sans-serif;background:var(--cream);min-height:100vh;p
     </div>
   </div>
 </div>
+
+<!-- ══════════════════ DISTANCE TRACKER MODAL ══════════════════ -->
+<div class="modal" id="mDist" style="align-items:flex-end;padding:0;">
+  <div style="background:white;border-radius:24px 24px 0 0;width:100%;max-width:560px;max-height:90vh;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 -8px 40px rgba(0,0,0,.2);margin:0 auto;">
+    <div style="background:#1a2e1c;padding:18px 20px 14px;flex-shrink:0;">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+        <div>
+          <div class="disp" style="font-size:1.4rem;color:#86efac;line-height:1;">🗺️ DELIVERY MILES TRACKER</div>
+          <div style="font-size:10px;color:#C9A96E;font-weight:700;letter-spacing:3px;margin-top:3px;">ROUND TRIP LOG · CRUISE THE CREEK</div>
+        </div>
+        <button onclick="closeM('mDist')" style="background:rgba(255,255,255,.1);border:2px solid rgba(255,255,255,.15);border-radius:10px;padding:7px 12px;color:rgba(255,255,255,.65);font-size:11px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;">✕ CLOSE</button>
+      </div>
+    </div>
+    <!-- Add trip form -->
+    <div style="padding:16px 20px;border-bottom:1px solid #e2e8f0;flex-shrink:0;background:#f8fafc;">
+      <div style="display:grid;grid-template-columns:1fr 80px 80px auto;gap:8px;align-items:flex-end;">
+        <div>
+          <label style="font-size:9px;font-weight:800;color:#94a3b8;text-transform:uppercase;letter-spacing:.1em;display:block;margin-bottom:4px;">Destination</label>
+          <input type="text" id="dtDest" placeholder="e.g. 123 Main St, Youngstown" class="fi" style="padding:9px 11px;font-size:12px;">
+        </div>
+        <div>
+          <label style="font-size:9px;font-weight:800;color:#94a3b8;text-transform:uppercase;letter-spacing:.1em;display:block;margin-bottom:4px;">Miles OW</label>
+          <input type="number" id="dtMiles" placeholder="12" class="fi" style="padding:9px 11px;font-size:12px;">
+        </div>
+        <div>
+          <label style="font-size:9px;font-weight:800;color:#94a3b8;text-transform:uppercase;letter-spacing:.1em;display:block;margin-bottom:4px;">Date</label>
+          <input type="date" id="dtDate" class="fi" style="padding:9px 11px;font-size:11px;">
+        </div>
+        <button onclick="addTrip()" class="btn btn-g" style="padding:9px 14px;font-size:11px;white-space:nowrap;height:38px;">+ LOG</button>
+      </div>
+    </div>
+    <!-- Summary bar -->
+    <div style="padding:12px 20px;background:#e8f0e9;border-bottom:1px solid #c8deca;flex-shrink:0;display:flex;gap:20px;align-items:center;">
+      <div style="text-align:center;">
+        <div style="font-size:9px;font-weight:800;color:#2D4A32;text-transform:uppercase;letter-spacing:.1em;">Total Trips</div>
+        <div class="disp" style="font-size:1.4rem;color:#1a2e1c;" id="dtTotalTrips">0</div>
+      </div>
+      <div style="text-align:center;">
+        <div style="font-size:9px;font-weight:800;color:#2D4A32;text-transform:uppercase;letter-spacing:.1em;">Total RT Miles</div>
+        <div class="disp" style="font-size:1.4rem;color:#1a2e1c;" id="dtTotalMiles">0</div>
+      </div>
+      <div style="text-align:center;">
+        <div style="font-size:9px;font-weight:800;color:#2D4A32;text-transform:uppercase;letter-spacing:.1em;">Est. Gas Cost</div>
+        <div class="disp" style="font-size:1.4rem;color:#C9A96E;" id="dtTotalGas">$0</div>
+      </div>
+      <div style="text-align:center;">
+        <div style="font-size:9px;font-weight:800;color:#2D4A32;text-transform:uppercase;letter-spacing:.1em;">Est. Labor</div>
+        <div class="disp" style="font-size:1.4rem;color:#C9A96E;" id="dtTotalLabor">$0</div>
+      </div>
+      <div style="margin-left:auto;">
+        <button onclick="clearTrips()" style="background:none;border:1px solid #6B8F71;border-radius:8px;padding:5px 10px;font-size:10px;font-weight:700;color:#2D4A32;cursor:pointer;font-family:'DM Sans',sans-serif;">🗑 CLEAR</button>
+      </div>
+    </div>
+    <!-- Trip log -->
+    <div style="overflow-y:auto;flex:1;padding:12px 20px 24px;">
+      <div id="dtLog" style="display:flex;flex-direction:column;gap:6px;"></div>
+    </div>
+  </div>
+</div>
+
 
 <div id="toast"></div>
 
@@ -873,6 +975,53 @@ function calcQ() {
 
 function setQ(p){document.getElementById('qIn').value=p;calcQ();}
 
+// ── Delivery Calculator ──────────────────────────────
+let deliveryFee = 0;
+
+function toggleDelivery() {
+  const body = document.getElementById('delivBody');
+  const chev = document.getElementById('delivChev');
+  const open = body.style.display === 'block';
+  body.style.display = open ? 'none' : 'block';
+  chev.textContent = open ? '▼ ADD' : '▲ HIDE';
+}
+
+function calcDelivery() {
+  const miles   = parseFloat(document.getElementById('dMiles').value) || 0;
+  const mpg     = parseFloat(document.getElementById('dMpg').value)   || 25;
+  const gas     = parseFloat(document.getElementById('dGas').value)   || 3.20;
+  const hours   = parseFloat(document.getElementById('dTime').value)  || 0;
+  if (!miles) {
+    document.getElementById('delivResult').style.display = 'none';
+    document.getElementById('dApplyBtn').style.display = 'none';
+    return;
+  }
+  // Gas: (miles / mpg) * gas price
+  const gasCost  = (miles / mpg) * gas;
+  // Time: hours * $25/hr
+  const timeCost = hours * 25;
+  const total    = gasCost + timeCost;
+  document.getElementById('dGasCost').textContent  = '$' + gasCost.toFixed(2);
+  document.getElementById('dTimeCost').textContent = '$' + timeCost.toFixed(2);
+  document.getElementById('dTotal').textContent    = '$' + total.toFixed(2);
+  document.getElementById('delivResult').style.display = 'block';
+  document.getElementById('dApplyBtn').style.display   = 'block';
+  deliveryFee = total;
+}
+
+function applyDelivery() {
+  if (!deliveryFee) return;
+  // Remove existing delivery line if already added
+  accessories = accessories.filter(a => a.name !== 'Delivery');
+  accessories.push({id: accNextId++, name: 'Delivery', price: Math.ceil(deliveryFee)});
+  renderAccList();
+  calcQ();
+  // Collapse delivery panel
+  document.getElementById('delivBody').style.display = 'none';
+  document.getElementById('delivChev').textContent = '▼ EDIT';
+  toast('🚗 Delivery $' + Math.ceil(deliveryFee) + ' added to quote');
+}
+
 // ── Export helpers ──
 function getQuoteData() {
   const b = curBike;
@@ -1114,6 +1263,105 @@ function confirmDel(){
   if(!delId)return;const b=bikes.find(x=>x.id===delId);
   bikes=bikes.filter(x=>x.id!==delId);compareList=compareList.filter(x=>x!==delId);
   delId=null;closeM('mDel');toast('🗑️ '+(b?.model||'Bike')+' removed');renderAdminList();
+}
+
+
+// ── Distance Tracker ─────────────────────────────────
+const DIST_KEY = 'ctc_trips';
+
+function openDistTracker() {
+  // Set today as default date
+  const today = new Date().toISOString().split('T')[0];
+  document.getElementById('dtDate').value = today;
+  renderTrips();
+  openM('mDist');
+}
+
+function getTrips() {
+  try { return JSON.parse(localStorage.getItem(DIST_KEY) || '[]'); } catch(e) { return []; }
+}
+function saveTrips(trips) {
+  localStorage.setItem(DIST_KEY, JSON.stringify(trips));
+}
+
+function addTrip() {
+  const dest  = document.getElementById('dtDest').value.trim();
+  const miles = parseFloat(document.getElementById('dtMiles').value);
+  const date  = document.getElementById('dtDate').value;
+  if (!dest || !miles) { toast('⚠️ Enter destination and miles'); return; }
+  const trips = getTrips();
+  trips.push({ id: Date.now(), dest, miles, date: date || new Date().toISOString().split('T')[0] });
+  saveTrips(trips);
+  document.getElementById('dtDest').value = '';
+  document.getElementById('dtMiles').value = '';
+  renderTrips();
+  toast('✅ Trip logged — ' + (miles * 2).toFixed(0) + ' RT miles');
+}
+
+function deleteTrip(id) {
+  saveTrips(getTrips().filter(t => t.id !== id));
+  renderTrips();
+}
+
+function clearTrips() {
+  if (!confirm('Clear all trip logs?')) return;
+  saveTrips([]);
+  renderTrips();
+}
+
+function renderTrips() {
+  const trips = getTrips();
+  const mpg = 25;
+  const gasPrice = 3.20;
+  const hourlyRate = 25;
+  // Assume avg speed 30mph for time estimate
+  const avgSpeed = 30;
+
+  let totalRT = 0, totalGas = 0, totalLabor = 0;
+  trips.forEach(t => {
+    const rt    = t.miles * 2;
+    const gas   = (rt / mpg) * gasPrice;
+    const hours = rt / avgSpeed;
+    const labor = hours * hourlyRate;
+    totalRT    += rt;
+    totalGas   += gas;
+    totalLabor += labor;
+  });
+
+  document.getElementById('dtTotalTrips').textContent = trips.length;
+  document.getElementById('dtTotalMiles').textContent = totalRT.toFixed(0);
+  document.getElementById('dtTotalGas').textContent   = '$' + totalGas.toFixed(2);
+  document.getElementById('dtTotalLabor').textContent = '$' + totalLabor.toFixed(2);
+
+  const log = document.getElementById('dtLog');
+  if (!trips.length) {
+    log.innerHTML = '<div style="text-align:center;padding:30px;color:#94a3b8;font-weight:600;font-size:12px;">No trips logged yet</div>';
+    return;
+  }
+
+  // Sort newest first
+  const sorted = [...trips].sort((a,b) => b.id - a.id);
+  log.innerHTML = sorted.map(t => {
+    const rt    = t.miles * 2;
+    const gas   = (rt / mpg) * gasPrice;
+    const hours = rt / avgSpeed;
+    const labor = hours * hourlyRate;
+    const total = gas + labor;
+    const dateStr = t.date ? new Date(t.date + 'T12:00:00').toLocaleDateString('en-US', {month:'short', day:'numeric'}) : '';
+    return '<div style="background:white;border:1px solid #e2e8f0;border-radius:12px;padding:12px 14px;display:flex;align-items:center;gap:12px;">' +
+      '<div style="background:#e8f0e9;border-radius:8px;padding:6px 8px;text-align:center;flex-shrink:0;min-width:36px;">' +
+      '<div style="font-size:9px;font-weight:800;color:#2D4A32;">' + dateStr + '</div></div>' +
+      '<div style="flex:1;min-width:0;">' +
+      '<div style="font-size:12px;font-weight:800;color:#1e293b;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + t.dest + '</div>' +
+      '<div style="font-size:10px;color:#94a3b8;font-weight:600;margin-top:2px;">' + t.miles + ' mi OW · ' + rt + ' RT mi · ~' + hours.toFixed(1) + ' hrs</div>' +
+      '</div>' +
+      '<div style="text-align:right;flex-shrink:0;">' +
+      '<div style="font-size:12px;font-weight:900;color:#1a2e1c;">$' + total.toFixed(2) + '</div>' +
+      '<div style="font-size:9px;color:#94a3b8;font-weight:600;">gas+labor</div>' +
+      '</div>' +
+      '<button onclick="deleteTrip(' + t.id + ')" style="background:#fef2f2;color:#dc2626;border:none;border-radius:8px;width:28px;height:28px;cursor:pointer;font-size:13px;flex-shrink:0;">×</button>' +
+      '</div>';
+  }).join('');
 }
 
 // ──────────────────────────────────────────────────────
