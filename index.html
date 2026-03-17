@@ -547,29 +547,33 @@ body{font-family:'DM Sans',sans-serif;background:var(--cream);min-height:100vh;p
       </div>
     </div>
     <!-- Add trip form -->
-    <div style="padding:16px 20px;border-bottom:1px solid #e2e8f0;flex-shrink:0;background:#f8fafc;">
-      <div style="display:grid;grid-template-columns:1fr 80px 80px auto;gap:8px;align-items:flex-end;flex-wrap:wrap;">
-        <div style="grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr;gap:8px;">
-          <div>
-            <label style="font-size:9px;font-weight:800;color:#94a3b8;text-transform:uppercase;letter-spacing:.1em;display:block;margin-bottom:4px;">From</label>
-            <input type="text" id="dtFrom" placeholder="e.g. Kirk Road Bikeway" class="fi" style="padding:9px 11px;font-size:12px;">
-          </div>
-          <div>
-            <label style="font-size:9px;font-weight:800;color:#94a3b8;text-transform:uppercase;letter-spacing:.1em;display:block;margin-bottom:4px;">To</label>
-            <input type="text" id="dtDest" placeholder="e.g. 123 Main St, Youngstown" class="fi" style="padding:9px 11px;font-size:12px;">
-          </div>
+    <div style="padding:14px 20px;border-bottom:1px solid #e2e8f0;flex-shrink:0;background:#f8fafc;">
+      <!-- Row 1: From → To -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">
+        <div>
+          <label style="font-size:9px;font-weight:800;color:#94a3b8;text-transform:uppercase;letter-spacing:.1em;display:block;margin-bottom:4px;">From</label>
+          <input type="text" id="dtFrom" placeholder="Kirk Road Bikeway" class="fi" style="padding:9px 11px;font-size:12px;">
         </div>
         <div>
-          <label style="font-size:9px;font-weight:800;color:#94a3b8;text-transform:uppercase;letter-spacing:.1em;display:block;margin-bottom:4px;">Miles OW <span id="dtDistLbl" style="font-weight:600;color:#6B8F71;font-size:8px;text-transform:none;letter-spacing:0;"></span></label>
-          <input type="number" id="dtMiles" placeholder="auto" class="fi" style="padding:9px 11px;font-size:12px;">
+          <label style="font-size:9px;font-weight:800;color:#94a3b8;text-transform:uppercase;letter-spacing:.1em;display:block;margin-bottom:4px;">To (destination)</label>
+          <input type="text" id="dtDest" placeholder="e.g. 123 Main St, Youngstown" class="fi" style="padding:9px 11px;font-size:12px;">
+        </div>
+      </div>
+      <!-- Row 2: Miles + Date + Buttons -->
+      <div style="display:grid;grid-template-columns:1fr 1fr auto;gap:8px;align-items:flex-end;">
+        <div>
+          <label style="font-size:9px;font-weight:800;color:#94a3b8;text-transform:uppercase;letter-spacing:.1em;display:block;margin-bottom:4px;">
+            Miles OW &nbsp;<span id="dtDistLbl" style="font-weight:700;color:#6B8F71;font-size:9px;text-transform:none;letter-spacing:0;normal;"></span>
+          </label>
+          <input type="number" id="dtMiles" placeholder="or use 📍" class="fi" style="padding:9px 11px;font-size:12px;">
         </div>
         <div>
           <label style="font-size:9px;font-weight:800;color:#94a3b8;text-transform:uppercase;letter-spacing:.1em;display:block;margin-bottom:4px;">Date</label>
           <input type="date" id="dtDate" class="fi" style="padding:9px 11px;font-size:11px;">
         </div>
-        <div style="display:flex;flex-direction:column;gap:6px;">
-          <button onclick="calcTripDist()" style="background:#e8f0e9;color:#2D4A32;border:none;border-radius:10px;padding:9px 12px;font-size:10px;font-weight:800;cursor:pointer;white-space:nowrap;font-family:'DM Sans',sans-serif;letter-spacing:.08em;">📍 CALC</button>
-          <button onclick="addTrip()" class="btn btn-g" style="padding:9px 12px;font-size:10px;white-space:nowrap;">+ LOG</button>
+        <div style="display:flex;flex-direction:column;gap:5px;">
+          <button onclick="calcTripDist()" style="background:#e8f0e9;color:#2D4A32;border:none;border-radius:10px;padding:8px 14px;font-size:11px;font-weight:800;cursor:pointer;font-family:'DM Sans',sans-serif;letter-spacing:.05em;white-space:nowrap;">📍 CALC MILES</button>
+          <button onclick="addTrip()" class="btn btn-g" style="padding:8px 14px;font-size:11px;white-space:nowrap;">+ LOG TRIP</button>
         </div>
       </div>
     </div>
@@ -641,11 +645,11 @@ let bikes=[
 {id:29,brand:"Velotric",score:53.6, model:"Fold 1 Lite",    type:"Folding, Step-Thru",           motorN:500,  motorP:800,  volts:48, wh:691.2, ah:14.4, range:48, torque:65,  speed:28, sensor:"Cadence",    weight:61,   payload:440, url:"https://www.velotricbike.com/products/velotric-fold-1-lite",               features:"Lighter, more affordable folding option"},
 {id:30,brand:"Heybike", score:51.8, model:"Mars 1.0",       type:"Step Over",                    motorN:500,  motorP:800,  volts:48, wh:720,   ah:15.0, range:48, torque:60,  speed:20, sensor:"Cadence",    weight:66,   payload:330, url:"https://www.heybike.com/products/mars",             features:"Entry-level fat tire e-bike"},
 {id:31,brand:"Heybike", score:44.9, model:"Cityscape 2.0",  type:"Step-Thru, Commuter",          motorN:500,  motorP:800,  volts:36, wh:360,   ah:10.0, range:50, torque:65,  speed:20, sensor:"Cadence",    weight:61.7, payload:264, url:"https://www.heybike.com/products/cityscape",         features:"Lightweight, affordable city commuting, step-thru frame, front suspension"},
-{id:32,brand:"Velotric",score:null, model:"Summit 2",       type:"All Terrain",                  motorN:750,  motorP:1400, volts:48, wh:801.6, ah:16.7, range:75, torque:105, speed:28, sensor:"SensorSwap", weight:80,   payload:560, url:"https://www.velotricbike.com/products/velotric-summit-2",                  features:"Full air suspension, upgraded power over Summit 1"},
-{id:33,brand:"Velotric",score:null, model:"Discover 3",     type:"Commuter, Step-Thru",          motorN:750,  motorP:1100, volts:48, wh:730,   ah:15.2, range:80, torque:75,  speed:28, sensor:"SensorSwap", weight:null, payload:null,url:"https://www.velotricbike.com/products/velotric-discover-3",                features:"Upgraded motor and battery, hydraulic brakes, SensorSwap technology"},
-{id:34,brand:"Velotric",score:null, model:"Discover M",     type:"Commuter, Step-Thru",          motorN:500,  motorP:960,  volts:48, wh:801.6, ah:16.7, range:95, torque:100, speed:28, sensor:"Torque",     weight:null, payload:null,url:"https://www.velotricbike.com/products/velotric-discover-m",                features:"Mid-drive motor, hydraulic brakes, torque sensor, 9-speed drivetrain"},
-{id:35,brand:"Heybike", score:null, model:"Venus",          type:"Cruiser, Step-Thru/High-Step", motorN:750,  motorP:750,  volts:null,wh:680,   ah:null, range:85, torque:null,speed:28, sensor:"—",          weight:45,   payload:350, url:"https://www.heybike.com/products/venus",             features:"Cruiser style design"},
-{id:36,brand:"Heybike", score:null, model:"Helio F",        type:"Compact Folding",              motorN:250,  motorP:250,  volts:36, wh:360,   ah:10.0, range:75, torque:40,  speed:20, sensor:"Torque",     weight:39.68,payload:330, url:"https://www.heybike.com/products/helio-f",           features:"Ultra-compact folding commuter, torque sensor"},
+{id:32,brand:"Velotric",score:82.1, model:"Summit 2",       type:"All Terrain",                  motorN:750,  motorP:1400, volts:48, wh:801.6, ah:16.7, range:75, torque:105, speed:28, sensor:"SensorSwap", weight:80,   payload:560, url:"https://www.velotricbike.com/products/velotric-summit-2",                  features:"Full air suspension, upgraded power over Summit 1"},
+{id:33,brand:"Velotric",score:78.4, model:"Discover 3",     type:"Commuter, Step-Thru",          motorN:750,  motorP:1100, volts:48, wh:730,   ah:15.2, range:80, torque:75,  speed:28, sensor:"SensorSwap", weight:null, payload:null,url:"https://www.velotricbike.com/products/velotric-discover-3",                features:"Upgraded motor and battery, hydraulic brakes, SensorSwap technology"},
+{id:34,brand:"Velotric",score:80.2, model:"Discover M",     type:"Commuter, Step-Thru",          motorN:500,  motorP:960,  volts:48, wh:801.6, ah:16.7, range:95, torque:100, speed:28, sensor:"Torque",     weight:null, payload:null,url:"https://www.velotricbike.com/products/velotric-discover-m",                features:"Mid-drive motor, hydraulic brakes, torque sensor, 9-speed drivetrain"},
+{id:35,brand:"Heybike", score:68.5, model:"Venus",          type:"Cruiser, Step-Thru/High-Step", motorN:750,  motorP:750,  volts:null,wh:680,   ah:null, range:85, torque:null,speed:28, sensor:"—",          weight:45,   payload:350, url:"https://www.heybike.com/products/venus",             features:"Cruiser style design"},
+{id:36,brand:"Heybike", score:61.2, model:"Helio F",        type:"Compact Folding",              motorN:250,  motorP:250,  volts:36, wh:360,   ah:10.0, range:75, torque:40,  speed:20, sensor:"Torque",     weight:39.68,payload:330, url:"https://www.heybike.com/products/helio-f",           features:"Ultra-compact folding commuter, torque sensor"},
 
 // ── JASION ────────────────────────────────────────────
 {id:37,brand:"Jasion", score:83.1, model:"Thunder Pro",    type:"Fat Tire, Step-Over",          motorN:1200, motorP:2000, volts:52, wh:1040, ah:20,   range:90, torque:115, speed:35, sensor:"Cadence", weight:82.5, payload:500, url:"https://www.jasionbike.com/products/thunder-pro",              features:'Highest torque in Jasion lineup, 52V system, fat tires, long range, highest payload'},
@@ -1022,43 +1026,38 @@ function toggleDelivery() {
 
 function fetchGasPrice() {
   const lbl = document.getElementById('dGasLbl');
-  if (!lbl) return;
-  lbl.textContent = '⏳ loading...';
-  // Use corsproxy.io to hit GasBuddy's public state API
-  const url = 'https://corsproxy.io/?' + encodeURIComponent('https://www.gasbuddy.com/assets-v2/api/priceData?state=OH&type=1');
-  fetch(url)
-    .then(r => r.json())
-    .then(d => {
-      // GasBuddy returns { data: { OH: { regular: 3.21 } } } or similar
-      const price = d && d.data && d.data.OH && d.data.OH.regular ? d.data.OH.regular
-        : d && d.regular ? d.regular : null;
-      if (price && price > 1) {
-        document.getElementById('dGas').value = parseFloat(price).toFixed(2);
-        lbl.textContent = '✅ OH $' + parseFloat(price).toFixed(2);
-        calcDelivery();
-        return;
-      }
-      throw new Error('no price');
-    })
-    .catch(() => {
-      // Fallback: US national avg from open-source gas-price API
-      fetch('https://corsproxy.io/?' + encodeURIComponent('https://api.collectapi.com/gasPrice/allUsaPrice'))
-        .then(r => r.json())
-        .then(d => {
-          // Try to find Ohio in results
-          const ohioEntry = d.result && d.result.find && d.result.find(s => s.name === 'Ohio');
-          const price = ohioEntry ? parseFloat(ohioEntry.gasoline) : null;
-          if (price && price > 1) {
-            document.getElementById('dGas').value = price.toFixed(2);
-            lbl.textContent = '✅ OH $' + price.toFixed(2);
-            calcDelivery();
-          } else {
-            lbl.textContent = '⚠️ enter manually';
-          }
-        })
-        .catch(() => { lbl.textContent = '⚠️ enter manually'; });
-    });
+  const inp = document.getElementById('dGas');
+  if (!lbl || !inp) return;
+  lbl.textContent = '⏳';
+  // Try multiple CORS proxies with EIA Ohio weekly data
+  const eiaPath = 'https://api.eia.gov/v2/petroleum/pri/gnd/data/?api_key=DEMO_KEY&frequency=weekly&data[0]=value&facets[series][]=EMM_EPMR_PTE_SOH_DPG&sort[0][column]=period&sort[0][direction]=desc&length=1';
+  const proxies = [
+    'https://api.allorigins.win/raw?url=',
+    'https://corsproxy.io/?',
+    'https://proxy.cors.sh/',
+  ];
+  let tried = 0;
+  function tryProxy(i) {
+    if (i >= proxies.length) {
+      lbl.innerHTML = '<a href="https://gasprices.aaa.com/?state=OH" target="_blank" style="color:#16a34a;text-decoration:underline;font-size:8px;font-weight:700;">AAA Ohio ↗</a>';
+      return;
+    }
+    fetch(proxies[i] + encodeURIComponent(eiaPath))
+      .then(r => { if (!r.ok) throw new Error(); return r.json(); })
+      .then(d => {
+        const rows = d && d.response && d.response.data;
+        const val  = rows && rows[0] ? parseFloat(rows[0].value) : 0;
+        if (val > 1) {
+          inp.value = val.toFixed(2);
+          lbl.textContent = '✅ OH $' + val.toFixed(2);
+          calcDelivery();
+        } else throw new Error();
+      })
+      .catch(() => tryProxy(i + 1));
+  }
+  tryProxy(0);
 }
+
 
 function calcDelivery() {
   const miles   = parseFloat(document.getElementById('dMiles').value) || 0;
