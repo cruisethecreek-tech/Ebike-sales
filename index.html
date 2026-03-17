@@ -574,7 +574,7 @@ function getPriceBadge(model, bikePrice) {
   if (diff === null) return '<span class="price-badge pb-none">⚪ No data' + (ourPrice ? ' · Ours: ' + ourPrice : '') + '</span>';
   if (Math.abs(diff) < 1) return '<span class="price-badge pb-match">✅ Match · ' + ourPrice + '</span>';
   if (diff < 0) return '<span class="price-badge pb-alert">🔴 Mfr $' + Math.abs(diff).toFixed(0) + ' cheaper · Ours: ' + ourPrice + '</span>';
-  return '<span class="price-badge pb-low">🟡 We're $' + diff.toFixed(0) + ' lower · Ours: ' + ourPrice + '</span>';
+  return '<span class="price-badge pb-low">🟡 We are $' + diff.toFixed(0) + ' lower · Ours: ' + ourPrice + '</span>';
 }
 const PASS='creek2024';
 const FILTERS=['All','Heybike','Velotric','Folding','Fat Tire','Commuter','Cargo','Torque Sensor'];
