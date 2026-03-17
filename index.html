@@ -893,7 +893,29 @@ function switchAdminTab(tab, btn){
   document.getElementById('adminTabBikes').style.display  = tab==='bikes'  ? 'block' : 'none';
   document.getElementById('adminTabEditor').style.display = tab==='editor' ? 'block' : 'none';
   document.getElementById('addBtn').style.display = tab==='bikes' ? 'inline-flex' : 'none';
-  if(tab==='editor' && !edBikes.length) edLoadBikes();
+  if(tab==='editor'){
+    if(!edBikes.length){ edLoadBikes(); }
+    else { autoSelectEditorBike(); }
+  }
+}
+
+function autoSelectEditorBike(){
+  // If a bike is currently being edited in the Bikes tab, auto-select it in the editor
+  if(!editingId) return;
+  const editedBike = bikes.find(b=>b.id===editingId);
+  if(!editedBike) return;
+  const sel = document.getElementById('edBikeSelect');
+  if(!sel) return;
+  // Find matching option by name+brand
+  for(let i=0; i<sel.options.length; i++){
+    const opt = sel.options[i];
+    if(opt.textContent.toLowerCase().indexOf(editedBike.model.toLowerCase()) !== -1){
+      sel.value = opt.value;
+      edSelectBike();
+      return;
+    }
+  }
+}ditor' && !edBikes.length) edLoadBikes();
 }
 function closeAdmin(){cancelEdit();document.getElementById('vAdmin').style.display='none';document.getElementById('vSales').style.display='block';renderCards();}
 
@@ -1662,6 +1684,7 @@ function edLoadBikes() {
         sel.appendChild(opt);
       });
       edSetStatus('ok', data.length + ' bikes loaded.');
+      autoSelectEditorBike();
     })
     .catch(e => edSetStatus('err', 'Failed to load: ' + e.message));
 }
