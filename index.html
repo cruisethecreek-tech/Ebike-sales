@@ -22,6 +22,8 @@ body{font-family:'DM Sans',sans-serif;background:var(--cream);min-height:100vh;p
 .badge{font-size:9px;font-weight:800;letter-spacing:.15em;text-transform:uppercase;padding:2px 8px;border-radius:99px;display:inline-block;margin-bottom:3px;}
 .bH{background:#e8f0e9;color:#2D4A32;}
 .bV{background:#fdf3e0;color:#7a5a20;}
+.bJ{background:#fce7e7;color:#7f1d1d;}
+.pill-J{background:#fee2e2;color:#991b1b;border:1px solid #fca5a5;}
 .sb{background:#f8fafc;border-radius:11px;padding:8px 10px;border:1px solid #e2e8f0;}
 .sl{font-size:9px;font-weight:800;letter-spacing:.15em;text-transform:uppercase;color:#94a3b8;margin-bottom:2px;}
 .sv{font-size:12px;font-weight:700;color:#1e293b;line-height:1.2;}
@@ -529,6 +531,18 @@ let bikes=[
 {id:34,brand:"Velotric",score:null, model:"Discover M",     type:"Commuter, Step-Thru",          motorN:500,  motorP:960,  volts:48, wh:801.6, ah:16.7, range:95, torque:100, speed:28, sensor:"Torque",     weight:null, payload:null,url:"https://www.velotricbike.com/products/velotric-discover-m",                features:"Mid-drive motor, hydraulic brakes, torque sensor, 9-speed drivetrain"},
 {id:35,brand:"Heybike", score:null, model:"Venus",          type:"Cruiser, Step-Thru/High-Step", motorN:750,  motorP:750,  volts:null,wh:680,   ah:null, range:85, torque:null,speed:28, sensor:"—",          weight:45,   payload:350, url:"https://www.heybike.com/products/venus",             features:"Cruiser style design"},
 {id:36,brand:"Heybike", score:null, model:"Helio F",        type:"Compact Folding",              motorN:250,  motorP:250,  volts:36, wh:360,   ah:10.0, range:75, torque:40,  speed:20, sensor:"Torque",     weight:39.68,payload:330, url:"https://www.heybike.com/products/helio-f",           features:"Ultra-compact folding commuter, torque sensor"},
+
+// ── JASION ────────────────────────────────────────────
+{id:37,brand:"Jasion", score:83.1, model:"Thunder Pro",    type:"Fat Tire, Step-Over",          motorN:1200, motorP:2000, volts:52, wh:1040, ah:20,   range:90, torque:115, speed:35, sensor:"Cadence", weight:82.5, payload:500, url:"https://www.jasionbike.com/products/thunder-pro",              features:'Highest torque in Jasion lineup, 52V system, fat tires, long range, highest payload'},
+{id:38,brand:"Jasion", score:82.8, model:"Thunder Pro ST", type:"Fat Tire, Step-Thru",          motorN:1200, motorP:2000, volts:52, wh:1040, ah:20,   range:90, torque:115, speed:35, sensor:"Cadence", weight:82.5, payload:500, url:"https://www.jasionbike.com/products/thunder-pro",              features:'Step-thru version of Thunder Pro — same 52V/115Nm powerplant, highest payload in Jasion lineup'},
+{id:39,brand:"Jasion", score:80.4, model:"RetroVolt Pro",  type:"Retro/Cruiser, Step-Over",     motorN:1000, motorP:2000, volts:52, wh:1040, ah:20,   range:90, torque:99,  speed:38, sensor:"Cadence", weight:82,   payload:330, url:"https://www.jasionbike.com/products/retrovolt-pro",            features:'Retro moped styling, 52V system, highest top speed in Jasion lineup, long range'},
+{id:40,brand:"Jasion", score:79.7, model:"Hunter Pro",     type:"Folding, Fat Tire",            motorN:1000, motorP:1800, volts:48, wh:720,  ah:15,   range:80, torque:95,  speed:30, sensor:"Cadence", weight:82,   payload:400, url:"https://www.jasionbike.com/products/hunter-pro",              features:'Foldable fat tire design, high torque, strong motor for a folding bike'},
+{id:41,brand:"Jasion", score:77.2, model:"X-Hunter",       type:"Folding, Fat Tire",            motorN:750,  motorP:1400, volts:48, wh:624,  ah:13,   range:70, torque:85,  speed:28, sensor:"Cadence", weight:70,   payload:480, url:"https://www.jasionbike.com/products/jasion-x-hunter",         features:'High payload folding fat tire, 85Nm torque, good range for class'},
+{id:42,brand:"Jasion", score:76.9, model:"X-Hunter ST",    type:"Folding, Fat Tire, Step-Thru", motorN:750,  motorP:1400, volts:48, wh:624,  ah:13,   range:70, torque:85,  speed:28, sensor:"Cadence", weight:70,   payload:480, url:"https://www.jasionbike.com/products/x-hunter-st",             features:'Step-thru version of X-Hunter — folding fat tire with high payload capacity'},
+{id:43,brand:"Jasion", score:75.8, model:"Thunder",        type:"Fat Tire, Step-Over",          motorN:1000, motorP:1800, volts:48, wh:864,  ah:18,   range:80, torque:85,  speed:30, sensor:"Cadence", weight:82,   payload:400, url:"https://www.jasionbike.com/products/thunder",                 features:'Large 864Wh battery, 1000W motor, fat tires, solid all-terrain performance'},
+{id:44,brand:"Jasion", score:64.8, model:"EB7 2.0",        type:"Folding, Fat Tire",            motorN:850,  motorP:1200, volts:48, wh:480,  ah:10,   range:55, torque:55,  speed:28, sensor:"Cadence", weight:62,   payload:330, url:"https://www.jasionbike.com/products/eb7-2-0",                 features:'Compact folding fat tire, lightest Jasion folder, entry-level price point'},
+{id:45,brand:"Jasion", score:63.2, model:"EB5 Roamer",     type:"Cruiser, Step-Over",           motorN:750,  motorP:1200, volts:48, wh:528,  ah:11,   range:62, torque:60,  speed:28, sensor:"Cadence", weight:65,   payload:330, url:"https://www.jasionbike.com/products/jasion-eb5-roamer-ebike", features:'Lightweight urban cruiser, affordable entry point, step-over frame'},
+{id:46,brand:"Jasion", score:62.9, model:"EB5 Roamer ST",  type:"Cruiser, Step-Thru",           motorN:750,  motorP:1200, volts:48, wh:528,  ah:11,   range:62, torque:60,  speed:28, sensor:"Cadence", weight:65,   payload:330, url:"https://www.jasionbike.com/products/jasion-eb5-st-roamer-ebike",features:'Step-thru version of EB5 Roamer — easy mount/dismount, lightweight urban commuter'},
 ];
 
 // ──────────────────────────────────────────────────────
@@ -586,16 +600,16 @@ function getPriceBadge(model) {
   return `<span class="price-badge pb-low">🟡 We're lower by $${diff.toFixed(0)} · Mfr: $${d.mfrPrice.toLocaleString()}</span>`;
 }
 const PASS='creek2024';
-const FILTERS=['All','Heybike','Velotric','Folding','Fat Tire','Commuter','Cargo','Torque Sensor'];
+const FILTERS=['All','Heybike','Velotric','Jasion','Folding','Fat Tire','Commuter','Cargo','Torque Sensor'];
 
 // ──────────────────────────────────────────────────────
 // UTILS
 // ──────────────────────────────────────────────────────
 const fmt=n=>'$'+n.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
 const scCls=s=>!s?'sr-l':s>=80?'sr-h':s>=65?'sr-m':'sr-l';
-const bdgCls=b=>b==='Velotric'?'bV':'bH';
-const pillCls=b=>b==='Velotric'?'pill-V':'pill-H';
-const siteName=b=>b==='Velotric'?'velotricbike.com':'heybike.com';
+const bdgCls=b=>b==='Velotric'?'bV':b==='Jasion'?'bJ':'bH';
+const pillCls=b=>b==='Velotric'?'pill-V':b==='Jasion'?'pill-J':'pill-H';
+const siteName=b=>b==='Velotric'?'velotricbike.com':b==='Jasion'?'jasionbike.com':'heybike.com';
 const srHTML=s=>`<div class="sr ${scCls(s)}">${s?parseFloat(s).toFixed(1):'—'}</div>`;
 function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500);}
 function openM(id){document.getElementById(id).classList.add('open');}
