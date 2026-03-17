@@ -58,6 +58,12 @@ body{font-family:'DM Sans',sans-serif;background:var(--cream);min-height:100vh;p
 .pb-alert{background:#fee2e2;color:#991b1b;}
 .pb-none{background:#f1f5f9;color:#94a3b8;}
 .pb-loading{background:#f1f5f9;color:#94a3b8;animation:pulse 1.5s infinite;}
+.stock-panel{display:none;border-top:1px solid #e2e8f0;padding:12px 16px;background:#f8fafc;}
+.stock-row{display:flex;align-items:center;justify-content:space-between;padding:6px 0;border-bottom:1px solid #f1f5f9;font-size:11px;}
+.stock-row:last-child{border-bottom:none;}
+.stock-low{background:#fffbeb;border-radius:6px;padding:2px 7px;font-size:9px;font-weight:800;color:#b45309;letter-spacing:.05em;}
+.stock-ok{background:#f0fdf4;border-radius:6px;padding:2px 7px;font-size:9px;font-weight:800;color:#166534;letter-spacing:.05em;}
+.stock-zero{background:#fef2f2;border-radius:6px;padding:2px 7px;font-size:9px;font-weight:800;color:#991b1b;letter-spacing:.05em;}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
 .arow{background:white;border-radius:14px;border:1px solid #e2e8f0;padding:13px 15px;display:flex;align-items:center;gap:12px;margin-bottom:8px;}
 .grid2{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;}
@@ -511,6 +517,8 @@ let bikes=[
 // STATE
 // ──────────────────────────────────────────────────────
 let activeFilter='All', compareList=[], curBike=null, editingId=null, delId=null;
+let stockData = null; // manufacturer stock cache
+let stockLoading = false;
 
 // ── Google Sheet Price Data ────────────────────────────────
 const SHEET_ID = '1R3pDFG_sO81bKS6dEAa-k5F-OdD5OAbe4hQ-Oc0_T-E';
@@ -649,9 +657,15 @@ function renderCards(){
       <div style="margin-bottom:10px;">${getPriceBadge(b.model)}</div>
       <div style="display:flex;gap:8px;">
         <button onclick="openQuote(${b.id})" class="btn btn-g" style="flex:1;padding:12px;">📋 Quote</button>
+        ${(b.brand==='Heybike'||b.brand==='Jasion') ? `<button onclick="toggleStock('${b.id}',this)" style="padding:12px 14px;background:#e8f0e9;color:#2D4A32;border:none;border-radius:12px;font-weight:900;font-size:11px;cursor:pointer;letter-spacing:1px;">📦 STOCK</button>` : ''}
         <button onclick="addCmp(${b.id})" style="padding:12px 16px;background:#e8f0e9;color:#2D4A32;border:none;border-radius:12px;font-weight:900;font-size:18px;cursor:pointer;">+</button>
       </div>
-    </div></div>`
+    </div>
+    <div class="stock-panel" id="stock-${b.id}">
+      <div style="font-size:9px;font-weight:800;color:#94a3b8;letter-spacing:.15em;text-transform:uppercase;margin-bottom:8px;">📦 MANUFACTURER STOCK · US SITE</div>
+      <div id="stock-rows-${b.id}" style="color:#94a3b8;font-size:11px;font-weight:600;">Loading...</div>
+    </div>
+    </div>`
   ).join('');
 }
 
@@ -1904,6 +1918,80 @@ function edSaveColors() {
     .catch(e => edSetStatus('err', 'Save failed: ' + e.message));
 }
 
+/// ── Manufacturer Stock ───────────────────────────────────────
+function toggleStock(bikeId, btn) {
+  const panel = document.getElementById('stock-' + bikeId);
+  if (!panel) return;
+  const isOpen = panel.style.display === 'block';
+  document.querySelectorAll('.stock-panel').forEach(p => p.style.display = 'none');
+  if (isOpen) return;
+  panel.style.display = 'block';
+  if (stockData) { renderStockPanel(bikeId); }
+  else if (!stockLoading) { loadStockData(bikeId); }
+  else { document.getElementById('stock-rows-' + bikeId).textContent = 'Loading...'; }
+}
+
+function loadStockData(targetBikeId) {
+  stockLoading = true;
+  fetch(AS_URL + '?action=getStock', {redirect:'follow'})
+    .then(r => r.json())
+    .then(res => {
+      stockLoading = false;
+      if (res.status === 'ok') {
+        stockData = res.data;
+        document.querySelectorAll('.stock-panel').forEach(p => {
+          if (p.style.display === 'block') renderStockPanel(p.id.replace('stock-', ''));
+        });
+      } else {
+        if (targetBikeId) {
+          const el = document.getElementById('stock-rows-' + targetBikeId);
+          if (el) el.innerHTML = '<span style="color:#ef4444;">Error: ' + (res.message||'Unknown') + '</span>';
+        }
+      }
+    })
+    .catch(() => {
+      stockLoading = false;
+      if (targetBikeId) {
+        const el = document.getElementById('stock-rows-' + targetBikeId);
+        if (el) el.innerHTML = '<span style="color:#ef4444;font-size:11px;">Could not load — redeploy Apps Script first</span>';
+      }
+    });
+}
+
+function renderStockPanel(bikeId) {
+  const bike = bikes.find(b => String(b.id) === String(bikeId));
+  if (!bike || !stockData) return;
+  const el = document.getElementById('stock-rows-' + bikeId);
+  if (!el) return;
+  const rows = stockData.filter(r =>
+    String(r.id) === String(bikeId) ||
+    r.name.toLowerCase() === bike.model.toLowerCase() ||
+    r.name.toLowerCase().indexOf(bike.model.toLowerCase()) !== -1 ||
+    bike.model.toLowerCase().indexOf(r.name.toLowerCase()) !== -1
+  );
+  if (!rows.length) {
+    el.innerHTML = '<div style="color:#94a3b8;font-size:11px;padding:8px 0;">No stock data found for this model</div>';
+    return;
+  }
+  const totalUnits = rows.reduce((s,r) => s+(r.total||0), 0);
+  const lowCount   = rows.filter(r => r.lowStock).length;
+  const zeroCount  = rows.filter(r => r.total === 0).length;
+  let html = '<div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap;">';
+  html += '<span style="background:#e8f0e9;color:#2D4A32;border-radius:8px;padding:4px 10px;font-size:10px;font-weight:800;">TOTAL ' + totalUnits + ' UNITS</span>';
+  if (lowCount)  html += '<span class="stock-low">⚠️ ' + lowCount + ' LOW STOCK</span>';
+  if (zeroCount) html += '<span class="stock-zero">🚫 ' + zeroCount + ' OUT OF STOCK</span>';
+  html += '</div>';
+  html += rows.map(r => {
+    const badge = r.total === 0
+      ? '<span class="stock-zero">OUT</span>'
+      : r.lowStock
+        ? '<span class="stock-low">LOW · ' + r.total + '</span>'
+        : '<span class="stock-ok">' + r.total + ' units</span>';
+    return '<div class="stock-row"><span style="color:#334155;font-weight:600;flex:1;">' + r.variant + '</span>' + badge + '</div>';
+  }).join('');
+  el.innerHTML = html;
+}
+
 // ── Daily Briefing key (must be before initBriefing call) ───
 const BRIEF_KEY = 'ctc_brief_' + new Date().toDateString();
 
@@ -1934,41 +2022,70 @@ function loadBriefingData() {
     .then(text => {
       const json = JSON.parse(text.replace(/^[^(]+\(/, '').replace(/\);?$/, ''));
       const rows = json.table ? json.table.rows : [];
-      const alerts = [];
+      const alertsLow  = []; // mfr cheaper — urgent
+      const alertsHigh = []; // we are cheaper — good to know
       rows.forEach(row => {
         if (!row.c || !row.c[1] || !row.c[1].v) return;
         const brand  = row.c[0] ? (row.c[0].v || '') : '';
         const name   = row.c[1].v.toString();
         const diff   = row.c[2] ? Number(row.c[2].v) : null;
         const status = row.c[3] ? (row.c[3].v || '').toString() : '';
-        if (diff !== null && diff < -0.5) {
-          alerts.push({ brand, name, diff, status });
-        }
+        if (diff === null || Math.abs(diff) < 1) return; // skip matches and unverified
+        if (diff < 0) alertsLow.push({ brand, name, diff, status });
+        else alertsHigh.push({ brand, name, diff, status });
       });
 
       const alertEl = document.getElementById('briefAlerts');
       const countEl = document.getElementById('alertCount');
+      const totalAlerts = alertsLow.length + alertsHigh.length;
 
-      if (!alerts.length) {
+      if (!totalAlerts) {
         countEl.textContent = 'ALL CLEAR';
         alertEl.innerHTML = '<div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:12px;padding:14px 16px;display:flex;align-items:center;gap:10px;">' +
           '<span style="font-size:1.4rem;">✅</span>' +
           '<div><div style="font-size:12px;font-weight:800;color:#166534;">All prices are aligned</div>' +
-          '<div style="font-size:11px;color:#4ade80;margin-top:1px;">No manufacturer undercuts detected</div></div></div>';
+          '<div style="font-size:11px;color:#4ade80;margin-top:1px;">No discrepancies detected</div></div></div>';
       } else {
-        countEl.textContent = alerts.length + ' BIKE' + (alerts.length > 1 ? 'S' : '') + ' NEED ATTENTION';
-        alertEl.innerHTML = alerts.map(a => {
-          const brandColor = a.brand === 'Velotric' ? '#C9A96E' : a.brand === 'Heybike' ? '#6B8F71' : '#e53935';
-          return '<div style="background:#fff5f5;border:1px solid #fecaca;border-radius:12px;padding:12px 14px;margin-bottom:8px;display:flex;align-items:center;gap:12px;">' +
-            '<div style="background:#fee2e2;border-radius:8px;padding:6px 8px;text-align:center;flex-shrink:0;">' +
-            '<div style="font-size:11px;font-weight:900;color:#991b1b;">-$' + Math.abs(a.diff).toFixed(0) + '</div></div>' +
-            '<div style="flex:1;">' +
-            '<div style="font-size:12px;font-weight:800;color:#1e293b;">' + a.name + '</div>' +
-            '<div style="font-size:10px;color:#ef4444;font-weight:700;margin-top:1px;">Manufacturer is $' + Math.abs(a.diff).toFixed(0) + ' cheaper — update needed</div>' +
-            '</div>' +
-            '<div style="font-size:10px;font-weight:800;color:' + brandColor + ';letter-spacing:.05em;">' + a.brand.toUpperCase() + '</div>' +
-            '</div>';
-        }).join('');
+        countEl.textContent = totalAlerts + ' DISCREPANC' + (totalAlerts > 1 ? 'IES' : 'Y');
+        let html = '';
+
+        // 🔴 Urgent — mfr is cheaper
+        if (alertsLow.length) {
+          html += '<div style="font-size:9px;font-weight:800;color:#991b1b;letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px;">🔴 Manufacturer Cheaper — Update Needed</div>';
+          html += alertsLow.map(a => {
+            const brandColor = a.brand === 'Velotric' ? '#C9A96E' : a.brand === 'Heybike' ? '#6B8F71' : '#e53935';
+            return '<div style="background:#fff5f5;border:1px solid #fecaca;border-radius:12px;padding:12px 14px;margin-bottom:8px;display:flex;align-items:center;gap:12px;">' +
+              '<div style="background:#fee2e2;border-radius:8px;padding:6px 8px;text-align:center;flex-shrink:0;min-width:44px;">' +
+              '<div style="font-size:11px;font-weight:900;color:#991b1b;">-$' + Math.abs(a.diff).toFixed(0) + '</div>' +
+              '<div style="font-size:8px;color:#ef4444;font-weight:700;">LOWER</div></div>' +
+              '<div style="flex:1;">' +
+              '<div style="font-size:12px;font-weight:800;color:#1e293b;">' + a.name + '</div>' +
+              '<div style="font-size:10px;color:#ef4444;font-weight:700;margin-top:1px;">Mfr is $' + Math.abs(a.diff).toFixed(0) + ' cheaper — price update needed</div>' +
+              '</div>' +
+              '<div style="font-size:10px;font-weight:800;color:' + brandColor + ';letter-spacing:.05em;">' + a.brand.toUpperCase() + '</div>' +
+              '</div>';
+          }).join('');
+        }
+
+        // 🟡 Informational — we are cheaper
+        if (alertsHigh.length) {
+          html += '<div style="font-size:9px;font-weight:800;color:#854d0e;letter-spacing:.1em;text-transform:uppercase;margin:10px 0 6px;">🟡 Our Price Lower — Competitive Advantage</div>';
+          html += alertsHigh.map(a => {
+            const brandColor = a.brand === 'Velotric' ? '#C9A96E' : a.brand === 'Heybike' ? '#6B8F71' : '#e53935';
+            return '<div style="background:#fefce8;border:1px solid #fde68a;border-radius:12px;padding:12px 14px;margin-bottom:8px;display:flex;align-items:center;gap:12px;">' +
+              '<div style="background:#fef9c3;border-radius:8px;padding:6px 8px;text-align:center;flex-shrink:0;min-width:44px;">' +
+              '<div style="font-size:11px;font-weight:900;color:#854d0e;">+$' + Math.abs(a.diff).toFixed(0) + '</div>' +
+              '<div style="font-size:8px;color:#a16207;font-weight:700;">LOWER</div></div>' +
+              '<div style="flex:1;">' +
+              '<div style="font-size:12px;font-weight:800;color:#1e293b;">' + a.name + '</div>' +
+              '<div style="font-size:10px;color:#a16207;font-weight:700;margin-top:1px;">We are $' + Math.abs(a.diff).toFixed(0) + ' cheaper — highlight this to customers</div>' +
+              '</div>' +
+              '<div style="font-size:10px;font-weight:800;color:' + brandColor + ';letter-spacing:.05em;">' + a.brand.toUpperCase() + '</div>' +
+              '</div>';
+          }).join('');
+        }
+
+        alertEl.innerHTML = html;
       }
     })
     .catch(() => {
