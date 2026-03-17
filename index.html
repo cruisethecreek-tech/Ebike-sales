@@ -736,6 +736,30 @@ function getPriceBadge(model, bikePrice) {
   return '<span class="price-badge pb-low">🟡 We are $' + diff.toFixed(0) + ' lower · Ours: ' + ourPrice + '</span>';
 }
 const PASS='creek2024';
+const BIKE_OVERRIDES_KEY = 'ctc_bike_overrides';
+
+function saveBikeOverrides() {
+  const overrides = {};
+  bikes.forEach(b => {
+    const fields = {};
+    ['discontinued','url','price','score','subtitle','features','img'].forEach(k => {
+      if (b[k] !== undefined && b[k] !== null && b[k] !== '') fields[k] = b[k];
+    });
+    if (Object.keys(fields).length) overrides[b.id] = fields;
+  });
+  localStorage.setItem(BIKE_OVERRIDES_KEY, JSON.stringify(overrides));
+}
+
+function loadBikeOverrides() {
+  try {
+    const overrides = JSON.parse(localStorage.getItem(BIKE_OVERRIDES_KEY) || '{}');
+    Object.keys(overrides).forEach(id => {
+      const idx = bikes.findIndex(b => String(b.id) === String(id));
+      if (idx !== -1) Object.assign(bikes[idx], overrides[id]);
+      else bikes.push(overrides[id]); // new bike added in prev session
+    });
+  } catch(e) {}
+}
 
 // ── Accessory price overrides (editable in Admin) ──────
 const ACC_DEFAULTS = {
@@ -1339,6 +1363,7 @@ function saveBike(){
   if(!d.model){toast('⚠️ Model name required');return;}
   const isNew = editingId==='new';
   if(isNew){bikes.push(d);} else{bikes=bikes.map(b=>b.id===nid?d:b);}
+  saveBikeOverrides();
   cancelEdit();renderAdminList();renderCards();
   // Sync to Google Sheet
   syncBikeToSheet(d, isNew);
@@ -1472,7 +1497,14 @@ function addTrip() {
   document.getElementById('dtDest').value = '';
   document.getElementById('dtMiles').value = '';
   renderTrips();
-  toast('✅ Trip logged — ' + (miles * 2).toFixed(0) + ' RT miles');
+  const rt = (miles * 2).toFixed(1);
+  toast('✅ Trip logged — ' + rt + ' RT miles');
+  // Offer to populate delivery calc
+  const dMiles = document.getElementById('dMiles');
+  if (dMiles !== null) {
+    dMiles.value = miles;
+    calcDelivery();
+  }
 }
 
 function deleteTrip(id) {
@@ -2664,12 +2696,21 @@ function renderStockPanel(bikeId) {
   if (!bike || !stockData) return;
   const el = document.getElementById('stock-rows-' + bikeId);
   if (!el) return;
-  const rows = stockData.filter(r =>
-    String(r.id) === String(bikeId) ||
-    r.name.toLowerCase() === bike.model.toLowerCase() ||
-    r.name.toLowerCase().indexOf(bike.model.toLowerCase()) !== -1 ||
-    bike.model.toLowerCase().indexOf(r.name.toLowerCase()) !== -1
-  );
+  const bModel = bike.model.toLowerCase().trim();
+  const bNorm  = bModel.replace(/[^a-z0-9]/g,'');
+  const rows = stockData.filter(r => {
+    const rName  = (r.name || '').toLowerCase().trim();
+    const rNorm  = rName.replace(/[^a-z0-9]/g,'');
+    const rVar   = (r.variant || '').toLowerCase();
+    // Exact model match, or normalised match, or variant contains model name
+    return rName === bModel ||
+           rNorm === bNorm ||
+           rName.indexOf(bModel) !== -1 ||
+           bModel.indexOf(rName) !== -1 ||
+           rNorm.indexOf(bNorm) !== -1 ||
+           bNorm.indexOf(rNorm) !== -1 ||
+           rVar.indexOf(bModel) !== -1;
+  });
   if (!rows.length) {
     el.innerHTML = '<div style="color:#94a3b8;font-size:11px;padding:8px 0;">No stock data found for this model</div>';
     return;
@@ -2696,6 +2737,7 @@ function renderStockPanel(bikeId) {
 // ── Daily Briefing key (must be before initBriefing call) ───
 const BRIEF_KEY = 'ctc_brief_' + new Date().toDateString();
 
+loadBikeOverrides();
 buildFilters();
 renderCards();
 initBriefing();
