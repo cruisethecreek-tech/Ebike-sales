@@ -1641,8 +1641,11 @@ function edSelectBike() {
   const idx = document.getElementById('edBikeSelect').value;
   if (idx === '') { edActiveBike = null; document.getElementById('edPriceCard').style.display = 'none'; document.getElementById('edSwatches').innerHTML = ''; return; }
   edActiveBike = edBikes[parseInt(idx)];
-  try { edSwatchData = JSON.parse(JSON.stringify(edActiveBike.colors || {})); } catch(e) { edSwatchData = {}; }
-  edIsNested = Object.values(edSwatchData).some(v => v && typeof v === 'object' && !Array.isArray(v));
+  // getSidebarInventory returns colorsObj — fall back to colors for compatibility
+  var colorSource = edActiveBike.colorsObj || edActiveBike.colors || {};
+  try { edSwatchData = JSON.parse(JSON.stringify(colorSource)); } catch(e) { edSwatchData = {}; }
+  edIsNested = edActiveBike.colorsNested ||
+    Object.values(edSwatchData).some(function(v){ return v && typeof v === 'object' && !Array.isArray(v); });
 
   // Show price card
   document.getElementById('edPriceCard').style.display = 'block';
