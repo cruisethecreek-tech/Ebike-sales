@@ -83,7 +83,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--cream);min-height:100vh;p
             <div style="font-size:9px;color:#94a3b8;font-weight:700;letter-spacing:2px;">BIKES</div>
           </div>
           <button onclick="openErrors()" style="background:rgba(255,165,0,.15);border:2px solid rgba(255,165,0,.3);border-radius:10px;padding:7px 12px;color:#fbbf24;font-size:11px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;letter-spacing:1px;">⚠️ ERRORS</button>
-          <button onclick="openEditor()" style="background:rgba(107,143,113,.2);border:2px solid rgba(107,143,113,.4);border-radius:10px;padding:7px 12px;color:#86efac;font-size:11px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;letter-spacing:1px;">🎨 EDITOR</button>
+          <button onclick="openAdmin('editor')" style="background:rgba(107,143,113,.2);border:2px solid rgba(107,143,113,.4);border-radius:10px;padding:7px 12px;color:#86efac;font-size:11px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;letter-spacing:1px;">🎨 EDITOR</button>
           <button onclick="openAdmin()" style="background:rgba(255,255,255,.08);border:2px solid rgba(255,255,255,.15);border-radius:10px;padding:7px 12px;color:rgba(255,255,255,.65);font-size:11px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;letter-spacing:1px;">⚙️ ADMIN</button>
         </div>
       </div>
@@ -143,75 +143,31 @@ body{font-family:'DM Sans',sans-serif;background:var(--cream);min-height:100vh;p
   </div>
 </div>
 
-<!-- ══════════════════ EDITOR VIEW ══════════════════ -->
-<div id="vEditor" style="display:none;">
+
+<!-- ══════════════════ ADMIN VIEW (unified) ══════════════════ -->
+<div id="vAdmin" style="display:none;">
   <header class="sticky" style="background:#1a2e1c;padding:16px;box-shadow:0 4px 24px rgba(0,0,0,.3);">
     <div class="wrap">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
         <div>
-          <div class="disp" style="font-size:1.6rem;color:#C9A96E;line-height:1;">🎨 COLOR & PRICE EDITOR</div>
-          <div style="font-size:10px;color:#86efac;font-weight:700;letter-spacing:3px;margin-top:2px;">CRUISE THE CREEK · INVENTORY MANAGER</div>
+          <div class="disp" style="font-size:1.4rem;color:#C9A96E;">ADMIN PANEL</div>
+          <div style="font-size:10px;color:#86efac;font-weight:700;letter-spacing:3px;" id="adminSub">CRUISE THE CREEK</div>
         </div>
-        <button onclick="closeEditor()" style="background:rgba(255,255,255,.08);border:2px solid rgba(255,255,255,.15);border-radius:10px;padding:7px 12px;color:rgba(255,255,255,.65);font-size:11px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;">← BACK</button>
+        <div style="display:flex;gap:8px;">
+          <button onclick="startAdd()" id="addBtn" class="btn btn-s" style="padding:9px 14px;display:none;">+ Add Bike</button>
+          <button onclick="closeAdmin()" class="btn btn-o" style="padding:9px 14px;color:rgba(255,255,255,.7);border-color:rgba(255,255,255,.2);">← Sales</button>
+        </div>
       </div>
-      <!-- Bike selector -->
-      <select id="edBikeSelect" onchange="edSelectBike()" style="width:100%;padding:10px 14px;border-radius:12px;border:none;font-size:14px;font-weight:600;outline:none;font-family:'DM Sans',sans-serif;">
-        <option value="">— Select a bike to edit —</option>
-      </select>
+      <!-- Admin tabs -->
+      <div style="display:flex;border-bottom:2px solid rgba(255,255,255,.1);">
+        <button class="tab on" id="tabBikes" onclick="switchAdminTab('bikes',this)" style="color:white;border-color:#C9A96E;">🚴 BIKES</button>
+        <button class="tab" id="tabEditor" onclick="switchAdminTab('editor',this)" style="color:rgba(255,255,255,.5);">🎨 COLOR & PRICE</button>
+      </div>
     </div>
   </header>
-  <div class="wrap" style="padding-top:16px;padding-bottom:100px;">
-    <!-- Status bar -->
-    <div id="edStatus" style="display:none;padding:10px 14px;border-radius:12px;font-size:12px;font-weight:700;margin-bottom:14px;"></div>
-    <!-- Base price card -->
-    <div id="edPriceCard" style="display:none;background:white;border-radius:16px;border:1px solid #e2e8f0;padding:16px;margin-bottom:14px;">
-      <div style="font-size:9px;font-weight:800;letter-spacing:.15em;color:#94a3b8;text-transform:uppercase;margin-bottom:8px;">📋 BASE BIKE INFO</div>
-      <div style="display:flex;align-items:center;gap:12px;">
-        <div style="flex:1;">
-          <div style="font-size:10px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.1em;">Base Price (Col E)</div>
-          <div style="display:flex;align-items:center;gap:8px;margin-top:4px;">
-            <span style="font-size:1.1rem;font-weight:900;color:#1e293b;" id="edBaseDisplay">—</span>
-            <button onclick="edEditPrice()" style="background:#e8f0e9;color:#2D4A32;border:none;border-radius:8px;padding:5px 10px;font-size:10px;font-weight:800;cursor:pointer;font-family:'DM Sans',sans-serif;">✏️ EDIT</button>
-          </div>
-          <div style="font-size:10px;color:#94a3b8;font-weight:600;margin-top:2px;" id="edRowInfo"></div>
-        </div>
-        <!-- Price input (hidden until edit) -->
-        <div id="edPriceEdit" style="display:none;flex:1;">
-          <input type="number" id="edPriceInput" class="fi" placeholder="Enter new price" style="margin-bottom:6px;">
-          <div style="display:flex;gap:6px;">
-            <button onclick="edSavePrice()" class="btn btn-g" style="flex:1;padding:8px;font-size:10px;">💾 SAVE</button>
-            <button onclick="edCancelPrice()" class="btn btn-o" style="padding:8px 12px;font-size:10px;">✕</button>
-          </div>
-        </div>
-      </div>
-    </div>
-    <!-- Swatches area -->
-    <div id="edSwatches"></div>
-  </div>
-  <!-- Save bar -->
-  <div style="position:fixed;bottom:0;left:0;right:0;background:white;border-top:1px solid #e2e8f0;padding:12px 16px;z-index:40;">
-    <div class="wrap" style="display:flex;gap:8px;">
-      <button onclick="edValidate()" class="btn btn-o" style="padding:12px 16px;flex:0 0 auto;font-size:10px;color:#475569;border-color:#e2e8f0;">VALIDATE</button>
-      <button onclick="edSaveColors()" class="btn btn-g" style="flex:1;padding:12px;font-size:11px;">💾 SAVE COLORS TO SHEET</button>
-    </div>
-  </div>
-</div>
 
-<!-- ══════════════════ ADMIN VIEW ══════════════════ -->
-<div id="vAdmin" style="display:none;">
-  <header class="sticky" style="background:#1a2e1c;padding:16px;box-shadow:0 4px 24px rgba(0,0,0,.3);">
-    <div class="wrap" style="display:flex;justify-content:space-between;align-items:center;">
-      <div>
-        <div class="disp" style="font-size:1.4rem;color:#C9A96E;">ADMIN PANEL</div>
-        <div style="font-size:10px;color:#86efac;font-weight:700;letter-spacing:3px;" id="adminSub">CRUISE THE CREEK</div>
-      </div>
-      <div style="display:flex;gap:8px;">
-        <button onclick="startAdd()" id="addBtn" class="btn btn-s" style="padding:9px 14px;">+ Add Bike</button>
-        <button onclick="closeAdmin()" class="btn btn-o" style="padding:9px 14px;color:rgba(255,255,255,.7);border-color:rgba(255,255,255,.2);">← Sales</button>
-      </div>
-    </div>
-  </header>
-  <div class="wrap" style="margin-top:16px;">
+  <!-- BIKES TAB -->
+  <div id="adminTabBikes" class="wrap" style="margin-top:16px;">
     <div id="editForm" style="display:none;background:white;border-radius:20px;border:1px solid #e2e8f0;padding:22px;margin-bottom:16px;box-shadow:0 4px 20px rgba(0,0,0,.06);">
       <div class="disp" style="font-size:1.2rem;color:#1a2e1c;margin-bottom:14px;" id="formTitle">ADD NEW BIKE</div>
       <div id="fPrev" style="background:#f8fafc;border-radius:14px;padding:12px;margin-bottom:14px;border:1px solid #e2e8f0;display:flex;align-items:center;gap:12px;"></div>
@@ -231,6 +187,51 @@ body{font-family:'DM Sans',sans-serif;background:var(--cream);min-height:100vh;p
     </div>
     <div id="adminList"></div>
   </div>
+
+  <!-- COLOR & PRICE EDITOR TAB -->
+  <div id="adminTabEditor" style="display:none;">
+    <!-- Bike selector -->
+    <div style="background:#1a2e1c;padding:0 16px 14px;">
+      <div class="wrap">
+        <select id="edBikeSelect" onchange="edSelectBike()" style="width:100%;padding:10px 14px;border-radius:12px;border:none;font-size:14px;font-weight:600;outline:none;font-family:'DM Sans',sans-serif;margin-top:4px;">
+          <option value="">— Select a bike to edit —</option>
+        </select>
+      </div>
+    </div>
+    <div class="wrap" style="padding-top:16px;padding-bottom:100px;">
+      <div id="edStatus" style="display:none;padding:10px 14px;border-radius:12px;font-size:12px;font-weight:700;margin-bottom:14px;"></div>
+      <!-- Base price card -->
+      <div id="edPriceCard" style="display:none;background:white;border-radius:16px;border:1px solid #e2e8f0;padding:16px;margin-bottom:14px;">
+        <div style="font-size:9px;font-weight:800;letter-spacing:.15em;color:#94a3b8;text-transform:uppercase;margin-bottom:8px;">📋 BASE BIKE INFO</div>
+        <div style="display:flex;align-items:center;gap:12px;">
+          <div style="flex:1;">
+            <div style="font-size:10px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.1em;">Base Price (Col E)</div>
+            <div style="display:flex;align-items:center;gap:8px;margin-top:4px;">
+              <span style="font-size:1.1rem;font-weight:900;color:#1e293b;" id="edBaseDisplay">—</span>
+              <button onclick="edEditPrice()" style="background:#e8f0e9;color:#2D4A32;border:none;border-radius:8px;padding:5px 10px;font-size:10px;font-weight:800;cursor:pointer;font-family:'DM Sans',sans-serif;">✏️ EDIT</button>
+            </div>
+            <div style="font-size:10px;color:#94a3b8;font-weight:600;margin-top:2px;" id="edRowInfo"></div>
+          </div>
+          <div id="edPriceEdit" style="display:none;flex:1;">
+            <input type="number" id="edPriceInput" class="fi" placeholder="Enter new price" style="margin-bottom:6px;">
+            <div style="display:flex;gap:6px;">
+              <button onclick="edSavePrice()" class="btn btn-g" style="flex:1;padding:8px;font-size:10px;">💾 SAVE</button>
+              <button onclick="edCancelPrice()" class="btn btn-o" style="padding:8px 12px;font-size:10px;">✕</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div id="edSwatches"></div>
+    </div>
+    <!-- Save bar -->
+    <div style="position:fixed;bottom:0;left:0;right:0;background:white;border-top:1px solid #e2e8f0;padding:12px 16px;z-index:40;">
+      <div class="wrap" style="display:flex;gap:8px;">
+        <button onclick="edValidate()" class="btn btn-o" style="padding:12px 16px;font-size:10px;color:#475569;border-color:#e2e8f0;">VALIDATE</button>
+        <button onclick="edSaveColors()" class="btn btn-g" style="flex:1;padding:12px;font-size:11px;">💾 SAVE COLORS TO SHEET</button>
+      </div>
+    </div>
+  </div>
+
 </div>
 
 <!-- ══════════════════ DAILY BRIEFING MODAL ══════════════════ -->
@@ -699,14 +700,16 @@ function openQuote(id){
     ['Torque',(b.torque??'—')+' NM'],['Top Speed',b.speed+' mph'],
     ['Sensor',b.sensor],['Weight',b.weight?b.weight+' lbs':'—'],
     ['Payload',b.payload?b.payload+' lbs':'—'],['Score',b.score?parseFloat(b.score).toFixed(1):'—'],
-    ['Mfr Price',(function(){var d=priceMap[b.model.toLowerCase().trim()];return d&&d.mfrPrice!=null?'$'+d.mfrPrice.toLocaleString():'—';})()],
+
   ];
   document.getElementById('specGrid').innerHTML=
     specs.map(([l,v])=>`<div class="sb"><div class="sl">${l}</div><div class="sv">${v}</div></div>`).join('')+
     `<div class="sb" style="grid-column:span 2;"><div class="sl">Key Features</div><div style="font-size:11px;color:#475569;line-height:1.6;margin-top:3px;">${b.features}</div></div>`+
     `<div class="sb" style="grid-column:span 2;padding:12px;"><div class="sl" style="margin-bottom:8px;">Product Page</div>${sitePillHTML(b)}</div>`;
-  // Reset calc & accessories
-  document.getElementById('qIn').value='';
+  // Auto-populate price from bike data (price field or sheet price via priceMap)
+  const sheetData = priceMap[b.model.toLowerCase().trim()];
+  const bikePrice = b.price || (sheetData && sheetData.mfrPrice ? null : 0);
+  document.getElementById('qIn').value = b.price || '';
   document.getElementById('qCustomer').value='';
   accessories=[];accNextId=1;
   renderAccList();calcQ();
@@ -850,12 +853,34 @@ function openQuotePreview() {
 // ──────────────────────────────────────────────────────
 // ADMIN
 // ──────────────────────────────────────────────────────
-function openAdmin(){openM('mLogin');setTimeout(()=>document.getElementById('passIn').focus(),100);}
+function openAdmin(tab){
+  document._adminTargetTab = tab || 'bikes';
+  openM('mLogin');
+  setTimeout(()=>document.getElementById('passIn').focus(),100);
+}
 function tryLogin(){
   if(document.getElementById('passIn').value===PASS){
     closeM('mLogin');document.getElementById('passIn').value='';document.getElementById('passErr').style.display='none';
-    document.getElementById('vSales').style.display='none';document.getElementById('vAdmin').style.display='block';renderAdminList();
+    document.getElementById('vSales').style.display='none';
+    document.getElementById('vAdmin').style.display='block';
+    const goTab = document._adminTargetTab || 'bikes';
+    document._adminTargetTab = null;
+    switchAdminTab(goTab, document.getElementById(goTab==='editor'?'tabEditor':'tabBikes'));
+    renderAdminList();
   }else{document.getElementById('passErr').style.display='block';}
+}
+
+function switchAdminTab(tab, btn){
+  document.querySelectorAll('#vAdmin .tab').forEach(t=>{
+    t.classList.remove('on');
+    t.style.color='rgba(255,255,255,.5)';
+    t.style.borderColor='transparent';
+  });
+  if(btn){ btn.classList.add('on'); btn.style.color='white'; btn.style.borderColor='#C9A96E'; }
+  document.getElementById('adminTabBikes').style.display  = tab==='bikes'  ? 'block' : 'none';
+  document.getElementById('adminTabEditor').style.display = tab==='editor' ? 'block' : 'none';
+  document.getElementById('addBtn').style.display = tab==='bikes' ? 'inline-flex' : 'none';
+  if(tab==='editor' && !edBikes.length) edLoadBikes();
 }
 function closeAdmin(){cancelEdit();document.getElementById('vAdmin').style.display='none';document.getElementById('vSales').style.display='block';renderCards();}
 
@@ -1594,16 +1619,7 @@ let edSwatchData = {};  // working copy of colors JSON
 let edIsNested = false;
 const ADMIN_PASS = 'creek2024';
 
-function openEditor() {
-  document.getElementById('vSales').style.display = 'none';
-  document.getElementById('vEditor').style.display = 'block';
-  if (!edBikes.length) edLoadBikes();
-}
-
-function closeEditor() {
-  document.getElementById('vEditor').style.display = 'none';
-  document.getElementById('vSales').style.display = 'block';
-}
+// openEditor/closeEditor removed — editor now lives in Admin panel
 
 function edSetStatus(type, msg) {
   const el = document.getElementById('edStatus');
