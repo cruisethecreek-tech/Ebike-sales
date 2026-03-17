@@ -416,11 +416,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--cream);min-height:100vh;p
                   style="width:100%;padding:8px 10px;border:2px solid #86efac;border-radius:10px;font-size:13px;font-weight:700;outline:none;font-family:'DM Sans',sans-serif;background:white;">
               </div>
             </div>
-            <div id="delivResult" style="display:none;background:white;border-radius:10px;padding:10px 12px;border:1px solid #86efac;margin-bottom:10px;">
-              <div style="display:flex;justify-content:space-between;font-size:11px;color:#94a3b8;margin-bottom:4px;"><span>Gas cost:</span><span id="dGasCost">—</span></div>
-              <div style="display:flex;justify-content:space-between;font-size:11px;color:#94a3b8;margin-bottom:4px;"><span>Time cost (@$25/hr):</span><span id="dTimeCost">—</span></div>
-              <div style="display:flex;justify-content:space-between;font-size:12px;font-weight:900;color:#166534;border-top:1px solid #86efac;padding-top:6px;margin-top:4px;"><span>Total Delivery Fee:</span><span id="dTotal">—</span></div>
-            </div>
+            <div id="delivResult" style="display:none;background:white;border-radius:10px;padding:10px 12px;border:1px solid #86efac;margin-bottom:10px;"></div>
             <button onclick="applyDelivery()" id="dApplyBtn" style="display:none;width:100%;background:#16a34a;color:white;border:none;border-radius:10px;padding:9px;font-size:11px;font-weight:800;cursor:pointer;letter-spacing:.08em;font-family:'DM Sans',sans-serif;">+ ADD TO QUOTE</button>
           </div>
         </div>
@@ -996,16 +992,31 @@ function calcDelivery() {
     document.getElementById('dApplyBtn').style.display = 'none';
     return;
   }
-  // Gas: (miles / mpg) * gas price
-  const gasCost  = (miles / mpg) * gas;
+  // Flat base rate: first 10 miles one-way = $40
+  const BASE_MILES = 10;
+  const BASE_RATE  = 40;
+  // Gas on full round trip: (miles * 2 / mpg) * gas price
+  const rtMiles   = miles * 2;
+  const gasCost   = (rtMiles / mpg) * gas;
   // Time: hours * $25/hr
-  const timeCost = hours * 25;
-  const total    = gasCost + timeCost;
-  document.getElementById('dGasCost').textContent  = '$' + gasCost.toFixed(2);
-  document.getElementById('dTimeCost').textContent = '$' + timeCost.toFixed(2);
-  document.getElementById('dTotal').textContent    = '$' + total.toFixed(2);
-  document.getElementById('delivResult').style.display = 'block';
-  document.getElementById('dApplyBtn').style.display   = 'block';
+  const timeCost  = hours * 25;
+  // Base applies always; if over 10mi add gas+time on top
+  const overBase  = miles > BASE_MILES;
+  const total     = BASE_RATE + (overBase ? gasCost + timeCost : 0);
+
+  const resEl = document.getElementById('delivResult');
+  resEl.innerHTML =
+    '<div style="font-size:9px;font-weight:800;color:#166534;text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px;">📋 BREAKDOWN</div>' +
+    '<div style="display:flex;justify-content:space-between;font-size:11px;color:#94a3b8;margin-bottom:4px;"><span>Base rate (≤10 mi):</span><span style="color:#166534;font-weight:800;">$' + BASE_RATE.toFixed(2) + '</span></div>' +
+    (overBase
+      ? '<div style="display:flex;justify-content:space-between;font-size:11px;color:#94a3b8;margin-bottom:4px;"><span>Gas (' + rtMiles.toFixed(0) + ' RT mi @ ' + mpg + ' mpg):</span><span>$' + gasCost.toFixed(2) + '</span></div>' +
+        '<div style="display:flex;justify-content:space-between;font-size:11px;color:#94a3b8;margin-bottom:4px;"><span>Time (' + hours + ' hrs @ $25/hr):</span><span>$' + timeCost.toFixed(2) + '</span></div>'
+      : '<div style="font-size:10px;color:#16a34a;font-weight:700;margin-bottom:4px;">✅ Within 10-mile flat rate zone</div>'
+    ) +
+    '<div style="display:flex;justify-content:space-between;font-size:13px;font-weight:900;color:#166534;border-top:1px solid #86efac;padding-top:8px;margin-top:4px;"><span>Total Delivery Fee:</span><span>$' + total.toFixed(2) + '</span></div>';
+
+  resEl.style.display = 'block';
+  document.getElementById('dApplyBtn').style.display = 'block';
   deliveryFee = total;
 }
 
