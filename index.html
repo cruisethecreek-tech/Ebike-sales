@@ -678,7 +678,7 @@ let priceMap = {}; // { "model name lowercase": { mfrPrice, diff, status } }
 let priceDataLoaded = false;
 
 function fetchPriceData() {
-  const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=Inventory&tq=select%20C%2CM%2CN%2CO`;
+  const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=Inventory&tq=select%20C%2CE%2CM%2CN%2CO`;
   fetch(url, {mode:'cors'})
     .then(r => r.text())
     .then(text => {
@@ -686,11 +686,13 @@ function fetchPriceData() {
       const rows = json.table ? json.table.rows : [];
       rows.forEach(row => {
         if (!row.c || !row.c[0] || !row.c[0].v) return;
-        const name    = row.c[0].v.toString().toLowerCase().trim();
-        const mfrRaw  = row.c[1] ? row.c[1].v : null;
-        const diffRaw = row.c[2] ? row.c[2].v : null;
-        const status  = row.c[3] ? (row.c[3].v || '').toString() : '';
+        const name     = row.c[0].v.toString().toLowerCase().trim();
+        const ourRaw   = row.c[1] ? row.c[1].v : null;
+        const mfrRaw   = row.c[2] ? row.c[2].v : null;
+        const diffRaw  = row.c[3] ? row.c[3].v : null;
+        const status   = row.c[4] ? (row.c[4].v || '').toString() : '';
         const entry   = {
+          ourPrice : ourRaw  !== null ? Number(ourRaw)  : null,
           mfrPrice : mfrRaw  !== null ? Number(mfrRaw)  : null,
           diff     : diffRaw !== null ? Number(diffRaw) : null,
           status   : status
@@ -712,15 +714,18 @@ function fetchPriceData() {
 function getPriceBadge(model, bikePrice) {
   if (!priceDataLoaded) return '<span class="price-badge pb-loading">⏳ Loading...</span>';
   const key = model.toLowerCase().trim();
-  const d = priceMap[key];
-  const ourPrice = bikePrice ? '$' + Number(bikePrice).toLocaleString() : '';
-  // Also try fuzzy match if exact not found
-  let data = d;
+  const normKey = key.replace(/[^a-z0-9]/g,'');
+  let data = priceMap[key] || priceMap[normKey];
+  // Fuzzy match fallback
   if (!data) {
     Object.keys(priceMap).forEach(k => {
       if (!data && (k.indexOf(key) !== -1 || key.indexOf(k) !== -1)) data = priceMap[k];
     });
   }
+  // Our price: passed in directly (from b.price) OR from sheet column E via priceMap
+  const sheetPrice = data && data.ourPrice ? data.ourPrice : null;
+  const rawPrice = bikePrice || sheetPrice;
+  const ourPrice = rawPrice ? '$' + Number(rawPrice).toLocaleString() : '';
   if (!data || data.mfrPrice === null) {
     return '<span class="price-badge pb-none">⚪ Unverified' + (ourPrice ? ' · Ours: ' + ourPrice : '') + '</span>';
   }
@@ -1334,7 +1339,7 @@ function saveBike(){
   if(!d.model){toast('⚠️ Model name required');return;}
   const isNew = editingId==='new';
   if(isNew){bikes.push(d);} else{bikes=bikes.map(b=>b.id===nid?d:b);}
-  cancelEdit();renderAdminList();
+  cancelEdit();renderAdminList();renderCards();
   // Sync to Google Sheet
   syncBikeToSheet(d, isNew);
 }
@@ -1410,15 +1415,24 @@ function calcTripDist() {
   lbl.textContent = '⏳ calculating...';
 
   // Geocode both addresses using Nominatim (free, no key)
-  const geocode = addr =>
-    fetch('https://nominatim.openstreetmap.org/search?format=json&limit=1&q=' + encodeURIComponent(addr), {
-      headers: {'Accept-Language': 'en', 'User-Agent': 'CruiseTheCreek/1.0'}
+  // Auto-append Youngstown OH if no state/zip mentioned
+  const ensureLocation = addr => {
+    const hasState = /,\s*[A-Z]{2}\b|ohio|youngstown|mahoning/i.test(addr);
+    return hasState ? addr : addr + ', Youngstown OH';
+  };
+  const geocode = addr => {
+    const q = ensureLocation(addr);
+    return fetch('https://nominatim.openstreetmap.org/search?format=json&limit=1&addressdetails=1&q=' + encodeURIComponent(q) + '&countrycodes=us', {
+      headers: {'Accept-Language': 'en', 'User-Agent': 'CruiseTheCreek-SalesPro/1.0 (cruisethecreek.com)'}
     })
     .then(r => r.json())
     .then(d => {
-      if (!d || !d.length) throw new Error('not found: ' + addr);
-      return { lat: parseFloat(d[0].lat), lon: parseFloat(d[0].lon) };
+      if (!d || !d.length) throw new Error('Address not found: ' + q);
+      const r = d[0];
+      const display = r.address ? [r.address.road, r.address.city || r.address.town, r.address.state].filter(Boolean).join(', ') : r.display_name.split(',').slice(0,3).join(',');
+      return { lat: parseFloat(r.lat), lon: parseFloat(r.lon), display };
     });
+  };
 
   Promise.all([geocode(from), geocode(to)])
     .then(([orig, dest]) => {
@@ -1431,12 +1445,16 @@ function calcTripDist() {
     .then(data => {
       if (!data.routes || !data.routes.length) throw new Error('no route');
       const meters = data.routes[0].distance;
+      const mins   = Math.round(data.routes[0].duration / 60);
       const miles  = meters / 1609.34;
       document.getElementById('dtMiles').value = miles.toFixed(1);
-      lbl.textContent = '✅ ' + miles.toFixed(1) + ' mi OW';
+      // Also pre-fill trip time in delivery calc if open
+      const dTime = document.getElementById('dTime');
+      if (dTime && !dTime.value) dTime.value = mins;
+      lbl.innerHTML = '<span style="color:#166534;font-weight:800;">✅ ' + miles.toFixed(1) + ' mi · ~' + mins + ' min</span>';
     })
     .catch(e => {
-      lbl.textContent = '⚠️ enter manually';
+      lbl.innerHTML = '<span style="color:#dc2626;">⚠️ ' + (e.message||'check address') + '</span>';
       console.warn('Distance calc failed:', e);
     });
 }
@@ -2223,14 +2241,22 @@ function buildTsContent() {
 let errFilter = 'all';
 
 function openErrors() {
+  // Record which view we're leaving
+  ['vSales','vAdmin'].forEach(v => {
+    if (document.getElementById(v).style.display !== 'none') window._errorsFrom = v;
+  });
   document.getElementById('vSales').style.display = 'none';
+  document.getElementById('vAdmin').style.display = 'none';
   document.getElementById('vErrors').style.display = 'block';
   renderErrors();
 }
 
 function closeErrors() {
   document.getElementById('vErrors').style.display = 'none';
-  document.getElementById('vSales').style.display = 'block';
+  // Return to wherever we came from
+  const from = window._errorsFrom || 'vSales';
+  document.getElementById(from).style.display = 'block';
+  window._errorsFrom = null;
 }
 
 function setErrFilter(f, btn) {
