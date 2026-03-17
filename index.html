@@ -213,6 +213,13 @@ body{font-family:'DM Sans',sans-serif;background:var(--cream);min-height:100vh;p
       </div>
     </div>
     <div id="adminList"></div>
+
+    <!-- Accessory Price Editor -->
+    <div style="background:white;border-radius:20px;border:1px solid #e2e8f0;padding:22px;margin-top:16px;box-shadow:0 4px 20px rgba(0,0,0,.06);">
+      <div class="disp" style="font-size:1.1rem;color:#1a2e1c;margin-bottom:14px;">🛒 ACCESSORY PRICES</div>
+      <div id="accPriceList" class="gf"></div>
+      <button onclick="saveAccEditor()" class="btn btn-g" style="margin-top:14px;padding:12px;width:100%;font-size:11px;">💾 SAVE ACCESSORY PRICES</button>
+    </div>
   </div>
 
   <!-- COLOR & PRICE EDITOR TAB -->
@@ -374,12 +381,12 @@ body{font-family:'DM Sans',sans-serif;background:var(--cream);min-height:100vh;p
         </div>
         <!-- Preset accessories -->
         <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;" id="accPresets">
-          <button onclick="addPreset('Mirror',25)"          class="btn btn-o" style="padding:5px 10px;font-size:10px;">🪞 Mirror</button>
-          <button onclick="addPreset('Bag',40)"             class="btn btn-o" style="padding:5px 10px;font-size:10px;">👜 Bag</button>
-          <button onclick="addPreset('Lock',15)"            class="btn btn-o" style="padding:5px 10px;font-size:10px;">🔒 Lock</button>
-          <button onclick="addPreset('Phone Holder',0)"     class="btn btn-o" style="padding:5px 10px;font-size:10px;">📱 Phone Holder</button>
-          <button onclick="addPreset('Water Bottle',0)"     class="btn btn-o" style="padding:5px 10px;font-size:10px;">💧 Water Bottle</button>
-          <button onclick="addPreset('Setup Fee',100)"      class="btn btn-o" style="padding:5px 10px;font-size:10px;">🔧 Setup</button>
+          <button onclick="addPreset('Mirror',accPrice('Mirror',25))"         class="btn btn-o" style="padding:5px 10px;font-size:10px;" id="ap_Mirror">🪞 Mirror</button>
+          <button onclick="addPreset('Bag',accPrice('Bag',40))"               class="btn btn-o" style="padding:5px 10px;font-size:10px;" id="ap_Bag">👜 Bag</button>
+          <button onclick="addPreset('Lock',accPrice('Lock',20))"             class="btn btn-o" style="padding:5px 10px;font-size:10px;" id="ap_Lock">🔒 Lock</button>
+          <button onclick="addPreset('Phone Holder',accPrice('Phone Holder',25))" class="btn btn-o" style="padding:5px 10px;font-size:10px;" id="ap_Phone_Holder">📱 Phone Holder</button>
+          <button onclick="addPreset('Water Bottle',accPrice('Water Bottle',15))" class="btn btn-o" style="padding:5px 10px;font-size:10px;" id="ap_Water_Bottle">💧 Water Bottle</button>
+          <button onclick="addPreset('Setup Fee',accPrice('Setup Fee',100))"  class="btn btn-o" style="padding:5px 10px;font-size:10px;" id="ap_Setup_Fee">🔧 Setup</button>
         </div>
         <div id="accList" style="display:flex;flex-direction:column;gap:6px;margin-bottom:14px;"></div>
 
@@ -720,6 +727,27 @@ function getPriceBadge(model, bikePrice) {
   return '<span class="price-badge pb-low">🟡 We are $' + diff.toFixed(0) + ' lower · Ours: ' + ourPrice + '</span>';
 }
 const PASS='creek2024';
+
+// ── Accessory price overrides (editable in Admin) ──────
+const ACC_DEFAULTS = {
+  'Mirror':       25,
+  'Bag':          40,
+  'Lock':         20,
+  'Phone Holder': 25,
+  'Water Bottle': 15,
+  'Setup Fee':    100,
+};
+const ACC_KEY = 'ctc_acc_prices';
+
+function getAccPrices() {
+  try { return Object.assign({}, ACC_DEFAULTS, JSON.parse(localStorage.getItem(ACC_KEY) || '{}')); }
+  catch(e) { return Object.assign({}, ACC_DEFAULTS); }
+}
+function saveAccPrices(obj) { localStorage.setItem(ACC_KEY, JSON.stringify(obj)); }
+function accPrice(name, fallback) {
+  const prices = getAccPrices();
+  return (prices[name] !== undefined) ? prices[name] : fallback;
+}
 const FILTERS=['All','Heybike','Velotric','Jasion','Folding','Fat Tire','Commuter','Cargo','Torque Sensor'];
 
 // ──────────────────────────────────────────────────────
@@ -995,33 +1023,38 @@ function toggleDelivery() {
 function fetchGasPrice() {
   const lbl = document.getElementById('dGasLbl');
   if (!lbl) return;
-  lbl.textContent = '⏳ fetching...';
-  // EIA free API — Ohio regular gas weekly average (no key required with DEMO_KEY)
-  const eia = 'https://api.eia.gov/v2/petroleum/pri/gnd/data/?frequency=weekly&data[0]=value&facets[series][]=EMM_EPMR_PTE_SOH_DPG&sort[0][column]=period&sort[0][direction]=desc&length=1&api_key=DEMO_KEY';
-  fetch('https://api.allorigins.win/get?url=' + encodeURIComponent(eia))
+  lbl.textContent = '⏳ loading...';
+  // Use corsproxy.io to hit GasBuddy's public state API
+  const url = 'https://corsproxy.io/?' + encodeURIComponent('https://www.gasbuddy.com/assets-v2/api/priceData?state=OH&type=1');
+  fetch(url)
     .then(r => r.json())
     .then(d => {
-      const parsed = JSON.parse(d.contents);
-      const price = parsed.response && parsed.response.data && parsed.response.data[0]
-        ? parseFloat(parsed.response.data[0].value) : null;
+      // GasBuddy returns { data: { OH: { regular: 3.21 } } } or similar
+      const price = d && d.data && d.data.OH && d.data.OH.regular ? d.data.OH.regular
+        : d && d.regular ? d.regular : null;
       if (price && price > 1) {
-        document.getElementById('dGas').value = price.toFixed(2);
-        lbl.textContent = '✅ OH $' + price.toFixed(2) + '/gal';
+        document.getElementById('dGas').value = parseFloat(price).toFixed(2);
+        lbl.textContent = '✅ OH $' + parseFloat(price).toFixed(2);
         calcDelivery();
-      } else { throw new Error('no data'); }
+        return;
+      }
+      throw new Error('no price');
     })
     .catch(() => {
-      // Fallback: GasBuddy Ohio average via allorigins scrape
-      fetch('https://api.allorigins.win/get?url=' + encodeURIComponent('https://www.gasbuddy.com/gasprices/states/oh'))
+      // Fallback: US national avg from open-source gas-price API
+      fetch('https://corsproxy.io/?' + encodeURIComponent('https://api.collectapi.com/gasPrice/allUsaPrice'))
         .then(r => r.json())
         .then(d => {
-          const m = d.contents.match(/"averagePrice"\s*:\s*([\d.]+)/);
-          if (m) {
-            const price = parseFloat(m[1]);
+          // Try to find Ohio in results
+          const ohioEntry = d.result && d.result.find && d.result.find(s => s.name === 'Ohio');
+          const price = ohioEntry ? parseFloat(ohioEntry.gasoline) : null;
+          if (price && price > 1) {
             document.getElementById('dGas').value = price.toFixed(2);
-            lbl.textContent = '✅ OH $' + price.toFixed(2) + '/gal';
+            lbl.textContent = '✅ OH $' + price.toFixed(2);
             calcDelivery();
-          } else { lbl.textContent = '⚠️ enter manually'; }
+          } else {
+            lbl.textContent = '⚠️ enter manually';
+          }
         })
         .catch(() => { lbl.textContent = '⚠️ enter manually'; });
     });
@@ -1193,8 +1226,37 @@ function autoSelectEditorBike(){
 }
 function closeAdmin(){cancelEdit();document.getElementById('vAdmin').style.display='none';document.getElementById('vSales').style.display='block';renderCards();}
 
+function renderAccEditor() {
+  const prices = getAccPrices();
+  document.getElementById('accPriceList').innerHTML = Object.keys(ACC_DEFAULTS).map(name => `
+    <div>
+      <label class="fl">${name}</label>
+      <div style="display:flex;align-items:center;gap:6px;">
+        <span style="font-size:13px;font-weight:700;color:#94a3b8;">$</span>
+        <input type="number" id="acp_${name.replace(/ /g,'_')}" value="${prices[name]??ACC_DEFAULTS[name]}"
+          class="fi" style="padding:8px 10px;font-size:13px;font-weight:700;">
+      </div>
+    </div>`).join('');
+}
+
+function saveAccEditor() {
+  const prices = {};
+  Object.keys(ACC_DEFAULTS).forEach(name => {
+    const el = document.getElementById('acp_' + name.replace(/ /g,'_'));
+    if (el) prices[name] = parseFloat(el.value) || 0;
+  });
+  saveAccPrices(prices);
+  // Update preset button labels to show new prices
+  Object.keys(ACC_DEFAULTS).forEach(name => {
+    const btn = document.getElementById('ap_' + name.replace(/ /g,'_'));
+    if (btn) btn.title = '$' + (prices[name] || 0);
+  });
+  toast('✅ Accessory prices saved');
+}
+
 function renderAdminList(){
   document.getElementById('adminSub').textContent=`CRUISE THE CREEK · ${bikes.length} BIKES`;
+  renderAccEditor();
   document.getElementById('adminList').innerHTML=bikes.map(b=>`
     <div class="arow">
       ${srHTML(b.score)}
