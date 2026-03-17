@@ -553,14 +553,17 @@ body{font-family:'DM Sans',sans-serif;background:var(--cream);min-height:100vh;p
           </div>
         </div>
         <div>
-          <label style="font-size:9px;font-weight:800;color:#94a3b8;text-transform:uppercase;letter-spacing:.1em;display:block;margin-bottom:4px;">Miles OW</label>
-          <input type="number" id="dtMiles" placeholder="12" class="fi" style="padding:9px 11px;font-size:12px;">
+          <label style="font-size:9px;font-weight:800;color:#94a3b8;text-transform:uppercase;letter-spacing:.1em;display:block;margin-bottom:4px;">Miles OW <span id="dtDistLbl" style="font-weight:600;color:#6B8F71;font-size:8px;text-transform:none;letter-spacing:0;"></span></label>
+          <input type="number" id="dtMiles" placeholder="auto" class="fi" style="padding:9px 11px;font-size:12px;">
         </div>
         <div>
           <label style="font-size:9px;font-weight:800;color:#94a3b8;text-transform:uppercase;letter-spacing:.1em;display:block;margin-bottom:4px;">Date</label>
           <input type="date" id="dtDate" class="fi" style="padding:9px 11px;font-size:11px;">
         </div>
-        <button onclick="addTrip()" class="btn btn-g" style="padding:9px 14px;font-size:11px;white-space:nowrap;height:38px;">+ LOG</button>
+        <div style="display:flex;flex-direction:column;gap:6px;">
+          <button onclick="calcTripDist()" style="background:#e8f0e9;color:#2D4A32;border:none;border-radius:10px;padding:9px 12px;font-size:10px;font-weight:800;cursor:pointer;white-space:nowrap;font-family:'DM Sans',sans-serif;letter-spacing:.08em;">📍 CALC</button>
+          <button onclick="addTrip()" class="btn btn-g" style="padding:9px 12px;font-size:10px;white-space:nowrap;">+ LOG</button>
+        </div>
       </div>
     </div>
     <!-- Summary bar -->
@@ -991,32 +994,37 @@ function toggleDelivery() {
 
 function fetchGasPrice() {
   const lbl = document.getElementById('dGasLbl');
+  if (!lbl) return;
   lbl.textContent = '⏳ fetching...';
-  // Use GasBuddy / AAA via a CORS-friendly public API
-  // AAA daily national average via a proxy-free endpoint
-  fetch('https://api.collectapi.com/gasPrice/stateUsaPrice?state=oh', {
-    headers: {'content-type':'application/json','authorization':'apikey placeholder'}
-  })
-  .then(() => { throw new Error('needs key'); })
-  .catch(() => {
-    // Fallback: use GasBuddy public RSS or just fetch AAA page data
-    // Use a simple CORS-friendly endpoint via allorigins
-    fetch('https://api.allorigins.win/get?url=' + encodeURIComponent('https://gasprices.aaa.com/state-gas-price-averages/'))
-      .then(r => r.json())
-      .then(data => {
-        // Parse Ohio price from AAA page
-        const match = data.contents.match(/Ohio[\s\S]{0,200}?\$(\d+\.\d+)/);
-        if (match) {
-          const price = parseFloat(match[1]);
-          document.getElementById('dGas').value = price.toFixed(2);
-          lbl.textContent = '✅ OH avg $' + price.toFixed(2);
-          calcDelivery();
-        } else {
-          lbl.textContent = '⚠️ manual entry';
-        }
-      })
-      .catch(() => { lbl.textContent = '⚠️ manual entry'; });
-  });
+  // EIA free API — Ohio regular gas weekly average (no key required with DEMO_KEY)
+  const eia = 'https://api.eia.gov/v2/petroleum/pri/gnd/data/?frequency=weekly&data[0]=value&facets[series][]=EMM_EPMR_PTE_SOH_DPG&sort[0][column]=period&sort[0][direction]=desc&length=1&api_key=DEMO_KEY';
+  fetch('https://api.allorigins.win/get?url=' + encodeURIComponent(eia))
+    .then(r => r.json())
+    .then(d => {
+      const parsed = JSON.parse(d.contents);
+      const price = parsed.response && parsed.response.data && parsed.response.data[0]
+        ? parseFloat(parsed.response.data[0].value) : null;
+      if (price && price > 1) {
+        document.getElementById('dGas').value = price.toFixed(2);
+        lbl.textContent = '✅ OH $' + price.toFixed(2) + '/gal';
+        calcDelivery();
+      } else { throw new Error('no data'); }
+    })
+    .catch(() => {
+      // Fallback: GasBuddy Ohio average via allorigins scrape
+      fetch('https://api.allorigins.win/get?url=' + encodeURIComponent('https://www.gasbuddy.com/gasprices/states/oh'))
+        .then(r => r.json())
+        .then(d => {
+          const m = d.contents.match(/"averagePrice"\s*:\s*([\d.]+)/);
+          if (m) {
+            const price = parseFloat(m[1]);
+            document.getElementById('dGas').value = price.toFixed(2);
+            lbl.textContent = '✅ OH $' + price.toFixed(2) + '/gal';
+            calcDelivery();
+          } else { lbl.textContent = '⚠️ enter manually'; }
+        })
+        .catch(() => { lbl.textContent = '⚠️ enter manually'; });
+    });
 }
 
 function calcDelivery() {
@@ -1331,6 +1339,45 @@ function getTrips() {
 }
 function saveTrips(trips) {
   localStorage.setItem(DIST_KEY, JSON.stringify(trips));
+}
+
+function calcTripDist() {
+  const from = document.getElementById('dtFrom').value.trim() || 'Kirk Road Bikeway, Youngstown OH';
+  const to   = document.getElementById('dtDest').value.trim();
+  const lbl  = document.getElementById('dtDistLbl');
+  if (!to) { toast('⚠️ Enter a destination first'); return; }
+  lbl.textContent = '⏳ calculating...';
+
+  // Geocode both addresses using Nominatim (free, no key)
+  const geocode = addr =>
+    fetch('https://nominatim.openstreetmap.org/search?format=json&limit=1&q=' + encodeURIComponent(addr), {
+      headers: {'Accept-Language': 'en', 'User-Agent': 'CruiseTheCreek/1.0'}
+    })
+    .then(r => r.json())
+    .then(d => {
+      if (!d || !d.length) throw new Error('not found: ' + addr);
+      return { lat: parseFloat(d[0].lat), lon: parseFloat(d[0].lon) };
+    });
+
+  Promise.all([geocode(from), geocode(to)])
+    .then(([orig, dest]) => {
+      // OSRM routing — free, no key, car profile
+      const url = 'https://router.project-osrm.org/route/v1/driving/' +
+        orig.lon + ',' + orig.lat + ';' + dest.lon + ',' + dest.lat +
+        '?overview=false';
+      return fetch(url).then(r => r.json());
+    })
+    .then(data => {
+      if (!data.routes || !data.routes.length) throw new Error('no route');
+      const meters = data.routes[0].distance;
+      const miles  = meters / 1609.34;
+      document.getElementById('dtMiles').value = miles.toFixed(1);
+      lbl.textContent = '✅ ' + miles.toFixed(1) + ' mi OW';
+    })
+    .catch(e => {
+      lbl.textContent = '⚠️ enter manually';
+      console.warn('Distance calc failed:', e);
+    });
 }
 
 function addTrip() {
