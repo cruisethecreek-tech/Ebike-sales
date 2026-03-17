@@ -561,10 +561,10 @@ let priceDataLoaded = false;
 
 function fetchPriceData() {
   const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=Inventory&tq=select%20C%2CM%2CN%2CO`;
-  fetch(url)
+  fetch(url, {mode:'cors'})
     .then(r => r.text())
     .then(text => {
-      const json = JSON.parse(text.replace(/^[^(]+\(/, '').replace(/\);?$/, ''));
+      const json = JSON.parse(text.replace(/^[\s\S]*?({[\s\S]*})\s*\)?;?\s*$/, '$1'));
       const rows = json.table ? json.table.rows : [];
       rows.forEach(row => {
         if (!row.c || !row.c[0] || !row.c[0].v) return;
@@ -1023,7 +1023,7 @@ function buildForm(d){
     }</div>`;
   }).join('');
   document.getElementById('fUrl').value=d.url||'';
-  document.getElementById('fFeat').value=d.features||'';tElementById('fFeat').value=d.features||'';
+  document.getElementById('fFeat').value=d.features||'';
   updPrev();
 }
 function getForm(id){
@@ -2270,7 +2270,7 @@ function loadBriefingData() {
   fetch(invUrl)
     .then(r => r.text())
     .then(text => {
-      const json = JSON.parse(text.replace(/^[^(]+\(/, '').replace(/\);?$/, ''));
+      const json = JSON.parse(text.replace(/^[\s\S]*?({[\s\S]*})\s*\)?;?\s*$/, '$1'));
       const rows = json.table ? json.table.rows : [];
       const alertsLow  = []; // mfr cheaper — urgent
       const alertsHigh = []; // we are cheaper — good to know
@@ -2349,7 +2349,7 @@ function loadBriefingData() {
   fetch(ordUrl)
     .then(r => r.text())
     .then(text => {
-      const json = JSON.parse(text.replace(/^[^(]+\(/, '').replace(/\);?$/, ''));
+      const json = JSON.parse(text.replace(/^[\s\S]*?({[\s\S]*})\s*\)?;?\s*$/, '$1'));
       const rows = json.table ? json.table.rows : [];
       const orderEl = document.getElementById('briefOrders');
       const countEl = document.getElementById('orderCount');
