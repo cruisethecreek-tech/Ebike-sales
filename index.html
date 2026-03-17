@@ -872,21 +872,26 @@ function renderAdminList(){
 }
 
 const FF=[
-  {k:'brand',l:'Brand',t:'select',o:['Heybike','Velotric','Jasion']},
-  {k:'model',l:'Model Name',t:'text'},
-  {k:'type',l:'Frame Type',t:'text'},
-  {k:'score',l:'Score',t:'number'},
-  {k:'motorN',l:'Motor Nom (W)',t:'number'},
-  {k:'motorP',l:'Motor Peak (W)',t:'number'},
-  {k:'volts',l:'Volts',t:'number'},
-  {k:'wh',l:'Battery (Wh)',t:'number'},
-  {k:'ah',l:'Amp Hours',t:'number'},
-  {k:'range',l:'Range (mi)',t:'number'},
-  {k:'torque',l:'Torque (NM)',t:'number'},
-  {k:'speed',l:'Top Speed (mph)',t:'number'},
-  {k:'sensor',l:'Sensor',t:'select',o:['Torque','Cadence','SensorSwap','—']},
-  {k:'weight',l:'Weight (lbs)',t:'number'},
-  {k:'payload',l:'Payload (lbs)',t:'number'},
+  {k:'brand',    l:'Brand',            t:'select', o:['Heybike','Velotric','Jasion']},
+  {k:'model',    l:'Model Name',       t:'text'},
+  {k:'subtitle', l:'Subtitle',         t:'text'},
+  {k:'type',     l:'Frame Type',       t:'text'},
+  {k:'price',    l:'Base Price ($)',   t:'number'},
+  {k:'testRide', l:'Test Ride URL',    t:'text'},
+  {k:'styles',   l:'Styles (comma-separated)', t:'text'},
+  {k:'sizes',    l:'Sizes (comma-separated)',  t:'text'},
+  {k:'score',    l:'Score',            t:'number'},
+  {k:'motorN',   l:'Motor Nom (W)',    t:'number'},
+  {k:'motorP',   l:'Motor Peak (W)',   t:'number'},
+  {k:'volts',    l:'Volts',            t:'number'},
+  {k:'wh',       l:'Battery (Wh)',     t:'number'},
+  {k:'ah',       l:'Amp Hours',        t:'number'},
+  {k:'range',    l:'Range (mi)',       t:'number'},
+  {k:'torque',   l:'Torque (NM)',      t:'number'},
+  {k:'speed',    l:'Top Speed (mph)',  t:'number'},
+  {k:'sensor',   l:'Sensor',           t:'select', o:['Torque','Cadence','SensorSwap','—']},
+  {k:'weight',   l:'Weight (lbs)',     t:'number'},
+  {k:'payload',  l:'Payload (lbs)',    t:'number'},
 ];
 
 function buildForm(d){
@@ -922,9 +927,48 @@ function saveBike(){
   const nid=editingId==='new'?Date.now():editingId;
   const d=getForm(nid);
   if(!d.model){toast('⚠️ Model name required');return;}
-  if(editingId==='new'){bikes.push(d);toast('✓ '+d.model+' added');}
-  else{bikes=bikes.map(b=>b.id===nid?d:b);toast('✓ '+d.model+' updated');}
+  const isNew = editingId==='new';
+  if(isNew){bikes.push(d);} else{bikes=bikes.map(b=>b.id===nid?d:b);}
   cancelEdit();renderAdminList();
+  // Sync to Google Sheet
+  syncBikeToSheet(d, isNew);
+}
+
+function syncBikeToSheet(d, isNew) {
+  if(!isNew) { toast('✓ '+d.model+' updated locally (sheet sync for new bikes only)'); return; }
+  // Build specs JSON from form data
+  const specs = {};
+  if(d.range)  specs['Range']     = d.range + ' mi';
+  if(d.speed)  specs['Top Speed'] = d.speed + ' mph';
+  if(d.motorN) specs['Motor']     = d.motorN + 'W';
+  if(d.wh)     specs['Battery']   = d.wh + 'WH';
+  if(d.torque) specs['Torque']    = d.torque + ' NM';
+  if(d.weight) specs['Weight']    = d.weight + ' lbs';
+
+  const payload = {
+    action    : 'addBike',
+    brand     : d.brand    || '',
+    id        : (d.model||'').toLowerCase().replace(/[^a-z0-9]/g,''),
+    name      : d.model    || '',
+    subtitle  : d.subtitle || '',
+    price     : d.price    || '',
+    testRide  : d.testRide || '',
+    styles    : d.styles   || '',
+    sizes     : d.sizes    || '',
+    specs     : JSON.stringify(specs),
+    url       : d.url      || '',
+    features  : d.features || ''
+  };
+
+  const qs = Object.keys(payload).map(k => k + '=' + encodeURIComponent(payload[k])).join('&');
+  toast('⏳ Syncing to sheet...');
+  fetch(AS_URL + '?' + qs, {redirect:'follow'})
+    .then(r => r.json())
+    .then(res => {
+      if(res.status === 'ok') toast('✅ ' + d.model + ' added to sheet!');
+      else toast('⚠️ Saved locally, sheet error: ' + (res.message||'unknown'));
+    })
+    .catch(() => toast('✅ ' + d.model + ' saved locally (sheet offline)'));
 }
 function askDel(id){delId=id;const b=bikes.find(x=>x.id===id);document.getElementById('delName').textContent=b?.model||'bike';openM('mDel');}
 function confirmDel(){
