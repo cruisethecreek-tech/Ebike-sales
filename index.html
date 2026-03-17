@@ -178,6 +178,51 @@ body{font-family:'DM Sans',sans-serif;background:var(--cream);min-height:100vh;p
   </div>
 </div>
 
+<!-- ══════════════════ DAILY BRIEFING MODAL ══════════════════ -->
+<div class="modal" id="mBriefing" style="align-items:flex-end;padding:0;">
+  <div style="background:white;border-radius:24px 24px 0 0;width:100%;max-width:560px;max-height:88vh;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 -8px 40px rgba(0,0,0,.2);margin:0 auto;">
+    <!-- Header -->
+    <div style="background:#1a2e1c;padding:20px 20px 14px;flex-shrink:0;">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+        <div>
+          <div class="disp" style="font-size:1.5rem;color:#C9A96E;line-height:1;">DAILY BRIEFING</div>
+          <div style="font-size:10px;color:#86efac;font-weight:700;letter-spacing:3px;margin-top:3px;" id="briefDate"></div>
+        </div>
+        <button onclick="closeBriefing()" style="background:rgba(255,255,255,.1);border:2px solid rgba(255,255,255,.15);border-radius:10px;padding:7px 12px;color:rgba(255,255,255,.65);font-size:11px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;">DISMISS</button>
+      </div>
+    </div>
+    <!-- Body -->
+    <div style="overflow-y:auto;flex:1;padding:16px 20px 24px;">
+      <!-- Price Alerts Section -->
+      <div style="margin-bottom:20px;">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+          <div style="background:#fee2e2;border-radius:8px;padding:4px 8px;font-size:10px;font-weight:800;color:#991b1b;letter-spacing:.1em;text-transform:uppercase;">⚠️ Price Watch</div>
+          <div style="font-size:10px;color:#94a3b8;font-weight:700;" id="alertCount"></div>
+        </div>
+        <div id="briefAlerts">
+          <div style="text-align:center;padding:20px;color:#94a3b8;font-size:12px;font-weight:600;">Loading price data...</div>
+        </div>
+      </div>
+      <!-- Recent Orders Section -->
+      <div>
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+          <div style="background:#e8f0e9;border-radius:8px;padding:4px 8px;font-size:10px;font-weight:800;color:#2D4A32;letter-spacing:.1em;text-transform:uppercase;">📋 Recent Orders</div>
+          <div style="font-size:10px;color:#94a3b8;font-weight:700;" id="orderCount"></div>
+        </div>
+        <div id="briefOrders">
+          <div style="text-align:center;padding:20px;color:#94a3b8;font-size:12px;font-weight:600;">Loading orders...</div>
+        </div>
+      </div>
+    </div>
+    <!-- Footer -->
+    <div style="padding:14px 20px;border-top:1px solid #e2e8f0;background:#f8fafc;flex-shrink:0;">
+      <button onclick="closeBriefing()" class="btn btn-g" style="width:100%;padding:13px;font-size:12px;">
+        START MY DAY →
+      </button>
+    </div>
+  </div>
+</div>
+
 <!-- ══════════════════ LOGIN MODAL ══════════════════ -->
 <div class="modal" id="mLogin">
   <div style="background:white;border-radius:24px;padding:32px;width:100%;max-width:340px;text-align:center;box-shadow:0 25px 60px rgba(0,0,0,.4);">
@@ -1432,6 +1477,125 @@ function renderErrors() {
 fetchPriceData();
 buildFilters();
 renderCards();
+initBriefing();
+
+// ── Daily Briefing ────────────────────────────────────────
+const BRIEF_KEY = 'ctc_brief_' + new Date().toDateString();
+
+function initBriefing() {
+  // Show once per day
+  if (localStorage.getItem(BRIEF_KEY)) return;
+  document.getElementById('briefDate').textContent =
+    new Date().toLocaleDateString('en-US', {weekday:'long', month:'long', day:'numeric'}).toUpperCase();
+  openM('mBriefing');
+  loadBriefingData();
+}
+
+function closeBriefing() {
+  localStorage.setItem(BRIEF_KEY, '1');
+  closeM('mBriefing');
+}
+
+function loadBriefingData() {
+  // Load price alerts from Inventory sheet (columns C=Name, N=Diff, O=Status, A=Brand)
+  const invUrl = 'https://docs.google.com/spreadsheets/d/' + SHEET_ID +
+    '/gviz/tq?tqx=out:json&sheet=Inventory&tq=select%20A%2CC%2CN%2CO';
+  fetch(invUrl)
+    .then(r => r.text())
+    .then(text => {
+      const json = JSON.parse(text.replace(/^[^(]+\(/, '').replace(/\);?$/, ''));
+      const rows = json.table ? json.table.rows : [];
+      const alerts = [];
+      rows.forEach(row => {
+        if (!row.c || !row.c[1] || !row.c[1].v) return;
+        const brand  = row.c[0] ? (row.c[0].v || '') : '';
+        const name   = row.c[1].v.toString();
+        const diff   = row.c[2] ? Number(row.c[2].v) : null;
+        const status = row.c[3] ? (row.c[3].v || '').toString() : '';
+        if (diff !== null && diff < -0.5) {
+          alerts.push({ brand, name, diff, status });
+        }
+      });
+
+      const alertEl = document.getElementById('briefAlerts');
+      const countEl = document.getElementById('alertCount');
+
+      if (!alerts.length) {
+        countEl.textContent = 'ALL CLEAR';
+        alertEl.innerHTML = '<div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:12px;padding:14px 16px;display:flex;align-items:center;gap:10px;">' +
+          '<span style="font-size:1.4rem;">✅</span>' +
+          '<div><div style="font-size:12px;font-weight:800;color:#166534;">All prices are aligned</div>' +
+          '<div style="font-size:11px;color:#4ade80;margin-top:1px;">No manufacturer undercuts detected</div></div></div>';
+      } else {
+        countEl.textContent = alerts.length + ' BIKE' + (alerts.length > 1 ? 'S' : '') + ' NEED ATTENTION';
+        alertEl.innerHTML = alerts.map(a => {
+          const brandColor = a.brand === 'Velotric' ? '#C9A96E' : a.brand === 'Heybike' ? '#6B8F71' : '#e53935';
+          return '<div style="background:#fff5f5;border:1px solid #fecaca;border-radius:12px;padding:12px 14px;margin-bottom:8px;display:flex;align-items:center;gap:12px;">' +
+            '<div style="background:#fee2e2;border-radius:8px;padding:6px 8px;text-align:center;flex-shrink:0;">' +
+            '<div style="font-size:11px;font-weight:900;color:#991b1b;">-$' + Math.abs(a.diff).toFixed(0) + '</div></div>' +
+            '<div style="flex:1;">' +
+            '<div style="font-size:12px;font-weight:800;color:#1e293b;">' + a.name + '</div>' +
+            '<div style="font-size:10px;color:#ef4444;font-weight:700;margin-top:1px;">Manufacturer is $' + Math.abs(a.diff).toFixed(0) + ' cheaper — update needed</div>' +
+            '</div>' +
+            '<div style="font-size:10px;font-weight:800;color:' + brandColor + ';letter-spacing:.05em;">' + a.brand.toUpperCase() + '</div>' +
+            '</div>';
+        }).join('');
+      }
+    })
+    .catch(() => {
+      document.getElementById('briefAlerts').innerHTML =
+        '<div style="text-align:center;padding:16px;color:#94a3b8;font-size:11px;font-weight:600;">Could not load price data</div>';
+    });
+
+  // Load recent orders from Orders sheet (cols A=Date, B=First, C=Last, F=Model, I=Color, M=Price)
+  const ordUrl = 'https://docs.google.com/spreadsheets/d/' + SHEET_ID +
+    '/gviz/tq?tqx=out:json&sheet=Orders&tq=select%20A%2CB%2CC%2CF%2CI%2CM%20order%20by%20A%20desc%20limit%205';
+  fetch(ordUrl)
+    .then(r => r.text())
+    .then(text => {
+      const json = JSON.parse(text.replace(/^[^(]+\(/, '').replace(/\);?$/, ''));
+      const rows = json.table ? json.table.rows : [];
+      const orderEl = document.getElementById('briefOrders');
+      const countEl = document.getElementById('orderCount');
+
+      if (!rows || !rows.length) {
+        countEl.textContent = 'NONE YET TODAY';
+        orderEl.innerHTML = '<div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:14px 16px;text-align:center;">' +
+          '<div style="font-size:12px;font-weight:700;color:#94a3b8;">No recent orders found</div></div>';
+        return;
+      }
+
+      countEl.textContent = 'LAST ' + rows.length;
+      orderEl.innerHTML = rows.map(row => {
+        if (!row.c) return '';
+        const dateRaw = row.c[0] ? (row.c[0].v || '') : '';
+        const first   = row.c[1] ? (row.c[1].v || '') : '';
+        const last    = row.c[2] ? (row.c[2].v || '') : '';
+        const model   = row.c[3] ? (row.c[3].v || '') : '';
+        const color   = row.c[4] ? (row.c[4].v || '') : '';
+        const price   = row.c[5] ? (row.c[5].v || '') : '';
+        // Parse gviz date format Date(year,month,day,...)
+        let dateStr = '';
+        try {
+          const dm = dateRaw.toString().match(/Date\((\d+),(\d+),(\d+)/);
+          if (dm) dateStr = new Date(+dm[1], +dm[2], +dm[3]).toLocaleDateString('en-US',{month:'short',day:'numeric'});
+        } catch(e) { dateStr = ''; }
+        return '<div style="background:white;border:1px solid #e2e8f0;border-radius:12px;padding:12px 14px;margin-bottom:8px;display:flex;align-items:center;gap:12px;">' +
+          '<div style="background:#e8f0e9;border-radius:8px;padding:6px 8px;text-align:center;flex-shrink:0;min-width:40px;">' +
+          '<div style="font-size:9px;font-weight:800;color:#2D4A32;">' + dateStr + '</div></div>' +
+          '<div style="flex:1;min-width:0;">' +
+          '<div style="font-size:12px;font-weight:800;color:#1e293b;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + first + ' ' + last + '</div>' +
+          '<div style="font-size:10px;color:#64748b;font-weight:700;margin-top:1px;">' + model + (color ? ' · ' + color : '') + '</div>' +
+          '</div>' +
+          '<div style="font-size:12px;font-weight:900;color:#2D4A32;flex-shrink:0;">' + (price ? '$'+Number(price).toLocaleString() : '') + '</div>' +
+          '</div>';
+      }).join('');
+    })
+    .catch(() => {
+      document.getElementById('briefOrders').innerHTML =
+        '<div style="text-align:center;padding:16px;color:#94a3b8;font-size:11px;font-weight:600;">Could not load orders</div>';
+    });
+}
 </script>
 </body>
 </html>
