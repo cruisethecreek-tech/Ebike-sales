@@ -315,6 +315,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--cream);min-height:100vh;p
       <button class="tab" onclick="swTab('tSpec',this)">Full Specs</button>
     </div>
     <!-- Body -->
+    <img id="mBikeImg" src="" alt="" style="display:none;width:100%;max-height:160px;object-fit:contain;background:#f8fafc;padding:10px;">
     <div style="overflow-y:auto;flex:1;padding:20px;">
 
       <!-- QUOTE CALC -->
@@ -618,6 +619,9 @@ function renderCards(){
   if(!list.length){g.innerHTML=`<div style="grid-column:span 2;text-align:center;padding:60px 0;color:#94a3b8;font-weight:700;">No bikes match.</div>`;return;}
   g.innerHTML=list.map(b=>`
     <div class="card"><div style="padding:20px;">
+      ${b.img ? `<div style="width:100%;height:160px;border-radius:14px;overflow:hidden;margin-bottom:14px;background:#f8fafc;border:1px solid #e2e8f0;">
+        <img src="${b.img}" alt="${b.model}" style="width:100%;height:100%;object-fit:contain;padding:8px;" onerror="this.parentElement.style.display='none'">
+      </div>` : ''}
       <div style="display:flex;align-items:flex-start;gap:12px;margin-bottom:12px;">
         ${srHTML(b.score)}
         <div style="flex:1;min-width:0;">
@@ -682,6 +686,9 @@ function openQuote(id){
   document.getElementById('mBdg').className=`badge ${bdgCls(b.brand)}`;
   document.getElementById('mTtl').textContent=b.model;
   document.getElementById('mTyp').textContent=b.type;
+  // Bike image in modal
+  const mImg = document.getElementById('mBikeImg');
+  if(mImg){ if(b.img){mImg.src=b.img;mImg.style.display='block';}else{mImg.style.display='none';} }
   // Site link in modal header
   document.getElementById('mSiteLink').innerHTML=sitePillHTML(b);
   // Specs
@@ -892,6 +899,7 @@ const FF=[
   {k:'sensor',   l:'Sensor',           t:'select', o:['Torque','Cadence','SensorSwap','—']},
   {k:'weight',   l:'Weight (lbs)',     t:'number'},
   {k:'payload',  l:'Payload (lbs)',    t:'number'},
+  {k:'img',      l:'Bike Image URL',   t:'text'},
 ];
 
 function buildForm(d){
@@ -957,7 +965,8 @@ function syncBikeToSheet(d, isNew) {
     sizes     : d.sizes    || '',
     specs     : JSON.stringify(specs),
     url       : d.url      || '',
-    features  : d.features || ''
+    features  : d.features || '',
+    img       : d.img      || ''
   };
 
   const qs = Object.keys(payload).map(k => k + '=' + encodeURIComponent(payload[k])).join('&');
