@@ -986,8 +986,7 @@ function buildForm(d){
       :`<input type="${f.t}" id="ff_${f.k}" value="${v}" class="fi" oninput="updPrev()">`
     }</div>`;
   }).join('');
-  document.getElementById('fUrl').value=d.url||'';
-  document.getElementById('fFeat').value=d.features||'';
+  document.getElementById('fFeat').value=d.features||'';tElementById('fFeat').value=d.features||'';
   updPrev();
 }
 function getForm(id){
