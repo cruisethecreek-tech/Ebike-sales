@@ -83,6 +83,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--cream);min-height:100vh;p
             <div style="font-size:9px;color:#94a3b8;font-weight:700;letter-spacing:2px;">BIKES</div>
           </div>
           <button onclick="openErrors()" style="background:rgba(255,165,0,.15);border:2px solid rgba(255,165,0,.3);border-radius:10px;padding:7px 12px;color:#fbbf24;font-size:11px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;letter-spacing:1px;">⚠️ ERRORS</button>
+          <button onclick="openEditor()" style="background:rgba(107,143,113,.2);border:2px solid rgba(107,143,113,.4);border-radius:10px;padding:7px 12px;color:#86efac;font-size:11px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;letter-spacing:1px;">🎨 EDITOR</button>
           <button onclick="openAdmin()" style="background:rgba(255,255,255,.08);border:2px solid rgba(255,255,255,.15);border-radius:10px;padding:7px 12px;color:rgba(255,255,255,.65);font-size:11px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;letter-spacing:1px;">⚙️ ADMIN</button>
         </div>
       </div>
@@ -139,6 +140,60 @@ body{font-family:'DM Sans',sans-serif;background:var(--cream);min-height:100vh;p
   <div class="wrap" style="padding-top:16px;padding-bottom:80px;">
     <div id="errCount" style="font-size:11px;font-weight:700;color:#94a3b8;letter-spacing:2px;margin-bottom:12px;"></div>
     <div id="errGrid" style="display:flex;flex-direction:column;gap:8px;"></div>
+  </div>
+</div>
+
+<!-- ══════════════════ EDITOR VIEW ══════════════════ -->
+<div id="vEditor" style="display:none;">
+  <header class="sticky" style="background:#1a2e1c;padding:16px;box-shadow:0 4px 24px rgba(0,0,0,.3);">
+    <div class="wrap">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+        <div>
+          <div class="disp" style="font-size:1.6rem;color:#C9A96E;line-height:1;">🎨 COLOR & PRICE EDITOR</div>
+          <div style="font-size:10px;color:#86efac;font-weight:700;letter-spacing:3px;margin-top:2px;">CRUISE THE CREEK · INVENTORY MANAGER</div>
+        </div>
+        <button onclick="closeEditor()" style="background:rgba(255,255,255,.08);border:2px solid rgba(255,255,255,.15);border-radius:10px;padding:7px 12px;color:rgba(255,255,255,.65);font-size:11px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;">← BACK</button>
+      </div>
+      <!-- Bike selector -->
+      <select id="edBikeSelect" onchange="edSelectBike()" style="width:100%;padding:10px 14px;border-radius:12px;border:none;font-size:14px;font-weight:600;outline:none;font-family:'DM Sans',sans-serif;">
+        <option value="">— Select a bike to edit —</option>
+      </select>
+    </div>
+  </header>
+  <div class="wrap" style="padding-top:16px;padding-bottom:100px;">
+    <!-- Status bar -->
+    <div id="edStatus" style="display:none;padding:10px 14px;border-radius:12px;font-size:12px;font-weight:700;margin-bottom:14px;"></div>
+    <!-- Base price card -->
+    <div id="edPriceCard" style="display:none;background:white;border-radius:16px;border:1px solid #e2e8f0;padding:16px;margin-bottom:14px;">
+      <div style="font-size:9px;font-weight:800;letter-spacing:.15em;color:#94a3b8;text-transform:uppercase;margin-bottom:8px;">📋 BASE BIKE INFO</div>
+      <div style="display:flex;align-items:center;gap:12px;">
+        <div style="flex:1;">
+          <div style="font-size:10px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.1em;">Base Price (Col E)</div>
+          <div style="display:flex;align-items:center;gap:8px;margin-top:4px;">
+            <span style="font-size:1.1rem;font-weight:900;color:#1e293b;" id="edBaseDisplay">—</span>
+            <button onclick="edEditPrice()" style="background:#e8f0e9;color:#2D4A32;border:none;border-radius:8px;padding:5px 10px;font-size:10px;font-weight:800;cursor:pointer;font-family:'DM Sans',sans-serif;">✏️ EDIT</button>
+          </div>
+          <div style="font-size:10px;color:#94a3b8;font-weight:600;margin-top:2px;" id="edRowInfo"></div>
+        </div>
+        <!-- Price input (hidden until edit) -->
+        <div id="edPriceEdit" style="display:none;flex:1;">
+          <input type="number" id="edPriceInput" class="fi" placeholder="Enter new price" style="margin-bottom:6px;">
+          <div style="display:flex;gap:6px;">
+            <button onclick="edSavePrice()" class="btn btn-g" style="flex:1;padding:8px;font-size:10px;">💾 SAVE</button>
+            <button onclick="edCancelPrice()" class="btn btn-o" style="padding:8px 12px;font-size:10px;">✕</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Swatches area -->
+    <div id="edSwatches"></div>
+  </div>
+  <!-- Save bar -->
+  <div style="position:fixed;bottom:0;left:0;right:0;background:white;border-top:1px solid #e2e8f0;padding:12px 16px;z-index:40;">
+    <div class="wrap" style="display:flex;gap:8px;">
+      <button onclick="edValidate()" class="btn btn-o" style="padding:12px 16px;flex:0 0 auto;font-size:10px;color:#475569;border-color:#e2e8f0;">VALIDATE</button>
+      <button onclick="edSaveColors()" class="btn btn-g" style="flex:1;padding:12px;font-size:11px;">💾 SAVE COLORS TO SHEET</button>
+    </div>
   </div>
 </div>
 
@@ -458,6 +513,7 @@ let activeFilter='All', compareList=[], curBike=null, editingId=null, delId=null
 
 // ── Google Sheet Price Data ────────────────────────────────
 const SHEET_ID = '1R3pDFG_sO81bKS6dEAa-k5F-OdD5OAbe4hQ-Oc0_T-E';
+const AS_URL  = 'https://script.google.com/macros/s/AKfycbyxVMuFEUeR8_YqM1VVnfPSVPnDhdCs_63dDthZ4jODlTDGQ-7yXSkQeYT-Ux0SM8tw/exec';
 let priceMap = {}; // { "model name lowercase": { mfrPrice, diff, status } }
 let priceDataLoaded = false;
 
@@ -1475,12 +1531,291 @@ function renderErrors() {
 }
 
 fetchPriceData();
+
+// ══════════════════════════════════════════════════
+// EDITOR — Color & Price Editor via Apps Script
+// ══════════════════════════════════════════════════
+let edBikes = [];       // full inventory from sheet
+let edActiveBike = null;
+let edSwatchData = {};  // working copy of colors JSON
+let edIsNested = false;
+const ADMIN_PASS = 'creek2024';
+
+function openEditor() {
+  document.getElementById('vSales').style.display = 'none';
+  document.getElementById('vEditor').style.display = 'block';
+  if (!edBikes.length) edLoadBikes();
+}
+
+function closeEditor() {
+  document.getElementById('vEditor').style.display = 'none';
+  document.getElementById('vSales').style.display = 'block';
+}
+
+function edSetStatus(type, msg) {
+  const el = document.getElementById('edStatus');
+  el.style.display = 'block';
+  const styles = {
+    ok:   'background:#dcfce7;color:#166534;border:1px solid #bbf7d0;',
+    err:  'background:#fee2e2;color:#991b1b;border:1px solid #fecaca;',
+    info: 'background:#e8f0e9;color:#2D4A32;border:1px solid #bbf7d0;',
+    warn: 'background:#fefce8;color:#854d0e;border:1px solid #fde68a;'
+  };
+  el.style.cssText = 'padding:10px 14px;border-radius:12px;font-size:12px;font-weight:700;margin-bottom:14px;' + (styles[type] || styles.info);
+  el.textContent = msg;
+}
+
+function edLoadBikes() {
+  edSetStatus('info', 'Loading inventory from sheet...');
+  fetch(AS_URL + '?action=getSidebarInventory', {redirect: 'follow'})
+    .then(r => r.json())
+    .then(data => {
+      edBikes = data;
+      const sel = document.getElementById('edBikeSelect');
+      sel.innerHTML = '<option value="">— Select a bike to edit —</option>';
+      data.forEach((b, i) => {
+        const opt = document.createElement('option');
+        opt.value = i;
+        opt.textContent = b.name + ' (' + b.brand + ')';
+        sel.appendChild(opt);
+      });
+      edSetStatus('ok', data.length + ' bikes loaded.');
+    })
+    .catch(e => edSetStatus('err', 'Failed to load: ' + e.message));
+}
+
+function edSelectBike() {
+  const idx = document.getElementById('edBikeSelect').value;
+  if (idx === '') { edActiveBike = null; document.getElementById('edPriceCard').style.display = 'none'; document.getElementById('edSwatches').innerHTML = ''; return; }
+  edActiveBike = edBikes[parseInt(idx)];
+  try { edSwatchData = JSON.parse(JSON.stringify(edActiveBike.colors || {})); } catch(e) { edSwatchData = {}; }
+  edIsNested = Object.values(edSwatchData).some(v => v && typeof v === 'object' && !Array.isArray(v));
+
+  // Show price card
+  document.getElementById('edPriceCard').style.display = 'block';
+  document.getElementById('edBaseDisplay').textContent = '$' + Number(edActiveBike.basePrice).toLocaleString();
+  document.getElementById('edRowInfo').textContent = 'Row ' + edActiveBike.rowIndex + ' · ID: ' + edActiveBike.id;
+  document.getElementById('edPriceEdit').style.display = 'none';
+
+  edRenderSwatches();
+  document.getElementById('edStatus').style.display = 'none';
+}
+
+// ── Price editing ──
+function edEditPrice() {
+  document.getElementById('edPriceEdit').style.display = 'block';
+  document.getElementById('edPriceInput').value = edActiveBike.basePrice;
+  document.getElementById('edPriceInput').focus();
+}
+function edCancelPrice() { document.getElementById('edPriceEdit').style.display = 'none'; }
+
+function edSavePrice() {
+  const pass = prompt('Enter admin password to save price change:');
+  if (pass !== ADMIN_PASS) { edSetStatus('err', 'Incorrect password.'); return; }
+  const newPrice = parseFloat(document.getElementById('edPriceInput').value);
+  if (!newPrice || newPrice < 1) { edSetStatus('err', 'Enter a valid price.'); return; }
+  edSetStatus('info', 'Saving price...');
+  fetch(AS_URL + '?action=updatePrice&rowIndex=' + edActiveBike.rowIndex + '&price=' + newPrice)
+    .then(r => r.json())
+    .then(res => {
+      if (res.status === 'ok') {
+        edActiveBike.basePrice = newPrice;
+        document.getElementById('edBaseDisplay').textContent = '$' + newPrice.toLocaleString();
+        document.getElementById('edPriceEdit').style.display = 'none';
+        edSetStatus('ok', 'Price updated to $' + newPrice.toLocaleString() + ' on sheet!');
+        // Refresh price badge in main cards
+        if (priceMap[edActiveBike.name.toLowerCase()]) {
+          priceMap[edActiveBike.name.toLowerCase()].mfrPrice = null;
+        }
+      } else {
+        edSetStatus('err', 'Save failed: ' + (res.message || 'Unknown error'));
+      }
+    })
+    .catch(e => edSetStatus('err', 'Save failed: ' + e.message));
+}
+
+// ── Swatch rendering ──
+function edSafeId(s) { return s.replace(/[^a-zA-Z0-9]/g, '_'); }
+
+function edRenderSwatches() {
+  const el = document.getElementById('edSwatches');
+  if (!edActiveBike) { el.innerHTML = ''; return; }
+  let html = '';
+  if (edIsNested) {
+    Object.entries(edSwatchData).forEach(([styleName, sizeGroups]) => {
+      if (typeof sizeGroups !== 'object' || Array.isArray(sizeGroups)) return;
+      const styleDisabled = sizeGroups.disabled === true;
+      html += '<div style="background:white;border-radius:16px;border:1px solid #e2e8f0;margin-bottom:12px;overflow:hidden;">';
+      html += '<div style="background:#1a2e1c;padding:12px 14px;display:flex;align-items:center;justify-content:space-between;">';
+      html += '<span style="font-family:Bebas Neue,sans-serif;font-size:1.1rem;color:#C9A96E;' + (styleDisabled ? 'text-decoration:line-through;opacity:.5;' : '') + '">' + styleName + '</span>';
+      html += '<label style="display:flex;align-items:center;gap:6px;cursor:pointer;">';
+      html += '<input type="checkbox" class="ed-style-toggle" data-style="' + styleName.replace(/"/g,'&quot;') + '" ' + (styleDisabled ? '' : 'checked') + ' style="width:16px;height:16px;cursor:pointer;">';
+      html += '<span style="font-size:10px;color:#86efac;font-weight:700;">' + (styleDisabled ? 'DISABLED' : 'ENABLED') + '</span></label></div>';
+      Object.entries(sizeGroups).forEach(([sizeName, swatches]) => {
+        if (sizeName === 'disabled' || sizeName.endsWith('__disabled')) return;
+        const sizeDisabled = sizeGroups[sizeName + '__disabled'] === true;
+        html += '<div style="padding:12px 14px;border-top:1px solid #f1f5f9;">';
+        html += '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">';
+        html += '<span style="font-size:10px;font-weight:800;color:#94a3b8;text-transform:uppercase;letter-spacing:.1em;">📐 ' + sizeName + '</span>';
+        html += '<label style="display:flex;align-items:center;gap:5px;cursor:pointer;">';
+        html += '<input type="checkbox" class="ed-size-toggle" data-style="' + styleName.replace(/"/g,'&quot;') + '" data-size="' + sizeName.replace(/"/g,'&quot;') + '" ' + (sizeDisabled ? '' : 'checked') + ' style="width:14px;height:14px;cursor:pointer;">';
+        html += '<span style="font-size:9px;color:#94a3b8;font-weight:700;">' + (sizeDisabled ? 'OFF' : 'ON') + '</span></label></div>';
+        if (Array.isArray(swatches)) {
+          swatches.forEach((sw, idx) => {
+            html += edSwatchRow(sw, idx, styleName, sizeName);
+          });
+        }
+        html += '</div>';
+      });
+      html += '</div>';
+    });
+  } else {
+    Object.entries(edSwatchData).forEach(([groupName, swatches]) => {
+      if (!Array.isArray(swatches)) return;
+      html += '<div style="background:white;border-radius:16px;border:1px solid #e2e8f0;margin-bottom:12px;overflow:hidden;">';
+      html += '<div style="background:#1a2e1c;padding:12px 14px;">';
+      html += '<span style="font-family:Bebas Neue,sans-serif;font-size:1.1rem;color:#C9A96E;">' + (groupName === 'Default' ? 'Colors' : groupName) + '</span></div>';
+      html += '<div style="padding:12px 14px;">';
+      swatches.forEach((sw, idx) => { html += edSwatchRow(sw, idx, groupName, null); });
+      html += '</div></div>';
+    });
+  }
+  el.innerHTML = html || '<div style="text-align:center;padding:40px;color:#94a3b8;font-weight:700;">No color data found for this bike.</div>';
+  edBindSwatchEvents();
+}
+
+function edSwatchRow(sw, idx, groupName, sizeName) {
+  var base = Number(edActiveBike.basePrice);
+  var swPrice = sw.price !== undefined ? Number(sw.price) : null;
+  var hasDiff = swPrice !== null && swPrice !== base;
+  var cheaper = hasDiff && swPrice < base;
+  var priceBg = cheaper ? '#dcfce7' : hasDiff ? '#fef9c3' : 'white';
+  var key = sizeName ? groupName + '||' + sizeName : groupName;
+  var uid = 'sw_' + idx + '_' + key.replace(/[^a-zA-Z0-9]/g,'_');
+  var nameVal = (sw.name || '').replace(/"/g,'&quot;');
+  var hexVal  = (sw.hex  || '');
+  var priceVal = (sw.price !== undefined ? sw.price : '');
+  var checkedAttr = sw.soldOut ? 'checked' : '';
+
+  return '<div id="' + uid + '" data-key="' + key.replace(/"/g,'&quot;') + '" data-idx="' + idx + '" ' +
+    'style="background:' + priceBg + ';border:1px solid #e2e8f0;border-radius:12px;padding:11px 12px;margin-bottom:8px;">' +
+    '<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">' +
+    '<div style="width:32px;height:32px;border-radius:50%;background:' + (sw.hex||'#ccc') + ';border:2px solid rgba(0,0,0,.1);flex-shrink:0;"></div>' +
+    '<input type="text" class="ed-name fi" value="' + nameVal + '" placeholder="Color name" ' +
+      'style="flex:1;padding:6px 10px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:12px;font-weight:700;outline:none;">' +
+    '<label style="display:flex;align-items:center;gap:4px;font-size:10px;font-weight:700;color:#94a3b8;cursor:pointer;flex-shrink:0;">' +
+    '<input type="checkbox" class="ed-soldout" ' + checkedAttr + '> SOLD OUT</label></div>' +
+    '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;">' +
+    '<div><div style="font-size:9px;font-weight:800;color:#94a3b8;text-transform:uppercase;margin-bottom:3px;">Hex</div>' +
+    '<input type="text" class="ed-hex" value="' + hexVal + '" placeholder="#000000" ' +
+      'style="width:100%;padding:6px 8px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:11px;font-weight:700;outline:none;"></div>' +
+    '<div><div style="font-size:9px;font-weight:800;color:#94a3b8;text-transform:uppercase;margin-bottom:3px;">Price Override</div>' +
+    '<input type="number" class="ed-price" value="' + priceVal + '" placeholder="' + base + '" ' +
+      'style="width:100%;padding:6px 8px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:11px;font-weight:700;outline:none;"></div>' +
+    '<div><div style="font-size:9px;font-weight:800;color:#94a3b8;text-transform:uppercase;margin-bottom:3px;">Pick</div>' +
+    '<input type="color" class="ed-color" value="' + (hexVal||'#000000') + '" ' +
+      'style="width:100%;height:32px;border:1.5px solid #e2e8f0;border-radius:8px;padding:2px;cursor:pointer;"></div>' +
+    '</div></div>';
+}
+
+function edUpdateSwatch(key, idx, field, val) {
+  var parts = key.split('||');
+  var sw;
+  if (parts.length === 2) {
+    var styleName = parts[0], sizeName = parts[1];
+    if (edSwatchData[styleName] && Array.isArray(edSwatchData[styleName][sizeName])) sw = edSwatchData[styleName][sizeName][idx];
+  } else {
+    if (Array.isArray(edSwatchData[key])) sw = edSwatchData[key][idx];
+  }
+  if (!sw) return;
+  if (field === 'price') { if (val === '' || val === null) delete sw.price; else sw.price = parseFloat(val) || 0; }
+  else if (field === 'soldOut') { if (val) sw.soldOut = true; else delete sw.soldOut; }
+  else sw[field] = val;
+}
+
+// Event delegation for swatch inputs — fires when any .ed-* input changes
+function edBindSwatchEvents() {
+  var container = document.getElementById('edSwatches');
+  if (!container) return;
+  container.addEventListener('input', function(e) {
+    var row = e.target.closest('[data-key]');
+    if (!row) return;
+    var key = row.dataset.key;
+    var idx = parseInt(row.dataset.idx);
+    if (e.target.classList.contains('ed-name'))  edUpdateSwatch(key, idx, 'name',  e.target.value);
+    if (e.target.classList.contains('ed-hex'))   { edUpdateSwatch(key, idx, 'hex', e.target.value); }
+    if (e.target.classList.contains('ed-price')) edUpdateSwatch(key, idx, 'price', e.target.value);
+    if (e.target.classList.contains('ed-color')) {
+      edUpdateSwatch(key, idx, 'hex', e.target.value);
+      // Sync hex text input
+      var hexInput = row.querySelector('.ed-hex');
+      if (hexInput) hexInput.value = e.target.value;
+    }
+  });
+  container.addEventListener('change', function(e) {
+    var row = e.target.closest('[data-key]');
+    if (row) {
+      var key = row.dataset.key;
+      var idx = parseInt(row.dataset.idx);
+      if (e.target.classList.contains('ed-soldout')) edUpdateSwatch(key, idx, 'soldOut', e.target.checked);
+    }
+    // Style/size enable-disable toggles
+    if (e.target.classList.contains('ed-style-toggle')) {
+      edToggleStyle(e.target.dataset.style, !e.target.checked);
+    }
+    if (e.target.classList.contains('ed-size-toggle')) {
+      edToggleSize(e.target.dataset.style, e.target.dataset.size, !e.target.checked);
+    }
+  });
+}
+
+function edToggleStyle(styleName, disabled) {
+  if (!edSwatchData[styleName]) return;
+  if (disabled) edSwatchData[styleName].disabled = true;
+  else delete edSwatchData[styleName].disabled;
+  edRenderSwatches();
+}
+
+function edToggleSize(styleName, sizeName, disabled) {
+  if (!edSwatchData[styleName]) return;
+  if (disabled) edSwatchData[styleName][sizeName + '__disabled'] = true;
+  else delete edSwatchData[styleName][sizeName + '__disabled'];
+  edRenderSwatches();
+}
+
+function edValidate() {
+  try {
+    const str = JSON.stringify(edSwatchData);
+    JSON.parse(str);
+    edSetStatus('ok', '✅ JSON is valid — ' + str.length + ' characters');
+  } catch(e) {
+    edSetStatus('err', '❌ JSON error: ' + e.message);
+  }
+}
+
+function edSaveColors() {
+  if (!edActiveBike) { edSetStatus('err', 'No bike selected.'); return; }
+  const pass = prompt('Enter admin password to save changes:');
+  if (pass !== ADMIN_PASS) { edSetStatus('err', 'Incorrect password.'); return; }
+  let jsonStr;
+  try { jsonStr = JSON.stringify(edSwatchData); JSON.parse(jsonStr); }
+  catch(e) { edSetStatus('err', 'JSON error: ' + e.message); return; }
+  edSetStatus('info', 'Saving to sheet...');
+  fetch(AS_URL + '?action=saveColors&rowIndex=' + edActiveBike.rowIndex + '&json=' + encodeURIComponent(jsonStr))
+    .then(r => r.json())
+    .then(res => {
+      if (res.status === 'ok') edSetStatus('ok', '✅ Colors saved! Changes are live on your brand pages.');
+      else edSetStatus('err', 'Save failed: ' + (res.message || 'Unknown error'));
+    })
+    .catch(e => edSetStatus('err', 'Save failed: ' + e.message));
+}
+
+// ── Daily Briefing key (must be before initBriefing call) ───
+const BRIEF_KEY = 'ctc_brief_' + new Date().toDateString();
+
 buildFilters();
 renderCards();
 initBriefing();
-
-// ── Daily Briefing ────────────────────────────────────────
-const BRIEF_KEY = 'ctc_brief_' + new Date().toDateString();
 
 function initBriefing() {
   // Show once per day
