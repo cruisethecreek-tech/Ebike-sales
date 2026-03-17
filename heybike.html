@@ -479,12 +479,9 @@
                 comments: document.getElementById('comments').value,
                 price: currentSelection.price
             };
-            fetch(AS_URL + '?action=processOrder', {
-                    method: 'POST',
-                    redirect: 'follow',
-                    headers: {'Content-Type': 'text/plain'},
-                    body: JSON.stringify(orderData)
-                })
+            const orderParams = new URLSearchParams({action:'processOrder'});
+            Object.keys(orderData).forEach(k => orderParams.append(k, orderData[k]||''));
+            fetch(AS_URL + '?' + orderParams.toString(), {redirect:'follow'})
                 .then(r => r.json())
                 .then(function() {
                     submitBtn.disabled = false;
