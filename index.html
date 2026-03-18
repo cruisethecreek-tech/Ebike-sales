@@ -1845,19 +1845,29 @@ function calcTripDist() {
   lbl.textContent = '⏳ calculating...';
 
   // Geocode both addresses using Nominatim (free, no key)
-  // US Census Bureau geocoder — free, no key, handles US addresses reliably
+  // Hardcoded FROM coords — these addresses never change
+  const FROM_COORDS = {
+    '6685 Kirk Road, Canfield, OH 44406'       : { lat: 41.0347, lon: -80.6892 },
+    '5530 Norquest Blvd, Youngstown, OH 44515' : { lat: 41.0998, lon: -80.7284 },
+  };
+
+  // Photon geocoder (OSM-based, CORS-friendly, no key needed)
   const geocode = addr => {
-    const censusUrl = 'https://geocoding.geo.census.gov/geocoder/locations/onelineaddress?address=' +
-      encodeURIComponent(addr) + '&benchmark=Public_AR_Current&format=json';
-    return fetch(censusUrl)
+    // Check hardcoded coords first
+    if (FROM_COORDS[addr]) return Promise.resolve(FROM_COORDS[addr]);
+    // Use Photon for destination addresses
+    const url = 'https://photon.komoot.io/api/?q=' + encodeURIComponent(addr) +
+      '&limit=3&countrycode=us&lang=en';
+    return fetch(url)
       .then(r => r.json())
       .then(d => {
-        const matches = d && d.result && d.result.addressMatches;
-        if (matches && matches.length) {
-          const c = matches[0].coordinates;
-          return { lat: c.y, lon: c.x };
-        }
-        throw new Error('Address not found: ' + addr);
+        if (!d || !d.features || !d.features.length) throw new Error('Not found: ' + addr);
+        // Find best Ohio result
+        const ohioResult = d.features.find(f =>
+          f.properties && (f.properties.state === 'Ohio' || f.properties.postcode)
+        ) || d.features[0];
+        const [lon, lat] = ohioResult.geometry.coordinates;
+        return { lat, lon };
       });
   };
 
