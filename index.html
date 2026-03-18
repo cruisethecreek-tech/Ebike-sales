@@ -585,7 +585,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--cream);min-height:100vh;p
           </div>
         </div>
         <input type="text" id="dtFrom" readonly
-          value="6685 Kirk Road, Canfield OH 44406"
+          value="6685 Kirk Road, Canfield, OH 44406"
           style="width:100%;padding:9px 12px;border:2px solid #6B8F71;border-radius:10px;font-size:12px;font-weight:700;outline:none;font-family:'DM Sans',sans-serif;background:#f0fdf4;color:#1a2e1c;">
       </div>
 
@@ -1806,8 +1806,8 @@ function saveTrips(trips) {
 
 function setFromAddress(n) {
   const addrs = {
-    1: '6685 Kirk Road, Canfield OH 44406',
-    2: '5530 Norquest Blvd, Youngstown OH 44515'
+    1: '6685 Kirk Road, Canfield, OH 44406',
+    2: '5530 Norquest Blvd, Youngstown, OH 44515'
   };
   document.getElementById('dtFrom').value = addrs[n];
   // Update button styles
@@ -1826,33 +1826,57 @@ function getToAddress() {
   const city   = (document.getElementById('dtCity')?.value||'Youngstown').trim();
   const zip    = (document.getElementById('dtZip')?.value||'').trim();
   if (!street) return '';
-  return [street + ' ' + type, city + (zip ? ' ' + zip : '') + ' OH'].filter(Boolean).join(', ');
+  // Format: "123 Main St, Youngstown, OH 44512"
+  const line1 = (street + ' ' + type).trim();
+  const line2 = city + ', OH' + (zip ? ' ' + zip : '');
+  return line1 + ', ' + line2;
 }
 
 function calcTripDist() {
-  const from = document.getElementById('dtFrom').value.trim() || '6685 Kirk Road, Canfield OH 44406';
+  const from = document.getElementById('dtFrom').value.trim() || '6685 Kirk Road, Canfield, OH 44406';
   const to   = getToAddress();
   const lbl  = document.getElementById('dtDistLbl');
   if (!to) { toast('⚠️ Enter street address and city'); return; }
   lbl.textContent = '⏳ calculating...';
 
   // Geocode both addresses using Nominatim (free, no key)
-  // Auto-append Youngstown OH if no state/zip mentioned
-  const ensureLocation = addr => {
-    const hasState = /,\s*[A-Z]{2}\b|ohio|youngstown|mahoning/i.test(addr);
-    return hasState ? addr : addr + ', Youngstown OH';
+  // Parse an address string into structured parts for Nominatim
+  const parseAddr = addr => {
+    // Try to extract: street, city, state, zip from "123 Main St, City, OH 44XXX"
+    const m = addr.match(/^(.+?),\s*([^,]+?),?\s*([A-Z]{2})\s*(\d{5})?$/);
+    if (m) return { street: m[1].trim(), city: m[2].trim(), state: m[3], zip: m[4]||'' };
+    // Fallback: split on commas
+    const parts = addr.split(',').map(s => s.trim());
+    return { street: parts[0]||'', city: parts[1]||'Youngstown', state: 'OH', zip: '' };
   };
+
   const geocode = addr => {
-    const q = ensureLocation(addr);
-    return fetch('https://nominatim.openstreetmap.org/search?format=json&limit=1&addressdetails=1&q=' + encodeURIComponent(q) + '&countrycodes=us', {
-      headers: {'Accept-Language': 'en', 'User-Agent': 'CruiseTheCreek-SalesPro/1.0 (cruisethecreek.com)'}
+    const p = parseAddr(addr);
+    // Use structured search — far more reliable than free-text for US addresses
+    const params = new URLSearchParams({
+      format: 'json', limit: '1', addressdetails: '1', countrycodes: 'us',
+      street: p.street, city: p.city, state: p.state || 'OH', country: 'US'
+    });
+    if (p.zip) params.set('postalcode', p.zip);
+    return fetch('https://nominatim.openstreetmap.org/search?' + params.toString(), {
+      headers: {'Accept-Language': 'en', 'User-Agent': 'CruiseTheCreek-SalesPro/1.0'}
     })
     .then(r => r.json())
     .then(d => {
-      if (!d || !d.length) throw new Error('Address not found: ' + q);
-      const r = d[0];
-      const display = r.address ? [r.address.road, r.address.city || r.address.town, r.address.state].filter(Boolean).join(', ') : r.display_name.split(',').slice(0,3).join(',');
-      return { lat: parseFloat(r.lat), lon: parseFloat(r.lon), display };
+      if (d && d.length) {
+        const r = d[0];
+        return { lat: parseFloat(r.lat), lon: parseFloat(r.lon) };
+      }
+      // Fallback: free-text search with state appended
+      const q = addr.includes('OH') ? addr : addr + ', OH, USA';
+      return fetch('https://nominatim.openstreetmap.org/search?format=json&limit=1&q=' + encodeURIComponent(q) + '&countrycodes=us', {
+        headers: {'Accept-Language': 'en', 'User-Agent': 'CruiseTheCreek-SalesPro/1.0'}
+      })
+      .then(r2 => r2.json())
+      .then(d2 => {
+        if (d2 && d2.length) return { lat: parseFloat(d2[0].lat), lon: parseFloat(d2[0].lon) };
+        throw new Error('Not found: ' + addr);
+      });
     });
   };
 
