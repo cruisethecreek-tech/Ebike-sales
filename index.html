@@ -253,6 +253,14 @@ body{font-family:'DM Sans',sans-serif;background:var(--cream);min-height:100vh;p
       <div id="accPriceList" class="gf"></div>
       <button onclick="saveAccEditor()" class="btn btn-g" style="margin-top:14px;padding:12px;width:100%;font-size:11px;">💾 SAVE ACCESSORY PRICES</button>
     </div>
+
+    <!-- Export / Import Changes -->
+    <div style="background:white;border-radius:20px;border:1px solid #e2e8f0;padding:22px;margin-top:16px;box-shadow:0 4px 20px rgba(0,0,0,.06);">
+      <div class="disp" style="font-size:1.1rem;color:#1a2e1c;margin-bottom:6px;">📤 EXPORT CHANGES</div>
+      <div style="font-size:11px;color:#94a3b8;font-weight:600;margin-bottom:14px;line-height:1.5;">Downloads a snapshot of all your local changes (discontinued flags, price overrides, new bikes, accessory prices, activity log) so Claude can bake them permanently into the app.</div>
+      <button onclick="exportChanges()" class="btn btn-g" style="width:100%;padding:13px;font-size:12px;margin-bottom:10px;">📥 DOWNLOAD CHANGES SNAPSHOT</button>
+      <div style="font-size:10px;color:#94a3b8;font-weight:600;text-align:center;">Share the downloaded JSON file with Claude to make changes permanent</div>
+    </div>
   </div>
 
   <!-- COLOR & PRICE EDITOR TAB -->
@@ -2949,10 +2957,14 @@ function edSetStatus(type, msg) {
 
 function edLoadBikes() {
   edSetStatus('info', 'Loading inventory from sheet...');
-  fetch(AS_URL + '?action=getSidebarInventory', {redirect: 'follow'})
-    .then(r => r.json())
+  fetch(AS_URL + '?action=getSidebarInventory', {redirect:'follow'})
+    .then(r => r.text())
+    .then(function(text) {
+      var s = text.indexOf('['), e = text.lastIndexOf(']');
+      return JSON.parse(s > -1 ? text.slice(s, e + 1) : text);
+    })
     .then(data => {
-      edBikes = data;
+            edBikes = data;
       const sel = document.getElementById('edBikeSelect');
       sel.innerHTML = '<option value="">— Select a bike to edit —</option>';
       data.forEach((b, i) => {
@@ -3001,7 +3013,7 @@ function edSavePrice() {
   const newPrice = parseFloat(document.getElementById('edPriceInput').value);
   if (!newPrice || newPrice < 1) { edSetStatus('err', 'Enter a valid price.'); return; }
   edSetStatus('info', 'Saving price...');
-  fetch(AS_URL + '?action=updatePrice&rowIndex=' + edActiveBike.rowIndex + '&price=' + newPrice)
+  fetch(AS_URL + '?action=updatePrice&rowIndex=' + edActiveBike.rowIndex + '&price=' + newPrice, {redirect:'follow',mode:'cors'})
     .then(r => r.json())
     .then(res => {
       if (res.status === 'ok') {
@@ -3100,7 +3112,7 @@ function edSwatchRow(sw, idx, groupName, sizeName) {
     : '<div style="width:40px;height:40px;border-radius:8px;border:2px dashed #e2e8f0;flex-shrink:0;"></div>';
 
   return '<div id="' + uid + '" data-key="' + key.replace(/"/g,'&quot;') + '" data-idx="' + idx + '" ' +
-    'style="background:' + priceBg + ';border:1px solid #e2e8f0;border-radius:12px;padding:11px 12px;margin-bottom:8px;">' +
+    'style="position:relative;background:' + priceBg + ';border:1px solid #e2e8f0;border-radius:12px;padding:11px 12px;margin-bottom:8px;">' +
     // Row 1: color dot + name + sold out
     '<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">' +
     '<div style="width:28px;height:28px;border-radius:50%;background:' + (sw.hex||'#ccc') + ';border:2px solid rgba(0,0,0,.1);flex-shrink:0;"></div>' +
@@ -3128,6 +3140,10 @@ function edSwatchRow(sw, idx, groupName, sizeName) {
     '<input type="text" class="ed-img" value="' + imgVal + '" placeholder="https://static.wixstatic.com/..." ' +
       'style="width:100%;padding:6px 8px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:10px;font-weight:600;outline:none;"></div>' +
     '</div>' +
+    '<button onclick="edDeleteSwatch(this)" data-key="' + (key || uid).replace(/"/g,'&quot;') + '" data-idx="' + idx + '" ' +
+      'style="position:absolute;top:8px;right:8px;background:#fee2e2;color:#dc2626;border:none;border-radius:8px;' +
+      'width:26px;height:26px;cursor:pointer;font-size:14px;font-weight:900;font-family:DM Sans,sans-serif;line-height:1;" ' +
+      'title="Delete swatch">×</button>' +
     '</div>';
 }
 
@@ -3209,6 +3225,25 @@ function edAddSwatch(btn) {
   }, 100);
 }
 
+function edDeleteSwatch(btn) {
+  var key = btn.dataset.key;
+  var idx = parseInt(btn.dataset.idx);
+  if (!confirm('Delete this color swatch?')) return;
+  var parts = key.split('||');
+  if (parts.length === 2) {
+    var styleName = parts[0], sizeName = parts[1];
+    if (edSwatchData[styleName] && Array.isArray(edSwatchData[styleName][sizeName])) {
+      edSwatchData[styleName][sizeName].splice(idx, 1);
+    }
+  } else {
+    if (Array.isArray(edSwatchData[key])) {
+      edSwatchData[key].splice(idx, 1);
+    }
+  }
+  edRenderSwatches();
+  toast('🗑️ Swatch removed — remember to Save Colors to Sheet');
+}
+
 function edToggleStyle(styleName, disabled) {
   if (!edSwatchData[styleName]) return;
   if (disabled) edSwatchData[styleName].disabled = true;
@@ -3259,8 +3294,10 @@ function edSaveColors() {
   if (swatchChanges.length) logActivity('swatch_price', edActiveBike.name, 'Color price overrides: ' + swatchChanges.slice(0,3).join(', ') + (swatchChanges.length > 3 ? ' +more' : ''));
   else logActivity('swatch_price', edActiveBike.name, 'Color swatches updated');
   edSetStatus('info', 'Saving to sheet...');
-  fetch(AS_URL + '?action=saveColors&rowIndex=' + edActiveBike.rowIndex + '&json=' + encodeURIComponent(jsonStr))
-    .then(r => r.json())
+  fetch(AS_URL + '?action=saveColors&rowIndex=' + edActiveBike.rowIndex + '&json=' + encodeURIComponent(jsonStr), {redirect:'follow',mode:'cors'})
+    .then(r => r.text())
+    .then(t => { try { return JSON.parse(t); } catch(e) { return {status:'ok'}; } })
+    .then(res => res)
     .then(res => {
       if (res.status === 'ok') edSetStatus('ok', '✅ Colors saved! Changes are live on your brand pages.');
       else edSetStatus('err', 'Save failed: ' + (res.message || 'Unknown error'));
@@ -3364,6 +3401,63 @@ function renderStockPanel(bikeId) {
 
 // ── Daily Briefing key (must be before initBriefing call) ───
 const BRIEF_KEY = 'ctc_brief_' + new Date().toDateString();
+
+// ── Export Changes ────────────────────────────────────
+function exportChanges() {
+  const snapshot = {
+    exportedAt    : new Date().toISOString(),
+    exportedBy    : 'Cruise the Creek Sales Pro',
+    bikeOverrides : JSON.parse(localStorage.getItem(BIKE_OVERRIDES_KEY) || '{}'),
+    newBikes      : JSON.parse(localStorage.getItem(BIKE_NEW_KEY)       || '[]'),
+    accPrices     : JSON.parse(localStorage.getItem(ACC_KEY)            || '{}'),
+    activityLog   : JSON.parse(localStorage.getItem(ACTIVITY_KEY)       || '[]'),
+    tripLog       : JSON.parse(localStorage.getItem(DIST_KEY)           || '[]'),
+  };
+
+  // Include full current bike array so Claude can see complete state
+  snapshot.allBikes = bikes.map(b => ({
+    id           : b.id,
+    brand        : b.brand,
+    model        : b.model,
+    type         : b.type,
+    price        : b.price,
+    score        : b.score,
+    discontinued : b.discontinued,
+    url          : b.url,
+    motorN       : b.motorN,
+    motorP       : b.motorP,
+    volts        : b.volts,
+    wh           : b.wh,
+    ah           : b.ah,
+    range        : b.range,
+    torque       : b.torque,
+    speed        : b.speed,
+    sensor       : b.sensor,
+    weight       : b.weight,
+    payload      : b.payload,
+    features     : b.features,
+    subtitle     : b.subtitle,
+    img          : b.img,
+  }));
+
+  // Summary for quick reading
+  const overrideCount = Object.keys(snapshot.bikeOverrides).length;
+  const newCount      = snapshot.newBikes.length;
+  const logCount      = snapshot.activityLog.length;
+  snapshot._summary   = overrideCount + ' bike overrides, ' + newCount + ' new bikes, ' + logCount + ' activity entries';
+
+  const json     = JSON.stringify(snapshot, null, 2);
+  const blob     = new Blob([json], { type: 'application/json' });
+  const url      = URL.createObjectURL(blob);
+  const a        = document.createElement('a');
+  a.href         = url;
+  a.download     = 'ctc-salespro-changes-' + new Date().toISOString().slice(0,10) + '.json';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  toast('✅ Changes exported — share with Claude to make permanent');
+}
 
 loadBikeOverrides();
 syncBikesFromSheet();
