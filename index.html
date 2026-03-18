@@ -662,6 +662,9 @@ let bikes=[
 {id:44,brand:"Jasion", score:64.8, model:"EB7 2.0",        type:"Folding, Fat Tire",            motorN:850,  motorP:1200, volts:48, wh:480,  ah:10,   range:55, torque:55,  speed:28, sensor:"Cadence", weight:62,   payload:330, url:"https://www.jasionbike.com/products/eb7-2-0",                 features:'Compact folding fat tire, lightest Jasion folder, entry-level price point'},
 {id:45,brand:"Jasion", score:63.2, model:"EB5 Roamer",     type:"Cruiser, Step-Over",           motorN:750,  motorP:1200, volts:48, wh:528,  ah:11,   range:62, torque:60,  speed:28, sensor:"Cadence", weight:65,   payload:330, url:"https://www.jasionbike.com/products/jasion-eb5-roamer-ebike", features:'Lightweight urban cruiser, affordable entry point, step-over frame'},
 {id:46,brand:"Jasion", score:62.9, model:"EB5 Roamer ST",  type:"Cruiser, Step-Thru",           motorN:750,  motorP:1200, volts:48, wh:528,  ah:11,   range:62, torque:60,  speed:28, sensor:"Cadence", weight:65,   payload:330, url:"https://www.jasionbike.com/products/jasion-eb5-st-roamer-ebike",features:'Step-thru version of EB5 Roamer — easy mount/dismount, lightweight urban commuter'},
+
+// ── ADDED FROM SHEET ─────────────────────────────────
+{id:47, brand:"Heybike", score:78.5, model:"Hybrid",  type:"Step-Thru",  price:1699, motorN:750, motorP:null, volts:null, wh:864, ah:null, range:100, torque:75, speed:28, sensor:"—", weight:69, payload:null, url:"https://www.heybike.com/products/hybrid", features:"100mi range, 864Wh battery, step-thru frame, 75NM torque"},
 ];
 
 // ──────────────────────────────────────────────────────
@@ -2768,6 +2771,63 @@ function renderStockPanel(bikeId) {
 const BRIEF_KEY = 'ctc_brief_' + new Date().toDateString();
 
 loadBikeOverrides();
+syncBikesFromSheet();  // fetch sheet and add any missing bikes
+
+function syncBikesFromSheet() {
+  fetch(AS_URL + '?action=getBikeInventory', {redirect:'follow'})
+    .then(r => r.json())
+    .then(sheetBikes => {
+      let added = 0;
+      sheetBikes.forEach(sb => {
+        // Check if this bike is already in our array by name match
+        const exists = bikes.find(b =>
+          b.model && sb.name &&
+          b.model.toLowerCase().trim() === sb.name.toLowerCase().trim() &&
+          b.brand.toLowerCase() === sb.brand.toLowerCase()
+        );
+        if (!exists) {
+          // Map sheet fields to Sales Pro format
+          const specs = sb.specs || {};
+          const parseNum = (v) => { const n = parseFloat((v||'').toString().replace(/[^0-9.]/g,'')); return isNaN(n) ? null : n; };
+          const newBike = {
+            id       : Date.now() + Math.floor(Math.random()*1000),
+            brand    : sb.brand,
+            model    : sb.name,
+            subtitle : sb.subtitle || '',
+            type     : specs['Type'] || specs['Frame'] || '',
+            price    : sb.price || null,
+            url      : '',
+            score    : null,
+            motorN   : parseNum(specs['Motor'] || specs['Motor (Nom.)'] || specs['Nominal Motor']),
+            motorP   : parseNum(specs['Peak Motor'] || specs['Motor (Peak)']),
+            volts    : parseNum(specs['Voltage'] || specs['Volts']),
+            wh       : parseNum(specs['Battery'] || specs['Battery (Wh)']),
+            ah       : parseNum(specs['Amp Hours'] || specs['AH']),
+            range    : parseNum(specs['Range'] || specs['Max Range']),
+            torque   : parseNum(specs['Torque']),
+            speed    : parseNum(specs['Top Speed'] || specs['Speed']),
+            sensor   : specs['Sensor'] || specs['PAS'] || '—',
+            weight   : parseNum(specs['Weight']),
+            payload  : parseNum(specs['Payload'] || specs['Max Payload']),
+            features : sb.subtitle || '',
+            img      : '',
+            _fromSheet: true
+          };
+          bikes.push(newBike);
+          added++;
+        }
+      });
+      if (added > 0) {
+        console.log('Added ' + added + ' bike(s) from sheet');
+        saveBikeOverrides();
+        buildFilters();
+        renderCards();
+        if (document.getElementById('vAdmin').style.display === 'block') renderAdminList();
+      }
+    })
+    .catch(e => console.warn('Sheet sync failed:', e));
+}
+
 buildFilters();
 renderCards();
 initBriefing();
