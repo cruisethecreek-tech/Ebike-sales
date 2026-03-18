@@ -223,6 +223,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--cream);min-height:100vh;p
       <select id="adminBrandFilter" onchange="renderAdminList()"
         style="padding:9px 12px;border:2px solid #e2e8f0;border-radius:12px;font-size:12px;font-weight:700;outline:none;font-family:'DM Sans',sans-serif;background:white;">
         <option value="All">All</option>
+        <option value="A-Z">A–Z</option>
         <option value="Heybike">Heybike</option>
         <option value="Velotric">Velotric</option>
         <option value="Jasion">Jasion</option>
@@ -1083,7 +1084,7 @@ function accPrice(name, fallback) {
   const prices = getAccPrices();
   return (prices[name] !== undefined) ? prices[name] : fallback;
 }
-const FILTERS=['All','Heybike','Velotric','Jasion','Folding','Torque Sensor','Cadence Sensor','SensorSwap','Mid Drive'];
+const FILTERS=['All','A-Z','Heybike','Velotric','Jasion','Folding','Torque Sensor','Cadence Sensor','SensorSwap','Mid Drive'];
 
 // ──────────────────────────────────────────────────────
 // UTILS
@@ -1129,6 +1130,7 @@ function getFiltered(){
     const h=`${b.brand} ${b.model} ${b.type} ${b.sensor} ${b.features}`.toLowerCase();
     return(!q||h.includes(q))&&(
       activeFilter==='All' ||
+      activeFilter==='A-Z' ||
       b.brand===activeFilter ||
       b.type.toLowerCase().includes(activeFilter.toLowerCase()) ||
       (activeFilter==='Torque Sensor' && b.sensor==='Torque') ||
@@ -1141,6 +1143,8 @@ function getFiltered(){
     const aDisc = a.discontinued==='Yes' ? 1 : 0;
     const bDisc = b.discontinued==='Yes' ? 1 : 0;
     if(aDisc !== bDisc) return aDisc - bDisc;
+    // A-Z filter overrides sort dropdown
+    if(activeFilter==='A-Z') return (a.model||'').localeCompare(b.model||'');
     if(s==='score')  return(b.score||0)-(a.score||0);
     if(s==='torque') return(b.torque||0)-(a.torque||0);
     if(s==='range')  return(b.range||0)-(a.range||0);
@@ -1618,6 +1622,7 @@ function renderAdminList(){
     .sort((a,b) => {
       const aD = a.discontinued==='Yes'?1:0, bD = b.discontinued==='Yes'?1:0;
       if(aD!==bD) return aD-bD;
+      if(aFilter==='A-Z') return (a.model||'').localeCompare(b.model||'');
       return (b.score||0)-(a.score||0);
     });
   document.getElementById('adminList').innerHTML=adminBikes.map(b=>`
