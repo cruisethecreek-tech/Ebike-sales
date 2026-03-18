@@ -760,12 +760,13 @@ function saveBikeOverrides() {
   const newBikes  = [];
   bikes.forEach(b => {
     if (b.id > BIKE_BASE_MAX_ID || typeof b.id === 'string') {
-      // New bike added this session — save full object
       newBikes.push(b);
     } else {
-      // Existing bike — save only changed override fields
       const fields = {};
-      ['discontinued','url','price','score','subtitle','features','img'].forEach(k => {
+      // Always save discontinued regardless of value (including 'No')
+      if (b.discontinued !== undefined) fields.discontinued = b.discontinued;
+      // Save other override fields only when set
+      ['url','price','score','subtitle','features','img'].forEach(k => {
         if (b[k] !== undefined && b[k] !== null && b[k] !== '') fields[k] = b[k];
       });
       if (Object.keys(fields).length) overrides[b.id] = fields;
@@ -2757,7 +2758,7 @@ const STOCK_ALIASES = {
   'mars 2.0 750'  : ['mars20'],         // mfr: "Mars2.0-..."
   'mars 2.0 1000' : ['mars20'],
   'helio f'       : ['heliof'],         // mfr: "HelioF FG-Red/Green"
-  'cityscape 2.0' : ['cityscape20'],    // mfr: "White/Black/Blue Cityscape2.0"
+  'cityscape 2.0' : ['cityscape20', 'cityscape2'],  // mfr: "White/Black/Blue/Green Cityscape2.0"
   'ranger s 750'  : ['rangers'],
   'ranger s 1000' : ['rangers'],
 };
