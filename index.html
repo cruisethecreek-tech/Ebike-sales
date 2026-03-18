@@ -1720,11 +1720,16 @@ function saveBike(){
   if (isNew) {
     logActivity('new_bike', d.model, d.brand + ' · ' + d.type + (d.price ? ' · $'+Number(d.price).toLocaleString() : ''));
   } else if (prev) {
-    if (d.discontinued !== prev.discontinued) {
-      logActivity('discontinued', d.model, d.discontinued==='Yes' ? 'Marked as discontinued' : 'Removed discontinued flag');
+    // Only log discontinued change if it genuinely changed
+    const prevDisc = prev.discontinued || 'No';
+    const newDisc  = d.discontinued  || 'No';
+    if (newDisc !== prevDisc) {
+      logActivity('discontinued', d.model, newDisc==='Yes' ? 'Marked as discontinued' : 'Removed discontinued flag');
     }
-    if (d.price !== prev.price && d.price) {
-      logActivity('price', d.model, 'Base price changed to $' + Number(d.price).toLocaleString() + (prev.price ? ' (was $'+Number(prev.price).toLocaleString()+')' : ''));
+    const prevPrice = prev.price || null;
+    const newPrice  = d.price  || null;
+    if (newPrice && newPrice !== prevPrice) {
+      logActivity('price', d.model, 'Base price changed to $' + Number(newPrice).toLocaleString() + (prevPrice ? ' (was $'+Number(prevPrice).toLocaleString()+')' : ''));
     }
     if (d.score !== prev.score && d.score) {
       logActivity('score', d.model, 'Score updated to ' + d.score + (prev.score ? ' (was '+prev.score+')' : ''));
@@ -1840,44 +1845,20 @@ function calcTripDist() {
   lbl.textContent = '⏳ calculating...';
 
   // Geocode both addresses using Nominatim (free, no key)
-  // Parse an address string into structured parts for Nominatim
-  const parseAddr = addr => {
-    // Try to extract: street, city, state, zip from "123 Main St, City, OH 44XXX"
-    const m = addr.match(/^(.+?),\s*([^,]+?),?\s*([A-Z]{2})\s*(\d{5})?$/);
-    if (m) return { street: m[1].trim(), city: m[2].trim(), state: m[3], zip: m[4]||'' };
-    // Fallback: split on commas
-    const parts = addr.split(',').map(s => s.trim());
-    return { street: parts[0]||'', city: parts[1]||'Youngstown', state: 'OH', zip: '' };
-  };
-
+  // US Census Bureau geocoder — free, no key, handles US addresses reliably
   const geocode = addr => {
-    const p = parseAddr(addr);
-    // Use structured search — far more reliable than free-text for US addresses
-    const params = new URLSearchParams({
-      format: 'json', limit: '1', addressdetails: '1', countrycodes: 'us',
-      street: p.street, city: p.city, state: p.state || 'OH', country: 'US'
-    });
-    if (p.zip) params.set('postalcode', p.zip);
-    return fetch('https://nominatim.openstreetmap.org/search?' + params.toString(), {
-      headers: {'Accept-Language': 'en', 'User-Agent': 'CruiseTheCreek-SalesPro/1.0'}
-    })
-    .then(r => r.json())
-    .then(d => {
-      if (d && d.length) {
-        const r = d[0];
-        return { lat: parseFloat(r.lat), lon: parseFloat(r.lon) };
-      }
-      // Fallback: free-text search with state appended
-      const q = addr.includes('OH') ? addr : addr + ', OH, USA';
-      return fetch('https://nominatim.openstreetmap.org/search?format=json&limit=1&q=' + encodeURIComponent(q) + '&countrycodes=us', {
-        headers: {'Accept-Language': 'en', 'User-Agent': 'CruiseTheCreek-SalesPro/1.0'}
-      })
-      .then(r2 => r2.json())
-      .then(d2 => {
-        if (d2 && d2.length) return { lat: parseFloat(d2[0].lat), lon: parseFloat(d2[0].lon) };
-        throw new Error('Not found: ' + addr);
+    const censusUrl = 'https://geocoding.geo.census.gov/geocoder/locations/onelineaddress?address=' +
+      encodeURIComponent(addr) + '&benchmark=Public_AR_Current&format=json';
+    return fetch(censusUrl)
+      .then(r => r.json())
+      .then(d => {
+        const matches = d && d.result && d.result.addressMatches;
+        if (matches && matches.length) {
+          const c = matches[0].coordinates;
+          return { lat: c.y, lon: c.x };
+        }
+        throw new Error('Address not found: ' + addr);
       });
-    });
   };
 
   Promise.all([geocode(from), geocode(to)])
