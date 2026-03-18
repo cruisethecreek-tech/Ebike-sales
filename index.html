@@ -17,8 +17,11 @@ body{font-family:'DM Sans',sans-serif;background:var(--cream);min-height:100vh;p
 .mbox{background:white;border-radius:24px;width:100%;max-width:460px;max-height:92vh;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 25px 60px rgba(0,0,0,.4);}
 /* Bottom-sheet modals: mobile=bottom, desktop=centered */
 .modal-sheet{align-items:flex-end;padding:0;}
-@media(min-width:640px){.modal-sheet{align-items:center;padding:16px;}}
-@media(min-width:640px){.modal-sheet>.sheet-inner{border-radius:24px !important;margin:0 auto;}}
+.modal-sheet .sheet-inner{transition:border-radius .2s;}
+@media(min-width:640px){
+  .modal-sheet{align-items:center;justify-content:center;padding:24px;}
+  .modal-sheet .sheet-inner{border-radius:24px !important;max-height:88vh;box-shadow:0 25px 60px rgba(0,0,0,.4) !important;}
+}
 .sr{width:52px;height:52px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:1.05rem;border:3px solid;flex-shrink:0;}
 .sr-h{border-color:#6B8F71;color:#2D4A32;background:#e8f0e9;}
 .sr-m{border-color:#C9A96E;color:#7a5a20;background:#fdf3e0;}
@@ -565,7 +568,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--cream);min-height:100vh;p
 </div>
 
 <!-- ══════════════════ DISTANCE TRACKER MODAL ══════════════════ -->
-<div class="modal" id="mDist" class="modal-sheet" style="align-items:flex-end;padding:0;">
+<div class="modal" id="mDist" class="modal-sheet">
   <div class="sheet-inner" style="background:white;border-radius:24px 24px 0 0;width:100%;max-width:560px;max-height:90vh;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 -8px 40px rgba(0,0,0,.2);margin:0 auto;">
     <div style="background:#1a2e1c;padding:18px 20px 14px;flex-shrink:0;">
       <div style="display:flex;justify-content:space-between;align-items:flex-start;">
@@ -665,7 +668,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--cream);min-height:100vh;p
 
 
 <!-- ══════════════════ DEALER CONTACTS MODAL ══════════════════ -->
-<div class="modal" id="mDealer" class="modal-sheet" style="align-items:flex-end;padding:0;">
+<div class="modal" id="mDealer" class="modal-sheet">
   <div style="background:white;border-radius:24px 24px 0 0;width:100%;max-width:600px;max-height:92vh;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 -8px 40px rgba(0,0,0,.2);margin:0 auto;">
     <div style="background:#1a2e1c;padding:18px 20px 0;flex-shrink:0;">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
@@ -884,7 +887,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--cream);min-height:100vh;p
 </div>
 
 <!-- ══════════════════ ACTIVITY LOG MODAL ══════════════════ -->
-<div class="modal" id="mChangelog" class="modal-sheet" style="align-items:flex-end;padding:0;">
+<div class="modal" id="mChangelog" class="modal-sheet">
   <div class="sheet-inner" style="background:white;border-radius:24px 24px 0 0;width:100%;max-width:560px;max-height:85vh;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 -8px 40px rgba(0,0,0,.2);margin:0 auto;">
     <div style="background:#1a2e1c;padding:18px 20px 14px;flex-shrink:0;">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
@@ -1913,30 +1916,34 @@ function calcTripDist() {
 }
 
 function addTrip() {
-  const from  = document.getElementById('dtFrom').value.trim() || '6685 Kirk Road, Youngstown OH';
-  const dest  = document.getElementById('dtDest').value.trim();
+  const from  = document.getElementById('dtFrom').value.trim() || '6685 Kirk Road, Canfield, OH 44406';
+  const dest  = getToAddress();
   const miles = parseFloat(document.getElementById('dtMiles').value);
   const date  = document.getElementById('dtDate').value;
-  if (!dest || !miles) { toast('⚠️ Enter destination and miles'); return; }
+  if (!dest) { toast('⚠️ Enter a street address for destination'); return; }
+  if (!miles) { toast('⚠️ Enter miles or tap 📍 CALC first'); return; }
   const trips = getTrips();
-  trips.push({ id: Date.now(), from, dest, miles, date: date || new Date().toISOString().split('T')[0] });
+  const rt = miles * 2;
+  trips.push({ id: Date.now(), from, dest, miles, rt, date: date || new Date().toISOString().split('T')[0] });
   saveTrips(trips);
+  // Clear TO fields
   document.getElementById('dtStreet').value = '';
   document.getElementById('dtZip').value = '';
   document.getElementById('dtMiles').value = '';
   document.getElementById('dtDistLbl').textContent = '';
   renderTrips();
-  const rt = (miles * 2).toFixed(1);
-  toast('✅ Trip logged — ' + rt + ' RT miles');
-  // Store RT miles so delivery calc picks it up when quote opens
-  window._lastTripRTMiles = miles * 2;
-  // If quote is already open and delivery panel is visible, populate now
+  toast('✅ Trip logged — ' + rt.toFixed(1) + ' RT miles');
+  // Push RT miles to delivery calc
+  window._lastTripRTMiles = rt;
+  // If quote modal is open and delivery panel visible, fill immediately
   const dMiles = document.getElementById('dMiles');
   const delivBody = document.getElementById('delivBody');
   if (dMiles && delivBody && delivBody.style.display === 'block') {
-    dMiles.value = miles * 2;
+    dMiles.value = rt;
     calcDelivery();
   }
+  // Also show a prompt to open quote
+  setTimeout(() => toast('💡 Open a quote → ADD DELIVERY to use these miles'), 2500);
 }
 
 function deleteTrip(id) {
@@ -1960,7 +1967,7 @@ function renderTrips() {
 
   let totalRT = 0, totalGas = 0, totalLabor = 0;
   trips.forEach(t => {
-    const rt    = t.miles * 2;
+    const rt    = t.rt || (t.miles * 2);
     const gas   = (rt / mpg) * gasPrice;
     const hours = rt / avgSpeed;
     const labor = hours * hourlyRate;
@@ -1983,7 +1990,7 @@ function renderTrips() {
   // Sort newest first
   const sorted = [...trips].sort((a,b) => b.id - a.id);
   log.innerHTML = sorted.map(t => {
-    const rt    = t.miles * 2;
+    const rt    = t.rt || (t.miles * 2);
     const gas   = (rt / mpg) * gasPrice;
     const hours = rt / avgSpeed;
     const labor = hours * hourlyRate;
