@@ -736,29 +736,46 @@ function getPriceBadge(model, bikePrice) {
   return '<span class="price-badge pb-low">🟡 We are $' + diff.toFixed(0) + ' lower · Ours: ' + ourPrice + '</span>';
 }
 const PASS='creek2024';
+const BIKE_BASE_MAX_ID = 46; // highest id in the hardcoded bikes array
 const BIKE_OVERRIDES_KEY = 'ctc_bike_overrides';
+const BIKE_NEW_KEY = 'ctc_bikes_new';
 
 function saveBikeOverrides() {
   const overrides = {};
+  const newBikes  = [];
   bikes.forEach(b => {
-    const fields = {};
-    ['discontinued','url','price','score','subtitle','features','img'].forEach(k => {
-      if (b[k] !== undefined && b[k] !== null && b[k] !== '') fields[k] = b[k];
-    });
-    if (Object.keys(fields).length) overrides[b.id] = fields;
+    if (b.id > BIKE_BASE_MAX_ID || typeof b.id === 'string') {
+      // New bike added this session — save full object
+      newBikes.push(b);
+    } else {
+      // Existing bike — save only changed override fields
+      const fields = {};
+      ['discontinued','url','price','score','subtitle','features','img'].forEach(k => {
+        if (b[k] !== undefined && b[k] !== null && b[k] !== '') fields[k] = b[k];
+      });
+      if (Object.keys(fields).length) overrides[b.id] = fields;
+    }
   });
   localStorage.setItem(BIKE_OVERRIDES_KEY, JSON.stringify(overrides));
+  localStorage.setItem(BIKE_NEW_KEY, JSON.stringify(newBikes));
 }
 
 function loadBikeOverrides() {
   try {
+    // Apply field overrides to existing bikes
     const overrides = JSON.parse(localStorage.getItem(BIKE_OVERRIDES_KEY) || '{}');
     Object.keys(overrides).forEach(id => {
       const idx = bikes.findIndex(b => String(b.id) === String(id));
       if (idx !== -1) Object.assign(bikes[idx], overrides[id]);
-      else bikes.push(overrides[id]); // new bike added in prev session
     });
-  } catch(e) {}
+    // Re-add new bikes that were added in previous sessions
+    const newBikes = JSON.parse(localStorage.getItem(BIKE_NEW_KEY) || '[]');
+    newBikes.forEach(nb => {
+      if (!bikes.find(b => String(b.id) === String(nb.id))) {
+        bikes.push(nb);
+      }
+    });
+  } catch(e) { console.warn('loadBikeOverrides error:', e); }
 }
 
 // ── Accessory price overrides (editable in Admin) ──────
@@ -2691,6 +2708,17 @@ function loadStockData(targetBikeId) {
     });
 }
 
+// Manufacturer stock name aliases — maps our model name to what appears in mfr sheet
+const STOCK_ALIASES = {
+  'mars 3.0'      : ['mars3.0', 'mars 3'],
+  'helio f'       : ['helio f fg', 'heliof', 'helio-f'],
+  'cityscape 2.0' : ['cityscape2.0', 'cityscape 2'],
+  'mars 2.0 750'  : ['mars2.0', 'mars 2.0'],
+  'mars 2.0 1000' : ['mars2.0', 'mars 2.0'],
+  'ranger s 750'  : ['ranger s', 'rangers'],
+  'ranger s 1000' : ['ranger s', 'rangers'],
+};
+
 function renderStockPanel(bikeId) {
   const bike = bikes.find(b => String(b.id) === String(bikeId));
   if (!bike || !stockData) return;
@@ -2698,18 +2726,20 @@ function renderStockPanel(bikeId) {
   if (!el) return;
   const bModel = bike.model.toLowerCase().trim();
   const bNorm  = bModel.replace(/[^a-z0-9]/g,'');
+  const aliases = (STOCK_ALIASES[bModel] || []).map(a => a.toLowerCase());
   const rows = stockData.filter(r => {
     const rName  = (r.name || '').toLowerCase().trim();
     const rNorm  = rName.replace(/[^a-z0-9]/g,'');
-    const rVar   = (r.variant || '').toLowerCase();
-    // Exact model match, or normalised match, or variant contains model name
+    const rVar   = (r.variant || '').toLowerCase().replace(/[^a-z0-9]/g,'');
+    // Check aliases first
+    if (aliases.some(a => rVar.indexOf(a.replace(/[^a-z0-9]/g,'')) !== -1 ||
+                          rNorm.indexOf(a.replace(/[^a-z0-9]/g,'')) !== -1)) return true;
+    // Then normalised model name match
     return rName === bModel ||
            rNorm === bNorm ||
-           rName.indexOf(bModel) !== -1 ||
-           bModel.indexOf(rName) !== -1 ||
            rNorm.indexOf(bNorm) !== -1 ||
            bNorm.indexOf(rNorm) !== -1 ||
-           rVar.indexOf(bModel) !== -1;
+           rVar.indexOf(bNorm) !== -1;
   });
   if (!rows.length) {
     el.innerHTML = '<div style="color:#94a3b8;font-size:11px;padding:8px 0;">No stock data found for this model</div>';
