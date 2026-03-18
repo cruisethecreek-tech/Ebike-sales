@@ -212,6 +212,18 @@ body{font-family:'DM Sans',sans-serif;background:var(--cream);min-height:100vh;p
         <button onclick="cancelEdit()" class="btn btn-o" style="padding:13px 16px;">Cancel</button>
       </div>
     </div>
+    <!-- Admin search & filter -->
+    <div style="display:flex;gap:8px;margin-bottom:12px;align-items:center;">
+      <input type="text" id="adminSearch" oninput="renderAdminList()" placeholder="Search bikes..."
+        style="flex:1;padding:9px 12px;border:2px solid #e2e8f0;border-radius:12px;font-size:13px;font-weight:600;outline:none;font-family:'DM Sans',sans-serif;">
+      <select id="adminBrandFilter" onchange="renderAdminList()"
+        style="padding:9px 12px;border:2px solid #e2e8f0;border-radius:12px;font-size:12px;font-weight:700;outline:none;font-family:'DM Sans',sans-serif;background:white;">
+        <option value="All">All</option>
+        <option value="Heybike">Heybike</option>
+        <option value="Velotric">Velotric</option>
+        <option value="Jasion">Jasion</option>
+      </select>
+    </div>
     <div id="adminList"></div>
 
     <!-- Accessory Price Editor -->
@@ -847,6 +859,10 @@ function getFiltered(){
     const h=`${b.brand} ${b.model} ${b.type} ${b.sensor} ${b.features}`.toLowerCase();
     return(!q||h.includes(q))&&(activeFilter==='All'||b.brand===activeFilter||b.type.toLowerCase().includes(activeFilter.toLowerCase())||(activeFilter==='Torque Sensor'&&b.sensor==='Torque'));
   }).sort((a,b)=>{
+    // Discontinued always last
+    const aDisc = a.discontinued==='Yes' ? 1 : 0;
+    const bDisc = b.discontinued==='Yes' ? 1 : 0;
+    if(aDisc !== bDisc) return aDisc - bDisc;
     if(s==='score')  return(b.score||0)-(a.score||0);
     if(s==='torque') return(b.torque||0)-(a.torque||0);
     if(s==='range')  return(b.range||0)-(a.range||0);
@@ -1070,7 +1086,15 @@ function toggleDelivery() {
   const open = body.style.display === 'block';
   body.style.display = open ? 'none' : 'block';
   chev.textContent = open ? '▼ ADD' : '▲ HIDE';
-  if (!open) fetchGasPrice(); // auto-lookup when opening
+  if (!open) {
+    fetchGasPrice();
+    // Auto-fill RT miles from last logged trip if field is empty
+    const dMiles = document.getElementById('dMiles');
+    if (dMiles && !dMiles.value && window._lastTripRTMiles) {
+      dMiles.value = window._lastTripRTMiles;
+      calcDelivery();
+    }
+  }
 }
 
 function fetchGasPrice() {
@@ -1305,7 +1329,20 @@ function saveAccEditor() {
 function renderAdminList(){
   document.getElementById('adminSub').textContent=`CRUISE THE CREEK · ${bikes.length} BIKES`;
   renderAccEditor();
-  document.getElementById('adminList').innerHTML=bikes.map(b=>`
+  const aSearch = (document.getElementById('adminSearch')?.value||'').toLowerCase();
+  const aFilter = document.getElementById('adminBrandFilter')?.value||'All';
+  const adminBikes = bikes
+    .filter(b => {
+      const matchSearch = !aSearch || (b.model+' '+b.brand+' '+b.type).toLowerCase().includes(aSearch);
+      const matchBrand  = aFilter==='All' || b.brand===aFilter;
+      return matchSearch && matchBrand;
+    })
+    .sort((a,b) => {
+      const aD = a.discontinued==='Yes'?1:0, bD = b.discontinued==='Yes'?1:0;
+      if(aD!==bD) return aD-bD;
+      return (b.score||0)-(a.score||0);
+    });
+  document.getElementById('adminList').innerHTML=adminBikes.map(b=>`
     <div class="arow">
       ${srHTML(b.score)}
       <div style="flex:1;min-width:0;">
@@ -1519,10 +1556,13 @@ function addTrip() {
   renderTrips();
   const rt = (miles * 2).toFixed(1);
   toast('✅ Trip logged — ' + rt + ' RT miles');
-  // Offer to populate delivery calc
+  // Store RT miles so delivery calc picks it up when quote opens
+  window._lastTripRTMiles = miles * 2;
+  // If quote is already open and delivery panel is visible, populate now
   const dMiles = document.getElementById('dMiles');
-  if (dMiles !== null) {
-    dMiles.value = miles;
+  const delivBody = document.getElementById('delivBody');
+  if (dMiles && delivBody && delivBody.style.display === 'block') {
+    dMiles.value = miles * 2;
     calcDelivery();
   }
 }
@@ -2713,13 +2753,13 @@ function loadStockData(targetBikeId) {
 
 // Manufacturer stock name aliases — maps our model name to what appears in mfr sheet
 const STOCK_ALIASES = {
-  'mars 3.0'      : ['mars3.0', 'mars 3'],
-  'helio f'       : ['helio f fg', 'heliof', 'helio-f'],
-  'cityscape 2.0' : ['cityscape2.0', 'cityscape 2'],
-  'mars 2.0 750'  : ['mars2.0', 'mars 2.0'],
-  'mars 2.0 1000' : ['mars2.0', 'mars 2.0'],
-  'ranger s 750'  : ['ranger s', 'rangers'],
-  'ranger s 1000' : ['ranger s', 'rangers'],
+  'mars 3.0'      : ['mars3.0', 'mars30', 'mars 3.0', 'mars3'],
+  'mars 2.0 750'  : ['mars2.0', 'mars20', 'mars 2.0'],
+  'mars 2.0 1000' : ['mars2.0', 'mars20', 'mars 2.0'],
+  'helio f'       : ['heliof', 'helio f fg', 'helioffg', 'heliof-'],
+  'cityscape 2.0' : ['cityscape2.0', 'cityscape20', 'cityscape2'],
+  'ranger s 750'  : ['rangers', 'ranger s'],
+  'ranger s 1000' : ['rangers', 'ranger s'],
 };
 
 function renderStockPanel(bikeId) {
@@ -2729,20 +2769,17 @@ function renderStockPanel(bikeId) {
   if (!el) return;
   const bModel = bike.model.toLowerCase().trim();
   const bNorm  = bModel.replace(/[^a-z0-9]/g,'');
-  const aliases = (STOCK_ALIASES[bModel] || []).map(a => a.toLowerCase());
+  const aliases = (STOCK_ALIASES[bModel] || []).map(a => a.toLowerCase().replace(/[^a-z0-9]/g,''));
   const rows = stockData.filter(r => {
-    const rName  = (r.name || '').toLowerCase().trim();
-    const rNorm  = rName.replace(/[^a-z0-9]/g,'');
     const rVar   = (r.variant || '').toLowerCase().replace(/[^a-z0-9]/g,'');
-    // Check aliases first
-    if (aliases.some(a => rVar.indexOf(a.replace(/[^a-z0-9]/g,'')) !== -1 ||
-                          rNorm.indexOf(a.replace(/[^a-z0-9]/g,'')) !== -1)) return true;
-    // Then normalised model name match
-    return rName === bModel ||
-           rNorm === bNorm ||
-           rNorm.indexOf(bNorm) !== -1 ||
-           bNorm.indexOf(rNorm) !== -1 ||
-           rVar.indexOf(bNorm) !== -1;
+    const rName  = (r.name   || '').toLowerCase().replace(/[^a-z0-9]/g,'');
+    // Check all aliases
+    if (aliases.some(a => rVar.startsWith(a) || rName.startsWith(a) ||
+                          rVar.indexOf(a) !== -1 || rName.indexOf(a) !== -1)) return true;
+    // Normalised model name match
+    return rVar.startsWith(bNorm) || rName === bNorm ||
+           rVar.indexOf(bNorm) !== -1 || rName.indexOf(bNorm) !== -1 ||
+           bNorm.indexOf(rName) !== -1;
   });
   if (!rows.length) {
     el.innerHTML = '<div style="color:#94a3b8;font-size:11px;padding:8px 0;">No stock data found for this model</div>';
