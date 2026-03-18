@@ -632,8 +632,9 @@ body{font-family:'DM Sans',sans-serif;background:var(--cream);min-height:100vh;p
         <button onclick="closeM('mDealer')" style="background:rgba(255,255,255,.1);border:2px solid rgba(255,255,255,.15);border-radius:10px;padding:7px 12px;color:rgba(255,255,255,.65);font-size:11px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;">✕ CLOSE</button>
       </div>
       <div style="display:flex;gap:0;border-bottom:2px solid rgba(255,255,255,.1);">
-        <button class="tab on" id="dtab1" onclick="switchDealerTab(1)" style="color:white;border-color:#C9A96E;flex:1;">🤝 CONTACTS</button>
-        <button class="tab" id="dtab2" onclick="switchDealerTab(2)" style="color:rgba(255,255,255,.5);flex:1;">🛒 AFFILIATE LINKS</button>
+        <button class="tab on" id="dtab1" onclick="switchDealerTab(1)" style="color:white;border-color:#C9A96E;flex:1;font-size:9px;">🤝 CONTACTS</button>
+        <button class="tab" id="dtab2" onclick="switchDealerTab(2)" style="color:rgba(255,255,255,.5);flex:1;font-size:9px;">🛒 AFFILIATE</button>
+        <button class="tab" id="dtab3" onclick="switchDealerTab(3)" style="color:rgba(255,255,255,.5);flex:1;font-size:9px;">📊 SHEETS</button>
       </div>
     </div>
     <div style="overflow-y:auto;flex:1;padding:16px 20px 32px;">
@@ -791,19 +792,70 @@ body{font-family:'DM Sans',sans-serif;background:var(--cream);min-height:100vh;p
         </div>
 
       </div><!-- /dealerTab2 -->
+
+      <!-- TAB 3: Sheets & Price Structure -->
+      <div id="dealerTab3" style="display:none;">
+
+        <!-- Copy Link -->
+        <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:14px;padding:14px;margin-bottom:14px;">
+          <div style="font-size:9px;font-weight:800;color:#94a3b8;text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px;">🔗 SHARE SALES PRO</div>
+          <div style="display:flex;gap:8px;align-items:center;">
+            <input id="shareLinkInput" type="text" readonly value="https://cruisethecreek-tech.github.io/Ebike-sales/"
+              style="flex:1;padding:9px 11px;border:2px solid #e2e8f0;border-radius:10px;font-size:11px;font-weight:600;outline:none;font-family:'DM Sans',sans-serif;background:white;color:#475569;">
+            <button onclick="copyShareLink()" style="background:#1a2e1c;color:white;border:none;border-radius:10px;padding:9px 14px;font-size:11px;font-weight:800;cursor:pointer;font-family:'DM Sans',sans-serif;white-space:nowrap;" id="copyShareBtn">📋 COPY</button>
+          </div>
+        </div>
+
+        <!-- Price Structure Sheet -->
+        <div style="background:white;border:1px solid #e2e8f0;border-radius:16px;overflow:hidden;margin-bottom:12px;">
+          <div style="background:#e8f0e9;padding:10px 14px;display:flex;align-items:center;justify-content:space-between;">
+            <div style="display:flex;align-items:center;gap:8px;">
+              <span style="font-size:1rem;">💰</span>
+              <div style="font-weight:900;font-size:13px;color:#1a2e1c;">Price Structure</div>
+            </div>
+            <a href="https://docs.google.com/spreadsheets/d/1NxHQEQvNGGbYsFtTZz0ZPtg4feZpYQKjE0fM_WOtkTA/edit?gid=1811174025#gid=1811174025" target="_blank"
+              style="background:#1a2e1c;color:#C9A96E;border:none;border-radius:10px;padding:7px 14px;font-size:10px;font-weight:800;text-decoration:none;letter-spacing:.08em;white-space:nowrap;">OPEN ↗</a>
+          </div>
+          <div style="padding:10px 14px;font-size:11px;color:#94a3b8;font-weight:600;">Wholesale pricing, margins &amp; dealer cost structure</div>
+        </div>
+
+        <!-- Manufacturer Inventory Sheet -->
+        <div style="background:white;border:1px solid #e2e8f0;border-radius:16px;overflow:hidden;margin-bottom:12px;">
+          <div style="background:#fdf3e0;padding:10px 14px;display:flex;align-items:center;justify-content:space-between;">
+            <div style="display:flex;align-items:center;gap:8px;">
+              <span style="font-size:1rem;">📦</span>
+              <div style="font-weight:900;font-size:13px;color:#7a5a20;">Manufacturer Inventory</div>
+            </div>
+            <a href="https://docs.google.com/spreadsheets/d/1bqzzIGY90fMuCLxVcT7pagnNWfkImuqODLzHG2bRNF8/edit?gid=0#gid=0" target="_blank"
+              style="background:#7a5a20;color:#fdf3e0;border:none;border-radius:10px;padding:7px 14px;font-size:10px;font-weight:800;text-decoration:none;letter-spacing:.08em;white-space:nowrap;">OPEN ↗</a>
+          </div>
+          <div style="padding:10px 14px;font-size:11px;color:#94a3b8;font-weight:600;">US Site stock levels — Heybike, Velotric, Jasion</div>
+        </div>
+
+        <!-- Edit Contacts note -->
+        <div style="background:#fffbeb;border:1px solid #fde68a;border-radius:12px;padding:12px 14px;font-size:11px;color:#92400e;font-weight:600;">
+          💡 To edit dealer contacts or affiliate links, go to <strong>Admin → 📋 DEALERS</strong> (coming soon) or ask your tech to update the Sales Pro file.
+        </div>
+
+      </div><!-- /dealerTab3 -->
     </div>
   </div>
 </div>
 
-<!-- ══════════════════ CHANGELOG MODAL ══════════════════ -->
+<!-- ══════════════════ ACTIVITY LOG MODAL ══════════════════ -->
 <div class="modal" id="mChangelog" style="align-items:flex-end;padding:0;">
   <div style="background:white;border-radius:24px 24px 0 0;width:100%;max-width:560px;max-height:85vh;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 -8px 40px rgba(0,0,0,.2);margin:0 auto;">
-    <div style="background:#1a2e1c;padding:18px 20px 14px;flex-shrink:0;display:flex;justify-content:space-between;align-items:center;">
-      <div>
-        <div class="disp" style="font-size:1.3rem;color:#C9A96E;">🔔 WHAT'S NEW</div>
-        <div style="font-size:10px;color:#86efac;font-weight:700;letter-spacing:3px;margin-top:2px;">SALES PRO CHANGELOG</div>
+    <div style="background:#1a2e1c;padding:18px 20px 14px;flex-shrink:0;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+        <div>
+          <div class="disp" style="font-size:1.3rem;color:#C9A96E;">🔔 ACTIVITY LOG</div>
+          <div style="font-size:10px;color:#86efac;font-weight:700;letter-spacing:3px;margin-top:2px;">CHANGES MADE IN SALES PRO</div>
+        </div>
+        <div style="display:flex;gap:8px;">
+          <button onclick="clearActivityLog()" style="background:rgba(239,68,68,.15);border:1px solid rgba(239,68,68,.3);border-radius:8px;padding:6px 10px;color:#fca5a5;font-size:10px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;">🗑 CLEAR</button>
+          <button onclick="closeChangelog()" style="background:rgba(255,255,255,.1);border:2px solid rgba(255,255,255,.15);border-radius:10px;padding:7px 12px;color:rgba(255,255,255,.65);font-size:11px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;">✕ CLOSE</button>
+        </div>
       </div>
-      <button onclick="closeChangelog()" style="background:rgba(255,255,255,.1);border:2px solid rgba(255,255,255,.15);border-radius:10px;padding:7px 12px;color:rgba(255,255,255,.65);font-size:11px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;">✕ CLOSE</button>
     </div>
     <div style="overflow-y:auto;flex:1;padding:16px 20px 32px;" id="changelogBody"></div>
   </div>
@@ -1610,10 +1662,30 @@ function saveBike(){
   const d=getForm(nid);
   if(!d.model){toast('⚠️ Model name required');return;}
   const isNew = editingId==='new';
+  const prev = isNew ? null : bikes.find(b=>b.id===nid);
   if(isNew){bikes.push(d);} else{bikes=bikes.map(b=>b.id===nid?d:b);}
   saveBikeOverrides();
+  // Log what changed
+  if (isNew) {
+    logActivity('new_bike', d.model, d.brand + ' · ' + d.type + (d.price ? ' · $'+Number(d.price).toLocaleString() : ''));
+  } else if (prev) {
+    if (d.discontinued !== prev.discontinued) {
+      logActivity('discontinued', d.model, d.discontinued==='Yes' ? 'Marked as discontinued' : 'Removed discontinued flag');
+    }
+    if (d.price !== prev.price && d.price) {
+      logActivity('price', d.model, 'Base price changed to $' + Number(d.price).toLocaleString() + (prev.price ? ' (was $'+Number(prev.price).toLocaleString()+')' : ''));
+    }
+    if (d.score !== prev.score && d.score) {
+      logActivity('score', d.model, 'Score updated to ' + d.score + (prev.score ? ' (was '+prev.score+')' : ''));
+    }
+    if (d.url !== prev.url && d.url) {
+      logActivity('url', d.model, 'Product URL updated');
+    }
+    if (d.features !== prev.features) {
+      logActivity('features', d.model, 'Features/description updated');
+    }
+  }
   cancelEdit();renderAdminList();renderCards();
-  // Sync to Google Sheet
   syncBikeToSheet(d, isNew);
 }
 
@@ -1658,7 +1730,8 @@ function askDel(id){delId=id;const b=bikes.find(x=>x.id===id);document.getElemen
 function confirmDel(){
   if(!delId)return;const b=bikes.find(x=>x.id===delId);
   bikes=bikes.filter(x=>x.id!==delId);compareList=compareList.filter(x=>x!==delId);
-  delId=null;closeM('mDel');toast('🗑️ '+(b?.model||'Bike')+' removed');renderAdminList();
+  logActivity('deleted', b?.model||'Bike', (b?.brand||'') + ' removed from Sales Pro');
+  delId=null;closeM('mDel');toast('🗑️ '+(b?.model||'Bike')+' removed');renderAdminList();saveBikeOverrides();
 }
 
 
@@ -2607,43 +2680,130 @@ function renderErrors() {
 
 // ── Dealer tab switching ──────────────────────────────
 function switchDealerTab(n) {
-  [1,2].forEach(i => {
-    document.getElementById('dealerTab'+i).style.display = i===n ? 'block' : 'none';
+  [1,2,3].forEach(i => {
+    const el = document.getElementById('dealerTab'+i);
+    if (el) el.style.display = i===n ? 'block' : 'none';
     const btn = document.getElementById('dtab'+i);
+    if (!btn) return;
     btn.classList.toggle('on', i===n);
     btn.style.color = i===n ? 'white' : 'rgba(255,255,255,.5)';
     btn.style.borderColor = i===n ? '#C9A96E' : 'transparent';
   });
 }
 
-// ── Changelog ─────────────────────────────────────────
-const CHANGELOG = [("2026-03-18", "Added Dealer Contacts + Amazon Affiliate tab"), ("2026-03-18", "Discontinued saves across sessions via localStorage"), ("2026-03-18", "Cityscape 2.0 + Mars 3.0 + Helio F stock matching fixed"), ("2026-03-18", "Admin panel search + brand filter added"), ("2026-03-18", "Discontinued bikes sort to bottom of all lists"), ("2026-03-18", "Trip distance auto-fills delivery calculator RT miles"), ("2026-03-18", "Round trip miles carry into quote delivery section"), ("2026-03-18", "Gas price auto-fetch with EIA Ohio data"), ("2026-03-18", "Distance tracker uses 6685 Kirk Road as default"), ("2026-03-17", "Stock aliases for Mars 3.0, Helio F, Cityscape 2.0"), ("2026-03-17", "New bikes from sheet auto-sync into Sales Pro"), ("2026-03-17", "Accessory prices editable in Admin panel"), ("2026-03-17", "Delivery calculator with flat $40 base rate"), ("2026-03-17", "All bikes now have scores assigned")];
-const CL_SEEN_KEY = 'ctc_cl_seen';
+function copyShareLink() {
+  const inp = document.getElementById('shareLinkInput');
+  const btn = document.getElementById('copyShareBtn');
+  navigator.clipboard.writeText(inp.value).then(() => {
+    btn.textContent = '✅ COPIED!';
+    btn.style.background = '#166534';
+    setTimeout(() => { btn.textContent = '📋 COPY'; btn.style.background = '#1a2e1c'; }, 2000);
+  }).catch(() => {
+    inp.select();
+    document.execCommand('copy');
+    btn.textContent = '✅ COPIED!';
+    setTimeout(() => { btn.textContent = '📋 COPY'; }, 2000);
+  });
+}
+
+// ── Activity Log ──────────────────────────────────────
+const ACTIVITY_KEY = 'ctc_activity_log';
+const ACTIVITY_SEEN_KEY = 'ctc_activity_seen';
+const ACTIVITY_MAX = 100;
+
+const ACT_ICONS = {
+  'discontinued': '🚫',
+  'price':        '💲',
+  'swatch_price': '🎨',
+  'url':          '🔗',
+  'score':        '⭐',
+  'new_bike':     '🚴',
+  'deleted':      '🗑️',
+  'features':     '📝',
+};
+
+function logActivity(type, bikeName, detail) {
+  const logs = getActivityLog();
+  const entry = {
+    id    : Date.now(),
+    type  : type,
+    bike  : bikeName,
+    detail: detail,
+    ts    : new Date().toLocaleString('en-US', {month:'short', day:'numeric', hour:'numeric', minute:'2-digit', hour12:true})
+  };
+  logs.unshift(entry); // newest first
+  if (logs.length > ACTIVITY_MAX) logs.pop();
+  localStorage.setItem(ACTIVITY_KEY, JSON.stringify(logs));
+  // Show bell dot
+  const dot = document.getElementById('bellDot');
+  if (dot) dot.style.display = 'block';
+}
+
+function getActivityLog() {
+  try { return JSON.parse(localStorage.getItem(ACTIVITY_KEY) || '[]'); }
+  catch(e) { return []; }
+}
+
+function clearActivityLog() {
+  if (!confirm('Clear all activity logs?')) return;
+  localStorage.removeItem(ACTIVITY_KEY);
+  localStorage.removeItem(ACTIVITY_SEEN_KEY);
+  document.getElementById('changelogBody').innerHTML = emptyLogHTML();
+  document.getElementById('bellDot').style.display = 'none';
+}
+
+function emptyLogHTML() {
+  return '<div style="text-align:center;padding:40px 20px;color:#94a3b8;">' +
+    '<div style="font-size:2rem;margin-bottom:8px;">🔔</div>' +
+    '<div style="font-weight:700;font-size:13px;">No activity yet</div>' +
+    '<div style="font-size:11px;margin-top:4px;">Changes made in Sales Pro will appear here</div>' +
+    '</div>';
+}
 
 function openChangelog() {
+  const logs = getActivityLog();
   const body = document.getElementById('changelogBody');
-  body.innerHTML = CHANGELOG.map(([date, msg], i) => {
-    const isNew = i === 0;
-    return '<div style="display:flex;gap:12px;padding:10px 0;border-bottom:1px solid #f1f5f9;">' +
-      '<div style="flex-shrink:0;min-width:70px;font-size:9px;font-weight:800;color:#94a3b8;padding-top:2px;">' + date + '</div>' +
-      '<div style="flex:1;font-size:12px;font-weight:600;color:#1e293b;line-height:1.5;">' +
-        (isNew ? '<span style="background:#fee2e2;color:#991b1b;font-size:8px;font-weight:800;padding:1px 6px;border-radius:99px;margin-right:6px;vertical-align:middle;">NEW</span>' : '') +
-        msg +
-      '</div></div>';
-  }).join('');
-  localStorage.setItem(CL_SEEN_KEY, CHANGELOG[0][0] + CHANGELOG[0][1]);
+  if (!logs.length) {
+    body.innerHTML = emptyLogHTML();
+  } else {
+    const typeColors = {
+      'discontinued': '#fee2e2|#991b1b',
+      'price':        '#dcfce7|#166534',
+      'swatch_price': '#fef9c3|#854d0e',
+      'url':          '#e0f2fe|#0369a1',
+      'score':        '#f3e8ff|#7e22ce',
+      'new_bike':     '#e8f0e9|#2D4A32',
+      'deleted':      '#fee2e2|#991b1b',
+      'features':     '#f1f5f9|#475569',
+    };
+    body.innerHTML = logs.map((e, i) => {
+      const colors = (typeColors[e.type] || '#f1f5f9|#475569').split('|');
+      const icon = ACT_ICONS[e.type] || '📋';
+      const isNew = i === 0;
+      return '<div style="display:flex;gap:10px;padding:11px 0;border-bottom:1px solid #f1f5f9;align-items:flex-start;">' +
+        '<div style="background:' + colors[0] + ';width:32px;height:32px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:15px;">' + icon + '</div>' +
+        '<div style="flex:1;min-width:0;">' +
+          '<div style="display:flex;align-items:center;gap:6px;margin-bottom:2px;flex-wrap:wrap;">' +
+            (isNew ? '<span style="background:#fee2e2;color:#991b1b;font-size:8px;font-weight:800;padding:1px 5px;border-radius:99px;">NEW</span>' : '') +
+            '<span style="font-size:12px;font-weight:800;color:#1e293b;">' + (e.bike || '') + '</span>' +
+          '</div>' +
+          '<div style="font-size:11px;color:#475569;font-weight:600;line-height:1.4;">' + (e.detail || '') + '</div>' +
+          '<div style="font-size:9px;color:#94a3b8;font-weight:600;margin-top:3px;">' + (e.ts || '') + '</div>' +
+        '</div></div>';
+    }).join('');
+  }
+  localStorage.setItem(ACTIVITY_SEEN_KEY, logs.length ? logs[0].id : 0);
   document.getElementById('bellDot').style.display = 'none';
   openM('mChangelog');
 }
 
-function closeChangelog() {
-  closeM('mChangelog');
-}
+function closeChangelog() { closeM('mChangelog'); }
 
 function checkChangelogBadge() {
-  const seen = localStorage.getItem(CL_SEEN_KEY);
-  const latest = CHANGELOG[0][0] + CHANGELOG[0][1];
-  if (seen !== latest) document.getElementById('bellDot').style.display = 'block';
+  const logs = getActivityLog();
+  if (!logs.length) return;
+  const seen = parseInt(localStorage.getItem(ACTIVITY_SEEN_KEY) || '0');
+  if (logs[0].id !== seen) document.getElementById('bellDot').style.display = 'block';
 }
 
 fetchPriceData();
@@ -2730,10 +2890,12 @@ function edSavePrice() {
     .then(r => r.json())
     .then(res => {
       if (res.status === 'ok') {
+        const oldPrice = edActiveBike.basePrice;
         edActiveBike.basePrice = newPrice;
         document.getElementById('edBaseDisplay').textContent = '$' + newPrice.toLocaleString();
         document.getElementById('edPriceEdit').style.display = 'none';
         edSetStatus('ok', 'Price updated to $' + newPrice.toLocaleString() + ' on sheet!');
+        logActivity('price', edActiveBike.name, 'Base price updated to $' + newPrice.toLocaleString() + (oldPrice ? ' (was $' + Number(oldPrice).toLocaleString() + ')' : ''));
         // Refresh price badge in main cards
         if (priceMap[edActiveBike.name.toLowerCase()]) {
           priceMap[edActiveBike.name.toLowerCase()].mfrPrice = null;
@@ -2934,6 +3096,24 @@ function edSaveColors() {
   let jsonStr;
   try { jsonStr = JSON.stringify(edSwatchData); JSON.parse(jsonStr); }
   catch(e) { edSetStatus('err', 'JSON error: ' + e.message); return; }
+  // Log any swatch price overrides
+  let swatchChanges = [];
+  try {
+    Object.entries(edSwatchData).forEach(([style, sizes]) => {
+      if (typeof sizes === 'object' && !Array.isArray(sizes)) {
+        Object.entries(sizes).forEach(([size, swatches]) => {
+          if (Array.isArray(swatches)) swatches.forEach(sw => {
+            if (sw.price !== undefined && sw.price !== edActiveBike.basePrice)
+              swatchChanges.push(sw.name + ' (' + style + '/' + size + ') → $' + sw.price);
+          });
+        });
+      } else if (Array.isArray(sizes)) {
+        sizes.forEach(sw => { if (sw.price !== undefined) swatchChanges.push(sw.name + ' → $' + sw.price); });
+      }
+    });
+  } catch(e) {}
+  if (swatchChanges.length) logActivity('swatch_price', edActiveBike.name, 'Color price overrides: ' + swatchChanges.slice(0,3).join(', ') + (swatchChanges.length > 3 ? ' +more' : ''));
+  else logActivity('swatch_price', edActiveBike.name, 'Color swatches updated');
   edSetStatus('info', 'Saving to sheet...');
   fetch(AS_URL + '?action=saveColors&rowIndex=' + edActiveBike.rowIndex + '&json=' + encodeURIComponent(jsonStr))
     .then(r => r.json())
@@ -3015,7 +3195,7 @@ function renderStockPanel(bikeId) {
            bNorm.indexOf(rName) !== -1;
   });
   if (!rows.length) {
-    el.innerHTML = '<div style="color:#94a3b8;font-size:11px;padding:8px 0;">No stock data found for this model</div>';
+    el.innerHTML = '<div style="color:#94a3b8;font-size:11px;padding:8px 0;">No stock data found for this model &nbsp;<a href="https://docs.google.com/spreadsheets/d/1bqzzIGY90fMuCLxVcT7pagnNWfkImuqODLzHG2bRNF8/edit?gid=0#gid=0" target="_blank" style="color:#2D4A32;font-weight:800;font-size:10px;">View Sheet ↗</a></div>';
     return;
   }
   const totalUnits = rows.reduce((s,r) => s+(r.total||0), 0);
@@ -3034,6 +3214,7 @@ function renderStockPanel(bikeId) {
         : '<span class="stock-ok">' + r.total + ' units</span>';
     return '<div class="stock-row"><span style="color:#334155;font-weight:600;flex:1;">' + r.variant + '</span>' + badge + '</div>';
   }).join('');
+  html += '<div style="margin-top:8px;text-align:right;"><a href="https://docs.google.com/spreadsheets/d/1bqzzIGY90fMuCLxVcT7pagnNWfkImuqODLzHG2bRNF8/edit?gid=0#gid=0" target="_blank" style="font-size:10px;font-weight:800;color:#2D4A32;text-decoration:none;">📦 Open Full Inventory ↗</a></div>';
   el.innerHTML = html;
 }
 
