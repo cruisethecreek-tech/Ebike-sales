@@ -15,6 +15,10 @@ body{font-family:'DM Sans',sans-serif;background:var(--cream);min-height:100vh;p
 .modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.78);align-items:center;justify-content:center;z-index:200;padding:16px;}
 .modal.open{display:flex;}
 .mbox{background:white;border-radius:24px;width:100%;max-width:460px;max-height:92vh;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 25px 60px rgba(0,0,0,.4);}
+/* Bottom-sheet modals: mobile=bottom, desktop=centered */
+.modal-sheet{align-items:flex-end;padding:0;}
+@media(min-width:640px){.modal-sheet{align-items:center;padding:16px;}}
+@media(min-width:640px){.modal-sheet>.sheet-inner{border-radius:24px !important;margin:0 auto;}}
 .sr{width:52px;height:52px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:1.05rem;border:3px solid;flex-shrink:0;}
 .sr-h{border-color:#6B8F71;color:#2D4A32;background:#e8f0e9;}
 .sr-m{border-color:#C9A96E;color:#7a5a20;background:#fdf3e0;}
@@ -561,8 +565,8 @@ body{font-family:'DM Sans',sans-serif;background:var(--cream);min-height:100vh;p
 </div>
 
 <!-- ══════════════════ DISTANCE TRACKER MODAL ══════════════════ -->
-<div class="modal" id="mDist" style="align-items:flex-end;padding:0;">
-  <div style="background:white;border-radius:24px 24px 0 0;width:100%;max-width:560px;max-height:90vh;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 -8px 40px rgba(0,0,0,.2);margin:0 auto;">
+<div class="modal" id="mDist" class="modal-sheet" style="align-items:flex-end;padding:0;">
+  <div class="sheet-inner" style="background:white;border-radius:24px 24px 0 0;width:100%;max-width:560px;max-height:90vh;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 -8px 40px rgba(0,0,0,.2);margin:0 auto;">
     <div style="background:#1a2e1c;padding:18px 20px 14px;flex-shrink:0;">
       <div style="display:flex;justify-content:space-between;align-items:flex-start;">
         <div>
@@ -661,7 +665,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--cream);min-height:100vh;p
 
 
 <!-- ══════════════════ DEALER CONTACTS MODAL ══════════════════ -->
-<div class="modal" id="mDealer" style="align-items:flex-end;padding:0;">
+<div class="modal" id="mDealer" class="modal-sheet" style="align-items:flex-end;padding:0;">
   <div style="background:white;border-radius:24px 24px 0 0;width:100%;max-width:600px;max-height:92vh;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 -8px 40px rgba(0,0,0,.2);margin:0 auto;">
     <div style="background:#1a2e1c;padding:18px 20px 0;flex-shrink:0;">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
@@ -880,8 +884,8 @@ body{font-family:'DM Sans',sans-serif;background:var(--cream);min-height:100vh;p
 </div>
 
 <!-- ══════════════════ ACTIVITY LOG MODAL ══════════════════ -->
-<div class="modal" id="mChangelog" style="align-items:flex-end;padding:0;">
-  <div style="background:white;border-radius:24px 24px 0 0;width:100%;max-width:560px;max-height:85vh;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 -8px 40px rgba(0,0,0,.2);margin:0 auto;">
+<div class="modal" id="mChangelog" class="modal-sheet" style="align-items:flex-end;padding:0;">
+  <div class="sheet-inner" style="background:white;border-radius:24px 24px 0 0;width:100%;max-width:560px;max-height:85vh;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 -8px 40px rgba(0,0,0,.2);margin:0 auto;">
     <div style="background:#1a2e1c;padding:18px 20px 14px;flex-shrink:0;">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
         <div>
@@ -1851,23 +1855,35 @@ function calcTripDist() {
     '5530 Norquest Blvd, Youngstown, OH 44515' : { lat: 41.0998, lon: -80.7284 },
   };
 
-  // Photon geocoder (OSM-based, CORS-friendly, no key needed)
+  // Geocode TO address using Photon with Nominatim fallback
   const geocode = addr => {
-    // Check hardcoded coords first
+    // Check hardcoded coords first (FROM addresses)
     if (FROM_COORDS[addr]) return Promise.resolve(FROM_COORDS[addr]);
-    // Use Photon for destination addresses
-    const url = 'https://photon.komoot.io/api/?q=' + encodeURIComponent(addr) +
-      '&limit=3&countrycode=us&lang=en';
-    return fetch(url)
+    // Try Photon first (CORS-friendly)
+    const photonUrl = 'https://photon.komoot.io/api/?q=' + encodeURIComponent(addr) +
+      '&limit=5&lang=en&bbox=-81.2,40.7,-80.2,41.4';  // bounding box around NE Ohio
+    return fetch(photonUrl)
       .then(r => r.json())
       .then(d => {
-        if (!d || !d.features || !d.features.length) throw new Error('Not found: ' + addr);
-        // Find best Ohio result
-        const ohioResult = d.features.find(f =>
-          f.properties && (f.properties.state === 'Ohio' || f.properties.postcode)
-        ) || d.features[0];
-        const [lon, lat] = ohioResult.geometry.coordinates;
+        if (!d || !d.features || !d.features.length) throw new Error('photon empty');
+        // Prefer results in Ohio (state code or postcode 44xxx)
+        const best = d.features.find(f => {
+          const p = f.properties || {};
+          return p.state === 'Ohio' || (p.postcode && p.postcode.startsWith('44'));
+        }) || d.features[0];
+        const [lon, lat] = best.geometry.coordinates;
         return { lat, lon };
+      })
+      .catch(() => {
+        // Fallback: Nominatim with Ohio bbox
+        const nomUrl = 'https://nominatim.openstreetmap.org/search?format=json&limit=1&q=' +
+          encodeURIComponent(addr) + '&countrycodes=us&viewbox=-81.2,41.4,-80.2,40.7&bounded=0';
+        return fetch(nomUrl, { headers:{'User-Agent':'CruiseTheCreek/1.0'} })
+          .then(r => r.json())
+          .then(d => {
+            if (d && d.length) return { lat: parseFloat(d[0].lat), lon: parseFloat(d[0].lon) };
+            throw new Error('Not found: ' + addr);
+          });
       });
   };
 
