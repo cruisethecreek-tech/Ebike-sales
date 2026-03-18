@@ -3054,10 +3054,11 @@ function edRenderSwatches() {
           });
         }
         // Add Color button for this size group
-        var addKey = (styleName + '||' + sizeName).replace(/"/g, '&quot;');
-        html += '<button onclick="edAddSwatch('' + addKey.replace(/'/g,"\'") + '')" ' +
+        var safeStyle = styleName.replace(/"/g,'').replace(/'/g,'');
+        var safeSize  = sizeName.replace(/"/g,'').replace(/'/g,'');
+        html += '<button onclick="edAddSwatch(this)" data-style="' + safeStyle + '" data-size="' + safeSize + '" ' +
           'style="width:100%;margin-top:6px;padding:7px;background:#f0fdf4;border:1.5px dashed #6B8F71;border-radius:10px;' +
-          'font-size:11px;font-weight:800;color:#2D4A32;cursor:pointer;font-family:'DM Sans',sans-serif;">+ Add Color Swatch</button>';
+          'font-size:11px;font-weight:800;color:#2D4A32;cursor:pointer;font-family:DM Sans,sans-serif;">+ Add Color Swatch</button>';
         html += '</div>';
       });
       html += '</div>';
@@ -3070,9 +3071,10 @@ function edRenderSwatches() {
       html += '<span style="font-family:Bebas Neue,sans-serif;font-size:1.1rem;color:#C9A96E;">' + (groupName === 'Default' ? 'Colors' : groupName) + '</span></div>';
       html += '<div style="padding:12px 14px;">';
       swatches.forEach((sw, idx) => { html += edSwatchRow(sw, idx, groupName, null); });
-      html += '<button onclick="edAddSwatch('' + groupName.replace(/'/g,"\'") + '')" ' +
+      var safeGroup = groupName.replace(/"/g,'').replace(/'/g,'');
+      html += '<button onclick="edAddSwatch(this)" data-style="' + safeGroup + '" data-size="" ' +
         'style="width:100%;margin-top:6px;padding:7px;background:#f0fdf4;border:1.5px dashed #6B8F71;border-radius:10px;' +
-        'font-size:11px;font-weight:800;color:#2D4A32;cursor:pointer;font-family:'DM Sans',sans-serif;">+ Add Color Swatch</button>';
+        'font-size:11px;font-weight:800;color:#2D4A32;cursor:pointer;font-family:DM Sans,sans-serif;">+ Add Color Swatch</button>';
       html += '</div></div>';
     });
   }
@@ -3188,20 +3190,19 @@ function edBindSwatchEvents() {
   });
 }
 
-function edAddSwatch(key) {
-  var parts = key.split('||');
+function edAddSwatch(btn) {
+  var styleName = btn.dataset.style;
+  var sizeName  = btn.dataset.size;
   var newSwatch = { name: 'New Color', hex: '#888888', img: '' };
-  if (parts.length === 2) {
-    var styleName = parts[0], sizeName = parts[1];
+  if (sizeName) {
     if (!edSwatchData[styleName]) edSwatchData[styleName] = {};
     if (!Array.isArray(edSwatchData[styleName][sizeName])) edSwatchData[styleName][sizeName] = [];
     edSwatchData[styleName][sizeName].push(newSwatch);
   } else {
-    if (!Array.isArray(edSwatchData[key])) edSwatchData[key] = [];
-    edSwatchData[key].push(newSwatch);
+    if (!Array.isArray(edSwatchData[styleName])) edSwatchData[styleName] = [];
+    edSwatchData[styleName].push(newSwatch);
   }
   edRenderSwatches();
-  // Scroll to bottom of swatches
   setTimeout(() => {
     var el = document.getElementById('edSwatches');
     if (el) el.scrollTop = el.scrollHeight;
