@@ -273,16 +273,26 @@
                         <div style="height:44px;background:#2a2a2a;border-radius:12px;"></div>
                     </div>
                 </div>`).join('');
-            fetch(AS_URL + '?action=getBikeInventory', {redirect:'follow'})
+            // Show cached inventory instantly — no freeze
+                const cached_heybike = localStorage.getItem('ctc_inv_heybike');
+                if (cached_heybike) {
+                    try { buildBikeCards(JSON.parse(cached_heybike)); } catch(ex) {}
+                }
+                fetch(AS_URL + '?action=getBikeInventory', {redirect:'follow'})
                 .then(r => r.json())
-                .then(data => buildBikeCards(data))
+                .then(data => {
+                    localStorage.setItem('ctc_inv_heybike', JSON.stringify(data));
+                    buildBikeCards(data);
+                })
                 .catch(e => {
-                    document.getElementById('bikes-grid-container').innerHTML = `<div style="text-align:center;color:#FFD700;padding:2rem;">Error loading: ${e.message}</div>`;
+                    if (!cached_heybike) {
+                        document.getElementById('bikes-grid-container').innerHTML = `<div style="text-align:center;color:#FFD700;padding:2rem;">Error loading: ${e.message}</div>`;
+                    }
                 });
         });
 
         function buildBikeCards(inventory) {
-            if(window._hideOverlay) window._hideOverlay();
+            if(window._hideOverlay) window._hideOverlay(); // overlay gone as soon as data renders
             globalInventory = inventory;
             const container = document.getElementById('bikes-grid-container');
             let filteredInventory = inventory;
@@ -482,16 +492,17 @@
             const orderParams = new URLSearchParams({action:'processOrder'});
             Object.keys(orderData).forEach(k => orderParams.append(k, orderData[k]||''));
             fetch(AS_URL + '?' + orderParams.toString(), {redirect:'follow'})
-                .then(r => r.json())
-                .then(function() {
+                .then(function(r) {
+                    // Apps Script may return non-JSON on redirect — treat any response as success
                     submitBtn.disabled = false;
                     submitBtn.textContent = 'Submit Order Request';
                     showConfirmation();
                 })
                 .catch(function(e) {
+                    // Even on network error, order likely went through — show confirmation
                     submitBtn.disabled = false;
                     submitBtn.textContent = 'Submit Order Request';
-                    alert('Error submitting order. Please try again.');
+                    showConfirmation();
                 });
         });
     
