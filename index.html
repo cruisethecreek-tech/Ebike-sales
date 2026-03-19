@@ -372,6 +372,17 @@ body{font-family:'DM Sans',sans-serif;background:var(--cream);min-height:100vh;p
         </div>
       </div>
       <div id="edSwatches"></div>
+
+      <!-- Size Guide Editor -->
+      <div id="edSizeGuideCard" style="display:none;background:white;border-radius:16px;border:1px solid #e2e8f0;padding:16px;margin-top:14px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+          <div style="font-size:9px;font-weight:800;letter-spacing:.15em;color:#94a3b8;text-transform:uppercase;">📐 SIZE GUIDE</div>
+          <a href="https://docs.google.com/spreadsheets/d/1R3pDFG_sO81bKS6dEAa-k5F-OdD5OAbe4hQ-Oc0_T-E" target="_blank" style="font-size:9px;font-weight:700;color:#2D4A32;">View Sheet ↗</a>
+        </div>
+        <div style="font-size:10px;color:#94a3b8;font-weight:600;margin-bottom:8px;line-height:1.4;">Edit the size guide JSON for this bike. Format: <code style="background:#f1f5f9;padding:1px 4px;border-radius:4px;">{"5'0\"–5'4\"": "S", "5'5\"–5'9\"": "M"}</code></div>
+        <textarea id="edSizeGuideJson" rows="5" class="fi" style="font-size:11px;font-family:monospace;resize:vertical;line-height:1.5;" placeholder='{"5\'0\"–5\'4\"": "Small", "5\'5\"–5\'9\"": "Medium"}'></textarea>
+        <button onclick="edSaveSizeGuide()" class="btn btn-g" style="width:100%;padding:11px;margin-top:10px;font-size:11px;">💾 SAVE SIZE GUIDE</button>
+      </div>
     </div>
     <!-- Save bar -->
     <div style="position:fixed;bottom:0;left:0;right:0;background:white;border-top:1px solid #e2e8f0;padding:12px 16px;z-index:40;">
@@ -1052,6 +1063,7 @@ let bikes=[
 {id:49, brand:"Heybike", score:null, model:"Mars 2.0",         type:"Folding, Fat Tire",        motorN:750,  motorP:1400, volts:48, wh:600,   ah:12.5, range:45,  torque:80,  speed:28, sensor:"Cadence", weight:75,  payload:330, price:899,  url:"https://www.heybike.com/products/mars-2-0",                              features:"Fat tires, full suspension, folding design"},
 {id:50, brand:"Jasion",  score:null, model:"Hunter ST",        type:"Folding, Fat Tire, Step-Thru", motorN:750, motorP:1400, volts:48, wh:624, ah:13,  range:70,  torque:85,  speed:28, sensor:"Cadence", weight:70,  payload:480, price:899,  url:"https://www.jasionbike.com/products/x-hunter-st",                        features:"Step-thru folding fat tire with high payload capacity"},
 {id:51, brand:"Velotric",score:null, model:"Nomad 2 Fat Tire", type:"Fat Tire, Step-Thru",      motorN:750,  motorP:1300, volts:48, wh:705.6, ah:14.7, range:65, torque:90,  speed:28, sensor:"SensorSwap",weight:75, payload:440, price:1999, url:"https://www.velotricbike.com/products/velotric-nomad-2",                  features:"All-terrain fat tires, hydraulic disc brakes, front suspension"},
+{id:52, brand:"Velotric",score:76.4, model:"Tempo",           type:"Lightweight",                    motorN:350,  motorP:600,  volts:36, wh:374,   ah:10.14,range:60, torque:45,  speed:28, sensor:"SensorSwap",weight:39, payload:330, price:1499, url:"https://www.velotricbike.com/products/velotric-tempo-city-ebike",         features:"Lightweight city commuter, SensorSwap technology, mid-step and high-step frames", styles:"Mid-Step,High-Step", sizes:"Regular,Large"},
 ];
 
 // ──────────────────────────────────────────────────────
@@ -1126,7 +1138,7 @@ function getPriceBadge(model, bikePrice) {
   return '<span class="price-badge pb-low">🟡 We are $' + diff.toFixed(0) + ' lower · Ours: ' + ourPrice + '</span>';
 }
 const PASS='4475';
-const BIKE_BASE_MAX_ID = 51; // highest id in the hardcoded bikes array
+const BIKE_BASE_MAX_ID = 52; // highest id in the hardcoded bikes array
 const BIKE_OVERRIDES_KEY = 'ctc_bike_overrides';
 const BIKE_NEW_KEY = 'ctc_bikes_new';
 
@@ -1831,7 +1843,7 @@ const FF=[
   {k:'subtitle', l:'Subtitle',         t:'text'},
   {k:'type',     l:'Frame Type',       t:'text'},
   {k:'price',    l:'Base Price ($)',   t:'number'},
-  {k:'testRide', l:'Test Ride URL',    t:'text'},
+
   {k:'styles',   l:'Styles (comma-separated)', t:'text'},
   {k:'sizes',    l:'Sizes (comma-separated)',  t:'text'},
   {k:'score',    l:'Score',            t:'number'},
@@ -3154,6 +3166,44 @@ function edSelectBike() {
 
   edRenderSwatches();
   document.getElementById('edStatus').style.display = 'none';
+  edRenderSizeGuide();
+}
+
+function edRenderSizeGuide() {
+  const bike = edActiveBike;
+  if (!bike) return;
+  // Find or create size guide container
+  var container = document.getElementById('edSizeGuideCard');
+  if (!container) return;
+  const sg = bike.sizeGuide || {};
+  const hasData = sg && typeof sg === 'object' && Object.keys(sg).length > 0;
+  container.style.display = 'block';
+  const textarea = document.getElementById('edSizeGuideJson');
+  if (textarea) textarea.value = hasData ? JSON.stringify(sg, null, 2) : '';
+}
+
+function edSaveSizeGuide() {
+  if (!edActiveBike) { edSetStatus('err', 'No bike selected.'); return; }
+  const textarea = document.getElementById('edSizeGuideJson');
+  const raw = textarea ? textarea.value.trim() : '';
+  let parsed;
+  try {
+    parsed = raw ? JSON.parse(raw) : {};
+  } catch(e) {
+    edSetStatus('err', '❌ Invalid JSON: ' + e.message);
+    return;
+  }
+  const pass = prompt('Enter admin password to save size guide:');
+  if (pass !== ADMIN_PASS) { edSetStatus('err', 'Incorrect password.'); return; }
+  edSetStatus('info', 'Saving size guide...');
+  fetch(AS_URL + '?action=saveSizeGuide&rowIndex=' + edActiveBike.rowIndex + '&json=' + encodeURIComponent(JSON.stringify(parsed)), {redirect:'follow', mode:'cors'})
+    .then(r => r.text())
+    .then(() => {
+      edActiveBike.sizeGuide = parsed;
+      edSetStatus('ok', '✅ Size guide saved!');
+      logActivity('features', edActiveBike.name, 'Size guide updated');
+    })
+    .catch(e => edSetStatus('err', 'Save failed: ' + e.message));
 }
 
 // ── Price editing ──
