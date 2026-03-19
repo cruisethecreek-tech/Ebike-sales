@@ -633,5 +633,30 @@ function toggleNestedSwatchGroup(btn, sizeGroupId) {
 }
 
 </script>
+
+<script>
+// Prevent Wix parent frame from intercepting horizontal swipes inside iframe
+(function() {
+  var startX, startY;
+  document.addEventListener('touchstart', function(e) {
+    startX = e.touches[0].clientX;
+    startY = e.touches[0].clientY;
+  }, { passive: true });
+
+  document.addEventListener('touchmove', function(e) {
+    if (!startX || !startY) return;
+    var dx = Math.abs(e.touches[0].clientX - startX);
+    var dy = Math.abs(e.touches[0].clientY - startY);
+    // If more horizontal than vertical, stop it reaching Wix
+    if (dx > dy && dx > 10) {
+      e.stopPropagation();
+    }
+  }, { passive: false });
+
+  document.addEventListener('touchend', function() {
+    startX = null; startY = null;
+  }, { passive: true });
+})();
+</script>
 </body>
 </html>
