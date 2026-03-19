@@ -198,8 +198,9 @@ body{font-family:'DM Sans',sans-serif;background:var(--cream);min-height:100vh;p
       </div>
       <!-- Admin tabs -->
       <div style="display:flex;border-bottom:2px solid rgba(255,255,255,.1);">
-        <button class="tab on" id="tabBikes" onclick="switchAdminTab('bikes',this)" style="color:white;border-color:#C9A96E;">🚴 BIKES</button>
-        <button class="tab" id="tabEditor" onclick="switchAdminTab('editor',this)" style="color:rgba(255,255,255,.5);">🎨 COLOR & PRICE</button>
+        <button class="tab on" id="tabBikes" onclick="switchAdminTab('bikes',this)" style="color:white;border-color:#C9A96E;font-size:10px;">🚴 BIKES</button>
+        <button class="tab" id="tabEditor" onclick="switchAdminTab('editor',this)" style="color:rgba(255,255,255,.5);font-size:10px;">🎨 COLOR & PRICE</button>
+        <button class="tab" id="tabSite" onclick="switchAdminTab('site',this)" style="color:rgba(255,255,255,.5);font-size:10px;">🌐 SITE</button>
       </div>
     </div>
   </header>
@@ -260,6 +261,80 @@ body{font-family:'DM Sans',sans-serif;background:var(--cream);min-height:100vh;p
       <div style="font-size:11px;color:#94a3b8;font-weight:600;margin-bottom:14px;line-height:1.5;">Downloads a snapshot of all your local changes (discontinued flags, price overrides, new bikes, accessory prices, activity log) so Claude can bake them permanently into the app.</div>
       <button onclick="exportChanges()" class="btn btn-g" style="width:100%;padding:13px;font-size:12px;margin-bottom:10px;">📥 DOWNLOAD CHANGES SNAPSHOT</button>
       <div style="font-size:10px;color:#94a3b8;font-weight:600;text-align:center;">Share the downloaded JSON file with Claude to make changes permanent</div>
+    </div>
+  </div>
+
+  <!-- SITE SETTINGS TAB -->
+  <div id="adminTabSite" style="display:none;">
+    <div class="wrap" style="padding:16px 0 100px;">
+
+      <!-- Brand selector -->
+      <div style="display:flex;gap:8px;margin-bottom:16px;">
+        <button class="btn btn-g" id="siteBrandHey" onclick="setSiteBrand('Heybike')" style="flex:1;padding:10px;font-size:11px;">🟢 Heybike</button>
+        <button class="btn btn-o" id="siteBrandVel" onclick="setSiteBrand('Velotric')" style="flex:1;padding:10px;font-size:11px;">🟡 Velotric</button>
+        <button class="btn btn-o" id="siteBrandJas" onclick="setSiteBrand('Jasion')" style="flex:1;padding:10px;font-size:11px;">🔴 Jasion</button>
+      </div>
+
+      <div id="siteSettingsForm">
+        <!-- Hero Section -->
+        <div style="background:white;border-radius:16px;border:1px solid #e2e8f0;padding:18px;margin-bottom:12px;">
+          <div style="font-size:10px;font-weight:800;color:#94a3b8;text-transform:uppercase;letter-spacing:.1em;margin-bottom:12px;">🖼️ HERO BANNER</div>
+          <div style="display:flex;flex-direction:column;gap:10px;">
+            <div>
+              <label class="fl">Main Headline</label>
+              <input type="text" id="siteHero1" class="fi" placeholder="e.g. PREMIUM EBIKES BUILT FOR ADVENTURE">
+            </div>
+            <div>
+              <label class="fl">Sub Headline</label>
+              <input type="text" id="siteHero2" class="fi" placeholder="e.g. Our rental fleet has over 25 HeyBikes">
+            </div>
+          </div>
+        </div>
+
+        <!-- Announcement Bar -->
+        <div style="background:white;border-radius:16px;border:1px solid #e2e8f0;padding:18px;margin-bottom:12px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+            <div style="font-size:10px;font-weight:800;color:#94a3b8;text-transform:uppercase;letter-spacing:.1em;">📢 ANNOUNCEMENT BAR</div>
+            <label style="display:flex;align-items:center;gap:6px;cursor:pointer;">
+              <input type="checkbox" id="siteAnnOn" style="width:16px;height:16px;">
+              <span style="font-size:10px;font-weight:700;color:#475569;">ENABLED</span>
+            </label>
+          </div>
+          <input type="text" id="siteAnnText" class="fi" placeholder="e.g. ⚡ Limited Offer: Ranger S Now from $1199! ⚡">
+        </div>
+
+        <!-- Nav Links -->
+        <div style="background:white;border-radius:16px;border:1px solid #e2e8f0;padding:18px;margin-bottom:12px;">
+          <div style="font-size:10px;font-weight:800;color:#94a3b8;text-transform:uppercase;letter-spacing:.1em;margin-bottom:12px;">🔗 NAV LINKS</div>
+          <div style="display:flex;flex-direction:column;gap:10px;">
+            <div>
+              <label class="fl">Test Ride URL</label>
+              <input type="text" id="siteTestRideUrl" class="fi" placeholder="https://calendly.com/...">
+            </div>
+            <div>
+              <label class="fl">Test Ride Button Label</label>
+              <input type="text" id="siteTestRideLabel" class="fi" placeholder="📅 Book a Test Ride">
+            </div>
+            <div>
+              <label class="fl">Order URL</label>
+              <input type="text" id="siteOrderUrl" class="fi" placeholder="https://...">
+            </div>
+          </div>
+        </div>
+
+        <!-- Generate Config -->
+        <div style="background:#1a2e1c;border-radius:16px;padding:18px;margin-bottom:12px;">
+          <div style="font-size:10px;font-weight:800;color:#C9A96E;text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px;">📋 GENERATED CONFIG</div>
+          <div style="font-size:11px;color:#86efac;font-weight:600;margin-bottom:10px;">Copy this and paste into your GitHub file when prompted</div>
+          <textarea id="siteConfigOutput" readonly rows="6"
+            style="width:100%;padding:10px;background:#0d1f0f;border:1px solid #2D4A32;border-radius:10px;font-size:10px;font-family:monospace;color:#86efac;resize:none;outline:none;"></textarea>
+          <button onclick="copySiteConfig()" class="btn btn-g" style="width:100%;padding:12px;margin-top:10px;font-size:11px;">📋 COPY CONFIG</button>
+        </div>
+
+        <div style="background:#fffbeb;border:1px solid #fde68a;border-radius:12px;padding:12px 14px;font-size:11px;color:#92400e;font-weight:600;line-height:1.5;">
+          💡 <strong>How to use:</strong> Copy the config above → open GitHub → find your brand HTML file → search for <code>SITE_CONFIG</code> → paste over the existing config block → commit.
+        </div>
+      </div>
     </div>
   </div>
 
@@ -1574,6 +1649,80 @@ function tryLogin(){
   }else{document.getElementById('passErr').style.display='block';}
 }
 
+// ── Site Settings ─────────────────────────────────────
+const SITE_SETTINGS_KEY = 'ctc_site_settings';
+let currentSiteBrand = 'Heybike';
+
+const SITE_DEFAULTS = {
+  Heybike:  { hero1:'PREMIUM EBIKES BUILT FOR ADVENTURE', hero2:'Our rental fleet has over 25 HeyBikes — Experience the ultimate ride', annOn:true,  annText:'⚡ Limited Offer: Ranger S Bestseller Now from $1199! ⚡', testRideUrl:'', testRideLabel:'📅 Book a Test Ride', orderUrl:'' },
+  Velotric: { hero1:'VELOTRIC EBIKES — BUILT TO EXPLORE',  hero2:'Discover our full lineup of Velotric e-bikes',                        annOn:false, annText:'', testRideUrl:'', testRideLabel:'📅 Book a Test Ride', orderUrl:'' },
+  Jasion:   { hero1:'JASION EBIKES — POWER YOUR RIDE',     hero2:'Explore our lineup of Jasion e-bikes',                               annOn:false, annText:'', testRideUrl:'', testRideLabel:'📅 Book a Test Ride', orderUrl:'' },
+};
+
+function getSiteSettings() {
+  try { return Object.assign({}, SITE_DEFAULTS, JSON.parse(localStorage.getItem(SITE_SETTINGS_KEY)||'{}')); }
+  catch(e) { return Object.assign({}, SITE_DEFAULTS); }
+}
+function saveSiteSettings(settings) { localStorage.setItem(SITE_SETTINGS_KEY, JSON.stringify(settings)); }
+
+function setSiteBrand(brand) {
+  currentSiteBrand = brand;
+  ['Hey','Vel','Jas'].forEach(b => {
+    const btn = document.getElementById('siteBrand'+b);
+    if (!btn) return;
+    btn.className = 'btn ' + (brand === {Hey:'Heybike',Vel:'Velotric',Jas:'Jasion'}[b] ? 'btn-g' : 'btn-o');
+    btn.style.flex = '1'; btn.style.padding = '10px'; btn.style.fontSize = '11px';
+  });
+  const settings = getSiteSettings();
+  const s = settings[brand] || SITE_DEFAULTS[brand];
+  document.getElementById('siteHero1').value        = s.hero1 || '';
+  document.getElementById('siteHero2').value        = s.hero2 || '';
+  document.getElementById('siteAnnOn').checked      = !!s.annOn;
+  document.getElementById('siteAnnText').value      = s.annText || '';
+  document.getElementById('siteTestRideUrl').value  = s.testRideUrl || '';
+  document.getElementById('siteTestRideLabel').value= s.testRideLabel || '📅 Book a Test Ride';
+  document.getElementById('siteOrderUrl').value     = s.orderUrl || '';
+  generateSiteConfig();
+}
+
+function generateSiteConfig() {
+  const brand = currentSiteBrand;
+  const s = {
+    hero1         : document.getElementById('siteHero1').value,
+    hero2         : document.getElementById('siteHero2').value,
+    annOn         : document.getElementById('siteAnnOn').checked,
+    annText       : document.getElementById('siteAnnText').value,
+    testRideUrl   : document.getElementById('siteTestRideUrl').value,
+    testRideLabel : document.getElementById('siteTestRideLabel').value,
+    orderUrl      : document.getElementById('siteOrderUrl').value,
+  };
+  // Save to localStorage
+  const all = getSiteSettings();
+  all[brand] = s;
+  saveSiteSettings(all);
+  // Generate config string for GitHub
+  const cfg = 'const SITE_CONFIG = ' + JSON.stringify(s, null, 2) + ';';
+  const out = document.getElementById('siteConfigOutput');
+  if (out) out.value = cfg;
+}
+
+function copySiteConfig() {
+  generateSiteConfig();
+  const out = document.getElementById('siteConfigOutput');
+  navigator.clipboard.writeText(out.value).then(() => {
+    toast('✅ Config copied — paste into ' + currentSiteBrand + '.html on GitHub');
+  }).catch(() => { out.select(); document.execCommand('copy'); toast('✅ Copied!'); });
+}
+
+// Auto-generate when any field changes
+['siteHero1','siteHero2','siteAnnText','siteTestRideUrl','siteTestRideLabel','siteOrderUrl'].forEach(id => {
+  setTimeout(() => {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener('input', generateSiteConfig);
+  }, 500);
+});
+document.addEventListener('change', e => { if (e.target.id === 'siteAnnOn') generateSiteConfig(); });
+
 function switchAdminTab(tab, btn){
   document.querySelectorAll('#vAdmin .tab').forEach(t=>{
     t.classList.remove('on');
@@ -1583,7 +1732,9 @@ function switchAdminTab(tab, btn){
   if(btn){ btn.classList.add('on'); btn.style.color='white'; btn.style.borderColor='#C9A96E'; }
   document.getElementById('adminTabBikes').style.display  = tab==='bikes'  ? 'block' : 'none';
   document.getElementById('adminTabEditor').style.display = tab==='editor' ? 'block' : 'none';
+  document.getElementById('adminTabSite').style.display   = tab==='site'   ? 'block' : 'none';
   document.getElementById('addBtn').style.display = tab==='bikes' ? 'inline-flex' : 'none';
+  if (tab==='site') { setSiteBrand(currentSiteBrand); }
   if(tab==='editor'){
     if(!edBikes.length){ edLoadBikes(); }
     else { autoSelectEditorBike(); }
