@@ -2,49 +2,17 @@
 <html lang="en">
 <head>
 <script>
-// ── SITE CONFIG — edit via Sales Pro Admin → 🌐 SITE tab, then paste here ──
+// ── SITE CONFIG — edit via Sales Pro Admin → 🌐 SITE tab ──
 const SITE_CONFIG = {
   "brand": "Velotric",
-  "hero1": "VELOTRIC EBIKES \u2014 BUILT TO EXPLORE",
-  "hero2": "Discover our full lineup of Velotric e-bikes",
+  "hero1": "",
+  "hero2": "",
   "annOn": false,
   "annText": "",
   "testRideUrl": "",
   "testRideLabel": "\ud83d\udcc5 Book a Test Ride",
   "orderUrl": ""
 };
-
-// Apply config on load
-document.addEventListener('DOMContentLoaded', function() {
-  // Announcement bar
-  const annBar = document.getElementById('announcementBar');
-  if (annBar) {
-    annBar.style.display = SITE_CONFIG.annOn ? 'block' : 'none';
-    const annText = document.getElementById('announcementText');
-    if (annText && SITE_CONFIG.annText) annText.textContent = SITE_CONFIG.annText;
-  }
-  // Hero
-  const h1 = document.getElementById('heroHeadline');
-  const h2 = document.getElementById('heroSubline');
-  if (h1 && SITE_CONFIG.hero1) h1.textContent = SITE_CONFIG.hero1;
-  if (h2 && SITE_CONFIG.hero2) h2.textContent = SITE_CONFIG.hero2;
-  // Test ride link
-  const tr = document.getElementById('testRideNav');
-  if (tr) {
-    if (SITE_CONFIG.testRideUrl) {
-      tr.href = SITE_CONFIG.testRideUrl;
-      tr.textContent = SITE_CONFIG.testRideLabel || 'Test Ride';
-      tr.style.display = 'inline';
-    } else {
-      tr.style.display = 'none';
-    }
-  }
-  // Order link
-  const ord = document.getElementById('orderNav');
-  if (ord && SITE_CONFIG.orderUrl) {
-    ord.href = SITE_CONFIG.orderUrl;
-  }
-});
 </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -198,8 +166,8 @@ document.addEventListener('DOMContentLoaded', function() {
         <nav>
             <div class="logo">VELOTRIC CRUISETHECREEK</div>
             <ul class="nav-links">
-                <li><a href="https://book.peek.com/s/57e3b62e-4f48-4cc4-8876-7b79f4c11baa/wqwLA" target="_blank" id="testRideNav">/a></li>
-                <li><a href="#order-section" id="orderNav">/a></li>
+                <li><a href="https://book.peek.com/s/57e3b62e-4f48-4cc4-8876-7b79f4c11baa/wqwLA" target="_blank" id="testRideNav">TestRide</a></li>
+                <li><a href="#order-section" id="orderNav">Order</a></li>
             </ul>
         </nav>
     </header>
