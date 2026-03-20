@@ -495,9 +495,15 @@ const SITE_CONFIG = {
             currentSelection.price = '$' + numericPrice.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
             const styleBtn = card.querySelector('.style-btn.active');
             currentSelection.style = styleBtn ? styleBtn.getAttribute('data-style') : 'N/A';
-            const sizeBtn = card.querySelector('.size-btn.active:not(.size-unavailable)');
+            // For nested bikes, scope size/swatch lookup to the VISIBLE style wrapper only
+            const visibleWrapper = card.querySelector('.nested-style-wrapper[style*="display: block"]')
+                                || card.querySelector('.nested-style-wrapper:not([style*="display: none"])');
+            const sizeScope = visibleWrapper || card;
+            const sizeBtn = sizeScope.querySelector('.size-btn.active:not(.size-unavailable)');
             currentSelection.size = sizeBtn ? sizeBtn.getAttribute('data-size') : 'N/A';
-            const activeSwatch = card.querySelector('.swatch-group[style*="display: block"] .swatch.active') || card.querySelector('.swatch.active');
+            const activeSwatch = sizeScope.querySelector('.swatch-group[style*="display: block"] .swatch.active')
+                               || sizeScope.querySelector('.swatch.active')
+                               || card.querySelector('.swatch.active');
             currentSelection.color = activeSwatch ? activeSwatch.getAttribute('data-color') : 'N/A';
             updatePreview();
             document.getElementById('bike-select').value = currentSelection.bikeName;
