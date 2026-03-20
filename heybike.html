@@ -470,9 +470,12 @@ const SITE_CONFIG = {
             currentSelection.price = '$' + num.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2});
             const styleBtn = card.querySelector('.style-btn.active');
             currentSelection.style = styleBtn ? styleBtn.getAttribute('data-style') : 'N/A';
-            const sizeBtn = card.querySelector('.size-btn.active');
+            const visibleWrapper = card.querySelector('.nested-style-wrapper[style*="display: block"]')
+                                || card.querySelector('.nested-style-wrapper:not([style*="display: none"])');
+            const sizeScope = visibleWrapper || card;
+            const sizeBtn = sizeScope.querySelector('.size-btn.active:not(.size-unavailable)') || sizeScope.querySelector('.size-btn.active');
             currentSelection.size = sizeBtn ? sizeBtn.getAttribute('data-size') : 'N/A';
-            const activeSwatch = card.querySelector('.swatch-group[style*="display: block"] .swatch.active') || card.querySelector('.swatch.active');
+            const activeSwatch = sizeScope.querySelector('.swatch-group[style*="display: block"] .swatch.active') || card.querySelector('.swatch.active');
             currentSelection.color = activeSwatch ? activeSwatch.getAttribute('data-color') : 'N/A';
             updatePreview();
             document.getElementById('bike-select').value = currentSelection.bikeName;
