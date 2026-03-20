@@ -5,15 +5,49 @@
 // ── SITE CONFIG — edit via Sales Pro Admin → 🌐 SITE tab ──
 const SITE_CONFIG = {
   "brand": "Jasion",
-  "hero1": "",
-  "hero2": "",
+  "hero1": "JASION EBIKES START UNDER $1,000 WITHOUT SACRIFICE",
+  "hero2": "On a budget? Get more for less.",
   "annOn": false,
   "annText": "",
-  "testRideUrl": "",
-  "testRideLabel": "\ud83d\udcc5 Book a Test Ride",
-  "orderUrl": ""
+  "testRideUrl": "https://www.cruisethecreek.com/book-a-demo",
+  "testRideLabel": "📅 Book a Demo",
+  "orderUrl": "https://www.cruisethecreek.com/shop-fix"
 };
 </script>
+<script>
+// Apply SITE_CONFIG to page elements
+(function() {
+  if (typeof SITE_CONFIG === 'undefined') return;
+  document.addEventListener('DOMContentLoaded', function() {
+    // Announcement bar
+    var ann = document.getElementById('announcementBar');
+    var annText = document.getElementById('announcementText');
+    if (ann) ann.style.display = SITE_CONFIG.annOn ? 'block' : 'none';
+    if (annText && SITE_CONFIG.annText) annText.textContent = SITE_CONFIG.annText;
+
+    // Hero headline
+    var h1 = document.getElementById('heroHeadline');
+    var h2 = document.getElementById('heroSubline');
+    if (h1 && SITE_CONFIG.hero1) h1.innerHTML = SITE_CONFIG.hero1;
+    if (h2 && SITE_CONFIG.hero2) h2.innerHTML = SITE_CONFIG.hero2;
+
+    // Test ride nav link
+    var tr = document.getElementById('testRideNav');
+    if (tr) {
+      if (SITE_CONFIG.testRideUrl) {
+        tr.href = SITE_CONFIG.testRideUrl;
+        tr.textContent = SITE_CONFIG.testRideLabel || 'Test Ride';
+        tr.style.display = '';
+      } else { tr.style.display = 'none'; }
+    }
+
+    // Order nav link
+    var ord = document.getElementById('orderNav');
+    if (ord && SITE_CONFIG.orderUrl) ord.href = SITE_CONFIG.orderUrl;
+  });
+})();
+</script>
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Jasion - Cruise The Creek</title>
@@ -202,14 +236,14 @@ const SITE_CONFIG = {
       };
     })();
     </script>
-    <div class="top-banner">⚡ Top Seller: Hunter Pro from $1,099! ⚡</div>
+    <div class="top-banner" id="announcementBar"><span id="announcementText">⚡ Top Seller: Hunter Pro from $1,099! ⚡</span></div>
 
     <header>
         <nav>
             <div class="logo">JASION CRUISETHECREEK</div>
             <ul class="nav-links">
-                <li><a href="https://book.peek.com/s/57e3b62e-4f48-4cc4-8876-7b79f4c11baa/wqwLA" target="_blank" id="testRideNav">TestRide</a></li>
-                <li><a href="#order-section" id="orderNav">Order</a></li>
+                <li><a href="https://book.peek.com/s/57e3b62e-4f48-4cc4-8876-7b79f4c11baa/wqwLA" target="_blank" id="testRideNav" href="https://www.cruisethecreek.com/book-a-demo">Book a Demo</a></li>
+                <li><a href="#order-section" id="orderNav" href="https://www.cruisethecreek.com/shop-fix">Shop</a></li>
             </ul>
         </nav>
     </header>
@@ -217,7 +251,7 @@ const SITE_CONFIG = {
     <section class="hero">
         <div class="hero-content">
             <div class="hero-tag">On a budget?</div>
-            <h1>Jasion eBikes<br>Start under <span class="highlight">$1,000</span><br>without sacrifice</h1>
+            <h1 id="heroHeadline">Jasion eBikes<br>Start under <span class="highlight">$1,000</span><br>without sacrifice</h1>
         </div>
     </section>
 
@@ -313,7 +347,7 @@ const SITE_CONFIG = {
         </div>
     </div>
 
-    <footer><p>&copy; Cruise The Creek Is An Official Authorized Dealer For Jasion | Prices Are Subject To Change</p></footer>
+    <footer><p id="heroSubline">&copy; Cruise The Creek Is An Official Authorized Dealer For Jasion | Prices Are Subject To Change</p></footer>
 
     <script>
         const currentBrand = "Jasion";
