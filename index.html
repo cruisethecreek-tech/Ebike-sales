@@ -201,6 +201,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--cream);min-height:100vh;p
         <button class="tab on" id="tabBikes" onclick="switchAdminTab('bikes',this)" style="color:white;border-color:#C9A96E;font-size:10px;">🚴 BIKES</button>
         <button class="tab" id="tabEditor" onclick="switchAdminTab('editor',this)" style="color:rgba(255,255,255,.5);font-size:10px;">🎨 COLOR & PRICE</button>
         <button class="tab" id="tabSite" onclick="switchAdminTab('site',this)" style="color:rgba(255,255,255,.5);font-size:10px;">🌐 SITE</button>
+        <button class="tab" id="tabOrder" onclick="switchAdminTab('order',this)" style="color:rgba(255,255,255,.5);font-size:10px;">↕️ ORDER</button>
       </div>
     </div>
   </header>
@@ -261,6 +262,28 @@ body{font-family:'DM Sans',sans-serif;background:var(--cream);min-height:100vh;p
       <div style="font-size:11px;color:#94a3b8;font-weight:600;margin-bottom:14px;line-height:1.5;">Downloads a snapshot of all your local changes (discontinued flags, price overrides, new bikes, accessory prices, activity log) so Claude can bake them permanently into the app.</div>
       <button onclick="exportChanges()" class="btn btn-g" style="width:100%;padding:13px;font-size:12px;margin-bottom:10px;">📥 DOWNLOAD CHANGES SNAPSHOT</button>
       <div style="font-size:10px;color:#94a3b8;font-weight:600;text-align:center;">Share the downloaded JSON file with Claude to make changes permanent</div>
+    </div>
+  </div>
+
+  <!-- REORDER TAB -->
+  <div id="adminTabOrder" style="display:none;">
+    <div class="wrap" style="padding:16px 0 100px;">
+      <div style="background:#fffbeb;border:1px solid #fde68a;border-radius:12px;padding:11px 14px;margin-bottom:14px;font-size:11px;color:#92400e;font-weight:600;line-height:1.5;">
+        💡 Drag bikes into your preferred display order. Discontinued bikes are locked at the bottom. Hit <strong>💾 SAVE ORDER</strong> when done.
+      </div>
+      <!-- Filter for reorder -->
+      <div style="display:flex;gap:8px;margin-bottom:12px;">
+        <select id="reorderBrandFilter" onchange="renderReorderList()"
+          style="flex:1;padding:9px 12px;border:2px solid #e2e8f0;border-radius:12px;font-size:12px;font-weight:700;outline:none;font-family:'DM Sans',sans-serif;background:white;">
+          <option value="All">All Brands</option>
+          <option value="Heybike">Heybike</option>
+          <option value="Velotric">Velotric</option>
+          <option value="Jasion">Jasion</option>
+        </select>
+        <button onclick="resetOrder()" class="btn btn-o" style="padding:9px 14px;font-size:10px;">↺ Reset</button>
+      </div>
+      <div id="reorderList" style="display:flex;flex-direction:column;gap:6px;"></div>
+      <button onclick="saveOrder()" class="btn btn-g" style="width:100%;padding:13px;margin-top:14px;font-size:12px;position:sticky;bottom:14px;">💾 SAVE ORDER</button>
     </div>
   </div>
 
@@ -1023,9 +1046,9 @@ let bikes=[
 {id:15,brand:"Heybike", score:70.6, model:"Horizon",        type:"Folding, Fat Tire",            motorN:750,  motorP:1400, volts:48, wh:692,   ah:14.4, range:55, torque:80,  speed:28, sensor:"Cadence",    weight:79.4, payload:330, url:"https://www.heybike.com/products/horizon",           features:"Full suspension and hydraulic disc brakes for off-road comfort"},
 {id:16,brand:"Velotric",score:69.8, model:"Fold 1 Plus",    type:"Folding, Step-Thru",           motorN:750,  motorP:1050, volts:48, wh:608,   ah:12.7, range:68, torque:75,  speed:28, sensor:"SensorSwap", weight:63,   payload:450, url:"https://www.velotricbike.com/products/velotric-fold-1-plus",               features:"Compact folding, hydraulic brakes, torque sensor"},
 {id:17,brand:"Velotric",score:69.7, model:"Nomad 2",        type:"Fat Tire, Step-Thru/High-Step",motorN:750,  motorP:1300, volts:48, wh:705,   ah:14.7, range:65, torque:90,  speed:28, sensor:"SensorSwap", weight:75,   payload:440, url:"https://www.velotricbike.com/products/velotric-nomad-2",                   features:"All-terrain fat tires, hydraulic disc brakes, front suspension"},
-{id:18,brand:"Velotric",score:69.7, model:"Discover 1 Plus",type:"Step-Thru, Commuter",          motorN:500,  motorP:900,  volts:48, wh:691,   ah:14.4, range:65, torque:65,  speed:28, sensor:"Cadence",    weight:60,   payload:440, url:"https://www.velotricbike.com/products/velotric-discover-1-plus",           features:"Reliable commuter with cadence sensor"},
+{id:18,brand:"Velotric",score:69.7, model:"Discover 1 Plus",type:"Step-Thru, Commuter",          motorN:500,  motorP:900,  volts:48, wh:691,   ah:14.4, range:65, torque:65,  speed:28, sensor:"Cadence",    weight:60,   payload:440, url:"https://www.velotricbike.com/products/velotric-discover-1-plus", discontinued:"Yes",           features:"Reliable commuter with cadence sensor"},
 {id:19,brand:"Velotric",score:68.2, model:"Fold 1",         type:"Folding, Step-Thru",           motorN:750,  motorP:1050, volts:48, wh:608,   ah:12.7, range:55, torque:70,  speed:28, sensor:"Cadence",    weight:63,   payload:440, url:"https://www.velotricbike.com/products/velotric-fold-1",                    features:"Compact folding design, hydraulic brakes"},
-{id:20,brand:"Velotric",score:68,   model:"Nomad 1 Plus",   type:"Step-Thru/High-Step, Fat Tire",motorN:750,  motorP:1200, volts:48, wh:691.2, ah:14.4, range:55, torque:75,  speed:28, sensor:"Cadence",    weight:73,   payload:440, url:"https://www.velotricbike.com/products/velotric-nomad-1-plus",              features:"Fat tire all-terrain performance"},
+{id:20,brand:"Velotric",score:68,   model:"Nomad 1 Plus",   type:"Step-Thru/High-Step, Fat Tire",motorN:750,  motorP:1200, volts:48, wh:691.2, ah:14.4, range:55, torque:75,  speed:28, sensor:"Cadence",    weight:73,   payload:440, url:"https://www.velotricbike.com/products/velotric-nomad-1-plus", discontinued:"Yes",              features:"Fat tire all-terrain performance"},
 {id:21,brand:"Heybike", score:67.6, model:"Cityrun",        type:"Step-Thru, Commuter",          motorN:500,  motorP:1000, volts:48, wh:720,   ah:15.0, range:55, torque:55,  speed:28, sensor:"Cadence",    weight:61.7, payload:350, url:"https://www.heybike.com/products/cityrun",           features:"Hydraulic front suspension, turn signals, step-thru frame"},
 {id:22,brand:"Velotric",score:64.9, model:"Packer 1",       type:"Utility/Cargo",                motorN:750,  motorP:1200, volts:48, wh:804,   ah:16.8, range:52, torque:75,  speed:20, sensor:"Cadence",    weight:75,   payload:440, url:"https://www.velotricbike.com/products/velotric-packer-1", discontinued:"Yes",                  features:"Cargo-focused, 4-piston hydraulic brakes, front suspension"},
 {id:23,brand:"Heybike", score:64,   model:"Mars 2.0 750",   type:"Folding, Step-Over",           motorN:750,  motorP:1400, volts:48, wh:600,   ah:12.5, range:45, torque:80,  speed:28, sensor:"Cadence",    weight:75,   payload:330, url:"https://www.heybike.com/products/mars-2-0",          features:"Fat tires, full suspension, folding design"},
@@ -1036,7 +1059,7 @@ let bikes=[
 {id:28,brand:"Heybike", score:55,   model:"Ranger 1.0",     type:"Step Thru",                    motorN:500,  motorP:800,  volts:48, wh:600,   ah:12.5, range:55, torque:60,  speed:25, sensor:"Cadence",    weight:72,   payload:330, url:"https://www.heybike.com/products/ranger", discontinued:"Yes",            features:"Entry-level step-thru folding design"},
 {id:29,brand:"Velotric",score:53.6, model:"Fold 1 Lite",    type:"Folding, Step-Thru",           motorN:500,  motorP:800,  volts:48, wh:691.2, ah:14.4, range:48, torque:65,  speed:28, sensor:"Cadence",    weight:61,   payload:440, url:"https://www.velotricbike.com/products/velotric-fold-1-lite", discontinued:"Yes",               features:"Lighter, more affordable folding option"},
 {id:30,brand:"Heybike", score:51.8, model:"Mars 1.0",       type:"Step Over",                    motorN:500,  motorP:800,  volts:48, wh:720,   ah:15.0, range:48, torque:60,  speed:20, sensor:"Cadence",    weight:66,   payload:330, url:"https://www.heybike.com/products/mars", discontinued:"Yes",             features:"Entry-level fat tire e-bike"},
-{id:31,brand:"Heybike", score:44.9, model:"Cityscape 2.0",  type:"Step-Thru, Commuter",          motorN:500,  motorP:800,  volts:36, wh:360,   ah:10.0, range:50, torque:65,  speed:20, sensor:"Cadence",    weight:61.7, payload:264, url:"https://www.heybike.com/products/cityscape",         features:"Lightweight, affordable city commuting, step-thru frame, front suspension"},
+{id:31,brand:"Heybike", score:44.9, model:"Cityscape 2.0",  type:"Step-Thru, Commuter",          motorN:500,  motorP:800,  volts:36, wh:360,   ah:10.0, range:50, torque:65,  speed:20, sensor:"Cadence",    weight:61.7, payload:264, url:"https://www.heybike.com/products/cityscape", discontinued:"Yes",         features:"Lightweight, affordable city commuting, step-thru frame, front suspension"},
 {id:32,brand:"Velotric",score:82.1, model:"Summit 2",       type:"All Terrain",                  motorN:750,  motorP:1400, volts:48, wh:801.6, ah:16.7, range:75, torque:105, speed:28, sensor:"SensorSwap", weight:80,   payload:560, url:"https://www.velotricbike.com/products/velotric-summit-2",                  features:"Full air suspension, upgraded power over Summit 1"},
 {id:33,brand:"Velotric",score:78.4, model:"Discover 3",     type:"Commuter, Step-Thru",          motorN:750,  motorP:1100, volts:48, wh:730,   ah:15.2, range:80, torque:75,  speed:28, sensor:"SensorSwap", weight:null, payload:null,url:"https://www.velotricbike.com/products/velotric-discover-3",                features:"Upgraded motor and battery, hydraulic brakes, SensorSwap technology"},
 {id:34,brand:"Velotric",score:80.2, model:"Discover M",     type:"Commuter, Step-Thru",          motorN:500,  motorP:960,  volts:48, wh:801.6, ah:16.7, range:95, torque:100, speed:28, sensor:"Torque",     weight:null, payload:null,url:"https://www.velotricbike.com/products/velotric-discover-m",                features:"Mid-drive motor, hydraulic brakes, torque sensor, 9-speed drivetrain"},
@@ -1047,11 +1070,11 @@ let bikes=[
 {id:37,brand:"Jasion", score:83.1, model:"Thunder Pro",    type:"Fat Tire, Step-Over",          motorN:1200, motorP:2000, volts:52, wh:1040, ah:20,   range:90, torque:115, speed:35, sensor:"Cadence", weight:82.5, payload:500, url:"https://www.jasionbike.com/products/thunder-pro",              features:'Highest torque in Jasion lineup, 52V system, fat tires, long range, highest payload'},
 {id:38,brand:"Jasion", score:82.8, model:"Thunder Pro ST", type:"Fat Tire, Step-Thru",          motorN:1200, motorP:2000, volts:52, wh:1040, ah:20,   range:90, torque:115, speed:35, sensor:"Cadence", weight:82.5, payload:500, url:"https://www.jasionbike.com/products/thunder-pro",              features:'Step-thru version of Thunder Pro — same 52V/115Nm powerplant, highest payload in Jasion lineup'},
 {id:39,brand:"Jasion", score:80.4, model:"RetroVolt Pro",  type:"Retro/Cruiser, Step-Over",     motorN:1000, motorP:2000, volts:52, wh:1040, ah:20,   range:90, torque:99,  speed:38, sensor:"Cadence", weight:82,   payload:330, url:"https://www.jasionbike.com/products/retrovolt-pro",            features:'Retro moped styling, 52V system, highest top speed in Jasion lineup, long range'},
-{id:40,brand:"Jasion", score:79.7, model:"Hunter Pro",     type:"Folding, Fat Tire",            motorN:1000, motorP:1800, volts:48, wh:720,  ah:15,   range:80, torque:95,  speed:30, sensor:"Cadence", weight:82,   payload:400, url:"https://www.jasionbike.com/products/hunter-pro",              features:'Foldable fat tire design, high torque, strong motor for a folding bike'},
+{id:40,brand:"Jasion", score:79.7, model:"Hunter Pro",     type:"Folding, Fat Tire",            motorN:1000, motorP:1800, volts:48, wh:720,  ah:15,   range:80, torque:95,  speed:30, sensor:"Cadence", weight:82,   payload:400, url:"https://www.jasionbike.com/products/hunter-pro", discontinued:"Yes",              features:'Foldable fat tire design, high torque, strong motor for a folding bike'},
 {id:41,brand:"Jasion", score:77.2, model:"X-Hunter",       type:"Folding, Fat Tire",            motorN:750,  motorP:1400, volts:48, wh:624,  ah:13,   range:70, torque:85,  speed:28, sensor:"Cadence", weight:70,   payload:480, url:"https://www.jasionbike.com/products/jasion-x-hunter",         features:'High payload folding fat tire, 85Nm torque, good range for class'},
 {id:42,brand:"Jasion", score:76.9, model:"X-Hunter ST",    type:"Folding, Fat Tire, Step-Thru", motorN:750,  motorP:1400, volts:48, wh:624,  ah:13,   range:70, torque:85,  speed:28, sensor:"Cadence", weight:70,   payload:480, url:"https://www.jasionbike.com/products/x-hunter-st",             features:'Step-thru version of X-Hunter — folding fat tire with high payload capacity'},
 {id:43,brand:"Jasion", score:75.8, model:"Thunder",        type:"Fat Tire, Step-Over",          motorN:1000, motorP:1800, volts:48, wh:864,  ah:18,   range:80, torque:85,  speed:30, sensor:"Cadence", weight:82,   payload:400, url:"https://www.jasionbike.com/products/thunder",                 features:'Large 864Wh battery, 1000W motor, fat tires, solid all-terrain performance'},
-{id:44,brand:"Jasion", score:64.8, model:"EB7 2.0",        type:"Folding, Fat Tire",            motorN:850,  motorP:1200, volts:48, wh:480,  ah:10,   range:55, torque:55,  speed:28, sensor:"Cadence", weight:62,   payload:330, url:"https://www.jasionbike.com/products/eb7-2-0",                 features:'Compact folding fat tire, lightest Jasion folder, entry-level price point'},
+{id:44,brand:"Jasion", score:64.8, model:"EB7 2.0",        type:"Folding, Fat Tire",            motorN:850,  motorP:1200, volts:48, wh:480,  ah:10,   range:55, torque:55,  speed:28, sensor:"Cadence", weight:62,   payload:330, url:"https://www.jasionbike.com/products/eb7-2-0", discontinued:"Yes",                 features:'Compact folding fat tire, lightest Jasion folder, entry-level price point'},
 {id:45,brand:"Jasion", score:63.2, model:"EB5 Roamer",     type:"Cruiser, Step-Over",           motorN:750,  motorP:1200, volts:48, wh:528,  ah:11,   range:62, torque:60,  speed:28, sensor:"Cadence", weight:65,   payload:330, url:"https://www.jasionbike.com/products/jasion-eb5-roamer-ebike", features:'Lightweight urban cruiser, affordable entry point, step-over frame'},
 {id:46,brand:"Jasion", score:62.9, model:"EB5 Roamer ST",  type:"Cruiser, Step-Thru",           motorN:750,  motorP:1200, volts:48, wh:528,  ah:11,   range:62, torque:60,  speed:28, sensor:"Cadence", weight:65,   payload:330, url:"https://www.jasionbike.com/products/jasion-eb5-st-roamer-ebike",features:'Step-thru version of EB5 Roamer — easy mount/dismount, lightweight urban commuter'},
 
@@ -1261,7 +1284,17 @@ function getFiltered(){
     if(aDisc !== bDisc) return aDisc - bDisc;
     // A-Z filter overrides sort dropdown
     if(s==='az')     return (a.model||'').localeCompare(b.model||'');
-    if(s==='score')  return(b.score||0)-(a.score||0);
+    if(s==='score') {
+      const ord = getBikeOrder();
+      if (ord.length) {
+        const ai = ord.indexOf(a.id), bi = ord.indexOf(b.id);
+        if (ai !== -1 || bi !== -1) {
+          if (ai === -1) return 1; if (bi === -1) return -1;
+          return ai - bi;
+        }
+      }
+      return(b.score||0)-(a.score||0);
+    }
     if(s==='torque') return(b.torque||0)-(a.torque||0);
     if(s==='range')  return(b.range||0)-(a.range||0);
     if(s==='motor')  return(b.motorN||0)-(a.motorN||0);
@@ -1745,8 +1778,10 @@ function switchAdminTab(tab, btn){
   document.getElementById('adminTabBikes').style.display  = tab==='bikes'  ? 'block' : 'none';
   document.getElementById('adminTabEditor').style.display = tab==='editor' ? 'block' : 'none';
   document.getElementById('adminTabSite').style.display   = tab==='site'   ? 'block' : 'none';
+  document.getElementById('adminTabOrder').style.display  = tab==='order'  ? 'block' : 'none';
   document.getElementById('addBtn').style.display = tab==='bikes' ? 'inline-flex' : 'none';
-  if (tab==='site') { setSiteBrand(currentSiteBrand); }
+  if (tab==='site')  { setSiteBrand(currentSiteBrand); }
+  if (tab==='order') { renderReorderList(); }
   if(tab==='editor'){
     if(!edBikes.length){ edLoadBikes(); }
     else { autoSelectEditorBike(); }
@@ -3609,6 +3644,153 @@ function renderStockPanel(bikeId) {
 // ── Daily Briefing key (must be before initBriefing call) ───
 const BRIEF_KEY = 'ctc_brief_' + new Date().toDateString();
 
+
+// ── Bike Reorder ──────────────────────────────────────
+const SORT_KEY = 'ctc_bike_order';
+
+function getBikeOrder() {
+  try { return JSON.parse(localStorage.getItem(SORT_KEY) || '[]'); }
+  catch(e) { return []; }
+}
+function saveBikeOrder(order) { localStorage.setItem(SORT_KEY, JSON.stringify(order)); }
+
+function applyBikeOrder() {
+  const order = getBikeOrder();
+  if (!order.length) return;
+  bikes.sort((a, b) => {
+    // Discontinued always last
+    const aD = a.discontinued==='Yes' ? 1 : 0;
+    const bD = b.discontinued==='Yes' ? 1 : 0;
+    if (aD !== bD) return aD - bD;
+    const ai = order.indexOf(a.id);
+    const bi = order.indexOf(b.id);
+    if (ai === -1 && bi === -1) return 0;
+    if (ai === -1) return 1;
+    if (bi === -1) return -1;
+    return ai - bi;
+  });
+}
+
+function renderReorderList() {
+  const brand = document.getElementById('reorderBrandFilter')?.value || 'All';
+  const order = getBikeOrder();
+  const list  = bikes
+    .filter(b => b.discontinued !== 'Yes')
+    .filter(b => brand === 'All' || b.brand === brand)
+    .sort((a, b) => {
+      const ai = order.indexOf(a.id), bi = order.indexOf(b.id);
+      if (ai === -1 && bi === -1) return (b.score||0) - (a.score||0);
+      if (ai === -1) return 1;
+      if (bi === -1) return -1;
+      return ai - bi;
+    });
+
+  const el = document.getElementById('reorderList');
+  el.innerHTML = list.map((b, i) => `
+    <div class="reorder-row" data-id="${b.id}" draggable="true"
+      style="background:white;border:1px solid #e2e8f0;border-radius:12px;padding:11px 14px;display:flex;align-items:center;gap:10px;cursor:grab;user-select:none;touch-action:none;">
+      <span style="font-size:18px;color:#94a3b8;flex-shrink:0;">⠿</span>
+      <span style="background:#f1f5f9;border-radius:8px;padding:2px 8px;font-size:10px;font-weight:800;color:#94a3b8;flex-shrink:0;">${i+1}</span>
+      <span class="badge ${bdgCls(b.brand)}" style="margin-bottom:0;flex-shrink:0;">${b.brand}</span>
+      <span style="font-weight:800;color:#1e293b;flex:1;font-size:13px;">${b.model}</span>
+      <span style="font-size:10px;color:#94a3b8;font-weight:600;">${b.score ? b.score.toFixed(1) : '—'}</span>
+    </div>`).join('');
+
+  bindDragDrop();
+}
+
+function bindDragDrop() {
+  const el = document.getElementById('reorderList');
+  if (!el) return;
+  let dragSrc = null;
+
+  el.querySelectorAll('.reorder-row').forEach(row => {
+    // Mouse drag
+    row.addEventListener('dragstart', e => {
+      dragSrc = row;
+      row.style.opacity = '0.4';
+      e.dataTransfer.effectAllowed = 'move';
+    });
+    row.addEventListener('dragend', () => {
+      row.style.opacity = '1';
+      el.querySelectorAll('.reorder-row').forEach(r => r.style.borderColor = '#e2e8f0');
+    });
+    row.addEventListener('dragover', e => {
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'move';
+      row.style.borderColor = '#6B8F71';
+    });
+    row.addEventListener('dragleave', () => row.style.borderColor = '#e2e8f0');
+    row.addEventListener('drop', e => {
+      e.preventDefault();
+      if (dragSrc === row) return;
+      const rows = [...el.querySelectorAll('.reorder-row')];
+      const si = rows.indexOf(dragSrc), di = rows.indexOf(row);
+      if (si < di) el.insertBefore(dragSrc, row.nextSibling);
+      else el.insertBefore(dragSrc, row);
+      updatePositionNumbers();
+    });
+
+    // Touch drag
+    let touchStartY = 0, touchEl = null;
+    row.addEventListener('touchstart', e => {
+      touchStartY = e.touches[0].clientY;
+      dragSrc = row;
+      row.style.background = '#f0fdf4';
+    }, {passive:true});
+    row.addEventListener('touchmove', e => {
+      e.preventDefault();
+      const touch = e.touches[0];
+      const target = document.elementFromPoint(touch.clientX, touch.clientY)?.closest('.reorder-row');
+      if (target && target !== dragSrc) {
+        el.querySelectorAll('.reorder-row').forEach(r => r.style.borderColor = '#e2e8f0');
+        target.style.borderColor = '#6B8F71';
+        touchEl = target;
+      }
+    }, {passive:false});
+    row.addEventListener('touchend', () => {
+      row.style.background = 'white';
+      if (touchEl && touchEl !== dragSrc) {
+        const rows = [...el.querySelectorAll('.reorder-row')];
+        const si = rows.indexOf(dragSrc), di = rows.indexOf(touchEl);
+        if (si < di) el.insertBefore(dragSrc, touchEl.nextSibling);
+        else el.insertBefore(dragSrc, touchEl);
+        touchEl.style.borderColor = '#e2e8f0';
+        touchEl = null;
+        updatePositionNumbers();
+      }
+    }, {passive:true});
+  });
+}
+
+function updatePositionNumbers() {
+  document.querySelectorAll('#reorderList .reorder-row').forEach((row, i) => {
+    const num = row.querySelector('span:nth-child(2)');
+    if (num) num.textContent = i + 1;
+  });
+}
+
+function saveOrder() {
+  const rows = document.querySelectorAll('#reorderList .reorder-row');
+  const order = [...rows].map(r => {
+    const id = r.dataset.id;
+    return isNaN(id) ? id : parseInt(id);
+  });
+  saveBikeOrder(order);
+  applyBikeOrder();
+  renderCards();
+  toast('✅ Bike order saved — cards updated');
+  logActivity('features', 'All Bikes', 'Display order updated (' + order.length + ' bikes reordered)');
+}
+
+function resetOrder() {
+  if (!confirm('Reset to default score-based order?')) return;
+  localStorage.removeItem(SORT_KEY);
+  renderReorderList();
+  renderCards();
+  toast('↺ Order reset to default');
+}
+
 // ── Export Changes ────────────────────────────────────
 function exportChanges() {
   const snapshot = {
@@ -3667,6 +3849,7 @@ function exportChanges() {
 }
 
 loadBikeOverrides();
+applyBikeOrder();
 syncBikesFromSheet();
 checkChangelogBadge();  // fetch sheet and add any missing bikes
 
