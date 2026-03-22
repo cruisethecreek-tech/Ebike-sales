@@ -2563,10 +2563,16 @@ const ERROR_CODES = [
   {
     brand:'Velotric', code:'E42', label:'Anti-Flyaway Protection',
     category:'Throttle',
-    symptom:'Throttle signal abnormal on startup.',
+    symptom:'Throttle signal abnormal on startup. Also reported as hex code 0X18 on Summit 2 display.',
+    note:'Community-sourced: 0X18 is the hex equivalent of this error. Reported on Summit 2 — bike still functional but code appears on display. Often triggered by battery connection loosening while riding. Battery reseat frequently clears it.',
     steps:[
-      'Reset/reposition the throttle to clear the code.',
-      'If step 1 fails → follow E37 / E41 diagnostic steps.'
+      'Turn off the bike fully.',
+      'Remove the battery completely, wait 30 seconds, then firmly reseat it — battery rattling loose during a ride is a known trigger.',
+      'Power back on — if code is gone, no further action needed.',
+      'If code persists: inspect throttle for smooth movement and ensure it springs back fully to zero position.',
+      'Check throttle cable for damage, kinks, or pinching.',
+      'If throttle feels sticky or misaligned → adjust mounting angle or replace throttle.',
+      'If code still present after all above → follow E37 / E41 diagnostic steps.'
     ]
   },
   {brand:'Velotric',code:'E43',label:'Low Voltage Protection',category:'Battery',symptom:'Battery voltage too low to operate.',steps:['Charge the battery.']},
