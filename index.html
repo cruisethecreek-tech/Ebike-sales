@@ -1184,6 +1184,9 @@ function saveBikeOverrides() {
   });
   localStorage.setItem(BIKE_OVERRIDES_KEY, JSON.stringify(overrides));
   localStorage.setItem(BIKE_NEW_KEY, JSON.stringify(newBikes));
+  // Publish discontinued bike names so brand pages can filter them out
+  const discNames = bikes.filter(b => b.discontinued === 'Yes').map(b => (b.model||'').toLowerCase().trim());
+  localStorage.setItem('ctc_discontinued_names', JSON.stringify(discNames));
 }
 
 function loadBikeOverrides() {

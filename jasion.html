@@ -390,7 +390,9 @@ const SITE_CONFIG = {
             if(window._hideOverlay) window._hideOverlay(); // overlay gone as soon as data renders
             globalInventory = inventory;
             const container = document.getElementById('bikes-grid-container');
-            let filtered = inventory.filter(bike => bike.brand.toLowerCase() === currentBrand.toLowerCase());
+            // Filter out discontinued bikes (status set via Admin panel, stored in localStorage)
+            const discNames = JSON.parse(localStorage.getItem('ctc_discontinued_names') || '[]');
+            let filtered = inventory.filter(bike => !discNames.includes((bike.name||'').toLowerCase().trim()) && bike.brand.toLowerCase() === currentBrand.toLowerCase());
             if (filtered.length === 0) {
                 container.innerHTML = '<div style="text-align:center;width:100%;color:var(--accent);">No bikes found.</div>';
                 return;

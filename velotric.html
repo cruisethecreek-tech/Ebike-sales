@@ -338,9 +338,11 @@ const SITE_CONFIG = {
             globalInventory = inventory;
             const container = document.getElementById('bikes-grid-container');
             let html = '';
-            let filteredInventory = inventory;
+            // Filter out discontinued bikes (status set via Admin panel, stored in localStorage)
+            const discNames = JSON.parse(localStorage.getItem('ctc_discontinued_names') || '[]');
+            let filteredInventory = inventory.filter(bike => !discNames.includes((bike.name||'').toLowerCase().trim()));
             if (currentBrand !== 'All') {
-                filteredInventory = inventory.filter(bike => bike.brand.toLowerCase() === currentBrand.toLowerCase());
+                filteredInventory = filteredInventory.filter(bike => bike.brand.toLowerCase() === currentBrand.toLowerCase());
             }
             if (filteredInventory.length === 0) {
                 container.innerHTML = '<div style="text-align:center; width:100%;">No bikes found for this brand.</div>';
