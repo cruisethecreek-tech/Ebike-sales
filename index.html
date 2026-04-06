@@ -1204,6 +1204,9 @@ function loadBikeOverrides() {
         bikes.push(nb);
       }
     });
+    // Refresh the discontinued names list for brand pages
+    const discNames = bikes.filter(b => b.discontinued === 'Yes').map(b => (b.model||'').toLowerCase().trim());
+    localStorage.setItem('ctc_discontinued_names', JSON.stringify(discNames));
   } catch(e) { console.warn('loadBikeOverrides error:', e); }
 }
 
@@ -1966,7 +1969,12 @@ function saveBike(){
 }
 
 function syncBikeToSheet(d, isNew) {
-  if(!isNew) { toast('✓ '+d.model+' updated locally (sheet sync for new bikes only)'); return; }
+  if(!isNew) {
+    // Sync discontinued status to the sheet for existing bikes
+    syncDiscontinuedToSheet(d);
+    toast('✓ '+d.model+' updated locally');
+    return;
+  }
   // Build specs JSON from form data
   const specs = {};
   if(d.range)  specs['Range']     = d.range + ' mi';
@@ -2002,6 +2010,33 @@ function syncBikeToSheet(d, isNew) {
     })
     .catch(() => toast('✅ ' + d.model + ' saved locally (sheet offline)'));
 }
+
+function syncDiscontinuedToSheet(d) {
+  // Find matching bike in sheet inventory by name+brand to get rowIndex
+  fetch(AS_URL + '?action=getSidebarInventory', {redirect:'follow'})
+    .then(r => r.text())
+    .then(text => {
+      const s = text.indexOf('['), e = text.lastIndexOf(']');
+      return JSON.parse(s > -1 ? text.slice(s, e + 1) : text);
+    })
+    .then(sheetBikes => {
+      const match = sheetBikes.find(sb =>
+        sb.name && d.model &&
+        sb.name.toLowerCase().trim() === d.model.toLowerCase().trim() &&
+        sb.brand.toLowerCase() === d.brand.toLowerCase()
+      );
+      if (!match || !match.rowIndex) return;
+      const disc = d.discontinued === 'Yes' ? 'Yes' : '';
+      fetch(AS_URL + '?action=setDiscontinued&rowIndex=' + match.rowIndex + '&discontinued=' + encodeURIComponent(disc), {redirect:'follow', mode:'cors'})
+        .then(r => r.json())
+        .then(res => {
+          if (res.status === 'ok') console.log('Discontinued status synced to sheet for ' + d.model);
+        })
+        .catch(() => {});
+    })
+    .catch(() => {});
+}
+
 function askDel(id){delId=id;const b=bikes.find(x=>x.id===id);document.getElementById('delName').textContent=b?.model||'bike';openM('mDel');}
 function confirmDel(){
   if(!delId)return;const b=bikes.find(x=>x.id===delId);
