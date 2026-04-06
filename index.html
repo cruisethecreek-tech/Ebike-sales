@@ -1267,6 +1267,8 @@ function getFiltered(){
   const q=(document.getElementById('sSearch')?.value||'').toLowerCase();
   const s=document.getElementById('sortSel')?.value||'score';
   return bikes.filter(b=>{
+    // Hide discontinued products from customers
+    if(b.discontinued==='Yes') return false;
     const h=`${b.brand} ${b.model} ${b.type} ${b.sensor} ${b.features}`.toLowerCase();
     return(!q||h.includes(q))&&(
       activeFilter==='All' ||
@@ -1278,10 +1280,6 @@ function getFiltered(){
       (activeFilter==='Mid Drive' && (b.type||'').toLowerCase().includes('mid'))
     );
   }).sort((a,b)=>{
-    // Discontinued always last
-    const aDisc = a.discontinued==='Yes' ? 1 : 0;
-    const bDisc = b.discontinued==='Yes' ? 1 : 0;
-    if(aDisc !== bDisc) return aDisc - bDisc;
     // A-Z filter overrides sort dropdown
     if(s==='az')     return (a.model||'').localeCompare(b.model||'');
     if(s==='score') {
@@ -1317,7 +1315,7 @@ function sitePillHTML(b){
 function renderCards(){
   const list=getFiltered();
   document.getElementById('countLbl').textContent=`${list.length} BIKES`;
-  document.getElementById('hCount').textContent=bikes.length;
+  document.getElementById('hCount').textContent=bikes.filter(b=>b.discontinued!=='Yes').length;
   const g=document.getElementById('bikeGrid');
   if(!list.length){g.innerHTML=`<div style="grid-column:span 2;text-align:center;padding:60px 0;color:#94a3b8;font-weight:700;">No bikes match.</div>`;return;}
   g.innerHTML=list.map(b=>`
