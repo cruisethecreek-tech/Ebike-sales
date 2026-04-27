@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cruise the Creek | E-Bike Finder Master</title>
+    <style>
+        :root { --dark: #1a1a2e; --green: #4a6741; --tan: #d4c4b0; }
+        body { font-family: 'Segoe UI', Tahoma, sans-serif; background: var(--tan); margin: 0; padding: 20px; display: flex; justify-content: center; }
+        #quiz-wrap { background: white; max-width: 1000px; width: 100%; border-radius: 24px; padding: 40px; border: 2px solid var(--green); box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+        .header { text-align: center; margin-bottom: 25px; }
+        .step { display: none; }
+        .step.active { display: block; animation: fadeIn 0.3s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .bikes-remaining { background: #f4f1ea; padding: 15px 20px; border-radius: 12px; margin-bottom: 20px; border-left: 4px solid var(--green); }
+        .bikes-remaining-count { font-size: 1.1rem; font-weight: 700; color: var(--green); margin-bottom: 8px; }
+        .bikes-list { font-size: 0.75rem; color: #666; line-height: 1.4; max-height: 80px; overflow-y: auto; padding-right: 10px; border-top: 1px solid #ddd; padding-top: 8px; }
+
+        .progress-bar { height: 8px; background: #eee; border-radius: 10px; margin-bottom: 30px; overflow: hidden; }
+        .progress-fill { height: 100%; background: var(--green); transition: width 0.3s ease; width: 0%; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px; }
+        
+        button.opt { padding: 22px; border: 2px solid #ddd; border-radius: 18px; background: white; cursor: pointer; text-align: left; transition: 0.2s; width: 100%; }
+        button.opt:hover { border-color: var(--green); background: #f9fdf9; transform: translateY(-2px); }
+        button.opt b { display: block; font-size: 1.1rem; color: var(--dark); margin-bottom: 5px; }
+        button.opt span { font-size: 0.85rem; color: #666; line-height: 1.4; display: block; }
+
+        .answer-recap { background: #f4f1ea; padding: 20px; border-radius: 15px; margin-bottom: 30px; border-left: 5px solid var(--green); }
+        .recap-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; font-size: 0.85rem; }
+        .recap-item strong { color: var(--green); display: block; text-transform: uppercase; font-size: 0.7rem; }
+        
+        .bike-result { border: 2px solid var(--green); border-radius: 20px; padding: 25px; margin-bottom: 25px; text-align: center; background: #fff; position: relative; }
+        .match-badge { position: absolute; top: 15px; right: 15px; background: var(--green); color: white; padding: 5px 15px; border-radius: 20px; font-weight: bold; font-size: 0.85rem; }
+        .price-tag { font-size: 2.2rem; font-weight: 800; color: var(--green); margin: 10px 0; }
+        .reasoning-box { text-align: left; background: #f9f9f9; padding: 15px; border-radius: 12px; margin-top: 15px; font-size: 0.85rem; border: 1px dashed #ccc; }
+        
+        .table-wrap { overflow-x: auto; border-radius: 15px; border: 1px solid #ddd; margin-top: 20px; }
+        table { width: 100%; border-collapse: collapse; background: white; font-size: 0.85rem; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #eee; }
+        th { background: #f8f9fa; color: var(--green); text-transform: uppercase; font-size: 0.75rem; font-weight: 700; }
+
+        .back-btn { background: none; border: 1px solid var(--green); color: var(--green); padding: 8px 20px; border-radius: 20px; cursor: pointer; margin-bottom: 15px; font-weight: bold; }
+        .restart-btn { width: 100%; padding: 18px; background: var(--green); color: white; border: none; border-radius: 14px; font-weight: bold; cursor: pointer; margin-top: 20px; font-size: 1.1rem; }
+        
+        .lead-form { background: white; padding: 30px; border-radius: 16px; max-width: 500px; margin: 0 auto; text-align: center; border: 1px solid #eee; }
+        .form-group { margin-bottom: 15px; text-align: left; }
+        .form-group label { display: block; color: var(--green); font-weight: 600; margin-bottom: 5px; font-size: 0.9rem; }
+        .form-group input { width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 8px; box-sizing: border-box; }
+        .submit-btn { width: 100%; padding: 15px; background: var(--green); color: white; border: none; border-radius: 8px; font-weight: 700; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+<div id="quiz-wrap">
+    <div class="header">
+        <h2 style="color:var(--green); margin:0;">Cruise the Creek E-Bike Finder</h2>
+        <div class="progress-bar"><div class="progress-fill" id="progressBar"></div></div>
+    </div>
+
+    <div class="step active" id="s0">
+        <h2>First things first... do you know how to ride a bike?</h2>
+        <div class="grid">
+            <button class="opt" onclick="next(1, 'skill', 'yes')"><b>Yes! I'm a pro.</b><span>Show me the full fleet!</span></button>
+            <button class="opt" onclick="next(9, 'skill', 'no')"><b>Actually, no...</b><span>I might need something more stable.</span></button>
+        </div>
+    </div>
+
+    <div class="step" id="s1">
+        <button class="back-btn" onclick="back(0, 'skill')">← Back</button>
+        <h2>What is your preferred riding style?</h2>
+        <div id="remaining-s1" class="bikes-remaining"></div>
+        <div class="grid">
+            <button class="opt" onclick="next(2, 'feel', 'cadence')"><b>Leisurely / "Easy Cruise"</b><span>Rely on cadence power for an effortless ride.</span></button>
+            <button class="opt" onclick="next(2, 'feel', 'torque')"><b>Performance / "Athletic & Natural"</b><span>Torque or Mid-Drive response that mimics your own effort.</span></button>
+            <button class="opt" onclick="next(2, 'feel', 'trike')"><b>Maximum Stability (3-Wheeler)</b><span>For total balance and safety on every ride.</span></button>
+        </div>
+    </div>
+
+    <div class="step" id="s2">
+        <button class="back-btn" onclick="back(1, 'feel')">← Back</button>
+        <h2>Rider's Age Range?</h2>
+        <div id="remaining-s2" class="bikes-remaining"></div>
+        <div class="grid">
+            <button class="opt" onclick="next(3, 'age', 'young')"><b>18 - 54</b></button>
+            <button class="opt" onclick="next(3, 'age', 'active-senior')"><b>55 - 70</b></button>
+            <button class="opt" onclick="next(3, 'age', 'senior')"><b>70+</b></button>
+        </div>
+    </div>
+
+    <div class="step" id="s3">
+        <button class="back-btn" onclick="back(2, 'age')">← Back</button>
+        <h2>What matters most for your ride?</h2>
+        <div id="remaining-s3" class="bikes-remaining"></div>
+        <div class="grid">
+            <button class="opt" onclick="next(4, 'priority', 'range')"><b>Max Range & Versatility</b><span>Bikes that go further and handle diverse terrain.</span></button>
+            <button class="opt" onclick="next(4, 'priority', '750w')"><b>Daily Reliability (750W)</b><span>Perfect power for standard commuting and fun.</span></button>
+            <button class="opt" onclick="next(4, 'priority', '1000w')"><b>Ultimate Power (1000W+)</b><span>Maximum speed and hill-climbing capability.</span></button>
+            <button class="opt" onclick="next(4, 'priority', 'quality')"><b>Premium Build & Tech</b><span>Focus on refined components and natural handling.</span></button>
+        </div>
+    </div>
+
+    <div class="step" id="s4">
+        <button class="back-btn" onclick="back(3, 'priority')">← Back</button>
+        <h2>Budget range?</h2>
+        <div id="remaining-s4" class="bikes-remaining"></div>
+        <div class="grid">
+            <button class="opt" onclick="next(5, 'budget', 'entry')"><b>$600 - $1,200</b></button>
+            <button class="opt" onclick="next(5, 'budget', 'mid')"><b>$1,200 - $1,800</b></button>
+            <button class="opt" onclick="next(5, 'budget', 'high')"><b>$1,800+</b></button>
+            <button class="opt" onclick="next(5, 'budget', 'none')"><b>No Preference</b></button>
+        </div>
+    </div>
+
+    <div class="step" id="s5">
+        <button class="back-btn" onclick="back(4, 'budget')">← Back</button>
+        <h2>How important is bike weight?</h2>
+        <div id="remaining-s5" class="bikes-remaining"></div>
+        <div class="grid">
+            <button class="opt" onclick="next(6, 'weight', 'light')"><b>Extremely Important</b><span>Show bikes 55 lbs and under only.</span></button>
+            <button class="opt" onclick="next(6, 'weight', 'moderate')"><b>Somewhat Important</b></button>
+            <button class="opt" onclick="next(6, 'weight', 'heavy')"><b>Not Important</b></button>
+        </div>
+    </div>
+
+    <div class="step" id="s6">
+        <button class="back-btn" onclick="back(5, 'weight')">← Back</button>
+        <h2>Need a folding frame?</h2>
+        <div id="remaining-s6" class="bikes-remaining"></div>
+        <div class="grid">
+            <button class="opt" onclick="next(7, 'fold', 'yes')"><b>Yes, Folding</b></button>
+            <button class="opt" onclick="next(7, 'fold', 'no')"><b>No, Rigid</b></button>
+            <button class="opt" onclick="next(7, 'fold', 'none')"><b>No Preference</b></button>
+        </div>
+    </div>
+
+    <div class="step" id="s7">
+        <button class="back-btn" onclick="back(6, 'fold')">← Back</button>
+        <h2>Preferred Frame Access?</h2>
+        <div id="remaining-s7" class="bikes-remaining"></div>
+        <div class="grid">
+            <button class="opt" onclick="next(8, 'frame', 'ST')"><b>Step-Thru (Low Bar)</b></button>
+            <button class="opt" onclick="next(8, 'frame', 'High')"><b>High-Step</b></button>
+            <button class="opt" onclick="next(8, 'frame', 'none')"><b>No Preference</b></button>
+        </div>
+    </div>
+
+    <div class="step" id="s8">
+        <button class="back-btn" onclick="back(7, 'frame')">← Back</button>
+        <h2>Typical Terrain?</h2>
+        <div id="remaining-s8" class="bikes-remaining"></div>
+        <div class="grid">
+            <button class="opt" onclick="next(9, 'terrain', 'paved')"><b>Paved</b></button>
+            <button class="opt" onclick="next(9, 'terrain', 'mixed')"><b>Mixed Surfaces</b></button>
+            <button class="opt" onclick="next(9, 'terrain', 'rough')"><b>Rough / Off-Road</b></button>
+        </div>
+    </div>
+
+    <div class="step" id="s9">
+        <button class="back-btn" onclick="back(8, 'terrain')">← Back</button>
+        <div class="lead-form">
+            <h3 id="leadTitle">Your Matches Are Ready!</h3>
+            <p id="leadDesc">Click below to see your personalized recommendations.</p>
+            <button class="submit-btn" onclick="finalize()">Show My Matches →</button>
+        </div>
+    </div>
+
+    <div id="res" class="step">
+        <div class="answer-recap"><div class="recap-grid" id="recapDisplay"></div></div>
+        <div id="resultsContainer"></div>
+        <h3 style="text-align:center; color:var(--green); margin-top:40px;">Full Specification Comparison</h3>
+        <div class="table-wrap"><table><thead><tr><th>Model</th><th>Price</th><th>Weight</th><th>Motor</th><th>Access</th></tr></thead><tbody id="compBody"></tbody></table></div>
+        <button class="restart-btn" onclick="window.location.reload()">🔄 Start New Search</button>
+        <div style="text-align:center; margin-top:20px; padding-top:15px; border-top:1px solid #eee; font-size:0.85rem; color:#666;">
+            <p style="margin:0 0 4px;">Have questions? Text us at <a href="sms:3304069682" style="color:var(--green); font-weight:700; text-decoration:none;">330-406-9682</a></p>
+            <p style="margin:8px 0 0;">Browse our brands: <a href="https://www.heybike.com" target="_blank" style="color:var(--green); text-decoration:none; font-weight:600;">Heybike</a> · <a href="https://www.velotricbike.com" target="_blank" style="color:var(--green); text-decoration:none; font-weight:600;">Velotric</a> · <a href="https://www.jasionbike.com" target="_blank" style="color:var(--green); text-decoration:none; font-weight:600;">Jasion</a></p>
+        </div>
+    </div>
+</div>
+
+<script>
+    const answers = {};
+    const TOTAL_STEPS = 9;
+    
+    const fleet = [
+        { name: "Venus", brand: "Heybike", price: 1499, frame: "ST", fold: "no", weight: 45, cat: "road", feel: "both", motor: "500W Mid", budget: "mid" },
+        { name: "Breeze 1", brand: "Velotric", price: 1799, frame: "ST", fold: "no", weight: 52, cat: "road", feel: "torque", motor: "500W", budget: "mid" },
+        { name: "Alpha", brand: "Heybike", price: 1299, frame: "High", fold: "no", weight: 64, cat: "road", feel: "torque", motor: "750W Mid", budget: "mid" },
+        { name: "Mars 3.0", brand: "Heybike", price: 1299, frame: "High", fold: "yes", weight: 75, cat: "both", feel: "torque", motor: "750W", budget: "mid" },
+        { name: "Ranger 3.0 Pro", brand: "Heybike", price: 1499, frame: "ST", fold: "yes", weight: 75, cat: "both", feel: "torque", motor: "1200W Peak", budget: "mid" },
+        { name: "Ranger 3.0 Sunset", brand: "Heybike", price: 1699, frame: "ST", fold: "yes", weight: 75, cat: "both", feel: "torque", motor: "1200W Peak", budget: "mid" },
+        { name: "Hero", brand: "Heybike", price: 1899, frame: "High", fold: "no", weight: 95, cat: "fat", feel: "torque", motor: "1000W Mid", budget: "high" },
+        { name: "Ranger S 750", brand: "Heybike", price: 999, frame: "ST", fold: "yes", weight: 72, cat: "both", feel: "cadence", motor: "750W", budget: "entry" },
+        { name: "Ranger S 1000", brand: "Heybike", price: 1199, frame: "ST", fold: "yes", weight: 75, cat: "both", feel: "cadence", motor: "1000W", budget: "entry" },
+        { name: "Mars 2.0 750", brand: "Heybike", price: 999, frame: "High", fold: "yes", weight: 75, cat: "both", feel: "cadence", motor: "750W", budget: "entry" },
+        { name: "Mars 2.0 1000", brand: "Heybike", price: 1199, frame: "High", fold: "yes", weight: 77, cat: "both", feel: "cadence", motor: "1000W", budget: "entry" },
+        { name: "Cityrun", brand: "Heybike", price: 999, frame: "ST", fold: "no", weight: 61, cat: "road", feel: "cadence", motor: "500W", budget: "entry" },
+        { name: "Horizon", brand: "Heybike", price: 1399, frame: "ST", fold: "no", weight: 70, cat: "road", feel: "cadence", motor: "750W", budget: "mid" },
+        { name: "Helio F", brand: "Heybike", price: 1299, frame: "High", fold: "yes", weight: 55, cat: "road", feel: "cadence", motor: "500W", budget: "mid" },
+        { name: "EB5 Roamer ST", brand: "Jasion", price: 699, frame: "ST", fold: "no", weight: 44, cat: "road", feel: "cadence", motor: "350W", budget: "entry" },
+        { name: "EB5 Roamer", brand: "Jasion", price: 659, frame: "High", fold: "yes", weight: 44, cat: "road", feel: "cadence", motor: "350W", budget: "entry" },
+        { name: "EB7 2.0", brand: "Jasion", price: 699, frame: "ST", fold: "yes", weight: 62, cat: "road", feel: "cadence", motor: "500W", budget: "entry" },
+        { name: "X-Hunter ST", brand: "Jasion", price: 899, frame: "ST", fold: "yes", weight: 71, cat: "fat", feel: "cadence", motor: "750W", budget: "entry" },
+        { name: "X-Hunter", brand: "Jasion", price: 859, frame: "High", fold: "yes", weight: 71, cat: "fat", feel: "cadence", motor: "750W", budget: "entry" },
+        { name: "Thunder", brand: "Jasion", price: 899, frame: "ST", fold: "no", weight: 82, cat: "fat", feel: "cadence", motor: "750W", budget: "entry" },
+        { name: "RetroVolt Pro", brand: "Jasion", price: 899, frame: "High", fold: "no", weight: 82, cat: "fat", feel: "cadence", motor: "1000W", budget: "entry" },
+        { name: "Hunter Pro", brand: "Jasion", price: 1099, frame: "ST", fold: "yes", weight: 82, cat: "fat", feel: "cadence", motor: "1000W", budget: "entry" },
+        { name: "T1 ST Plus", brand: "Velotric", price: 1299, frame: "ST", fold: "no", weight: 39, cat: "road", feel: "torque", motor: "350W", budget: "mid" },
+        { name: "Discover 2", brand: "Velotric", price: 1899, frame: "ST", fold: "no", weight: 63, cat: "road", feel: "torque", motor: "750W", budget: "high" },
+        { name: "Discover 3", brand: "Velotric", price: 1999, frame: "ST", fold: "no", weight: 61, cat: "road", feel: "both", motor: "750W (1100W Peak)", budget: "high" },
+        { name: "Discover M", brand: "Velotric", price: 2499, frame: "ST", fold: "no", weight: 60, cat: "road", feel: "torque", motor: "500W Mid", budget: "high" },
+        { name: "Fold 1", brand: "Velotric", price: 1299, frame: "ST", fold: "yes", weight: 63, cat: "fat", feel: "cadence", motor: "750W", budget: "mid" },
+        { name: "Summit 1", brand: "Velotric", price: 1799, frame: "High", fold: "no", weight: 70, cat: "fat", feel: "torque", motor: "750W", budget: "high" },
+        { name: "Nomad 2", brand: "Velotric", price: 1899, frame: "High", fold: "no", weight: 75, cat: "fat", feel: "torque", motor: "750W", budget: "high" },
+        { name: "Nomad 2X", brand: "Velotric", price: 2399, frame: "High", fold: "no", weight: 80, cat: "fat", feel: "torque", motor: "1000W", budget: "high" },
+        { name: "Nomad 1 Plus", brand: "Velotric", price: 1499, frame: "High", fold: "no", weight: 73, cat: "fat", feel: "torque", motor: "750W", budget: "mid" },
+        { name: "Triker", brand: "Velotric", price: 2399, frame: "ST", fold: "yes", weight: 85, cat: "trike", feel: "cadence", motor: "750W", budget: "high" },
+        { name: "Summit 1 Plus", brand: "Velotric", price: 1999, frame: "High", fold: "no", weight: 70, cat: "fat", feel: "torque", motor: "750W", budget: "high" }
+    ];
+
+    function next(step, key, val) {
+        answers[key] = val;
+        if (key === 'skill' && val === 'no') {
+            document.getElementById('leadTitle').innerText = "Safety Recommendation";
+            document.getElementById('leadDesc').innerText = "Since you're still learning, we highly recommend a 3-wheeler for maximum stability. Click below to see our top pick!";
+        }
+        document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+        document.getElementById('s' + step).classList.add('active');
+        document.getElementById('progressBar').style.width = (step / TOTAL_STEPS * 100) + '%';
+        if(step < 9) updateRemainingBikes(step);
+    }
+
+    function back(step, keyToClear) {
+        if (keyToClear) delete answers[keyToClear];
+        document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+        document.getElementById('s' + step).classList.add('active');
+        document.getElementById('progressBar').style.width = (step / TOTAL_STEPS * 100) + '%';
+        updateRemainingBikes(step);
+    }
+
+    function updateRemainingBikes(step) {
+        let remaining = fleet.filter(b => {
+            if (answers.skill === 'no' && b.cat !== 'trike') return false;
+            if (answers.feel) {
+                if (answers.feel === 'trike' && b.cat !== 'trike') return false;
+                if (answers.feel !== 'trike' && b.cat === 'trike') return false;
+                if (answers.feel === 'torque' && b.feel !== 'torque' && b.feel !== 'both') return false;
+                if (answers.feel === 'cadence' && b.feel !== 'cadence' && b.feel !== 'both') return false;
+            }
+            if (answers.budget && answers.budget !== 'none' && b.budget !== answers.budget) return false;
+            if (answers.frame && answers.frame !== 'none' && b.frame !== answers.frame) return false;
+            if (answers.fold && answers.fold !== 'none' && b.fold !== answers.fold) return false;
+            if (answers.weight === 'light' && b.weight > 55) return false;
+            return true;
+        });
+        const container = document.getElementById(`remaining-s${step}`);
+        if (container) {
+            container.style.display = 'block';
+            container.innerHTML = `<div class="bikes-remaining-count">${remaining.length} bikes match your current profile</div><div class="bikes-list">${remaining.map(b => b.brand + ' ' + b.name).join(', ')}</div>`;
+        }
+    }
+
+    function calculateScore(bike) {
+        let score = 0; let r = []; let gaps = [];
+        if (answers.skill === 'no' && bike.cat !== 'trike') return null;
+        if (answers.weight === 'light' && bike.weight > 55) return null;
+
+        // Riding style (45 pts)
+        if (answers.feel === bike.feel || bike.feel === 'both' || (answers.feel === 'trike' && bike.cat === 'trike')) { 
+            score += 45; r.push("Perfect match for riding style"); 
+        } else if (answers.feel === 'torque' && bike.feel === 'cadence') {
+            gaps.push("Cadence sensor only — no torque/mid-drive response");
+        } else if (answers.feel === 'cadence' && bike.feel === 'torque') {
+            gaps.push("Torque sensor only — may feel too athletic for leisurely riding");
+        }
+
+        // SensorSwap bonus (15 pts)
+        if (answers.feel === 'cadence' && (bike.name === "Discover 2" || bike.name === "Discover 3" || bike.name === "Nomad 1 Plus")) {
+            score += 15; r.push("Adjustable tech to match cadence feel");
+        }
+
+        // Budget (20 pts)
+        if (answers.budget === 'none' || bike.budget === answers.budget) { 
+            score += 20; r.push("Within budget range"); 
+        } else {
+            const budgetLabels = { entry: "$600–$1,200", mid: "$1,200–$1,800", high: "$1,800+" };
+            gaps.push("Outside your " + (budgetLabels[answers.budget] || "") + " budget range ($" + bike.price.toLocaleString() + ")");
+        }
+
+        // Weight (40 pts)
+        if (answers.weight === 'light' && bike.weight <= 55) { 
+            score += 40; r.push("Lightweight priority (≤ 55 lbs)"); 
+        } else if (answers.weight === 'light') {
+            gaps.push("Heavier than preferred at " + bike.weight + " lbs (you wanted ≤ 55)");
+        } else if (answers.weight === 'moderate' && bike.weight > 70) {
+            gaps.push("On the heavier side at " + bike.weight + " lbs");
+        }
+
+        // Frame check
+        if (answers.frame && answers.frame !== 'none' && bike.frame !== answers.frame) {
+            gaps.push("Only available in " + (bike.frame === 'ST' ? 'Step-Thru' : 'High-Step') + " frame");
+        }
+
+        // Fold check
+        if (answers.fold && answers.fold !== 'none') {
+            if (answers.fold === 'yes' && bike.fold === 'no') gaps.push("Non-folding frame");
+            if (answers.fold === 'no' && bike.fold === 'yes') gaps.push("Folding frame (you preferred rigid)");
+        }
+
+        // Terrain check
+        if (answers.terrain === 'rough' && bike.cat === 'road') {
+            gaps.push("Road-focused — not ideal for rough/off-road terrain");
+        } else if (answers.terrain === 'paved' && bike.cat === 'fat') {
+            gaps.push("Fat-tire/off-road build — more bike than needed for paved riding");
+        }
+
+        // Priority check
+        if (answers.priority === '1000w' && !bike.motor.toLowerCase().includes('1000') && !bike.motor.toLowerCase().includes('1100') && !bike.motor.toLowerCase().includes('1200')) {
+            gaps.push("Motor under 1000W (" + bike.motor + ")");
+        } else if (answers.priority === 'quality' && bike.budget === 'entry') {
+            gaps.push("Entry-level build — may lack premium components");
+        }
+        
+        return { total: score, reasons: r, gaps: gaps };
+    }
+
+    function finalize() {
+        const recap = document.getElementById('recapDisplay');
+        recap.innerHTML = '';
+        const labels = { skill: "Knows how to ride", feel: "Riding Style", priority: "Priority", budget: "Budget" };
+        for (let key in labels) {
+            let val = answers[key] || "N/A";
+            if (val === 'cadence') val = 'Leisurely';
+            if (val === 'torque') val = 'Athletic';
+            recap.innerHTML += `<div class="recap-item"><strong>${labels[key]}</strong>${val}</div>`;
+        }
+
+        let scored = fleet.map(b => ({ ...b, meta: calculateScore(b) }))
+                         .filter(b => b.meta !== null)
+                         .sort((a,b) => b.meta.total - a.meta.total);
+
+        const container = document.getElementById('resultsContainer');
+        const tableBody = document.getElementById('compBody');
+        container.innerHTML = `<h2 style="text-align:center; color:var(--green); margin-bottom:30px;">Your Recommendations</h2>`;
+        tableBody.innerHTML = '';
+
+        scored.slice(0, 5).forEach(bike => {
+            const p = Math.round((bike.meta.total / 135) * 100) || 100;
+            const gapsHtml = bike.meta.gaps.length > 0 
+                ? `<div style="margin-top:10px; padding-top:10px; border-top:1px dashed #ddd;"><div style="font-weight:600; color:#b5651d; margin-bottom:5px; font-size:0.8rem;">WHY NOT 100%:</div>${bike.meta.gaps.map(g => `<div style="color:#996633;">✕ ${g}</div>`).join('')}</div>` 
+                : '';
+            container.innerHTML += `<div class="bike-result"><div class="match-badge">${p}% Match</div><h3>${bike.brand} ${bike.name}</h3><div class="price-tag">$${bike.price.toLocaleString()}</div><div class="reasoning-box">${bike.meta.reasons.map(reason => `<div>✓ ${reason}</div>`).join('')}${gapsHtml}</div></div>`;
+            tableBody.innerHTML += `<tr><td><strong>${bike.brand} ${bike.name}</strong></td><td>$${bike.price.toLocaleString()}</td><td>${bike.weight} lbs</td><td>${bike.motor}</td><td>${bike.frame === 'ST' ? 'Step-Thru' : 'High-Step'}</td></tr>`;
+        });
+
+        document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+        document.getElementById('res').classList.add('active');
+        document.getElementById('progressBar').style.width = '100%';
+    }
+
+    window.onload = () => updateRemainingBikes(1);
+</script>
+</body>
+</html>
