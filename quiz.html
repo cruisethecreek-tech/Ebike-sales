@@ -181,43 +181,101 @@
 <script>
     const answers = {};
     const TOTAL_STEPS = 9;
-    
-    const fleet = [
-        { name: "Venus", brand: "Heybike", price: 1499, frame: "ST", fold: "no", weight: 45, cat: "road", feel: "both", motor: "500W Mid", budget: "mid" },
-        { name: "Breeze 1", brand: "Velotric", price: 1799, frame: "ST", fold: "no", weight: 52, cat: "road", feel: "torque", motor: "500W", budget: "mid" },
-        { name: "Alpha", brand: "Heybike", price: 1299, frame: "High", fold: "no", weight: 64, cat: "road", feel: "torque", motor: "750W Mid", budget: "mid" },
-        { name: "Mars 3.0", brand: "Heybike", price: 1199, frame: "High", fold: "yes", weight: 75, cat: "both", feel: "torque", motor: "750W", budget: "mid" },
-        { name: "Ranger 3.0 Pro", brand: "Heybike", price: 1499, frame: "ST", fold: "yes", weight: 75, cat: "both", feel: "torque", motor: "1200W Peak", budget: "mid" },
-        { name: "Ranger 3.0 Sunset", brand: "Heybike", price: 1699, frame: "ST", fold: "yes", weight: 75, cat: "both", feel: "torque", motor: "1200W Peak", budget: "mid" },
-        { name: "Hero", brand: "Heybike", price: 1899, frame: "High", fold: "no", weight: 95, cat: "fat", feel: "torque", motor: "1000W Mid", budget: "high" },
-        { name: "Ranger S 750", brand: "Heybike", price: 999, frame: "ST", fold: "yes", weight: 72, cat: "both", feel: "cadence", motor: "750W", budget: "entry" },
-        { name: "Ranger S 1000", brand: "Heybike", price: 1199, frame: "ST", fold: "yes", weight: 75, cat: "both", feel: "cadence", motor: "1000W", budget: "entry" },
-        { name: "Mars 2.0 750", brand: "Heybike", price: 999, frame: "High", fold: "yes", weight: 75, cat: "both", feel: "cadence", motor: "750W", budget: "entry" },
-        { name: "Mars 2.0 1000", brand: "Heybike", price: 1099, frame: "High", fold: "yes", weight: 77, cat: "both", feel: "cadence", motor: "1000W", budget: "entry" },
-        { name: "Cityrun", brand: "Heybike", price: 999, frame: "ST", fold: "no", weight: 61, cat: "road", feel: "cadence", motor: "500W", budget: "entry" },
-        { name: "Horizon", brand: "Heybike", price: 1399, frame: "ST", fold: "no", weight: 70, cat: "road", feel: "cadence", motor: "750W", budget: "mid" },
-        { name: "Helio F", brand: "Heybike", price: 1299, frame: "High", fold: "yes", weight: 55, cat: "road", feel: "cadence", motor: "500W", budget: "mid" },
-        { name: "EB5 Roamer ST", brand: "Jasion", price: 699, frame: "ST", fold: "no", weight: 44, cat: "road", feel: "cadence", motor: "350W", budget: "entry" },
-        { name: "EB5 Roamer", brand: "Jasion", price: 659, frame: "High", fold: "yes", weight: 44, cat: "road", feel: "cadence", motor: "350W", budget: "entry" },
-        { name: "EB7 2.0", brand: "Jasion", price: 699, frame: "ST", fold: "yes", weight: 62, cat: "road", feel: "cadence", motor: "500W", budget: "entry" },
-        { name: "X-Hunter ST", brand: "Jasion", price: 899, frame: "ST", fold: "yes", weight: 71, cat: "fat", feel: "cadence", motor: "750W", budget: "entry" },
-        { name: "X-Hunter", brand: "Jasion", price: 859, frame: "High", fold: "yes", weight: 71, cat: "fat", feel: "cadence", motor: "750W", budget: "entry" },
-        { name: "Thunder", brand: "Jasion", price: 929, frame: "ST", fold: "no", weight: 82, cat: "fat", feel: "cadence", motor: "1000W", budget: "entry" },
-        { name: "RetroVolt Pro", brand: "Jasion", price: 899, frame: "High", fold: "no", weight: 82, cat: "fat", feel: "cadence", motor: "1000W", budget: "entry" },
-        { name: "Hunter Pro", brand: "Jasion", price: 1099, frame: "ST", fold: "yes", weight: 82, cat: "fat", feel: "cadence", motor: "1000W", budget: "entry" },
-        { name: "T1 ST Plus", brand: "Velotric", price: 1249, frame: "ST", fold: "no", weight: 39, cat: "road", feel: "torque", motor: "350W", budget: "mid" },
-        { name: "Discover 2", brand: "Velotric", price: 1899, frame: "ST", fold: "no", weight: 63, cat: "road", feel: "torque", motor: "750W", budget: "high" },
-        { name: "Discover 3", brand: "Velotric", price: 1999, frame: "ST", fold: "no", weight: 61, cat: "road", feel: "both", motor: "750W (1100W Peak)", budget: "high" },
-        { name: "Discover M", brand: "Velotric", price: 2499, frame: "ST", fold: "no", weight: 60, cat: "road", feel: "torque", motor: "500W Mid", budget: "high" },
-        { name: "Fold 1", brand: "Velotric", price: 1299, frame: "ST", fold: "yes", weight: 63, cat: "fat", feel: "cadence", motor: "750W", budget: "mid" },
-        { name: "Summit 1", brand: "Velotric", price: 1999, frame: "High", fold: "no", weight: 70, cat: "fat", feel: "torque", motor: "750W", budget: "high" },
-        { name: "Nomad 2", brand: "Velotric", price: 1899, frame: "High", fold: "no", weight: 75, cat: "fat", feel: "torque", motor: "750W", budget: "high" },
-        { name: "Nomad 2X", brand: "Velotric", price: 2399, frame: "High", fold: "no", weight: 80, cat: "fat", feel: "torque", motor: "1000W", budget: "high" },
-        { name: "Nomad 1 Plus", brand: "Velotric", price: 1499, frame: "High", fold: "no", weight: 73, cat: "fat", feel: "torque", motor: "750W", budget: "mid" },
-        { name: "Triker", brand: "Velotric", price: 2499, frame: "ST", fold: "yes", weight: 85, cat: "trike", feel: "cadence", motor: "750W", budget: "high" },
-        { name: "Summit 1 Plus", brand: "Velotric", price: 1999, frame: "High", fold: "no", weight: 70, cat: "fat", feel: "torque", motor: "750W", budget: "high" },
-        { name: "GoMad", brand: "Velotric", price: 1999, frame: "ST", fold: "no", weight: 77, cat: "fat", feel: "torque", motor: "750W", budget: "high" }
-    ];
+
+    const AS_URL = 'https://script.google.com/macros/s/AKfycbyxVMuFEUeR8_YqM1VVnfPSVPnDhdCs_63dDthZ4jODlTDGQ-7yXSkQeYT-Ux0SM8tw/exec';
+
+    // Quiz-only classifications keyed by the sheet's "ID" column.
+    // The sheet provides name/brand/price/motor/discontinued; the fields
+    // below (frame access, foldability, weight, terrain category, sensor
+    // feel) aren't tracked in the sheet. Any new sheet entry without a
+    // matching ID below appears in the quiz tagged `unclassified`, which
+    // bypasses strict filters/scoring so it's never silently hidden.
+    const LOOKUP = {
+        // Heybike
+        'rangers':       { frame: 'ST',   fold: 'yes', weight: 75, cat: 'both',  feel: 'cadence' },
+        'ranger3pro':    { frame: 'ST',   fold: 'yes', weight: 75, cat: 'both',  feel: 'torque'  },
+        'mars2':         { frame: 'High', fold: 'yes', weight: 75, cat: 'both',  feel: 'cadence' },
+        'mars3':         { frame: 'High', fold: 'yes', weight: 75, cat: 'both',  feel: 'torque'  },
+        'cityrun':       { frame: 'ST',   fold: 'no',  weight: 61, cat: 'road',  feel: 'cadence' },
+        'venus':         { frame: 'ST',   fold: 'no',  weight: 45, cat: 'road',  feel: 'both'    },
+        'alpha':         { frame: 'High', fold: 'no',  weight: 64, cat: 'road',  feel: 'torque'  },
+        'horizon':       { frame: 'ST',   fold: 'no',  weight: 70, cat: 'both',  feel: 'cadence' },
+        'hero':          { frame: 'High', fold: 'no',  weight: 95, cat: 'fat',   feel: 'torque'  },
+        'heliof':        { frame: 'High', fold: 'yes', weight: 40, cat: 'road',  feel: 'cadence' },
+        'hybrid':        { frame: 'ST',   fold: 'no',  weight: 69, cat: 'road',  feel: 'both'    },
+        // Jasion
+        'Thunder pro':   { frame: 'High', fold: 'no',  weight: 82, cat: 'fat',   feel: 'cadence' },
+        'Thunder prost': { frame: 'ST',   fold: 'no',  weight: 82, cat: 'fat',   feel: 'cadence' },
+        'xhunter':       { frame: 'High', fold: 'yes', weight: 71, cat: 'fat',   feel: 'cadence' },
+        'hunterpro':     { frame: 'ST',   fold: 'yes', weight: 82, cat: 'fat',   feel: 'cadence' },
+        'hunter st':     { frame: 'ST',   fold: 'yes', weight: 71, cat: 'fat',   feel: 'cadence' },
+        'retrovolt pro': { frame: 'High', fold: 'no',  weight: 82, cat: 'fat',   feel: 'cadence' },
+        'thunder':       { frame: 'ST',   fold: 'no',  weight: 82, cat: 'fat',   feel: 'cadence' },
+        'eb720':         { frame: 'ST',   fold: 'yes', weight: 62, cat: 'road',  feel: 'cadence' },
+        'eb5 roamer':    { frame: 'High', fold: 'no',  weight: 44, cat: 'road',  feel: 'cadence' },
+        'eb5roamerst':   { frame: 'ST',   fold: 'no',  weight: 44, cat: 'road',  feel: 'cadence' },
+        // Velotric
+        'discover3':     { frame: 'ST',   fold: 'no',  weight: 61, cat: 'road',  feel: 'both'    },
+        'discoverM':     { frame: 'ST',   fold: 'no',  weight: 60, cat: 'road',  feel: 'torque'  },
+        'nomad2':        { frame: 'High', fold: 'no',  weight: 75, cat: 'fat',   feel: 'torque'  },
+        'nomad2x':       { frame: 'High', fold: 'no',  weight: 80, cat: 'fat',   feel: 'torque'  },
+        'summit2':       { frame: 'High', fold: 'no',  weight: 80, cat: 'fat',   feel: 'torque'  },
+        'fold1plus':     { frame: 'ST',   fold: 'yes', weight: 63, cat: 'fat',   feel: 'cadence' },
+        'fold1':         { frame: 'ST',   fold: 'yes', weight: 63, cat: 'fat',   feel: 'cadence' },
+        't1stplus':      { frame: 'High', fold: 'no',  weight: 39, cat: 'road',  feel: 'torque'  },
+        'triker':        { frame: 'ST',   fold: 'yes', weight: 86, cat: 'trike', feel: 'cadence' },
+        'breeze1':       { frame: 'ST',   fold: 'no',  weight: 48, cat: 'road',  feel: 'torque'  },
+        'summit1':       { frame: 'High', fold: 'no',  weight: 65, cat: 'fat',   feel: 'torque'  },
+        'tempo':         { frame: 'High', fold: 'no',  weight: 39, cat: 'road',  feel: 'torque'  },
+        'gomad':         { frame: 'ST',   fold: 'no',  weight: 77, cat: 'fat',   feel: 'torque'  }
+    };
+
+    let fleet = [];
+
+    function buildFleet(inventory) {
+        if (!Array.isArray(inventory)) { fleet = []; return; }
+        const discNames = JSON.parse(localStorage.getItem('ctc_discontinued_names') || '[]');
+        fleet = inventory
+            .filter(b => b.discontinued !== 'Yes' && b.discontinued !== true
+                       && !discNames.includes((b.name || '').toLowerCase().trim()))
+            .map(b => {
+                const cls = LOOKUP[b.id] || null;
+                const price = Number(b.price) || 0;
+                const motor = (b.specs && b.specs.Motor) || '—';
+                const budget = price < 1200 ? 'entry' : price < 1800 ? 'mid' : 'high';
+                return {
+                    name:   b.name,
+                    brand:  b.brand,
+                    price:  price,
+                    motor:  motor,
+                    budget: budget,
+                    frame:  cls ? cls.frame  : 'unknown',
+                    fold:   cls ? cls.fold   : 'unknown',
+                    weight: cls ? cls.weight : null,
+                    cat:    cls ? cls.cat    : 'road',
+                    feel:   cls ? cls.feel   : 'both',
+                    unclassified: !cls
+                };
+            });
+    }
+
+    function loadFleet() {
+        const cached = localStorage.getItem('ctc_quiz_inventory');
+        if (cached) {
+            try {
+                buildFleet(JSON.parse(cached));
+                updateRemainingBikes(1);
+            } catch (e) { /* ignore parse errors, wait for fresh fetch */ }
+        }
+        fetch(AS_URL + '?action=getBikeInventory', {redirect: 'follow'})
+            .then(r => r.json())
+            .then(data => {
+                localStorage.setItem('ctc_quiz_inventory', JSON.stringify(data));
+                buildFleet(data);
+                updateRemainingBikes(1);
+            })
+            .catch(e => console.warn('Quiz inventory fetch failed:', e));
+    }
 
     function next(step, key, val) {
         answers[key] = val;
@@ -245,13 +303,17 @@
             if (answers.feel) {
                 if (answers.feel === 'trike' && b.cat !== 'trike') return false;
                 if (answers.feel !== 'trike' && b.cat === 'trike') return false;
-                if (answers.feel === 'torque' && b.feel !== 'torque' && b.feel !== 'both') return false;
-                if (answers.feel === 'cadence' && b.feel !== 'cadence' && b.feel !== 'both') return false;
+                if (!b.unclassified) {
+                    if (answers.feel === 'torque' && b.feel !== 'torque' && b.feel !== 'both') return false;
+                    if (answers.feel === 'cadence' && b.feel !== 'cadence' && b.feel !== 'both') return false;
+                }
             }
             if (answers.budget && answers.budget !== 'none' && b.budget !== answers.budget) return false;
-            if (answers.frame && answers.frame !== 'none' && b.frame !== answers.frame) return false;
-            if (answers.fold && answers.fold !== 'none' && b.fold !== answers.fold) return false;
-            if (answers.weight === 'light' && b.weight > 55) return false;
+            if (!b.unclassified) {
+                if (answers.frame && answers.frame !== 'none' && b.frame !== answers.frame) return false;
+                if (answers.fold && answers.fold !== 'none' && b.fold !== answers.fold) return false;
+                if (answers.weight === 'light' && b.weight !== null && b.weight > 55) return false;
+            }
             return true;
         });
         const container = document.getElementById(`remaining-s${step}`);
@@ -264,11 +326,13 @@
     function calculateScore(bike) {
         let score = 0; let r = []; let gaps = [];
         if (answers.skill === 'no' && bike.cat !== 'trike') return null;
-        if (answers.weight === 'light' && bike.weight > 55) return null;
+        if (answers.weight === 'light' && !bike.unclassified && bike.weight !== null && bike.weight > 55) return null;
 
-        // Riding style (45 pts)
-        if (answers.feel === bike.feel || bike.feel === 'both' || (answers.feel === 'trike' && bike.cat === 'trike')) { 
-            score += 45; r.push("Perfect match for riding style"); 
+        // Riding style (45 pts) — skip if unclassified so the bike isn't penalised
+        if (bike.unclassified) {
+            gaps.push("New product — classifications pending");
+        } else if (answers.feel === bike.feel || bike.feel === 'both' || (answers.feel === 'trike' && bike.cat === 'trike')) {
+            score += 45; r.push("Perfect match for riding style");
         } else if (answers.feel === 'torque' && bike.feel === 'cadence') {
             gaps.push("Cadence sensor only — no torque/mid-drive response");
         } else if (answers.feel === 'cadence' && bike.feel === 'torque') {
@@ -288,35 +352,40 @@
             gaps.push("Outside your " + (budgetLabels[answers.budget] || "") + " budget range ($" + bike.price.toLocaleString() + ")");
         }
 
-        // Weight (40 pts)
-        if (answers.weight === 'light' && bike.weight <= 55) { 
-            score += 40; r.push("Lightweight priority (≤ 55 lbs)"); 
-        } else if (answers.weight === 'light') {
-            gaps.push("Heavier than preferred at " + bike.weight + " lbs (you wanted ≤ 55)");
-        } else if (answers.weight === 'moderate' && bike.weight > 70) {
-            gaps.push("On the heavier side at " + bike.weight + " lbs");
+        // Weight (40 pts) — skip if unclassified (no weight data yet)
+        if (!bike.unclassified && bike.weight !== null) {
+            if (answers.weight === 'light' && bike.weight <= 55) {
+                score += 40; r.push("Lightweight priority (≤ 55 lbs)");
+            } else if (answers.weight === 'light') {
+                gaps.push("Heavier than preferred at " + bike.weight + " lbs (you wanted ≤ 55)");
+            } else if (answers.weight === 'moderate' && bike.weight > 70) {
+                gaps.push("On the heavier side at " + bike.weight + " lbs");
+            }
         }
 
         // Frame check
-        if (answers.frame && answers.frame !== 'none' && bike.frame !== answers.frame) {
+        if (!bike.unclassified && answers.frame && answers.frame !== 'none' && bike.frame !== answers.frame) {
             gaps.push("Only available in " + (bike.frame === 'ST' ? 'Step-Thru' : 'High-Step') + " frame");
         }
 
         // Fold check
-        if (answers.fold && answers.fold !== 'none') {
+        if (!bike.unclassified && answers.fold && answers.fold !== 'none') {
             if (answers.fold === 'yes' && bike.fold === 'no') gaps.push("Non-folding frame");
             if (answers.fold === 'no' && bike.fold === 'yes') gaps.push("Folding frame (you preferred rigid)");
         }
 
         // Terrain check
-        if (answers.terrain === 'rough' && bike.cat === 'road') {
-            gaps.push("Road-focused — not ideal for rough/off-road terrain");
-        } else if (answers.terrain === 'paved' && bike.cat === 'fat') {
-            gaps.push("Fat-tire/off-road build — more bike than needed for paved riding");
+        if (!bike.unclassified) {
+            if (answers.terrain === 'rough' && bike.cat === 'road') {
+                gaps.push("Road-focused — not ideal for rough/off-road terrain");
+            } else if (answers.terrain === 'paved' && bike.cat === 'fat') {
+                gaps.push("Fat-tire/off-road build — more bike than needed for paved riding");
+            }
         }
 
         // Priority check
-        if (answers.priority === '1000w' && !bike.motor.toLowerCase().includes('1000') && !bike.motor.toLowerCase().includes('1100') && !bike.motor.toLowerCase().includes('1200')) {
+        const motorStr = (bike.motor || '').toLowerCase();
+        if (answers.priority === '1000w' && !motorStr.includes('1000') && !motorStr.includes('1100') && !motorStr.includes('1200')) {
             gaps.push("Motor under 1000W (" + bike.motor + ")");
         } else if (answers.priority === 'quality' && bike.budget === 'entry') {
             gaps.push("Entry-level build — may lack premium components");
@@ -350,8 +419,10 @@
             const gapsHtml = bike.meta.gaps.length > 0 
                 ? `<div style="margin-top:10px; padding-top:10px; border-top:1px dashed #ddd;"><div style="font-weight:600; color:#b5651d; margin-bottom:5px; font-size:0.8rem;">WHY NOT 100%:</div>${bike.meta.gaps.map(g => `<div style="color:#996633;">✕ ${g}</div>`).join('')}</div>` 
                 : '';
+            const weightCell = bike.weight !== null ? bike.weight + ' lbs' : '—';
+            const frameCell  = bike.frame === 'ST' ? 'Step-Thru' : (bike.frame === 'High' ? 'High-Step' : '—');
             container.innerHTML += `<div class="bike-result"><div class="match-badge">${p}% Match</div><h3>${bike.brand} ${bike.name}</h3><div class="price-tag">$${bike.price.toLocaleString()}</div><div class="reasoning-box">${bike.meta.reasons.map(reason => `<div>✓ ${reason}</div>`).join('')}${gapsHtml}</div></div>`;
-            tableBody.innerHTML += `<tr><td><strong>${bike.brand} ${bike.name}</strong></td><td>$${bike.price.toLocaleString()}</td><td>${bike.weight} lbs</td><td>${bike.motor}</td><td>${bike.frame === 'ST' ? 'Step-Thru' : 'High-Step'}</td></tr>`;
+            tableBody.innerHTML += `<tr><td><strong>${bike.brand} ${bike.name}</strong></td><td>$${bike.price.toLocaleString()}</td><td>${weightCell}</td><td>${bike.motor}</td><td>${frameCell}</td></tr>`;
         });
 
         document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
@@ -359,7 +430,7 @@
         document.getElementById('progressBar').style.width = '100%';
     }
 
-    window.onload = () => updateRemainingBikes(1);
+    window.onload = () => loadFleet();
 </script>
 </body>
 </html>
