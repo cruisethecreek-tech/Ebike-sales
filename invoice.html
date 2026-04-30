@@ -701,6 +701,7 @@
 
     <script>
         const TAX_RATE = 0.0575; // 5.75%
+        const AS_URL = 'https://script.google.com/macros/s/AKfycbyxVMuFEUeR8_YqM1VVnfPSVPnDhdCs_63dDthZ4jODlTDGQ-7yXSkQeYT-Ux0SM8tw/exec';
 
         // Initialize
         const today = new Date();
@@ -905,6 +906,7 @@
                     showStatus(`✓ Payment link created for ${invoiceData.customerName}`, 'success');
                     document.getElementById('paymentLinkDisplay').textContent = data.paymentLink;
                     document.getElementById('paymentLinkBox').classList.add('active');
+                    logOrderToSheet(invoiceData);
                 } else {
                     showStatus(data.error || 'Failed to create payment link', 'error');
                 }
@@ -913,6 +915,24 @@
             } finally {
                 submitBtn.disabled = false;
             }
+        }
+
+        function logOrderToSheet(invoiceData) {
+            const nameParts = invoiceData.customerName.trim().split(' ');
+            const firstName = nameParts[0] || '';
+            const lastName  = nameParts.slice(1).join(' ') || '';
+            const model     = invoiceData.items.map(i => i.description).join(', ') || 'Invoice';
+            const params = new URLSearchParams({
+                action : 'addOrder',
+                date   : new Date().toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' }),
+                first  : firstName,
+                last   : lastName,
+                model  : model,
+                color  : invoiceData.invoiceNumber,
+                price  : invoiceData.total.toFixed(2),
+                email  : invoiceData.customerEmail
+            });
+            fetch(AS_URL + '?' + params.toString(), { redirect: 'follow' }).catch(() => {});
         }
 
         function showStatus(message, type = 'success') {
