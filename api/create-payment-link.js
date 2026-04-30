@@ -2,23 +2,34 @@
 // Vercel Serverless Function
 // Creates Stripe Payment Links securely using environment variables
 
+const ALLOWED_ORIGINS = [
+  'https://ebike-sales.pages.dev',
+  'https://www.cruisethecreek.com',
+  'https://cruisethecreek.com'
+];
+
 export default async function handler(req, res) {
-  // Only allow POST requests
+  // ── 1. CORS HEADERS — must be set BEFORE any return ────────
+  const origin = req.headers.origin || '';
+  const allowedOrigin = ALLOWED_ORIGINS.includes(origin) ? origin : ALLOWED_ORIGINS[0];
+
+  res.setHeader('Access-Control-Allow-Origin', allowedOrigin);
+  res.setHeader('Access-Control-Allow-Credentials', 'true');
+  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Accept, X-Requested-With');
+  res.setHeader('Vary', 'Origin');
+
+  // ── 2. OPTIONS preflight — must respond 204 with headers ───
+  if (req.method === 'OPTIONS') {
+    return res.status(204).end();
+  }
+
+  // ── 3. Reject non-POST methods (after CORS headers set) ────
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  // Enable CORS
-  res.setHeader('Access-Control-Allow-Credentials', 'true');
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
-  res.setHeader('Access-Control-Allow-Headers', 'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version');
-
-  if (req.method === 'OPTIONS') {
-    res.status(200).end();
-    return;
-  }
-
+  // ── 4. Handle the POST ─────────────────────────────────────
   try {
     const { customerName, customerEmail, invoiceNumber, total, items } = req.body;
 
