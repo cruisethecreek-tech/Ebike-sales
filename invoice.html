@@ -15,12 +15,10 @@
             --bg: #0f0f0f;
             --fg: #f8f8f8;
             --accent: #00d9ff;
-            --accent-dark: #0099bb;
             --border: #2a2a2a;
             --input-bg: #1a1a1a;
             --success: #00d966;
             --error: #ff4444;
-            --warning: #ffaa00;
         }
 
         body {
@@ -33,13 +31,16 @@
         }
 
         .container {
-            max-width: 900px;
+            max-width: 1400px;
             margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
         }
 
         header {
-            margin-bottom: 3rem;
-            animation: slideDown 0.5s ease-out;
+            grid-column: 1 / -1;
+            margin-bottom: 2rem;
         }
 
         h1 {
@@ -60,21 +61,28 @@
             background: var(--input-bg);
             border: 1px solid var(--border);
             padding: 2rem;
-            animation: fadeIn 0.6s ease-out 0.1s both;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .invoice-preview {
+            background: white;
+            color: #000;
+            border: 1px solid #ccc;
+            padding: 2rem;
+            font-family: Arial, sans-serif;
+            max-height: 90vh;
+            overflow-y: auto;
         }
 
         .form-section {
-            margin-bottom: 2.5rem;
-        }
-
-        .form-section:last-of-type {
-            margin-bottom: 0;
+            margin-bottom: 2rem;
         }
 
         .section-title {
             font-size: 0.95rem;
             letter-spacing: 1px;
-            margin-bottom: 1.2rem;
+            margin-bottom: 1rem;
             color: var(--accent);
             text-transform: uppercase;
             border-left: 3px solid var(--accent);
@@ -84,8 +92,8 @@
         .form-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 1.5rem;
-            margin-bottom: 1.5rem;
+            gap: 1rem;
+            margin-bottom: 1rem;
         }
 
         .form-grid.full {
@@ -120,12 +128,6 @@
             outline: none;
             border-color: var(--accent);
             box-shadow: 0 0 0 2px rgba(0, 217, 255, 0.1);
-            background: rgba(0, 217, 255, 0.02);
-        }
-
-        textarea {
-            resize: vertical;
-            min-height: 80px;
         }
 
         .line-items-wrapper {
@@ -137,14 +139,10 @@
 
         .line-item {
             display: grid;
-            grid-template-columns: 2fr 1fr 1fr auto;
+            grid-template-columns: 2fr 0.8fr 1fr auto;
             gap: 1rem;
             margin-bottom: 1rem;
             align-items: end;
-        }
-
-        .line-item:last-child {
-            margin-bottom: 0;
         }
 
         .line-item input {
@@ -163,12 +161,10 @@
             font-size: 0.85rem;
             transition: all 0.3s ease;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
         }
 
         .remove-btn:hover {
             background: #ff6666;
-            transform: scale(1.05);
         }
 
         .add-line-btn {
@@ -190,33 +186,11 @@
             color: var(--bg);
         }
 
-        .totals-box {
-            background: var(--bg);
-            border: 1px solid var(--accent);
-            padding: 1.2rem;
-            margin-bottom: 2rem;
-        }
-
-        .total-row {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 0.6rem;
-            font-size: 0.95rem;
-        }
-
-        .total-row.final {
-            border-top: 2px solid var(--accent);
-            padding-top: 0.8rem;
-            margin-top: 0.8rem;
-            font-size: 1.3rem;
-            font-weight: bold;
-            color: var(--accent);
-        }
-
         .actions {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 1.5rem;
+            gap: 1rem;
+            grid-column: 1 / -1;
         }
 
         button {
@@ -234,12 +208,12 @@
         .btn-primary {
             background: var(--accent);
             color: var(--bg);
+            grid-column: 2;
         }
 
         .btn-primary:hover:not(:disabled) {
             background: var(--fg);
             transform: translateY(-2px);
-            box-shadow: 0 8px 16px rgba(0, 217, 255, 0.25);
         }
 
         .btn-primary:disabled {
@@ -250,12 +224,12 @@
         .btn-secondary {
             background: transparent;
             color: var(--accent);
+            grid-column: 1;
         }
 
         .btn-secondary:hover {
             background: var(--accent);
             color: var(--bg);
-            transform: translateY(-2px);
         }
 
         .status-message {
@@ -265,8 +239,7 @@
             background: rgba(0, 217, 102, 0.05);
             color: var(--success);
             display: none;
-            animation: slideIn 0.4s ease-out;
-            font-size: 0.9rem;
+            grid-column: 1 / -1;
         }
 
         .status-message.active {
@@ -279,31 +252,17 @@
             color: var(--error);
         }
 
-        .status-message.loading {
-            border-left-color: var(--warning);
-            background: rgba(255, 170, 0, 0.05);
-            color: var(--warning);
-        }
-
         .payment-link-box {
             background: var(--bg);
             border: 1px solid var(--accent);
             padding: 1.5rem;
             margin-top: 1.5rem;
             display: none;
+            grid-column: 1 / -1;
         }
 
         .payment-link-box.active {
             display: block;
-            animation: slideIn 0.4s ease-out;
-        }
-
-        .payment-link-label {
-            font-size: 0.85rem;
-            letter-spacing: 0.5px;
-            margin-bottom: 1rem;
-            color: var(--accent);
-            text-transform: uppercase;
         }
 
         .payment-link-display {
@@ -314,13 +273,9 @@
             font-size: 0.85rem;
             font-family: monospace;
             color: var(--accent);
-            cursor: pointer;
-            transition: all 0.3s ease;
             margin-bottom: 1rem;
-        }
-
-        .payment-link-display:hover {
-            background: rgba(0, 217, 255, 0.2);
+            max-height: 200px;
+            overflow-y: auto;
         }
 
         .copy-btn {
@@ -334,7 +289,6 @@
             font-family: 'Courier New', monospace;
             font-weight: bold;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
             margin-right: 0.5rem;
         }
 
@@ -346,62 +300,153 @@
             background: var(--success);
         }
 
-        .open-btn {
-            background: transparent;
-            border: 1px solid var(--accent);
-            color: var(--accent);
-            padding: 0.7rem 1.5rem;
-            font-size: 0.85rem;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            font-family: 'Courier New', monospace;
-            font-weight: bold;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
+        /* Invoice Preview Styles */
+        .invoice-logo {
+            max-width: 150px;
+            margin-bottom: 1rem;
         }
 
-        .open-btn:hover {
-            background: var(--accent);
-            color: var(--bg);
-        }
-
-        .button-group {
+        .invoice-header {
             display: flex;
+            justify-content: space-between;
+            margin-bottom: 2rem;
+            border-bottom: 2px solid #333;
+            padding-bottom: 1rem;
+        }
+
+        .invoice-title {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #000;
+        }
+
+        .invoice-number {
+            text-align: right;
+            font-size: 0.9rem;
+        }
+
+        .invoice-info {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .info-section h3 {
+            font-size: 0.9rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            color: #333;
+        }
+
+        .info-section p {
+            font-size: 0.85rem;
+            line-height: 1.6;
+            color: #555;
+        }
+
+        .invoice-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 2rem;
+        }
+
+        .invoice-table th {
+            background: #f0f0f0;
+            border-bottom: 2px solid #333;
+            padding: 0.8rem;
+            text-align: left;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+
+        .invoice-table td {
+            border-bottom: 1px solid #ddd;
+            padding: 0.8rem;
+            font-size: 0.9rem;
+        }
+
+        .invoice-table tr:last-child td {
+            border-bottom: 2px solid #333;
+        }
+
+        .amount {
+            text-align: right;
+        }
+
+        .totals {
+            display: flex;
+            justify-content: flex-end;
+            gap: 3rem;
+            margin-bottom: 2rem;
+            font-size: 0.95rem;
+        }
+
+        .totals-column {
+            display: flex;
+            flex-direction: column;
             gap: 0.5rem;
-            margin-top: 1rem;
+            min-width: 180px;
         }
 
-        @keyframes slideDown {
-            from {
-                opacity: 0;
-                transform: translateY(-20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+        .total-row {
+            display: flex;
+            justify-content: space-between;
+            gap: 2rem;
         }
 
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
+        .total-label {
+            font-weight: normal;
         }
 
-        @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateX(-20px);
+        .total-amount {
+            text-align: right;
+            font-weight: bold;
+        }
+
+        .grand-total {
+            border-top: 2px solid #333;
+            padding-top: 0.5rem;
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: #000;
+        }
+
+        .deposit-section {
+            background: #f9f9f9;
+            border-left: 3px solid #333;
+            padding: 1rem;
+            margin-bottom: 2rem;
+            font-size: 0.9rem;
+        }
+
+        .deposit-row {
+            display: flex;
+            justify-content: space-between;
+            gap: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .notes {
+            background: #f9f9f9;
+            padding: 1rem;
+            border-left: 3px solid #333;
+            font-size: 0.85rem;
+            line-height: 1.6;
+            color: #555;
+        }
+
+        @media (max-width: 1200px) {
+            .container {
+                grid-template-columns: 1fr;
             }
-            to {
-                opacity: 1;
-                transform: translateX(0);
+            .invoice-preview {
+                margin-top: 2rem;
             }
         }
 
         @media (max-width: 768px) {
-            h1 {
-                font-size: 1.6rem;
-            }
             .form-grid {
                 grid-template-columns: 1fr;
             }
@@ -411,46 +456,66 @@
             .actions {
                 grid-template-columns: 1fr;
             }
-            .form-wrapper {
-                padding: 1.5rem;
+            .btn-primary {
+                grid-column: 1;
             }
-            .button-group {
-                flex-direction: column;
+            .btn-secondary {
+                grid-column: 1;
             }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1>CRUISE THE CREEK</h1>
-            <p class="subtitle">// automated invoice generator</p>
-        </header>
+    <header>
+        <h1>CRUISE THE CREEK</h1>
+        <p class="subtitle">// professional invoice generator</p>
+    </header>
 
+    <div class="container">
+        <!-- Form Section -->
         <div class="form-wrapper">
             <form id="invoiceForm">
-                <!-- Customer Info -->
+                <!-- Business Info -->
                 <div class="form-section">
-                    <div class="section-title">Customer Info</div>
-                    <div class="form-grid">
-                        <div class="form-group">
-                            <label for="customerName">Customer Name *</label>
-                            <input type="text" id="customerName" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="customerEmail">Email *</label>
-                            <input type="email" id="customerEmail" required>
-                        </div>
+                    <div class="section-title">Business Info</div>
+                    <div class="form-group">
+                        <label>Business Name</label>
+                        <input type="text" id="businessName" value="Cruise the Creek" readonly style="opacity: 0.7;">
                     </div>
                     <div class="form-grid">
                         <div class="form-group">
-                            <label for="customerPhone">Phone</label>
-                            <input type="tel" id="customerPhone">
+                            <label>Phone</label>
+                            <input type="tel" id="businessPhone" value="(330) 555-0123" readonly style="opacity: 0.7;">
                         </div>
                         <div class="form-group">
-                            <label for="customerAddress">Address</label>
-                            <input type="text" id="customerAddress">
+                            <label>Email</label>
+                            <input type="email" id="businessEmail" value="cruisethecreek@gmail.com" readonly style="opacity: 0.7;">
                         </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Address</label>
+                        <input type="text" id="businessAddress" value="2706 Bears Den Ave, Youngstown, OH 44505" readonly style="opacity: 0.7;">
+                    </div>
+                </div>
+
+                <!-- Customer Info -->
+                <div class="form-section">
+                    <div class="section-title">Bill To</div>
+                    <div class="form-group">
+                        <label for="customerName">Customer Name *</label>
+                        <input type="text" id="customerName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="customerEmail">Email *</label>
+                        <input type="email" id="customerEmail" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="customerPhone">Phone *</label>
+                        <input type="tel" id="customerPhone" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="customerAddress">Address *</label>
+                        <input type="text" id="customerAddress" placeholder="Street address, city, state, zip" required>
                     </div>
                 </div>
 
@@ -469,12 +534,12 @@
                     </div>
                     <div class="form-grid">
                         <div class="form-group">
-                            <label for="dueDate">Due Date</label>
-                            <input type="date" id="dueDate">
+                            <label for="dueDate">Due Date *</label>
+                            <input type="date" id="dueDate" required>
                         </div>
                         <div class="form-group">
                             <label for="notes">Payment Notes</label>
-                            <input type="text" id="notes" placeholder="e.g., 50% deposit due, balance on pickup">
+                            <input type="text" id="notes" placeholder="e.g., Balance due at pickup">
                         </div>
                     </div>
                 </div>
@@ -502,49 +567,141 @@
                     <button type="button" class="add-line-btn" onclick="addLineItem()">+ Add Item</button>
                 </div>
 
-                <!-- Totals -->
+                <!-- Discounts -->
                 <div class="form-section">
-                    <div class="totals-box">
-                        <div class="total-row">
-                            <span>Subtotal:</span>
-                            <span id="subtotal">$0.00</span>
+                    <div class="section-title">Discounts & Deposits</div>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="discountPercent">Discount %</label>
+                            <input type="number" id="discountPercent" step="0.01" placeholder="0" min="0" max="100">
                         </div>
-                        <div class="total-row">
-                            <span>Tax:</span>
-                            <span id="tax">$0.00</span>
+                        <div class="form-group">
+                            <label for="discountFixed">Discount $ (Fixed)</label>
+                            <input type="number" id="discountFixed" step="0.01" placeholder="0" min="0">
                         </div>
-                        <div class="total-row final">
-                            <span>TOTAL DUE:</span>
-                            <span id="total">$0.00</span>
+                    </div>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="depositAmount">Deposit Amount Due Now ($)</label>
+                            <input type="number" id="depositAmount" step="0.01" placeholder="0" min="0">
                         </div>
                     </div>
                 </div>
 
                 <!-- Actions -->
-                <div class="form-section">
-                    <div class="actions">
-                        <button type="button" class="btn-secondary" onclick="resetForm()">Reset</button>
-                        <button type="submit" class="btn-primary" id="submitBtn">Create Payment Link</button>
-                    </div>
+                <div class="actions">
+                    <button type="button" class="btn-secondary" onclick="resetForm()">Reset</button>
+                    <button type="submit" class="btn-primary" id="submitBtn">Create Payment Link</button>
+                </div>
+
+                <!-- Status Messages -->
+                <div class="status-message" id="statusMessage"></div>
+
+                <!-- Payment Link Display -->
+                <div class="payment-link-box" id="paymentLinkBox">
+                    <div style="margin-bottom: 1rem; font-size: 0.85rem; color: var(--accent); text-transform: uppercase; letter-spacing: 0.5px;">Payment Link Ready</div>
+                    <div class="payment-link-display" id="paymentLinkDisplay"></div>
+                    <button type="button" class="copy-btn" onclick="copyPaymentLink()">Copy Link</button>
+                    <button type="button" class="copy-btn" onclick="openPaymentLink()" style="background: transparent; color: var(--accent); border: 1px solid var(--accent);">Open in Browser</button>
                 </div>
             </form>
+        </div>
 
-            <!-- Status Messages -->
-            <div class="status-message" id="statusMessage"></div>
+        <!-- Invoice Preview -->
+        <div class="invoice-preview" id="invoicePreview">
+            <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==" id="logoImage" alt="Logo" class="invoice-logo" style="display: none;">
 
-            <!-- Payment Link Display -->
-            <div class="payment-link-box" id="paymentLinkBox">
-                <div class="payment-link-label">Payment Link Ready — Share with Customer:</div>
-                <div class="payment-link-display" id="paymentLinkDisplay"></div>
-                <div class="button-group">
-                    <button type="button" class="copy-btn" onclick="copyPaymentLink()">Copy Link</button>
-                    <button type="button" class="open-btn" onclick="openPaymentLink()">Open in Browser</button>
+            <div class="invoice-header">
+                <div class="invoice-title">INVOICE</div>
+                <div class="invoice-number">
+                    <strong id="previewInvoiceNum">INV-001</strong><br>
+                    <span id="previewInvoiceDate">04/30/2026</span>
                 </div>
             </div>
+
+            <div class="invoice-info">
+                <div class="info-section">
+                    <h3>From:</h3>
+                    <p>
+                        <strong>Cruise the Creek</strong><br>
+                        2706 Bears Den Ave<br>
+                        Youngstown, OH 44505<br>
+                        <br>
+                        Phone: (330) 555-0123<br>
+                        Email: cruisethecreek@gmail.com
+                    </p>
+                </div>
+                <div class="info-section">
+                    <h3>Bill To:</h3>
+                    <p>
+                        <strong id="previewCustomerName">Customer Name</strong><br>
+                        <span id="previewCustomerAddress">Address</span><br>
+                        <br>
+                        Phone: <span id="previewCustomerPhone">Phone</span><br>
+                        Email: <span id="previewCustomerEmail">email@example.com</span>
+                    </p>
+                </div>
+            </div>
+
+            <table class="invoice-table">
+                <thead>
+                    <tr>
+                        <th>Description</th>
+                        <th style="text-align: center;">Qty</th>
+                        <th class="amount">Unit Price</th>
+                        <th class="amount">Amount</th>
+                    </tr>
+                </thead>
+                <tbody id="previewItems">
+                    <tr>
+                        <td colspan="4" style="text-align: center; color: #999;">Items will appear here</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="totals">
+                <div class="totals-column">
+                    <div class="total-row">
+                        <span class="total-label">Subtotal:</span>
+                        <span class="total-amount" id="previewSubtotal">$0.00</span>
+                    </div>
+                    <div class="total-row" id="discountRow" style="display: none;">
+                        <span class="total-label">Discount:</span>
+                        <span class="total-amount" id="previewDiscount">-$0.00</span>
+                    </div>
+                    <div class="total-row">
+                        <span class="total-label">Subtotal after discount:</span>
+                        <span class="total-amount" id="previewSubtotalAfterDiscount">$0.00</span>
+                    </div>
+                    <div class="total-row">
+                        <span class="total-label">Tax (5.75%):</span>
+                        <span class="total-amount" id="previewTax">$0.00</span>
+                    </div>
+                    <div class="total-row grand-total">
+                        <span class="total-label">Total Due:</span>
+                        <span class="total-amount" id="previewTotal">$0.00</span>
+                    </div>
+                </div>
+            </div>
+
+            <div id="depositSection" class="deposit-section" style="display: none;">
+                <div class="deposit-row">
+                    <span>Deposit Due Now:</span>
+                    <strong id="previewDeposit">$0.00</strong>
+                </div>
+                <div class="deposit-row">
+                    <span>Balance Due:</span>
+                    <strong id="previewBalance">$0.00</strong>
+                </div>
+            </div>
+
+            <div id="previewNotes" class="notes" style="display: none;"></div>
         </div>
     </div>
 
     <script>
+        const TAX_RATE = 0.0575; // 5.75%
+
         // Initialize
         const today = new Date();
         document.getElementById('invoiceDate').valueAsDate = today;
@@ -555,8 +712,8 @@
 
         // Event listeners
         document.getElementById('invoiceForm').addEventListener('submit', handleSubmit);
-        document.getElementById('lineItemsContainer').addEventListener('change', calculateTotals);
-        document.getElementById('lineItemsContainer').addEventListener('input', calculateTotals);
+        document.getElementById('invoiceForm').addEventListener('change', updateInvoicePreview);
+        document.getElementById('invoiceForm').addEventListener('input', updateInvoicePreview);
 
         function addLineItem() {
             const container = document.getElementById('lineItemsContainer');
@@ -575,12 +732,12 @@
                 <button type="button" class="remove-btn" onclick="removeLineItem(this)">Remove</button>
             `;
             container.appendChild(newItem);
-            calculateTotals();
+            updateInvoicePreview();
         }
 
         function removeLineItem(btn) {
             btn.parentElement.remove();
-            calculateTotals();
+            updateInvoicePreview();
         }
 
         function calculateTotals() {
@@ -593,39 +750,122 @@
                 subtotal += qty * price;
             });
 
-            const tax = 0;
-            const total = subtotal + tax;
+            // Apply discounts (subtotal → discount → tax)
+            const discountPercent = parseFloat(document.getElementById('discountPercent').value) || 0;
+            const discountFixed = parseFloat(document.getElementById('discountFixed').value) || 0;
 
-            document.getElementById('subtotal').textContent = '$' + subtotal.toFixed(2);
-            document.getElementById('tax').textContent = '$' + tax.toFixed(2);
-            document.getElementById('total').textContent = '$' + total.toFixed(2);
+            const discountAmount = (subtotal * (discountPercent / 100)) + discountFixed;
+            const subtotalAfterDiscount = subtotal - discountAmount;
+
+            const tax = subtotalAfterDiscount * TAX_RATE;
+            const total = subtotalAfterDiscount + tax;
+
+            const deposit = parseFloat(document.getElementById('depositAmount').value) || 0;
+            const balance = total - deposit;
+
+            return { subtotal, discountAmount, subtotalAfterDiscount, tax, total, deposit, balance };
+        }
+
+        function updateInvoicePreview() {
+            // Customer info
+            document.getElementById('previewCustomerName').textContent = document.getElementById('customerName').value || 'Customer Name';
+            document.getElementById('previewCustomerAddress').textContent = document.getElementById('customerAddress').value || 'Address';
+            document.getElementById('previewCustomerPhone').textContent = document.getElementById('customerPhone').value || 'Phone';
+            document.getElementById('previewCustomerEmail').textContent = document.getElementById('customerEmail').value || 'email@example.com';
+
+            // Invoice details
+            document.getElementById('previewInvoiceNum').textContent = document.getElementById('invoiceNumber').value || 'INV-001';
+            document.getElementById('previewInvoiceDate').textContent = new Date(document.getElementById('invoiceDate').value).toLocaleDateString() || '04/30/2026';
+
+            // Line items
+            const itemsContainer = document.getElementById('previewItems');
+            itemsContainer.innerHTML = '';
+
+            const items = document.querySelectorAll('.line-item');
+            if (items.length === 0) {
+                itemsContainer.innerHTML = '<tr><td colspan="4" style="text-align: center; color: #999;">No items added</td></tr>';
+            } else {
+                items.forEach(item => {
+                    const desc = item.querySelector('.description').value || 'Item';
+                    const qty = item.querySelector('.quantity').value || '0';
+                    const price = parseFloat(item.querySelector('.price').value) || 0;
+                    const amount = (qty * price).toFixed(2);
+
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${desc}</td>
+                        <td style="text-align: center;">${qty}</td>
+                        <td class="amount">$${price.toFixed(2)}</td>
+                        <td class="amount">$${amount}</td>
+                    `;
+                    itemsContainer.appendChild(row);
+                });
+            }
+
+            // Totals
+            const { subtotal, discountAmount, subtotalAfterDiscount, tax, total, deposit, balance } = calculateTotals();
+            
+            document.getElementById('previewSubtotal').textContent = '$' + subtotal.toFixed(2);
+            
+            // Show discount row only if there's a discount
+            const discountRow = document.getElementById('discountRow');
+            if (discountAmount > 0) {
+                discountRow.style.display = 'flex';
+                document.getElementById('previewDiscount').textContent = '-$' + discountAmount.toFixed(2);
+            } else {
+                discountRow.style.display = 'none';
+            }
+            
+            document.getElementById('previewSubtotalAfterDiscount').textContent = '$' + subtotalAfterDiscount.toFixed(2);
+            document.getElementById('previewTax').textContent = '$' + tax.toFixed(2);
+            document.getElementById('previewTotal').textContent = '$' + total.toFixed(2);
+
+            // Deposit section
+            const depositSection = document.getElementById('depositSection');
+            if (deposit > 0) {
+                depositSection.style.display = 'block';
+                document.getElementById('previewDeposit').textContent = '$' + deposit.toFixed(2);
+                document.getElementById('previewBalance').textContent = '$' + balance.toFixed(2);
+            } else {
+                depositSection.style.display = 'none';
+            }
+
+            // Notes
+            const notes = document.getElementById('notes').value;
+            const notesDiv = document.getElementById('previewNotes');
+            if (notes) {
+                notesDiv.textContent = 'Notes: ' + notes;
+                notesDiv.style.display = 'block';
+            } else {
+                notesDiv.style.display = 'none';
+            }
         }
 
         function resetForm() {
             document.getElementById('invoiceForm').reset();
             document.getElementById('paymentLinkBox').classList.remove('active');
-            document.getElementById('statusMessage').classList.remove('active', 'error', 'loading');
-            calculateTotals();
+            document.getElementById('statusMessage').classList.remove('active', 'error');
             
             const today = new Date();
             document.getElementById('invoiceDate').valueAsDate = today;
             const dueDate = new Date(today);
             dueDate.setDate(dueDate.getDate() + 14);
             document.getElementById('dueDate').valueAsDate = dueDate;
+            
+            updateInvoicePreview();
         }
 
         async function handleSubmit(e) {
             e.preventDefault();
 
             const submitBtn = document.getElementById('submitBtn');
-            const total = parseFloat(document.getElementById('total').textContent.replace('$', ''));
+            const { subtotal, tax, total } = calculateTotals();
 
             if (total <= 0) {
                 showStatus('Total must be greater than $0', 'error');
                 return;
             }
 
-            // Collect form data
             const invoiceData = {
                 customerName: document.getElementById('customerName').value,
                 customerEmail: document.getElementById('customerEmail').value,
@@ -651,7 +891,6 @@
             submitBtn.disabled = true;
 
             try {
-                // Call Vercel API endpoint
                 const response = await fetch('https://ebike-sales-nu.vercel.app/api/create-payment-link', {
                     method: 'POST',
                     headers: {
@@ -700,7 +939,8 @@
             window.open(link, '_blank');
         }
 
-        calculateTotals();
+        // Initial preview
+        updateInvoicePreview();
     </script>
 </body>
 </html>
