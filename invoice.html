@@ -186,6 +186,70 @@
             color: var(--bg);
         }
 
+        .picker {
+            display: grid;
+            grid-template-columns: 130px 1fr auto;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            align-items: end;
+        }
+
+        .picker select {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            color: var(--fg);
+            padding: 0.7rem;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            cursor: pointer;
+        }
+
+        .picker select:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        .picker select:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .add-from-picker-btn {
+            background: var(--accent);
+            color: var(--bg);
+            border: none;
+            padding: 0.7rem 1rem;
+            cursor: pointer;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+        }
+
+        .add-from-picker-btn:hover:not(:disabled) {
+            background: var(--fg);
+        }
+
+        .add-from-picker-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .picker-status {
+            font-size: 0.75rem;
+            color: var(--accent);
+            opacity: 0.7;
+            margin-bottom: 0.75rem;
+        }
+
+        @media (max-width: 768px) {
+            .picker {
+                grid-template-columns: 1fr;
+            }
+        }
+
         .actions {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -547,24 +611,26 @@
                 <!-- Line Items -->
                 <div class="form-section">
                     <div class="section-title">Items & Services</div>
-                    <div class="line-items-wrapper" id="lineItemsContainer">
-                        <div class="line-item">
-                            <div class="form-group">
-                                <label>Description *</label>
-                                <input type="text" class="description" placeholder="e.g., Heybike Ranger S rental" required>
-                            </div>
-                            <div class="form-group">
-                                <label>Qty</label>
-                                <input type="number" class="quantity" value="1" min="1" required>
-                            </div>
-                            <div class="form-group">
-                                <label>Price ($) *</label>
-                                <input type="number" class="price" step="0.01" placeholder="0.00" required>
-                            </div>
-                            <button type="button" class="remove-btn" onclick="removeLineItem(this)">Remove</button>
-                        </div>
+
+                    <div class="picker-status" id="pickerStatus">Loading catalog…</div>
+                    <div class="picker">
+                        <select id="categoryPicker">
+                            <option value="">Category…</option>
+                            <option value="bike">Bike</option>
+                            <option value="accessory">Accessory</option>
+                            <option value="apparel">Apparel</option>
+                            <option value="custom">Custom (free text)</option>
+                        </select>
+                        <select id="itemPicker" disabled>
+                            <option value="">Pick a category first</option>
+                        </select>
+                        <button type="button" class="add-from-picker-btn" id="addFromPickerBtn" disabled onclick="addFromPicker()">Add to Invoice</button>
                     </div>
-                    <button type="button" class="add-line-btn" onclick="addLineItem()">+ Add Item</button>
+
+                    <div class="line-items-wrapper" id="lineItemsContainer">
+                        <!-- Line items added via picker above -->
+                    </div>
+                    <button type="button" class="add-line-btn" onclick="addLineItem()">+ Add Empty Row</button>
                 </div>
 
                 <!-- Discounts -->
@@ -716,19 +782,22 @@
         document.getElementById('invoiceForm').addEventListener('change', updateInvoicePreview);
         document.getElementById('invoiceForm').addEventListener('input', updateInvoicePreview);
 
-        function addLineItem() {
+        function addLineItem(description, qty, price) {
             const container = document.getElementById('lineItemsContainer');
             const newItem = document.createElement('div');
             newItem.className = 'line-item';
+            const safeDesc = (description != null) ? String(description).replace(/"/g, '&quot;') : '';
+            const safeQty  = (qty != null && !isNaN(qty)) ? qty : 1;
+            const safePrice = (price != null && !isNaN(price)) ? Number(price).toFixed(2) : '';
             newItem.innerHTML = `
                 <div class="form-group">
-                    <input type="text" class="description" placeholder="Description" required>
+                    <input type="text" class="description" placeholder="Description" value="${safeDesc}" required>
                 </div>
                 <div class="form-group">
-                    <input type="number" class="quantity" value="1" min="1" required>
+                    <input type="number" class="quantity" value="${safeQty}" min="1" required>
                 </div>
                 <div class="form-group">
-                    <input type="number" class="price" step="0.01" placeholder="0.00" required>
+                    <input type="number" class="price" step="0.01" placeholder="0.00" value="${safePrice}" required>
                 </div>
                 <button type="button" class="remove-btn" onclick="removeLineItem(this)">Remove</button>
             `;
@@ -846,13 +915,19 @@
             document.getElementById('invoiceForm').reset();
             document.getElementById('paymentLinkBox').classList.remove('active');
             document.getElementById('statusMessage').classList.remove('active', 'error');
-            
+
+            // Clear all line items (form.reset() doesn't remove dynamically-added rows)
+            document.getElementById('lineItemsContainer').innerHTML = '';
+
+            // Reset the picker
+            resetPicker();
+
             const today = new Date();
             document.getElementById('invoiceDate').valueAsDate = today;
             const dueDate = new Date(today);
             dueDate.setDate(dueDate.getDate() + 14);
             document.getElementById('dueDate').valueAsDate = dueDate;
-            
+
             updateInvoicePreview();
         }
 
@@ -975,6 +1050,133 @@
             const link = document.getElementById('paymentLinkDisplay').textContent;
             window.open(link, '_blank');
         }
+
+        // ─── CATALOG / PICKER LOGIC ───────────────────────────────────────
+        var catalogCache = { bikes: [], accessories: [], apparel: [] };
+
+        async function loadCatalog() {
+            const statusEl = document.getElementById('pickerStatus');
+            try {
+                const res = await fetch(AS_URL + '?action=getInvoiceCatalog', { redirect: 'follow' });
+                const data = await res.json();
+                if (data && data.status === 'ok') {
+                    catalogCache.bikes = data.bikes || [];
+                    catalogCache.accessories = data.accessories || [];
+                    catalogCache.apparel = data.apparel || [];
+                    statusEl.textContent = catalogCache.bikes.length + ' bikes · ' +
+                                           catalogCache.accessories.length + ' accessories · ' +
+                                           catalogCache.apparel.length + ' apparel items';
+                } else {
+                    statusEl.textContent = 'Catalog could not load — use Custom to add items manually.';
+                }
+            } catch (err) {
+                statusEl.textContent = 'Offline — use Custom to add items manually.';
+            }
+        }
+
+        function onCategoryChange() {
+            const cat = document.getElementById('categoryPicker').value;
+            const itemPicker = document.getElementById('itemPicker');
+            const addBtn = document.getElementById('addFromPickerBtn');
+
+            itemPicker.innerHTML = '';
+
+            if (!cat) {
+                itemPicker.disabled = true;
+                addBtn.disabled = true;
+                itemPicker.innerHTML = '<option value="">Pick a category first</option>';
+                return;
+            }
+
+            if (cat === 'custom') {
+                itemPicker.disabled = true;
+                itemPicker.innerHTML = '<option value="">— No selection needed —</option>';
+                addBtn.disabled = false;
+                return;
+            }
+
+            let list = [];
+            if (cat === 'bike') list = catalogCache.bikes;
+            else if (cat === 'accessory') list = catalogCache.accessories;
+            else if (cat === 'apparel') list = catalogCache.apparel;
+
+            if (list.length === 0) {
+                itemPicker.disabled = true;
+                addBtn.disabled = true;
+                itemPicker.innerHTML = '<option value="">No items in this category yet</option>';
+                return;
+            }
+
+            itemPicker.innerHTML = '<option value="">Select an item…</option>';
+            list.forEach((item, idx) => {
+                const opt = document.createElement('option');
+                opt.value = idx;
+                opt.textContent = item.label;
+                itemPicker.appendChild(opt);
+            });
+            itemPicker.disabled = false;
+            addBtn.disabled = true; // require an item to be picked
+        }
+
+        function onItemChange() {
+            const itemPicker = document.getElementById('itemPicker');
+            document.getElementById('addFromPickerBtn').disabled = (itemPicker.value === '');
+        }
+
+        function addFromPicker() {
+            const cat = document.getElementById('categoryPicker').value;
+            const itemPicker = document.getElementById('itemPicker');
+
+            let description = '';
+            let price = 0;
+
+            if (cat === 'custom') {
+                // Add an empty row for the user to fill in
+                addLineItem();
+                // Focus the description input of the new row
+                const rows = document.querySelectorAll('.line-item');
+                const lastRow = rows[rows.length - 1];
+                if (lastRow) {
+                    const descInput = lastRow.querySelector('.description');
+                    if (descInput) descInput.focus();
+                }
+                resetPicker();
+                return;
+            }
+
+            const idx = parseInt(itemPicker.value);
+            if (isNaN(idx)) return;
+
+            let list = [];
+            if (cat === 'bike') list = catalogCache.bikes;
+            else if (cat === 'accessory') list = catalogCache.accessories;
+            else if (cat === 'apparel') list = catalogCache.apparel;
+
+            const item = list[idx];
+            if (!item) return;
+
+            // Build description: include brand for bikes
+            description = (cat === 'bike' && item.brand)
+                ? (item.brand + ' ' + item.name)
+                : item.name;
+            price = item.price;
+
+            addLineItem(description, 1, price);
+            resetPicker();
+        }
+
+        function resetPicker() {
+            document.getElementById('categoryPicker').value = '';
+            document.getElementById('itemPicker').innerHTML = '<option value="">Pick a category first</option>';
+            document.getElementById('itemPicker').disabled = true;
+            document.getElementById('addFromPickerBtn').disabled = true;
+        }
+
+        document.getElementById('categoryPicker').addEventListener('change', onCategoryChange);
+        document.getElementById('itemPicker').addEventListener('change', onItemChange);
+
+        loadCatalog();
+        // ─── END CATALOG / PICKER LOGIC ───────────────────────────────────
 
         // Initial preview
         updateInvoicePreview();
