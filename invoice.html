@@ -299,6 +299,155 @@
 
         .add-line-btn:hover { border-color: var(--copper); color: var(--copper); }
 
+        /* DELIVERY CALCULATOR (shows when Delivery category is picked) */
+        .delivery-calc {
+            background: var(--op-bg);
+            border: 1px solid var(--forest-light);
+            border-radius: 6px;
+            padding: 1rem;
+            margin-bottom: 0.75rem;
+            display: none;
+        }
+
+        .delivery-calc.active { display: block; }
+
+        .delivery-calc-header {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: var(--forest-light);
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            margin-bottom: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .delivery-calc-header::before {
+            content: "→";
+            color: var(--copper);
+        }
+
+        .delivery-calc-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.6rem;
+            margin-bottom: 0.85rem;
+        }
+
+        .delivery-calc-grid .form-group { margin: 0; }
+
+        .delivery-calc-grid label {
+            font-size: 0.6rem;
+            margin-bottom: 0.3rem;
+        }
+
+        .delivery-calc-grid input {
+            padding: 0.55rem 0.7rem;
+            font-size: 0.85rem;
+        }
+
+        .delivery-result {
+            background: var(--op-panel);
+            border: 1px solid var(--op-border);
+            border-radius: 6px;
+            padding: 0.85rem 1rem;
+            margin-bottom: 0.75rem;
+            display: none;
+        }
+
+        .delivery-result.active { display: block; }
+
+        .delivery-result-label {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.6rem;
+            font-weight: 600;
+            color: var(--copper);
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            margin-bottom: 0.6rem;
+        }
+
+        .delivery-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.78rem;
+            color: var(--op-text-dim);
+            padding: 0.2rem 0;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .delivery-row .row-amount {
+            color: var(--op-text);
+            font-weight: 500;
+        }
+
+        .delivery-row.flat-zone {
+            color: var(--forest-light);
+            font-weight: 500;
+            justify-content: flex-start;
+        }
+
+        .delivery-row.total {
+            border-top: 1px solid var(--op-border);
+            margin-top: 0.4rem;
+            padding-top: 0.55rem;
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--op-text);
+        }
+
+        .delivery-row.total .row-amount {
+            color: var(--copper);
+            font-weight: 700;
+        }
+
+        .delivery-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .delivery-actions button {
+            flex: 1;
+            padding: 0.6rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .btn-add-delivery {
+            background: var(--forest);
+            color: #fff;
+            border: 1px solid var(--forest);
+        }
+
+        .btn-add-delivery:hover:not(:disabled) {
+            background: var(--forest-light);
+            border-color: var(--forest-light);
+        }
+
+        .btn-add-delivery:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .btn-cancel-delivery {
+            background: transparent;
+            color: var(--op-text-dim);
+            border: 1px solid var(--op-border);
+        }
+
+        .btn-cancel-delivery:hover {
+            color: var(--op-text);
+            border-color: var(--op-text-dim);
+        }
+
         /* ACTIONS */
         .actions {
             display: grid;
@@ -751,7 +900,6 @@
                             <option value="accessory">Accessory</option>
                             <option value="apparel">Apparel</option>
                             <option value="installation">Installation</option>
-                            <option value="delivery">Delivery</option>
                             <option value="custom">Custom (free text)</option>
                         </select>
                         <select id="itemPicker" disabled>
@@ -759,6 +907,36 @@
                         </select>
                         <button type="button" class="add-from-picker-btn" id="addFromPickerBtn" disabled onclick="addFromPicker()">Add</button>
                     </div>
+
+                    <div class="delivery-calc" id="deliveryCalc">
+                        <div class="delivery-calc-header">Delivery Calculator</div>
+                        <div class="delivery-calc-grid">
+                            <div class="form-group">
+                                <label for="dMiles">One-way miles</label>
+                                <input type="number" id="dMiles" min="0" step="0.1" placeholder="e.g. 12" oninput="calcDelivery()">
+                            </div>
+                            <div class="form-group">
+                                <label for="dMpg">MPG</label>
+                                <input type="number" id="dMpg" min="1" step="0.1" value="25" oninput="calcDelivery()">
+                            </div>
+                            <div class="form-group">
+                                <label for="dGas">Gas price ($/gal)</label>
+                                <input type="number" id="dGas" min="0" step="0.01" value="3.20" oninput="calcDelivery()">
+                            </div>
+                            <div class="form-group">
+                                <label for="dTime">Round trip time (min)</label>
+                                <input type="number" id="dTime" min="0" step="5" placeholder="e.g. 45" oninput="calcDelivery()">
+                            </div>
+                        </div>
+
+                        <div class="delivery-result" id="deliveryResult"></div>
+
+                        <div class="delivery-actions">
+                            <button type="button" class="btn-cancel-delivery" onclick="cancelDelivery()">Cancel</button>
+                            <button type="button" class="btn-add-delivery" id="addDeliveryBtn" disabled onclick="applyDelivery()">Add to Invoice</button>
+                        </div>
+                    </div>
+
                     <div class="line-items-wrapper" id="lineItemsContainer"></div>
                     <button type="button" class="add-line-btn" onclick="addLineItem()">+ Add empty row</button>
                 </div>
@@ -1036,6 +1214,7 @@
             document.getElementById('statusMessage').classList.remove('active', 'error');
             document.getElementById('lineItemsContainer').innerHTML = '';
             resetPicker();
+            hideDeliveryCalc();
 
             const today = new Date();
             document.getElementById('invoiceDate').valueAsDate = today;
@@ -1171,7 +1350,96 @@
             window.open(link, '_blank');
         }
 
-        // CATALOG / PICKER
+        // ─── DELIVERY CALCULATOR ──────────────────────────────────────────
+        // Ported from Sales Pro — same formula, same fee structure.
+        // Flat $40 base for trips ≤10 one-way miles. Beyond that, gas + time added.
+        var currentDeliveryFee = 0;
+
+        // ─── DELIVERY CALCULATOR ──────────────────────────────────────────
+        var currentDeliveryFee = 0;
+
+        function showDeliveryCalc() {
+            document.getElementById('deliveryCalc').classList.add('active');
+            // Reset calc to default state
+            document.getElementById('dMiles').value = '';
+            document.getElementById('dTime').value = '';
+            document.getElementById('dMpg').value = '25';
+            document.getElementById('dGas').value = '3.20';
+            document.getElementById('deliveryResult').classList.remove('active');
+            document.getElementById('addDeliveryBtn').disabled = true;
+            currentDeliveryFee = 0;
+            // Focus miles input
+            setTimeout(() => document.getElementById('dMiles').focus(), 50);
+        }
+
+        function hideDeliveryCalc() {
+            document.getElementById('deliveryCalc').classList.remove('active');
+            document.getElementById('deliveryResult').classList.remove('active');
+            document.getElementById('addDeliveryBtn').disabled = true;
+            currentDeliveryFee = 0;
+        }
+
+        function cancelDelivery() {
+            hideDeliveryCalc();
+        }
+
+        function calcDelivery() {
+            const miles = parseFloat(document.getElementById('dMiles').value) || 0;
+            const mpg   = parseFloat(document.getElementById('dMpg').value)   || 25;
+            const gas   = parseFloat(document.getElementById('dGas').value)   || 3.20;
+            const mins  = parseFloat(document.getElementById('dTime').value)  || 0;
+            const hours = mins / 60;
+
+            const resultEl = document.getElementById('deliveryResult');
+            const applyBtn = document.getElementById('addDeliveryBtn');
+
+            if (!miles) {
+                resultEl.classList.remove('active');
+                applyBtn.disabled = true;
+                currentDeliveryFee = 0;
+                return;
+            }
+
+            // Same formula as Sales Pro
+            const BASE_MILES = 10;
+            const BASE_RATE = 40;
+            const rtMiles = miles * 2;
+            const gasCost = (rtMiles / mpg) * gas;
+            const timeCost = hours * 25;
+            const overBase = miles > BASE_MILES;
+            const total = BASE_RATE + (overBase ? gasCost + timeCost : 0);
+
+            currentDeliveryFee = total;
+
+            let html = '<div class="delivery-result-label">Breakdown</div>';
+            html += '<div class="delivery-row"><span>Base rate (≤10 mi)</span><span class="row-amount">$' + BASE_RATE.toFixed(2) + '</span></div>';
+
+            if (overBase) {
+                html += '<div class="delivery-row"><span>Gas (' + rtMiles.toFixed(0) + ' RT mi @ ' + mpg + ' mpg)</span><span class="row-amount">$' + gasCost.toFixed(2) + '</span></div>';
+                html += '<div class="delivery-row"><span>Time (' + mins + ' min @ $25/hr)</span><span class="row-amount">$' + timeCost.toFixed(2) + '</span></div>';
+            } else {
+                html += '<div class="delivery-row flat-zone">✓ Within 10-mile flat rate zone</div>';
+            }
+
+            html += '<div class="delivery-row total"><span>Total Delivery Fee</span><span class="row-amount">$' + total.toFixed(2) + '</span></div>';
+
+            resultEl.innerHTML = html;
+            resultEl.classList.add('active');
+            applyBtn.disabled = false;
+        }
+
+        function applyDelivery() {
+            if (!currentDeliveryFee || currentDeliveryFee <= 0) return;
+
+            const miles = parseFloat(document.getElementById('dMiles').value) || 0;
+            const description = 'Delivery (' + miles + ' mi one-way)';
+
+            addLineItem(description, 1, currentDeliveryFee);
+            hideDeliveryCalc();
+        }
+
+
+        // ─── CATALOG / PICKER ─────────────────────────────────────────────
         var catalogCache = { bikes: [], accessories: [], apparel: [] };
 
         function loadCatalog() {
@@ -1243,9 +1511,16 @@
                 return;
             }
 
-            if (cat === 'installation' || cat === 'delivery') {
+            if (cat === 'installation') {
                 itemPicker.disabled = true;
-                itemPicker.innerHTML = '<option value="">— Click Add, then enter price —</option>';
+                itemPicker.innerHTML = '<option value="">— Click Add, $100 default —</option>';
+                addBtn.disabled = false;
+                return;
+            }
+
+            if (cat === 'delivery') {
+                itemPicker.disabled = true;
+                itemPicker.innerHTML = '<option value="">— Click Add to open calculator —</option>';
                 addBtn.disabled = false;
                 return;
             }
@@ -1294,19 +1569,23 @@
                 return;
             }
 
-            if (cat === 'installation' || cat === 'delivery') {
-                const presetDesc = (cat === 'installation') ? 'Installation' : 'Delivery';
-                const presetPrice = (cat === 'installation') ? 100 : null;
-                addLineItem(presetDesc, 1, presetPrice);
+            if (cat === 'installation') {
+                addLineItem('Installation', 1, 100);
                 const rows = document.querySelectorAll('.line-item');
                 const lastRow = rows[rows.length - 1];
                 if (lastRow) {
                     const priceInput = lastRow.querySelector('.price');
                     if (priceInput) {
                         priceInput.focus();
-                        priceInput.select(); // so they can type to override $100 instantly
+                        priceInput.select();
                     }
                 }
+                resetPicker();
+                return;
+            }
+
+            if (cat === 'delivery') {
+                showDeliveryCalc();
                 resetPicker();
                 return;
             }
