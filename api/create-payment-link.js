@@ -45,13 +45,6 @@ export default async function handler(req, res) {
         'line_items[0][price_data][product_data][name]': `${invoiceNumber} - ${customerName}`,
         'line_items[0][price_data][unit_amount]': Math.round(total * 100),
         'line_items[0][quantity]': '1',
-        body: new URLSearchParams({
-  'line_items[0][price_data][currency]': 'usd',
-  'line_items[0][price_data][product_data][name]': `${invoiceNumber} - ${customerName}`,
-  'line_items[0][price_data][unit_amount]': Math.round(total * 100),
-  'line_items[0][quantity]': '1',
-  'billing_address_collection': 'auto',
-}),
         'billing_address_collection': 'auto',
       }),
     });
