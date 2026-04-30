@@ -485,11 +485,11 @@
                     <div class="form-grid">
                         <div class="form-group">
                             <label>Phone</label>
-                            <input type="tel" id="businessPhone" value="(330) 555-0123" readonly style="opacity: 0.7;">
+                            <input type="tel" id="businessPhone" value="(330) 406-9682" readonly style="opacity: 0.7;">
                         </div>
                         <div class="form-group">
                             <label>Email</label>
-                            <input type="email" id="businessEmail" value="cruisethecreek@gmail.com" readonly style="opacity: 0.7;">
+                            <input type="email" id="businessEmail" value="salesteam@cruisethecreek.com" readonly style="opacity: 0.7;">
                         </div>
                     </div>
                     <div class="form-group">
@@ -627,8 +627,8 @@
                         2706 Bears Den Ave<br>
                         Youngstown, OH 44505<br>
                         <br>
-                        Phone: (330) 555-0123<br>
-                        Email: cruisethecreek@gmail.com
+                        Phone: (330) 406-9682<br>
+                        Email: salesteam@cruisethecreek.com
                     </p>
                 </div>
                 <div class="info-section">
@@ -764,7 +764,7 @@
             const deposit = parseFloat(document.getElementById('depositAmount').value) || 0;
             const balance = total - deposit;
 
-            return { subtotal, discountAmount, subtotalAfterDiscount, tax, total, deposit, balance };
+            return { subtotal, discountPercent, discountFixed, discountAmount, subtotalAfterDiscount, tax, total, deposit, balance };
         }
 
         function updateInvoicePreview() {
@@ -860,18 +860,30 @@
             e.preventDefault();
 
             const submitBtn = document.getElementById('submitBtn');
-            const { subtotal, tax, total } = calculateTotals();
+            const totals = calculateTotals();
 
-            if (total <= 0) {
+            if (totals.total <= 0) {
                 showStatus('Total must be greater than $0', 'error');
                 return;
             }
 
+            // Build the full invoice payload
             const invoiceData = {
                 customerName: document.getElementById('customerName').value,
                 customerEmail: document.getElementById('customerEmail').value,
+                customerPhone: document.getElementById('customerPhone').value,
+                customerAddress: document.getElementById('customerAddress').value,
                 invoiceNumber: document.getElementById('invoiceNumber').value,
-                total: total,
+                invoiceDate: document.getElementById('invoiceDate').value,
+                dueDate: document.getElementById('dueDate').value,
+                paymentNotes: document.getElementById('notes').value,
+                subtotal: totals.subtotal,
+                discountPct: totals.discountPercent,
+                discountAmt: totals.discountAmount,
+                tax: totals.tax,
+                total: totals.total,
+                deposit: totals.deposit,
+                balanceDue: totals.balance,
                 items: []
             };
 
@@ -882,7 +894,7 @@
                 if (desc && price) {
                     invoiceData.items.push({
                         description: desc,
-                        quantity: parseFloat(qty),
+                        qty: parseFloat(qty),
                         price: parseFloat(price)
                     });
                 }
@@ -918,19 +930,24 @@
         }
 
         function logOrderToSheet(invoiceData) {
-            const nameParts = invoiceData.customerName.trim().split(' ');
-            const firstName = nameParts[0] || '';
-            const lastName  = nameParts.slice(1).join(' ') || '';
-            const model     = invoiceData.items.map(i => i.description).join(', ') || 'Invoice';
             const params = new URLSearchParams({
-                action : 'addOrder',
-                date   : new Date().toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' }),
-                first  : firstName,
-                last   : lastName,
-                model  : model,
-                color  : invoiceData.invoiceNumber,
-                price  : invoiceData.total.toFixed(2),
-                email  : invoiceData.customerEmail
+                action          : 'addOrder',
+                invoiceNumber   : invoiceData.invoiceNumber || '',
+                invoiceDate     : invoiceData.invoiceDate || '',
+                dueDate         : invoiceData.dueDate || '',
+                customerName    : invoiceData.customerName || '',
+                customerEmail   : invoiceData.customerEmail || '',
+                customerPhone   : invoiceData.customerPhone || '',
+                customerAddress : invoiceData.customerAddress || '',
+                lineItems       : JSON.stringify(invoiceData.items || []),
+                subtotal        : (invoiceData.subtotal || 0).toFixed(2),
+                discountPct     : (invoiceData.discountPct || 0).toFixed(2),
+                discountAmt     : (invoiceData.discountAmt || 0).toFixed(2),
+                tax             : (invoiceData.tax || 0).toFixed(2),
+                total           : (invoiceData.total || 0).toFixed(2),
+                deposit         : (invoiceData.deposit || 0).toFixed(2),
+                balanceDue      : (invoiceData.balanceDue || 0).toFixed(2),
+                paymentNotes    : invoiceData.paymentNotes || ''
             });
             fetch(AS_URL + '?' + params.toString(), { redirect: 'follow' }).catch(() => {});
         }
