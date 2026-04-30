@@ -279,7 +279,13 @@
             color: var(--error);
         }
 
-        .checkout-link-box {
+        .status-message.loading {
+            border-left-color: var(--warning);
+            background: rgba(255, 170, 0, 0.05);
+            color: var(--warning);
+        }
+
+        .payment-link-box {
             background: var(--bg);
             border: 1px solid var(--accent);
             padding: 1.5rem;
@@ -287,12 +293,12 @@
             display: none;
         }
 
-        .checkout-link-box.active {
+        .payment-link-box.active {
             display: block;
             animation: slideIn 0.4s ease-out;
         }
 
-        .checkout-link-label {
+        .payment-link-label {
             font-size: 0.85rem;
             letter-spacing: 0.5px;
             margin-bottom: 1rem;
@@ -300,7 +306,7 @@
             text-transform: uppercase;
         }
 
-        .checkout-link-display {
+        .payment-link-display {
             background: rgba(0, 217, 255, 0.1);
             border: 1px solid var(--accent);
             padding: 1rem;
@@ -311,11 +317,9 @@
             cursor: pointer;
             transition: all 0.3s ease;
             margin-bottom: 1rem;
-            max-height: 150px;
-            overflow-y: auto;
         }
 
-        .checkout-link-display:hover {
+        .payment-link-display:hover {
             background: rgba(0, 217, 255, 0.2);
         }
 
@@ -420,7 +424,7 @@
     <div class="container">
         <header>
             <h1>CRUISE THE CREEK</h1>
-            <p class="subtitle">// invoice & checkout generator</p>
+            <p class="subtitle">// automated invoice generator</p>
         </header>
 
         <div class="form-wrapper">
@@ -520,7 +524,7 @@
                 <div class="form-section">
                     <div class="actions">
                         <button type="button" class="btn-secondary" onclick="resetForm()">Reset</button>
-                        <button type="submit" class="btn-primary" id="submitBtn">Generate Checkout Link</button>
+                        <button type="submit" class="btn-primary" id="submitBtn">Create Payment Link</button>
                     </div>
                 </div>
             </form>
@@ -528,22 +532,19 @@
             <!-- Status Messages -->
             <div class="status-message" id="statusMessage"></div>
 
-            <!-- Checkout Link Display -->
-            <div class="checkout-link-box" id="checkoutLinkBox">
-                <div class="checkout-link-label">Checkout Link Ready — Share with Customer:</div>
-                <div class="checkout-link-display" id="checkoutLinkDisplay"></div>
+            <!-- Payment Link Display -->
+            <div class="payment-link-box" id="paymentLinkBox">
+                <div class="payment-link-label">Payment Link Ready — Share with Customer:</div>
+                <div class="payment-link-display" id="paymentLinkDisplay"></div>
                 <div class="button-group">
-                    <button type="button" class="copy-btn" onclick="copyCheckoutLink()">Copy Link</button>
-                    <button type="button" class="open-btn" onclick="openCheckoutLink()">Open in Browser</button>
+                    <button type="button" class="copy-btn" onclick="copyPaymentLink()">Copy Link</button>
+                    <button type="button" class="open-btn" onclick="openPaymentLink()">Open in Browser</button>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
-        // Your Stripe Publishable Key (safe to expose)
-        const STRIPE_PUBLISHABLE_KEY = 'pk_live_51T6CsnQ8O2KsQiumwXt7i4FoKfWigfTT4mtQufauUzb14bCyIwiq47Y3PBxDulQerMUaBq7PyEpTukOIam78nyf20064WEjJl5';
-
         // Initialize
         const today = new Date();
         document.getElementById('invoiceDate').valueAsDate = today;
@@ -602,8 +603,8 @@
 
         function resetForm() {
             document.getElementById('invoiceForm').reset();
-            document.getElementById('checkoutLinkBox').classList.remove('active');
-            document.getElementById('statusMessage').classList.remove('active', 'error');
+            document.getElementById('paymentLinkBox').classList.remove('active');
+            document.getElementById('statusMessage').classList.remove('active', 'error', 'loading');
             calculateTotals();
             
             const today = new Date();
@@ -613,9 +614,10 @@
             document.getElementById('dueDate').valueAsDate = dueDate;
         }
 
-        function handleSubmit(e) {
+        async function handleSubmit(e) {
             e.preventDefault();
 
+            const submitBtn = document.getElementById('submitBtn');
             const total = parseFloat(document.getElementById('total').textContent.replace('$', ''));
 
             if (total <= 0) {
@@ -645,50 +647,33 @@
                 }
             });
 
-            // Build Stripe Checkout Session URL parameters
-            const params = new URLSearchParams();
-            params.append('client_id', STRIPE_PUBLISHABLE_KEY.split('_').pop());
-            
-            // Add line items to URL
-            invoiceData.items.forEach((item, idx) => {
-                const amountCents = Math.round(item.price * 100);
-                params.append(`line_items[${idx}][price_data][currency]`, 'usd');
-                params.append(`line_items[${idx}][price_data][product_data][name]`, item.description);
-                params.append(`line_items[${idx}][price_data][unit_amount]`, amountCents);
-                params.append(`line_items[${idx}][quantity]`, Math.round(item.quantity));
-            });
+            showStatus('Creating payment link...', 'loading');
+            submitBtn.disabled = true;
 
-            // Pre-fill customer info
-            params.append('customer_email', invoiceData.customerEmail);
-            params.append('billing_address_collection', 'auto');
+            try {
+                // Call Vercel API endpoint
+                const response = await fetch('https://ebike-sales.vercel.app/api/create-payment-link', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(invoiceData)
+                });
 
-            // For simplicity, provide instructions to use Stripe Dashboard
-            const checkoutUrl = `https://checkout.stripe.com/pay/${STRIPE_PUBLISHABLE_KEY.split('_').pop()}?prefilled_email=${encodeURIComponent(invoiceData.customerEmail)}`;
-            
-            // Alternative: Generate a custom checkout link instruction
-            const stripeLink = `https://dashboard.stripe.com/test/payment_links`;
-            const instructions = `
-Stripe Checkout Link for: ${invoiceData.invoiceNumber}
-Customer: ${invoiceData.customerName} (${invoiceData.customerEmail})
-Total: $${invoiceData.total.toFixed(2)}
+                const data = await response.json();
 
-Items:
-${invoiceData.items.map(item => `- ${item.description}: $${item.price.toFixed(2)} x ${item.quantity}`).join('\n')}
-
-HOW TO CREATE THE PAYMENT LINK:
-1. Go to Stripe Dashboard: https://dashboard.stripe.com/payment_links
-2. Click "+ Create" → "Payment Link"
-3. Add line items matching above
-4. Set customer email: ${invoiceData.customerEmail}
-5. Copy the generated link and share with customer
-
-Alternatively, use this pre-filled Stripe checkout:
-${checkoutUrl}
-            `.trim();
-
-            showStatus(`✓ Checkout link generated for ${invoiceData.customerName}`, 'success');
-            document.getElementById('checkoutLinkDisplay').textContent = instructions;
-            document.getElementById('checkoutLinkBox').classList.add('active');
+                if (response.ok && data.paymentLink) {
+                    showStatus(`✓ Payment link created for ${invoiceData.customerName}`, 'success');
+                    document.getElementById('paymentLinkDisplay').textContent = data.paymentLink;
+                    document.getElementById('paymentLinkBox').classList.add('active');
+                } else {
+                    showStatus(data.error || 'Failed to create payment link', 'error');
+                }
+            } catch (err) {
+                showStatus('Error: ' + err.message, 'error');
+            } finally {
+                submitBtn.disabled = false;
+            }
         }
 
         function showStatus(message, type = 'success') {
@@ -697,8 +682,8 @@ ${checkoutUrl}
             statusMsg.className = 'status-message active ' + type;
         }
 
-        function copyCheckoutLink() {
-            const link = document.getElementById('checkoutLinkDisplay').textContent;
+        function copyPaymentLink() {
+            const link = document.getElementById('paymentLinkDisplay').textContent;
             navigator.clipboard.writeText(link).then(() => {
                 const btn = event.target;
                 btn.textContent = 'Copied!';
@@ -710,16 +695,9 @@ ${checkoutUrl}
             });
         }
 
-        function openCheckoutLink() {
-            const text = document.getElementById('checkoutLinkDisplay').textContent;
-            // Extract the Stripe dashboard link
-            const lines = text.split('\n');
-            const dashboardLink = lines.find(line => line.includes('dashboard.stripe.com'));
-            if (dashboardLink) {
-                window.open(dashboardLink.trim(), '_blank');
-            } else {
-                alert('Open the Stripe Dashboard link shown above');
-            }
+        function openPaymentLink() {
+            const link = document.getElementById('paymentLinkDisplay').textContent;
+            window.open(link, '_blank');
         }
 
         calculateTotals();
