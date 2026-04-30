@@ -1054,24 +1054,57 @@
         // ─── CATALOG / PICKER LOGIC ───────────────────────────────────────
         var catalogCache = { bikes: [], accessories: [], apparel: [] };
 
-        async function loadCatalog() {
+        function loadCatalog() {
             const statusEl = document.getElementById('pickerStatus');
-            try {
-                const res = await fetch(AS_URL + '?action=getInvoiceCatalog', { redirect: 'follow' });
-                const data = await res.json();
-                if (data && data.status === 'ok') {
-                    catalogCache.bikes = data.bikes || [];
-                    catalogCache.accessories = data.accessories || [];
-                    catalogCache.apparel = data.apparel || [];
-                    statusEl.textContent = catalogCache.bikes.length + ' bikes · ' +
-                                           catalogCache.accessories.length + ' accessories · ' +
-                                           catalogCache.apparel.length + ' apparel items';
-                } else {
-                    statusEl.textContent = 'Catalog could not load — use Custom to add items manually.';
-                }
-            } catch (err) {
-                statusEl.textContent = 'Offline — use Custom to add items manually.';
+            statusEl.textContent = 'Loading catalog…';
+
+            // JSONP — Apps Script doesn't send CORS headers, so a regular fetch
+            // is blocked cross-origin. Loading the response as a <script> tag
+            // bypasses CORS entirely.
+            const callbackName = 'catalogCb_' + Date.now();
+            const timeoutMs = 10000;
+
+            // Set up a timeout in case the script never loads / executes
+            const timeoutId = setTimeout(() => {
+                statusEl.textContent = 'Catalog timed out — use Custom to add items manually.';
+                cleanup();
+            }, timeoutMs);
+
+            // Cleanup helper
+            function cleanup() {
+                if (window[callbackName]) delete window[callbackName];
+                if (script.parentNode) script.parentNode.removeChild(script);
             }
+
+            // Define the global callback that Apps Script will invoke
+            window[callbackName] = function(data) {
+                clearTimeout(timeoutId);
+                try {
+                    if (data && data.status === 'ok') {
+                        catalogCache.bikes = data.bikes || [];
+                        catalogCache.accessories = data.accessories || [];
+                        catalogCache.apparel = data.apparel || [];
+                        statusEl.textContent = catalogCache.bikes.length + ' bikes · ' +
+                                               catalogCache.accessories.length + ' accessories · ' +
+                                               catalogCache.apparel.length + ' apparel items';
+                    } else {
+                        statusEl.textContent = 'Catalog could not load — use Custom to add items manually.';
+                    }
+                } catch (err) {
+                    statusEl.textContent = 'Catalog error — use Custom to add items manually.';
+                }
+                cleanup();
+            };
+
+            // Inject the script tag — Apps Script returns JS that calls our callback
+            const script = document.createElement('script');
+            script.src = AS_URL + '?action=getInvoiceCatalog&callback=' + encodeURIComponent(callbackName);
+            script.onerror = () => {
+                clearTimeout(timeoutId);
+                statusEl.textContent = 'Catalog offline — use Custom to add items manually.';
+                cleanup();
+            };
+            document.head.appendChild(script);
         }
 
         function onCategoryChange() {
