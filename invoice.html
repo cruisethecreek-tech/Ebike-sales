@@ -619,6 +619,8 @@
                             <option value="bike">Bike</option>
                             <option value="accessory">Accessory</option>
                             <option value="apparel">Apparel</option>
+                            <option value="installation">Installation</option>
+                            <option value="delivery">Delivery</option>
                             <option value="custom">Custom (free text)</option>
                         </select>
                         <select id="itemPicker" disabled>
@@ -1128,6 +1130,14 @@
                 return;
             }
 
+            if (cat === 'installation' || cat === 'delivery') {
+                // Quick-add categories — no second dropdown, just add a pre-filled row
+                itemPicker.disabled = true;
+                itemPicker.innerHTML = '<option value="">— Click Add, then enter price —</option>';
+                addBtn.disabled = false;
+                return;
+            }
+
             let list = [];
             if (cat === 'bike') list = catalogCache.bikes;
             else if (cat === 'accessory') list = catalogCache.accessories;
@@ -1172,6 +1182,21 @@
                 if (lastRow) {
                     const descInput = lastRow.querySelector('.description');
                     if (descInput) descInput.focus();
+                }
+                resetPicker();
+                return;
+            }
+
+            if (cat === 'installation' || cat === 'delivery') {
+                // Pre-fill description, leave price blank for user to enter
+                const presetDesc = (cat === 'installation') ? 'Installation' : 'Delivery';
+                addLineItem(presetDesc, 1, null);
+                // Focus the price input of the new row
+                const rows = document.querySelectorAll('.line-item');
+                const lastRow = rows[rows.length - 1];
+                if (lastRow) {
+                    const priceInput = lastRow.querySelector('.price');
+                    if (priceInput) priceInput.focus();
                 }
                 resetPicker();
                 return;
