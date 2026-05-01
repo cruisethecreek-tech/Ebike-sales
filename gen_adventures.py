@@ -4,50 +4,54 @@ html = r"""<!DOCTYPE html>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Adventures — Cruise the Creek Electric Bikes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,700;0,9..40,800;1,9..40,400&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 html{scroll-behavior:smooth}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;color:#1a1a1a;background:#f5f0ea}
+body{font-family:'DM Sans',sans-serif;color:#1a1a1a;background:#f5f0ea}
 
-/* ── NAV (sticky + backdrop blur) ── */
+/* ── NAV ── */
 header{position:sticky;top:0;z-index:200;background:rgba(250,246,241,0.92);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid #e0d5c8;padding:.7rem 2rem;display:flex;align-items:center;justify-content:space-between;gap:1rem}
 .logo{display:flex;align-items:center;gap:.6rem;text-decoration:none}
 .logo img{height:40px}
 nav{display:flex;align-items:center;gap:.2rem;flex-wrap:wrap}
-nav a{font-size:.78rem;font-weight:500;color:#4a4040;text-decoration:none;padding:.38rem .65rem;border-radius:5px;transition:background .18s}
+nav a{font-family:'DM Sans',sans-serif;font-size:.78rem;font-weight:500;color:#4a4040;text-decoration:none;padding:.38rem .65rem;border-radius:5px;transition:background .18s}
 nav a:hover,nav a.active{background:#e8ddd0;color:#3d2e1e}
 .btn-rent{background:#3a5c3a!important;color:#fff!important;border-radius:20px;padding:.42rem 1.1rem!important;font-weight:700!important}
 .btn-rent:hover{background:#2d4a2d!important}
 
 /* ── HERO ── */
-.hero{position:relative;min-height:88vh;display:flex;align-items:center;justify-content:center;overflow:hidden}
-.hero-bg{position:absolute;inset:0;background:linear-gradient(155deg,#1a2e1a 0%,#2e4a28 45%,#4a5c38 100%)}
-.hero-content{position:relative;text-align:center;color:#fff;padding:2rem;max-width:680px}
+.hero{position:relative;min-height:88vh;display:flex;align-items:center;justify-content:center;overflow:hidden;background:#2c3a2c}
+/* HERO PHOTO — sits behind the overlay */
+.hero-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center}
+.hero-overlay{position:absolute;inset:0;background:linear-gradient(155deg,rgba(26,46,26,.82) 0%,rgba(46,74,40,.72) 55%,rgba(74,92,56,.6) 100%)}
+.hero-content{position:relative;z-index:1;text-align:center;color:#fff;padding:2rem;max-width:680px}
 .hero-tag{font-size:.7rem;letter-spacing:.22em;text-transform:uppercase;color:#b8a888;margin-bottom:.9rem}
 .hero h1{font-size:clamp(2.4rem,6vw,4rem);font-weight:800;line-height:1.08;margin-bottom:.9rem;text-shadow:0 2px 24px rgba(0,0,0,.35)}
 .hero p{font-size:1rem;color:#cdc5b8;max-width:460px;margin:0 auto 1.8rem}
-
-/* ── FLEET BADGES (green = in stock) ── */
 .fleet-badges{display:flex;flex-wrap:wrap;justify-content:center;gap:.45rem;margin-bottom:2rem}
 .fleet-badge{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);color:#fff;font-size:.77rem;padding:.32rem .85rem;border-radius:20px}
 .fleet-badge.in-stock{background:rgba(50,110,50,.55);border-color:rgba(110,190,110,.4)}
 .btn-hero{display:inline-block;background:#fff;color:#3d2e1e;font-weight:700;padding:.82rem 2.2rem;border-radius:28px;text-decoration:none;font-size:.93rem;box-shadow:0 4px 22px rgba(0,0,0,.28);transition:transform .2s,box-shadow .2s}
 .btn-hero:hover{transform:translateY(-2px);box-shadow:0 8px 32px rgba(0,0,0,.35)}
 
-/* ── EXPERIENCE TOGGLE (pill switch) ── */
+/* ── EXPERIENCE TOGGLE ── */
 .experience{background:#f0ebe2;padding:4rem 2rem;text-align:center}
-.exp-bike{width:138px;height:138px;border-radius:50%;background:#b8a888;margin:0 auto 1.8rem;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,.15);display:flex;align-items:center;justify-content:center}
-.exp-bike svg{width:80px;height:80px;opacity:.7}
+/* BIKE CIRCLE PHOTO */
+.exp-bike{width:138px;height:138px;border-radius:50%;background:#b8a888;margin:0 auto 1.8rem;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,.18)}
+.exp-bike img{width:100%;height:100%;object-fit:cover;display:block}
 .exp-toggle{display:inline-flex;border:2px solid #b0a090;border-radius:28px;overflow:hidden;margin-bottom:1.2rem}
-.exp-btn{padding:.52rem 1.3rem;font-size:.82rem;font-weight:700;cursor:pointer;border:none;background:transparent;color:#6a5a4a;transition:background .2s,color .2s;white-space:nowrap}
+.exp-btn{padding:.52rem 1.3rem;font-size:.82rem;font-weight:700;cursor:pointer;border:none;background:transparent;color:#6a5a4a;transition:background .2s,color .2s;white-space:nowrap;font-family:'DM Sans',sans-serif}
 .exp-btn.active{background:#3d2e1e;color:#fff}
-.exp-location{font-size:.82rem;color:#8a7a6a;margin-bottom:1.5rem;min-height:1.2em;transition:opacity .2s}
+.exp-location{font-size:.82rem;color:#8a7a6a;margin-bottom:1.5rem;min-height:1.2em}
 .btn-avail{display:inline-block;background:#3d2e1e;color:#fff;font-weight:700;padding:.72rem 1.75rem;border-radius:24px;text-decoration:none;font-size:.88rem;margin-right:.65rem;transition:background .2s}
 .btn-avail:hover{background:#2a1e10}
 .btn-switch{display:inline-block;background:#3a5c3a;color:#fff;font-weight:600;padding:.62rem 1.2rem;border-radius:24px;text-decoration:none;font-size:.8rem;transition:background .2s}
 .btn-switch:hover{background:#2d4a2d}
 
-/* ── 3 STEPS (icon-enhanced) ── */
+/* ── 3 STEPS ── */
 .steps-section{background:#c4a882;padding:5rem 2rem}
 .steps-inner{max-width:1050px;margin:0 auto;display:grid;grid-template-columns:1fr 200px;gap:3.5rem;align-items:center}
 .steps-head{font-size:.88rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:#3d2e1e;margin-bottom:2.8rem;text-align:center}
@@ -57,7 +61,9 @@ nav a:hover,nav a.active{background:#e8ddd0;color:#3d2e1e}
 .step-num{font-size:.62rem;color:#7a5a3a;letter-spacing:.1em;display:block;margin-bottom:.15rem}
 .step h3{font-size:1.7rem;font-weight:800;color:#1a1a1a;line-height:1}
 .step p{font-size:.83rem;color:#5a4a38;margin-top:.25rem}
-.steps-photo{width:200px;height:260px;border-radius:12px;background:#8a7060;overflow:hidden;box-shadow:0 8px 30px rgba(0,0,0,.18);display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.3);font-size:.75rem}
+/* STEPS SIDE PHOTO */
+.steps-photo{width:200px;height:260px;border-radius:12px;background:#8a7060;overflow:hidden;box-shadow:0 8px 30px rgba(0,0,0,.18)}
+.steps-photo img{width:100%;height:100%;object-fit:cover;display:block}
 
 /* ── QUICK LINKS ── */
 .quick-links{background:#c4a882;border-top:1px solid rgba(255,255,255,.28);padding:2.5rem 2rem}
@@ -70,20 +76,27 @@ nav a:hover,nav a.active{background:#e8ddd0;color:#3d2e1e}
 .ql-btn:hover{background:#2a1e10}
 
 /* ── NATURE BANNER ── */
-.nature-banner{height:360px;background:linear-gradient(135deg,#2c3a1c 0%,#4a5c30 55%,#6a7840 100%)}
+.nature-banner{height:360px;background:#3a4a28;overflow:hidden;position:relative}
+/* NATURE BANNER PHOTO */
+.nature-banner img{width:100%;height:100%;object-fit:cover;object-position:center 40%;display:block}
 
 /* ── TRAILSIDE ── */
 .trailside{background:#f5f0ea;padding:3rem 2rem}
 .trailside h2{text-align:center;font-size:1.35rem;font-weight:700;margin-bottom:1.8rem;color:#3d2e1e}
-.trail-dark{height:110px;background:#3d2e1e;border-radius:8px;margin-bottom:1.4rem}
+/* VIDEO / DARK BOX — swap <div> for <video autoplay muted loop playsinline> when ready */
+.trail-dark{height:110px;background:#3d2e1e;border-radius:8px;margin-bottom:1.4rem;overflow:hidden}
+.trail-dark video{width:100%;height:100%;object-fit:cover;display:block}
 .trail-cards{display:grid;grid-template-columns:repeat(3,1fr);border-radius:10px;overflow:hidden}
-.trail-card{height:270px;display:flex;flex-direction:column;justify-content:flex-end;padding:1.2rem}
+/* TRAIL CARD PHOTOS — each card has an <img> behind the text */
+.trail-card{height:270px;display:flex;flex-direction:column;justify-content:flex-end;padding:1.2rem;position:relative;overflow:hidden}
 .trail-card:nth-child(1){background:linear-gradient(170deg,#3a5030,#6a7840)}
 .trail-card:nth-child(2){background:linear-gradient(170deg,#4a6040,#8a9060)}
 .trail-card:nth-child(3){background:linear-gradient(170deg,#2a3820,#4a5830)}
-.trail-title{color:#fff;font-size:1.1rem;font-weight:800;line-height:1.2;text-shadow:0 2px 8px rgba(0,0,0,.5)}
+.trail-card img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;opacity:.7}
+.trail-card-inner{position:relative;z-index:1}
+.trail-title{color:#fff;font-size:1.1rem;font-weight:800;line-height:1.2;text-shadow:0 2px 8px rgba(0,0,0,.6)}
 .trail-pill{display:inline-block;margin-top:.55rem;background:#3a5c3a;color:#fff;font-size:.7rem;font-weight:700;padding:.28rem .8rem;border-radius:18px;text-decoration:none}
-.trail-bubble{width:84px;height:84px;border-radius:50%;background:rgba(255,255,255,.18);display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:700;color:#fff;text-align:center;margin-bottom:.5rem}
+.trail-bubble{width:84px;height:84px;border-radius:50%;background:rgba(255,255,255,.18);display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:700;color:#fff;text-align:center;margin-bottom:.5rem;backdrop-filter:blur(4px)}
 
 /* ── FOOTER ── */
 footer{background:#f0ebe2;border-top:1px solid #ddd4c4;padding:3rem 2rem;text-align:center}
@@ -111,7 +124,6 @@ footer{background:#f0ebe2;border-top:1px solid #ddd4c4;padding:3rem 2rem;text-al
 </head>
 <body>
 
-<!-- STICKY NAV WITH BACKDROP BLUR -->
 <header>
   <a href="#" class="logo">
     <img src="BlackonTransparent.png" alt="Cruise the Creek Electric Bikes" onerror="this.style.display='none'">
@@ -127,14 +139,14 @@ footer{background:#f0ebe2;border-top:1px solid #ddd4c4;padding:3rem 2rem;text-al
   </nav>
 </header>
 
-<!-- HERO -->
 <section class="hero" id="hero-section">
-  <div class="hero-bg"></div>
+  <!-- HERO PHOTO: replace src with your full-width park/trail shot -->
+  <img class="hero-img" src="" alt="" onerror="this.style.display='none'">
+  <div class="hero-overlay"></div>
   <div class="hero-content">
     <div class="hero-tag" id="hero-tag">Mill Creek Park &bull; Youngstown, OH</div>
     <h1 id="hero-headline">#Unleash Your<br>Adventure</h1>
     <p id="hero-sub">Adventure Awaits! Rent an electric bike and experience the sights and sounds of the park in a new and exciting way!</p>
-    <!-- GREEN IN-STOCK BADGES -->
     <div class="fleet-badges">
       <span class="fleet-badge"><strong>8 Bikes</strong> in The Fleet</span>
       <span class="fleet-badge in-stock">3 High Step in stock &mdash;</span>
@@ -145,18 +157,10 @@ footer{background:#f0ebe2;border-top:1px solid #ddd4c4;padding:3rem 2rem;text-al
   </div>
 </section>
 
-<!-- EXPERIENCE PILL TOGGLE -->
 <section class="experience">
   <div class="exp-bike">
-    <svg viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <circle cx="20" cy="58" r="14" stroke="#fff" stroke-width="4"/>
-      <circle cx="60" cy="58" r="14" stroke="#fff" stroke-width="4"/>
-      <circle cx="20" cy="58" r="3" fill="#fff"/>
-      <circle cx="60" cy="58" r="3" fill="#fff"/>
-      <path d="M20 58 L34 28 L50 28 L60 58" stroke="#fff" stroke-width="4" stroke-linejoin="round" fill="none"/>
-      <path d="M34 28 L44 44" stroke="#fff" stroke-width="3"/>
-      <path d="M44 44 L60 44" stroke="#fff" stroke-width="3"/>
-    </svg>
+    <!-- CIRCLE PHOTO: replace src with a rider/bike action shot -->
+    <img src="" alt="Rider on trail" onerror="this.style.display='none'">
   </div>
   <div class="exp-toggle">
     <button class="exp-btn active" data-exp="unleash">#Unleash Your Adventure</button>
@@ -169,7 +173,6 @@ footer{background:#f0ebe2;border-top:1px solid #ddd4c4;padding:3rem 2rem;text-al
   </div>
 </section>
 
-<!-- ICON-ENHANCED 3-STEP BOOKING -->
 <section class="steps-section">
   <div class="steps-inner">
     <div>
@@ -189,11 +192,13 @@ footer{background:#f0ebe2;border-top:1px solid #ddd4c4;padding:3rem 2rem;text-al
         </div>
       </div>
     </div>
-    <div class="steps-photo">Cargo bike photo</div>
+    <!-- STEPS PHOTO: replace src with cargo bike / fleet photo -->
+    <div class="steps-photo">
+      <img src="" alt="Cargo e-bike" onerror="this.style.display='none'">
+    </div>
   </div>
 </section>
 
-<!-- QUICK LINKS -->
 <section class="quick-links">
   <div class="quick-links-inner">
     <div class="quick-link-row"><div class="ql-dot"></div><span class="ql-label">Learn More About Us</span><a href="#" class="ql-btn">Learn More</a></div>
@@ -204,26 +209,42 @@ footer{background:#f0ebe2;border-top:1px solid #ddd4c4;padding:3rem 2rem;text-al
   </div>
 </section>
 
-<div class="nature-banner"></div>
+<!-- NATURE BANNER PHOTO: replace src with wide bikes-by-water shot -->
+<div class="nature-banner">
+  <img src="" alt="Bikes by the creek" onerror="this.style.display='none'">
+</div>
 
-<!-- TRAILSIDE SECTION -->
 <section class="trailside" id="trailside">
   <h2>Need Something More Relaxing?</h2>
+  <!-- VIDEO BOX: swap this div for <video autoplay muted loop playsinline src="your-clip.mp4"> when ready -->
   <div class="trail-dark"></div>
   <div class="trail-cards">
-    <div class="trail-card"><div class="trail-title">Only Electric Bike Service Near the trailhead</div></div>
     <div class="trail-card">
-      <div class="trail-title">Checkout Trailside Journey</div>
-      <a href="#" class="trail-pill">Switch to #Trailside Journey &rarr;</a>
+      <!-- TRAIL CARD 1 PHOTO: tree-lined trail shot -->
+      <img src="" alt="Trail through trees" onerror="this.style.display='none'">
+      <div class="trail-card-inner">
+        <div class="trail-title">Only Electric Bike Service Near the trailhead</div>
+      </div>
     </div>
     <div class="trail-card">
-      <div class="trail-bubble">11 miles of fun!</div>
-      <div class="trail-title">Relax and unwind</div>
+      <!-- TRAIL CARD 2 PHOTO: open greenway / river shot -->
+      <img src="" alt="Greenway trail" onerror="this.style.display='none'">
+      <div class="trail-card-inner">
+        <div class="trail-title">Checkout Trailside Journey</div>
+        <a href="#" class="trail-pill">Switch to #Trailside Journey &rarr;</a>
+      </div>
+    </div>
+    <div class="trail-card">
+      <!-- TRAIL CARD 3 PHOTO: tunnel / bridge shot -->
+      <img src="" alt="Trail tunnel" onerror="this.style.display='none'">
+      <div class="trail-card-inner">
+        <div class="trail-bubble">11 miles of fun!</div>
+        <div class="trail-title">Relax and unwind</div>
+      </div>
     </div>
   </div>
 </section>
 
-<!-- FOOTER -->
 <footer>
   <div class="footer-brand">Cruise The Creek</div>
   <div class="footer-sub">Electric Bikes</div>
@@ -263,7 +284,6 @@ footer{background:#f0ebe2;border-top:1px solid #ddd4c4;padding:3rem 2rem;text-al
 </footer>
 
 <script>
-// Experience data
 const EXP = {
   unleash: {
     tag: 'Mill Creek Park • Youngstown, OH',
@@ -294,33 +314,27 @@ let current = 'unleash';
 function applyExp(key) {
   const e = EXP[key];
   current = key;
-  // Hero
   document.getElementById('hero-tag').textContent = e.tag;
   document.getElementById('hero-headline').innerHTML = e.headline;
   document.getElementById('hero-sub').textContent = e.sub;
   document.getElementById('hero-cta').textContent = e.cta;
   document.getElementById('hero-cta').href = e.url;
-  // Toggle section
   document.getElementById('exp-location').innerHTML = e.location;
   document.getElementById('exp-avail').textContent = e.avail;
   document.getElementById('exp-avail').href = e.url;
   document.getElementById('exp-switch').innerHTML = e.switchLabel;
   document.getElementById('exp-switch').href = e.switchTarget;
-  // Buttons active state
   document.querySelectorAll('.exp-btn').forEach(b => {
     b.classList.toggle('active', b.dataset.exp === key);
   });
 }
 
-// Pill toggle
 document.querySelectorAll('.exp-btn').forEach(btn => {
   btn.addEventListener('click', () => applyExp(btn.dataset.exp));
 });
 
-// "Switch to" links
-document.getElementById('exp-switch').addEventListener('click', function(e) {
-  const next = current === 'unleash' ? 'trailside' : 'unleash';
-  applyExp(next);
+document.getElementById('exp-switch').addEventListener('click', function() {
+  applyExp(current === 'unleash' ? 'trailside' : 'unleash');
 });
 </script>
 </body>
