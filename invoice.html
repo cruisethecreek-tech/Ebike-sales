@@ -764,6 +764,33 @@
         .deposit-row { display: flex; justify-content: space-between; padding: 0.25rem 0; }
         .deposit-row strong { font-family: 'JetBrains Mono', monospace; font-weight: 600; color: var(--forest); }
 
+        .invoice-specs {
+            margin-bottom: 1.5rem;
+            padding: 1rem 1.25rem;
+            background: rgba(40, 80, 60, 0.04);
+            border: 1px solid rgba(40, 80, 60, 0.12);
+            border-radius: 6px;
+            font-size: 0.82rem;
+        }
+        .invoice-specs .specs-bike-name {
+            font-weight: 700;
+            color: var(--forest);
+            margin-bottom: 0.5rem;
+            font-size: 0.88rem;
+        }
+        .invoice-specs .specs-list {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.25rem 1.25rem;
+        }
+        .invoice-specs .specs-row { display: flex; justify-content: space-between; gap: 0.5rem; padding: 0.18rem 0; border-bottom: 1px dotted rgba(40,80,60,0.12); }
+        .invoice-specs .specs-row .specs-key { color: var(--op-text-dim, #5c6660); text-transform: uppercase; font-size: 0.7rem; letter-spacing: 0.06em; }
+        .invoice-specs .specs-row .specs-val { font-weight: 600; text-align: right; }
+        .invoice-specs + .invoice-specs { margin-top: -0.5rem; }
+        @media (max-width: 600px) {
+            .invoice-specs .specs-list { grid-template-columns: 1fr; }
+        }
+
         .payment-mode-toggle {
             display: flex;
             flex-wrap: wrap;
@@ -1106,6 +1133,8 @@
                     </div>
                 </div>
 
+                <div id="previewSpecsSection"></div>
+
                 <div id="previewNotes" class="notes"></div>
 
                 <div class="invoice-footer">
@@ -1131,13 +1160,21 @@
         document.getElementById('invoiceForm').addEventListener('change', updateInvoicePreview);
         document.getElementById('invoiceForm').addEventListener('input', updateInvoicePreview);
 
-        function addLineItem(description, qty, price) {
+        function addLineItem(description, qty, price, specs) {
             const container = document.getElementById('lineItemsContainer');
             const newItem = document.createElement('div');
             newItem.className = 'line-item';
             const safeDesc = (description != null) ? String(description).replace(/"/g, '&quot;') : '';
             const safeQty  = (qty != null && !isNaN(qty)) ? qty : 1;
             const safePrice = (price != null && !isNaN(price)) ? Number(price).toFixed(2) : '';
+            if (specs) {
+                try {
+                    const specsObj = (typeof specs === 'string') ? JSON.parse(specs) : specs;
+                    if (specsObj && typeof specsObj === 'object' && Object.keys(specsObj).length > 0) {
+                        newItem.dataset.specs = JSON.stringify(specsObj);
+                    }
+                } catch (e) { /* ignore unparseable specs */ }
+            }
             newItem.innerHTML = `
                 <input type="text" class="description" placeholder="Description" value="${safeDesc}" required>
                 <input type="number" class="quantity" value="${safeQty}" min="1" required>
@@ -1243,6 +1280,54 @@
             } else {
                 notesDiv.classList.remove('active');
             }
+
+            renderBikeSpecs();
+        }
+
+        function escapeHtml(s) {
+            return String(s == null ? '' : s)
+                .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+        }
+
+        function renderBikeSpecs() {
+            const target = document.getElementById('previewSpecsSection');
+            if (!target) return;
+            target.innerHTML = '';
+
+            const rows = document.querySelectorAll('.line-item');
+            rows.forEach(row => {
+                const raw = row.dataset.specs;
+                if (!raw) return;
+                let specs;
+                try { specs = JSON.parse(raw); } catch (e) { return; }
+                if (!specs || typeof specs !== 'object') return;
+
+                const entries = Object.keys(specs).map(k => {
+                    const v = specs[k];
+                    let val;
+                    if (v == null || v === '') return null;
+                    if (typeof v === 'object') val = JSON.stringify(v);
+                    else val = String(v);
+                    return [k, val];
+                }).filter(Boolean);
+                if (entries.length === 0) return;
+
+                const desc = (row.querySelector('.description') || {}).value || 'Bike';
+                const block = document.createElement('div');
+                block.className = 'invoice-specs';
+                block.innerHTML =
+                    '<div class="specs-bike-name">' + escapeHtml(desc) + ' — Specifications</div>' +
+                    '<div class="specs-list">' +
+                        entries.map(([k, v]) =>
+                            '<div class="specs-row">' +
+                                '<span class="specs-key">' + escapeHtml(k) + '</span>' +
+                                '<span class="specs-val">' + escapeHtml(v) + '</span>' +
+                            '</div>'
+                        ).join('') +
+                    '</div>';
+                target.appendChild(block);
+            });
         }
 
         function onPaymentModeChange() {
@@ -1694,8 +1779,9 @@
                 ? (item.brand + ' ' + item.name)
                 : item.name;
             const price = item.price;
+            const specs = (cat === 'bike') ? item.specs : null;
 
-            addLineItem(description, 1, price);
+            addLineItem(description, 1, price, specs);
             resetPicker();
         }
 
