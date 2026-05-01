@@ -1546,10 +1546,47 @@
                 const opt = document.createElement('option');
                 opt.value = idx;
                 opt.textContent = item.label;
+                if (cat === 'apparel') {
+                    const swatch = apparelColorSwatch(item.label);
+                    if (swatch) {
+                        opt.style.backgroundColor = swatch.bg;
+                        opt.style.color = swatch.fg;
+                    }
+                }
                 itemPicker.appendChild(opt);
             });
             itemPicker.disabled = false;
             addBtn.disabled = true;
+        }
+
+        // Map an apparel label like "Cruise the Creek T-Shirt — GREEN, L"
+        // to a background/foreground color so the option is visually
+        // tinted to match the actual garment color.
+        function apparelColorSwatch(label) {
+            if (!label) return null;
+            const text = String(label).toUpperCase();
+            const colors = [
+                { match: /\bBLACK\b/,            bg: '#111111', fg: '#ffffff' },
+                { match: /\bWHITE\b/,            bg: '#ffffff', fg: '#111111' },
+                { match: /\b(GREY|GRAY)\b/,      bg: '#7d7d7d', fg: '#ffffff' },
+                { match: /\bCHARCOAL\b/,         bg: '#36454f', fg: '#ffffff' },
+                { match: /\bNAVY\b/,             bg: '#1b2a4e', fg: '#ffffff' },
+                { match: /\b(ROYAL|BLUE)\b/,     bg: '#1f4ed8', fg: '#ffffff' },
+                { match: /\b(GREEN|FOREST|OLIVE)\b/, bg: '#1f7a3a', fg: '#ffffff' },
+                { match: /\bRED\b/,              bg: '#c1272d', fg: '#ffffff' },
+                { match: /\b(MAROON|BURGUNDY)\b/, bg: '#6b1a1a', fg: '#ffffff' },
+                { match: /\bORANGE\b/,           bg: '#e8732c', fg: '#111111' },
+                { match: /\bYELLOW\b/,           bg: '#f1c40f', fg: '#111111' },
+                { match: /\bPINK\b/,             bg: '#e85a9b', fg: '#ffffff' },
+                { match: /\bPURPLE\b/,           bg: '#6b3fa0', fg: '#ffffff' },
+                { match: /\bBROWN\b/,            bg: '#6b4423', fg: '#ffffff' },
+                { match: /\bTAN\b/,              bg: '#d2b48c', fg: '#111111' },
+                { match: /\b(BEIGE|CREAM|SAND)\b/, bg: '#e8dcc4', fg: '#111111' }
+            ];
+            for (const c of colors) {
+                if (c.match.test(text)) return { bg: c.bg, fg: c.fg };
+            }
+            return null;
         }
 
         function onItemChange() {
