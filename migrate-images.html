@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Image Migration — Cruise the Creek</title>
+<style>
+:root {
+    --bg: #1a1f1c;
+    --panel: #232a26;
+    --panel-2: #2c342f;
+    --border: #3a4540;
+    --text: #f0eee6;
+    --text-dim: #8a948e;
+    --forest: #28503c;
+    --forest-light: #3a6e54;
+    --accent: #b47850;
+    --good: #4ade80;
+    --warn: #fbbf24;
+    --bad: #f87171;
+}
+* { box-sizing: border-box; }
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    margin: 0; background: var(--bg); color: var(--text);
+    padding-bottom: 4rem;
+}
+header {
+    background: var(--panel); border-bottom: 1px solid var(--border);
+    padding: 1rem 1.5rem; display: flex; justify-content: space-between;
+    align-items: center; gap: 1rem; flex-wrap: wrap; position: sticky; top: 0; z-index: 10;
+}
+header h1 { margin: 0; font-size: 1.05rem; letter-spacing: 0.05em; text-transform: uppercase; }
+.progress { display: flex; align-items: center; gap: 1rem; font-size: 0.85rem; }
+.progress-bar { width: 200px; height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; }
+.progress-bar-fill { height: 100%; background: var(--good); transition: width 0.3s; }
+.btn {
+    background: var(--accent); color: var(--bg); border: none; padding: 0.55rem 1rem;
+    border-radius: 4px; font-weight: 600; cursor: pointer; font-size: 0.85rem;
+    text-transform: uppercase; letter-spacing: 0.05em;
+}
+.btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.btn-secondary { background: transparent; color: var(--text-dim); border: 1px solid var(--border); }
+.status { padding: 1rem 1.5rem; font-size: 0.9rem; color: var(--text-dim); }
+.status.error { color: var(--bad); }
+.status.success { color: var(--good); }
+main { padding: 1.5rem; max-width: 1400px; margin: 0 auto; }
+.bike-card {
+    background: var(--panel); border: 1px solid var(--border); border-radius: 8px;
+    margin-bottom: 1.5rem; overflow: hidden;
+}
+.bike-header {
+    padding: 1rem 1.25rem; background: var(--panel-2);
+    display: flex; justify-content: space-between; align-items: center; gap: 1rem;
+    border-bottom: 1px solid var(--border); flex-wrap: wrap;
+}
+.bike-title { font-size: 1.1rem; font-weight: 700; }
+.bike-meta { font-size: 0.8rem; color: var(--text-dim); }
+.bike-status { font-size: 0.78rem; padding: 0.25rem 0.6rem; border-radius: 3px; background: var(--bg); }
+.bike-status.complete { color: var(--good); border: 1px solid var(--good); }
+.bike-status.partial { color: var(--warn); border: 1px solid var(--warn); }
+.bike-status.empty { color: var(--text-dim); border: 1px solid var(--border); }
+.bike-body { padding: 1rem 1.25rem; }
+.style-block { margin-bottom: 1rem; }
+.style-title { font-size: 0.78rem; text-transform: uppercase; color: var(--text-dim); letter-spacing: 0.08em; margin-bottom: 0.5rem; }
+.size-block { margin-left: 1rem; margin-bottom: 0.75rem; }
+.size-title { font-size: 0.72rem; color: var(--text-dim); margin-bottom: 0.4rem; }
+.swatch-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 0.6rem; }
+.swatch-row {
+    display: grid; grid-template-columns: 60px 1fr; gap: 0.6rem; padding: 0.5rem;
+    background: var(--bg); border: 1px solid var(--border); border-radius: 5px;
+    align-items: center;
+}
+.swatch-row.assigned { border-color: var(--good); }
+.swatch-row.missing { border-color: var(--bad); }
+.swatch-thumb { width: 60px; height: 60px; background: #fff; border-radius: 3px; overflow: hidden; display: flex; align-items: center; justify-content: center; }
+.swatch-thumb img { max-width: 100%; max-height: 100%; object-fit: contain; }
+.swatch-thumb.no-img { background: var(--border); color: var(--text-dim); font-size: 0.7rem; }
+.swatch-info { display: flex; flex-direction: column; gap: 0.3rem; min-width: 0; }
+.swatch-name { font-size: 0.78rem; font-weight: 600; display: flex; align-items: center; gap: 0.4rem; }
+.swatch-hex { width: 12px; height: 12px; border-radius: 50%; border: 1px solid var(--border); }
+.swatch-input {
+    width: 100%; padding: 0.35rem 0.5rem; background: var(--panel-2);
+    color: var(--text); border: 1px solid var(--border); border-radius: 3px;
+    font-size: 0.78rem; font-family: monospace;
+}
+.swatch-input:focus { outline: none; border-color: var(--accent); }
+.swatch-status { font-size: 0.7rem; }
+.swatch-status.assigned { color: var(--good); }
+.swatch-status.pending { color: var(--text-dim); }
+.swatch-status.broken { color: var(--bad); }
+.bike-actions { padding: 0.75rem 1.25rem; border-top: 1px solid var(--border); display: flex; gap: 0.5rem; justify-content: flex-end; align-items: center; }
+.bike-actions .save-msg { font-size: 0.78rem; margin-right: auto; color: var(--text-dim); }
+.bike-actions .save-msg.success { color: var(--good); }
+.bike-actions .save-msg.error { color: var(--bad); }
+.legend { padding: 0 1.5rem 0.5rem; font-size: 0.8rem; color: var(--text-dim); display: flex; gap: 1rem; flex-wrap: wrap; }
+.legend-item { display: flex; align-items: center; gap: 0.35rem; }
+.legend-dot { width: 10px; height: 10px; border-radius: 2px; }
+</style>
+</head>
+<body>
+<header>
+    <h1>🖼  Image Migration Tool</h1>
+    <div class="progress">
+        <span id="progressText">Loading…</span>
+        <div class="progress-bar"><div class="progress-bar-fill" id="progressBar" style="width:0%"></div></div>
+        <button class="btn-secondary btn" onclick="reloadCatalog()">Reload</button>
+    </div>
+</header>
+<div class="legend">
+    <span class="legend-item"><span class="legend-dot" style="background:var(--good)"></span>Assigned to local file</span>
+    <span class="legend-item"><span class="legend-dot" style="background:var(--bad)"></span>Local file not found in /images/</span>
+    <span class="legend-item"><span class="legend-dot" style="background:var(--text-dim)"></span>Still pointing at Wix</span>
+    <span style="margin-left:auto">💡 Auto-suggestions are filled where filename matches bike+swatch name</span>
+</div>
+<div class="status" id="status">Loading bike inventory from Apps Script…</div>
+<main id="bikeList"></main>
+
+<datalist id="filelist"></datalist>
+
+<script>
+// AS URL — same endpoint the rest of the site uses
+const AS_URL = 'https://script.google.com/macros/s/AKfycbxmzlQHP4ghYbTzInhTANG7Wv9Cjj4dHTPFv-m8Q7GYPwbtx0yC7ydt8Nd_gFLobsBE/exec';
+const IMAGE_PREFIX = 'images/';
+
+// All filenames currently in /images/ — regenerated when new files are uploaded
+const LOCAL_FILES = ["1768526627390.jpg","9b7b2749-1184-4a62-b1c3-82cbe87afd51.jpg","Alpha White Back.jpg","Alpha.jpg","Alpine Blue Black.jpg","Aqua Green Black.jpg","Artic White Black.jpg","Beast Brown Black.jpg","Black Black.jpg","Black Summit.jpg","Blue Black.1.jpg","Blue Black.jpg","Blue Mock  Discovery 3.jpg","Blue Summit.jpg","Blue highstep.jpg","Blue.jpg","Breeze 1 Badge.jpg","ChatGPT Image Jan 16, 2026, 01_37_34 PM.jpg","ChatGPT Image Jan 16, 2026, 01_45_57 PM.jpg","CityRun Green Black.jpg","Cityrun Orange Black.jpg","Cityrun black black.jpg","Cityrun.jpg","Discover 2 Badge.jpg","Discover 2 same.jpg","Discover Blue.jpg","Discover Gray.jpg","Discover Green.jpg","EB5 2.0 badge Black.jpg","EB5 2.0 badge.jpg","EB5 Roamer Badge Black.jpg","EB5 Roamer badge.jpg","EB5 Roamer.jpg","EB7 2.0 Badge Black.jpg","EB7 2.0 Badge.jpg","EB7 2.0 Road Trip.jpg","Electric Blue Black.jpg","F1__Pearl_White_right_side_d65b1aac-67cd-466f-bd37-6178695d8398.jpg","Fold 1 Badge.jpg","Fold 1 Plus Badge.jpg","Fold 1 blue.jpg","Fold Plus.jpg","Gray.jpg","Green Black.jpg","Green High.jpg","Green M.jpg","Green mid.jpg","Green.jpg","Grey Black.jpg","Helio F Emi Black.jpg","Helio F Green Black.jpg","Helio F pbp black.jpg","Helio Mark Black.jpg","Helio black.jpg","Helio maroon Black.jpg","Hero Black.jpg","HighBar Badge.jpg","HighBar.jpg","Highsilver .jpg","Highstep blue.jpg","Horizon Black Black.jpg","Horizon Black Green.jpg","Horizon Black.jpg","Horizon Blue black.jpg","Horizon Orange Black.jpg","Hunter Pro Badge Black.jpg","Hunter Pro Badge.jpg","Hunter Pro.jpg","Lime Yellow Black.jpg","Mars 2.0 Black.jpg","Mars 3.0 Black Black.jpg","Mars 3.0 Black.jpg","Mars 3.0 Blue Black.jpg","Mars 3.0 Orange Black.jpg","Mars Black Black.jpg","Mars Blue black.jpg","Mars Grey Black.jpg","Mars Orange Black.jpg","Merlot Black.jpg","Nomad 2 Badge.jpg","Nomad 2x Badge.jpg","Nomad Fig.jpg","Nomad Multi Cam.jpg","Nomad Sage.jpg","Orange Summit.jpg","Pale Green Black.jpg","Pearl.jpg","Phantom Black Black.jpg","Phantom Purple Black.jpg","Pink Black.jpg","Purple.jpg","Ranger 3.0 Green Black.jpg","Ranger 3.0 Red Black.jpg","Ranger 3.0 Sunset Black.jpg","Ranger 3.0.jpg","Ranger S.jpg","Red.jpg","RetroVolt Pro Badge Black.jpg","RetroVolt Pro Badge.jpg","RetroVolt Pro.jpg","Sage.jpg","Screenshot 2026-03-16 201209.jpg","Screenshot 2026-03-16 201310.jpg","Screenshot 2026-03-16 201335.jpg","Screenshot 2026-03-16 201353.jpg","Screenshot 2026-03-16 202146.jpg","Shadow Steel.jpg","Silver Mock  Discovery 3.jpg","Silver Mock Badge Discovery 3.jpg","Silver.jpg","Step thru Badge.jpg","Storm blue Black.jpg","Summit 1 Badge.jpg","T1ST.jpg","Tangerine Black.jpg","Thunder Grey Black.jpg","Thunder.jpg","Triker Badge.jpg","Venom Green.jpg","White Black.1.jpg","White Black.jpg","White M.jpg","badge.jpg","helio.jpg","hero.jpg","highstep camo.jpg","highstep multi.jpg","midorange.jpg","ranger 3.0 sunset.jpg","sage highstep.jpg","thunder Badge.jpg","unnamed.jpg","venus BLACK BADGE.jpg","violet.jpg","white.jpg"];
+
+const LOCAL_LOWER = LOCAL_FILES.map(f => f.toLowerCase());
+const FILE_SET = new Set(LOCAL_FILES);
+
+// Populate the autocomplete datalist
+const dl = document.getElementById('filelist');
+LOCAL_FILES.forEach(f => {
+    const opt = document.createElement('option');
+    opt.value = f;
+    dl.appendChild(opt);
+});
+
+let bikes = [];
+
+// JSONP loader
+function jsonp(url, cb) {
+    const name = 'cb_' + Math.random().toString(36).slice(2);
+    window[name] = function(data) {
+        cb(null, data);
+        delete window[name];
+        if (s.parentNode) s.parentNode.removeChild(s);
+    };
+    const sep = url.indexOf('?') === -1 ? '?' : '&';
+    const s = document.createElement('script');
+    s.src = url + sep + 'callback=' + name;
+    s.onerror = () => { cb(new Error('JSONP load error')); };
+    document.head.appendChild(s);
+}
+
+function setStatus(msg, kind) {
+    const el = document.getElementById('status');
+    el.textContent = msg;
+    el.className = 'status ' + (kind || '');
+}
+
+function reloadCatalog() {
+    setStatus('Loading bike inventory from Apps Script…');
+    jsonp(AS_URL + '?action=getBikeInventory', (err, data) => {
+        if (err) {
+            setStatus('Failed to load: ' + err.message + '. Make sure getBikeInventory supports JSONP (see migration instructions).', 'error');
+            return;
+        }
+        // Apps Script may return either {status:'ok',data:[...]} or a bare array
+        bikes = Array.isArray(data) ? data : (data.data || data.bikes || []);
+        if (!Array.isArray(bikes)) {
+            setStatus('Unexpected response shape from Apps Script', 'error');
+            return;
+        }
+        renderAll();
+        setStatus('Loaded ' + bikes.length + ' bikes. Edit the local file path next to each Wix image, then click "Save Bike". Auto-suggestions are pre-filled where the filename matches.');
+    });
+}
+
+// Try to find the best matching local file for a swatch
+function suggestFile(bikeName, styleName, sizeName, swatchName) {
+    const tokens = [bikeName, styleName, sizeName, swatchName]
+        .filter(s => s && s !== 'Default' && s !== 'One Size')
+        .map(s => s.toLowerCase().split(/\s+/))
+        .flat()
+        .filter(t => t.length > 1);
+    if (tokens.length === 0) return '';
+
+    let best = null, bestScore = 0;
+    for (let i = 0; i < LOCAL_LOWER.length; i++) {
+        const f = LOCAL_LOWER[i];
+        let score = 0;
+        tokens.forEach(t => {
+            if (f.indexOf(t) !== -1) score += t.length;
+        });
+        if (score > bestScore) {
+            bestScore = score;
+            best = LOCAL_FILES[i];
+        }
+    }
+    // Require a meaningful match — at least the bike name has to land
+    return bestScore >= (bikeName || '').length ? best : '';
+}
+
+function isWixUrl(s) {
+    return typeof s === 'string' && s.indexOf('wixstatic.com') !== -1;
+}
+
+function isLocalPath(s) {
+    return typeof s === 'string' && s.indexOf(IMAGE_PREFIX) === 0;
+}
+
+function strip(s) {
+    return (s || '').replace(/^images\//, '');
+}
+
+function updateProgress() {
+    let total = 0, assigned = 0;
+    bikes.forEach(b => {
+        walkSwatches(b, (style, size, swatch) => {
+            total++;
+            if (isLocalPath(swatch.img) && FILE_SET.has(strip(swatch.img))) assigned++;
+        });
+    });
+    const pct = total ? Math.round(assigned / total * 100) : 0;
+    document.getElementById('progressText').textContent = assigned + ' / ' + total + ' swatches (' + pct + '%)';
+    document.getElementById('progressBar').style.width = pct + '%';
+}
+
+// Iterates over all swatches in a bike regardless of nested vs flat colors structure
+function walkSwatches(bike, fn) {
+    const colors = bike.colors || {};
+    if (bike.colorsNested) {
+        Object.keys(colors).forEach(styleName => {
+            const styleGroup = colors[styleName];
+            if (!styleGroup || typeof styleGroup !== 'object') return;
+            Object.keys(styleGroup).forEach(sizeName => {
+                if (sizeName === 'disabled' || sizeName.endsWith('__disabled')) return;
+                const arr = styleGroup[sizeName];
+                if (Array.isArray(arr)) arr.forEach((sw, i) => fn(styleName, sizeName, sw, i, arr));
+            });
+        });
+    } else {
+        Object.keys(colors).forEach(groupName => {
+            if (groupName === 'disabled' || groupName.endsWith('__disabled')) return;
+            const arr = colors[groupName];
+            if (Array.isArray(arr)) arr.forEach((sw, i) => fn(groupName, '', sw, i, arr));
+        });
+    }
+}
+
+function renderAll() {
+    const root = document.getElementById('bikeList');
+    root.innerHTML = '';
+    bikes.forEach((bike, bIdx) => {
+        const card = document.createElement('div');
+        card.className = 'bike-card';
+        card.dataset.bikeIdx = bIdx;
+
+        const header = document.createElement('div');
+        header.className = 'bike-header';
+        header.innerHTML =
+            '<div>' +
+                '<div class="bike-title">' + esc(bike.brand || '') + ' ' + esc(bike.name || '(unnamed)') + '</div>' +
+                '<div class="bike-meta">Row ' + (bIdx + 2) + ' · ID: ' + esc(bike.id || '—') + '</div>' +
+            '</div>' +
+            '<div class="bike-status" id="bikeStatus_' + bIdx + '">—</div>';
+        card.appendChild(header);
+
+        const body = document.createElement('div');
+        body.className = 'bike-body';
+
+        const colors = bike.colors || {};
+        const isNested = !!bike.colorsNested;
+
+        if (isNested) {
+            Object.keys(colors).forEach(styleName => {
+                if (styleName === 'disabled' || styleName.endsWith('__disabled')) return;
+                const styleGroup = colors[styleName];
+                if (!styleGroup || typeof styleGroup !== 'object') return;
+                const styleBlock = document.createElement('div');
+                styleBlock.className = 'style-block';
+                styleBlock.innerHTML = '<div class="style-title">Style: ' + esc(styleName) + '</div>';
+                Object.keys(styleGroup).forEach(sizeName => {
+                    if (sizeName === 'disabled' || sizeName.endsWith('__disabled')) return;
+                    const arr = styleGroup[sizeName];
+                    if (!Array.isArray(arr)) return;
+                    const sizeBlock = renderSwatches(bIdx, styleName, sizeName, arr, bike);
+                    styleBlock.appendChild(sizeBlock);
+                });
+                body.appendChild(styleBlock);
+            });
+        } else {
+            Object.keys(colors).forEach(groupName => {
+                if (groupName === 'disabled' || groupName.endsWith('__disabled')) return;
+                const arr = colors[groupName];
+                if (!Array.isArray(arr)) return;
+                const sizeBlock = renderSwatches(bIdx, groupName, '', arr, bike);
+                body.appendChild(sizeBlock);
+            });
+        }
+
+        card.appendChild(body);
+
+        const actions = document.createElement('div');
+        actions.className = 'bike-actions';
+        actions.innerHTML =
+            '<span class="save-msg" id="saveMsg_' + bIdx + '"></span>' +
+            '<button class="btn-secondary btn" onclick="autofillBike(' + bIdx + ')">Auto-suggest</button>' +
+            '<button class="btn" onclick="saveBike(' + bIdx + ')">Save Bike</button>';
+        card.appendChild(actions);
+
+        root.appendChild(card);
+        updateBikeStatus(bIdx);
+    });
+    updateProgress();
+}
+
+function renderSwatches(bIdx, styleName, sizeName, arr, bike) {
+    const block = document.createElement('div');
+    block.className = 'size-block';
+    if (sizeName) {
+        block.innerHTML = '<div class="size-title">Size: ' + esc(sizeName) + '</div>';
+    }
+    const grid = document.createElement('div');
+    grid.className = 'swatch-grid';
+    arr.forEach((sw, swIdx) => {
+        grid.appendChild(renderSwatchRow(bIdx, styleName, sizeName, swIdx, sw, bike));
+    });
+    block.appendChild(grid);
+    return block;
+}
+
+function renderSwatchRow(bIdx, styleName, sizeName, swIdx, sw, bike) {
+    const row = document.createElement('div');
+    row.className = 'swatch-row';
+    row.dataset.bIdx = bIdx;
+    row.dataset.styleName = styleName;
+    row.dataset.sizeName = sizeName;
+    row.dataset.swIdx = swIdx;
+
+    const thumb = document.createElement('div');
+    thumb.className = 'swatch-thumb';
+    if (sw.img) {
+        thumb.innerHTML = '<img src="' + esc(sw.img) + '" alt="" onerror="this.parentNode.classList.add(\'no-img\');this.remove();">';
+    } else {
+        thumb.classList.add('no-img');
+        thumb.textContent = 'no img';
+    }
+    row.appendChild(thumb);
+
+    const info = document.createElement('div');
+    info.className = 'swatch-info';
+
+    const name = document.createElement('div');
+    name.className = 'swatch-name';
+    name.innerHTML =
+        '<span class="swatch-hex" style="background:' + esc(sw.hex || '#cccccc') + '"></span>' +
+        '<span>' + esc(sw.name || '(unnamed)') + '</span>';
+    info.appendChild(name);
+
+    const input = document.createElement('input');
+    input.className = 'swatch-input';
+    input.list = 'filelist';
+    input.placeholder = 'type filename… e.g. Alpha.jpg';
+    input.value = isLocalPath(sw.img) ? strip(sw.img) : '';
+    if (!input.value) {
+        // auto-suggest only when no local path is set yet
+        const guess = suggestFile(bike.name, styleName, sizeName, sw.name);
+        if (guess) input.value = guess;
+    }
+    input.addEventListener('input', () => onInputChange(row));
+    info.appendChild(input);
+
+    const status = document.createElement('div');
+    status.className = 'swatch-status';
+    info.appendChild(status);
+
+    row.appendChild(info);
+    setTimeout(() => onInputChange(row), 0);
+    return row;
+}
+
+function onInputChange(row) {
+    const input = row.querySelector('.swatch-input');
+    const status = row.querySelector('.swatch-status');
+    const val = input.value.trim();
+    row.classList.remove('assigned', 'missing');
+    if (!val) {
+        status.textContent = '↻ will keep current Wix URL';
+        status.className = 'swatch-status pending';
+    } else if (FILE_SET.has(val)) {
+        status.textContent = '✓ will save as images/' + val;
+        status.className = 'swatch-status assigned';
+        row.classList.add('assigned');
+    } else {
+        status.textContent = '✗ "' + val + '" not in /images/';
+        status.className = 'swatch-status broken';
+        row.classList.add('missing');
+    }
+    const bIdx = parseInt(row.dataset.bIdx);
+    updateBikeStatus(bIdx);
+    updateProgress();
+}
+
+function updateBikeStatus(bIdx) {
+    const card = document.querySelector('[data-bike-idx="' + bIdx + '"]');
+    if (!card) return;
+    const rows = card.querySelectorAll('.swatch-row');
+    let total = 0, assigned = 0;
+    rows.forEach(r => {
+        total++;
+        if (r.classList.contains('assigned')) assigned++;
+    });
+    const el = document.getElementById('bikeStatus_' + bIdx);
+    if (!el) return;
+    if (total === 0) { el.textContent = 'no swatches'; el.className = 'bike-status empty'; return; }
+    if (assigned === 0) { el.textContent = '0 / ' + total + ' assigned'; el.className = 'bike-status empty'; return; }
+    if (assigned === total) { el.textContent = assigned + ' / ' + total + ' ✓'; el.className = 'bike-status complete'; return; }
+    el.textContent = assigned + ' / ' + total + ' partial'; el.className = 'bike-status partial';
+}
+
+function autofillBike(bIdx) {
+    const card = document.querySelector('[data-bike-idx="' + bIdx + '"]');
+    const bike = bikes[bIdx];
+    card.querySelectorAll('.swatch-row').forEach(row => {
+        const styleName = row.dataset.styleName;
+        const sizeName = row.dataset.sizeName;
+        const swIdx = parseInt(row.dataset.swIdx);
+        const arr = (bike.colorsNested ? (bike.colors[styleName] || {})[sizeName] : bike.colors[styleName]) || [];
+        const sw = arr[swIdx] || {};
+        const guess = suggestFile(bike.name, styleName, sizeName, sw.name);
+        if (guess) {
+            row.querySelector('.swatch-input').value = guess;
+            onInputChange(row);
+        }
+    });
+}
+
+function buildUpdatedColors(bIdx) {
+    const card = document.querySelector('[data-bike-idx="' + bIdx + '"]');
+    const bike = bikes[bIdx];
+    const colors = JSON.parse(JSON.stringify(bike.colors || {}));
+    card.querySelectorAll('.swatch-row').forEach(row => {
+        const val = row.querySelector('.swatch-input').value.trim();
+        if (!val) return; // leave existing img alone
+        const styleName = row.dataset.styleName;
+        const sizeName = row.dataset.sizeName;
+        const swIdx = parseInt(row.dataset.swIdx);
+        const arr = bike.colorsNested ? (colors[styleName] || {})[sizeName] : colors[styleName];
+        if (!Array.isArray(arr) || !arr[swIdx]) return;
+        arr[swIdx].img = IMAGE_PREFIX + val;
+    });
+    return colors;
+}
+
+function saveBike(bIdx) {
+    const bike = bikes[bIdx];
+    const msg = document.getElementById('saveMsg_' + bIdx);
+    msg.className = 'save-msg';
+    msg.textContent = 'Saving…';
+
+    const newColors = buildUpdatedColors(bIdx);
+    const jsonStr = JSON.stringify(newColors);
+    const url = AS_URL +
+        '?action=saveColors' +
+        '&rowIndex=' + encodeURIComponent(bike.rowIndex || (bIdx + 2)) +
+        '&json=' + encodeURIComponent(jsonStr);
+
+    if (url.length > 8000) {
+        msg.className = 'save-msg error';
+        msg.textContent = 'Payload too large (' + url.length + ' chars). Reduce swatch count or save manually.';
+        return;
+    }
+
+    jsonp(url, (err, resp) => {
+        if (err || (resp && resp.status === 'error')) {
+            msg.className = 'save-msg error';
+            msg.textContent = 'Save failed: ' + (err ? err.message : resp.message);
+            return;
+        }
+        // update local copy so the progress counter reflects the save
+        bike.colors = newColors;
+        msg.className = 'save-msg success';
+        msg.textContent = '✓ Saved at ' + new Date().toLocaleTimeString();
+    });
+}
+
+function esc(s) {
+    return String(s == null ? '' : s)
+        .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+
+reloadCatalog();
+</script>
+</body>
+</html>
