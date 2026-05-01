@@ -764,6 +764,28 @@
         .deposit-row { display: flex; justify-content: space-between; padding: 0.25rem 0; }
         .deposit-row strong { font-family: 'JetBrains Mono', monospace; font-weight: 600; color: var(--forest); }
 
+        .payment-mode-toggle {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem 1.25rem;
+            align-items: center;
+            margin-top: 0.85rem;
+        }
+        .payment-mode-toggle .payment-mode-label {
+            font-size: 0.78rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--op-text-dim);
+        }
+        .payment-mode-option {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+        .payment-mode-option input[type="radio"] { margin: 0; }
+
         .notes {
             background: var(--cust-bg);
             padding: 1rem 1.25rem;
@@ -957,7 +979,18 @@
                             <input type="number" id="discountFixed" step="0.01" placeholder="0" min="0">
                         </div>
                     </div>
-                    <div class="form-group" style="margin-top: 0.85rem;">
+                    <div class="payment-mode-toggle">
+                        <span class="payment-mode-label">Payment Type</span>
+                        <label class="payment-mode-option">
+                            <input type="radio" name="paymentMode" value="full" checked onchange="onPaymentModeChange()">
+                            <span>Pay in Full</span>
+                        </label>
+                        <label class="payment-mode-option">
+                            <input type="radio" name="paymentMode" value="deposit" onchange="onPaymentModeChange()">
+                            <span>Deposit + Balance Due Later</span>
+                        </label>
+                    </div>
+                    <div class="form-group" id="depositInputGroup" style="margin-top: 0.85rem; display: none;">
                         <label for="depositAmount">Deposit Amount Due Now ($)</label>
                         <input type="number" id="depositAmount" step="0.01" placeholder="0" min="0">
                     </div>
@@ -1212,6 +1245,20 @@
             }
         }
 
+        function onPaymentModeChange() {
+            const checked = document.querySelector('input[name="paymentMode"]:checked');
+            const mode = checked ? checked.value : 'full';
+            const group = document.getElementById('depositInputGroup');
+            const input = document.getElementById('depositAmount');
+            if (mode === 'deposit') {
+                group.style.display = '';
+            } else {
+                group.style.display = 'none';
+                input.value = '';
+            }
+            updateInvoicePreview();
+        }
+
         function resetForm() {
             document.getElementById('invoiceForm').reset();
             document.getElementById('paymentLinkBox').classList.remove('active');
@@ -1219,6 +1266,7 @@
             document.getElementById('lineItemsContainer').innerHTML = '';
             resetPicker();
             hideDeliveryCalc();
+            onPaymentModeChange();
 
             const today = new Date();
             document.getElementById('invoiceDate').valueAsDate = today;
