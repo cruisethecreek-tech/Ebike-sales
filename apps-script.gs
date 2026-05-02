@@ -6,13 +6,13 @@
  * 2.  Make two tabs named exactly:  Tiles   and   Submenus
  *
  *     Tiles tab — first row is the header, then one row per tile:
- *       id          order   label         type    url                                        external
- *       adventures  1       Adventures    link    https://adventure-map.pages.dev/v2         TRUE
- *       rentals     2       Rentals       menu
- *       shop        3       Shop          menu
- *       services    4       Services      menu
- *       test-rides  5       Test Rides    link    test-ride.html                             FALSE
- *       creek-life  6       Creek Life    menu
+ *       id          order   label         subtitle                  type    url                                        external
+ *       adventures  1       Adventures    Guided rides & maps       link    https://adventure-map.pages.dev/v2         TRUE
+ *       rentals     2       Rentals       Day rides & multi-stops   menu
+ *       shop        3       Shop          Browse bikes & gear       menu
+ *       services    4       Services      Tune-ups & creek prep     menu
+ *       test-rides  5       Test Rides    Try before you buy        link    test-ride.html                             FALSE
+ *       creek-life  6       Creek Life    Stories, events, more     menu
  *
  *     Submenus tab — first row is the header, then one row per sub-link:
  *       tile        order   label              url                                          external
