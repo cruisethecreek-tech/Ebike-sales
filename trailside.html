@@ -41,6 +41,19 @@ button{font-family:inherit}
 .crumb a:hover{color:var(--forest)}
 .crumb .sep{color:rgba(0,0,0,.2);margin:0 8px}
 
+/* SWITCH PILL (lives inside the hero) */
+.rental-switch{display:inline-flex;background:rgba(255,255,255,.12);
+  border:1px solid rgba(255,255,255,.22);border-radius:99px;padding:4px;
+  backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
+  margin:0 auto 22px;box-shadow:0 4px 14px rgba(0,0,0,.18)}
+.rental-switch-opt{padding:8px 18px;border-radius:99px;font-size:.74rem;font-weight:700;
+  letter-spacing:.08em;color:rgba(255,255,255,.7);text-transform:uppercase;
+  transition:all .2s ease;text-decoration:none;white-space:nowrap}
+.rental-switch-opt:hover{color:#fff;background:rgba(255,255,255,.08)}
+.rental-switch-opt.active{background:#fff;color:var(--forest);box-shadow:0 2px 6px rgba(0,0,0,.2)}
+.rental-switch-opt.active:hover{background:#fff;color:var(--forest)}
+@media(max-width:480px){.rental-switch-opt{padding:7px 12px;font-size:.66rem;letter-spacing:.06em}}
+
 /* HERO */
 .hero{position:relative;min-height:54vh;padding:72px 24px 56px;
   display:flex;align-items:flex-end;justify-content:center;
@@ -54,6 +67,7 @@ button{font-family:inherit}
   background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 600 400' preserveAspectRatio='none'><g fill='none' stroke='%23F5F0E8' stroke-width='1.2'><path d='M0,80 Q150,60 300,90 T600,80'/><path d='M0,140 Q150,120 300,150 T600,140'/><path d='M0,200 Q150,180 300,210 T600,200'/><path d='M0,260 Q150,240 300,270 T600,260'/></g></svg>");
   background-size:cover}
 .hero-content{position:relative;z-index:1;text-align:center;max-width:780px;margin:0 auto;
+  display:flex;flex-direction:column;align-items:center;
   animation:rise 1s cubic-bezier(0.16,1,0.3,1) both}
 .hero-eyebrow{display:inline-block;font-size:.74rem;font-weight:700;letter-spacing:.22em;
   text-transform:uppercase;color:var(--tan);margin-bottom:14px;
@@ -231,6 +245,10 @@ footer a:hover{color:#fff}
   <div class="hero-overlay"></div>
   <div class="hero-topo"></div>
   <div class="hero-content">
+    <div class="rental-switch" role="tablist" aria-label="Switch rental type">
+      <a class="rental-switch-opt" href="adventures.html">#Unleash</a>
+      <a class="rental-switch-opt active" href="trailside.html" aria-current="page">#Trailside</a>
+    </div>
     <span class="hero-eyebrow" data-cms-text="hero_eyebrow">Kirk Road · Canfield, OH</span>
     <h1 data-cms-text="hero_h1">#Trailside Journey</h1>
     <p class="sub" data-cms-text="hero_h1_em">Journey The Mill Creek MetroParks Bikeway</p>
