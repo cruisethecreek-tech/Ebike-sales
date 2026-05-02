@@ -336,6 +336,19 @@ document.querySelectorAll('.exp-btn').forEach(btn => {
 document.getElementById('exp-switch').addEventListener('click', function() {
   applyExp(current === 'unleash' ? 'trailside' : 'unleash');
 });
+
+/* Deep-link from rentals hub: rentals.html → adventures.html#trailside
+   flips the toggle to Trailside Journey on load. */
+function applyHashToggle() {
+  const h = (window.location.hash || '').toLowerCase();
+  if (h === '#trailside' || h === '#trailside-journey') {
+    applyExp('trailside');
+  } else if (h === '#unleash' || h === '#adventure' || h === '#adventures') {
+    applyExp('unleash');
+  }
+}
+applyHashToggle();
+window.addEventListener('hashchange', applyHashToggle);
 </script>
 </body>
 </html>
