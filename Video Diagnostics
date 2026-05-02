@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Remote Support | Cruise the Creek</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Your Actual Brand Color Palette */
+        :root {
+            --sage-green: #51633d;
+            --dark-green: #3d4a2d;
+            --forest-green: #2d3a1f;
+            --tan-bg: #d7c4ac;
+            --warm-tan: #c9b59a;
+            --off-white: #f9f7f4;
+            --cream: #f5f1ea;
+            --text-dark: #333333;
+            --light-sage: #6b7d55;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            margin: 0;
+            color: var(--text-dark);
+            background: var(--off-white);
+            line-height: 1.6;
+        }
+
+        .container {
+            width: 85%;
+            max-width: 1200px;
+            margin: auto;
+            text-align: center;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--tan-bg) 0%, var(--warm-tan) 100%);
+            padding: 2rem 0;
+            border-bottom: 4px solid var(--sage-green);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .logo {
+            color: var(--sage-green);
+            letter-spacing: 2px;
+            margin: 0;
+            text-shadow: 1px 1px 2px rgba(255,255,255,0.5);
+            font-size: 2rem;
+        }
+
+        .tagline {
+            color: var(--dark-green);
+            font-weight: 600;
+            margin-top: 0.5rem;
+            font-size: 1.1rem;
+        }
+
+        .hero {
+            background: linear-gradient(135deg, rgba(61, 74, 45, 0.92), rgba(45, 58, 31, 0.92)), 
+                        url('https://images.unsplash.com/photo-1593133642436-f08960803459?auto=format&fit=crop&q=80&w=1000');
+            background-size: cover;
+            background-position: center;
+            color: white;
+            padding: 6rem 0;
+            position: relative;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at top right, rgba(107, 125, 85, 0.15), transparent);
+        }
+
+        .hero .container {
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero h2 {
+            font-size: 2.5rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            margin-bottom: 1rem;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            max-width: 700px;
+            margin: 0 auto 1.5rem;
+        }
+
+        .btn-primary {
+            display: inline-block;
+            background: linear-gradient(135deg, var(--sage-green), var(--dark-green));
+            color: white;
+            padding: 1rem 2.5rem;
+            text-decoration: none;
+            border-radius: 50px;
+            font-weight: bold;
+            margin-top: 1rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 6px 20px rgba(81, 99, 61, 0.4);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 1rem;
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, var(--dark-green), var(--forest-green));
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(81, 99, 61, 0.5);
+        }
+
+        .services {
+            padding: 4rem 0;
+            background: linear-gradient(180deg, var(--off-white) 0%, var(--cream) 100%);
+        }
+
+        .services h3 {
+            color: var(--sage-green);
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            position: relative;
+            display: inline-block;
+        }
+
+        .services h3::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60%;
+            height: 4px;
+            background: linear-gradient(90deg, var(--sage-green), var(--light-sage));
+            border-radius: 2px;
+        }
+
+        .grid {
+            display: flex;
+            gap: 25px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 3rem;
+        }
+
+        .card {
+            background: white;
+            border: none;
+            padding: 2rem;
+            width: 250px;
+            border-radius: 15px;
+            box-shadow: 0 8px 20px rgba(81, 99, 61, 0.12);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: linear-gradient(90deg, var(--sage-green), var(--light-sage));
+        }
+
+        .card:nth-child(2)::before {
+            background: linear-gradient(90deg, var(--dark-green), var(--sage-green));
+        }
+
+        .card:nth-child(3)::before {
+            background: linear-gradient(90deg, var(--light-sage), var(--tan-bg));
+        }
+
+        .card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 30px rgba(81, 99, 61, 0.2);
+        }
+
+        .card h4 {
+            color: var(--sage-green);
+            border-bottom: 3px solid var(--tan-bg);
+            padding-bottom: 0.5rem;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            margin-top: 0.5rem;
+        }
+
+        .card p {
+            margin: 0;
+            font-size: 1rem;
+            line-height: 1.6;
+            color: var(--text-dark);
+        }
+
+        .booking-section {
+            background: linear-gradient(135deg, var(--tan-bg) 0%, var(--warm-tan) 100%);
+            padding: 4rem 0;
+            position: relative;
+        }
+
+        .booking-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at bottom left, rgba(107, 125, 85, 0.08), transparent);
+        }
+
+        .booking-section .container {
+            position: relative;
+            z-index: 1;
+        }
+
+        .booking-section h3 {
+            color: var(--sage-green);
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        .booking-section p {
+            font-size: 1.1rem;
+            margin-bottom: 2rem;
+            color: var(--dark-green);
+        }
+
+        footer {
+            background: linear-gradient(135deg, var(--sage-green), var(--forest-green));
+            color: white;
+            padding: 2rem 0;
+            margin-top: 0;
+        }
+
+        footer p {
+            margin: 0;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .hero h2 {
+                font-size: 1.8rem;
+            }
+            
+            .hero p {
+                font-size: 1rem;
+            }
+            
+            .grid {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .card {
+                width: 100%;
+                max-width: 350px;
+            }
+            
+            .services h3,
+            .booking-section h3 {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="container">
+            <h1 class="logo">CRUISE THE CREEK</h1>
+            <p class="tagline">Expert Remote Video Consultations</p>
+        </div>
+    </header>
+
+    <section class="hero">
+        <div class="container">
+            <h2>Get Expert Help from Anywhere</h2>
+            <p>Stuck on assembly? Ever hear? Please take a photo and e-mail us? Ofcourse you have...Connect with us instead and chat with our factory-trained technician via live video call and get your e-bike rolling.</p>
+            <a href="https://book.peek.com/s/57e3b62e-4f48-4cc4-8876-7b79f4c11baa/dmkOV" class="btn-primary" target="_blank">Schedule Your Session</a>
+        </div>
+    </section>
+
+    <section class="services">
+        <div class="container">
+            <h3>Specialized Support For:</h3>
+            <div class="grid">
+                <div class="card">
+                    <h4>Velotric</h4>
+                    <p>Troubleshooting for Nomad, Discover, and Summit models.</p>
+                </div>
+                <div class="card">
+                    <h4>Heybike</h4>
+                    <p>Assembly and error code support for Mars, Ranger, and more.</p>
+                </div>
+                <div class="card">
+                    <h4>Jasion</h4>
+                    <p>Technical guidance for EB series and folding e-bike maintenance.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="booking" class="booking-section">
+        <div class="container">
+            <h3>Ready to Get Rolling?</h3>
+            <p>Book a 1-on-1 video consultation with our certified technician.</p>
+            <a href="https://book.peek.com/s/57e3b62e-4f48-4cc4-8876-7b79f4c11baa/dmkOV" class="btn-primary" target="_blank">Book Now</a>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2026 Cruise the Creek E-Bike Rentals & Sales. Mahoning County, OH.</p>
+        </div>
+    </footer>
+
+</body>
+</html>
