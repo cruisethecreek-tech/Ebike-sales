@@ -932,11 +932,13 @@
         </div>
 
         <div class="hero-content">
-            <div class="hero-badge">Youngstown's E-Bike Experts</div>
-            <h1>Keep Your Ride <span class="accent">Creek Ready</span></h1>
-            <p class="hero-sub">Specialized E-Bike service. Professional tune-ups, expert assembly, and remote video diagnostics — from the Mahoning Valley's authorized Heybike, Velotric & Jasion dealer.</p>
+            <div class="hero-badge" data-cms-text="hero_eyebrow">Youngstown's E-Bike Experts</div>
+            <h1><span data-cms-text="hero_h1">Keep Your Ride</span> <span class="accent" data-cms-text="hero_h1_em">Creek Ready</span></h1>
+            <p class="hero-sub" data-cms-text="hero_tagline">Specialized E-Bike service. Professional tune-ups, expert assembly, and remote video diagnostics — from the Mahoning Valley's authorized Heybike, Velotric & Jasion dealer.</p>
             <div class="hero-cta-row">
-                <a href="#services" class="btn-primary">Explore Services <span>↓</span></a>
+                <a href="#services" class="btn-primary" data-cms-href="hero_cta_url" data-cms-target="hero_cta_external">
+                    <span data-cms-text="hero_cta_label">Explore Services</span> <span>↓</span>
+                </a>
                 <a href="sms:3304069682" class="btn-ghost">Text Dru: 330-406-9682</a>
             </div>
         </div>
@@ -1093,8 +1095,8 @@
     <!-- ─── CONTACT CTA ─── -->
     <section class="cta-section" id="contact">
         <div class="cta-card">
-            <h2>Not Sure Which Service You Need?</h2>
-            <p>No worries — text us a description or photo of what's going on and we'll point you in the right direction. No pressure, just honest advice.</p>
+            <h2 data-cms-text="cta_title">Not Sure Which Service You Need?</h2>
+            <p data-cms-text="cta_subtitle">No worries — text us a description or photo of what's going on and we'll point you in the right direction. No pressure, just honest advice.</p>
             <div class="cta-contact-row">
                 <a href="sms:3304069682" class="cta-contact-item">💬 Text: 330-406-9682</a>
                 <a href="mailto:salesteam@cruisethecreek.com" class="cta-contact-item">✉️ salesteam@cruisethecreek.com</a>
@@ -1107,14 +1109,14 @@
         <div class="footer-inner">
             <div class="footer-left">
                 <strong>Cruise the Creek</strong>
-                6685 Kirk Rd, Canfield, OH 44406 &nbsp;·&nbsp; © 2026 Cruise the Creek
+                <span data-cms-text="footer_copyright">6685 Kirk Rd, Canfield, OH 44406 &nbsp;·&nbsp; © 2026 Cruise the Creek</span>
             </div>
             <ul class="footer-links">
                 <li><a href="https://www.cruisethecreek.com/faq">FAQ</a></li>
                 <li><a href="https://www.cruisethecreek.com/cancellation-policy">Policies</a></li>
                 <li><a href="https://www.cruisethecreek.com/about">Our Story</a></li>
-                <li><a href="https://www.facebook.com/cruisethecreek" target="_blank">Facebook</a></li>
-                <li><a href="https://www.instagram.com/cruisethecreek_ebike_rental/" target="_blank">Instagram</a></li>
+                <li><a href="https://www.facebook.com/cruisethecreek" data-cms-href="social_facebook" target="_blank">Facebook</a></li>
+                <li><a href="https://www.instagram.com/cruisethecreek_ebike_rental/" data-cms-href="social_instagram" target="_blank">Instagram</a></li>
             </ul>
         </div>
     </footer>
@@ -1162,6 +1164,34 @@
                 }
             });
         });
+    </script>
+
+    <script>
+    /* ── CMS apply: hero copy, contact CTA, and footer pull from the Sheet ── */
+    const MENU_URL = 'https://script.google.com/macros/s/AKfycbxjg2ZsPCZNsmJEStYA0bRdsnkm4nNS-m-HNhm_Gin56VIVeYWVRE5j51j30zVHhb4PmQ/exec?page=creek-ready';
+
+    function isTrue(v){ return v===true||v==='TRUE'||v==='true'||v===1; }
+
+    function applyCMS(remote){
+        const map = Object.assign({}, remote.site || {}, remote.pageMeta || {});
+        document.querySelectorAll('[data-cms-text]').forEach(el => {
+            const v = map[el.dataset.cmsText];
+            if (v != null && String(v).trim() !== '') el.textContent = v;
+        });
+        document.querySelectorAll('[data-cms-href]').forEach(el => {
+            const v = map[el.dataset.cmsHref];
+            if (v) el.href = v;
+        });
+        document.querySelectorAll('[data-cms-target]').forEach(el => {
+            const v = map[el.dataset.cmsTarget];
+            if (isTrue(v)) { el.target = '_blank'; el.rel = 'noopener'; }
+        });
+    }
+
+    fetch(MENU_URL, {cache:'no-store'})
+        .then(r => r.ok ? r.json() : Promise.reject(r.status))
+        .then(remote => { if (remote && typeof remote === 'object') applyCMS(remote); })
+        .catch(err => console.warn('[creek-ready] config fetch failed, using static content:', err));
     </script>
 
 </body>
