@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Events | Cruise the Creek</title>
+<meta name="description" content="Upcoming rides, races, and shop events.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--sage:#6B8F71;--forest:#2D4A32;--dark:#1a2e1c;--tan:#C9A96E;--cream:#F5F0E8;--ink:#1a1a1a;--ink-2:#4a4a4a}
+body{font-family:'DM Sans',sans-serif;color:var(--ink);background:var(--cream);min-height:100vh;display:flex;flex-direction:column}
+a{color:inherit;text-decoration:none}
+button{font-family:inherit}
+.topbar{background:rgba(26,46,28,.92);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);color:#fff;padding:12px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;border-bottom:1px solid rgba(201,169,110,.18)}
+.brand-logo{height:38px;filter:invert(1) brightness(1.1)}
+.icon-btn{width:40px;height:40px;border-radius:50%;border:1.5px solid rgba(255,255,255,.28);background:transparent;color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:background .15s,border-color .15s}
+.icon-btn:hover{background:rgba(255,255,255,.1);border-color:var(--tan)}
+.icon-btn svg{width:18px;height:18px}
+.top-actions{display:flex;gap:8px}
+.hero{position:relative;min-height:32vh;padding:54px 22px 40px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;color:#fff;background:linear-gradient(155deg,#2D4A32 0%,#557159 50%,#a98843 100%);overflow:hidden;isolation:isolate}
+.hero-topo{position:absolute;inset:0;z-index:-1;opacity:.18;pointer-events:none;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 600 400' preserveAspectRatio='none'><g fill='none' stroke='%23F5F0E8' stroke-width='1.2'><path d='M0,80 Q150,60 300,90 T600,80'/><path d='M0,140 Q150,120 300,150 T600,140'/><path d='M0,200 Q150,180 300,210 T600,200'/><path d='M0,260 Q150,240 300,270 T600,260'/></g></svg>");background-size:cover}
+.hero-eyebrow{display:inline-block;font-size:.7rem;letter-spacing:.32em;text-transform:uppercase;color:var(--tan);font-weight:800;margin-bottom:14px;padding:6px 14px;border:1px solid rgba(201,169,110,.5);border-radius:99px;background:rgba(26,46,28,.35)}
+.hero h1{font-family:'Bebas Neue',sans-serif;font-size:clamp(2.2rem,7vw,3.8rem);letter-spacing:.04em;line-height:1;text-shadow:0 4px 24px rgba(0,0,0,.4)}
+.hero p{font-size:.95rem;color:#e9e2d2;max-width:480px;margin-top:12px;line-height:1.5}
+.crumb{max-width:880px;margin:0 auto;padding:14px 22px 0;font-size:.74rem;letter-spacing:.18em;text-transform:uppercase;font-weight:700;color:var(--sage)}
+.crumb a{color:var(--ink-2);transition:color .15s}
+.crumb a:hover{color:var(--forest)}
+.crumb .sep{color:#c0b59e;margin:0 8px}
+main{flex:1;max-width:760px;margin:0 auto;padding:28px 22px 60px;width:100%}
+.placeholder{background:#fff;border:1px dashed #c9b994;border-radius:18px;padding:36px 26px;text-align:center;color:var(--ink-2);box-shadow:0 1px 0 rgba(0,0,0,.02)}
+.ph-eyebrow{font-size:.66rem;letter-spacing:.28em;font-weight:800;text-transform:uppercase;color:var(--sage);margin-bottom:8px}
+.ph-title{font-family:'Bebas Neue',sans-serif;font-size:1.7rem;color:var(--forest);margin-bottom:10px;letter-spacing:.04em;line-height:1.05}
+.ph-note{font-size:.94rem;line-height:1.55;max-width:520px;margin:0 auto}
+.back-cta{display:inline-flex;align-items:center;gap:8px;margin-top:24px;background:var(--forest);color:#fff;padding:11px 22px;border-radius:99px;font-weight:800;font-size:.84rem;letter-spacing:.04em;transition:background .15s,transform .12s}
+.back-cta:hover{background:var(--dark);transform:translateY(-1px)}
+.back-cta svg{width:14px;height:14px}
+footer{background:var(--dark);color:rgba(255,255,255,.6);padding:22px;text-align:center;font-size:.78rem;letter-spacing:.04em}
+footer a{color:var(--tan)}
+footer a:hover{color:#fff}
+@media(max-width:380px){.topbar{padding:10px 14px}.hero{padding:40px 16px 32px}main{padding:22px 14px 44px}.placeholder{padding:26px 18px}}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <a href="home.html" aria-label="Cruise the Creek home"><img class="brand-logo" src="BlackonTransparent.png" alt="Cruise the Creek"></a>
+</header>
+
+<section class="hero">
+  <div class="hero-topo"></div>
+  <span class="hero-eyebrow">Group rides & happenings</span>
+  <h1>Events</h1>
+  <p>Upcoming rides, races, and shop events.</p>
+</section>
+
+<nav class="crumb"><a href="home.html">Home</a><span class="sep">/</span>Creek Life <span class="sep">/</span> Events</nav>
+
+<main>
+  <div class="placeholder">
+    <div class="ph-eyebrow">Coming soon</div>
+    <div class="ph-title">Events content lands here</div>
+    <div class="ph-note">Event calendar, RSVP forms, and recaps from past events will live here.</div>
+    <a class="back-cta" href="home.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+      Back
+    </a>
+  </div>
+</main>
+
+<footer>
+  &copy; 2026 Cruise the Creek &middot; <a href="home.html">Home</a> &middot; <a href="shop.html">Shop</a>
+</footer>
+
+</body>
+</html>

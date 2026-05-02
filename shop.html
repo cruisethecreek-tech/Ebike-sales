@@ -118,6 +118,7 @@ main{flex:1;width:100%}
 .t-velotric .tile-photo{background:linear-gradient(135deg,#2c4f6e 0%,#5984a8 100%)}
 .t-jasion   .tile-photo{background:linear-gradient(135deg,#2D4A32 0%,#557159 100%)}
 .t-mooncool .tile-photo{background:linear-gradient(135deg,#5c4a7d 0%,#9484b8 100%)}
+.t-apparel  .tile-photo{background:linear-gradient(135deg,#7a4f3c 0%,#b58968 100%)}
 
 /* ── FEATURED PLACEHOLDER ── (room for an inventory carousel later) */
 .featured-slot{
@@ -242,19 +243,6 @@ footer{background:var(--dark);color:rgba(255,255,255,.75);padding:30px 22px 24px
   <a class="brand" href="home.html" aria-label="Cruise the Creek home">
     <img class="brand-logo" src="BlackonTransparent.png" alt="Cruise the Creek">
   </a>
-  <div class="top-actions">
-    <button class="icon-btn" aria-label="Account">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 5-6 8-6s6.5 2 8 6"/>
-      </svg>
-    </button>
-    <button class="icon-btn" aria-label="Cart">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M3 4h2l2.4 12.3a2 2 0 0 0 2 1.7h8.2a2 2 0 0 0 2-1.6L21 8H6"/>
-        <circle cx="9" cy="21" r="1.5"/><circle cx="18" cy="21" r="1.5"/>
-      </svg>
-    </button>
-  </div>
 </header>
 
 <!-- ── HERO ── -->
@@ -279,7 +267,7 @@ footer{background:var(--dark);color:rgba(255,255,255,.75);padding:30px 22px 24px
     <div class="section-sub">Browse by brand</div>
     <h2>Our Dealers</h2>
   </div>
-  <span class="section-count" id="brandCount">4 brands</span>
+  <span class="section-count" id="brandCount">5 picks</span>
 </div>
 
 <!-- ── TILE GRID ── -->
@@ -375,6 +363,7 @@ const ICONS = {
   'velotric': '<span style="font-family:\'Bebas Neue\',sans-serif">V</span>',
   'jasion':   '<span style="font-family:\'Bebas Neue\',sans-serif">J</span>',
   'mooncool': '<span style="font-family:\'Bebas Neue\',sans-serif">M</span>',
+  'apparel':  '<svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M16 12l-8 6 4 8 6-3v25h28V23l6 3 4-8-8-6-7-2c-2 4-5 6-9 6s-7-2-9-6z"/></svg>',
 };
 
 const DEFAULT_DATA = {
@@ -383,6 +372,7 @@ const DEFAULT_DATA = {
     {id:'velotric', order:2, label:'Velotric', subtitle:'Sleek, premium e-bikes',       type:'link', url:'velotric.html'},
     {id:'jasion',   order:3, label:'Jasion',   subtitle:'Trail-ready power',            type:'link', url:'jasion.html'},
     {id:'mooncool', order:4, label:'Mooncool', subtitle:'Three-wheel comfort',          type:'link', url:'mooncool.html'},
+    {id:'apparel',  order:5, label:'Apparel',  subtitle:'Tees, caps & ride threads',    type:'link', url:'apparel.html'},
   ],
   submenus: {},
 };
@@ -404,7 +394,7 @@ function isTrue(v){ return v === true || v === 'TRUE' || v === 'true' || v === 1
 
 function renderTiles(){
   const tiles = [...(DATA.tiles||[])].sort((a,b)=>(a.order||0)-(b.order||0));
-  countEl.textContent = `${tiles.length} brand${tiles.length===1?'':'s'}`;
+  countEl.textContent = `${tiles.length} picks`;
   grid.innerHTML = tiles.map(t => {
     const icon = ICONS[t.id] || `<span style="font-family:'Bebas Neue',sans-serif">${esc((t.label||'?')[0])}</span>`;
     const inner = `

@@ -32,10 +32,8 @@
  *       creek-life  1       Creek Life Blog    creek-life-blog.html                         FALSE
  *       creek-life  2       Our Story          our-story.html                               FALSE
  *       creek-life  3       Events             events.html                                  FALSE
- *       creek-life  4       Sponsors           sponsors.html                                FALSE
- *       creek-life  5       Reviews            reviews.html                                 FALSE
- *       creek-life  6       Donate             donate.html                                  FALSE
- *       creek-life  7       FAQs               faqs.html                                    FALSE
+ *       creek-life  4       Donate             donate.html                                  FALSE
+ *       creek-life  5       FAQs               faqs.html                                    FALSE
  *
  *     Shop_Tiles
  *       id          order   label       subtitle                       type    url                external
@@ -43,6 +41,7 @@
  *       velotric    2       Velotric    Sleek, premium e-bikes         link    velotric.html      FALSE
  *       jasion      3       Jasion      Trail-ready power              link    jasion.html        FALSE
  *       mooncool    4       Mooncool    Three-wheel comfort            link    mooncool.html      FALSE
+ *       apparel     5       Apparel     Tees, caps & ride threads      link    apparel.html       FALSE
  *
  *     Shop_Submenus  (leave empty for now — none of the brand tiles have submenus)
  *       tile        order   label       url       external

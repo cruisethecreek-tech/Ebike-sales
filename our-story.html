@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Our Story | Cruise the Creek</title>
+<meta name="description" content="Cruise the Creek began as a lemonade stand for Mill Creek Park — a way to get off the screens and into the park. Read the full story.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,400;0,500;0,700;0,800;1,400;1,500&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --sage:#6B8F71;--sage-d:#557159;--forest:#2D4A32;--dark:#1a2e1c;
+  --tan:#C9A96E;--tan-d:#a98843;--cream:#F5F0E8;--cream-w:#fbf7ef;
+  --ink:#1a1a1a;--ink-2:#3a3a3a;--ink-3:#5a5a5a;
+}
+html,body{height:100%}
+html{scroll-behavior:smooth}
+body{font-family:'DM Sans',sans-serif;color:var(--ink);background:var(--cream);
+  display:flex;flex-direction:column;min-height:100vh;overflow-x:hidden}
+a{color:inherit;text-decoration:none}
+img{max-width:100%;display:block}
+
+/* ── TOP BAR ── */
+.topbar{background:rgba(26,46,28,.92);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+  color:#fff;padding:12px 20px;display:flex;align-items:center;justify-content:space-between;
+  position:sticky;top:0;z-index:100;border-bottom:1px solid rgba(201,169,110,.18)}
+.brand-logo{height:38px;filter:invert(1) brightness(1.1)}
+
+/* ── HERO ── */
+.hero{position:relative;min-height:60vh;display:flex;align-items:flex-end;justify-content:center;
+  padding:80px 22px 56px;overflow:hidden;isolation:isolate;color:#fff;
+  background:linear-gradient(155deg,#1a2e1c 0%,#2D4A32 38%,#557159 70%,#a98843 100%)}
+.hero-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
+  z-index:-2;opacity:0;transition:opacity .8s ease}
+.hero-img.loaded{opacity:1}
+.hero-overlay{position:absolute;inset:0;z-index:-1;
+  background:linear-gradient(180deg,rgba(26,46,28,.55) 0%,rgba(26,46,28,.25) 40%,rgba(26,46,28,.85) 100%)}
+.hero-topo{position:absolute;inset:0;z-index:-1;opacity:.18;pointer-events:none;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 600 400' preserveAspectRatio='none'><g fill='none' stroke='%23F5F0E8' stroke-width='1.2'><path d='M0,80 Q150,60 300,90 T600,80'/><path d='M0,140 Q150,120 300,150 T600,140'/><path d='M0,200 Q150,180 300,210 T600,200'/><path d='M0,260 Q150,240 300,270 T600,260'/></g></svg>");
+  background-size:cover}
+.hero-content{position:relative;z-index:1;text-align:center;max-width:740px;
+  animation:rise .8s ease-out both}
+.hero-eyebrow{display:inline-block;font-size:.72rem;font-weight:800;letter-spacing:.32em;
+  text-transform:uppercase;color:var(--tan);margin-bottom:16px;padding:6px 14px;
+  border:1px solid rgba(201,169,110,.5);border-radius:99px;background:rgba(26,46,28,.35)}
+.hero h1{font-family:'Bebas Neue',sans-serif;font-size:clamp(2.6rem,8vw,5rem);
+  line-height:.96;letter-spacing:.02em;text-shadow:0 4px 30px rgba(0,0,0,.45);margin-bottom:14px}
+.hero h1 em{font-style:normal;color:var(--tan);display:block}
+.hero-tag{font-family:'DM Sans',sans-serif;font-style:italic;
+  font-size:clamp(1rem,2.4vw,1.2rem);color:#e9e2d2;
+  text-shadow:0 2px 12px rgba(0,0,0,.4)}
+
+/* ── BREADCRUMB ── */
+.crumb{max-width:880px;margin:0 auto;padding:18px 22px 0;
+  font-size:.74rem;letter-spacing:.18em;text-transform:uppercase;font-weight:700;color:var(--sage)}
+.crumb a{color:var(--ink-2);transition:color .15s}
+.crumb a:hover{color:var(--forest)}
+.crumb .sep{color:#c0b59e;margin:0 8px}
+
+/* ── ARTICLE ── */
+main{flex:1;width:100%}
+.article{max-width:780px;margin:0 auto;padding:28px 22px 24px;width:100%}
+.section{padding:24px 0}
+.section-eyebrow{display:inline-block;font-size:.7rem;letter-spacing:.28em;text-transform:uppercase;
+  font-weight:800;color:var(--sage);margin-bottom:8px}
+.section-date{display:inline-flex;align-items:center;gap:8px;font-size:.74rem;letter-spacing:.18em;
+  text-transform:uppercase;font-weight:800;color:var(--tan-d);margin-bottom:10px;
+  background:#f5e8cd;padding:6px 14px;border-radius:99px;border:1px solid #e8d4a8}
+.section h2{font-family:'Bebas Neue',sans-serif;font-size:clamp(2rem,5.5vw,3rem);
+  letter-spacing:.04em;color:var(--forest);line-height:1;margin-bottom:18px}
+.section h3{font-family:'DM Sans',sans-serif;font-size:1.15rem;font-weight:800;
+  color:var(--forest);margin:24px 0 8px;letter-spacing:.01em}
+.section p{font-size:1.02rem;line-height:1.72;color:var(--ink-2);margin-bottom:16px}
+.section p.lead{font-size:1.15rem;color:var(--ink);font-weight:500;line-height:1.65}
+.section p strong{color:var(--ink);font-weight:700}
+
+/* ── PHOTO GRID ── */
+.photo-grid{display:grid;grid-template-columns:1fr;gap:14px;margin:16px 0 22px}
+.photo-slot{position:relative;background:linear-gradient(135deg,#557159,#a98843);
+  border-radius:18px;overflow:hidden;aspect-ratio:4/3;
+  box-shadow:0 6px 22px rgba(45,74,50,.16)}
+.photo-slot img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.photo-slot::after{content:attr(data-caption);position:absolute;left:0;right:0;bottom:0;
+  padding:14px 16px 12px;color:#fff;font-size:.78rem;font-weight:600;letter-spacing:.02em;
+  background:linear-gradient(0deg,rgba(0,0,0,.65) 0%,rgba(0,0,0,0) 100%);text-align:left}
+
+/* ── PULL QUOTE ── */
+.pullquote{position:relative;margin:30px 0;padding:26px 28px 24px;
+  background:#fff;border-left:5px solid var(--tan);border-radius:14px;
+  box-shadow:0 6px 24px rgba(45,74,50,.08)}
+.pullquote::before{content:'\201C';position:absolute;top:-14px;left:18px;
+  font-family:'Bebas Neue',sans-serif;font-size:5rem;color:var(--tan);line-height:1;
+  background:var(--cream);padding:0 8px}
+.pullquote p{font-family:'DM Sans',sans-serif;font-style:italic;font-size:1.18rem;
+  line-height:1.55;color:var(--forest);font-weight:500;margin:0}
+
+/* ── CALLOUT ── */
+.callout{background:linear-gradient(120deg,var(--forest) 0%,var(--dark) 100%);color:#fff;
+  border-radius:18px;padding:30px 26px;margin:28px 0;text-align:center;
+  position:relative;overflow:hidden}
+.callout::after{content:'';position:absolute;inset:0;pointer-events:none;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 200'><g fill='none' stroke='%23C9A96E' stroke-opacity='0.22' stroke-width='.9'><circle cx='350' cy='40' r='40'/><circle cx='350' cy='40' r='80'/><circle cx='350' cy='40' r='120'/></g></svg>");
+  background-position:right top;background-repeat:no-repeat}
+.callout-title{font-family:'Bebas Neue',sans-serif;font-size:2rem;letter-spacing:.05em;
+  line-height:1;color:var(--tan)}
+.callout-sub{margin-top:10px;font-size:.96rem;color:#e9e2d2}
+
+/* ── CHAPTER DIVIDER ── */
+.divider{display:flex;align-items:center;gap:14px;margin:36px 0 14px;color:var(--tan)}
+.divider::before,.divider::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,transparent,var(--tan-d),transparent)}
+.divider span{font-family:'Bebas Neue',sans-serif;letter-spacing:.32em;font-size:.92rem;color:var(--tan-d)}
+
+/* ── Q&A subsections ── */
+.qa{margin:24px 0;padding:18px 20px;background:#fff;border-radius:14px;
+  border:1px solid #ece2cf;box-shadow:0 1px 0 rgba(0,0,0,.02)}
+.qa h4{font-family:'DM Sans',sans-serif;font-weight:800;font-size:1.06rem;
+  color:var(--forest);margin-bottom:10px}
+.qa p{font-size:.98rem;line-height:1.65;color:var(--ink-2);margin-bottom:0}
+
+/* ── MISSION LIST ── */
+.mission-list{list-style:none;padding:0;margin:14px 0 18px;display:flex;flex-direction:column;gap:8px}
+.mission-list li{position:relative;padding:14px 18px 14px 50px;background:#fff;border:1px solid #ece2cf;
+  border-radius:12px;font-size:1rem;color:var(--ink-2);line-height:1.5}
+.mission-list li::before{content:'';position:absolute;left:18px;top:50%;transform:translateY(-50%);
+  width:14px;height:14px;border-radius:50%;background:linear-gradient(135deg,var(--sage),var(--tan));
+  box-shadow:0 0 0 3px rgba(107,143,113,.18)}
+.mission-list li strong{color:var(--forest);font-weight:800}
+
+/* ── REVIEWS ── */
+.reviews{background:linear-gradient(180deg,transparent 0%,#efe4d0 100%);padding:30px 0 6px;margin-top:24px}
+.review-grid{display:grid;grid-template-columns:1fr;gap:14px;max-width:780px;margin:0 auto;padding:0 22px}
+.review-card{background:#fff;border:1px solid #ece2cf;border-radius:18px;
+  padding:22px 22px 20px;display:flex;gap:14px;align-items:center;
+  text-decoration:none;color:inherit;transition:transform .15s ease,box-shadow .15s ease,border-color .15s ease}
+.review-card:hover{transform:translateY(-2px);box-shadow:0 12px 30px rgba(45,74,50,.14);border-color:var(--sage)}
+.review-card .gicon{width:48px;height:48px;border-radius:50%;background:#fff;
+  border:1px solid #e2d8c5;display:flex;align-items:center;justify-content:center;flex-shrink:0;
+  box-shadow:0 4px 12px rgba(0,0,0,.06)}
+.review-card .gicon svg{width:22px;height:22px}
+.review-card .rc-body{flex:1;min-width:0}
+.review-card .rc-eyebrow{font-size:.66rem;letter-spacing:.24em;font-weight:800;
+  text-transform:uppercase;color:var(--sage);margin-bottom:2px}
+.review-card .rc-title{font-weight:800;color:var(--forest);font-size:1.05rem;line-height:1.2}
+.review-card .rc-arrow{color:var(--sage);width:18px;height:18px;flex-shrink:0}
+.stars{display:flex;gap:2px;margin-top:6px;color:var(--tan)}
+.stars svg{width:12px;height:12px}
+
+/* ── CTA ── */
+.bottom-cta{max-width:780px;margin:24px auto 32px;padding:0 22px}
+.bottom-cta-inner{background:linear-gradient(120deg,var(--forest) 0%,var(--dark) 100%);
+  color:#fff;border-radius:18px;padding:24px 24px;
+  display:flex;flex-direction:column;gap:14px;align-items:flex-start;
+  position:relative;overflow:hidden}
+.bottom-cta-inner::after{content:'';position:absolute;inset:0;pointer-events:none;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 200'><g fill='none' stroke='%23C9A96E' stroke-opacity='0.22' stroke-width='.9'><circle cx='350' cy='40' r='40'/><circle cx='350' cy='40' r='80'/></g></svg>");
+  background-position:right top;background-repeat:no-repeat}
+.bottom-cta .ce{font-size:.66rem;letter-spacing:.28em;font-weight:800;text-transform:uppercase;color:var(--tan)}
+.bottom-cta .ct{font-family:'Bebas Neue',sans-serif;font-size:1.55rem;letter-spacing:.04em;line-height:1.05}
+.bottom-cta .cr{display:flex;flex-wrap:wrap;gap:10px;position:relative;z-index:1}
+.cbtn{display:inline-flex;align-items:center;gap:8px;background:var(--tan);color:var(--dark);
+  font-weight:800;font-size:.85rem;letter-spacing:.04em;padding:11px 20px;border-radius:99px;
+  transition:transform .15s ease,background .15s ease}
+.cbtn:hover{background:#dbb978;transform:translateY(-1px)}
+.cbtn.ghost{background:transparent;color:#fff;border:1.5px solid rgba(255,255,255,.4)}
+.cbtn.ghost:hover{background:rgba(255,255,255,.1);border-color:var(--tan)}
+.cbtn svg{width:14px;height:14px}
+
+/* ── FOOTER ── */
+footer{background:var(--dark);color:rgba(255,255,255,.7);padding:24px 22px;
+  text-align:center;font-size:.78rem;letter-spacing:.04em}
+footer a{color:var(--tan)}
+footer a:hover{color:#fff}
+
+@keyframes rise{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+
+@media(min-width:640px){
+  .topbar{padding:14px 28px}.brand-logo{height:42px}
+  .photo-grid{grid-template-columns:1fr 1fr;gap:16px}
+  .review-grid{grid-template-columns:1fr 1fr;gap:16px}
+  .pullquote{margin:36px 0}
+  .bottom-cta-inner{flex-direction:row;align-items:center;justify-content:space-between;padding:28px 30px}
+}
+@media(max-width:380px){
+  .topbar{padding:10px 14px}.brand-logo{height:32px}
+  .hero{padding:54px 16px 40px}
+  .article{padding:20px 14px 18px}
+  .qa{padding:14px 16px}
+  .pullquote{padding:20px 22px}
+  .callout{padding:24px 18px}
+}
+@media(prefers-reduced-motion:reduce){.hero-content{animation:none;opacity:1;transform:none}}
+</style>
+</head>
+<body>
+
+<!-- ── TOP BAR ── -->
+<header class="topbar">
+  <a href="home.html" aria-label="Cruise the Creek home"><img class="brand-logo" src="BlackonTransparent.png" alt="Cruise the Creek"></a>
+</header>
+
+<!-- ── HERO ──
+     Drop the banner photo at this filename and it'll fade over the gradient. -->
+<section class="hero">
+  <img class="hero-img" src="glacier-lake.jpg" alt="" onload="this.classList.add('loaded')" onerror="this.remove()">
+  <div class="hero-overlay"></div>
+  <div class="hero-topo"></div>
+  <div class="hero-content">
+    <span class="hero-eyebrow">Our Story</span>
+    <h1>Making Lemonade<em>out of Life.</em></h1>
+    <p class="hero-tag">A lemonade stand for Mill Creek Park &mdash; served on two wheels.</p>
+  </div>
+</section>
+
+<!-- ── BREADCRUMB ── -->
+<nav class="crumb"><a href="home.html">Home</a><span class="sep">/</span>Creek Life<span class="sep">/</span>Our Story</nav>
+
+<main>
+  <article class="article">
+
+    <!-- ── INTRO: Lemonade stands ── -->
+    <section class="section">
+      <span class="section-eyebrow">Where it began</span>
+      <h2>Remember those neighborhood lemonade stands?</h2>
+
+      <div class="photo-grid">
+        <!-- Drop the photo at this filename to fill this slot. -->
+        <div class="photo-slot" data-caption="Riding an e-bike, enjoying a lemonade.">
+          <img src="riding-e-bike-lemonade.jpg" alt="" onerror="this.remove()">
+        </div>
+        <div class="photo-slot" data-caption="Mill Creek Park, Youngstown.">
+          <img src="mill-creek-park-ebikes.jpg" alt="" onerror="this.remove()">
+        </div>
+      </div>
+
+      <p class="lead">They were simple. Honest. They were run by kids who understood something we adults often forget: <strong>the best things in life are meant to be shared.</strong></p>
+
+      <p>I grew up with those stands in mind. But during the pandemic, when screens became our default escape, I realized my two sons &mdash; 16 and 13 &mdash; were living a life disconnected from the world right outside our window. Across the street sat 2,658 acres of <strong>Mill Creek Park</strong>: trails, hills, lakes, and hidden beauty that most of us just drive past.</p>
+
+      <p>That's when it clicked.</p>
+
+      <div class="pullquote">
+        <p>Cruise The Creek became my lemonade stand. Not for profit &mdash; for possibility.</p>
+      </div>
+    </section>
+
+    <!-- ── WHY E-BIKES ── -->
+    <section class="section">
+      <span class="section-eyebrow">Why we ride</span>
+      <h2>Why E-Bikes Change Everything</h2>
+
+      <p>If you've ever driven through Mill Creek Park, you know why most of it goes unseen. The best parts aren't accessible by car. The steep hills can be punishing. On a regular bike, you're often so focused on the "burn" that you miss the view.</p>
+
+      <p><strong>E-bikes change the equation.</strong></p>
+
+      <p>You get to choose: pedal hard, or cruise easy. Climb the steepest hills without the suffering. You get to actually <em>see</em> the park instead of just passing through it. It's the freedom to explore without limits.</p>
+
+      <div class="callout">
+        <div class="callout-title">Adventure Awaits</div>
+        <div class="callout-sub">Pick a route, pick a ride &mdash; we'll meet you on the trail.</div>
+      </div>
+    </section>
+
+    <!-- ── DIVIDER ── -->
+    <div class="divider"><span>The Story</span></div>
+
+    <!-- ── THE TURNING POINT ── -->
+    <section class="section">
+      <div class="section-date">
+        <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>
+        April 30, 2022
+      </div>
+      <h2>The Turning Point</h2>
+
+      <p>After nearly 15 years at ALDI, my road there ended. I'd poured everything into that role &mdash; leadership, efficiency, and adapting under the pressure of a global pandemic. But I saw things differently. I believed in pushing limits and leading with an entrepreneurial mindset, and eventually, those paths diverged.</p>
+
+      <p>At first, it felt like the floor had been pulled out from under me. But the truth was, my body was already feeling the toll. Years on hard floors in steel-toe shoes had left me with sciatica that made my daily commute brutal. My family was paying the price too &mdash; juggling 10-hour shifts while relying on my parents just to get the kids to school.</p>
+
+      <div class="pullquote">
+        <p>The departure wasn't the end. It was the space I needed to actually begin.</p>
+      </div>
+    </section>
+
+    <!-- ── THE SARASOTA EPIPHANY ── -->
+    <section class="section">
+      <div class="section-date">
+        <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>
+        June 6, 2022
+      </div>
+      <h2>The Sarasota Epiphany</h2>
+
+      <p>We had just moved into our dream home right across from Mill Creek MetroParks. During a trip to Florida, standing in a parking lot in Sarasota, it hit me: I'd spent 15 years working and missed too much. My oldest was already 15. My parents were aging. Time wasn't something I could manufacture.</p>
+
+      <p>Every morning on that trip, I walked to the beach before sunrise to think. I saw tourists and locals cruising on e-bikes along the coast &mdash; laughing, exploring, and actually <strong>living the moment</strong> instead of rushing through it.</p>
+
+      <p>I rushed back to the beach house and told my wife. The idea caught fire instantly. By the time we got back to Youngstown, our first e-bikes were waiting.</p>
+    </section>
+
+    <!-- ── OUR MISSION ── -->
+    <section class="section">
+      <span class="section-eyebrow">Our mission</span>
+      <h2>Time matters. Experiences matter.</h2>
+
+      <p>Cruise The Creek didn't start with a boardroom business plan. It started with a realization: sometimes the best opportunities are right in front of you &mdash; you just need a new way to see them.</p>
+
+      <p><strong>Our mission is simple. We want you to:</strong></p>
+
+      <ul class="mission-list">
+        <li><strong>Get outside.</strong></li>
+        <li><strong>Explore more.</strong></li>
+        <li><strong>Slow down.</strong></li>
+        <li><strong>Reconnect</strong> &mdash; with nature, your family, and your community.</li>
+      </ul>
+
+      <p>All we ask? Take care of the bikes. Enjoy the ride. And if it makes you smile &mdash; tell someone else.</p>
+
+      <div class="pullquote">
+        <p>Just like a lemonade stand, the best things in life are meant to be shared.</p>
+      </div>
+    </section>
+
+  </article>
+
+  <!-- ── REVIEWS / TESTIMONIES ── -->
+  <section class="reviews">
+    <div class="article" style="padding-top:8px;padding-bottom:8px">
+      <span class="section-eyebrow">In their words</span>
+      <h2 style="font-family:'Bebas Neue',sans-serif;font-size:clamp(1.8rem,5vw,2.4rem);letter-spacing:.04em;color:var(--forest);line-height:1;margin-bottom:14px">What riders say</h2>
+      <p style="color:var(--ink-3);font-size:.96rem;margin-bottom:18px">Real reviews from real riders &mdash; pulled straight from Google.</p>
+    </div>
+    <div class="review-grid">
+      <a class="review-card" href="https://maps.app.goo.gl/gtvVMSKqfzgzoHkQ6" target="_blank" rel="noopener">
+        <span class="gicon" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><path fill="#4285F4" d="M22.5 12.3c0-.8-.1-1.6-.2-2.3H12v4.4h5.9c-.3 1.4-1 2.6-2.2 3.4v2.8h3.5c2.1-1.9 3.3-4.7 3.3-8.3z"/><path fill="#34A853" d="M12 23c2.9 0 5.4-1 7.2-2.6l-3.5-2.8c-1 .7-2.2 1.1-3.7 1.1-2.8 0-5.2-1.9-6.1-4.5H2.3v2.8C4 20.6 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.9 14.2c-.2-.7-.3-1.4-.3-2.2s.1-1.5.3-2.2V7H2.3C1.5 8.5 1 10.2 1 12s.5 3.5 1.3 5l3.6-2.8z"/><path fill="#EA4335" d="M12 5.5c1.6 0 3 .5 4.1 1.6l3.1-3.1C17.4 2.1 14.9 1 12 1 7.7 1 4 3.4 2.3 7l3.6 2.8C6.8 7.4 9.2 5.5 12 5.5z"/></svg>
+        </span>
+        <div class="rc-body">
+          <div class="rc-eyebrow">Google Reviews</div>
+          <div class="rc-title">Read what riders are saying</div>
+          <div class="stars" aria-label="5 stars">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.9 6.9L22 10l-5 4.9 1.2 7.1L12 18.7 5.8 22 7 14.9 2 10l7.1-1.1z"/></svg>
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.9 6.9L22 10l-5 4.9 1.2 7.1L12 18.7 5.8 22 7 14.9 2 10l7.1-1.1z"/></svg>
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.9 6.9L22 10l-5 4.9 1.2 7.1L12 18.7 5.8 22 7 14.9 2 10l7.1-1.1z"/></svg>
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.9 6.9L22 10l-5 4.9 1.2 7.1L12 18.7 5.8 22 7 14.9 2 10l7.1-1.1z"/></svg>
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.9 6.9L22 10l-5 4.9 1.2 7.1L12 18.7 5.8 22 7 14.9 2 10l7.1-1.1z"/></svg>
+          </div>
+        </div>
+        <svg class="rc-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>
+      </a>
+
+      <a class="review-card" href="https://maps.app.goo.gl/cefc132m9dtxe94P6" target="_blank" rel="noopener">
+        <span class="gicon" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><path fill="#4285F4" d="M22.5 12.3c0-.8-.1-1.6-.2-2.3H12v4.4h5.9c-.3 1.4-1 2.6-2.2 3.4v2.8h3.5c2.1-1.9 3.3-4.7 3.3-8.3z"/><path fill="#34A853" d="M12 23c2.9 0 5.4-1 7.2-2.6l-3.5-2.8c-1 .7-2.2 1.1-3.7 1.1-2.8 0-5.2-1.9-6.1-4.5H2.3v2.8C4 20.6 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.9 14.2c-.2-.7-.3-1.4-.3-2.2s.1-1.5.3-2.2V7H2.3C1.5 8.5 1 10.2 1 12s.5 3.5 1.3 5l3.6-2.8z"/><path fill="#EA4335" d="M12 5.5c1.6 0 3 .5 4.1 1.6l3.1-3.1C17.4 2.1 14.9 1 12 1 7.7 1 4 3.4 2.3 7l3.6 2.8C6.8 7.4 9.2 5.5 12 5.5z"/></svg>
+        </span>
+        <div class="rc-body">
+          <div class="rc-eyebrow">Google Reviews</div>
+          <div class="rc-title">More from the trail</div>
+          <div class="stars" aria-label="5 stars">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.9 6.9L22 10l-5 4.9 1.2 7.1L12 18.7 5.8 22 7 14.9 2 10l7.1-1.1z"/></svg>
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.9 6.9L22 10l-5 4.9 1.2 7.1L12 18.7 5.8 22 7 14.9 2 10l7.1-1.1z"/></svg>
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.9 6.9L22 10l-5 4.9 1.2 7.1L12 18.7 5.8 22 7 14.9 2 10l7.1-1.1z"/></svg>
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.9 6.9L22 10l-5 4.9 1.2 7.1L12 18.7 5.8 22 7 14.9 2 10l7.1-1.1z"/></svg>
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.9 6.9L22 10l-5 4.9 1.2 7.1L12 18.7 5.8 22 7 14.9 2 10l7.1-1.1z"/></svg>
+          </div>
+        </div>
+        <svg class="rc-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>
+      </a>
+    </div>
+  </section>
+
+  <!-- ── BOTTOM CTA ── -->
+  <div class="bottom-cta">
+    <div class="bottom-cta-inner">
+      <div>
+        <div class="ce">Your turn</div>
+        <div class="ct">Come find your moment of clarity on the trail.</div>
+      </div>
+      <div class="cr">
+        <a class="cbtn" href="https://adventure-map.pages.dev/v2" target="_blank" rel="noopener">
+          Explore Adventures
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+        </a>
+        <a class="cbtn ghost" href="home.html">Back Home</a>
+      </div>
+    </div>
+  </div>
+</main>
+
+<footer>
+  &copy; 2026 Cruise the Creek &middot; <a href="home.html">Home</a> &middot; <a href="shop.html">Shop</a>
+</footer>
+
+</body>
+</html>
