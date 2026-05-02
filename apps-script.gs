@@ -67,9 +67,32 @@ function doGet(e) {
                  .toString().trim().toLowerCase();
   const cap  = page.charAt(0).toUpperCase() + page.slice(1);
 
-  const ss   = SpreadsheetApp.getActiveSpreadsheet();
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+
+  // Per-page hero/cta/section copy (Pages tab).
+  const pages = readSheet(ss, 'Pages');
+  const pageMeta = pages.find(function(r){
+    return String(r.slug || '').trim().toLowerCase() === page;
+  }) || {};
+
+  // Site-wide key/value pairs (SiteConfig tab).
+  const site = {};
+  readSheet(ss, 'SiteConfig').forEach(function(r){
+    if (r.key) site[String(r.key).trim()] = r.value;
+  });
+
+  // Long-form section rows for this page (Sections tab).
+  const sections = readSheet(ss, 'Sections')
+    .filter(function(r){
+      return String(r.page || '').trim().toLowerCase() === page;
+    })
+    .sort(function(a, b){ return (a.order || 0) - (b.order || 0); });
+
   const data = {
     page:     page,
+    pageMeta: pageMeta,
+    site:     site,
+    sections: sections,
     tiles:    readSheet(ss, cap + '_Tiles'),
     submenus: groupBy(readSheet(ss, cap + '_Submenus'), 'tile'),
   };
@@ -159,6 +182,144 @@ function setupSheet() {
     'Shop_Submenus': {
       header: ['tile','order','label','url','external'],
       rows: [],
+    },
+    'Pages': {
+      header: ['slug','hero_eyebrow','hero_h1','hero_h1_em','hero_tagline','hero_photo',
+               'hero_cta_label','hero_cta_url','hero_cta_external',
+               'section_eyebrow','section_title',
+               'cta_eyebrow','cta_title',
+               'cta_btn_primary_label','cta_btn_primary_url','cta_btn_primary_external',
+               'cta_btn_secondary_label','cta_btn_secondary_url','cta_btn_secondary_external'],
+      rows: [
+        ['home',
+          'Cruise the Creek',
+          'Where the trail',
+          'meets the cruise.',
+          "Electric bikes, guided adventures, and creek-country gear — all from one Youngstown, Ohio shop.",
+          '',
+          'Explore Adventures',
+          'https://adventure-map.pages.dev/v2',
+          true,
+          'Where to next',
+          'Pick Your Path',
+          'Ready to ride?',
+          'Plan a guided creek-country adventure.',
+          'Book Now',
+          'https://adventure-map.pages.dev/v2',
+          true,
+          'Book a Test Ride',
+          'test-ride.html',
+          false,
+        ],
+        ['shop',
+          'The Lineup',
+          'Brands we',
+          'ride and trust.',
+          "Every bike on the floor is one we'd take down the trail ourselves. Pick a brand to see the lineup.",
+          '',
+          '', '', false,
+          'Browse by brand',
+          'Our Dealers',
+          'Not sure which one?',
+          'Take the 60-second bike-finder quiz.',
+          'Start the Quiz',
+          'https://www.cruisethecreek.com/tracker',
+          true,
+          'Book a Test Ride',
+          'test-ride.html',
+          false,
+        ],
+        ['our-story',
+          'Our Story',
+          'Making Lemonade',
+          'out of Life.',
+          'A lemonade stand for Mill Creek Park — served on two wheels.',
+          'glacier-lake.jpg',
+          '', '', false,
+          '', '',
+          'Your turn',
+          'Come find your moment of clarity on the trail.',
+          'Explore Adventures',
+          'https://adventure-map.pages.dev/v2',
+          true,
+          'Back Home',
+          'home.html',
+          false,
+        ],
+      ],
+    },
+    'SiteConfig': {
+      header: ['key','value'],
+      rows: [
+        ['footer_tagline',   'Electric bikes built for creek country. Ride the trails, beat the heat, get home grinning.'],
+        ['footer_copyright', '© 2026 Cruise the Creek. All rights reserved.'],
+        ['social_instagram', ''],
+        ['social_facebook',  ''],
+        ['social_tiktok',    ''],
+        ['social_youtube',   ''],
+      ],
+    },
+    'Sections': {
+      header: ['page','order','type','title','body','extra'],
+      rows: [
+        // ── Our Story ────────────────────────────────────────────────
+        ['our-story',  1, 'eyebrow',    'Where it began', '', ''],
+        ['our-story',  2, 'h2',         'Remember those neighborhood lemonade stands?', '', ''],
+        ['our-story',  3, 'photo-pair', '',
+          'Riding an e-bike, enjoying a lemonade.|Mill Creek Park, Youngstown.',
+          'riding-e-bike-lemonade.jpg|mill-creek-park-ebikes.jpg'],
+        ['our-story',  4, 'lead', '',
+          "They were simple. Honest. They were run by kids who understood something we adults often forget: **the best things in life are meant to be shared.**", ''],
+        ['our-story',  5, 'body', '',
+          "I grew up with those stands in mind. But during the pandemic, when screens became our default escape, I realized my two sons -- 16 and 13 -- were living a life disconnected from the world right outside our window. Across the street sat 2,658 acres of **Mill Creek Park**: trails, hills, lakes, and hidden beauty that most of us just drive past.", ''],
+        ['our-story',  6, 'body', '', "That's when it clicked.", ''],
+        ['our-story',  7, 'pullquote', '',
+          'Cruise The Creek became my lemonade stand. Not for profit -- for possibility.', ''],
+
+        ['our-story', 10, 'eyebrow',   'Why we ride', '', ''],
+        ['our-story', 11, 'h2',        'Why E-Bikes Change Everything', '', ''],
+        ['our-story', 12, 'body', '',
+          "If you've ever driven through Mill Creek Park, you know why most of it goes unseen. The best parts aren't accessible by car. The steep hills can be punishing. On a regular bike, you're often so focused on the \"burn\" that you miss the view.", ''],
+        ['our-story', 13, 'body', '', '**E-bikes change the equation.**', ''],
+        ['our-story', 14, 'body', '',
+          "You get to choose: pedal hard, or cruise easy. Climb the steepest hills without the suffering. You get to actually *see* the park instead of just passing through it. It's the freedom to explore without limits.", ''],
+        ['our-story', 15, 'callout',   'Adventure Awaits',
+          "Pick a route, pick a ride -- we'll meet you on the trail.", ''],
+
+        ['our-story', 20, 'divider', 'The Story', '', ''],
+
+        ['our-story', 21, 'date',  'April 30, 2022', '', ''],
+        ['our-story', 22, 'h2',    'The Turning Point', '', ''],
+        ['our-story', 23, 'body', '',
+          "After nearly 15 years at ALDI, my road there ended. I'd poured everything into that role -- leadership, efficiency, and adapting under the pressure of a global pandemic. But I saw things differently. I believed in pushing limits and leading with an entrepreneurial mindset, and eventually, those paths diverged.", ''],
+        ['our-story', 24, 'body', '',
+          "At first, it felt like the floor had been pulled out from under me. But the truth was, my body was already feeling the toll. Years on hard floors in steel-toe shoes had left me with sciatica that made my daily commute brutal. My family was paying the price too -- juggling 10-hour shifts while relying on my parents just to get the kids to school.", ''],
+        ['our-story', 25, 'pullquote', '',
+          "The departure wasn't the end. It was the space I needed to actually begin.", ''],
+
+        ['our-story', 30, 'date',  'June 6, 2022', '', ''],
+        ['our-story', 31, 'h2',    'The Sarasota Epiphany', '', ''],
+        ['our-story', 32, 'body', '',
+          "We had just moved into our dream home right across from Mill Creek MetroParks. During a trip to Florida, standing in a parking lot in Sarasota, it hit me: I'd spent 15 years working and missed too much. My oldest was already 15. My parents were aging. Time wasn't something I could manufacture.", ''],
+        ['our-story', 33, 'body', '',
+          "Every morning on that trip, I walked to the beach before sunrise to think. I saw tourists and locals cruising on e-bikes along the coast -- laughing, exploring, and actually **living the moment** instead of rushing through it.", ''],
+        ['our-story', 34, 'body', '',
+          "I rushed back to the beach house and told my wife. The idea caught fire instantly. By the time we got back to Youngstown, our first e-bikes were waiting.", ''],
+
+        ['our-story', 40, 'eyebrow', 'Our mission', '', ''],
+        ['our-story', 41, 'h2',      'Time matters. Experiences matter.', '', ''],
+        ['our-story', 42, 'body', '',
+          "Cruise The Creek didn't start with a boardroom business plan. It started with a realization: sometimes the best opportunities are right in front of you -- you just need a new way to see them.", ''],
+        ['our-story', 43, 'body', '', '**Our mission is simple. We want you to:**', ''],
+        ['our-story', 44, 'list-item', 'Get outside.',  '', ''],
+        ['our-story', 45, 'list-item', 'Explore more.', '', ''],
+        ['our-story', 46, 'list-item', 'Slow down.',    '', ''],
+        ['our-story', 47, 'list-item', 'Reconnect',     '-- with nature, your family, and your community.', ''],
+        ['our-story', 48, 'body', '',
+          "All we ask? Take care of the bikes. Enjoy the ride. And if it makes you smile -- tell someone else.", ''],
+        ['our-story', 49, 'pullquote', '',
+          'Just like a lemonade stand, the best things in life are meant to be shared.', ''],
+      ],
     },
   };
 
