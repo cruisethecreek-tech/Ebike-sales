@@ -104,3 +104,82 @@ function groupBy(rows, key) {
     });
   return out;
 }
+
+/**
+ * One-time setup. Run from the Apps Script editor:
+ *   1. Save this file.
+ *   2. From the function dropdown, pick `setupSheet`.
+ *   3. Click ▶ Run.  Approve the prompts.
+ *   4. Done — open the bound Sheet to confirm four new tabs.
+ *
+ * Re-running is safe: it clears and re-seeds the four tabs.
+ * Once seeded, edit the cells directly to change what shows up
+ * on home.html and shop.html. Changes appear after Google's
+ * ~5-min CDN cache expires (open the /exec URL to bust faster).
+ */
+function setupSheet() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+
+  const tabs = {
+    'Home_Tiles': {
+      header: ['id','order','label','subtitle','type','url','external'],
+      rows: [
+        ['adventures', 1, 'Adventures', 'Guided rides & maps',     'link', 'https://adventure-map.pages.dev/v2', true],
+        ['rentals',    2, 'Rentals',    'Day rides & multi-stops', 'menu', '',                                   false],
+        ['shop',       3, 'Shop',       'Browse bikes & gear',     'link', 'shop.html',                          false],
+        ['services',   4, 'Services',   'Tune-ups & creek prep',   'menu', '',                                   false],
+        ['test-rides', 5, 'Test Rides', 'Try before you buy',      'link', 'test-ride.html',                     false],
+        ['creek-life', 6, 'Creek Life', 'Stories, events, more',   'menu', '',                                   false],
+      ],
+    },
+    'Home_Submenus': {
+      header: ['tile','order','label','url','external'],
+      rows: [
+        ['rentals',    1, 'Adventures',      'adventures.html',     false],
+        ['rentals',    2, 'Trailside',       'trailside.html',      false],
+        ['rentals',    3, 'Bridge the Gap',  'bridge-the-gap.html', false],
+        ['services',   1, 'Creek Ready',     'creek-ready.html',    false],
+        ['creek-life', 1, 'Creek Life Blog', 'creek-life-blog.html',false],
+        ['creek-life', 2, 'Our Story',       'our-story.html',      false],
+        ['creek-life', 3, 'Events',          'events.html',         false],
+        ['creek-life', 4, 'Donate',          'donate.html',         false],
+        ['creek-life', 5, 'FAQs',            'faqs.html',           false],
+      ],
+    },
+    'Shop_Tiles': {
+      header: ['id','order','label','subtitle','type','url','external'],
+      rows: [
+        ['heybike',  1, 'Heybike',  'Affordable, easygoing rides', 'link', 'heybike.html',  false],
+        ['velotric', 2, 'Velotric', 'Sleek, premium e-bikes',      'link', 'velotric.html', false],
+        ['jasion',   3, 'Jasion',   'Trail-ready power',           'link', 'jasion.html',   false],
+        ['mooncool', 4, 'Mooncool', 'Three-wheel comfort',         'link', 'mooncool.html', false],
+        ['apparel',  5, 'Apparel',  'Tees, caps & ride threads',   'link', 'apparel.html',  false],
+      ],
+    },
+    'Shop_Submenus': {
+      header: ['tile','order','label','url','external'],
+      rows: [],
+    },
+  };
+
+  let totalRows = 0;
+  Object.keys(tabs).forEach(function(name) {
+    const def = tabs[name];
+    let sh = ss.getSheetByName(name);
+    if (!sh) sh = ss.insertSheet(name);
+    sh.clear();
+    const all = [def.header].concat(def.rows);
+    sh.getRange(1, 1, all.length, def.header.length).setValues(all);
+    sh.getRange(1, 1, 1, def.header.length)
+      .setFontWeight('bold')
+      .setBackground('#2D4A32')
+      .setFontColor('#ffffff');
+    sh.setFrozenRows(1);
+    sh.autoResizeColumns(1, def.header.length);
+    totalRows += def.rows.length;
+    console.log('  ✓ ' + name + ' — ' + def.rows.length + ' rows');
+  });
+
+  console.log('Done. Seeded ' + Object.keys(tabs).length + ' tabs / ' + totalRows + ' rows.');
+  console.log('Test the API:  open the /exec URL — tiles[] should now have content.');
+}
