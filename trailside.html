@@ -268,13 +268,13 @@ footer a:hover{color:#fff}
 <section class="fleet">
   <div class="fleet-inner">
     <div class="fleet-headline">
-      <div class="fleet-num">11</div>
-      <div class="fleet-num-label">
+      <div class="fleet-num" id="cms-fleet-num">11</div>
+      <div class="fleet-num-label" id="cms-fleet-label">
         E-Bikes
         <strong>In the Fleet</strong>
       </div>
     </div>
-    <div class="fleet-types">
+    <div class="fleet-types" id="cms-fleet-types">
       <div class="fleet-type"><span class="fleet-type-name">All-Purpose</span><span class="fleet-type-count">4<span class="stock">in stock</span></span></div>
       <div class="fleet-type"><span class="fleet-type-name">High-Step</span><span class="fleet-type-count">1<span class="stock">in stock</span></span></div>
       <div class="fleet-type"><span class="fleet-type-name">Cruiser</span><span class="fleet-type-count">2<span class="stock">in stock</span></span></div>
@@ -286,7 +286,7 @@ footer a:hover{color:#fff}
 
 <!-- DESCRIPTION -->
 <section class="section about">
-  <div class="section-inner">
+  <div class="section-inner" id="cms-about-inner">
     <span class="section-eyebrow">About the bikeway</span>
     <h2 class="section-title">The Mill Creek MetroParks Bikeway</h2>
     <p>The bikeway winds through wooded areas, open fields, and alongside scenic lakes and ponds — a diverse and enjoyable experience for every rider.</p>
@@ -302,14 +302,14 @@ footer a:hover{color:#fff}
 <!-- STEPS -->
 <section class="section steps">
   <div class="section-inner">
-    <span class="section-eyebrow">How it works</span>
-    <h2 class="section-title">Book your trip in 3 easy steps</h2>
+    <div id="cms-steps-head"><span class="section-eyebrow">How it works</span>
+    <h2 class="section-title">Book your trip in 3 easy steps</h2></div>
 
     <div class="steps-grid">
       <div class="step-img-wrap">
         <img src="farms.jpg" alt="" loading="lazy" onerror="this.remove()">
       </div>
-      <div class="step-list">
+      <div class="step-list" id="cms-steps-list">
         <div class="step">
           <div class="step-num">01</div>
           <div class="step-body">
@@ -339,10 +339,10 @@ footer a:hover{color:#fff}
 <!-- INFO CARDS -->
 <section class="section cards">
   <div class="section-inner">
-    <span class="section-eyebrow">Before you go</span>
-    <h2 class="section-title">Plan a great trip</h2>
+    <div id="cms-cards-head"><span class="section-eyebrow">Before you go</span>
+    <h2 class="section-title">Plan a great trip</h2></div>
 
-    <div class="cards-grid">
+    <div class="cards-grid" id="cms-cards-grid">
       <a class="info-card" href="our-story.html">
         <span class="ic-eyebrow">About</span>
         <span class="ic-title">Get to know Cruise the Creek</span>
@@ -369,7 +369,7 @@ footer a:hover{color:#fff}
 
 <!-- SERVICE STRIP -->
 <section class="service-strip">
-  <div class="service-strip-text">
+  <div class="service-strip-text" id="cms-service-strip">
     The only e-bike service around <a href="creek-ready.html">Mill Creek Park</a>
   </div>
 </section>
@@ -380,7 +380,7 @@ footer a:hover{color:#fff}
     <div class="switch-img">
       <img src="20221010_103423.jpg" alt="" loading="lazy" onerror="this.remove()">
     </div>
-    <div>
+    <div id="cms-switch-content">
       <div class="switch-eyebrow">Would you rather?</div>
       <div class="switch-title">#Unleash Your Adventure</div>
       <p>Prefer guided rides through Mill Creek Park's hidden gems? The Bears Den pickup at Scholl Pavilion gets you into the heart of the park.</p>
@@ -432,9 +432,168 @@ function applyCMS(remote){
   });
 }
 
+
+function escHTML(s){ return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function richText(s){
+  let h = escHTML(String(s ?? ''));
+  h = h.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+  h = h.replace(/\*([^*]+?)\*/g, '<em>$1</em>');
+  h = h.replace(/--/g, '&mdash;');
+  return h;
+}
+const ARROW_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>';
+
+function renderSections(rows){
+  if (!Array.isArray(rows) || !rows.length) return;
+  const bySlot = {};
+  for (const r of rows) {
+    const s = String(r.slot || '').trim();
+    if (!s) continue;
+    (bySlot[s] = bySlot[s] || []).push(r);
+  }
+  Object.keys(bySlot).forEach(s => bySlot[s].sort((a,b)=>(a.order||0)-(b.order||0)));
+
+  if (bySlot.fleet)   _renderFleet(bySlot.fleet);
+  if (bySlot.about)   _renderAbout(bySlot.about);
+  if (bySlot.steps)   _renderSteps(bySlot.steps);
+  if (bySlot.cards)   _renderCards(bySlot.cards);
+  if (bySlot.service) _renderService(bySlot.service);
+  if (bySlot.switch)  _renderSwitch(bySlot.switch);
+}
+
+function _renderFleet(rows){
+  const num   = rows.find(r => r.type === 'num');
+  const types = rows.filter(r => r.type === 'type');
+  if (num) {
+    const n = document.getElementById('cms-fleet-num');
+    const l = document.getElementById('cms-fleet-label');
+    if (n) n.textContent = num.title || '';
+    if (l) {
+      const parts = String(num.body || '').split('|');
+      l.innerHTML = `${escHTML(parts[0] || '')}<strong>${escHTML(parts[1] || '')}</strong>`;
+    }
+  }
+  if (types.length) {
+    const g = document.getElementById('cms-fleet-types');
+    if (g) g.innerHTML = types.map(t =>
+      `<div class="fleet-type">
+        <span class="fleet-type-name">${escHTML(t.title)}</span>
+        <span class="fleet-type-count">${escHTML(t.body)}<span class="stock">in stock</span></span>
+      </div>`).join('');
+  }
+}
+
+function _renderAbout(rows){
+  const inner = document.getElementById('cms-about-inner');
+  if (!inner) return;
+  let html = '';
+  for (const r of rows) {
+    if (r.type === 'eyebrow')   html += `<span class="section-eyebrow">${escHTML(r.title)}</span>`;
+    else if (r.type === 'h2')   html += `<h2 class="section-title">${escHTML(r.title)}</h2>`;
+    else if (r.type === 'body') html += `<p>${richText(r.body)}</p>`;
+    else if (r.type === 'cta') {
+      const url = r.extra || '#';
+      const ext = (url.includes('://') && !url.startsWith(window.location.origin)) ? ' target="_blank" rel="noopener"' : '';
+      html += `<a class="about-cta" href="${escHTML(url)}"${ext}>${escHTML(r.title)} ${ARROW_SVG}</a>`;
+    }
+  }
+  inner.innerHTML = html;
+}
+
+function _renderSteps(rows){
+  const head  = document.getElementById('cms-steps-head');
+  const list  = document.getElementById('cms-steps-list');
+  const eyebrow = rows.find(r => r.type === 'eyebrow');
+  const h2      = rows.find(r => r.type === 'h2');
+  const steps   = rows.filter(r => r.type === 'step');
+  if (head) {
+    let h = '';
+    if (eyebrow) h += `<span class="section-eyebrow">${escHTML(eyebrow.title)}</span>`;
+    if (h2)      h += `<h2 class="section-title">${escHTML(h2.title)}</h2>`;
+    head.innerHTML = h;
+  }
+  if (list && steps.length) {
+    list.innerHTML = steps.map((s, i) => `
+      <div class="step">
+        <div class="step-num">${String(i+1).padStart(2,'0')}</div>
+        <div class="step-body">
+          <div class="step-title">${escHTML(s.title)}</div>
+          <div class="step-desc">${richText(s.body)}</div>
+        </div>
+      </div>`).join('');
+  }
+}
+
+function _renderCards(rows){
+  const head  = document.getElementById('cms-cards-head');
+  const grid  = document.getElementById('cms-cards-grid');
+  const eyebrow = rows.find(r => r.type === 'eyebrow');
+  const h2      = rows.find(r => r.type === 'h2');
+  const cards   = rows.filter(r => r.type === 'card');
+  if (head) {
+    let h = '';
+    if (eyebrow) h += `<span class="section-eyebrow">${escHTML(eyebrow.title)}</span>`;
+    if (h2)      h += `<h2 class="section-title">${escHTML(h2.title)}</h2>`;
+    head.innerHTML = h;
+  }
+  if (grid && cards.length) {
+    grid.innerHTML = cards.map(c => {
+      const url = c.extra || '#';
+      const ext = (url.includes('://') && !url.startsWith(window.location.origin)) ? ' target="_blank" rel="noopener"' : '';
+      return `<a class="info-card" href="${escHTML(url)}"${ext}>
+        <span class="ic-eyebrow">${escHTML(c.body)}</span>
+        <span class="ic-title">${escHTML(c.title)}</span>
+        <span class="ic-link">Learn More ${ARROW_SVG}</span>
+      </a>`;
+    }).join('');
+  }
+}
+
+function _renderService(rows){
+  const strip = rows.find(r => r.type === 'strip');
+  const el = document.getElementById('cms-service-strip');
+  if (!strip || !el) return;
+  const url = strip.extra || '#';
+  el.innerHTML = `${escHTML(strip.title)} <a href="${escHTML(url)}">${escHTML(strip.body)}</a>`;
+}
+
+function _renderSwitch(rows){
+  const content = document.getElementById('cms-switch-content');
+  if (!content) return;
+  const eyebrow = rows.find(r => r.type === 'eyebrow');
+  const h2      = rows.find(r => r.type === 'h2');
+  const bodies  = rows.filter(r => r.type === 'body');
+  const features= rows.filter(r => r.type === 'feature');
+  const cta     = rows.find(r => r.type === 'cta');
+  let html = '';
+  if (eyebrow) html += `<div class="switch-eyebrow">${escHTML(eyebrow.title)}</div>`;
+  if (h2)      html += `<div class="switch-title">${escHTML(h2.title)}</div>`;
+  for (const b of bodies) if (b.body) html += `<p>${richText(b.body)}</p>`;
+  if (features.length) {
+    html += '<div class="switch-features">';
+    for (const f of features) {
+      html += `<div class="switch-feature">
+        <div class="switch-feature-title">${escHTML(f.title)}</div>
+        <div class="switch-feature-body">${richText(f.body)}</div>
+      </div>`;
+    }
+    html += '</div>';
+  }
+  if (cta) {
+    const url = cta.extra || '#';
+    const ext = (url.includes('://') && !url.startsWith(window.location.origin)) ? ' target="_blank" rel="noopener"' : '';
+    html += `<a class="switch-cta" href="${escHTML(url)}"${ext}>${escHTML(cta.title)} ${ARROW_SVG}</a>`;
+  }
+  content.innerHTML = html;
+}
+
 fetch(MENU_URL, {cache:'no-store'})
   .then(r => r.ok ? r.json() : Promise.reject(r.status))
-  .then(remote => { if (remote && typeof remote === 'object') applyCMS(remote); })
+  .then(remote => {
+    if (!remote || typeof remote !== 'object') return;
+    applyCMS(remote);
+    if (Array.isArray(remote.sections)) renderSections(remote.sections);
+  })
   .catch(err => console.warn('[trailside] config fetch failed, using static content:', err));
 </script>
 
