@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cruise the Creek | Electric Bike Adventures</title>
+<meta name="description" content="Cruise the Creek — Adventures, Rentals, Shop, Services, Test Rides, and Creek Life.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --sage:#6B8F71;
+  --forest:#2D4A32;
+  --dark:#1a2e1c;
+  --tan:#C9A96E;
+  --cream:#F5F0E8;
+  --ink:#1a1a1a;
+}
+html,body{height:100%}
+body{
+  font-family:'DM Sans',sans-serif;
+  color:var(--ink);
+  background:var(--cream);
+  display:flex;
+  flex-direction:column;
+  min-height:100vh;
+}
+a{color:inherit;text-decoration:none}
+
+/* ── TOP BAR ── */
+.topbar{
+  background:var(--dark);
+  color:#fff;
+  padding:14px 22px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:14px;
+}
+.brand{display:flex;align-items:center;gap:12px}
+.brand-mark{
+  width:42px;height:42px;border-radius:10px;
+  background:#fff;display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;
+}
+.brand-mark svg{width:28px;height:28px;color:var(--dark)}
+.brand-text{display:flex;flex-direction:column;line-height:1}
+.brand-name{font-family:'Bebas Neue',sans-serif;font-size:1.35rem;letter-spacing:.06em}
+.brand-sub{font-size:.62rem;letter-spacing:.22em;text-transform:uppercase;color:var(--tan);margin-top:3px}
+.top-actions{display:flex;align-items:center;gap:10px}
+.icon-btn{
+  width:42px;height:42px;border-radius:50%;
+  border:1.5px solid rgba(255,255,255,.35);
+  background:transparent;color:#fff;
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;transition:background .15s,border-color .15s;
+}
+.icon-btn:hover{background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.6)}
+.icon-btn svg{width:18px;height:18px}
+
+/* ── SUB BAR ── */
+.subbar{
+  background:var(--forest);
+  color:#fff;
+  padding:14px 22px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:14px;
+}
+.sub-title{
+  display:inline-flex;align-items:center;gap:8px;
+  font-size:.95rem;font-weight:700;
+}
+.sub-title svg{width:14px;height:14px}
+.sub-search{
+  display:inline-flex;align-items:center;gap:8px;
+  font-size:.88rem;font-weight:600;
+  cursor:pointer;
+  background:none;border:none;color:#fff;
+  font-family:inherit;
+  padding:6px 8px;border-radius:8px;
+  transition:background .15s;
+}
+.sub-search:hover{background:rgba(255,255,255,.1)}
+.sub-search svg{width:16px;height:16px}
+
+/* ── TILE GRID ── */
+main{
+  flex:1;
+  padding:20px 16px 32px;
+  max-width:760px;
+  width:100%;
+  margin:0 auto;
+}
+.grid{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:14px;
+}
+.tile{
+  background:#fff;
+  border-radius:18px;
+  aspect-ratio:1/1;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:18px;
+  padding:18px;
+  border:1px solid #e8dfd1;
+  box-shadow:0 1px 0 rgba(0,0,0,.02);
+  transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease;
+  cursor:pointer;
+  position:relative;
+}
+.tile:hover,.tile:focus-visible{
+  transform:translateY(-3px);
+  box-shadow:0 14px 32px rgba(45,74,50,.18);
+  border-color:var(--sage);
+  outline:none;
+}
+.tile-icon{
+  width:78px;height:78px;
+  display:flex;align-items:center;justify-content:center;
+  color:var(--dark);
+}
+.tile-icon svg{width:100%;height:100%}
+.tile-label{
+  font-size:1.18rem;
+  font-weight:700;
+  color:var(--ink);
+  text-align:center;
+  letter-spacing:.01em;
+}
+.tile-tag{
+  position:absolute;top:12px;right:12px;
+  font-size:.58rem;font-weight:800;letter-spacing:.14em;text-transform:uppercase;
+  background:var(--sage);color:#fff;
+  padding:4px 8px;border-radius:99px;
+}
+
+/* ── FOOTER ── */
+footer{
+  background:var(--dark);
+  color:rgba(255,255,255,.65);
+  padding:18px 22px;
+  text-align:center;
+  font-size:.78rem;
+  letter-spacing:.04em;
+}
+footer a{color:var(--tan);font-weight:600}
+footer a:hover{color:#fff}
+
+/* ── RESPONSIVE ── */
+@media(min-width:640px){
+  main{padding:32px 24px 48px}
+  .grid{gap:18px}
+  .tile{border-radius:22px;gap:22px;padding:22px}
+  .tile-icon{width:92px;height:92px}
+  .tile-label{font-size:1.32rem}
+}
+@media(min-width:900px){
+  main{max-width:1000px}
+  .grid{grid-template-columns:repeat(3,1fr)}
+  .tile{aspect-ratio:1.05/1}
+}
+@media(max-width:380px){
+  .topbar{padding:12px 14px}
+  .subbar{padding:12px 14px}
+  .brand-name{font-size:1.15rem}
+  .icon-btn{width:38px;height:38px}
+  main{padding:16px 12px 28px}
+  .grid{gap:10px}
+  .tile{border-radius:16px;gap:14px;padding:14px}
+  .tile-icon{width:64px;height:64px}
+  .tile-label{font-size:1.02rem}
+}
+</style>
+</head>
+<body>
+
+<!-- ── TOP BAR ── -->
+<header class="topbar">
+  <a class="brand" href="home.html" aria-label="Cruise the Creek home">
+    <span class="brand-mark" aria-hidden="true">
+      <!-- bike mark -->
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="5.5" cy="17.5" r="3.5"/>
+        <circle cx="18.5" cy="17.5" r="3.5"/>
+        <path d="M8 17.5L12 9l3 8.5M9 9h6M14 6l1.5 3"/>
+      </svg>
+    </span>
+    <span class="brand-text">
+      <span class="brand-name">Cruise the Creek</span>
+      <span class="brand-sub">Electric Bikes</span>
+    </span>
+  </a>
+  <div class="top-actions">
+    <button class="icon-btn" aria-label="Account">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="8" r="4"/>
+        <path d="M4 21c1.5-4 5-6 8-6s6.5 2 8 6"/>
+      </svg>
+    </button>
+    <button class="icon-btn" aria-label="Cart">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M3 4h2l2.4 12.3a2 2 0 0 0 2 1.7h8.2a2 2 0 0 0 2-1.6L21 8H6"/>
+        <circle cx="9" cy="21" r="1.5"/>
+        <circle cx="18" cy="21" r="1.5"/>
+      </svg>
+    </button>
+  </div>
+</header>
+
+<!-- ── SUB BAR ── -->
+<div class="subbar">
+  <span class="sub-title">
+    Explore
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M6 9l6 6 6-6"/>
+    </svg>
+  </span>
+  <button class="sub-search" type="button">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="11" cy="11" r="7"/>
+      <path d="M21 21l-4.3-4.3"/>
+    </svg>
+    Search
+  </button>
+</div>
+
+<!-- ── TILE GRID ── -->
+<main>
+  <div class="grid" role="list">
+
+    <a class="tile" href="adventures.html" role="listitem">
+      <span class="tile-icon" aria-hidden="true">
+        <!-- mountains / adventures -->
+        <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="46" cy="16" r="4"/>
+          <path d="M4 52l14-22 10 14 8-12 24 32"/>
+          <path d="M4 56h56"/>
+        </svg>
+      </span>
+      <span class="tile-label">Adventures</span>
+    </a>
+
+    <a class="tile" href="#" role="listitem">
+      <span class="tile-icon" aria-hidden="true">
+        <!-- calendar / rentals -->
+        <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="8" y="12" width="48" height="44" rx="5"/>
+          <path d="M8 24h48M20 6v12M44 6v12"/>
+          <circle cx="22" cy="36" r="2.5" fill="currentColor"/>
+          <circle cx="32" cy="36" r="2.5" fill="currentColor"/>
+          <circle cx="42" cy="36" r="2.5" fill="currentColor"/>
+          <circle cx="22" cy="46" r="2.5" fill="currentColor"/>
+          <circle cx="32" cy="46" r="2.5" fill="currentColor"/>
+        </svg>
+      </span>
+      <span class="tile-label">Rentals</span>
+    </a>
+
+    <a class="tile" href="#" role="listitem">
+      <span class="tile-icon" aria-hidden="true">
+        <!-- shopping bag / shop -->
+        <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 22h40l-3 32a4 4 0 0 1-4 3.6H19a4 4 0 0 1-4-3.6L12 22z"/>
+          <path d="M22 22V14a10 10 0 0 1 20 0v8"/>
+        </svg>
+      </span>
+      <span class="tile-label">Shop</span>
+    </a>
+
+    <a class="tile" href="#" role="listitem">
+      <span class="tile-icon" aria-hidden="true">
+        <!-- wrench / services -->
+        <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M44 6a14 14 0 0 0-13.5 17.7L7.6 46.6a4.5 4.5 0 0 0 6.4 6.4l22.9-22.9A14 14 0 1 0 44 6z"/>
+          <circle cx="44" cy="20" r="3.5" fill="currentColor"/>
+        </svg>
+      </span>
+      <span class="tile-label">Services</span>
+    </a>
+
+    <a class="tile" href="#" role="listitem">
+      <span class="tile-icon" aria-hidden="true">
+        <!-- bike / test rides -->
+        <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="14" cy="44" r="10"/>
+          <circle cx="50" cy="44" r="10"/>
+          <path d="M22 44l10-22 8 22M26 22h12M38 16l4 6"/>
+        </svg>
+      </span>
+      <span class="tile-label">Test Rides</span>
+    </a>
+
+    <a class="tile" href="#" role="listitem">
+      <span class="tile-icon" aria-hidden="true">
+        <!-- leaf + waves / creek life -->
+        <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M52 8C28 8 16 22 16 36c0 6 2 11 5 14 14 0 31-12 31-34V8z"/>
+          <path d="M21 45c-3 3-7 4-11 4M4 56c4 0 8-1.5 12-4.5s8-4.5 12-4.5 8 1.5 12 4.5 8 4.5 12 4.5 8-1.5 12-4.5"/>
+        </svg>
+      </span>
+      <span class="tile-label">Creek Life</span>
+    </a>
+
+  </div>
+</main>
+
+<footer>
+  &copy; 2026 Cruise the Creek &middot; <a href="adventures.html">Book an Adventure</a>
+</footer>
+
+</body>
+</html>
