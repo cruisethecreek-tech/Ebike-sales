@@ -8,18 +8,18 @@
     <style>
         /* --- BRAND COLORS & FONTS --- */
         :root {
-            --stone-light: #F5F2EB;
-            --stone-dark: #D4Cdc3;
-            --creek-green: #4A7C59;
-            --creek-green-hover: #3A6345;
-            --deck-wood: #3E2723;
+            --stone-light: #F5F0E8;
+            --stone-dark: #e8dfd1;
+            --creek-green: #2D4A32;
+            --creek-green-hover: #1a2e1c;
+            --deck-wood: #2D4A32;
             --text-dark: #333333;
             --white: #ffffff;
             --warning-red: #C44536;
         }
 
         body {
-            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            font-family:'DM Sans',sans-serif;
             background-color: var(--stone-light);
             color: var(--text-dark);
             margin: 0;
@@ -34,13 +34,13 @@
         }
 
         h1 {
-            font-family: 'Georgia', serif;
+            font-family:'Bebas Neue',sans-serif;letter-spacing:.04em;text-transform:uppercase;
             font-size: 2.5rem;
             margin-bottom: 0.5rem;
         }
 
         h2 {
-            font-family: 'Georgia', serif;
+            font-family:'Bebas Neue',sans-serif;letter-spacing:.04em;text-transform:uppercase;
             font-size: 1.8rem;
             margin-bottom: 20px;
         }
@@ -188,7 +188,7 @@
             font-size: 1.1rem;
             letter-spacing: 1px;
             margin-bottom: 15px;
-            font-family: 'Helvetica Neue', sans-serif;
+            font-family:'DM Sans',sans-serif;
         }
 
         .service-list {
@@ -246,7 +246,7 @@
             color: var(--creek-green);
             font-size: 1.3rem;
             margin-bottom: 12px;
-            font-family: 'Georgia', serif;
+            font-family:'Bebas Neue',sans-serif;letter-spacing:.04em;text-transform:uppercase;
         }
 
         .why-item p {
@@ -336,7 +336,7 @@
 
         /* --- TESTIMONIAL SECTION --- */
         .testimonial-section {
-            background: linear-gradient(135deg, var(--deck-wood) 0%, #5a3d37 100%);
+            background: linear-gradient(135deg, var(--deck-wood) 0%, #1a2e1c 100%);
             color: var(--white);
             padding: 50px 30px;
             border-radius: 12px;
@@ -449,16 +449,55 @@
             .hours-grid { grid-template-columns: 1fr; }
             .cta-btn { display: block; margin: 10px 0; }
         }
-    </style>
+    
+/* ── CTC TOPBAR (injected) ── */
+.ctc-topbar{background:rgba(255,255,255,.95);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+  color:#1a1a1a;padding:14px 24px;display:flex;align-items:center;justify-content:space-between;gap:14px;
+  position:sticky;top:0;z-index:200;border-bottom:1px solid rgba(0,0,0,.06);font-family:'DM Sans',sans-serif}
+.ctc-brand-logo{height:38px;width:auto;display:block}
+.ctc-top-nav{display:flex;gap:8px;align-items:center}
+.ctc-top-nav a{padding:8px 14px;border-radius:4px;font-size:.82rem;font-weight:700;
+  letter-spacing:.04em;text-transform:uppercase;color:#4a4a4a;text-decoration:none;transition:all .2s;font-family:'DM Sans',sans-serif}
+.ctc-top-nav a:hover{background:rgba(0,0,0,.05);color:#2D4A32}
+.ctc-top-nav a.book{background:#2D4A32;color:#fff}
+.ctc-top-nav a.book:hover{background:#1a2e1c}
+.ctc-crumb{max-width:1100px;margin:0 auto;padding:18px 24px 0;
+  font-size:.74rem;letter-spacing:.1em;text-transform:uppercase;font-weight:700;color:#6B8F71;
+  font-family:'DM Sans',sans-serif}
+.ctc-crumb a{color:#4a4a4a;text-decoration:none}
+.ctc-crumb a:hover{color:#2D4A32}
+.ctc-crumb .sep{color:rgba(0,0,0,.2);margin:0 8px}
+@media(max-width:480px){.ctc-topbar{padding:12px 16px}.ctc-brand-logo{height:32px}.ctc-top-nav a{padding:6px 10px;font-size:.74rem}}
+
+</style>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 </head>
 <body>
+    <!-- CTC topbar + breadcrumb (injected) -->
+    <header class="ctc-topbar">
+        <a href="home.html" aria-label="Cruise the Creek home">
+            <img class="ctc-brand-logo" src="BlackonTransparent.png" alt="Cruise the Creek">
+        </a>
+        <nav class="ctc-top-nav">
+            <a href="creek-ready.html">Services</a>
+            <a class="book" href="https://www.cruisethecreek.com/book-a-rental" target="_blank" rel="noopener">Book</a>
+        </nav>
+    </header>
+    <nav class="ctc-crumb">
+        <a href="home.html">Home</a><span class="sep">/</span><a href="creek-ready.html">Services</a><span class="sep">/</span>Tune-Ups
+    </nav>
+
 
     <header class="hero">
-      <h1>In Need Of A Tune-Up?</h1>
-        <h1>Is Your E-Bike Creek Ready?</h1>
-        <p>Professional maintenance that keeps you safe, extends your bike's life, and maximizes performance.</p>
-        <div class="price-tag">$125 Complete Service</div>
-        <a href="https://book.peek.com/s/57e3b62e-4f48-4cc4-8876-7b79f4c11baa/yo7ym" class="hero-cta-btn" target="_blank">Book Now</a>
+      <h1 data-cms-text="hero_h1">Is Your E-Bike Creek Ready?</h1>
+        <p data-cms-text="hero_tagline">Professional maintenance that keeps you safe, extends your bike's life, and maximizes performance.</p>
+        <div class="price-tag" data-cms-text="hero_eyebrow">$125 Complete Service</div>
+        <a href="https://book.peek.com/s/57e3b62e-4f48-4cc4-8876-7b79f4c11baa/yo7ym" class="hero-cta-btn"
+           data-cms-href="hero_cta_url" data-cms-target="hero_cta_external" target="_blank">
+            <span data-cms-text="hero_cta_label">Book Now</span>
+        </a>
         <p style="font-size: 0.9rem; margin-top: 15px; opacity: 0.8;">or scroll to learn more</p>
     </header>
 
@@ -662,6 +701,32 @@
         <p>6685 Kirk Rd, Youngstown, OH 44406</p>
         <p style="margin-top: 15px;">&copy; 2026 Cruise the Creek. All rights reserved.</p>
     </footer>
+
+
+<script>
+const CTC_MENU_URL = 'https://script.google.com/macros/s/AKfycbxjg2ZsPCZNsmJEStYA0bRdsnkm4nNS-m-HNhm_Gin56VIVeYWVRE5j51j30zVHhb4PmQ/exec?page=tune-ups';
+function ctcIsTrue(v){ return v===true||v==='TRUE'||v==='true'||v===1; }
+function ctcApplyCMS(remote){
+  const map = Object.assign({}, remote.site || {}, remote.pageMeta || {});
+  document.querySelectorAll('[data-cms-text]').forEach(el => {
+    const v = map[el.dataset.cmsText];
+    if (v != null && String(v).trim() !== '') el.textContent = v;
+  });
+  document.querySelectorAll('[data-cms-href]').forEach(el => {
+    const v = map[el.dataset.cmsHref];
+    if (v) el.href = v;
+  });
+  document.querySelectorAll('[data-cms-target]').forEach(el => {
+    const v = map[el.dataset.cmsTarget];
+    if (ctcIsTrue(v)) { el.target = '_blank'; el.rel = 'noopener'; }
+    else { el.removeAttribute('target'); el.removeAttribute('rel'); }
+  });
+}
+fetch(CTC_MENU_URL, {cache:'no-store'})
+  .then(r => r.ok ? r.json() : Promise.reject(r.status))
+  .then(remote => { if (remote && typeof remote === 'object') ctcApplyCMS(remote); })
+  .catch(err => console.warn('[tune-ups] config fetch failed:', err));
+</script>
 
 </body>
 </html>

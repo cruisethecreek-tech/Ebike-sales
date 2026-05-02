@@ -8,15 +8,15 @@
     <style>
         /* Your Actual Brand Color Palette */
         :root {
-            --sage-green: #51633d;
-            --dark-green: #3d4a2d;
-            --forest-green: #2d3a1f;
-            --tan-bg: #d7c4ac;
-            --warm-tan: #c9b59a;
-            --off-white: #f9f7f4;
-            --cream: #f5f1ea;
+            --sage-green: #6B8F71;
+            --dark-green: #1a2e1c;
+            --forest-green: #2D4A32;
+            --tan-bg: #C9A96E;
+            --warm-tan: #a98843;
+            --off-white: #fbf7ef;
+            --cream: #F5F0E8;
             --text-dark: #333333;
-            --light-sage: #6b7d55;
+            --light-sage: #557159;
         }
 
         * {
@@ -24,7 +24,7 @@
         }
 
         body {
-            font-family: 'Montserrat', sans-serif;
+            font-family:'DM Sans',sans-serif;
             margin: 0;
             color: var(--text-dark);
             background: var(--off-white);
@@ -272,22 +272,54 @@
                 font-size: 1.5rem;
             }
         }
-    </style>
+    
+/* ── CTC TOPBAR (injected) ── */
+.ctc-topbar{background:rgba(255,255,255,.95);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+  color:#1a1a1a;padding:14px 24px;display:flex;align-items:center;justify-content:space-between;gap:14px;
+  position:sticky;top:0;z-index:200;border-bottom:1px solid rgba(0,0,0,.06);font-family:'DM Sans',sans-serif}
+.ctc-brand-logo{height:38px;width:auto;display:block}
+.ctc-top-nav{display:flex;gap:8px;align-items:center}
+.ctc-top-nav a{padding:8px 14px;border-radius:4px;font-size:.82rem;font-weight:700;
+  letter-spacing:.04em;text-transform:uppercase;color:#4a4a4a;text-decoration:none;transition:all .2s;font-family:'DM Sans',sans-serif}
+.ctc-top-nav a:hover{background:rgba(0,0,0,.05);color:#2D4A32}
+.ctc-top-nav a.book{background:#2D4A32;color:#fff}
+.ctc-top-nav a.book:hover{background:#1a2e1c}
+.ctc-crumb{max-width:1100px;margin:0 auto;padding:18px 24px 0;
+  font-size:.74rem;letter-spacing:.1em;text-transform:uppercase;font-weight:700;color:#6B8F71;
+  font-family:'DM Sans',sans-serif}
+.ctc-crumb a{color:#4a4a4a;text-decoration:none}
+.ctc-crumb a:hover{color:#2D4A32}
+.ctc-crumb .sep{color:rgba(0,0,0,.2);margin:0 8px}
+@media(max-width:480px){.ctc-topbar{padding:12px 16px}.ctc-brand-logo{height:32px}.ctc-top-nav a{padding:6px 10px;font-size:.74rem}}
+
+</style>
 </head>
 <body>
-
-    <header>
-        <div class="container">
-            <h1 class="logo">CRUISE THE CREEK</h1>
-            <p class="tagline">Expert Remote Video Consultations</p>
-        </div>
+    <!-- CTC topbar + breadcrumb (injected) -->
+    <header class="ctc-topbar">
+        <a href="home.html" aria-label="Cruise the Creek home">
+            <img class="ctc-brand-logo" src="BlackonTransparent.png" alt="Cruise the Creek">
+        </a>
+        <nav class="ctc-top-nav">
+            <a href="creek-ready.html">Services</a>
+            <a class="book" href="https://www.cruisethecreek.com/book-a-rental" target="_blank" rel="noopener">Book</a>
+        </nav>
     </header>
+    <nav class="ctc-crumb">
+        <a href="home.html">Home</a><span class="sep">/</span><a href="creek-ready.html">Services</a><span class="sep">/</span>Video Diagnostics
+    </nav>
+
+
+    
 
     <section class="hero">
         <div class="container">
-            <h2>Get Expert Help from Anywhere</h2>
-            <p>Stuck on assembly? Ever hear? Please take a photo and e-mail us? Ofcourse you have...Connect with us instead and chat with our factory-trained technician via live video call and get your e-bike rolling.</p>
-            <a href="https://book.peek.com/s/57e3b62e-4f48-4cc4-8876-7b79f4c11baa/dmkOV" class="btn-primary" target="_blank">Schedule Your Session</a>
+            <h2 data-cms-text="hero_h1">Get Expert Help from Anywhere</h2>
+            <p data-cms-text="hero_tagline">Stuck on assembly or troubleshooting an error code? Connect with our factory-trained technician on a live video call and get your e-bike rolling — no travel required.</p>
+            <a href="https://book.peek.com/s/57e3b62e-4f48-4cc4-8876-7b79f4c11baa/dmkOV" class="btn-primary"
+               data-cms-href="hero_cta_url" data-cms-target="hero_cta_external" target="_blank">
+                <span data-cms-text="hero_cta_label">Schedule Your Session</span>
+            </a>
         </div>
     </section>
 
@@ -324,6 +356,32 @@
             <p>&copy; 2026 Cruise the Creek E-Bike Rentals & Sales. Mahoning County, OH.</p>
         </div>
     </footer>
+
+
+<script>
+const CTC_MENU_URL = 'https://script.google.com/macros/s/AKfycbxjg2ZsPCZNsmJEStYA0bRdsnkm4nNS-m-HNhm_Gin56VIVeYWVRE5j51j30zVHhb4PmQ/exec?page=video-diagnostics';
+function ctcIsTrue(v){ return v===true||v==='TRUE'||v==='true'||v===1; }
+function ctcApplyCMS(remote){
+  const map = Object.assign({}, remote.site || {}, remote.pageMeta || {});
+  document.querySelectorAll('[data-cms-text]').forEach(el => {
+    const v = map[el.dataset.cmsText];
+    if (v != null && String(v).trim() !== '') el.textContent = v;
+  });
+  document.querySelectorAll('[data-cms-href]').forEach(el => {
+    const v = map[el.dataset.cmsHref];
+    if (v) el.href = v;
+  });
+  document.querySelectorAll('[data-cms-target]').forEach(el => {
+    const v = map[el.dataset.cmsTarget];
+    if (ctcIsTrue(v)) { el.target = '_blank'; el.rel = 'noopener'; }
+    else { el.removeAttribute('target'); el.removeAttribute('rel'); }
+  });
+}
+fetch(CTC_MENU_URL, {cache:'no-store'})
+  .then(r => r.ok ? r.json() : Promise.reject(r.status))
+  .then(remote => { if (remote && typeof remote === 'object') ctcApplyCMS(remote); })
+  .catch(err => console.warn('[video-diagnostics] config fetch failed:', err));
+</script>
 
 </body>
 </html>
