@@ -3,352 +3,599 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Adventures — Cruise the Creek Electric Bikes</title>
+<title>#Unleash Your Adventure | Cruise the Creek</title>
+<meta name="description" content="Pick up your e-bike at Bears Den / Scholl Pavilion in Mill Creek Park, Youngstown — and unleash your adventure on the park's scenic loops.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,700;0,9..40,800;1,9..40,400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-html{scroll-behavior:smooth}
-body{font-family:'DM Sans',sans-serif;color:#1a1a1a;background:#f5f0ea}
-
-/* ── NAV ── */
-header{position:sticky;top:0;z-index:200;background:rgba(250,246,241,0.92);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid #e0d5c8;padding:.7rem 2rem;display:flex;align-items:center;justify-content:space-between;gap:1rem}
-.logo{display:flex;align-items:center;gap:.6rem;text-decoration:none}
-.logo img{height:40px}
-nav{display:flex;align-items:center;gap:.2rem;flex-wrap:wrap}
-nav a{font-family:'DM Sans',sans-serif;font-size:.78rem;font-weight:500;color:#4a4040;text-decoration:none;padding:.38rem .65rem;border-radius:5px;transition:background .18s}
-nav a:hover,nav a.active{background:#e8ddd0;color:#3d2e1e}
-.btn-rent{background:#3a5c3a!important;color:#fff!important;border-radius:20px;padding:.42rem 1.1rem!important;font-weight:700!important}
-.btn-rent:hover{background:#2d4a2d!important}
-
-/* ── HERO ── */
-.hero{position:relative;min-height:88vh;display:flex;align-items:center;justify-content:center;overflow:hidden;background:#2c3a2c}
-/* HERO PHOTO — sits behind the overlay */
-.hero-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center}
-.hero-overlay{position:absolute;inset:0;background:linear-gradient(155deg,rgba(26,46,26,.82) 0%,rgba(46,74,40,.72) 55%,rgba(74,92,56,.6) 100%)}
-.hero-content{position:relative;z-index:1;text-align:center;color:#fff;padding:2rem;max-width:680px}
-.hero-tag{font-size:.7rem;letter-spacing:.22em;text-transform:uppercase;color:#b8a888;margin-bottom:.9rem}
-.hero h1{font-size:clamp(2.4rem,6vw,4rem);font-weight:800;line-height:1.08;margin-bottom:.9rem;text-shadow:0 2px 24px rgba(0,0,0,.35)}
-.hero p{font-size:1rem;color:#cdc5b8;max-width:460px;margin:0 auto 1.8rem}
-.fleet-badges{display:flex;flex-wrap:wrap;justify-content:center;gap:.45rem;margin-bottom:2rem}
-.fleet-badge{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);color:#fff;font-size:.77rem;padding:.32rem .85rem;border-radius:20px}
-.fleet-badge.in-stock{background:rgba(50,110,50,.55);border-color:rgba(110,190,110,.4)}
-.btn-hero{display:inline-block;background:#fff;color:#3d2e1e;font-weight:700;padding:.82rem 2.2rem;border-radius:28px;text-decoration:none;font-size:.93rem;box-shadow:0 4px 22px rgba(0,0,0,.28);transition:transform .2s,box-shadow .2s}
-.btn-hero:hover{transform:translateY(-2px);box-shadow:0 8px 32px rgba(0,0,0,.35)}
-
-/* ── EXPERIENCE TOGGLE ── */
-.experience{background:#f0ebe2;padding:4rem 2rem;text-align:center}
-/* BIKE CIRCLE PHOTO */
-.exp-bike{width:138px;height:138px;border-radius:50%;background:#b8a888;margin:0 auto 1.8rem;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,.18)}
-.exp-bike img{width:100%;height:100%;object-fit:cover;display:block}
-.exp-toggle{display:inline-flex;border:2px solid #b0a090;border-radius:28px;overflow:hidden;margin-bottom:1.2rem}
-.exp-btn{padding:.52rem 1.3rem;font-size:.82rem;font-weight:700;cursor:pointer;border:none;background:transparent;color:#6a5a4a;transition:background .2s,color .2s;white-space:nowrap;font-family:'DM Sans',sans-serif}
-.exp-btn.active{background:#3d2e1e;color:#fff}
-.exp-location{font-size:.82rem;color:#8a7a6a;margin-bottom:1.5rem;min-height:1.2em}
-.btn-avail{display:inline-block;background:#3d2e1e;color:#fff;font-weight:700;padding:.72rem 1.75rem;border-radius:24px;text-decoration:none;font-size:.88rem;margin-right:.65rem;transition:background .2s}
-.btn-avail:hover{background:#2a1e10}
-.btn-switch{display:inline-block;background:#3a5c3a;color:#fff;font-weight:600;padding:.62rem 1.2rem;border-radius:24px;text-decoration:none;font-size:.8rem;transition:background .2s}
-.btn-switch:hover{background:#2d4a2d}
-
-/* ── 3 STEPS ── */
-.steps-section{background:#c4a882;padding:5rem 2rem}
-.steps-inner{max-width:1050px;margin:0 auto;display:grid;grid-template-columns:1fr 200px;gap:3.5rem;align-items:center}
-.steps-head{font-size:.88rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:#3d2e1e;margin-bottom:2.8rem;text-align:center}
-.steps-list{display:flex;flex-direction:column;gap:2.2rem}
-.step{display:flex;align-items:flex-start;gap:1.25rem}
-.step-icon{width:46px;height:46px;border-radius:50%;background:#3d2e1e;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:.15rem;font-size:1.15rem}
-.step-num{font-size:.62rem;color:#7a5a3a;letter-spacing:.1em;display:block;margin-bottom:.15rem}
-.step h3{font-size:1.7rem;font-weight:800;color:#1a1a1a;line-height:1}
-.step p{font-size:.83rem;color:#5a4a38;margin-top:.25rem}
-/* STEPS SIDE PHOTO */
-.steps-photo{width:200px;height:260px;border-radius:12px;background:#8a7060;overflow:hidden;box-shadow:0 8px 30px rgba(0,0,0,.18)}
-.steps-photo img{width:100%;height:100%;object-fit:cover;display:block}
-
-/* ── QUICK LINKS ── */
-.quick-links{background:#c4a882;border-top:1px solid rgba(255,255,255,.28);padding:2.5rem 2rem}
-.quick-links-inner{max-width:680px;margin:0 auto}
-.quick-link-row{display:flex;align-items:center;padding:.7rem 0;border-bottom:1px solid rgba(255,255,255,.28)}
-.quick-link-row:last-child{border-bottom:none}
-.ql-dot{width:13px;height:13px;border-radius:50%;background:#7a5a3a;margin-right:.9rem;flex-shrink:0}
-.ql-label{font-size:.93rem;font-weight:600;color:#1a1a1a;flex:1}
-.ql-btn{background:#3d2e1e;color:#fff;font-size:.78rem;font-weight:700;padding:.42rem 1.05rem;border-radius:18px;text-decoration:none;white-space:nowrap;transition:background .18s}
-.ql-btn:hover{background:#2a1e10}
-
-/* ── NATURE BANNER ── */
-.nature-banner{height:360px;background:#3a4a28;overflow:hidden;position:relative}
-/* NATURE BANNER PHOTO */
-.nature-banner img{width:100%;height:100%;object-fit:cover;object-position:center 40%;display:block}
-
-/* ── TRAILSIDE ── */
-.trailside{background:#f5f0ea;padding:3rem 2rem}
-.trailside h2{text-align:center;font-size:1.35rem;font-weight:700;margin-bottom:1.8rem;color:#3d2e1e}
-/* VIDEO / DARK BOX — swap <div> for <video autoplay muted loop playsinline> when ready */
-.trail-dark{height:110px;background:#3d2e1e;border-radius:8px;margin-bottom:1.4rem;overflow:hidden}
-.trail-dark video{width:100%;height:100%;object-fit:cover;display:block}
-.trail-cards{display:grid;grid-template-columns:repeat(3,1fr);border-radius:10px;overflow:hidden}
-/* TRAIL CARD PHOTOS — each card has an <img> behind the text */
-.trail-card{height:270px;display:flex;flex-direction:column;justify-content:flex-end;padding:1.2rem;position:relative;overflow:hidden}
-.trail-card:nth-child(1){background:linear-gradient(170deg,#3a5030,#6a7840)}
-.trail-card:nth-child(2){background:linear-gradient(170deg,#4a6040,#8a9060)}
-.trail-card:nth-child(3){background:linear-gradient(170deg,#2a3820,#4a5830)}
-.trail-card img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;opacity:.7}
-.trail-card-inner{position:relative;z-index:1}
-.trail-title{color:#fff;font-size:1.1rem;font-weight:800;line-height:1.2;text-shadow:0 2px 8px rgba(0,0,0,.6)}
-.trail-pill{display:inline-block;margin-top:.55rem;background:#3a5c3a;color:#fff;font-size:.7rem;font-weight:700;padding:.28rem .8rem;border-radius:18px;text-decoration:none}
-.trail-bubble{width:84px;height:84px;border-radius:50%;background:rgba(255,255,255,.18);display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:700;color:#fff;text-align:center;margin-bottom:.5rem;backdrop-filter:blur(4px)}
-
-/* ── FOOTER ── */
-footer{background:#f0ebe2;border-top:1px solid #ddd4c4;padding:3rem 2rem;text-align:center}
-.footer-brand{font-weight:800;font-size:1rem;color:#3d2e1e;margin-bottom:.2rem}
-.footer-sub{font-size:.78rem;color:#8a7a6a;margin-bottom:1.2rem}
-.footer-avail{display:inline-block;background:#3d2e1e;color:#fff;font-weight:700;padding:.68rem 1.9rem;border-radius:24px;text-decoration:none;margin-bottom:1.9rem;font-size:.88rem}
-.footer-contacts{display:flex;flex-wrap:wrap;justify-content:center;gap:2rem;margin-bottom:1.6rem}
-.footer-col h4{font-size:.72rem;font-weight:700;color:#3d2e1e;text-decoration:underline;margin-bottom:.35rem}
-.footer-col p,.footer-col a{font-size:.73rem;color:#5a4a38;display:block;line-height:1.65;text-decoration:none}
-.footer-links{display:flex;flex-wrap:wrap;justify-content:center;gap:.4rem 1rem;margin-bottom:1.1rem}
-.footer-links a{font-size:.73rem;color:#3d2e1e;text-decoration:underline}
-.footer-copy{font-size:.7rem;color:#8a7a6a}
-
-/* ── RESPONSIVE ── */
-@media(max-width:700px){
-  header{padding:.55rem 1rem;flex-wrap:wrap;gap:.5rem}
-  nav a{font-size:.7rem;padding:.3rem .45rem}
-  .steps-inner{grid-template-columns:1fr}
-  .steps-photo{display:none}
-  .trail-cards{grid-template-columns:1fr}
-  .trail-card{height:160px}
-  .exp-toggle{flex-direction:column;border-radius:14px}
+:root{
+  --sage:#6B8F71;--sage-d:#557159;--forest:#2D4A32;--dark:#1a2e1c;
+  --tan:#C9A96E;--tan-d:#a98843;--cream:#F5F0E8;--cream-w:#fbf7ef;
+  --ink:#1a1a1a;--ink-2:#3a3a3a;--ink-3:#5a5a5a;
 }
+html{scroll-behavior:smooth}
+body{font-family:'DM Sans',sans-serif;color:var(--ink);background:var(--cream);
+  min-height:100vh;display:flex;flex-direction:column;line-height:1.7;overflow-x:hidden}
+a{color:inherit;text-decoration:none;transition:color .2s ease}
+img{max-width:100%;display:block}
+button{font-family:inherit}
+
+/* TOP BAR */
+.topbar{background:rgba(255,255,255,.95);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+  color:var(--dark);padding:14px 24px;display:flex;align-items:center;justify-content:space-between;gap:14px;
+  position:sticky;top:0;z-index:100;border-bottom:1px solid rgba(0,0,0,.05)}
+.brand-logo{height:38px;width:auto;display:block}
+.top-nav{display:flex;gap:8px;align-items:center}
+.top-nav a{padding:8px 14px;border-radius:4px;font-size:.82rem;font-weight:700;
+  letter-spacing:.04em;text-transform:uppercase;color:var(--ink-2);transition:all .2s}
+.top-nav a:hover{background:rgba(0,0,0,.05);color:var(--forest)}
+.top-nav .book{background:var(--forest);color:#fff}
+.top-nav .book:hover{background:var(--dark);color:#fff}
+
+/* BREADCRUMB */
+.crumb{max-width:1080px;margin:0 auto;padding:18px 24px 0;
+  font-size:.74rem;letter-spacing:.1em;text-transform:uppercase;font-weight:700;color:var(--sage)}
+.crumb a{color:var(--ink-2)}
+.crumb a:hover{color:var(--forest)}
+.crumb .sep{color:rgba(0,0,0,.2);margin:0 8px}
+
+/* SWITCH PILL (lives inside the hero) */
+.rental-switch{display:inline-flex;background:rgba(255,255,255,.12);
+  border:1px solid rgba(255,255,255,.22);border-radius:99px;padding:4px;
+  backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
+  margin:0 auto 22px;box-shadow:0 4px 14px rgba(0,0,0,.18)}
+.rental-switch-opt{padding:8px 18px;border-radius:99px;font-size:.74rem;font-weight:700;
+  letter-spacing:.08em;color:rgba(255,255,255,.7);text-transform:uppercase;
+  transition:all .2s ease;text-decoration:none;white-space:nowrap}
+.rental-switch-opt:hover{color:#fff;background:rgba(255,255,255,.08)}
+.rental-switch-opt.active{background:#fff;color:var(--forest);box-shadow:0 2px 6px rgba(0,0,0,.2)}
+.rental-switch-opt.active:hover{background:#fff;color:var(--forest)}
+@media(max-width:480px){.rental-switch-opt{padding:7px 12px;font-size:.66rem;letter-spacing:.06em}}
+
+/* HERO */
+.hero{position:relative;min-height:54vh;padding:72px 24px 56px;
+  display:flex;align-items:flex-end;justify-content:center;
+  color:#fff;background:var(--forest);overflow:hidden;isolation:isolate}
+.hero-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
+  z-index:-2;opacity:0;transition:opacity 1s ease}
+.hero-img.loaded{opacity:1}
+.hero-overlay{position:absolute;inset:0;z-index:-1;
+  background:linear-gradient(180deg,rgba(26,46,28,.55) 0%,rgba(26,46,28,.85) 100%)}
+.hero-topo{position:absolute;inset:0;z-index:-1;opacity:.18;pointer-events:none;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 600 400' preserveAspectRatio='none'><g fill='none' stroke='%23F5F0E8' stroke-width='1.2'><path d='M0,80 Q150,60 300,90 T600,80'/><path d='M0,140 Q150,120 300,150 T600,140'/><path d='M0,200 Q150,180 300,210 T600,200'/><path d='M0,260 Q150,240 300,270 T600,260'/></g></svg>");
+  background-size:cover}
+.hero-content{position:relative;z-index:1;text-align:center;max-width:780px;margin:0 auto;
+  display:flex;flex-direction:column;align-items:center;
+  animation:rise 1s cubic-bezier(0.16,1,0.3,1) both}
+.hero-eyebrow{display:inline-block;font-size:.74rem;font-weight:700;letter-spacing:.22em;
+  text-transform:uppercase;color:var(--tan);margin-bottom:14px;
+  padding:6px 14px;border:1px solid rgba(255,255,255,.25);border-radius:4px;
+  background:rgba(0,0,0,.25)}
+.hero h1{font-family:'Bebas Neue',sans-serif;font-size:clamp(2.6rem,8vw,5rem);
+  line-height:1;letter-spacing:.02em;margin-bottom:14px}
+.hero p.sub{font-family:'Bebas Neue',sans-serif;font-size:clamp(1.2rem,3vw,1.7rem);
+  letter-spacing:.04em;color:var(--tan);margin-bottom:14px;text-transform:uppercase}
+.hero p.body{font-size:clamp(1rem,2.4vw,1.1rem);color:rgba(255,255,255,.9);
+  max-width:560px;margin:0 auto 26px;line-height:1.6}
+.hero-cta{display:inline-flex;align-items:center;gap:10px;background:var(--tan);color:var(--dark);
+  font-weight:800;font-size:.92rem;letter-spacing:.04em;
+  padding:14px 26px;border-radius:4px;transition:background .2s ease}
+.hero-cta:hover{background:#dbb978}
+.hero-cta svg{width:16px;height:16px}
+
+/* MAIN */
+main{flex:1}
+.section{padding:64px 24px}
+.section-inner{max-width:1080px;margin:0 auto}
+.section-eyebrow{display:block;font-size:.74rem;letter-spacing:.22em;text-transform:uppercase;
+  font-weight:700;color:var(--sage);margin-bottom:10px}
+.section-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(2rem,5vw,3rem);
+  letter-spacing:.04em;color:var(--forest);line-height:1.05;margin-bottom:18px;text-transform:uppercase}
+.section-lead{font-size:1.06rem;color:var(--ink-2);max-width:680px;margin-bottom:24px;line-height:1.75}
+
+/* FLEET STRIP */
+.fleet{background:var(--cream-w);border-top:1px solid rgba(0,0,0,.06);border-bottom:1px solid rgba(0,0,0,.06);padding:36px 24px}
+.fleet-inner{max-width:1080px;margin:0 auto;display:grid;grid-template-columns:1fr;gap:18px;align-items:center}
+.fleet-headline{display:flex;align-items:center;gap:18px;justify-content:center;text-align:center}
+.fleet-num{font-family:'Bebas Neue',sans-serif;font-size:4.5rem;color:var(--forest);line-height:1;letter-spacing:.02em}
+.fleet-num-label{font-size:.78rem;letter-spacing:.2em;text-transform:uppercase;font-weight:700;
+  color:var(--sage);text-align:left;line-height:1.4}
+.fleet-num-label strong{display:block;color:var(--forest);font-size:1rem;letter-spacing:.06em;margin-top:4px}
+.fleet-types{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.fleet-type{background:#fff;border:1px solid rgba(0,0,0,.06);border-radius:6px;padding:12px 14px;
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+  box-shadow:0 2px 6px rgba(0,0,0,.03)}
+.fleet-type-name{font-weight:700;color:var(--forest);font-size:.92rem;line-height:1.2}
+.fleet-type-count{font-family:'Bebas Neue',sans-serif;font-size:1.4rem;color:var(--tan-d);letter-spacing:.02em}
+.fleet-type-count .stock{font-size:.5em;color:var(--ink-3);text-transform:uppercase;
+  letter-spacing:.1em;font-family:'DM Sans',sans-serif;font-weight:600;margin-left:4px}
+
+/* DESCRIPTION */
+.about{background:var(--cream)}
+.about p{font-size:1.04rem;color:var(--ink-2);line-height:1.8;margin-bottom:16px;max-width:760px}
+.about p:last-of-type{margin-bottom:0}
+.about-cta{display:inline-flex;align-items:center;gap:8px;margin-top:24px;background:var(--forest);color:#fff;
+  padding:12px 22px;border-radius:4px;font-weight:800;font-size:.86rem;
+  letter-spacing:.04em;transition:background .2s ease}
+.about-cta:hover{background:var(--dark)}
+.about-cta svg{width:14px;height:14px}
+
+/* STEPS */
+.steps{background:var(--cream-w);border-top:1px solid rgba(0,0,0,.06);border-bottom:1px solid rgba(0,0,0,.06)}
+.steps-grid{display:grid;grid-template-columns:1fr;gap:18px;margin-top:8px}
+.step-img-wrap{position:relative;border-radius:8px;overflow:hidden;background:linear-gradient(135deg,var(--sage),var(--forest));aspect-ratio:4/3}
+.step-img-wrap img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.step-list{display:flex;flex-direction:column;gap:14px}
+.step{background:#fff;border:1px solid rgba(0,0,0,.06);border-radius:8px;padding:20px 22px;
+  display:flex;gap:16px;align-items:flex-start;box-shadow:0 4px 12px rgba(0,0,0,.04);
+  transition:transform .2s ease,box-shadow .2s ease}
+.step:hover{transform:translateY(-2px);box-shadow:0 12px 28px rgba(45,74,50,.1)}
+.step-num{font-family:'Bebas Neue',sans-serif;font-size:2.3rem;color:var(--tan);line-height:1;
+  letter-spacing:.02em;flex-shrink:0;width:46px}
+.step-body{flex:1}
+.step-title{font-family:'Bebas Neue',sans-serif;font-size:1.25rem;color:var(--forest);
+  letter-spacing:.04em;text-transform:uppercase;margin-bottom:4px;line-height:1.05}
+.step-desc{font-size:.94rem;color:var(--ink-2);line-height:1.6}
+
+/* CARDS */
+.cards{background:var(--cream)}
+.cards-grid{display:grid;grid-template-columns:1fr;gap:14px;margin-top:8px}
+.info-card{background:#fff;border:1px solid rgba(0,0,0,.06);border-radius:8px;padding:22px 24px;
+  display:flex;flex-direction:column;gap:8px;
+  box-shadow:0 4px 12px rgba(0,0,0,.04);
+  transition:transform .2s ease,box-shadow .2s ease,border-color .2s ease}
+.info-card:hover{transform:translateY(-2px);box-shadow:0 12px 28px rgba(45,74,50,.1);border-color:var(--sage)}
+.info-card .ic-eyebrow{font-size:.66rem;letter-spacing:.2em;text-transform:uppercase;font-weight:700;color:var(--sage)}
+.info-card .ic-title{font-family:'Bebas Neue',sans-serif;font-size:1.3rem;color:var(--forest);
+  letter-spacing:.04em;text-transform:uppercase;line-height:1.05}
+.info-card .ic-link{margin-top:auto;color:var(--tan-d);font-weight:800;font-size:.84rem;
+  letter-spacing:.06em;text-transform:uppercase;display:inline-flex;align-items:center;gap:6px;padding-top:8px}
+.info-card .ic-link svg{width:14px;height:14px;transition:transform .2s}
+.info-card:hover .ic-link svg{transform:translateX(4px)}
+
+/* WOULD YOU RATHER */
+.switch-section{background:var(--forest);color:#fff;padding:64px 24px;position:relative;overflow:hidden}
+.switch-section::after{content:'';position:absolute;inset:0;pointer-events:none;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 200'><g fill='none' stroke='%23C9A96E' stroke-opacity='0.22' stroke-width='.9'><circle cx='350' cy='40' r='40'/><circle cx='350' cy='40' r='80'/><circle cx='350' cy='40' r='120'/></g></svg>");
+  background-position:right top;background-repeat:no-repeat}
+.switch-inner{max-width:1080px;margin:0 auto;position:relative;z-index:1;
+  display:grid;grid-template-columns:1fr;gap:24px;align-items:center}
+.switch-img{aspect-ratio:4/3;border-radius:8px;overflow:hidden;
+  background:linear-gradient(135deg,var(--sage-d),var(--forest));position:relative}
+.switch-img img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.switch-eyebrow{font-size:.7rem;letter-spacing:.22em;text-transform:uppercase;font-weight:700;color:var(--tan);margin-bottom:10px}
+.switch-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(1.8rem,5vw,2.6rem);
+  letter-spacing:.04em;line-height:1.05;text-transform:uppercase;margin-bottom:12px}
+.switch-section p{color:rgba(255,255,255,.85);max-width:480px;line-height:1.6;font-size:1rem;margin-bottom:16px}
+.switch-features{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:22px;max-width:480px}
+.switch-feature{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);
+  border-radius:6px;padding:10px 14px}
+.switch-feature-title{font-family:'Bebas Neue',sans-serif;font-size:1.05rem;letter-spacing:.04em;
+  text-transform:uppercase;color:var(--tan);line-height:1.05;margin-bottom:2px}
+.switch-feature-body{font-size:.78rem;color:rgba(255,255,255,.75);line-height:1.4}
+.switch-cta{display:inline-flex;align-items:center;gap:10px;background:var(--tan);color:var(--dark);
+  font-weight:800;font-size:.9rem;letter-spacing:.04em;padding:13px 26px;border-radius:4px;
+  transition:background .2s ease}
+.switch-cta:hover{background:#dbb978}
+.switch-cta svg{width:14px;height:14px}
+
+/* SERVICE STRIP */
+.service-strip{background:var(--cream-w);text-align:center;padding:30px 24px;
+  border-top:1px solid rgba(0,0,0,.06);border-bottom:1px solid rgba(0,0,0,.06)}
+.service-strip-text{font-family:'Bebas Neue',sans-serif;font-size:clamp(1.1rem,3vw,1.5rem);
+  letter-spacing:.06em;text-transform:uppercase;color:var(--forest);line-height:1.2}
+.service-strip-text a{color:var(--tan-d);border-bottom:2px solid var(--tan)}
+.service-strip-text a:hover{color:var(--forest)}
+
+/* FOOTER */
+footer{background:var(--dark);color:rgba(255,255,255,.7);padding:32px 24px;
+  text-align:center;font-size:.85rem;letter-spacing:.02em;margin-top:auto;border-top:2px solid var(--tan)}
+footer a{color:var(--tan);font-weight:500}
+footer a:hover{color:#fff}
+
+/* RESPONSIVE */
+@media(min-width:640px){
+  .fleet-inner{grid-template-columns:auto 1fr;gap:36px}
+  .fleet-headline{justify-content:flex-start}
+  .fleet-types{grid-template-columns:repeat(3,1fr);gap:12px}
+  .steps-grid{grid-template-columns:1fr 1.4fr;gap:24px}
+  .cards-grid{grid-template-columns:1fr 1fr;gap:18px}
+  .switch-inner{grid-template-columns:1fr 1.2fr;gap:36px}
+}
+@media(min-width:900px){
+  .cards-grid{grid-template-columns:repeat(4,1fr)}
+}
+@media(max-width:480px){
+  .topbar{padding:12px 16px}.brand-logo{height:32px}
+  .top-nav{gap:4px}.top-nav a{padding:6px 10px;font-size:.74rem}
+  .hero{padding:54px 16px 40px}
+  .crumb{padding:14px 16px 0;font-size:.7rem}
+  .section,.fleet,.steps,.switch-section,.service-strip{padding:40px 16px}
+  .fleet-num{font-size:3.4rem}
+  .fleet-types{grid-template-columns:1fr}
+  .switch-features{grid-template-columns:1fr}
+}
+@keyframes rise{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+@media(prefers-reduced-motion:reduce){.hero-content{animation:none;opacity:1;transform:none}.step:hover,.info-card:hover{transform:none}}
 </style>
 </head>
 <body>
 
-<header>
-  <a href="#" class="logo">
-    <img src="BlackonTransparent.png" alt="Cruise the Creek Electric Bikes" onerror="this.style.display='none'">
+<!-- TOP BAR -->
+<header class="topbar">
+  <a href="home.html" aria-label="Cruise the Creek home">
+    <img class="brand-logo" src="BlackonTransparent.png" alt="Cruise the Creek">
   </a>
-  <nav>
-    <a href="#" class="active">Adventures</a>
-    <a href="#">Shop</a>
-    <a href="#">Service</a>
-    <a href="#">Test Rides</a>
-    <a href="#">Rent to Own</a>
-    <a href="#">Creek Life</a>
-    <a href="#" class="btn-rent">Rent An EBike &rsaquo;</a>
+  <nav class="top-nav">
+    <a href="rentals.html">All Rentals</a>
+    <a class="book"
+       data-cms-href="hero_cta_url"
+       href="https://www.cruisethecreek.com/book-a-rental" target="_blank" rel="noopener">Book</a>
   </nav>
 </header>
 
-<section class="hero" id="hero-section">
-  <!-- HERO PHOTO: replace src with your full-width park/trail shot -->
-  <img class="hero-img" src="" alt="" onerror="this.style.display='none'">
+<!-- BREADCRUMB -->
+<nav class="crumb"><a href="home.html">Home</a><span class="sep">/</span><a href="rentals.html">Rentals</a><span class="sep">/</span>Adventures</nav>
+
+<!-- HERO (with switch pill) -->
+<section class="hero">
+  <img class="hero-img" data-cms-src="hero_photo" src="" alt="" onload="this.classList.add('loaded')" onerror="this.remove()">
   <div class="hero-overlay"></div>
+  <div class="hero-topo"></div>
   <div class="hero-content">
-    <div class="hero-tag" id="hero-tag">Mill Creek Park &bull; Youngstown, OH</div>
-    <h1 id="hero-headline">#Unleash Your<br>Adventure</h1>
-    <p id="hero-sub">Adventure Awaits! Rent an electric bike and experience the sights and sounds of the park in a new and exciting way!</p>
-    <div class="fleet-badges">
-      <span class="fleet-badge"><strong>8 Bikes</strong> in The Fleet</span>
-      <span class="fleet-badge in-stock">3 High Step in stock &mdash;</span>
-      <span class="fleet-badge in-stock">3 Step-Thru in stock &mdash;</span>
-      <span class="fleet-badge in-stock">2 Cargo E-Bikes &mdash;</span>
+    <div class="rental-switch" role="tablist" aria-label="Switch rental type">
+      <a class="rental-switch-opt active" href="adventures.html" aria-current="page">#Unleash</a>
+      <a class="rental-switch-opt" href="trailside.html">#Trailside</a>
     </div>
-    <a href="https://www.cruisethecreek.com/book-a-rental" class="btn-hero" id="hero-cta">Book Your Adventure</a>
+    <span class="hero-eyebrow" data-cms-text="hero_eyebrow">Bears Den · Mill Creek Park</span>
+    <h1 data-cms-text="hero_h1">#Unleash Your Adventure</h1>
+    <p class="sub" data-cms-text="hero_h1_em">Mill Creek Park · Youngstown, OH</p>
+    <p class="body" data-cms-text="hero_tagline">Adventure awaits! Rent an electric bike at Bears Den / Scholl Pavilion and experience the sights, smells, and sounds of Mill Creek Park in a whole new way.</p>
+    <a class="hero-cta"
+       data-cms-href="hero_cta_url"
+       href="https://www.cruisethecreek.com/book-a-rental" target="_blank" rel="noopener">
+      <span data-cms-text="hero_cta_label">Book Your Adventure</span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+    </a>
   </div>
 </section>
 
-<section class="experience">
-  <div class="exp-bike">
-    <!-- CIRCLE PHOTO: replace src with a rider/bike action shot -->
-    <img src="" alt="Rider on trail" onerror="this.style.display='none'">
-  </div>
-  <div class="exp-toggle">
-    <button class="exp-btn active" data-exp="unleash">#Unleash Your Adventure</button>
-    <button class="exp-btn" data-exp="trailside">#Trailside Journey</button>
-  </div>
-  <div class="exp-location" id="exp-location">Bears Den Rd, Youngstown &bull; Park &amp; Pickup at Scholl Pavilion</div>
-  <div>
-    <a href="https://www.cruisethecreek.com/book-a-rental" class="btn-avail" id="exp-avail">Check Availability</a>
-    <a href="#trailside" class="btn-switch" id="exp-switch">Switch to #Trailside Journey &rarr;</a>
+<main>
+
+<!-- FLEET STRIP -->
+<section class="fleet">
+  <div class="fleet-inner">
+    <div class="fleet-headline">
+      <div class="fleet-num" id="cms-fleet-num">11</div>
+      <div class="fleet-num-label" id="cms-fleet-label">
+        E-Bikes
+        <strong>In the Fleet</strong>
+      </div>
+    </div>
+    <div class="fleet-types" id="cms-fleet-types">
+      <div class="fleet-type"><span class="fleet-type-name">All-Purpose</span><span class="fleet-type-count">4<span class="stock">in stock</span></span></div>
+      <div class="fleet-type"><span class="fleet-type-name">High-Step</span><span class="fleet-type-count">1<span class="stock">in stock</span></span></div>
+      <div class="fleet-type"><span class="fleet-type-name">Cruiser</span><span class="fleet-type-count">2<span class="stock">in stock</span></span></div>
+      <div class="fleet-type"><span class="fleet-type-name">Cargo</span><span class="fleet-type-count">2<span class="stock">in stock</span></span></div>
+      <div class="fleet-type"><span class="fleet-type-name">E-Trike</span><span class="fleet-type-count">2<span class="stock">in stock</span></span></div>
+    </div>
   </div>
 </section>
 
-<section class="steps-section">
-  <div class="steps-inner">
-    <div>
-      <div class="steps-head">Book Your Trip in 3 Easy Steps</div>
-      <div class="steps-list">
+<!-- DESCRIPTION -->
+<section class="section about">
+  <div class="section-inner" id="cms-about-inner">
+    <span class="section-eyebrow">About the park</span>
+    <h2 class="section-title">Mill Creek Park, Youngstown</h2>
+    <p>Pickup at Bears Den Road / Scholl Pavilion puts you in the heart of one of the country's oldest urban parks — 4,400 acres of wooded trails, gorges, lakes, and historic landmarks.</p>
+    <p>Cruise the Lily Pond loops, ride out to Lanterman's Mill and the covered bridge, or push deeper into the park's quieter corners. The bike does the work on the climbs so you can take in the view instead of catching your breath.</p>
+    <p>Rentals are timed in flexible blocks. Whether you want a relaxed family ride or a longer afternoon expedition, the park has loops for every pace.</p>
+    <a class="about-cta" href="https://www.millcreekmetroparks.org/" target="_blank" rel="noopener">
+      Learn More About Mill Creek Park
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+    </a>
+  </div>
+</section>
+
+<!-- STEPS -->
+<section class="section steps">
+  <div class="section-inner">
+    <div id="cms-steps-head"><span class="section-eyebrow">How it works</span>
+    <h2 class="section-title">Book your trip in 3 easy steps</h2></div>
+
+    <div class="steps-grid">
+      <div class="step-img-wrap">
+        <img src="bears-den.jpg" alt="" loading="lazy" onerror="this.remove()">
+      </div>
+      <div class="step-list" id="cms-steps-list">
         <div class="step">
-          <div class="step-icon">&#x1F4C5;</div>
-          <div><span class="step-num">01</span><h3>Reserve Your Ride</h3><p>Pick the number of bikes and time slot!</p></div>
+          <div class="step-num">01</div>
+          <div class="step-body">
+            <div class="step-title">Reserve Your Ride</div>
+            <div class="step-desc">Pick a number of bikes and a time slot. Done in under a minute.</div>
+          </div>
         </div>
         <div class="step">
-          <div class="step-icon">&#x2709;&#xFE0F;</div>
-          <div><span class="step-num">02</span><h3>Get Started</h3><p>Receive an email with contact details, basic info &amp; waiver forms</p></div>
+          <div class="step-num">02</div>
+          <div class="step-body">
+            <div class="step-title">Get Started</div>
+            <div class="step-desc">You'll receive an email with contact details, basic information, and waiver forms to fill out before you arrive.</div>
+          </div>
         </div>
         <div class="step">
-          <div class="step-icon">&#x1F6B2;</div>
-          <div><span class="step-num">03</span><h3>Cruise The Park</h3><p>Pick up your bikes and start the adventure!</p></div>
+          <div class="step-num">03</div>
+          <div class="step-body">
+            <div class="step-title">Unleash Your Adventure</div>
+            <div class="step-desc">Pick up your e-bikes at Bears Den / Scholl Pavilion, take a quick tutorial, and start cruising the park.</div>
+          </div>
         </div>
       </div>
     </div>
-    <!-- STEPS PHOTO: replace src with cargo bike / fleet photo -->
-    <div class="steps-photo">
-      <img src="" alt="Cargo e-bike" onerror="this.style.display='none'">
+  </div>
+</section>
+
+<!-- INFO CARDS -->
+<section class="section cards">
+  <div class="section-inner">
+    <div id="cms-cards-head"><span class="section-eyebrow">Before you go</span>
+    <h2 class="section-title">Plan a great trip</h2></div>
+
+    <div class="cards-grid" id="cms-cards-grid">
+      <a class="info-card" href="our-story.html">
+        <span class="ic-eyebrow">About</span>
+        <span class="ic-title">Get to know Cruise the Creek</span>
+        <span class="ic-link">Learn More <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg></span>
+      </a>
+      <a class="info-card" href="https://maps.app.goo.gl/gtvVMSKqfzgzoHkQ6" target="_blank" rel="noopener">
+        <span class="ic-eyebrow">In their words</span>
+        <span class="ic-title">Read what they're saying</span>
+        <span class="ic-link">Reviews <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg></span>
+      </a>
+      <a class="info-card" href="https://www.millcreekmetroparks.org/" target="_blank" rel="noopener">
+        <span class="ic-eyebrow">In the park</span>
+        <span class="ic-title">Mill Creek hotspots</span>
+        <span class="ic-link">Plan Your Cruise <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg></span>
+      </a>
+      <a class="info-card" href="faqs.html">
+        <span class="ic-eyebrow">Ride smart</span>
+        <span class="ic-title">Safety &amp; operations</span>
+        <span class="ic-link">Learn More <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg></span>
+      </a>
     </div>
   </div>
 </section>
 
-<section class="quick-links">
-  <div class="quick-links-inner">
-    <div class="quick-link-row"><div class="ql-dot"></div><span class="ql-label">Learn More About Us</span><a href="#" class="ql-btn">Learn More</a></div>
-    <div class="quick-link-row"><div class="ql-dot"></div><span class="ql-label">Mill Creek Hotspots</span><a href="#" class="ql-btn">Plan Your Cruise</a></div>
-    <div class="quick-link-row"><div class="ql-dot"></div><span class="ql-label">Read What They&rsquo;re Saying</span><a href="#" class="ql-btn">Reviews</a></div>
-    <div class="quick-link-row"><div class="ql-dot"></div><span class="ql-label">Bike Trails In The Park</span><a href="#" class="ql-btn">Bike Trails</a></div>
-    <div class="quick-link-row"><div class="ql-dot"></div><span class="ql-label">Safety And Operations</span><a href="#" class="ql-btn">Learn More</a></div>
+<!-- SERVICE STRIP -->
+<section class="service-strip">
+  <div class="service-strip-text" id="cms-service-strip">
+    The only e-bike service around <a href="creek-ready.html">Mill Creek Park</a>
   </div>
 </section>
 
-<!-- NATURE BANNER PHOTO: replace src with wide bikes-by-water shot -->
-<div class="nature-banner">
-  <img src="" alt="Bikes by the creek" onerror="this.style.display='none'">
-</div>
-
-<section class="trailside" id="trailside">
-  <h2>Need Something More Relaxing?</h2>
-  <!-- VIDEO BOX: swap this div for <video autoplay muted loop playsinline src="your-clip.mp4"> when ready -->
-  <div class="trail-dark"></div>
-  <div class="trail-cards">
-    <div class="trail-card">
-      <!-- TRAIL CARD 1 PHOTO: tree-lined trail shot -->
-      <img src="" alt="Trail through trees" onerror="this.style.display='none'">
-      <div class="trail-card-inner">
-        <div class="trail-title">Only Electric Bike Service Near the trailhead</div>
-      </div>
+<!-- WOULD YOU RATHER -->
+<section class="switch-section">
+  <div class="switch-inner">
+    <div class="switch-img">
+      <img src="kirkroad_edited.jpg" alt="" loading="lazy" onerror="this.remove()">
     </div>
-    <div class="trail-card">
-      <!-- TRAIL CARD 2 PHOTO: open greenway / river shot -->
-      <img src="" alt="Greenway trail" onerror="this.style.display='none'">
-      <div class="trail-card-inner">
-        <div class="trail-title">Checkout Trailside Journey</div>
-        <a href="#" class="trail-pill">Switch to #Trailside Journey &rarr;</a>
+    <div id="cms-switch-content">
+      <div class="switch-eyebrow">Would you rather?</div>
+      <div class="switch-title">#Trailside Journey</div>
+      <p>Rather ride 11+ miles of the Mill Creek MetroParks Bikeway? Pick up at the Kirk Road Trailhead in Canfield instead.</p>
+      <div class="switch-features">
+        <div class="switch-feature">
+          <div class="switch-feature-title">11+ Miles</div>
+          <div class="switch-feature-body">Wooded trail, lakes, ponds — out-and-back at your own pace.</div>
+        </div>
+        <div class="switch-feature">
+          <div class="switch-feature-title">Family Friendly</div>
+          <div class="switch-feature-body">Smooth surface, all skill levels, plenty of rest stops.</div>
+        </div>
       </div>
-    </div>
-    <div class="trail-card">
-      <!-- TRAIL CARD 3 PHOTO: tunnel / bridge shot -->
-      <img src="" alt="Trail tunnel" onerror="this.style.display='none'">
-      <div class="trail-card-inner">
-        <div class="trail-bubble">11 miles of fun!</div>
-        <div class="trail-title">Relax and unwind</div>
-      </div>
+      <a class="switch-cta" href="trailside.html">
+        Switch to #Trailside Journey
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+      </a>
     </div>
   </div>
 </section>
+
+</main>
 
 <footer>
-  <div class="footer-brand">Cruise The Creek</div>
-  <div class="footer-sub">Electric Bikes</div>
-  <a href="https://www.cruisethecreek.com/book-a-rental" class="footer-avail">Check Availability</a>
-  <div class="footer-contacts">
-    <div class="footer-col">
-      <h4>Info &mdash; Rentals &mdash; Tours &mdash; Sponsorships</h4>
-      <p>Text Preferred 330-406-9686</p>
-      <a href="mailto:info@cruisethecreek.com">info@cruisethecreek.com</a>
-    </div>
-    <div class="footer-col">
-      <h4>Sales &mdash; Test Rides &mdash; Repairs</h4>
-      <p>Text Preferred 330-406-9682</p>
-      <a href="mailto:salesteam@cruisethecreek.com">salesteam@cruisethecreek.com</a>
-    </div>
-    <div class="footer-col">
-      <h4>#Unleash Your Adventure</h4>
-      <p>Bears Den Road</p>
-      <p>Youngstown Ohio 44511</p>
-      <p>Park &amp; Pickup in front of Scholl Recreational Pavilion</p>
-    </div>
-    <div class="footer-col">
-      <h4>#Trailside Journey</h4>
-      <p>6685 Kirk Road</p>
-      <p>Canfield Ohio 44406</p>
-      <p>Park at the Bottom of the hill, walk up to Kirk Road Trailhead</p>
-    </div>
-  </div>
-  <div class="footer-links">
-    <a href="#">Cancellation Policy</a>
-    <a href="#">Privacy Policy</a>
-    <a href="#">Liability Waiver</a>
-    <a href="#">Terms of Service</a>
-    <a href="#">Frequently Asked Questions</a>
-  </div>
-  <div class="footer-copy">&copy; 2026 by Cruise The Creek.</div>
+  <span data-cms-text="footer_copyright">&copy; 2026 Cruise the Creek</span>
+  &middot; <a href="home.html">Home</a>
+  &middot; <a href="rentals.html">Rentals</a>
+  &middot; <a href="shop.html">Shop</a>
 </footer>
 
 <script>
-const EXP = {
-  unleash: {
-    tag: 'Mill Creek Park • Youngstown, OH',
-    headline: '#Unleash Your<br>Adventure',
-    sub: 'Adventure Awaits! Rent an electric bike and experience the sights and sounds of the park in a new and exciting way!',
-    cta: 'Book Your Adventure',
-    location: 'Bears Den Rd, Youngstown • Park &amp; Pickup at Scholl Pavilion',
-    avail: 'Check Availability',
-    switchLabel: 'Switch to #Trailside Journey →',
-    switchTarget: '#trailside',
-    url: 'https://www.cruisethecreek.com/book-a-rental',
-  },
-  trailside: {
-    tag: 'Kirk Road Trailhead • Canfield, OH',
-    headline: '#Trailside<br>Journey',
-    sub: 'Explore 11 miles of scenic trail on an electric bike. Pick up at the Kirk Road Trailhead and discover Mill Creek at your own pace.',
-    cta: 'Book Trailside Journey',
-    location: '6685 Kirk Rd, Canfield • Park at bottom of hill, walk up to trailhead',
-    avail: 'Check Trailside Availability',
-    switchLabel: 'Switch to #Unleash Your Adventure →',
-    switchTarget: '#hero-section',
-    url: 'https://www.cruisethecreek.com/book-a-rental',
-  }
-};
+const MENU_URL = 'https://script.google.com/macros/s/AKfycbxjg2ZsPCZNsmJEStYA0bRdsnkm4nNS-m-HNhm_Gin56VIVeYWVRE5j51j30zVHhb4PmQ/exec?page=adventures';
 
-let current = 'unleash';
+function isTrue(v){ return v===true||v==='TRUE'||v==='true'||v===1; }
 
-function applyExp(key) {
-  const e = EXP[key];
-  current = key;
-  document.getElementById('hero-tag').textContent = e.tag;
-  document.getElementById('hero-headline').innerHTML = e.headline;
-  document.getElementById('hero-sub').textContent = e.sub;
-  document.getElementById('hero-cta').textContent = e.cta;
-  document.getElementById('hero-cta').href = e.url;
-  document.getElementById('exp-location').innerHTML = e.location;
-  document.getElementById('exp-avail').textContent = e.avail;
-  document.getElementById('exp-avail').href = e.url;
-  document.getElementById('exp-switch').innerHTML = e.switchLabel;
-  document.getElementById('exp-switch').href = e.switchTarget;
-  document.querySelectorAll('.exp-btn').forEach(b => {
-    b.classList.toggle('active', b.dataset.exp === key);
+function applyCMS(remote){
+  const map = Object.assign({}, remote.site || {}, remote.pageMeta || {});
+  document.querySelectorAll('[data-cms-text]').forEach(el => {
+    const v = map[el.dataset.cmsText];
+    if (v != null && String(v).trim() !== '') el.textContent = v;
+  });
+  document.querySelectorAll('[data-cms-href]').forEach(el => {
+    const v = map[el.dataset.cmsHref];
+    if (v) el.href = v;
+  });
+  document.querySelectorAll('[data-cms-src]').forEach(el => {
+    const v = map[el.dataset.cmsSrc];
+    if (v) { el.src = v; el.classList.add('loaded'); }
   });
 }
 
-document.querySelectorAll('.exp-btn').forEach(btn => {
-  btn.addEventListener('click', () => applyExp(btn.dataset.exp));
-});
 
-document.getElementById('exp-switch').addEventListener('click', function() {
-  applyExp(current === 'unleash' ? 'trailside' : 'unleash');
-});
+function escHTML(s){ return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function richText(s){
+  let h = escHTML(String(s ?? ''));
+  h = h.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+  h = h.replace(/\*([^*]+?)\*/g, '<em>$1</em>');
+  h = h.replace(/--/g, '&mdash;');
+  return h;
+}
+const ARROW_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>';
 
-/* Deep-link from rentals hub: rentals.html → adventures.html#trailside
-   flips the toggle to Trailside Journey on load. */
-function applyHashToggle() {
-  const h = (window.location.hash || '').toLowerCase();
-  if (h === '#trailside' || h === '#trailside-journey') {
-    applyExp('trailside');
-  } else if (h === '#unleash' || h === '#adventure' || h === '#adventures') {
-    applyExp('unleash');
+function renderSections(rows){
+  if (!Array.isArray(rows) || !rows.length) return;
+  const bySlot = {};
+  for (const r of rows) {
+    const s = String(r.slot || '').trim();
+    if (!s) continue;
+    (bySlot[s] = bySlot[s] || []).push(r);
+  }
+  Object.keys(bySlot).forEach(s => bySlot[s].sort((a,b)=>(a.order||0)-(b.order||0)));
+
+  if (bySlot.fleet)   _renderFleet(bySlot.fleet);
+  if (bySlot.about)   _renderAbout(bySlot.about);
+  if (bySlot.steps)   _renderSteps(bySlot.steps);
+  if (bySlot.cards)   _renderCards(bySlot.cards);
+  if (bySlot.service) _renderService(bySlot.service);
+  if (bySlot.switch)  _renderSwitch(bySlot.switch);
+}
+
+function _renderFleet(rows){
+  const num   = rows.find(r => r.type === 'num');
+  const types = rows.filter(r => r.type === 'type');
+  if (num) {
+    const n = document.getElementById('cms-fleet-num');
+    const l = document.getElementById('cms-fleet-label');
+    if (n) n.textContent = num.title || '';
+    if (l) {
+      const parts = String(num.body || '').split('|');
+      l.innerHTML = `${escHTML(parts[0] || '')}<strong>${escHTML(parts[1] || '')}</strong>`;
+    }
+  }
+  if (types.length) {
+    const g = document.getElementById('cms-fleet-types');
+    if (g) g.innerHTML = types.map(t =>
+      `<div class="fleet-type">
+        <span class="fleet-type-name">${escHTML(t.title)}</span>
+        <span class="fleet-type-count">${escHTML(t.body)}<span class="stock">in stock</span></span>
+      </div>`).join('');
   }
 }
-applyHashToggle();
-window.addEventListener('hashchange', applyHashToggle);
+
+function _renderAbout(rows){
+  const inner = document.getElementById('cms-about-inner');
+  if (!inner) return;
+  let html = '';
+  for (const r of rows) {
+    if (r.type === 'eyebrow')   html += `<span class="section-eyebrow">${escHTML(r.title)}</span>`;
+    else if (r.type === 'h2')   html += `<h2 class="section-title">${escHTML(r.title)}</h2>`;
+    else if (r.type === 'body') html += `<p>${richText(r.body)}</p>`;
+    else if (r.type === 'cta') {
+      const url = r.extra || '#';
+      const ext = (url.includes('://') && !url.startsWith(window.location.origin)) ? ' target="_blank" rel="noopener"' : '';
+      html += `<a class="about-cta" href="${escHTML(url)}"${ext}>${escHTML(r.title)} ${ARROW_SVG}</a>`;
+    }
+  }
+  inner.innerHTML = html;
+}
+
+function _renderSteps(rows){
+  const head  = document.getElementById('cms-steps-head');
+  const list  = document.getElementById('cms-steps-list');
+  const eyebrow = rows.find(r => r.type === 'eyebrow');
+  const h2      = rows.find(r => r.type === 'h2');
+  const steps   = rows.filter(r => r.type === 'step');
+  if (head) {
+    let h = '';
+    if (eyebrow) h += `<span class="section-eyebrow">${escHTML(eyebrow.title)}</span>`;
+    if (h2)      h += `<h2 class="section-title">${escHTML(h2.title)}</h2>`;
+    head.innerHTML = h;
+  }
+  if (list && steps.length) {
+    list.innerHTML = steps.map((s, i) => `
+      <div class="step">
+        <div class="step-num">${String(i+1).padStart(2,'0')}</div>
+        <div class="step-body">
+          <div class="step-title">${escHTML(s.title)}</div>
+          <div class="step-desc">${richText(s.body)}</div>
+        </div>
+      </div>`).join('');
+  }
+}
+
+function _renderCards(rows){
+  const head  = document.getElementById('cms-cards-head');
+  const grid  = document.getElementById('cms-cards-grid');
+  const eyebrow = rows.find(r => r.type === 'eyebrow');
+  const h2      = rows.find(r => r.type === 'h2');
+  const cards   = rows.filter(r => r.type === 'card');
+  if (head) {
+    let h = '';
+    if (eyebrow) h += `<span class="section-eyebrow">${escHTML(eyebrow.title)}</span>`;
+    if (h2)      h += `<h2 class="section-title">${escHTML(h2.title)}</h2>`;
+    head.innerHTML = h;
+  }
+  if (grid && cards.length) {
+    grid.innerHTML = cards.map(c => {
+      const url = c.extra || '#';
+      const ext = (url.includes('://') && !url.startsWith(window.location.origin)) ? ' target="_blank" rel="noopener"' : '';
+      return `<a class="info-card" href="${escHTML(url)}"${ext}>
+        <span class="ic-eyebrow">${escHTML(c.body)}</span>
+        <span class="ic-title">${escHTML(c.title)}</span>
+        <span class="ic-link">Learn More ${ARROW_SVG}</span>
+      </a>`;
+    }).join('');
+  }
+}
+
+function _renderService(rows){
+  const strip = rows.find(r => r.type === 'strip');
+  const el = document.getElementById('cms-service-strip');
+  if (!strip || !el) return;
+  const url = strip.extra || '#';
+  el.innerHTML = `${escHTML(strip.title)} <a href="${escHTML(url)}">${escHTML(strip.body)}</a>`;
+}
+
+function _renderSwitch(rows){
+  const content = document.getElementById('cms-switch-content');
+  if (!content) return;
+  const eyebrow = rows.find(r => r.type === 'eyebrow');
+  const h2      = rows.find(r => r.type === 'h2');
+  const bodies  = rows.filter(r => r.type === 'body');
+  const features= rows.filter(r => r.type === 'feature');
+  const cta     = rows.find(r => r.type === 'cta');
+  let html = '';
+  if (eyebrow) html += `<div class="switch-eyebrow">${escHTML(eyebrow.title)}</div>`;
+  if (h2)      html += `<div class="switch-title">${escHTML(h2.title)}</div>`;
+  for (const b of bodies) if (b.body) html += `<p>${richText(b.body)}</p>`;
+  if (features.length) {
+    html += '<div class="switch-features">';
+    for (const f of features) {
+      html += `<div class="switch-feature">
+        <div class="switch-feature-title">${escHTML(f.title)}</div>
+        <div class="switch-feature-body">${richText(f.body)}</div>
+      </div>`;
+    }
+    html += '</div>';
+  }
+  if (cta) {
+    const url = cta.extra || '#';
+    const ext = (url.includes('://') && !url.startsWith(window.location.origin)) ? ' target="_blank" rel="noopener"' : '';
+    html += `<a class="switch-cta" href="${escHTML(url)}"${ext}>${escHTML(cta.title)} ${ARROW_SVG}</a>`;
+  }
+  content.innerHTML = html;
+}
+
+fetch(MENU_URL, {cache:'no-store'})
+  .then(r => r.ok ? r.json() : Promise.reject(r.status))
+  .then(remote => {
+    if (!remote || typeof remote !== 'object') return;
+    applyCMS(remote);
+    if (Array.isArray(remote.sections)) renderSections(remote.sections);
+  })
+  .catch(err => console.warn('[adventures] config fetch failed, using static content:', err));
 </script>
+
 </body>
 </html>
