@@ -132,15 +132,6 @@ button{font-family:inherit}
   font-size:.75rem;letter-spacing:.15em;font-weight:700;text-transform:uppercase;
   color:var(--sage);margin-top:8px;
 }
-.search-pill{
-  display:inline-flex;align-items:center;gap:8px;
-  background:#fff;border:1px solid rgba(0,0,0,.1);
-  padding:10px 16px;border-radius:4px;
-  font-size:.9rem;font-weight:600;color:var(--ink-2);cursor:pointer;
-  transition:border-color .2s ease,background .2s ease;
-}
-.search-pill:hover{border-color:var(--sage);background:var(--cream-w);}
-.search-pill svg{width:16px;height:16px;color:var(--forest)}
 
 /* ── TILE GRID ── */
 main{flex:1;width:100%}
