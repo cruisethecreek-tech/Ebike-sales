@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Our Story | Cruise the Creek</title>
-<meta name="description" content="Cruise the Creek began on a Florida coast, born from stolen pandemic time and a love for Mill Creek Park. Read the full story.">
+<meta name="description" content="Cruise the Creek began as a lemonade stand for Mill Creek Park — a way to get off the screens and into the park. Read the full story.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,400;0,500;0,700;0,800;1,400;1,500&display=swap" rel="stylesheet">
@@ -119,6 +119,15 @@ main{flex:1;width:100%}
   color:var(--forest);margin-bottom:10px}
 .qa p{font-size:.98rem;line-height:1.65;color:var(--ink-2);margin-bottom:0}
 
+/* ── MISSION LIST ── */
+.mission-list{list-style:none;padding:0;margin:14px 0 18px;display:flex;flex-direction:column;gap:8px}
+.mission-list li{position:relative;padding:14px 18px 14px 50px;background:#fff;border:1px solid #ece2cf;
+  border-radius:12px;font-size:1rem;color:var(--ink-2);line-height:1.5}
+.mission-list li::before{content:'';position:absolute;left:18px;top:50%;transform:translateY(-50%);
+  width:14px;height:14px;border-radius:50%;background:linear-gradient(135deg,var(--sage),var(--tan));
+  box-shadow:0 0 0 3px rgba(107,143,113,.18)}
+.mission-list li strong{color:var(--forest);font-weight:800}
+
 /* ── REVIEWS ── */
 .reviews{background:linear-gradient(180deg,transparent 0%,#efe4d0 100%);padding:30px 0 6px;margin-top:24px}
 .review-grid{display:grid;grid-template-columns:1fr;gap:14px;max-width:780px;margin:0 auto;padding:0 22px}
@@ -199,8 +208,8 @@ footer a:hover{color:#fff}
   <div class="hero-topo"></div>
   <div class="hero-content">
     <span class="hero-eyebrow">Our Story</span>
-    <h1>Making lemons<em>out of lemonade.</em></h1>
-    <p class="hero-tag">A Mill Creek Park lemonade stand &mdash; powered by e&#8209;bikes.</p>
+    <h1>Making Lemonade<em>out of Life.</em></h1>
+    <p class="hero-tag">A lemonade stand for Mill Creek Park &mdash; served on two wheels.</p>
   </div>
 </section>
 
@@ -210,10 +219,10 @@ footer a:hover{color:#fff}
 <main>
   <article class="article">
 
-    <!-- ── ABOUT US ── -->
+    <!-- ── INTRO: Lemonade stands ── -->
     <section class="section">
-      <span class="section-eyebrow">About Us</span>
-      <h2>My Lemonade Stand for Mill Creek Park</h2>
+      <span class="section-eyebrow">Where it began</span>
+      <h2>Remember those neighborhood lemonade stands?</h2>
 
       <div class="photo-grid">
         <!-- Drop the photo at this filename to fill this slot. -->
@@ -225,81 +234,89 @@ footer a:hover{color:#fff}
         </div>
       </div>
 
-      <p class="lead">Remember those lemonade stands that popped up everywhere, run by enthusiastic young entrepreneurs? Those kids are all grown up now &mdash; and so am I. But the pandemic threw us all a curveball. Businesses shut down, and our community lost a lot, especially activities for the youth. Gone are the days of local skating rinks, replaced by car washes. Stuck at home, my two teenage sons, ages 16 and 13, were glued to their screens, and I knew something had to change.</p>
+      <p class="lead">They were simple. Honest. They were run by kids who understood something we adults often forget: <strong>the best things in life are meant to be shared.</strong></p>
 
-      <p>Then it hit me: Mill Creek Park! This incredible 2,658-acre park sits right on our doorstep, yet so much of its beauty goes unnoticed. We often take it for granted, speeding through in cars, missing the hidden trails and scenic treasures.</p>
+      <p>I grew up with those stands in mind. But during the pandemic, when screens became our default escape, I realized my two sons &mdash; 16 and 13 &mdash; were living a life disconnected from the world right outside our window. Across the street sat 2,658 acres of <strong>Mill Creek Park</strong>: trails, hills, lakes, and hidden beauty that most of us just drive past.</p>
 
-      <p>This got me thinking about those lemonade stands &mdash; a symbol of youthful initiative and community spirit. Cruise The Creek became my "lemonade stand" for my boys and our community. Their e-bikes are the ice-cold glasses of refreshing lemonade &mdash; a chance for everyone to explore the park in a whole new way.</p>
+      <p>That's when it clicked.</p>
 
-      <p>I encouraged my sons to give back, to share their love for the park, and to help others appreciate its many gifts. Cruise The Creek was born from that desire.</p>
-
-      <div class="qa">
-        <h4>Have you ever driven through Mill Creek Park?</h4>
-        <p>It's massive! Miles of scenic beauty remain undiscovered because they're inaccessible by car or require tackling steep hills. Even if you find a gem, enjoying the moment is tough &mdash; constantly worried about cars needing to pass. Cruise The Creek aims to change that.</p>
+      <div class="pullquote">
+        <p>Cruise The Creek became my lemonade stand. Not for profit &mdash; for possibility.</p>
       </div>
+    </section>
 
-      <div class="qa">
-        <h4>Love cycling?</h4>
-        <p>A bike is a fantastic way to experience the park &mdash; the thrill of the hills, the excitement of new discoveries around every bend. But let's be honest, those uphill climbs can be brutal. Suddenly the park's beauty fades, replaced by the struggle to reach the top. Enter the e-bike: a fun way to exercise and enjoy the ride. With e-bikes you have the option to put in the effort or cruise effortlessly up the hills, all while enjoying the fresh air and getting some exercise.</p>
-      </div>
+    <!-- ── WHY E-BIKES ── -->
+    <section class="section">
+      <span class="section-eyebrow">Why we ride</span>
+      <h2>Why E-Bikes Change Everything</h2>
 
-      <div class="qa">
-        <h4>All I ask is that you love these bikes</h4>
-        <p>Take good care of them, and tell your friends. Booking with us is our gift to you. Our mission is simple: get you off the screens, out of the house, and soaking up the sunshine while exploring the beauty of Mill Creek Park.</p>
-      </div>
+      <p>If you've ever driven through Mill Creek Park, you know why most of it goes unseen. The best parts aren't accessible by car. The steep hills can be punishing. On a regular bike, you're often so focused on the "burn" that you miss the view.</p>
+
+      <p><strong>E-bikes change the equation.</strong></p>
+
+      <p>You get to choose: pedal hard, or cruise easy. Climb the steepest hills without the suffering. You get to actually <em>see</em> the park instead of just passing through it. It's the freedom to explore without limits.</p>
 
       <div class="callout">
         <div class="callout-title">Adventure Awaits</div>
-        <div class="callout-sub">Pick a route, pick a ride &mdash; and we'll meet you on the trail.</div>
+        <div class="callout-sub">Pick a route, pick a ride &mdash; we'll meet you on the trail.</div>
       </div>
     </section>
 
     <!-- ── DIVIDER ── -->
     <div class="divider"><span>The Story</span></div>
 
-    <!-- ── THE DEPARTURE ── -->
+    <!-- ── THE TURNING POINT ── -->
     <section class="section">
       <div class="section-date">
         <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>
         April 30, 2022
       </div>
-      <h2>The Departure</h2>
+      <h2>The Turning Point</h2>
 
-      <p>After nearly 15 years at ALDI, our paths diverged shortly after the peak of the pandemic. A philosophical rift emerged regarding staff management. The director informed me that retaining someone with such an entrepreneurial spirit did not align with ALDI's direction. They considered me too bold and ambitious in handling my staff, deeming it best to part ways.</p>
+      <p>After nearly 15 years at ALDI, my road there ended. I'd poured everything into that role &mdash; leadership, efficiency, and adapting under the pressure of a global pandemic. But I saw things differently. I believed in pushing limits and leading with an entrepreneurial mindset, and eventually, those paths diverged.</p>
 
-      <p>Throughout those 14-plus years, instead of music during my commutes to Salem, Boardman, or Warren, I invested in an Audible account. I listened to audiobooks on business, leadership, and management. Even while unloading freight each morning for three hours before opening, I absorbed audiobooks rather than music.</p>
-
-      <p>ALDI taught me invaluable real-life experiences &mdash; from customer service to multitasking at the highest level. Navigating the pandemic effortlessly demonstrated how to pivot effectively.</p>
-
-      <h3>The Silver Lining</h3>
-      <p>Though leaving ALDI initially felt like the end of the world, I had developed severe sciatica from years of wearing steel-toe shoes and working on hard floors, making it best to depart. With young children, my wife and I struggled to maintain such a high position working a consistent 8 AM to 6 PM shift &mdash; making it virtually impossible to get our kids to and from school without our parents' help.</p>
+      <p>At first, it felt like the floor had been pulled out from under me. But the truth was, my body was already feeling the toll. Years on hard floors in steel-toe shoes had left me with sciatica that made my daily commute brutal. My family was paying the price too &mdash; juggling 10-hour shifts while relying on my parents just to get the kids to school.</p>
 
       <div class="pullquote">
-        <p>Without the abrupt exit from a company I loved, I wouldn't have the capacity to pursue what I'm doing today.</p>
+        <p>The departure wasn't the end. It was the space I needed to actually begin.</p>
       </div>
     </section>
 
-    <!-- ── THE MOMENT OF CLARITY ── -->
+    <!-- ── THE SARASOTA EPIPHANY ── -->
     <section class="section">
       <div class="section-date">
         <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>
         June 6, 2022
       </div>
-      <h2>The Moment of Clarity</h2>
+      <h2>The Sarasota Epiphany</h2>
 
-      <h3>The Pandemic Pause</h3>
-      <p>The pandemic had its grip on the world, but for me it offered an unexpected window. While others were locked down, the housing market swung open, and we landed our dream home &mdash; right across from Mill Creek MetroParks, a place that held countless family memories.</p>
-      <p>This wasn't just about a new house, though. It was a catalyst for a life shift. On a family vacation to Sarasota, Florida &mdash; 1,100 miles away &mdash; reality hit me hard. Standing in an Aldi parking lot, I realized I'd missed 15 years with my kids. My eldest son was already 15, my parents were aging, and time, I knew, was my most precious asset.</p>
+      <p>We had just moved into our dream home right across from Mill Creek MetroParks. During a trip to Florida, standing in a parking lot in Sarasota, it hit me: I'd spent 15 years working and missed too much. My oldest was already 15. My parents were aging. Time wasn't something I could manufacture.</p>
 
-      <h3>A Soul Search on the Coast</h3>
-      <p>Every Florida morning, I'd escape to the coastline before sunrise. Watching the waves crash, I wrestled with what came next. Leaving everything I knew behind was a daunting prospect, but the risk felt strangely liberating.</p>
-      <p>Then, at a red light, it struck me. An e-bike rental shop. Tourists and locals cruised by on these electric beauties, laughter echoing in their wake. <strong>This wasn't just a Florida thing &mdash; it could be ours too.</strong></p>
+      <p>Every morning on that trip, I walked to the beach before sunrise to think. I saw tourists and locals cruising on e-bikes along the coast &mdash; laughing, exploring, and actually <strong>living the moment</strong> instead of rushing through it.</p>
 
-      <h3>Idea Ignited</h3>
-      <p>I bolted back to the beach house, the idea sizzling in my mind. My wife and I talked through it, the excitement building. By the time we returned home, two Mars e-bikes awaited &mdash; gleaming symbols of a new beginning.</p>
+      <p>I rushed back to the beach house and told my wife. The idea caught fire instantly. By the time we got back to Youngstown, our first e-bikes were waiting.</p>
+    </section>
+
+    <!-- ── OUR MISSION ── -->
+    <section class="section">
+      <span class="section-eyebrow">Our mission</span>
+      <h2>Time matters. Experiences matter.</h2>
+
+      <p>Cruise The Creek didn't start with a boardroom business plan. It started with a realization: sometimes the best opportunities are right in front of you &mdash; you just need a new way to see them.</p>
+
+      <p><strong>Our mission is simple. We want you to:</strong></p>
+
+      <ul class="mission-list">
+        <li><strong>Get outside.</strong></li>
+        <li><strong>Explore more.</strong></li>
+        <li><strong>Slow down.</strong></li>
+        <li><strong>Reconnect</strong> &mdash; with nature, your family, and your community.</li>
+      </ul>
+
+      <p>All we ask? Take care of the bikes. Enjoy the ride. And if it makes you smile &mdash; tell someone else.</p>
 
       <div class="pullquote">
-        <p>Cruise The Creek wasn't born on Bears Den Road. It was born on that Florida coast &mdash; fueled by the ocean waves and the urgency of stolen time.</p>
+        <p>Just like a lemonade stand, the best things in life are meant to be shared.</p>
       </div>
     </section>
 
