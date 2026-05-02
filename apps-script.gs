@@ -1,26 +1,33 @@
 /**
- * Cruise the Creek — Landing-page menu API
+ * Cruise the Creek — Site menu API (multi-page)
+ *
+ * One Apps Script web app powers every hub page (home, shop, …).
+ * The script picks which sheet tabs to read based on the ?page=
+ * query param.  Each page uses two tabs:  <Page>_Tiles  and  <Page>_Submenus.
+ *
+ * Examples:
+ *   https://script.google.com/.../exec               → reads Home_Tiles + Home_Submenus  (default)
+ *   https://script.google.com/.../exec?page=home     → same
+ *   https://script.google.com/.../exec?page=shop     → reads Shop_Tiles + Shop_Submenus
  *
  * SETUP (one time):
- * 1.  Open your Google Sheet.
- * 2.  Make two tabs named exactly:  Tiles   and   Submenus
+ * 1.  Create a new Google Sheet:  "Cruise the Creek — Site Menu"
+ * 2.  Add these tabs (header row in row 1, then one row per item):
  *
- *     Tiles tab — first row is the header, then one row per tile:
+ *     Home_Tiles
  *       id          order   label         subtitle                  type    url                                        external
  *       adventures  1       Adventures    Guided rides & maps       link    https://adventure-map.pages.dev/v2         TRUE
  *       rentals     2       Rentals       Day rides & multi-stops   menu
- *       shop        3       Shop          Browse bikes & gear       menu
+ *       shop        3       Shop          Browse bikes & gear       link    shop.html                                  FALSE
  *       services    4       Services      Tune-ups & creek prep     menu
  *       test-rides  5       Test Rides    Try before you buy        link    test-ride.html                             FALSE
  *       creek-life  6       Creek Life    Stories, events, more     menu
  *
- *     Submenus tab — first row is the header, then one row per sub-link:
+ *     Home_Submenus
  *       tile        order   label              url                                          external
  *       rentals     1       Adventures         adventures.html                              FALSE
  *       rentals     2       Trailside          trailside.html                               FALSE
  *       rentals     3       Bridge the Gap     bridge-the-gap.html                          FALSE
- *       shop        1       Shop               https://www.cruisethecreek.com/shop-fix      TRUE
- *       shop        2       Quiz               https://www.cruisethecreek.com/tracker       TRUE
  *       services    1       Creek Ready        creek-ready.html                             FALSE
  *       creek-life  1       Creek Life Blog    creek-life-blog.html                         FALSE
  *       creek-life  2       Our Story          our-story.html                               FALSE
@@ -30,24 +37,42 @@
  *       creek-life  6       Donate             donate.html                                  FALSE
  *       creek-life  7       FAQs               faqs.html                                    FALSE
  *
+ *     Shop_Tiles
+ *       id          order   label       subtitle                       type    url                external
+ *       heybike     1       Heybike     Affordable, easygoing rides    link    heybike.html       FALSE
+ *       velotric    2       Velotric    Sleek, premium e-bikes         link    velotric.html      FALSE
+ *       jasion      3       Jasion      Trail-ready power              link    jasion.html        FALSE
+ *       mooncool    4       Mooncool    Three-wheel comfort            link    mooncool.html      FALSE
+ *
+ *     Shop_Submenus  (leave empty for now — none of the brand tiles have submenus)
+ *       tile        order   label       url       external
+ *
  * 3.  Extensions → Apps Script → paste this file, save.
  * 4.  Deploy → New deployment → Type: Web app
  *       - Execute as:    Me
  *       - Who has access: Anyone
  *     Copy the /exec URL it gives you.
  *
- * 5.  In home.html, set:    const MENU_URL = '<paste /exec URL here>';
+ * 5.  Wire up the pages:
+ *        home.html →  const MENU_URL = '<exec URL>';            (or '<exec URL>?page=home')
+ *        shop.html →  const MENU_URL = '<exec URL>?page=shop';
  *
- * Editing the sheet now updates the landing page on next load.
- * To change the live menu without redeploying, edit the sheet and
- * (if you change the script) re-deploy as a new version.
+ * Adding a new hub page (e.g. rentals.html):
+ *   - Add tabs Rentals_Tiles and Rentals_Submenus to the same sheet.
+ *   - In rentals.html set MENU_URL to '<exec URL>?page=rentals'.
+ *   - Re-deploy is NOT needed — the script reads the sheet on every request.
  */
 
-function doGet() {
+function doGet(e) {
+  const page = ((e && e.parameter && e.parameter.page) || 'home')
+                 .toString().trim().toLowerCase();
+  const cap  = page.charAt(0).toUpperCase() + page.slice(1);
+
   const ss   = SpreadsheetApp.getActiveSpreadsheet();
   const data = {
-    tiles:    readSheet(ss, 'Tiles'),
-    submenus: groupBy(readSheet(ss, 'Submenus'), 'tile'),
+    page:     page,
+    tiles:    readSheet(ss, cap + '_Tiles'),
+    submenus: groupBy(readSheet(ss, cap + '_Submenus'), 'tile'),
   };
   return ContentService
     .createTextOutput(JSON.stringify(data))
