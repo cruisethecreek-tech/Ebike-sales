@@ -28,22 +28,19 @@ body{
   min-height:100vh;
 }
 a{color:inherit;text-decoration:none}
+button{font-family:inherit}
 
 /* ── TOP BAR ── */
 .topbar{
   background:var(--dark);
   color:#fff;
   padding:14px 22px;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:14px;
+  display:flex;align-items:center;justify-content:space-between;gap:14px;
 }
 .brand{display:flex;align-items:center;gap:12px}
 .brand-mark{
   width:42px;height:42px;border-radius:10px;
-  background:#fff;display:flex;align-items:center;justify-content:center;
-  flex-shrink:0;
+  background:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0;
 }
 .brand-mark svg{width:28px;height:28px;color:var(--dark)}
 .brand-text{display:flex;flex-direction:column;line-height:1}
@@ -65,102 +62,104 @@ a{color:inherit;text-decoration:none}
   background:var(--forest);
   color:#fff;
   padding:14px 22px;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:14px;
+  display:flex;align-items:center;justify-content:space-between;gap:14px;
 }
-.sub-title{
-  display:inline-flex;align-items:center;gap:8px;
-  font-size:.95rem;font-weight:700;
-}
+.sub-title{display:inline-flex;align-items:center;gap:8px;font-size:.95rem;font-weight:700}
 .sub-title svg{width:14px;height:14px}
 .sub-search{
   display:inline-flex;align-items:center;gap:8px;
-  font-size:.88rem;font-weight:600;
-  cursor:pointer;
+  font-size:.88rem;font-weight:600;cursor:pointer;
   background:none;border:none;color:#fff;
-  font-family:inherit;
-  padding:6px 8px;border-radius:8px;
-  transition:background .15s;
+  padding:6px 8px;border-radius:8px;transition:background .15s;
 }
 .sub-search:hover{background:rgba(255,255,255,.1)}
 .sub-search svg{width:16px;height:16px}
 
 /* ── TILE GRID ── */
-main{
-  flex:1;
-  padding:20px 16px 32px;
-  max-width:760px;
-  width:100%;
-  margin:0 auto;
-}
-.grid{
-  display:grid;
-  grid-template-columns:repeat(2,1fr);
-  gap:14px;
-}
+main{flex:1;padding:20px 16px 32px;max-width:760px;width:100%;margin:0 auto}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
 .tile{
-  background:#fff;
-  border-radius:18px;
-  aspect-ratio:1/1;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  justify-content:center;
-  gap:18px;
-  padding:18px;
-  border:1px solid #e8dfd1;
+  background:#fff;border-radius:18px;aspect-ratio:1/1;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:18px;padding:18px;border:1px solid #e8dfd1;
   box-shadow:0 1px 0 rgba(0,0,0,.02);
   transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease;
-  cursor:pointer;
-  position:relative;
+  cursor:pointer;position:relative;text-align:center;color:inherit;
 }
 .tile:hover,.tile:focus-visible{
   transform:translateY(-3px);
   box-shadow:0 14px 32px rgba(45,74,50,.18);
-  border-color:var(--sage);
-  outline:none;
+  border-color:var(--sage);outline:none;
 }
-.tile-icon{
-  width:78px;height:78px;
-  display:flex;align-items:center;justify-content:center;
-  color:var(--dark);
-}
+.tile-icon{width:78px;height:78px;display:flex;align-items:center;justify-content:center;color:var(--dark)}
 .tile-icon svg{width:100%;height:100%}
-.tile-label{
-  font-size:1.18rem;
-  font-weight:700;
-  color:var(--ink);
-  text-align:center;
-  letter-spacing:.01em;
+.tile-label{font-size:1.18rem;font-weight:700;color:var(--ink);letter-spacing:.01em}
+.tile-caret{
+  position:absolute;top:14px;right:14px;color:var(--sage);
+  width:18px;height:18px;display:flex;align-items:center;justify-content:center;
 }
-.tile-tag{
-  position:absolute;top:12px;right:12px;
-  font-size:.58rem;font-weight:800;letter-spacing:.14em;text-transform:uppercase;
-  background:var(--sage);color:#fff;
-  padding:4px 8px;border-radius:99px;
-}
+.tile-caret svg{width:100%;height:100%}
 
 /* ── FOOTER ── */
-footer{
-  background:var(--dark);
-  color:rgba(255,255,255,.65);
-  padding:18px 22px;
-  text-align:center;
-  font-size:.78rem;
-  letter-spacing:.04em;
-}
+footer{background:var(--dark);color:rgba(255,255,255,.65);padding:18px 22px;text-align:center;font-size:.78rem}
 footer a{color:var(--tan);font-weight:600}
 footer a:hover{color:#fff}
 
-/* ── RESPONSIVE ── */
+/* ── SHEET / MODAL ── */
+.sheet-overlay{
+  position:fixed;inset:0;background:rgba(26,46,28,.55);
+  display:none;align-items:flex-end;justify-content:center;
+  z-index:300;padding:0;opacity:0;transition:opacity .2s ease;
+}
+.sheet-overlay.open{display:flex;opacity:1}
+.sheet{
+  background:#fff;width:100%;max-width:520px;
+  border-radius:22px 22px 0 0;
+  padding:14px 18px 22px;
+  box-shadow:0 -10px 40px rgba(0,0,0,.25);
+  transform:translateY(20px);transition:transform .25s ease;
+  max-height:85vh;display:flex;flex-direction:column;
+}
+.sheet-overlay.open .sheet{transform:translateY(0)}
+.sheet-grip{width:42px;height:4px;border-radius:99px;background:#d6cdbe;margin:4px auto 14px}
+.sheet-head{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 4px 10px;border-bottom:1px solid #eee4d3;margin-bottom:8px;
+}
+.sheet-title{font-family:'Bebas Neue',sans-serif;font-size:1.4rem;letter-spacing:.06em;color:var(--forest)}
+.sheet-close{
+  border:none;background:#f0e8d8;color:var(--dark);
+  width:34px;height:34px;border-radius:50%;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  transition:background .15s;
+}
+.sheet-close:hover{background:#e3d7bf}
+.sheet-close svg{width:16px;height:16px}
+.sheet-list{overflow-y:auto;display:flex;flex-direction:column;padding:4px 0 0}
+.sheet-row{
+  display:flex;align-items:center;gap:14px;
+  padding:14px 8px;border-bottom:1px solid #f3ecdd;
+  color:var(--ink);font-weight:600;font-size:1rem;
+  transition:background .15s;border-radius:10px;
+}
+.sheet-row:hover{background:#f8f1e3}
+.sheet-row:last-child{border-bottom:none}
+.sheet-row .row-dot{
+  width:34px;height:34px;border-radius:50%;background:#eee4d3;
+  display:flex;align-items:center;justify-content:center;color:var(--forest);flex-shrink:0;
+}
+.sheet-row .row-dot svg{width:16px;height:16px}
+.sheet-row .row-label{flex:1}
+.sheet-row .row-arrow{color:#b9ac95;width:14px;height:14px;flex-shrink:0}
+
 @media(min-width:640px){
   main{padding:32px 24px 48px}
   .grid{gap:18px}
   .tile{border-radius:22px;gap:22px;padding:22px}
   .tile-icon{width:92px;height:92px}
   .tile-label{font-size:1.32rem}
+  .sheet-overlay{align-items:center;padding:24px}
+  .sheet{border-radius:22px}
 }
 @media(min-width:900px){
   main{max-width:1000px}
@@ -168,8 +167,7 @@ footer a:hover{color:#fff}
   .tile{aspect-ratio:1.05/1}
 }
 @media(max-width:380px){
-  .topbar{padding:12px 14px}
-  .subbar{padding:12px 14px}
+  .topbar,.subbar{padding:12px 14px}
   .brand-name{font-size:1.15rem}
   .icon-btn{width:38px;height:38px}
   main{padding:16px 12px 28px}
@@ -186,7 +184,6 @@ footer a:hover{color:#fff}
 <header class="topbar">
   <a class="brand" href="home.html" aria-label="Cruise the Creek home">
     <span class="brand-mark" aria-hidden="true">
-      <!-- bike mark -->
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <circle cx="5.5" cy="17.5" r="3.5"/>
         <circle cx="18.5" cy="17.5" r="3.5"/>
@@ -234,11 +231,11 @@ footer a:hover{color:#fff}
 
 <!-- ── TILE GRID ── -->
 <main>
-  <div class="grid" role="list">
+  <div class="grid">
 
-    <a class="tile" href="adventures.html" role="listitem">
+    <!-- Adventures → direct link to adventure map -->
+    <a class="tile" href="adventure-map.html">
       <span class="tile-icon" aria-hidden="true">
-        <!-- mountains / adventures -->
         <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round">
           <circle cx="46" cy="16" r="4"/>
           <path d="M4 52l14-22 10 14 8-12 24 32"/>
@@ -248,9 +245,12 @@ footer a:hover{color:#fff}
       <span class="tile-label">Adventures</span>
     </a>
 
-    <a class="tile" href="#" role="listitem">
+    <!-- Rentals → submenu -->
+    <button class="tile" type="button" data-sheet="rentals">
+      <span class="tile-caret" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>
+      </span>
       <span class="tile-icon" aria-hidden="true">
-        <!-- calendar / rentals -->
         <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round">
           <rect x="8" y="12" width="48" height="44" rx="5"/>
           <path d="M8 24h48M20 6v12M44 6v12"/>
@@ -262,33 +262,39 @@ footer a:hover{color:#fff}
         </svg>
       </span>
       <span class="tile-label">Rentals</span>
-    </a>
+    </button>
 
-    <a class="tile" href="#" role="listitem">
+    <!-- Shop → submenu -->
+    <button class="tile" type="button" data-sheet="shop">
+      <span class="tile-caret" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>
+      </span>
       <span class="tile-icon" aria-hidden="true">
-        <!-- shopping bag / shop -->
         <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M12 22h40l-3 32a4 4 0 0 1-4 3.6H19a4 4 0 0 1-4-3.6L12 22z"/>
           <path d="M22 22V14a10 10 0 0 1 20 0v8"/>
         </svg>
       </span>
       <span class="tile-label">Shop</span>
-    </a>
+    </button>
 
-    <a class="tile" href="#" role="listitem">
+    <!-- Services → submenu -->
+    <button class="tile" type="button" data-sheet="services">
+      <span class="tile-caret" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>
+      </span>
       <span class="tile-icon" aria-hidden="true">
-        <!-- wrench / services -->
         <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M44 6a14 14 0 0 0-13.5 17.7L7.6 46.6a4.5 4.5 0 0 0 6.4 6.4l22.9-22.9A14 14 0 1 0 44 6z"/>
           <circle cx="44" cy="20" r="3.5" fill="currentColor"/>
         </svg>
       </span>
       <span class="tile-label">Services</span>
-    </a>
+    </button>
 
-    <a class="tile" href="#" role="listitem">
+    <!-- Test Rides → direct link -->
+    <a class="tile" href="test-ride.html">
       <span class="tile-icon" aria-hidden="true">
-        <!-- bike / test rides -->
         <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round">
           <circle cx="14" cy="44" r="10"/>
           <circle cx="50" cy="44" r="10"/>
@@ -298,16 +304,19 @@ footer a:hover{color:#fff}
       <span class="tile-label">Test Rides</span>
     </a>
 
-    <a class="tile" href="#" role="listitem">
+    <!-- Creek Life → submenu -->
+    <button class="tile" type="button" data-sheet="creek-life">
+      <span class="tile-caret" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>
+      </span>
       <span class="tile-icon" aria-hidden="true">
-        <!-- leaf + waves / creek life -->
         <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M52 8C28 8 16 22 16 36c0 6 2 11 5 14 14 0 31-12 31-34V8z"/>
           <path d="M21 45c-3 3-7 4-11 4M4 56c4 0 8-1.5 12-4.5s8-4.5 12-4.5 8 1.5 12 4.5 8 4.5 12 4.5 8-1.5 12-4.5"/>
         </svg>
       </span>
       <span class="tile-label">Creek Life</span>
-    </a>
+    </button>
 
   </div>
 </main>
@@ -315,6 +324,90 @@ footer a:hover{color:#fff}
 <footer>
   &copy; 2026 Cruise the Creek &middot; <a href="adventures.html">Book an Adventure</a>
 </footer>
+
+<!-- ── SHEETS ── -->
+<div class="sheet-overlay" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sheet-title">
+  <div class="sheet">
+    <div class="sheet-grip" aria-hidden="true"></div>
+    <div class="sheet-head">
+      <span class="sheet-title" id="sheet-title">Menu</span>
+      <button class="sheet-close" type="button" aria-label="Close" data-close>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6l12 12M6 18L18 6"/></svg>
+      </button>
+    </div>
+    <div class="sheet-list" id="sheet-list"></div>
+  </div>
+</div>
+
+<script>
+const MENUS = {
+  rentals: {
+    title: 'Rentals',
+    items: [
+      {label:'Adventure Rentals', href:'adventures.html'},
+      {label:'Trailside',         href:'trailside.html'},
+      {label:'Bridge the Gap',    href:'bridge-the-gap.html'},
+    ],
+  },
+  shop: {
+    title: 'Shop',
+    items: [
+      {label:'Browse Bikes',  href:'shop.html'},
+      {label:'Find Your Bike Quiz', href:'quiz.html'},
+    ],
+  },
+  services: {
+    title: 'Services',
+    items: [
+      {label:'Creek Ready', href:'creek-ready.html'},
+    ],
+  },
+  'creek-life': {
+    title: 'Creek Life',
+    items: [
+      {label:'Creek Life Blog', href:'creek-life-blog.html'},
+      {label:'Our Story',       href:'our-story.html'},
+      {label:'Events',          href:'events.html'},
+      {label:'Sponsors',        href:'sponsors.html'},
+      {label:'Reviews',         href:'reviews.html'},
+      {label:'Donate',          href:'donate.html'},
+      {label:'FAQs',            href:'faqs.html'},
+    ],
+  },
+};
+
+const overlay   = document.getElementById('sheet');
+const listEl    = document.getElementById('sheet-list');
+const titleEl   = document.getElementById('sheet-title');
+
+const dotSVG  = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3" fill="currentColor"/></svg>';
+const arrowSVG= '<svg class="row-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>';
+
+function openSheet(key){
+  const menu = MENUS[key];
+  if(!menu) return;
+  titleEl.textContent = menu.title;
+  listEl.innerHTML = menu.items.map(it =>
+    `<a class="sheet-row" href="${it.href}">
+      <span class="row-dot">${dotSVG}</span>
+      <span class="row-label">${it.label}</span>
+      ${arrowSVG}
+    </a>`
+  ).join('');
+  overlay.classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeSheet(){
+  overlay.classList.remove('open');
+  document.body.style.overflow = '';
+}
+document.querySelectorAll('[data-sheet]').forEach(btn => {
+  btn.addEventListener('click', () => openSheet(btn.dataset.sheet));
+});
+overlay.addEventListener('click', e => { if(e.target === overlay) closeSheet(); });
+document.querySelector('[data-close]').addEventListener('click', closeSheet);
+document.addEventListener('keydown', e => { if(e.key === 'Escape') closeSheet(); });
+</script>
 
 </body>
 </html>
