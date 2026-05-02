@@ -381,17 +381,19 @@ footer{background:var(--dark);color:rgba(255,255,255,.75);padding:40px 24px 32px
 
 <!-- ── HERO ── -->
 <section class="hero">
-  <!-- HERO PHOTO SLOT — set src to your banner image (recommend 2400x1400, JPG, <300KB).
-       Leave src empty to use the brand gradient only. -->
-  <img class="hero-img" src="" alt="" onload="this.classList.add('loaded')" onerror="this.remove()">
+  <!-- HERO PHOTO SLOT — set src here OR from the Sheet via Pages.hero_photo. -->
+  <img class="hero-img" data-cms-src="hero_photo" src="" alt="" onload="this.classList.add('loaded')" onerror="this.remove()">
   <div class="hero-overlay"></div>
   <div class="hero-topo"></div>
   <div class="hero-content">
-    <span class="hero-eyebrow">Cruise the Creek</span>
-    <h1>Where the trail<em>meets the cruise.</em></h1>
-    <p>Electric bikes, guided adventures, and creek-country gear &mdash; all from one Youngstown, Ohio shop.</p>
-    <a class="hero-cta" href="https://adventure-map.pages.dev/v2" target="_blank" rel="noopener">
-      Explore Adventures
+    <span class="hero-eyebrow" data-cms-text="hero_eyebrow">Cruise the Creek</span>
+    <h1><span data-cms-text="hero_h1">Where the trail</span><em data-cms-text="hero_h1_em">meets the cruise.</em></h1>
+    <p data-cms-text="hero_tagline">Electric bikes, guided adventures, and creek-country gear &mdash; all from one Youngstown, Ohio shop.</p>
+    <a class="hero-cta"
+       data-cms-href="hero_cta_url"
+       data-cms-target="hero_cta_external"
+       href="https://adventure-map.pages.dev/v2" target="_blank" rel="noopener">
+      <span data-cms-text="hero_cta_label">Explore Adventures</span>
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
     </a>
   </div>
@@ -404,8 +406,8 @@ footer{background:var(--dark);color:rgba(255,255,255,.75);padding:40px 24px 32px
 <!-- ── SECTION HEAD ── -->
 <div class="section-head" id="explore">
   <div>
-    <div class="section-sub">Where to next</div>
-    <h2>Pick Your Path</h2>
+    <div class="section-sub" data-cms-text="section_eyebrow">Where to next</div>
+    <h2 data-cms-text="section_title">Pick Your Path</h2>
   </div>
 </div>
 
@@ -419,15 +421,22 @@ footer{background:var(--dark);color:rgba(255,255,255,.75);padding:40px 24px 32px
   <div class="cta">
     <div class="cta-inner">
       <div>
-        <div class="cta-eyebrow">Ready to ride?</div>
-        <div class="cta-title">Plan a guided creek-country adventure.</div>
+        <div class="cta-eyebrow" data-cms-text="cta_eyebrow">Ready to ride?</div>
+        <div class="cta-title" data-cms-text="cta_title">Plan a guided creek-country adventure.</div>
       </div>
       <div class="cta-row">
-        <a class="cta-btn" href="https://adventure-map.pages.dev/v2" target="_blank" rel="noopener">
-          Book Now
+        <a class="cta-btn"
+           data-cms-href="cta_btn_primary_url"
+           data-cms-target="cta_btn_primary_external"
+           href="https://adventure-map.pages.dev/v2" target="_blank" rel="noopener">
+          <span data-cms-text="cta_btn_primary_label">Book Now</span>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
         </a>
-        <a class="cta-btn ghost" href="test-ride.html">Book a Test Ride</a>
+        <a class="cta-btn ghost"
+           data-cms-href="cta_btn_secondary_url"
+           data-cms-target="cta_btn_secondary_external"
+           data-cms-text="cta_btn_secondary_label"
+           href="test-ride.html">Book a Test Ride</a>
       </div>
     </div>
   </div>
@@ -439,25 +448,25 @@ footer{background:var(--dark);color:rgba(255,255,255,.75);padding:40px 24px 32px
     <div class="foot-top">
       <div class="foot-brand">
         <img src="BlackonTransparent.png" alt="Cruise the Creek">
-        <div class="foot-tag">Electric bikes built for creek country. Ride the trails, beat the heat, get home grinning.</div>
+        <div class="foot-tag" data-cms-text="footer_tagline">Electric bikes built for creek country. Ride the trails, beat the heat, get home grinning.</div>
       </div>
       <div class="foot-social" aria-label="Social media">
-        <a href="#" aria-label="Instagram">
+        <a href="#" data-cms-href="social_instagram" data-cms-display-if="social_instagram" aria-label="Instagram">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor"/></svg>
         </a>
-        <a href="#" aria-label="Facebook">
+        <a href="#" data-cms-href="social_facebook" data-cms-display-if="social_facebook" aria-label="Facebook">
           <svg viewBox="0 0 24 24" fill="currentColor"><path d="M14 9h3V5h-3a4 4 0 0 0-4 4v2H7v4h3v6h4v-6h3l1-4h-4V9a1 1 0 0 1 1-1z"/></svg>
         </a>
-        <a href="#" aria-label="TikTok">
+        <a href="#" data-cms-href="social_tiktok" data-cms-display-if="social_tiktok" aria-label="TikTok">
           <svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 3v3.4a4.6 4.6 0 0 0 4 4.6v3a7.6 7.6 0 0 1-4-1.2V16a5 5 0 1 1-5-5v3a2 2 0 1 0 2 2V3z"/></svg>
         </a>
-        <a href="#" aria-label="YouTube">
+        <a href="#" data-cms-href="social_youtube" data-cms-display-if="social_youtube" aria-label="YouTube">
           <svg viewBox="0 0 24 24" fill="currentColor"><path d="M22 8a3 3 0 0 0-2-2c-2-.5-8-.5-8-.5s-6 0-8 .5a3 3 0 0 0-2 2c-.5 2-.5 4-.5 4s0 2 .5 4a3 3 0 0 0 2 2c2 .5 8 .5 8 .5s6 0 8-.5a3 3 0 0 0 2-2c.5-2 .5-4 .5-4s0-2-.5-4zM10 15V9l5 3z"/></svg>
         </a>
       </div>
     </div>
     <div class="foot-bot">
-      <span>&copy; 2026 Cruise the Creek. All rights reserved.</span>
+      <span data-cms-text="footer_copyright">&copy; 2026 Cruise the Creek. All rights reserved.</span>
       <span><a href="adventures.html">Book an Adventure</a> &middot; <a href="https://www.cruisethecreek.com/shop-fix" target="_blank" rel="noopener">Shop</a></span>
     </div>
   </div>
@@ -585,18 +594,48 @@ overlay.addEventListener('click', e => { if(e.target === overlay) closeSheet(); 
 document.querySelector('[data-close]').addEventListener('click', closeSheet);
 document.addEventListener('keydown', e => { if(e.key === 'Escape') closeSheet(); });
 
+/* ── CMS application: pageMeta + site config → data-cms-* attributes ── */
+function applyCMS(remote){
+  const map = Object.assign({}, remote.site || {}, remote.pageMeta || {});
+  document.querySelectorAll('[data-cms-text]').forEach(el => {
+    const v = map[el.dataset.cmsText];
+    if (v != null && String(v).trim() !== '') el.textContent = v;
+  });
+  document.querySelectorAll('[data-cms-href]').forEach(el => {
+    const v = map[el.dataset.cmsHref];
+    if (v) el.href = v;
+  });
+  document.querySelectorAll('[data-cms-src]').forEach(el => {
+    const v = map[el.dataset.cmsSrc];
+    if (v) { el.src = v; el.classList.add('loaded'); }
+  });
+  document.querySelectorAll('[data-cms-target]').forEach(el => {
+    const v = map[el.dataset.cmsTarget];
+    if (isTrue(v)) { el.target = '_blank'; el.rel = 'noopener'; }
+    else { el.removeAttribute('target'); el.removeAttribute('rel'); }
+  });
+  document.querySelectorAll('[data-cms-display-if]').forEach(el => {
+    const v = map[el.dataset.cmsDisplayIf];
+    el.style.display = (v != null && String(v).trim() !== '') ? '' : 'none';
+  });
+}
+/* Hide social slots by default — they only appear if a URL is in SiteConfig. */
+document.querySelectorAll('[data-cms-display-if]').forEach(el => { el.style.display = 'none'; });
+
 renderTiles();
 
 if (MENU_URL) {
   fetch(MENU_URL, {cache:'no-store'})
     .then(r => r.ok ? r.json() : Promise.reject(r.status))
     .then(remote => {
-      if (remote && Array.isArray(remote.tiles) && remote.tiles.length) {
+      if (!remote || typeof remote !== 'object') return;
+      applyCMS(remote);
+      if (Array.isArray(remote.tiles) && remote.tiles.length) {
         DATA = remote;
         renderTiles();
       }
     })
-    .catch(err => console.warn('[home] menu fetch failed, using defaults:', err));
+    .catch(err => console.warn('[home] config fetch failed, using defaults:', err));
 }
 </script>
 
