@@ -1,0 +1,820 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Creek Ready Package - Premium E-Bike Setup | Cruise the Creek</title>
+    <meta name="description" content="Don't just buy a box. Get your new e-bike professionally assembled, calibrated, and Ohio-proofed by Andrew Barett. $100 Creek Ready Package included with purchase.">
+    <style>
+        /* --- BRAND COLORS & FONTS --- */
+        :root {
+            --stone-light: #F5F2EB; 
+            --stone-dark: #D4CDC3;  
+            --creek-green: #4A7C59; 
+            --creek-green-hover: #3A6345;
+            --deck-wood: #3E2723;   
+            --text-dark: #333333;
+            --white: #ffffff;
+            --alert-red: #D32F2F;
+        }
+
+        body {
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            background-color: var(--stone-light);
+            color: var(--text-dark);
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+        }
+
+        h1, h2, h3 {
+            color: var(--deck-wood);
+            margin-top: 0;
+        }
+
+        h1 {
+            font-family: 'Georgia', serif;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        h2 {
+            font-family: 'Georgia', serif;
+            font-size: 1.8rem;
+            margin-bottom: 30px;
+        }
+
+        /* --- HERO SECTION --- */
+        .hero {
+            background-color: var(--deck-wood);
+            color: var(--white);
+            padding: 80px 20px;
+            text-align: center;
+            background-image: linear-gradient(rgba(62, 39, 35, 0.85), rgba(62, 39, 35, 0.85)), url('creek-ready-assembly.jpg');
+            background-size: cover;
+            background-position: center;
+        }
+
+        .hero h1 {
+            color: var(--white);
+        }
+
+        .hero p {
+            font-size: 1.3rem;
+            opacity: 0.95;
+            max-width: 700px;
+            margin: 0 auto 25px auto;
+        }
+
+        .hero-btn {
+            background-color: var(--creek-green);
+            color: white;
+            padding: 15px 35px;
+            text-decoration: none;
+            font-size: 1.1rem;
+            font-weight: bold;
+            border-radius: 5px;
+            display: inline-block;
+            transition: background 0.3s, transform 0.2s;
+            margin: 5px;
+        }
+        
+        .hero-btn:hover { 
+            background-color: var(--creek-green-hover);
+            transform: scale(1.05);
+        }
+
+        .hero-btn-secondary {
+            background-color: var(--white);
+            color: var(--deck-wood);
+        }
+
+        .hero-btn-secondary:hover {
+            background-color: var(--stone-light);
+        }
+
+        /* --- CONTAINER --- */
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 50px 20px;
+        }
+
+        /* --- INTRO CALLOUT --- */
+        .intro-callout {
+            background: var(--white);
+            border-left: 4px solid var(--creek-green);
+            padding: 30px;
+            margin-bottom: 50px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .intro-callout p {
+            font-size: 1.1rem;
+            margin: 0;
+            line-height: 1.8;
+        }
+
+        /* --- COMPARISON SECTION WITH EXPANDABLE CARDS --- */
+        .comparison-section {
+            margin-bottom: 60px;
+            background: var(--white);
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        }
+
+        .comparison-section h2 {
+            text-align: center;
+            display: block;
+            border-bottom: 3px solid var(--creek-green);
+            padding-bottom: 8px;
+            margin-bottom: 20px;
+        }
+
+        .comparison-instruction {
+            text-align: center;
+            color: #666;
+            font-style: italic;
+            margin-bottom: 30px;
+        }
+
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+        }
+
+        .comparison-card {
+            background: var(--stone-light);
+            border: 2px solid var(--stone-dark);
+            border-radius: 8px;
+            overflow: hidden;
+            transition: border-color 0.3s;
+        }
+
+        .comparison-card.expanded {
+            border-color: var(--creek-green);
+        }
+
+        .comparison-header {
+            padding: 25px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .comparison-header:hover {
+            background-color: rgba(74, 124, 89, 0.1);
+        }
+
+        .comparison-category {
+            font-size: 1.4rem;
+            font-weight: bold;
+            color: var(--deck-wood);
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .comparison-question {
+            text-align: center;
+            color: #666;
+            font-size: 0.95rem;
+        }
+
+        .expand-hint {
+            text-align: center;
+            font-size: 0.85rem;
+            color: #999;
+            margin-top: 10px;
+            font-style: italic;
+        }
+
+        .comparison-details {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s ease-out, padding 0.4s ease-out;
+            background: var(--white);
+            padding: 0 25px;
+        }
+
+        .comparison-card.expanded .comparison-details {
+            max-height: 500px;
+            padding: 20px 25px;
+        }
+
+        .comparison-detail {
+            margin: 15px 0;
+            font-size: 0.9rem;
+        }
+
+        .comparison-detail strong {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 0.95rem;
+        }
+
+        .comparison-detail.bad strong {
+            color: var(--alert-red);
+        }
+
+        .comparison-detail.good strong {
+            color: var(--creek-green);
+        }
+
+        /* --- VALUE SECTION WITH EXPANDABLE CARDS --- */
+        .value-section {
+            margin-bottom: 50px;
+        }
+
+        .value-section h2 {
+            text-align: center;
+            display: block;
+            border-bottom: 3px solid var(--creek-green);
+            padding-bottom: 8px;
+            margin-bottom: 20px;
+        }
+
+        .value-instruction {
+            text-align: center;
+            color: #666;
+            font-style: italic;
+            margin-bottom: 30px;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+        }
+
+        .feature-card {
+            background: var(--white);
+            border: 2px solid var(--stone-dark);
+            border-top: 4px solid var(--creek-green);
+            border-radius: 8px;
+            overflow: hidden;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+
+        .feature-card.expanded {
+            border-color: var(--creek-green);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .feature-header {
+            padding: 25px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .feature-header:hover {
+            background-color: rgba(74, 124, 89, 0.05);
+        }
+
+        .feature-header h3 {
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+            color: var(--creek-green);
+            text-align: center;
+        }
+
+        .feature-preview {
+            text-align: center;
+            color: #555;
+            font-size: 0.95rem;
+        }
+
+        .feature-details {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s ease-out, padding 0.4s ease-out;
+            padding: 0 25px;
+            background: linear-gradient(135deg, var(--creek-green) 0%, var(--creek-green-hover) 100%);
+            color: var(--white);
+        }
+
+        .feature-card.expanded .feature-details {
+            max-height: 400px;
+            padding: 25px;
+        }
+
+        .feature-details p {
+            line-height: 1.7;
+            margin-bottom: 15px;
+        }
+
+        .feature-details p:last-child {
+            margin-bottom: 0;
+        }
+
+        /* --- TRUST SECTION --- */
+        .trust-section {
+            background: linear-gradient(135deg, var(--deck-wood) 0%, #5a3d37 100%);
+            color: var(--white);
+            padding: 50px 30px;
+            border-radius: 12px;
+            margin-bottom: 50px;
+            text-align: center;
+        }
+
+        .trust-section h2 {
+            color: var(--white);
+            border: none;
+            margin-bottom: 20px;
+        }
+
+        .trust-section p {
+            font-size: 1.15rem;
+            max-width: 700px;
+            margin: 0 auto 30px auto;
+            line-height: 1.8;
+        }
+
+        .trust-badge {
+            display: inline-block;
+            background: rgba(255,255,255,0.15);
+            padding: 15px 25px;
+            border-radius: 8px;
+            margin: 10px;
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+
+        /* --- FAQ SECTION --- */
+        .faq-section {
+            background: var(--white);
+            padding: 50px 30px;
+            border-radius: 12px;
+            margin-bottom: 50px;
+            border: 2px solid var(--stone-dark);
+        }
+
+        .faq-section h2 {
+            text-align: center;
+            border-bottom: 3px solid var(--creek-green);
+            display: inline-block;
+            padding-bottom: 8px;
+            margin-bottom: 40px;
+        }
+
+        .faq-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .faq-item {
+            margin-bottom: 30px;
+            padding-bottom: 25px;
+            border-bottom: 1px solid var(--stone-dark);
+        }
+
+        .faq-item:last-child {
+            border-bottom: none;
+        }
+
+        .faq-question {
+            color: var(--creek-green);
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .faq-answer {
+            color: #555;
+            line-height: 1.7;
+        }
+
+        /* --- CLOSER / CTA --- */
+        .closer {
+            text-align: center;
+            margin-top: 60px;
+            padding: 50px 30px;
+            background-color: var(--white);
+            border: 3px solid var(--creek-green);
+            border-radius: 12px;
+        }
+
+        .closer h2 {
+            font-size: 2.2rem;
+            border: none;
+            margin-bottom: 15px;
+        }
+
+        .price-badge {
+            font-size: 2.2rem;
+            font-weight: bold;
+            color: var(--creek-green);
+            display: block;
+            margin: 20px 0 10px 0;
+        }
+
+        .price-note {
+            font-size: 0.95rem;
+            color: #666;
+            margin-bottom: 25px;
+        }
+
+        /* --- CONTACT SECTION --- */
+        .contact-section {
+            background: var(--stone-light);
+            padding: 40px 30px;
+            border-radius: 12px;
+            margin-bottom: 50px;
+            text-align: center;
+        }
+
+        .contact-section h2 {
+            border: none;
+            margin-bottom: 20px;
+        }
+
+        .contact-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            max-width: 800px;
+            margin: 30px auto 0 auto;
+        }
+
+        .contact-card {
+            background: var(--white);
+            padding: 25px;
+            border-radius: 8px;
+            border: 2px solid var(--stone-dark);
+        }
+
+        .contact-card h3 {
+            color: var(--creek-green);
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+        }
+
+        .contact-card p {
+            margin: 8px 0;
+        }
+
+        .contact-card a {
+            color: var(--creek-green);
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .contact-card a:hover {
+            text-decoration: underline;
+        }
+
+        /* --- FOOTER --- */
+        footer {
+            text-align: center;
+            padding: 30px 20px;
+            font-size: 0.9rem;
+            color: #666;
+            margin-top: 50px;
+            border-top: 1px solid var(--stone-dark);
+            background: var(--white);
+        }
+
+        footer p {
+            margin: 5px 0;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            h1 { font-size: 2rem; }
+            .hero { padding: 50px 15px; }
+            .features-grid { grid-template-columns: 1fr; }
+            .comparison-grid { grid-template-columns: 1fr; }
+            .contact-grid { grid-template-columns: 1fr; }
+            .hero-btn { display: block; margin: 10px auto; max-width: 280px; }
+        }
+    </style>
+</head>
+<body>
+
+    <header class="hero">
+      <h1>Need Help With Assembly?</h1>
+    <h1>Don't Just Buy a Box.<br>Invest in a Machine.</h1>
+    <p>The <strong>Creek Ready Package</strong> is master-level calibration designed to ensure your safety and maximize your bike's lifespan in the Mahoning Valley.</p>
+    <a href="https://www.cruisethecreek.com/shop-fix" class="hero-btn" target="_blank" style="display: block; margin: 0;">Click Here To Purchse Your Bike </a>
+    
+</header>
+
+    <div class="container">
+
+        <div class="intro-callout">
+            <p>When you buy an e-bike online or from a discount dealer, you're getting a box of parts that were assembled as quickly as possible. The <strong>Creek Ready Package</strong> transforms that box into a precisely calibrated machine built to handle Northeast Ohio's demanding conditions—assembled by Andrew Barett, the only technician in the Mahoning Valley factory-trained on Heybike, Velotric, and Jasion systems.</p>
+        </div>
+
+        <div class="comparison-section">
+            <h2>The Reality Check</h2>
+            <p class="comparison-instruction">👆 Click each card to see the comparison</p>
+            
+            <div class="comparison-grid">
+                
+                <div class="comparison-card" onclick="this.classList.toggle('expanded')">
+                    <div class="comparison-header">
+                        <div class="comparison-category">Assembly</div>
+                        <p class="comparison-question">How is your bike put together?</p>
+                        <p class="expand-hint">Click to expand →</p>
+                    </div>
+                    <div class="comparison-details">
+                        <div class="comparison-detail bad">
+                            <strong>❌ Online Box:</strong>
+                            <p>DIY driveway assembly. You follow instructions and hope for the best.</p>
+                        </div>
+                        <div class="comparison-detail bad">
+                            <strong>⚠️ Discount Dealer:</strong>
+                            <p>Rushed assembly by a generalist, not a specialist.</p>
+                        </div>
+                        <div class="comparison-detail good">
+                            <strong>✅ Creek Ready:</strong>
+                            <p>Master integration by Andrew Barett with factory-level precision.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="comparison-card" onclick="this.classList.toggle('expanded')">
+                    <div class="comparison-header">
+                        <div class="comparison-category">Safety</div>
+                        <p class="comparison-question">How thoroughly is your bike inspected?</p>
+                        <p class="expand-hint">Click to expand →</p>
+                    </div>
+                    <div class="comparison-details">
+                        <div class="comparison-detail bad">
+                            <strong>❌ Online Box:</strong>
+                            <p>Blind trust. You hope the factory tightened everything, and do you know what to look for?.</p>
+                        </div>
+                        <div class="comparison-detail bad">
+                            <strong>⚠️ Discount Dealer:</strong>
+                            <p>Visual check only. A basic "looks good" inspection.</p>
+                        </div>
+                        <div class="comparison-detail good">
+                            <strong>✅ Creek Ready:</strong>
+                            <p>50-point certified audit. Every bolt torqued; every brake indexed.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="comparison-card" onclick="this.classList.toggle('expanded')">
+                    <div class="comparison-header">
+                        <div class="comparison-category">Longevity</div>
+                        <p class="comparison-question">How is your bike protected?</p>
+                        <p class="expand-hint">Click to expand →</p>
+                    </div>
+                    <div class="comparison-details">
+                        <div class="comparison-detail bad">
+                            <strong>❌ Online Box:</strong>
+                            <p>None. Standard factory finish, no protection.</p>
+                        </div>
+                        <div class="comparison-detail bad">
+                            <strong>⚠️ Discount Dealer:</strong>
+                            <p>None. Standard factory finish, no protection.</p>
+                        </div>
+                        <div class="comparison-detail good">
+                            <strong>✅ Creek Ready:</strong>
+                            <p>Ohio Rust-Belt Shield protects against salt, grit & humidity.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="comparison-card" onclick="this.classList.toggle('expanded')">
+                    <div class="comparison-header">
+                        <div class="comparison-category">Support</div>
+                        <p class="comparison-question">What happens after purchase?</p>
+                        <p class="expand-hint">Click to expand →</p>
+                    </div>
+                    <div class="comparison-details">
+                        <div class="comparison-detail bad">
+                            <strong>❌ Online Box:</strong>
+                            <p>1-800-Luck. Zero local help available.</p>
+                        </div>
+                        <div class="comparison-detail bad">
+                            <strong>⚠️ Discount Dealer:</strong>
+                            <p>Pay-per-visit. You pay extra for the first service.</p>
+                        </div>
+                        <div class="comparison-detail good">
+                            <strong>✅ Creek Ready:</strong>
+                            <p>30-day break-in tune included for FREE.</p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="value-section" id="details">
+            <h2>What You Actually Get</h2>
+            <p class="value-instruction">👆 Click each card to read the full details</p>
+            
+            <div class="features-grid">
+                
+                <div class="feature-card" onclick="this.classList.toggle('expanded')">
+                    <div class="feature-header">
+                        <h3>01. Master Integration & Calibration</h3>
+                        <p class="feature-preview">Professional assembly that treats your bike like the high-performance machine it is.</p>
+                    </div>
+                    <div class="feature-details">
+                        <p>We don't just "put a bike together." We perform high-precision setup of your 750W power system and drivetrain. Every sensor is calibrated, every connection is secured to manufacturer specifications, and your electronics are tested under load.</p>
+                        <p>This is the difference between a box of parts and a precision machine.</p>
+                    </div>
+                </div>
+
+                <div class="feature-card" onclick="this.classList.toggle('expanded')">
+                    <div class="feature-header">
+                        <h3>02. The "Ohio-Proof" Protection</h3>
+                        <p class="feature-preview">Specialized corrosion protection against Northeast Ohio's harsh conditions.</p>
+                    </div>
+                    <div class="feature-details">
+                        <p>Northeast Ohio is tough on bikes—salt from winter roads, spring humidity, summer grit. Our Rust-Belt Shield treatment applies specialized corrosion protection to your frame, bolts, and vulnerable components.</p>
+                        <p>This treatment isn't available from online sellers or big-box stores. It's our secret weapon against the Mahoning Valley climate.</p>
+                    </div>
+                </div>
+
+                <div class="feature-card" onclick="this.classList.toggle('expanded')">
+                    <div class="feature-header">
+                        <h3>03. 50-Point Safety Certification</h3>
+                        <p class="feature-preview">Every critical component inspected and certified to factory specifications.</p>
+                    </div>
+                    <div class="feature-details">
+                        <p>Before you hit the trail, every bolt is torqued to factory specs using calibrated tools, every brake is indexed for maximum stopping power, and all electrical connections are tested.</p>
+                        <p>You ride with certainty, not hope. You receive a written safety certification with your bike.</p>
+                    </div>
+                </div>
+
+                <div class="feature-card" onclick="this.classList.toggle('expanded')">
+                    <div class="feature-header">
+                        <h3>04. The 30-Day "Break-In" Promise</h3>
+                        <p class="feature-preview">Complimentary tune-up after your first month of riding—completely free.</p>
+                    </div>
+                    <div class="feature-details">
+                        <p>New bikes settle after the first few rides—cables stretch, bolts seat, components bed in. That's physics, not a defect.</p>
+                        <p>We include a complimentary 30-day tune-up at no extra cost. Bring it back within a month, and we'll re-tighten, re-tune, and re-adjust everything to keep it perfect. This service alone is worth $75.</p>
+                    </div>
+                </div>
+
+                <div class="feature-card" onclick="this.classList.toggle('expanded')">
+                    <div class="feature-header">
+                        <h3>05. Factory-Trained Expertise</h3>
+                        <p class="feature-preview">Direct manufacturer training that generic bike shops simply don't have.</p>
+                    </div>
+                    <div class="feature-details">
+                        <p>Andrew Barett is the only technician in the Mahoning Valley with direct factory training on Heybike, Velotric, and Jasion systems.</p>
+                        <p>He has access to technical bulletins, diagnostic software, and manufacturer support that generic bike shops can't provide. When you have a question, you're talking to someone who knows your bike inside and out.</p>
+                    </div>
+                </div>
+
+                <div class="feature-card" onclick="this.classList.toggle('expanded')">
+                    <div class="feature-header">
+                        <h3>06. The Creek Crew Advantage</h3>
+                        <p class="feature-preview">You're not just a customer—you're part of the community.</p>
+                    </div>
+                    <div class="feature-details">
+                        <p>You aren't just a customer—you're part of the Creek Crew. You get direct access to Andrew for questions, troubleshooting, and advice.</p>
+                        <p>You're buying from a neighbor who stands behind every bike he builds and services. That's a relationship you can't get from a 1-800 number or a big-box store.</p>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="trust-section">
+            <h2>Why Cruise the Creek?</h2>
+<p>Since 2022, founder Pat has built Cruise the Creek around a simple principle: e-bikes deserve specialist care, not generic bike shop treatment. Over 8,000 riders have tested our rental fleet on Mill Creek's demanding terrain—every bike still running strong thanks to Andrew Barett's meticulous maintenance standards.</p>
+<p>Andrew isn't just a mechanic—he's our factory-trained specialist with direct manufacturer relationships on Heybike, Velotric, and Jasion systems. As a board member of Youngstown Bike Share and an advocate for Yo Motion, Pat has been a driving force behind Youngstown's e-bike-friendly policies, advocating for the infrastructure that makes this community special.</p>
+<p style="margin-bottom: 30px;">When you choose the Creek Ready Package, you're getting Andrew's technical expertise backed by Pat's commitment to the Mahoning Valley cycling community—a combination that discount dealers and online sellers simply cannot provide.</p>
+            <p style="margin-bottom: 30px;">When you choose the Creek Ready Package, you're getting expertise that discount dealers and online sellers simply cannot provide.</p>
+            <div>
+                <span class="trust-badge">Heybike Authorized</span>
+                <span class="trust-badge">Velotric Authorized</span>
+                <span class="trust-badge">Jasion Authorized</span>
+            </div>
+        </div>
+
+        <div class="faq-section">
+            <div style="text-align: center;">
+                <h2>Frequently Asked Questions</h2>
+            </div>
+            
+            <div class="faq-container">
+                <div class="faq-item">
+                    <div class="faq-question">Is the Creek Ready Package required?</div>
+                    <div class="faq-answer">No, but it's highly recommended. You can choose to assemble your bike yourself, but you'll miss out on the safety certification, rust protection, break-in tune-up, and the peace of mind that comes with professional assembly. Most customers choose Creek Ready because the value far exceeds the cost.</div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-item">
+    <div class="faq-question">What if I already bought my bike online?</div>
+    <div class="faq-answer">
+        <p>No problem! We can still apply the Creek Ready Package to Heybike, Velotric, or Jasion bikes purchased elsewhere.</p>
+        <p style="margin-top: 15px;"><strong>Creek Ready Package for External Bikes: $225</strong></p>
+        <a href="https://buy.stripe.com/3cIeVe04M3ag7Fxbzf6Zy01" class="hero-btn" target="_blank" style="display: inline-block; margin-top: 10px;">Purchase Creek Ready Package</a>
+        <p style="margin-top: 10px; font-size: 0.9rem; color: #666;">After payment, we'll contact you within 24 hours to schedule your drop-off.</p>
+    </div>
+</div>
+
+                <div class="faq-item">
+                    <div class="faq-question">How long does the setup take?</div>
+                    <div class="faq-answer">Proper Creek Ready assembly takes 3-4 hours of hands-on work. We don't rush—quality takes time. Most bikes are ready for pickup within 3-5 business days from when we receive them.</div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question">What's included in the 30-day tune-up?</div>
+                    <div class="faq-answer">Within 30 days of pickup, bring your bike back for a complimentary checkup. We'll re-torque all bolts, adjust brakes and gears, check tire pressure, and ensure everything has properly settled. This service alone is worth $75—and it's free with Creek Ready.</div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question">Does this void my manufacturer warranty?</div>
+                    <div class="faq-answer">Absolutely not. As an authorized dealer and service center for Heybike, Velotric, and Jasion, our assembly work is fully warranty-compliant. In fact, professional assembly often helps warranty claims because we document everything properly.</div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question">Can I watch the assembly process?</div>
+                    <div class="faq-answer">Due to workspace constraints and insurance requirements, we don't offer observation during assembly. However, we're happy to walk you through everything when you pick up your bike and answer any questions about the work performed.</div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question">What brands qualify for Creek Ready?</div>
+                    <div class="faq-answer">Creek Ready Package is available for all Heybike, Velotric, and Jasion models. For other brands, contact us—we may be able to accommodate depending on the model and our familiarity with the system.</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="closer" id="get-started">
+    <h2>Ride with Certainty.</h2>
+    <p style="font-size: 1.1rem; max-width: 600px; margin: 0 auto 20px auto;">Don't leave your safety to a factory box. Get it Creek Ready.</p>
+    
+    <!-- Pricing Options -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; margin: 40px auto; max-width: 700px;">
+        
+        <!-- Buy From Us Option -->
+        <div style="background: var(--white); border: 3px solid var(--creek-green); border-radius: 12px; padding: 30px; text-align: center;">
+            <h4 style="color: var(--creek-green); margin-bottom: 15px;">New Bike Purchase</h4>
+            <div class="price-badge" style="font-size: 2rem;">$100</div>
+            <p style="font-size: 0.9rem; color: #666; margin-bottom: 20px;">Add-On with purchase from Cruise the Creek</p>
+            <a href="https://www.cruisethecreek.com/shop-fix" class="hero-btn" target="_blank" style="display: block; margin: 0;">Shop E-Bikes</a>
+        </div>
+        
+        <!-- Already Own Option -->
+        <div style="background: var(--stone-light); border: 2px solid var(--stone-dark); border-radius: 12px; padding: 30px; text-align: center;">
+            <h4 style="color: var(--deck-wood); margin-bottom: 15px;">Already Own Your Bike?</h4>
+            <div class="price-badge" style="font-size: 2rem;">$225</div>
+            <p style="font-size: 0.9rem; color: #666; margin-bottom: 20px;">For Heybike, Velotric, or Jasion purchased online</p>
+            <a href="https://buy.stripe.com/3cIeVe04M3ag7Fxbzf6Zy01" class="hero-btn hero-btn-secondary" target="_blank" style="display: block; margin: 0;">Get Creek Ready</a>
+        </div>
+        
+    </div>
+    
+    <!-- Email Contact -->
+    <p style="margin-top: 30px;">
+        <a href="mailto:salesteam@cruisethecreek.com" style="color: var(--creek-green); text-decoration: none; font-weight: bold;">Questions? Email us →</a>
+    </p>
+</div>
+
+<div class="contact-section">
+    <h2>Questions About Creek Ready?</h2>
+    <p>Talk to Andrew directly about getting your bike Creek Ready.</p>
+    
+    <div class="contact-grid">
+        <div class="contact-card">
+            <h3>📍 Location</h3>
+            <p><strong>Kirk Road Bikeway</strong></p>
+            <p>6685 Kirk Rd</p>
+            <p>Youngstown, OH 44406</p>
+        </div>
+        <div class="contact-card">
+            <h3>📞 Contact</h3>
+            <p><strong>Phone:</strong></p>
+            <p><a href="tel:+13304069682">(330) 406-9682</a></p>
+            <p><strong>Email:</strong></p>
+            <p><a href="mailto:salesteam@cruisethecreek.com">salesteam@cruisethecreek.com</a></p>
+        </div>
+    </div>
+</div>
+
+    </div>
+
+    <footer>
+        <p><strong>Cruise the Creek</strong> | E-Bike Sales & Professional Setup</p>
+        <p>Authorized Dealer: Heybike • Velotric • Jasion</p>
+        <p style="margin-top: 15px;">&copy; 2026 Cruise the Creek. All rights reserved.</p>
+    </footer>
+
+    <script>
+        // Add keyboard accessibility
+        document.querySelectorAll('.comparison-card, .feature-card').forEach(card => {
+            card.setAttribute('tabindex', '0');
+            card.setAttribute('role', 'button');
+            card.setAttribute('aria-label', 'Click to expand');
+            
+            card.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    this.classList.toggle('expanded');
+                }
+            });
+        });
+    </script>
+
+</body>
+</html>

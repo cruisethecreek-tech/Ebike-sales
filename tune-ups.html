@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Creek Ready Tune-Up - $125 | Cruise the Creek E-Bike Service</title>
+    <meta name="description" content="Professional e-bike tune-up service in Youngstown. $125 includes deep clean, precision tuning, diagnostics, and safety inspection. Book your Creek Ready service today.">
+    <style>
+        /* --- BRAND COLORS & FONTS --- */
+        :root {
+            --stone-light: #F5F2EB;
+            --stone-dark: #D4Cdc3;
+            --creek-green: #4A7C59;
+            --creek-green-hover: #3A6345;
+            --deck-wood: #3E2723;
+            --text-dark: #333333;
+            --white: #ffffff;
+            --warning-red: #C44536;
+        }
+
+        body {
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            background-color: var(--stone-light);
+            color: var(--text-dark);
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+        }
+
+        /* --- TYPOGRAPHY --- */
+        h1, h2, h3 {
+            color: var(--deck-wood);
+            margin-top: 0;
+        }
+
+        h1 {
+            font-family: 'Georgia', serif;
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        h2 {
+            font-family: 'Georgia', serif;
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+        }
+
+        /* --- HERO SECTION --- */
+        .hero {
+            background-color: var(--deck-wood);
+            color: var(--white);
+            padding: 60px 20px;
+            text-align: center;
+            background-image: linear-gradient(rgba(62, 39, 35, 0.85), rgba(62, 39, 35, 0.85)), url('mill-creek-bike-service.jpg');
+            background-size: cover;
+            background-position: center;
+        }
+
+        .hero h1 {
+            color: var(--white);
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            opacity: 0.95;
+            max-width: 700px;
+            margin: 0 auto 20px auto;
+        }
+
+        .price-tag {
+            background-color: var(--creek-green);
+            color: var(--white);
+            font-size: 1.8rem;
+            font-weight: bold;
+            padding: 12px 35px;
+            border-radius: 50px;
+            display: inline-block;
+            margin-top: 15px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+        }
+
+        .hero-cta-btn {
+            background-color: var(--white);
+            color: var(--deck-wood);
+            padding: 12px 30px;
+            text-decoration: none;
+            font-size: 1.1rem;
+            font-weight: bold;
+            border-radius: 5px;
+            display: inline-block;
+            margin-top: 20px;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+
+        .hero-cta-btn:hover {
+            background-color: var(--stone-light);
+            transform: scale(1.05);
+        }
+
+        /* --- CONTAINER --- */
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        /* --- PROBLEM SECTION --- */
+        .problem-section {
+            background: linear-gradient(135deg, #C44536 0%, #a83a2e 100%);
+            color: var(--white);
+            padding: 40px 30px;
+            border-radius: 12px;
+            margin-bottom: 50px;
+            text-align: center;
+        }
+
+        .problem-section h2 {
+            color: var(--white);
+            font-size: 2rem;
+            margin-bottom: 20px;
+        }
+
+        .problem-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 25px;
+            margin-top: 30px;
+            text-align: left;
+        }
+
+        .problem-item {
+            background: rgba(255,255,255,0.1);
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid var(--white);
+        }
+
+        .problem-item h4 {
+            color: var(--white);
+            margin-bottom: 8px;
+            font-size: 1.1rem;
+        }
+
+        /* --- SERVICE GRID --- */
+        .service-intro {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .service-intro h2 {
+            border-bottom: 3px solid var(--creek-green);
+            display: inline-block;
+            padding-bottom: 8px;
+        }
+
+        .service-intro p {
+            font-size: 1.15rem;
+            max-width: 800px;
+            margin: 20px auto 0 auto;
+            color: #555;
+        }
+
+        .service-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin-bottom: 50px;
+        }
+
+        .service-card {
+            background: var(--white);
+            border: 2px solid var(--stone-dark);
+            border-radius: 8px;
+            padding: 25px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+        }
+
+        .service-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            border-color: var(--creek-green);
+        }
+
+        .service-card h3 {
+            color: var(--creek-green);
+            text-transform: uppercase;
+            font-size: 1.1rem;
+            letter-spacing: 1px;
+            margin-bottom: 15px;
+            font-family: 'Helvetica Neue', sans-serif;
+        }
+
+        .service-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .service-list li {
+            padding: 10px 0;
+            border-bottom: 1px dashed var(--stone-dark);
+            display: flex;
+            align-items: start;
+        }
+
+        .service-list li:last-child {
+            border-bottom: none;
+        }
+
+        .icon-check {
+            color: var(--creek-green);
+            margin-right: 10px;
+            font-weight: bold;
+            flex-shrink: 0;
+            font-size: 1.1rem;
+        }
+
+        /* --- WHY SECTION --- */
+        .why-section {
+            background: var(--white);
+            padding: 50px 30px;
+            border-radius: 12px;
+            margin-bottom: 50px;
+            border: 2px solid var(--stone-dark);
+        }
+
+        .why-section h2 {
+            text-align: center;
+            font-size: 2rem;
+            margin-bottom: 40px;
+            color: var(--deck-wood);
+        }
+
+        .why-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 35px;
+        }
+
+        .why-item {
+            text-align: left;
+        }
+
+        .why-item h4 {
+            color: var(--creek-green);
+            font-size: 1.3rem;
+            margin-bottom: 12px;
+            font-family: 'Georgia', serif;
+        }
+
+        .why-item p {
+            line-height: 1.7;
+            color: #555;
+        }
+
+        /* --- FAQ SECTION --- */
+        .faq-section {
+            background: var(--white);
+            padding: 50px 30px;
+            border-radius: 12px;
+            margin-bottom: 50px;
+            border: 2px solid var(--stone-dark);
+        }
+
+        .faq-section h2 {
+            text-align: center;
+            font-size: 2rem;
+            margin-bottom: 40px;
+            color: var(--deck-wood);
+        }
+
+        .faq-item {
+            margin-bottom: 30px;
+            padding-bottom: 25px;
+            border-bottom: 1px solid var(--stone-dark);
+        }
+
+        .faq-item:last-child {
+            border-bottom: none;
+        }
+
+        .faq-question {
+            color: var(--creek-green);
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .faq-answer {
+            color: #555;
+            line-height: 1.7;
+        }
+
+        /* --- HOURS SECTION --- */
+        .hours-section {
+            background: linear-gradient(135deg, var(--creek-green) 0%, var(--creek-green-hover) 100%);
+            color: var(--white);
+            padding: 40px 30px;
+            border-radius: 12px;
+            margin-bottom: 50px;
+            text-align: center;
+        }
+
+        .hours-section h2 {
+            color: var(--white);
+            font-size: 2rem;
+            margin-bottom: 30px;
+        }
+
+        .hours-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .hours-card {
+            background: rgba(255,255,255,0.15);
+            padding: 25px;
+            border-radius: 8px;
+            border: 2px solid rgba(255,255,255,0.3);
+        }
+
+        .hours-card h3 {
+            color: var(--white);
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+        }
+
+        .hours-card p {
+            margin: 8px 0;
+            font-size: 1.05rem;
+        }
+
+        /* --- TESTIMONIAL SECTION --- */
+        .testimonial-section {
+            background: linear-gradient(135deg, var(--deck-wood) 0%, #5a3d37 100%);
+            color: var(--white);
+            padding: 50px 30px;
+            border-radius: 12px;
+            margin-bottom: 50px;
+            text-align: center;
+        }
+
+        .testimonial-section h2 {
+            color: var(--white);
+            margin-bottom: 30px;
+        }
+
+        .testimonial {
+            background: rgba(255,255,255,0.1);
+            padding: 30px;
+            border-radius: 8px;
+            max-width: 700px;
+            margin: 0 auto;
+            border-left: 4px solid var(--creek-green);
+        }
+
+        .testimonial p {
+            font-size: 1.15rem;
+            font-style: italic;
+            margin-bottom: 15px;
+            line-height: 1.8;
+        }
+
+        .testimonial-author {
+            font-weight: bold;
+            color: var(--creek-green);
+        }
+
+        /* --- CTA SECTION --- */
+        .cta-section {
+            background-color: var(--white);
+            border: 3px solid var(--creek-green);
+            border-radius: 12px;
+            text-align: center;
+            padding: 50px 30px;
+            margin-top: 40px;
+        }
+
+        .cta-section h2 {
+            font-size: 2.2rem;
+            color: var(--deck-wood);
+            margin-bottom: 15px;
+        }
+
+        .cta-section p {
+            font-size: 1.1rem;
+            color: #555;
+            margin-bottom: 30px;
+        }
+
+        .cta-btn {
+            background-color: var(--creek-green);
+            color: white;
+            padding: 18px 45px;
+            text-decoration: none;
+            font-size: 1.3rem;
+            font-weight: bold;
+            border-radius: 5px;
+            transition: background-color 0.3s, transform 0.2s;
+            display: inline-block;
+            margin: 10px;
+        }
+
+        .cta-btn:hover {
+            background-color: var(--creek-green-hover);
+            transform: scale(1.05);
+        }
+
+        .cta-btn-secondary {
+            background-color: var(--deck-wood);
+        }
+
+        .cta-btn-secondary:hover {
+            background-color: #2d1d19;
+        }
+
+        .urgency-note {
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 30px;
+            color: #856404;
+            font-weight: bold;
+        }
+
+        /* --- FOOTER --- */
+        footer {
+            text-align: center;
+            padding: 30px 20px;
+            font-size: 0.9rem;
+            color: #666;
+            margin-top: 50px;
+            border-top: 1px solid var(--stone-dark);
+            background: var(--white);
+        }
+
+        /* Responsive tweaks */
+        @media (max-width: 768px) {
+            h1 { font-size: 2rem; }
+            .hero { padding: 40px 15px; }
+            .service-grid { grid-template-columns: 1fr; }
+            .why-grid { grid-template-columns: 1fr; }
+            .problem-grid { grid-template-columns: 1fr; }
+            .hours-grid { grid-template-columns: 1fr; }
+            .cta-btn { display: block; margin: 10px 0; }
+        }
+    </style>
+</head>
+<body>
+
+    <header class="hero">
+      <h1>In Need Of A Tune-Up?</h1>
+        <h1>Is Your E-Bike Creek Ready?</h1>
+        <p>Professional maintenance that keeps you safe, extends your bike's life, and maximizes performance.</p>
+        <div class="price-tag">$125 Complete Service</div>
+        <a href="https://book.peek.com/s/57e3b62e-4f48-4cc4-8876-7b79f4c11baa/yo7ym" class="hero-cta-btn" target="_blank">Book Now</a>
+        <p style="font-size: 0.9rem; margin-top: 15px; opacity: 0.8;">or scroll to learn more</p>
+    </header>
+
+    <div class="container">
+        
+        <div class="problem-section">
+            <h2>When Was Your Last Tune-Up?</h2>
+            <p style="font-size: 1.1rem; margin-bottom: 10px;">Most e-bike problems don't announce themselves—until it's too late.</p>
+            
+            <div class="problem-grid">
+                <div class="problem-item">
+                    <h4>⚠️ Safety Risks</h4>
+                    <p>Worn brakes, loose bolts, and failing electronics can put you in danger before you notice the warning signs.</p>
+                </div>
+                
+                <div class="problem-item">
+                    <h4>💸 Expensive Repairs</h4>
+                    <p>A $15 brake pad replacement becomes a $300 rotor replacement when you wait too long.</p>
+                </div>
+                
+                <div class="problem-item">
+                    <h4>📉 Poor Performance</h4>
+                    <p>Dirty drivetrains waste battery power. Misaligned gears wear out faster. Your range suffers.</p>
+                </div>
+                
+                <div class="problem-item">
+                    <h4>⏰ Shorter Lifespan</h4>
+                    <p>E-bikes that skip regular maintenance need major component replacements years earlier than properly maintained bikes.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="service-intro">
+            <h2>What's Included: Creek Ready Tune-Up</h2>
+            <p>Every tune-up is a complete health check for your e-bike. We don't cut corners—we catch problems before they become expensive failures.</p>
+        </div>
+
+        <div class="service-grid">
+            
+            <div class="service-card">
+                <h3>💧 Deep Clean & Protect</h3>
+                <ul class="service-list">
+                    <li><span class="icon-check">✔</span> Premium bike wash removes grit that wears components</li>
+                    <li><span class="icon-check">✔</span> Complete drivetrain degrease, clean, and lubrication</li>
+                    <li><span class="icon-check">✔</span> Rust prevention treatment on vulnerable areas</li>
+                    <li><span class="icon-check">✔</span> Frame protection and corrosion check</li>
+                </ul>
+            </div>
+
+            <div class="service-card">
+                <h3>⚙️ Precision Tuning</h3>
+                <ul class="service-list">
+                    <li><span class="icon-check">✔</span> Front & rear derailleur adjustment for smooth shifting</li>
+                    <li><span class="icon-check">✔</span> Hydraulic or mechanical brake adjustment and pad inspection</li>
+                    <li><span class="icon-check">✔</span> Headset, bottom bracket, and wheel bearing check</li>
+                    <li><span class="icon-check">✔</span> Suspension service (air pressure, sag, rebound)</li>
+                    <li><span class="icon-check">✔</span> Wheel truing and spoke tension</li>
+                </ul>
+            </div>
+
+            <div class="service-card">
+                <h3>⚡ E-Bike Diagnostics</h3>
+                <ul class="service-list">
+                    <li><span class="icon-check">✔</span> Motor performance test under load</li>
+                    <li><span class="icon-check">✔</span> Controller diagnostics and error code check</li>
+                    <li><span class="icon-check">✔</span> Battery health assessment and connection audit</li>
+                    <li><span class="icon-check">✔</span> Display calibration and sensor accuracy test</li>
+                    <li><span class="icon-check">✔</span> Wiring inspection for damage or wear</li>
+                </ul>
+            </div>
+
+            <div class="service-card">
+                <h3>🛡️ Safety Inspection</h3>
+                <ul class="service-list">
+                    <li><span class="icon-check">✔</span> All critical bolts torqued to manufacturer specifications</li>
+                    <li><span class="icon-check">✔</span> Tire tread depth and pressure check (properly inflated = better range)</li>
+                    <li><span class="icon-check">✔</span> Lighting system functionality test</li>
+                    <li><span class="icon-check">✔</span> Detailed repair estimate if additional work needed</li>
+                    <li><span class="icon-check">✔</span> <strong>Professional test ride to verify all systems</strong></li>
+                </ul>
+            </div>
+
+        </div>
+
+        <div class="why-section">
+            <h2>Why Professional E-Bike Service Matters</h2>
+            
+            <div class="why-grid">
+                <div class="why-item">
+                    <h4>🔋 E-Bikes Are Different</h4>
+                    <p>Traditional bike mechanics don't have the diagnostic tools or training to service electric systems. We're factory-trained on Heybike, Velotric, and Jasion electronics—we know these systems inside and out.</p>
+                </div>
+
+                <div class="why-item">
+                    <h4>🔧 Specialized Tools Required</h4>
+                    <p>Proper e-bike service requires torque wrenches calibrated to manufacturer specs, motor diagnostic software, and battery testing equipment. We have the right tools to do the job correctly.</p>
+                </div>
+
+                <div class="why-item">
+                    <h4>💰 Prevention Saves Thousands</h4>
+                    <p>A $125 tune-up can prevent a $800 motor replacement, $400 battery failure, or $600 in emergency repairs. Regular maintenance is the cheapest insurance you can buy.</p>
+                </div>
+
+                <div class="why-item">
+                    <h4>📅 Every 6 Months or 500 Miles</h4>
+                    <p>E-bikes carry more weight, travel faster, and put more stress on components than regular bikes. Manufacturer recommended service intervals exist for a reason—they protect your investment.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="hours-section">
+            <h2>Drop-Off & Pick-Up Hours</h2>
+            
+            <div class="hours-grid">
+                <div class="hours-card">
+                    <h3>📍 Location</h3>
+                    <p><strong>Kirk Road Bikeway</strong></p>
+                    <p>6685 Kirk Rd</p>
+                    <p>Youngstown, OH 44406</p>
+                </div>
+
+                <div class="hours-card">
+                    <h3>🕐 Service Hours</h3>
+                    <p><strong>By Appointment Only</strong></p>
+                    <p>Book online to schedule</p>
+                    <p>your drop-off time</p>
+                </div>
+            </div>
+
+            <p style="margin-top: 30px; font-size: 1.05rem;">📦 <strong>What to Bring:</strong> Your charger, battery keys, and any known issues you've noticed</p>
+        </div>
+
+        <div class="faq-section">
+            <h2>Frequently Asked Questions</h2>
+            
+            <div class="faq-item">
+                <div class="faq-question">Do I need an appointment?</div>
+                <div class="faq-answer">Yes, all drop-offs are by appointment only. Book online through our scheduling system to reserve your time slot. This ensures we can give your bike the attention it deserves.</div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question">How long does a tune-up take?</div>
+                <div class="faq-answer">Most Creek Ready tune-ups are completed within 2-3 business days. We'll contact you if we discover any issues that need additional repair time or your approval.</div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question">What if you find problems beyond the tune-up?</div>
+                <div class="faq-answer">We provide a detailed repair estimate for any additional work needed. Nothing gets done without your approval. Our goal is transparency—you'll know exactly what your bike needs and what it will cost before we proceed.</div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question">Do you service bikes not bought from Cruise the Creek?</div>
+                <div class="faq-answer">Absolutely! We service all Heybike, Velotric, and Jasion e-bikes regardless of where they were purchased. We also work on other e-bike brands—contact us to confirm compatibility.</div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question">What payment methods do you accept?</div>
+                <div class="faq-answer">We accept cash, credit/debit cards, and digital payment apps. Payment is due at pick-up after service is complete.</div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question">How often should I get a tune-up?</div>
+                <div class="faq-answer">We recommend professional service every 6 months or 500 miles, whichever comes first. If you ride in harsh conditions (rain, mud, winter) or put on heavy mileage, more frequent service may be beneficial.</div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question">Can I wait while you service my bike?</div>
+                <div class="faq-answer">Creek Ready tune-ups take 2-3 hours of hands-on work plus diagnostic time, so same-day service isn't available. However, our thorough process ensures nothing gets missed. We'll notify you when your bike is ready for pick-up.</div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question">What happens if I cancel my appointment?</div>
+                <div class="faq-answer">We understand plans change. Please give us at least 24 hours notice if you need to reschedule. You can easily modify your appointment through the booking system.</div>
+            </div>
+        </div>
+
+        <div class="testimonial-section">
+            <h2>What Customers Say</h2>
+            <div class="testimonial">
+                <p>"I thought my bike was running fine until I brought it in for a tune-up with Cruise The Creek. Turns out my brake pads were nearly gone and my rear derailleur was about to fail. They caught it before I got stranded. Worth every penny."</p>
+                <div class="testimonial-author">— Mike R., Heybike Owner</div>
+            </div>
+        </div>
+
+        <div class="cta-section">
+            <h2>Book Your Creek Ready Tune-Up</h2>
+            <p>Drop off your bike and pick it up running like new. Most tune-ups completed within 2-3 business days.</p>
+            
+            <a href="https://book.peek.com/s/57e3b62e-4f48-4cc4-8876-7b79f4c11baa/yo7ym" class="cta-btn" target="_blank">Schedule Your Tune-Up Now</a>
+            <a href="mailto:salesteam@cruisethecreek.com" class="cta-btn cta-btn-secondary">Email Us</a>
+            
+            <div class="urgency-note">
+                ⏰ <strong>Spring Booking Now Open</strong> — Schedule early to avoid the rush
+            </div>
+        </div>
+
+    </div>
+
+    <footer>
+        <p><strong>All Drop-Offs and Pick-Ups</strong> | Completed Along The Kirk Road Bikeway</p>
+        <p>6685 Kirk Rd, Youngstown, OH 44406</p>
+        <p style="margin-top: 15px;">&copy; 2026 Cruise the Creek. All rights reserved.</p>
+    </footer>
+
+</body>
+</html>
