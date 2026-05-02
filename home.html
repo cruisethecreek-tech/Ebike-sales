@@ -234,7 +234,7 @@ footer a:hover{color:#fff}
   <div class="grid">
 
     <!-- Adventures → direct link to adventure map -->
-    <a class="tile" href="adventure-map.html">
+    <a class="tile" href="https://adventure-map.pages.dev/v2" target="_blank" rel="noopener">
       <span class="tile-icon" aria-hidden="true">
         <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round">
           <circle cx="46" cy="16" r="4"/>
@@ -344,16 +344,16 @@ const MENUS = {
   rentals: {
     title: 'Rentals',
     items: [
-      {label:'Adventure Rentals', href:'adventures.html'},
-      {label:'Trailside',         href:'trailside.html'},
-      {label:'Bridge the Gap',    href:'bridge-the-gap.html'},
+      {label:'Adventures',     href:'adventures.html'},
+      {label:'Trailside',      href:'trailside.html'},
+      {label:'Bridge the Gap', href:'bridge-the-gap.html'},
     ],
   },
   shop: {
     title: 'Shop',
     items: [
-      {label:'Browse Bikes',  href:'shop.html'},
-      {label:'Find Your Bike Quiz', href:'quiz.html'},
+      {label:'Shop',  href:'https://www.cruisethecreek.com/shop-fix', external:true},
+      {label:'Quiz',  href:'https://www.cruisethecreek.com/tracker',  external:true},
     ],
   },
   services: {
@@ -387,13 +387,14 @@ function openSheet(key){
   const menu = MENUS[key];
   if(!menu) return;
   titleEl.textContent = menu.title;
-  listEl.innerHTML = menu.items.map(it =>
-    `<a class="sheet-row" href="${it.href}">
+  listEl.innerHTML = menu.items.map(it => {
+    const ext = it.external ? ' target="_blank" rel="noopener"' : '';
+    return `<a class="sheet-row" href="${it.href}"${ext}>
       <span class="row-dot">${dotSVG}</span>
       <span class="row-label">${it.label}</span>
       ${arrowSVG}
-    </a>`
-  ).join('');
+    </a>`;
+  }).join('');
   overlay.classList.add('open');
   document.body.style.overflow = 'hidden';
 }
