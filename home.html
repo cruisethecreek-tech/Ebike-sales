@@ -231,94 +231,7 @@ footer a:hover{color:#fff}
 
 <!-- ── TILE GRID ── -->
 <main>
-  <div class="grid">
-
-    <!-- Adventures → direct link to adventure map -->
-    <a class="tile" href="https://adventure-map.pages.dev/v2" target="_blank" rel="noopener">
-      <span class="tile-icon" aria-hidden="true">
-        <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="46" cy="16" r="4"/>
-          <path d="M4 52l14-22 10 14 8-12 24 32"/>
-          <path d="M4 56h56"/>
-        </svg>
-      </span>
-      <span class="tile-label">Adventures</span>
-    </a>
-
-    <!-- Rentals → submenu -->
-    <button class="tile" type="button" data-sheet="rentals">
-      <span class="tile-caret" aria-hidden="true">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>
-      </span>
-      <span class="tile-icon" aria-hidden="true">
-        <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round">
-          <rect x="8" y="12" width="48" height="44" rx="5"/>
-          <path d="M8 24h48M20 6v12M44 6v12"/>
-          <circle cx="22" cy="36" r="2.5" fill="currentColor"/>
-          <circle cx="32" cy="36" r="2.5" fill="currentColor"/>
-          <circle cx="42" cy="36" r="2.5" fill="currentColor"/>
-          <circle cx="22" cy="46" r="2.5" fill="currentColor"/>
-          <circle cx="32" cy="46" r="2.5" fill="currentColor"/>
-        </svg>
-      </span>
-      <span class="tile-label">Rentals</span>
-    </button>
-
-    <!-- Shop → submenu -->
-    <button class="tile" type="button" data-sheet="shop">
-      <span class="tile-caret" aria-hidden="true">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>
-      </span>
-      <span class="tile-icon" aria-hidden="true">
-        <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M12 22h40l-3 32a4 4 0 0 1-4 3.6H19a4 4 0 0 1-4-3.6L12 22z"/>
-          <path d="M22 22V14a10 10 0 0 1 20 0v8"/>
-        </svg>
-      </span>
-      <span class="tile-label">Shop</span>
-    </button>
-
-    <!-- Services → submenu -->
-    <button class="tile" type="button" data-sheet="services">
-      <span class="tile-caret" aria-hidden="true">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>
-      </span>
-      <span class="tile-icon" aria-hidden="true">
-        <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M44 6a14 14 0 0 0-13.5 17.7L7.6 46.6a4.5 4.5 0 0 0 6.4 6.4l22.9-22.9A14 14 0 1 0 44 6z"/>
-          <circle cx="44" cy="20" r="3.5" fill="currentColor"/>
-        </svg>
-      </span>
-      <span class="tile-label">Services</span>
-    </button>
-
-    <!-- Test Rides → direct link -->
-    <a class="tile" href="test-ride.html">
-      <span class="tile-icon" aria-hidden="true">
-        <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="14" cy="44" r="10"/>
-          <circle cx="50" cy="44" r="10"/>
-          <path d="M22 44l10-22 8 22M26 22h12M38 16l4 6"/>
-        </svg>
-      </span>
-      <span class="tile-label">Test Rides</span>
-    </a>
-
-    <!-- Creek Life → submenu -->
-    <button class="tile" type="button" data-sheet="creek-life">
-      <span class="tile-caret" aria-hidden="true">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>
-      </span>
-      <span class="tile-icon" aria-hidden="true">
-        <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M52 8C28 8 16 22 16 36c0 6 2 11 5 14 14 0 31-12 31-34V8z"/>
-          <path d="M21 45c-3 3-7 4-11 4M4 56c4 0 8-1.5 12-4.5s8-4.5 12-4.5 8 1.5 12 4.5 8 4.5 12 4.5 8-1.5 12-4.5"/>
-        </svg>
-      </span>
-      <span class="tile-label">Creek Life</span>
-    </button>
-
-  </div>
+  <div class="grid" id="grid"></div>
 </main>
 
 <footer>
@@ -340,58 +253,100 @@ footer a:hover{color:#fff}
 </div>
 
 <script>
-const MENUS = {
-  rentals: {
-    title: 'Rentals',
-    items: [
-      {label:'Adventures',     href:'adventures.html'},
-      {label:'Trailside',      href:'trailside.html'},
-      {label:'Bridge the Gap', href:'bridge-the-gap.html'},
+/* ============================================================
+   CONFIG — paste your deployed Apps Script web-app /exec URL.
+   Leave empty to use the built-in defaults below.
+   ============================================================ */
+const MENU_URL = '';
+
+/* ── Tile icons (keyed by tile id, edit only if adding new tiles) ── */
+const ICONS = {
+  'adventures': '<svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="46" cy="16" r="4"/><path d="M4 52l14-22 10 14 8-12 24 32"/><path d="M4 56h56"/></svg>',
+  'rentals': '<svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="12" width="48" height="44" rx="5"/><path d="M8 24h48M20 6v12M44 6v12"/><circle cx="22" cy="36" r="2.5" fill="currentColor"/><circle cx="32" cy="36" r="2.5" fill="currentColor"/><circle cx="42" cy="36" r="2.5" fill="currentColor"/><circle cx="22" cy="46" r="2.5" fill="currentColor"/><circle cx="32" cy="46" r="2.5" fill="currentColor"/></svg>',
+  'shop': '<svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22h40l-3 32a4 4 0 0 1-4 3.6H19a4 4 0 0 1-4-3.6L12 22z"/><path d="M22 22V14a10 10 0 0 1 20 0v8"/></svg>',
+  'services': '<svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M44 6a14 14 0 0 0-13.5 17.7L7.6 46.6a4.5 4.5 0 0 0 6.4 6.4l22.9-22.9A14 14 0 1 0 44 6z"/><circle cx="44" cy="20" r="3.5" fill="currentColor"/></svg>',
+  'test-rides': '<svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="14" cy="44" r="10"/><circle cx="50" cy="44" r="10"/><path d="M22 44l10-22 8 22M26 22h12M38 16l4 6"/></svg>',
+  'creek-life': '<svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M52 8C28 8 16 22 16 36c0 6 2 11 5 14 14 0 31-12 31-34V8z"/><path d="M21 45c-3 3-7 4-11 4M4 56c4 0 8-1.5 12-4.5s8-4.5 12-4.5 8 1.5 12 4.5 8 4.5 12 4.5 8-1.5 12-4.5"/></svg>',
+};
+
+/* ── Default data — used until/unless the sheet loads. Mirrors the sheet schema. ── */
+const DEFAULT_DATA = {
+  tiles: [
+    {id:'adventures', order:1, label:'Adventures', type:'link', url:'https://adventure-map.pages.dev/v2', external:true},
+    {id:'rentals',    order:2, label:'Rentals',    type:'menu'},
+    {id:'shop',       order:3, label:'Shop',       type:'menu'},
+    {id:'services',   order:4, label:'Services',   type:'menu'},
+    {id:'test-rides', order:5, label:'Test Rides', type:'link', url:'test-ride.html'},
+    {id:'creek-life', order:6, label:'Creek Life', type:'menu'},
+  ],
+  submenus: {
+    rentals: [
+      {label:'Adventures',     url:'adventures.html'},
+      {label:'Trailside',      url:'trailside.html'},
+      {label:'Bridge the Gap', url:'bridge-the-gap.html'},
     ],
-  },
-  shop: {
-    title: 'Shop',
-    items: [
-      {label:'Shop',  href:'https://www.cruisethecreek.com/shop-fix', external:true},
-      {label:'Quiz',  href:'https://www.cruisethecreek.com/tracker',  external:true},
+    shop: [
+      {label:'Shop', url:'https://www.cruisethecreek.com/shop-fix', external:true},
+      {label:'Quiz', url:'https://www.cruisethecreek.com/tracker',  external:true},
     ],
-  },
-  services: {
-    title: 'Services',
-    items: [
-      {label:'Creek Ready', href:'creek-ready.html'},
+    services: [
+      {label:'Creek Ready', url:'creek-ready.html'},
     ],
-  },
-  'creek-life': {
-    title: 'Creek Life',
-    items: [
-      {label:'Creek Life Blog', href:'creek-life-blog.html'},
-      {label:'Our Story',       href:'our-story.html'},
-      {label:'Events',          href:'events.html'},
-      {label:'Sponsors',        href:'sponsors.html'},
-      {label:'Reviews',         href:'reviews.html'},
-      {label:'Donate',          href:'donate.html'},
-      {label:'FAQs',            href:'faqs.html'},
+    'creek-life': [
+      {label:'Creek Life Blog', url:'creek-life-blog.html'},
+      {label:'Our Story',       url:'our-story.html'},
+      {label:'Events',          url:'events.html'},
+      {label:'Sponsors',        url:'sponsors.html'},
+      {label:'Reviews',         url:'reviews.html'},
+      {label:'Donate',          url:'donate.html'},
+      {label:'FAQs',            url:'faqs.html'},
     ],
   },
 };
 
-const overlay   = document.getElementById('sheet');
-const listEl    = document.getElementById('sheet-list');
-const titleEl   = document.getElementById('sheet-title');
+let DATA = DEFAULT_DATA;
 
-const dotSVG  = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3" fill="currentColor"/></svg>';
-const arrowSVG= '<svg class="row-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>';
+const grid    = document.getElementById('grid');
+const overlay = document.getElementById('sheet');
+const listEl  = document.getElementById('sheet-list');
+const titleEl = document.getElementById('sheet-title');
+
+const caretSVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>';
+const dotSVG   = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3" fill="currentColor"/></svg>';
+const arrowSVG = '<svg class="row-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>';
+
+function esc(s){ return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function isTrue(v){ return v === true || v === 'TRUE' || v === 'true' || v === 1; }
+
+function renderTiles(){
+  const tiles = [...(DATA.tiles||[])].sort((a,b)=>(a.order||0)-(b.order||0));
+  grid.innerHTML = tiles.map(t => {
+    const icon = ICONS[t.id] || ICONS['adventures'];
+    const labelHTML = `<span class="tile-icon" aria-hidden="true">${icon}</span><span class="tile-label">${esc(t.label)}</span>`;
+    if (t.type === 'menu') {
+      return `<button class="tile" type="button" data-sheet="${esc(t.id)}">
+        <span class="tile-caret" aria-hidden="true">${caretSVG}</span>
+        ${labelHTML}
+      </button>`;
+    }
+    const ext = isTrue(t.external) ? ' target="_blank" rel="noopener"' : '';
+    return `<a class="tile" href="${esc(t.url || '#')}"${ext}>${labelHTML}</a>`;
+  }).join('');
+  grid.querySelectorAll('[data-sheet]').forEach(btn => {
+    btn.addEventListener('click', () => openSheet(btn.dataset.sheet));
+  });
+}
 
 function openSheet(key){
-  const menu = MENUS[key];
-  if(!menu) return;
-  titleEl.textContent = menu.title;
-  listEl.innerHTML = menu.items.map(it => {
-    const ext = it.external ? ' target="_blank" rel="noopener"' : '';
-    return `<a class="sheet-row" href="${it.href}"${ext}>
+  const items = (DATA.submenus || {})[key] || [];
+  const tile  = (DATA.tiles || []).find(t => t.id === key);
+  if (!items.length) return;
+  titleEl.textContent = tile ? tile.label : key;
+  listEl.innerHTML = items.map(it => {
+    const ext = isTrue(it.external) ? ' target="_blank" rel="noopener"' : '';
+    return `<a class="sheet-row" href="${esc(it.url || '#')}"${ext}>
       <span class="row-dot">${dotSVG}</span>
-      <span class="row-label">${it.label}</span>
+      <span class="row-label">${esc(it.label)}</span>
       ${arrowSVG}
     </a>`;
   }).join('');
@@ -402,12 +357,24 @@ function closeSheet(){
   overlay.classList.remove('open');
   document.body.style.overflow = '';
 }
-document.querySelectorAll('[data-sheet]').forEach(btn => {
-  btn.addEventListener('click', () => openSheet(btn.dataset.sheet));
-});
 overlay.addEventListener('click', e => { if(e.target === overlay) closeSheet(); });
 document.querySelector('[data-close]').addEventListener('click', closeSheet);
 document.addEventListener('keydown', e => { if(e.key === 'Escape') closeSheet(); });
+
+/* Initial render with defaults, then try to overlay sheet data */
+renderTiles();
+
+if (MENU_URL) {
+  fetch(MENU_URL, {cache:'no-store'})
+    .then(r => r.ok ? r.json() : Promise.reject(r.status))
+    .then(remote => {
+      if (remote && Array.isArray(remote.tiles) && remote.tiles.length) {
+        DATA = remote;
+        renderTiles();
+      }
+    })
+    .catch(err => console.warn('[home] menu fetch failed, using defaults:', err));
+}
 </script>
 
 </body>
