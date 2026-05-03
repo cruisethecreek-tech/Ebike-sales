@@ -412,6 +412,30 @@ function setupSheet() {
         ['creek_setup_external', false],
         ['creek_video_url',    'video-diagnostics.html'],
         ['creek_video_external', false],
+        // creek-ready hub: top-left logo (link + text)
+        ['logo_url',           'creek-ready.html'],
+        ['logo_external',      false],
+        ['logo_mark',          'CTC'],
+        ['logo_text',          'Cruise'],
+        ['logo_text_em',       'the Creek'],
+        // creek-ready hub: nav CTA
+        ['shop_ebikes_label',  'Shop E-Bikes'],
+        ['shop_ebikes_url',    'https://www.cruisethecreek.com/shop-fix'],
+        ['shop_ebikes_external', true],
+        // creek-ready hub: authorized brand links
+        ['brand_heybike_url',  'heybike.html'],
+        ['brand_heybike_external', false],
+        ['brand_velotric_url', 'velotric.html'],
+        ['brand_velotric_external', false],
+        ['brand_jasion_url',   'jasion.html'],
+        ['brand_jasion_external', false],
+        // creek-ready hub: footer links
+        ['faq_url',            'faqs.html'],
+        ['faq_external',       false],
+        ['policies_url',       'https://www.cruisethecreek.com/cancellation-policy'],
+        ['policies_external',  true],
+        ['our_story_url',      'our-story.html'],
+        ['our_story_external', false],
       ],
     },
     'Sections': {
