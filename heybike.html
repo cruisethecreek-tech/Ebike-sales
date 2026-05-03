@@ -177,6 +177,20 @@ const SITE_CONFIG = {
           transition:background .2s ease;margin-top:auto;font-family:inherit}
         .buy-button:hover{background:#fff;color:var(--ink);box-shadow:inset 0 0 0 2px var(--accent)}
 
+        /* ── FEATURES (TRUST STRIP) ── */
+        .features{background:var(--cream-w);padding:48px 24px;border-top:1px solid rgba(0,0,0,.06)}
+        .features-grid{max-width:1100px;margin:0 auto;
+          display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:20px}
+        .feature-card{background:#fff;border:1px solid rgba(0,0,0,.06);border-radius:8px;
+          padding:1.5rem;text-align:center;
+          box-shadow:0 4px 12px rgba(0,0,0,.04);
+          transition:transform .2s ease,box-shadow .2s ease}
+        .feature-card:hover{transform:translateY(-2px);box-shadow:0 12px 28px rgba(45,74,50,.1)}
+        .feature-icon{font-size:2.4rem;margin-bottom:10px}
+        .feature-title{font-family:'Bebas Neue',sans-serif;font-size:1.25rem;
+          letter-spacing:.04em;color:var(--forest);margin-bottom:8px;text-transform:uppercase}
+        .feature-desc{font-size:.9rem;color:var(--ink-2);line-height:1.6}
+
         /* ── ORDER SECTION ── */
         .order-section{background:var(--cream-w);padding:60px 24px;border-top:1px solid rgba(0,0,0,.06)}
         .order-container{max-width:780px;margin:0 auto}
@@ -283,7 +297,7 @@ const SITE_CONFIG = {
           .top-nav a{padding:6px 10px;font-size:.74rem}
           .crumb{padding:14px 16px 0;font-size:.7rem}
           .container{padding:32px 16px}
-          .order-section{padding:40px 16px}
+          .order-section,.features{padding:40px 16px}
           .order-form{padding:1.25rem}
         }
 
@@ -361,6 +375,16 @@ const SITE_CONFIG = {
             <div style="text-align:center; width:100%; padding: 2rem; color:#2D4A32;font-weight:700;">Loading inventory...</div>
         </div>
     </section>
+
+    <section class="features">
+        <div class="features-grid">
+            <div class="feature-card"><div class="feature-icon">🔋</div><div class="feature-title">50-Point Safety</div><div class="feature-desc">Every brake is indexed for absolute stopping power before you hit the trail.</div></div>
+            <div class="feature-card"><div class="feature-icon">⚙️</div><div class="feature-title">Master Integration</div><div class="feature-desc">High-precision setup of your power system and drivetrain for peak efficiency.</div></div>
+            <div class="feature-card"><div class="feature-icon">🛡️</div><div class="feature-title">30-Day Tune-Up</div><div class="feature-desc">Comprehensive coverage and support for peace of mind in your first 30 days.</div></div>
+            <div class="feature-card"><div class="feature-icon">🚚</div><div class="feature-title">Local Delivery</div><div class="feature-desc">Fast affordable local delivery available to your door in the tri-county area.</div></div>
+        </div>
+    </section>
+
     <section id="order-section" class="order-section">
         <div class="order-container">
             <h2 class="order-title">Request Your Order</h2>
