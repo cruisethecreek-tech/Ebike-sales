@@ -380,7 +380,7 @@ const SITE_CONFIG = {
         </section>
 
     <section class="features">
-        <div class="features-grid">
+        <div class="features-grid" id="trustStripGrid">
             <div class="feature-card"><div class="feature-icon">🔋</div><div class="feature-title">50-Point Safety</div><div class="feature-desc">Every brake is indexed for absolute stopping power before you hit the trail.</div></div>
             <div class="feature-card"><div class="feature-icon">⚙️</div><div class="feature-title">Master Integration</div><div class="feature-desc">High-precision setup of your power system and drivetrain for peak efficiency.</div></div>
             <div class="feature-card"><div class="feature-icon">🛡️</div><div class="feature-title">30-Day Tune-Up</div><div class="feature-desc">Comprehensive coverage and support for peace of mind in your first 30 days.</div></div>
@@ -827,6 +827,29 @@ function toggleNestedSwatchGroup(btn, sizeGroupId) {
   document.addEventListener('touchend', function() {
     startX = null; startY = null;
   }, { passive: true });
+})();
+</script>
+
+<script>
+/* ── Trust strip: pull the four cards from the CMS sheet (TrustStrip tab).
+     Static cards in #trustStripGrid stay as fallback if the fetch fails. ── */
+(function(){
+  const CMS_URL = 'https://script.google.com/macros/s/AKfycbxjg2ZsPCZNsmJEStYA0bRdsnkm4nNS-m-HNhm_Gin56VIVeYWVRE5j51j30zVHhb4PmQ/exec';
+  function esc(s){ return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+  fetch(CMS_URL, {cache:'no-store'})
+    .then(r => r.ok ? r.json() : Promise.reject(r.status))
+    .then(d => {
+      const grid = document.getElementById('trustStripGrid');
+      if (!grid || !d || !Array.isArray(d.trustStrip) || !d.trustStrip.length) return;
+      grid.innerHTML = d.trustStrip.map(c =>
+        '<div class="feature-card">' +
+          '<div class="feature-icon">' + esc(c.icon) + '</div>' +
+          '<div class="feature-title">' + esc(c.title) + '</div>' +
+          '<div class="feature-desc">' + esc(c.desc) + '</div>' +
+        '</div>'
+      ).join('');
+    })
+    .catch(err => console.warn('[trust-strip] fetch failed, using static cards:', err));
 })();
 </script>
 </body>
