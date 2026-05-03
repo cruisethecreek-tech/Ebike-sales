@@ -88,13 +88,19 @@ function doGet(e) {
     })
     .sort(function(a, b){ return (a.order || 0) - (b.order || 0); });
 
+  // Site-wide trust strip rendered on every brand page (heybike, velotric,
+  // mooncool, jasion). Same four cards across all four — edit once here.
+  const trustStrip = readSheet(ss, 'TrustStrip')
+    .sort(function(a, b){ return (a.order || 0) - (b.order || 0); });
+
   const data = {
-    page:     page,
-    pageMeta: pageMeta,
-    site:     site,
-    sections: sections,
-    tiles:    readSheet(ss, cap + '_Tiles'),
-    submenus: groupBy(readSheet(ss, cap + '_Submenus'), 'tile'),
+    page:       page,
+    pageMeta:   pageMeta,
+    site:       site,
+    sections:   sections,
+    trustStrip: trustStrip,
+    tiles:      readSheet(ss, cap + '_Tiles'),
+    submenus:   groupBy(readSheet(ss, cap + '_Submenus'), 'tile'),
   };
   return ContentService
     .createTextOutput(JSON.stringify(data))
@@ -454,6 +460,17 @@ function setupSheet() {
         ['policies_external',  true],
         ['our_story_url',      'our-story.html'],
         ['our_story_external', false],
+      ],
+    },
+    'TrustStrip': {
+      // Same four cards render on every brand page (heybike, velotric,
+      // mooncool, jasion). Edit here once.
+      header: ['order','icon','title','desc'],
+      rows: [
+        [1, '🔋', '50-Point Safety',     'Every brake is indexed for absolute stopping power before you hit the trail.'],
+        [2, '⚙️', 'Master Integration',  'High-precision setup of your power system and drivetrain for peak efficiency.'],
+        [3, '🛡️', '30-Day Tune-Up',      'Comprehensive coverage and support for peace of mind in your first 30 days.'],
+        [4, '🚚', 'Local Delivery',      'Fast affordable local delivery available to your door in the tri-county area.'],
       ],
     },
     'Sections': {
