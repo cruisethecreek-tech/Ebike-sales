@@ -93,12 +93,20 @@ function doGet(e) {
   const trustStrip = readSheet(ss, 'TrustStrip')
     .sort(function(a, b){ return (a.order || 0) - (b.order || 0); });
 
+  // creek-ready hub: the three service cards and the three "Simple as 1-2-3" steps.
+  const services = readSheet(ss, 'Services')
+    .sort(function(a, b){ return (a.order || 0) - (b.order || 0); });
+  const steps = readSheet(ss, 'Steps')
+    .sort(function(a, b){ return (a.order || 0) - (b.order || 0); });
+
   const data = {
     page:       page,
     pageMeta:   pageMeta,
     site:       site,
     sections:   sections,
     trustStrip: trustStrip,
+    services:   services,
+    steps:      steps,
     tiles:      readSheet(ss, cap + '_Tiles'),
     submenus:   groupBy(readSheet(ss, cap + '_Submenus'), 'tile'),
   };
@@ -460,6 +468,50 @@ function setupSheet() {
         ['policies_external',  true],
         ['our_story_url',      'our-story.html'],
         ['our_story_external', false],
+        // creek-ready hub: section headings & contact items
+        ['services_eyebrow',   'Our Services'],
+        ['services_title',     'Three Ways We Keep You Rolling'],
+        ['services_intro',     "Whether you need hands-on maintenance, a professional build, or expert guidance from anywhere — we've got you covered."],
+        ['how_eyebrow',        'How It Works'],
+        ['how_title',          'Simple as 1-2-3'],
+        ['how_intro',          "Getting service for your e-bike shouldn't be complicated."],
+        ['brands_label',       'Authorized Dealer & Factory-Trained Service'],
+        ['cta_text_label',     '💬 Text: 330-406-9682'],
+        ['cta_text_url',       'sms:3304069682'],
+        ['cta_email_label',    '✉️ salesteam@cruisethecreek.com'],
+        ['cta_email_url',      'mailto:salesteam@cruisethecreek.com'],
+      ],
+    },
+    'Services': {
+      // creek-ready service cards. `theme` controls the gradient
+      // (tuneup | assembly | video). `features` is a pipe-separated
+      // list of bullet items.
+      header: ['order','theme','price','badge','icon','title','desc','features','cta_label','cta_url','cta_external'],
+      rows: [
+        [1, 'tuneup',   '$125',         'All Brands', '🔧', 'Creek Ready Tune-Up',
+          'Our comprehensive "Creek Ready" maintenance service for ANY brand of e-bike. We catch problems before they become expensive failures.',
+          'Premium deep clean & rust prevention|Derailleur, brake & bearing adjustment|Motor performance & controller diagnostics|Battery health assessment|Full safety inspection & professional test ride',
+          'Learn More', 'tune-ups.html', false],
+        [2, 'assembly', '$100',         'New Bikes',  '📦', 'Creek Ready Setup',
+          "Don't risk a DIY build. Our master assembly by Andrew Barret ensures your new e-bike is built right the first time — with the CTC Care Standard.",
+          "50-point safety certification|Andrew Barret's master assembly|Ohio Rust-Belt Shield corrosion treatment|Free 30-day break-in tune included|Manufacturer liaison for warranty support",
+          'Learn More', 'assembly.html', false],
+        [3, 'video',    'Book Online',  '',           '📹', 'Video Diagnostics',
+          'Stuck on assembly or seeing an error code? Connect with our factory-trained technician via live video call — expert help from wherever you are.',
+          '1-on-1 live video with our technician|Error code diagnosis & troubleshooting|Guided assembly support|Velotric, Heybike & Jasion specialists|No travel needed — help from anywhere',
+          'Learn More', 'video-diagnostics.html', false],
+      ],
+    },
+    'Steps': {
+      // creek-ready "Simple as 1-2-3" steps.
+      header: ['order','num','title','body'],
+      rows: [
+        [1, '1', 'Reach Out',
+          "Text Dru at 330-406-9682 or book online. Tell us what's going on with your ride."],
+        [2, '2', 'We Diagnose',
+          'Drop off on Kirk Road, visit the showroom, or hop on a video call — whatever works best.'],
+        [3, '3', 'Ride Happy',
+          'Pick up your Creek Ready e-bike, fully serviced and tested. Most tune-ups done in 2-3 business days.'],
       ],
     },
     'TrustStrip': {

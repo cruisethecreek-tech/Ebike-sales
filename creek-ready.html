@@ -969,12 +969,12 @@
     <!-- ─── SERVICES ─── -->
     <section class="services-section" id="services">
         <div class="section-header">
-            <div class="section-label">Our Services</div>
-            <h2>Three Ways We Keep You Rolling</h2>
-            <p>Whether you need hands-on maintenance, a professional build, or expert guidance from anywhere — we've got you covered.</p>
+            <div class="section-label" data-cms-text="services_eyebrow">Our Services</div>
+            <h2 data-cms-text="services_title">Three Ways We Keep You Rolling</h2>
+            <p data-cms-text="services_intro">Whether you need hands-on maintenance, a professional build, or expert guidance from anywhere — we've got you covered.</p>
         </div>
 
-        <div class="service-grid">
+        <div class="service-grid" id="serviceGrid">
 
             <!-- TUNE-UPS -->
             <div class="service-card fade-in">
@@ -1056,12 +1056,12 @@
     <!-- ─── HOW IT WORKS ─── -->
     <section class="how-section" id="how">
         <div class="section-header">
-            <div class="section-label">How It Works</div>
-            <h2>Simple as 1-2-3</h2>
-            <p>Getting service for your e-bike shouldn't be complicated.</p>
+            <div class="section-label" data-cms-text="how_eyebrow">How It Works</div>
+            <h2 data-cms-text="how_title">Simple as 1-2-3</h2>
+            <p data-cms-text="how_intro">Getting service for your e-bike shouldn't be complicated.</p>
         </div>
 
-        <div class="steps-grid">
+        <div class="steps-grid" id="stepsGrid">
             <div class="step fade-in">
                 <div class="step-num">1</div>
                 <h4>Reach Out</h4>
@@ -1083,7 +1083,7 @@
     <!-- ─── AUTHORIZED BRANDS ─── -->
     <section class="brands-section">
         <div class="brands-inner">
-            <p>Authorized Dealer & Factory-Trained Service</p>
+            <p data-cms-text="brands_label">Authorized Dealer &amp; Factory-Trained Service</p>
             <div class="brand-logos">
                 <a href="https://www.cruisethecreek.com/shopheybike" class="brand-name" data-cms-href="brand_heybike_url" data-cms-target="brand_heybike_external">Heybike</a>
                 <a href="https://www.cruisethecreek.com/shopvelotric" class="brand-name" data-cms-href="brand_velotric_url" data-cms-target="brand_velotric_external">Velotric</a>
@@ -1098,8 +1098,8 @@
             <h2 data-cms-text="cta_title">Not Sure Which Service You Need?</h2>
             <p data-cms-text="cta_subtitle">No worries — text us a description or photo of what's going on and we'll point you in the right direction. No pressure, just honest advice.</p>
             <div class="cta-contact-row">
-                <a href="sms:3304069682" class="cta-contact-item">💬 Text: 330-406-9682</a>
-                <a href="mailto:salesteam@cruisethecreek.com" class="cta-contact-item">✉️ salesteam@cruisethecreek.com</a>
+                <a href="sms:3304069682" class="cta-contact-item" data-cms-href="cta_text_url"><span data-cms-text="cta_text_label">💬 Text: 330-406-9682</span></a>
+                <a href="mailto:salesteam@cruisethecreek.com" class="cta-contact-item" data-cms-href="cta_email_url"><span data-cms-text="cta_email_label">✉️ salesteam@cruisethecreek.com</span></a>
             </div>
         </div>
     </section>
@@ -1167,10 +1167,16 @@
     </script>
 
     <script>
-    /* ── CMS apply: hero copy, contact CTA, and footer pull from the Sheet ── */
+    /* ── CMS apply: every text + link pulls from the Sheet.
+         - SiteConfig keys → section labels, contact items
+         - Pages tab (slug=creek-ready) → hero / CTA copy
+         - Services tab → the 3 service cards
+         - Steps tab → the 3 "Simple as 1-2-3" steps
+       Static markup remains as a fallback if the fetch fails. ── */
     const MENU_URL = 'https://script.google.com/macros/s/AKfycbxjg2ZsPCZNsmJEStYA0bRdsnkm4nNS-m-HNhm_Gin56VIVeYWVRE5j51j30zVHhb4PmQ/exec?page=creek-ready';
 
     function isTrue(v){ return v===true||v==='TRUE'||v==='true'||v===1; }
+    function esc(s){ return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 
     function applyCMS(remote){
         const map = Object.assign({}, remote.site || {}, remote.pageMeta || {});
@@ -1188,9 +1194,66 @@
         });
     }
 
+    /* Render service cards from the Services tab.
+       Columns: order, theme, price, badge, icon, title, desc, features, cta_label, cta_url, cta_external
+       `theme` picks the gradient (tuneup | assembly | video). `features` is a
+       pipe-separated list of bullet items. */
+    function renderServices(rows){
+        const grid = document.getElementById('serviceGrid');
+        if (!grid || !Array.isArray(rows) || !rows.length) return;
+        grid.innerHTML = rows.map(r => {
+            const theme   = String(r.theme || 'tuneup').trim().toLowerCase();
+            const feats   = String(r.features || '').split('|')
+                              .map(s => s.trim()).filter(Boolean);
+            const target  = isTrue(r.cta_external) ? ' target="_blank" rel="noopener"' : '';
+            const badge   = r.badge ? `<span class="card-badge">${esc(r.badge)}</span>` : '';
+            const price   = r.price ? `<span class="card-price">${esc(r.price)}</span>` : '';
+            const ctaUrl  = r.cta_url || '#';
+            const ctaLbl  = r.cta_label || 'Learn More';
+            return (
+              `<div class="service-card fade-in">` +
+                `<div class="card-visual card-visual--${esc(theme)}">` +
+                  price + badge +
+                  `<div class="card-visual-content">` +
+                    `<div class="card-icon">${esc(r.icon || '')}</div>` +
+                    `<h3>${esc(r.title || '')}</h3>` +
+                  `</div>` +
+                `</div>` +
+                `<div class="card-body">` +
+                  `<p>${esc(r.desc || '')}</p>` +
+                  (feats.length
+                    ? `<ul class="card-features">${feats.map(f => `<li>${esc(f)}</li>`).join('')}</ul>`
+                    : '') +
+                  `<a href="${esc(ctaUrl)}" class="card-link"${target}>` +
+                    `${esc(ctaLbl)} <span class="arrow">→</span>` +
+                  `</a>` +
+                `</div>` +
+              `</div>`
+            );
+        }).join('');
+    }
+
+    /* Render steps from the Steps tab. Columns: order, num, title, body. */
+    function renderSteps(rows){
+        const grid = document.getElementById('stepsGrid');
+        if (!grid || !Array.isArray(rows) || !rows.length) return;
+        grid.innerHTML = rows.map((r, i) => (
+            `<div class="step fade-in">` +
+              `<div class="step-num">${esc(r.num || (i+1))}</div>` +
+              `<h4>${esc(r.title || '')}</h4>` +
+              `<p>${esc(r.body || '')}</p>` +
+            `</div>`
+        )).join('');
+    }
+
     fetch(MENU_URL, {cache:'no-store'})
         .then(r => r.ok ? r.json() : Promise.reject(r.status))
-        .then(remote => { if (remote && typeof remote === 'object') applyCMS(remote); })
+        .then(remote => {
+            if (!remote || typeof remote !== 'object') return;
+            applyCMS(remote);
+            if (Array.isArray(remote.services)) renderServices(remote.services);
+            if (Array.isArray(remote.steps))    renderSteps(remote.steps);
+        })
         .catch(err => console.warn('[creek-ready] config fetch failed, using static content:', err));
     </script>
 
