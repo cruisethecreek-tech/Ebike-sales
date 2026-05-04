@@ -571,6 +571,22 @@ function applyCMS(remote){
 /* Hide social slots until SiteConfig populates them. */
 document.querySelectorAll('[data-cms-display-if]').forEach(el => { el.style.display = 'none'; });
 
+/* ── CMS cache: kill the flash for repeat visitors. ── */
+const CMS_CACHE_KEY = 'cms:shop:v1';
+function readCmsCache(){
+  try { const raw = localStorage.getItem(CMS_CACHE_KEY);
+        const p = raw ? JSON.parse(raw) : null;
+        return (p && typeof p === 'object') ? p : null;
+      } catch(e) { return null; }
+}
+function writeCmsCache(d){
+  try { localStorage.setItem(CMS_CACHE_KEY, JSON.stringify(d)); } catch(e) {}
+}
+const _cached = readCmsCache();
+if (_cached) {
+  applyCMS(_cached);
+  if (Array.isArray(_cached.tiles) && _cached.tiles.length) DATA = _cached;
+}
 renderTiles();
 
 if (MENU_URL) {
@@ -578,6 +594,7 @@ if (MENU_URL) {
     .then(r => r.ok ? r.json() : Promise.reject(r.status))
     .then(remote => {
       if (!remote || typeof remote !== 'object') return;
+      writeCmsCache(remote);
       applyCMS(remote);
       if (Array.isArray(remote.tiles) && remote.tiles.length) {
         DATA = remote;

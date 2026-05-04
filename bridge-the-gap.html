@@ -710,17 +710,35 @@ function renderBridgeBikeOptions(rows){
   clearBikeSelection();
 }
 
+/* ── CMS cache: kill the flash for repeat visitors. ── */
+const CMS_CACHE_KEY = 'cms:bridge-the-gap:v1';
+function readCmsCache(){
+  try { const raw = localStorage.getItem(CMS_CACHE_KEY);
+        const p = raw ? JSON.parse(raw) : null;
+        return (p && typeof p === 'object') ? p : null;
+      } catch(e) { return null; }
+}
+function writeCmsCache(d){
+  try { localStorage.setItem(CMS_CACHE_KEY, JSON.stringify(d)); } catch(e) {}
+}
+function hydrateBridge(d){
+  applyCMS(d);
+  if (Array.isArray(d.bridgePricing))     renderBridgePricing(d.bridgePricing);
+  if (Array.isArray(d.bridgeGaps))        renderBridgeGaps(d.bridgeGaps);
+  if (Array.isArray(d.bridgeFeatures))    renderBridgeFeatures(d.bridgeFeatures);
+  if (Array.isArray(d.bridgeCompare))     renderBridgeCompare(d.bridgeCompare);
+  if (Array.isArray(d.bridgeBikeOptions)) renderBridgeBikeOptions(d.bridgeBikeOptions);
+}
+const _cached = readCmsCache();
+if (_cached) hydrateBridge(_cached);
+
 if (MENU_URL) {
   fetch(MENU_URL, {cache:'no-store'})
     .then(r => r.ok ? r.json() : Promise.reject(r.status))
     .then(remote => {
       if (!remote || typeof remote !== 'object') return;
-      applyCMS(remote);
-      if (Array.isArray(remote.bridgePricing))     renderBridgePricing(remote.bridgePricing);
-      if (Array.isArray(remote.bridgeGaps))        renderBridgeGaps(remote.bridgeGaps);
-      if (Array.isArray(remote.bridgeFeatures))    renderBridgeFeatures(remote.bridgeFeatures);
-      if (Array.isArray(remote.bridgeCompare))     renderBridgeCompare(remote.bridgeCompare);
-      if (Array.isArray(remote.bridgeBikeOptions)) renderBridgeBikeOptions(remote.bridgeBikeOptions);
+      writeCmsCache(remote);
+      hydrateBridge(remote);
     })
     .catch(err => console.warn('[bridge-the-gap] config fetch failed, using static content:', err));
 }
