@@ -807,6 +807,27 @@ function getTabDefs() {
           'City Cruiser (1–25 mi)',     '$60/Biweekly'],
       ],
     },
+    'Admin': {
+      // Internal admin tools — not customer-facing, never rendered on the
+      // live site. This tab is here just so the URLs you need are always
+      // a click away from inside the spreadsheet you already use.
+      // Click the cell, then Ctrl/Cmd-click the link to open in a new tab.
+      header: ['tool','url','notes'],
+      rows: [
+        ['Migrate Wix images → GitHub',
+          'https://ebike-sales.pages.dev/migrate-images.html',
+          'Loads bike inventory from Apps Script + the live /images/ list from GitHub. Map each Wix image to a local filename, click "Save Bike", done.'],
+        ['Live site (home)',
+          'https://ebike-sales.pages.dev/',
+          'The deployed customer-facing site. Hard-refresh (Cmd-Shift-R / Ctrl-F5) after editing the Sheet to see changes immediately.'],
+        ['Sales Pro (internal quote builder)',
+          'https://ebike-sales.pages.dev/index.html',
+          'The internal sales-pro quote tool. Bookmarkable.'],
+        ['GitHub repo',
+          'https://github.com/cruisethecreek-tech/Ebike-sales',
+          'Source code. Drag/drop new bike photos into the /images/ folder here, then refresh the migration tool above.'],
+      ],
+    },
     'TrustStrip': {
       // Same four cards render on every brand page (heybike, velotric,
       // mooncool, jasion). Edit here once.
