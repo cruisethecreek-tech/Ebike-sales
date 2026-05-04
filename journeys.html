@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Trailside Journeys | Cruise the Creek</title>
+<meta name="description" content="Pick a destination from our Kirk Road Trailhead pickup. South to MetroParks Farms or the Walnut Grove · North to Mahoning Ave or the Niles Greenway. Distance, time, dining, and highlights for every ride.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,400;0,500;0,700;0,800;1,400&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --sage:#6B8F71;--sage-d:#557159;--forest:#2D4A32;--dark:#1a2e1c;
+  --tan:#C9A96E;--tan-d:#a98843;--cream:#F5F0E8;--cream-w:#fbf7ef;
+  --ink:#1a1a1a;--ink-2:#3a3a3a;--ink-3:#5a5a5a;
+  --south:#a98843;--north:#557159;
+}
+html,body{height:100%}
+html{scroll-behavior:smooth;scroll-padding-top:120px}
+body{font-family:'DM Sans',sans-serif;color:var(--ink);background:var(--cream);
+  display:flex;flex-direction:column;min-height:100vh;line-height:1.7}
+a{color:inherit;text-decoration:none;transition:color .2s ease}
+img{max-width:100%;display:block}
+
+/* ── TOP BAR ── */
+.topbar{background:rgba(255,255,255,.95);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+  color:var(--dark);padding:14px 24px;display:flex;align-items:center;justify-content:space-between;
+  position:sticky;top:0;z-index:101;border-bottom:1px solid rgba(0,0,0,.05)}
+.brand-logo{height:34px;width:auto;display:block}
+.topbar a.nav-back{font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;
+  font-weight:700;color:var(--ink-3)}
+.topbar a.nav-back:hover{color:var(--forest)}
+
+/* ── HERO ── */
+.hero{position:relative;padding:64px 24px 48px;color:#fff;background:var(--forest);
+  overflow:hidden;isolation:isolate;text-align:center}
+.hero-topo{position:absolute;inset:0;z-index:-1;opacity:.15;pointer-events:none;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 600 400' preserveAspectRatio='none'><g fill='none' stroke='%23F5F0E8' stroke-width='1.2'><path d='M0,80 Q150,60 300,90 T600,80'/><path d='M0,140 Q150,120 300,150 T600,140'/><path d='M0,200 Q150,180 300,210 T600,200'/><path d='M0,260 Q150,240 300,270 T600,260'/></g></svg>");
+  background-size:cover}
+.hero-eyebrow{display:inline-block;font-size:.72rem;font-weight:700;letter-spacing:.2em;
+  text-transform:uppercase;color:var(--tan);margin-bottom:14px;
+  padding:6px 14px;border:1px solid rgba(201,169,110,.4);border-radius:4px;
+  background:rgba(26,46,28,.25)}
+.hero h1{font-family:'Bebas Neue',sans-serif;font-size:clamp(2.4rem,7vw,4rem);
+  letter-spacing:.02em;line-height:1;margin-bottom:14px}
+.hero h1 em{font-style:normal;color:var(--tan);display:block}
+.hero p{font-size:clamp(.98rem,2.3vw,1.1rem);color:rgba(255,255,255,.9);
+  max-width:600px;margin:0 auto;line-height:1.55}
+
+/* ── TAB NAV ── */
+.tabnav{position:sticky;top:62px;z-index:100;background:var(--cream);
+  border-bottom:1px solid rgba(45,74,50,.12);
+  box-shadow:0 2px 8px rgba(0,0,0,.04)}
+.tabnav-inner{max-width:1100px;margin:0 auto;padding:0 8px;
+  display:flex;gap:4px;overflow-x:auto;scrollbar-width:none;-ms-overflow-style:none}
+.tabnav-inner::-webkit-scrollbar{display:none}
+.tab{flex-shrink:0;padding:14px 18px;font-size:.82rem;letter-spacing:.06em;
+  text-transform:uppercase;font-weight:700;color:var(--ink-3);
+  border-bottom:3px solid transparent;transition:color .2s ease,border-color .2s ease;
+  white-space:nowrap;cursor:pointer}
+.tab:hover{color:var(--forest)}
+.tab.active{color:var(--forest);border-bottom-color:var(--tan)}
+
+/* ── ARTICLE ── */
+main{flex:1;width:100%}
+.article{max-width:1080px;margin:0 auto;padding:32px 24px 32px;width:100%}
+.dir-section{padding:36px 0;border-bottom:1px solid rgba(45,74,50,.08);scroll-margin-top:130px}
+.dir-section:last-of-type{border-bottom:none}
+.dir-eyebrow{display:block;font-size:.72rem;letter-spacing:.18em;text-transform:uppercase;
+  font-weight:700;color:var(--sage);margin-bottom:8px}
+.dir-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(2rem,5vw,2.8rem);
+  letter-spacing:.02em;color:var(--forest);line-height:1.1;margin-bottom:8px}
+.dir-intro{font-size:.98rem;line-height:1.65;color:var(--ink-3);margin-bottom:22px;max-width:640px}
+
+/* ── KIRK ROAD CARD (start) ── */
+.kirk-card{background:var(--forest);color:#fff;border-radius:14px;overflow:hidden;
+  display:grid;grid-template-columns:1fr;box-shadow:0 16px 40px rgba(45,74,50,.18)}
+.kirk-img{aspect-ratio:16/9;background:#1f3322 center/cover;position:relative;overflow:hidden}
+.kirk-img img{width:100%;height:100%;object-fit:cover;display:block}
+.kirk-img::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,transparent 50%,rgba(26,46,28,.5) 100%)}
+.kirk-body{padding:28px 28px 30px}
+.kirk-body .badge{display:inline-block;font-size:.7rem;font-weight:800;letter-spacing:.2em;
+  text-transform:uppercase;color:var(--tan);margin-bottom:8px}
+.kirk-body h3{font-family:'Bebas Neue',sans-serif;font-size:clamp(1.8rem,3.6vw,2.2rem);
+  letter-spacing:.02em;margin-bottom:6px;line-height:1.05}
+.kirk-body .where{color:rgba(255,255,255,.78);font-size:.92rem;margin-bottom:14px}
+.kirk-body p{font-size:.96rem;color:rgba(255,255,255,.85);line-height:1.7;margin-bottom:10px}
+.kirk-body .speed{display:inline-flex;align-items:center;gap:8px;
+  background:rgba(201,169,110,.18);border:1px solid rgba(201,169,110,.35);color:var(--tan);
+  padding:8px 14px;border-radius:999px;font-size:.84rem;font-weight:700;margin-top:10px}
+@media(min-width:880px){
+  .kirk-card{grid-template-columns:1.1fr 1fr}
+  .kirk-img{aspect-ratio:auto;min-height:340px}
+}
+
+/* ── JOURNEY GRID ── */
+.j-grid{display:grid;grid-template-columns:1fr;gap:22px}
+@media(min-width:780px){.j-grid{grid-template-columns:1fr 1fr}}
+
+.j-card{background:#fff;border:1px solid rgba(0,0,0,.06);border-radius:12px;overflow:hidden;
+  display:flex;flex-direction:column;box-shadow:0 6px 20px rgba(0,0,0,.05);
+  transition:transform .25s ease,box-shadow .25s ease}
+.j-card:hover{transform:translateY(-3px);box-shadow:0 16px 36px rgba(45,74,50,.12)}
+.j-img{aspect-ratio:16/9;background:#dcd3c2;position:relative;overflow:hidden}
+.j-img img{width:100%;height:100%;object-fit:cover;display:block}
+.j-img-fallback{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  font-family:'Bebas Neue',sans-serif;font-size:1.4rem;color:var(--ink-3);
+  background:linear-gradient(135deg,#e9dec6 0%,#c9b890 100%);letter-spacing:.05em;text-align:center;padding:0 20px}
+.j-dir-badge{position:absolute;top:14px;left:14px;font-size:.72rem;font-weight:800;letter-spacing:.16em;
+  text-transform:uppercase;padding:6px 12px;border-radius:999px;
+  background:rgba(255,255,255,.95);color:var(--forest);box-shadow:0 4px 12px rgba(0,0,0,.15)}
+.j-dir-badge.south{color:var(--south)}
+.j-dir-badge.north{color:var(--north)}
+
+.j-body{padding:22px 24px 26px;flex:1;display:flex;flex-direction:column}
+.j-headline{font-size:.78rem;font-weight:800;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--sage);margin-bottom:6px}
+.j-name{font-family:'Bebas Neue',sans-serif;font-size:1.7rem;color:var(--forest);
+  letter-spacing:.02em;line-height:1.05;margin-bottom:4px}
+.j-where{color:var(--ink-3);font-size:.92rem;margin-bottom:16px}
+
+.j-stats{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px}
+.j-stat{background:var(--cream-w);border:1px solid rgba(45,74,50,.12);border-radius:6px;
+  padding:8px 12px;font-size:.82rem;color:var(--ink-2);font-weight:600;
+  display:inline-flex;align-items:center;gap:6px}
+.j-stat strong{color:var(--forest);font-weight:800}
+
+.j-desc{font-size:.95rem;line-height:1.65;color:var(--ink-2);margin-bottom:16px}
+
+.j-row{display:grid;grid-template-columns:1fr;gap:14px;margin-bottom:14px}
+@media(min-width:520px){.j-row{grid-template-columns:1fr 1fr}}
+.j-list{background:var(--cream-w);border-radius:8px;padding:14px 16px}
+.j-list h4{font-size:.7rem;font-weight:800;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--sage);margin-bottom:8px}
+.j-list ul{list-style:none;margin:0;padding:0}
+.j-list li{font-size:.9rem;color:var(--ink-2);padding:3px 0;line-height:1.5}
+.j-list li::before{content:'·';color:var(--tan);font-weight:800;margin-right:8px}
+
+.j-footer{margin-top:auto;padding-top:14px;border-top:1px solid rgba(45,74,50,.08);
+  display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.j-link{color:var(--forest);font-weight:700;font-size:.88rem;
+  border-bottom:1px solid rgba(45,74,50,.3);padding-bottom:1px}
+.j-link:hover{color:var(--tan-d);border-bottom-color:var(--tan-d)}
+.j-rules{font-size:.76rem;color:var(--ink-3);font-weight:600}
+
+/* ── BOOK CTA ── */
+.cta{background:var(--forest);color:#fff;
+  border-radius:12px;padding:36px 28px;margin:36px 0 0;text-align:center;
+  box-shadow:0 12px 30px rgba(45,74,50,.18)}
+.cta-eyebrow{font-size:.7rem;font-weight:700;letter-spacing:.2em;
+  text-transform:uppercase;color:var(--tan);display:block;margin-bottom:8px}
+.cta h2{font-family:'Bebas Neue',sans-serif;font-size:clamp(1.8rem,4.5vw,2.4rem);
+  letter-spacing:.02em;color:#fff;margin-bottom:8px;line-height:1.1}
+.cta p{color:rgba(255,255,255,.85);max-width:520px;margin:0 auto 20px;font-size:.98rem}
+.cta-row{display:flex;flex-wrap:wrap;gap:10px;justify-content:center}
+.cta-btn{display:inline-flex;align-items:center;gap:6px;padding:13px 22px;
+  border-radius:6px;font-weight:700;font-size:.92rem;letter-spacing:.04em;
+  transition:transform .2s ease,background .2s ease}
+.cta-btn.primary{background:var(--tan);color:var(--dark)}
+.cta-btn.primary:hover{background:#fff;transform:translateY(-1px)}
+.cta-btn.secondary{background:transparent;color:#fff;border:1px solid rgba(255,255,255,.5)}
+.cta-btn.secondary:hover{background:rgba(255,255,255,.1)}
+
+.hashtag{text-align:center;padding:24px 0 8px;color:var(--sage);
+  font-family:'Bebas Neue',sans-serif;font-size:1.4rem;letter-spacing:.1em}
+
+/* ── FOOTER ── */
+footer{background:var(--dark);color:rgba(255,255,255,.7);padding:28px 24px;
+  text-align:center;font-size:.88rem;letter-spacing:.02em}
+footer a{color:var(--tan);font-weight:600}
+footer a:hover{color:#fff}
+footer .foot-links{margin-top:8px}
+footer .foot-links a{margin:0 8px}
+
+@media(max-width:480px){
+  .topbar{padding:12px 16px}.brand-logo{height:30px}
+  .hero{padding:48px 16px 36px}
+  .article{padding:24px 16px 24px}
+  .cta{padding:26px 18px}
+  .kirk-body{padding:22px 18px 24px}
+  .j-body{padding:18px 18px 22px}
+  .tabnav{top:58px}
+  .tab{padding:12px 14px;font-size:.76rem}
+}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <a href="home.html" aria-label="Cruise the Creek home" data-cms-href="logo_url" data-cms-target="logo_external">
+    <img class="brand-logo" src="BlackonTransparent.png" alt="Cruise the Creek">
+  </a>
+  <a class="nav-back" href="home.html">← Home</a>
+</header>
+
+<section class="hero">
+  <div class="hero-topo"></div>
+  <span class="hero-eyebrow" data-cms-text="hero_eyebrow">Trailside Journey · Kirk Road</span>
+  <h1>
+    <span data-cms-text="hero_h1">Choose a Journey</span>
+    <em data-cms-text="hero_h1_em">Unlock miles of scenic trails.</em>
+  </h1>
+  <p data-cms-text="hero_tagline">Start at the Kirk Road Trailhead in Canfield. Head south to MetroParks Farms or the Walnut Grove. Head north to Mahoning Ave or the Niles Greenway. Pick the ride that fits your day.</p>
+</section>
+
+<nav class="tabnav" id="tabnav">
+  <div class="tabnav-inner">
+    <a class="tab" href="#kirk">Kirk Road</a>
+    <a class="tab" href="#south">Head South</a>
+    <a class="tab" href="#north">Head North</a>
+  </div>
+</nav>
+
+<main>
+  <article class="article">
+
+    <!-- ── KIRK ROAD START POINT ── -->
+    <section class="dir-section" id="kirk">
+      <span class="dir-eyebrow">Your journey starts here</span>
+      <h2 class="dir-title">Kirk Road Trailhead</h2>
+      <p class="dir-intro">Pick up and drop off your e-bike here, in Canfield. Plenty of parking, a picnic pavilion, and 11 miles of paved bikeway in either direction.</p>
+
+      <div class="kirk-card" id="kirkCard">
+        <div class="kirk-img">
+          <img data-cms-src="kirk_image" src="" alt="Kirk Road Trailhead" onerror="this.parentNode.classList.add('no-img');this.remove();">
+        </div>
+        <div class="kirk-body">
+          <span class="badge" data-cms-text="kirk_badge">Pickup &amp; Drop-off</span>
+          <h3 data-cms-text="kirk_title">Kirk Road Trailhead</h3>
+          <div class="where" data-cms-text="kirk_where">Canfield, Ohio</div>
+          <p data-cms-text="kirk_body_1">This award-winning trailhead provides a fifty-car parking lot, restrooms, water fountains, a picnic pavilion, and a location for educational and trailside activities.</p>
+          <p data-cms-text="kirk_body_2">The 11-mile Mill Creek Bikeway is owned and operated by Mill Creek MetroParks — paved and tranquil end to end.</p>
+          <span class="speed">⚠ <span data-cms-text="kirk_speed">15 mph speed limit strictly enforced</span></span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── HEAD SOUTH ── -->
+    <section class="dir-section" id="south">
+      <span class="dir-eyebrow" data-cms-text="south_eyebrow">Head south</span>
+      <h2 class="dir-title" data-cms-text="south_title">Toward Canfield</h2>
+      <p class="dir-intro" data-cms-text="south_intro">Wooded paths, working farms, and a hidden playground — gentle southbound rides for any pace.</p>
+
+      <div class="j-grid" data-direction="south" id="grid-south">
+        <!-- Static fallback cards render here; replaced by Sheet data on hydrate. -->
+      </div>
+    </section>
+
+    <!-- ── HEAD NORTH ── -->
+    <section class="dir-section" id="north">
+      <span class="dir-eyebrow" data-cms-text="north_eyebrow">Head north</span>
+      <h2 class="dir-title" data-cms-text="north_title">Toward Austintown &amp; Niles</h2>
+      <p class="dir-intro" data-cms-text="north_intro">Iconic overpass bridges, the Niles Greenway, and the McKinley Memorial — push north for a longer ride.</p>
+
+      <div class="j-grid" data-direction="north" id="grid-north">
+        <!-- Static fallback cards render here; replaced by Sheet data on hydrate. -->
+      </div>
+    </section>
+
+    <div class="cta">
+      <span class="cta-eyebrow" data-cms-text="cta_eyebrow">Ready to ride?</span>
+      <h2 data-cms-text="cta_title">Book your Trailside Journey</h2>
+      <p data-cms-text="cta_subtitle">Pick a ride at the Kirk Road Trailhead. Helmet, eyewear, and a digital map of the bikeway included.</p>
+      <div class="cta-row">
+        <a class="cta-btn primary" href="https://www.cruisethecreek.com/book-a-rental" target="_blank" rel="noopener" data-cms-href="cta_btn_primary_url" data-cms-target="cta_btn_primary_external"><span data-cms-text="cta_btn_primary_label">Book Now</span></a>
+        <a class="cta-btn secondary" href="trailside.html" data-cms-href="cta_btn_secondary_url"><span data-cms-text="cta_btn_secondary_label">About Trailside</span></a>
+      </div>
+    </div>
+
+    <div class="hashtag" data-cms-text="hashtag">#TrailsideJourney</div>
+
+  </article>
+</main>
+
+<footer>
+  <div>&copy; 2026 Cruise the Creek &middot; 6685 Kirk Rd, Canfield, OH 44406</div>
+  <div class="foot-links">
+    <a href="home.html">Home</a> &middot;
+    <a href="trailside.html">Trailside</a> &middot;
+    <a href="rentals.html">Rentals</a> &middot;
+    <a href="faqs.html">FAQs</a>
+  </div>
+</footer>
+
+<script>
+/* ── Tab nav: scroll-spy + smooth scroll ── */
+(function(){
+  const tabs = document.querySelectorAll('.tabnav .tab');
+  const sections = Array.from(document.querySelectorAll('.dir-section'));
+  function setActive(id){
+    tabs.forEach(t => t.classList.toggle('active', t.getAttribute('href') === '#' + id));
+  }
+  function onScroll(){
+    const top = window.scrollY + 200;
+    let current = sections[0];
+    for (const s of sections) { if (s.offsetTop <= top) current = s; else break; }
+    if (current) setActive(current.id);
+  }
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+})();
+</script>
+
+<script>
+/* ── CMS apply: hero / Kirk card / section labels via data-cms-*,
+     plus journey cards from a dedicated Journeys tab.
+     Static markup remains as fallback if the fetch fails. ── */
+const MENU_URL = 'https://script.google.com/macros/s/AKfycbxjg2ZsPCZNsmJEStYA0bRdsnkm4nNS-m-HNhm_Gin56VIVeYWVRE5j51j30zVHhb4PmQ/exec?page=journeys';
+
+function isTrue(v){ return v===true||v==='TRUE'||v==='true'||v===1; }
+function esc(s){ return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+function applyCMS(remote){
+  const map = Object.assign({}, remote.site || {}, remote.pageMeta || {});
+  document.querySelectorAll('[data-cms-text]').forEach(el => {
+    const v = map[el.dataset.cmsText];
+    if (v != null && String(v).trim() !== '') el.textContent = v;
+  });
+  document.querySelectorAll('[data-cms-href]').forEach(el => {
+    const v = map[el.dataset.cmsHref];
+    if (v) el.href = v;
+  });
+  document.querySelectorAll('[data-cms-src]').forEach(el => {
+    const v = map[el.dataset.cmsSrc];
+    if (v) {
+      const path = /^https?:\/\//.test(v) ? v : ('images/' + v.replace(/^images\//, ''));
+      el.src = path;
+    }
+  });
+  document.querySelectorAll('[data-cms-target]').forEach(el => {
+    const v = map[el.dataset.cmsTarget];
+    if (isTrue(v)) { el.target = '_blank'; el.rel = 'noopener'; }
+  });
+}
+
+/* Render a journey grid for one direction.
+   Columns the Journeys tab supports:
+     order, direction, headline, destination, location,
+     distance, duration, intersections, description,
+     dining (pipe-separated), highlights (pipe-separated),
+     website_url, image */
+function pipeList(s){
+  return String(s || '').split('|').map(x => x.trim()).filter(Boolean);
+}
+function renderJourneyCard(j){
+  const dir = String(j.direction || '').toLowerCase();
+  const dirLabel = dir === 'south' ? 'South' : dir === 'north' ? 'North' : '';
+  const dirClass = dir === 'south' || dir === 'north' ? dir : '';
+  const dining = pipeList(j.dining);
+  const hi = pipeList(j.highlights);
+  const imgSrc = j.image
+    ? (/^https?:\/\//.test(j.image) ? j.image : 'images/' + String(j.image).replace(/^images\//, ''))
+    : '';
+  const fallbackText = (j.destination || '').toString();
+
+  const stats = [];
+  if (j.distance)      stats.push('<span class="j-stat">📏 <strong>' + esc(j.distance) + '</strong></span>');
+  if (j.duration)      stats.push('<span class="j-stat">⏱ <strong>' + esc(j.duration) + '</strong></span>');
+  if (j.intersections) stats.push('<span class="j-stat">🚦 <strong>' + esc(j.intersections) + '</strong> intersections</span>');
+
+  return (
+    '<article class="j-card">' +
+      '<div class="j-img' + (imgSrc ? '' : ' no-img') + '">' +
+        (dirLabel ? '<span class="j-dir-badge ' + dirClass + '">' + esc(dirLabel) + '</span>' : '') +
+        (imgSrc
+          ? '<img src="' + esc(imgSrc) + '" alt="' + esc(j.destination || '') + '" onerror="this.parentNode.insertAdjacentHTML(\'beforeend\',\'<div class=&quot;j-img-fallback&quot;>' + esc(fallbackText).replace(/'/g, "\\'") + '</div>\');this.remove();">'
+          : '<div class="j-img-fallback">' + esc(fallbackText) + '</div>') +
+      '</div>' +
+      '<div class="j-body">' +
+        (j.headline ? '<div class="j-headline">' + esc(j.headline) + '</div>' : '') +
+        '<div class="j-name">' + esc(j.destination || '') + '</div>' +
+        (j.location ? '<div class="j-where">' + esc(j.location) + '</div>' : '') +
+        (stats.length ? '<div class="j-stats">' + stats.join('') + '</div>' : '') +
+        (j.description ? '<p class="j-desc">' + esc(j.description) + '</p>' : '') +
+        ((dining.length || hi.length)
+          ? '<div class="j-row">' +
+              (dining.length
+                ? '<div class="j-list"><h4>Dining</h4><ul>' + dining.map(x => '<li>' + esc(x) + '</li>').join('') + '</ul></div>'
+                : '') +
+              (hi.length
+                ? '<div class="j-list"><h4>Highlights</h4><ul>' + hi.map(x => '<li>' + esc(x) + '</li>').join('') + '</ul></div>'
+                : '') +
+            '</div>'
+          : '') +
+        '<div class="j-footer">' +
+          (j.website_url
+            ? '<a class="j-link" href="' + esc(j.website_url) + '" target="_blank" rel="noopener">Visit official website →</a>'
+            : '<span></span>') +
+          '<span class="j-rules">15 mph · Yield to pedestrians</span>' +
+        '</div>' +
+      '</div>' +
+    '</article>'
+  );
+}
+function renderJourneys(rows){
+  if (!Array.isArray(rows)) return;
+  const groups = { south: [], north: [] };
+  rows.forEach(r => {
+    const d = String(r.direction || '').toLowerCase();
+    if (d === 'south') groups.south.push(r);
+    else if (d === 'north') groups.north.push(r);
+  });
+  const south = document.getElementById('grid-south');
+  const north = document.getElementById('grid-north');
+  if (south && groups.south.length) south.innerHTML = groups.south.map(renderJourneyCard).join('');
+  if (north && groups.north.length) north.innerHTML = groups.north.map(renderJourneyCard).join('');
+}
+
+/* ── CMS cache: kill the flash for repeat visitors. ── */
+const CMS_CACHE_KEY = 'cms:journeys:v1';
+function readCmsCache(){
+  try { const raw = localStorage.getItem(CMS_CACHE_KEY);
+        const p = raw ? JSON.parse(raw) : null;
+        return (p && typeof p === 'object') ? p : null;
+      } catch(e) { return null; }
+}
+function writeCmsCache(d){
+  try { localStorage.setItem(CMS_CACHE_KEY, JSON.stringify(d)); } catch(e) {}
+}
+const _cached = readCmsCache();
+if (_cached) {
+  applyCMS(_cached);
+  if (Array.isArray(_cached.journeys) && _cached.journeys.length) renderJourneys(_cached.journeys);
+}
+
+fetch(MENU_URL, {cache:'no-store'})
+  .then(r => r.ok ? r.json() : Promise.reject(r.status))
+  .then(remote => {
+    if (!remote || typeof remote !== 'object') return;
+    writeCmsCache(remote);
+    applyCMS(remote);
+    if (Array.isArray(remote.journeys) && remote.journeys.length) renderJourneys(remote.journeys);
+  })
+  .catch(err => console.warn('[journeys] config fetch failed, using static content:', err));
+
+/* If neither cache nor fetch populates the grids (first ever visit), seed
+   an empty placeholder so the section doesn't look broken. */
+window.addEventListener('load', () => {
+  setTimeout(() => {
+    ['grid-south', 'grid-north'].forEach(id => {
+      const g = document.getElementById(id);
+      if (g && !g.children.length) {
+        g.innerHTML = '<div style="grid-column:1/-1;text-align:center;color:var(--ink-3);padding:40px 20px;font-size:.9rem">Loading destinations…</div>';
+      }
+    });
+  }, 50);
+});
+</script>
+
+</body>
+</html>

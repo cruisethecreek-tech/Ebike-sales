@@ -115,6 +115,10 @@ function doGet(e) {
   const bridgeBikeOptions = readSheet(ss, 'BridgeBikeOptions')
     .sort(function(a, b){ return (a.order || 0) - (b.order || 0); });
 
+  // Trailside journeys (page=journeys): one row per destination.
+  const journeys = readSheet(ss, 'Journeys')
+    .sort(function(a, b){ return (a.order || 0) - (b.order || 0); });
+
   const data = {
     page:              page,
     pageMeta:          pageMeta,
@@ -129,6 +133,7 @@ function doGet(e) {
     bridgeFeatures:    bridgeFeatures,
     bridgeCompare:     bridgeCompare,
     bridgeBikeOptions: bridgeBikeOptions,
+    journeys:          journeys,
     tiles:             readSheet(ss, cap + '_Tiles'),
     submenus:          groupBy(readSheet(ss, cap + '_Submenus'), 'tile'),
   };
@@ -473,6 +478,24 @@ function getTabDefs() {
           'mailto:salesteam@cruisethecreek.com',
           false,
         ],
+        ['journeys',
+          'Trailside Journey · Kirk Road',
+          'Choose a Journey',
+          'Unlock miles of scenic trails.',
+          'Start at the Kirk Road Trailhead in Canfield. Head south to MetroParks Farms or the Walnut Grove. Head north to Mahoning Ave or the Niles Greenway. Pick the ride that fits your day.',
+          '',
+          '', '', false,
+          '', '',
+          'Ready to ride?',
+          'Book your Trailside Journey',
+          'Pick a ride at the Kirk Road Trailhead. Helmet, eyewear, and a digital map of the bikeway included.',
+          'Book Now',
+          'https://www.cruisethecreek.com/book-a-rental',
+          true,
+          'About Trailside',
+          'trailside.html',
+          false,
+        ],
       ],
     },
     'SiteConfig': {
@@ -558,6 +581,21 @@ function getTabDefs() {
         ['bridge_compare_intro',      'Same commute, very different cost.'],
         ['bridge_application_title',  'Start your application'],
         ['bridge_application_subtitle', "Pick a bike style, fill out the form, and we'll be in touch within 24–48 hours."],
+        // Trailside Journeys page (journeys.html)
+        ['kirk_image',         ''],
+        ['kirk_badge',         'Pickup & Drop-off'],
+        ['kirk_title',         'Kirk Road Trailhead'],
+        ['kirk_where',         'Canfield, Ohio'],
+        ['kirk_body_1',        'This award-winning trailhead provides a fifty-car parking lot, restrooms, water fountains, a picnic pavilion, and a location for educational and trailside activities.'],
+        ['kirk_body_2',        'The 11-mile Mill Creek Bikeway is owned and operated by Mill Creek MetroParks — paved and tranquil end to end.'],
+        ['kirk_speed',         '15 mph speed limit strictly enforced'],
+        ['south_eyebrow',      'Head south'],
+        ['south_title',        'Toward Canfield'],
+        ['south_intro',        'Wooded paths, working farms, and a hidden playground — gentle southbound rides for any pace.'],
+        ['north_eyebrow',      'Head north'],
+        ['north_title',        'Toward Austintown & Niles'],
+        ['north_intro',        'Iconic overpass bridges, the Niles Greenway, and the McKinley Memorial — push north for a longer ride.'],
+        ['hashtag',            '#TrailsideJourney'],
       ],
     },
     'Services': {
@@ -805,6 +843,55 @@ function getTabDefs() {
           'https://static.wixstatic.com/media/56427e_589102c83d184885b095fc64688ef4b0~mv2.jpg',
           'City Cruiser', 'Best for 1–25 mi (one way)', '$60', ' /biweekly',
           'City Cruiser (1–25 mi)',     '$60/Biweekly'],
+      ],
+    },
+    'Journeys': {
+      // Trailside Journey destinations rendered on journeys.html.
+      // direction: 'south' or 'north'  (controls which grid the card lands in)
+      // dining / highlights: pipe-separated lists ("Spot 1|Spot 2|Spot 3")
+      // image: filename in /images/ (e.g. "kirk-road.jpg") or a full URL
+      // distance: short label like "9 miles round trip"
+      // duration: short label like "approx 40 minutes"
+      // intersections: number or short string (optional)
+      // headline: small uppercase line above the destination name (optional,
+      //           e.g. "Head Further South!")
+      header: ['order','direction','headline','destination','location','distance','duration','intersections','description','dining','highlights','website_url','image'],
+      rows: [
+        // ── South ──
+        [10, 'south', 'Head south first',
+          'MetroParks Farms', 'Canfield, OH',
+          '9 miles round trip', 'approx 40 minutes', '',
+          "Open seasonally, this 402-acre working farm promotes agriculture through educational programming, tours, and display areas. Beginning in the 1910s, the property served as the Mahoning County Experimental Farm — Ohio State University managed it until 1990, researching planting, livestock production, and pest management.",
+          "AngeNetta's Cafe|Jr Grinders|Stonefruit Coffee Company",
+          "Archery Range|Disc Golf Course|Adventure Barn (seasonal)|Sunflower Field|Across the street: Canfield Fairgrounds|Along the way: Canfield High School",
+          'https://www.millcreekmetroparks.org/places/farm/',
+          ''],
+        [20, 'south', 'Head further south',
+          'The Walnut Grove', 'Canfield, OH',
+          '12 miles round trip', 'approx 48 minutes', '',
+          "A hidden playground in the woods. Open dawn 'til dusk — the perfect turnaround if you want a longer southbound ride than the Farms.",
+          "Jr Grinders|AngeNetta's Cafe|Stonefruit Coffee Company",
+          "Canfield High School|Mill Creek Farms|Mill Creek Disc Golf|Open dawn 'til dusk",
+          'https://www.millcreekmetroparks.org/',
+          ''],
+
+        // ── North ──
+        [30, 'north', 'Head north first',
+          'Mahoning Avenue Trailhead', 'Austintown, OH',
+          '5 miles round trip', 'approx 24 minutes', '10',
+          "A short, scenic ride north of Kirk Road. The trail crosses the iconic overpass bridge over Mahoning Avenue — a great photo stop and a favorite for families.",
+          "Molnar's Concessions|Paladin Brewing",
+          "Beautiful trail|Iconic overpass bridge|Family-friendly distance",
+          'https://www.millcreekmetroparks.org/place/mill-creek-bikeway/',
+          ''],
+        [40, 'north', 'Head further north',
+          'Niles Greenway · Central Park Trailhead', 'Niles, OH',
+          '18 miles round trip', '72+ minutes', '40',
+          "The Niles Greenway is a paved, multi-use path running north–south between the county line and the town of Niles. Wooded sections, light industrial estates, and suburban backyards. From the trail's southern end at County Line Road, you can continue south along the MetroParks Bikeway for a seamless ride. Easy access to downtown Niles and Meander Creek Reservoir.",
+          "Dairy Queen|Stoneyard Grill|Cadence Coffee House|Niles Sons of Italy|Subway",
+          "Niles Greenway bridge|McKinley Memorial|Beautiful wooded trail|Connects to MetroParks Bikeway",
+          'https://www.traillink.com/trail/niles-greenway/',
+          ''],
       ],
     },
     'Admin': {
