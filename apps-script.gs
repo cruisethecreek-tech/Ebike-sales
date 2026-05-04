@@ -103,17 +103,34 @@ function doGet(e) {
   const faqs = readSheet(ss, 'Faqs')
     .sort(function(a, b){ return (a.order || 0) - (b.order || 0); });
 
+  // Bridge the Gap: four content blocks each in their own tab.
+  const bridgePricing = readSheet(ss, 'BridgePricing')
+    .sort(function(a, b){ return (a.order || 0) - (b.order || 0); });
+  const bridgeGaps = readSheet(ss, 'BridgeGaps')
+    .sort(function(a, b){ return (a.order || 0) - (b.order || 0); });
+  const bridgeFeatures = readSheet(ss, 'BridgeFeatures')
+    .sort(function(a, b){ return (a.order || 0) - (b.order || 0); });
+  const bridgeCompare = readSheet(ss, 'BridgeCompare')
+    .sort(function(a, b){ return (a.order || 0) - (b.order || 0); });
+  const bridgeBikeOptions = readSheet(ss, 'BridgeBikeOptions')
+    .sort(function(a, b){ return (a.order || 0) - (b.order || 0); });
+
   const data = {
-    page:       page,
-    pageMeta:   pageMeta,
-    site:       site,
-    sections:   sections,
-    trustStrip: trustStrip,
-    services:   services,
-    steps:      steps,
-    faqs:       faqs,
-    tiles:      readSheet(ss, cap + '_Tiles'),
-    submenus:   groupBy(readSheet(ss, cap + '_Submenus'), 'tile'),
+    page:              page,
+    pageMeta:          pageMeta,
+    site:              site,
+    sections:          sections,
+    trustStrip:        trustStrip,
+    services:          services,
+    steps:             steps,
+    faqs:              faqs,
+    bridgePricing:     bridgePricing,
+    bridgeGaps:        bridgeGaps,
+    bridgeFeatures:    bridgeFeatures,
+    bridgeCompare:     bridgeCompare,
+    bridgeBikeOptions: bridgeBikeOptions,
+    tiles:             readSheet(ss, cap + '_Tiles'),
+    submenus:          groupBy(readSheet(ss, cap + '_Submenus'), 'tile'),
   };
   return ContentService
     .createTextOutput(JSON.stringify(data))
@@ -512,6 +529,18 @@ function getTabDefs() {
         // FAQs page: top-of-page safety alert
         ['faqs_alert_title',   'Your safety is our priority'],
         ['faqs_alert_body',    'Please read the Safety & Requirements section before your first ride. New to e-bikes? We recommend the Kirk Road bikeway for your first time — flat, paved, and car-free.'],
+        // Bridge the Gap: section labels + application form intro
+        ['bridge_gaps_eyebrow',       'Why it matters'],
+        ['bridge_gaps_title',         'What it means to bridge the gap'],
+        ['bridge_gaps_intro',         "Most riders use the bike to get to work — but transportation is more than a paycheck. In the Mahoning Valley, \"the gap\" is the distance between you and the essentials of a good life. Here are four ways an e-bike closes it."],
+        ['bridge_features_eyebrow',   'What you get'],
+        ['bridge_features_title',     'Main features'],
+        ['bridge_features_intro',     'A reliable bike, set up to last Ohio winters, with no surprise costs and a clear path to ownership.'],
+        ['bridge_compare_eyebrow',    'The math'],
+        ['bridge_compare_title',      'The "Gap" savings comparison'],
+        ['bridge_compare_intro',      'Same commute, very different cost.'],
+        ['bridge_application_title',  'Start your application'],
+        ['bridge_application_subtitle', "Pick a bike style, fill out the form, and we'll be in touch within 24–48 hours."],
       ],
     },
     'Services': {
@@ -671,6 +700,94 @@ function getTabDefs() {
           "Hours vary seasonally and we book by appointment. Text or email to confirm a slot — we'd rather give you our full attention than have you show up to a closed shop."],
         [93, 'Contact', '', 'Can I just stop by?',
           "Best to text first so we know you're coming. Walk-ins are welcome when the showroom is staffed, but we're often out on rentals or service appointments — a heads-up means you'll definitely catch us."],
+      ],
+    },
+    'BridgePricing': {
+      // Bridge the Gap: top 3-card price strip.
+      // `range` is the smaller text shown after the main amount (e.g. "–$30").
+      header: ['order','label','amount','range','detail'],
+      rows: [
+        [1, 'Weekly Payment', '$25',  '–$30',  "Per week, every week — that's it."],
+        [2, 'Total Program',  '$750', '–$900', '15 bi-weekly payments and the bike is yours.'],
+        [3, 'Monthly Cost',   '$100', '–$120', 'vs. $400–$600/mo on rideshare.'],
+      ],
+    },
+    'BridgeGaps': {
+      // Bridge the Gap: 4 "gap" cards. The optional highlight_* fields
+      // render an extra accent block at the bottom of the card (used
+      // on the Financial Gap card today). Leave blank to omit.
+      header: ['order','icon','title','desc','highlight_title','highlight_text'],
+      rows: [
+        [1, '🏥', 'The Healthcare Gap',
+          "Missing a doctor's appointment because your ride fell through shouldn't happen. An e-bike gets you to local clinics and pharmacies on your schedule — no bus timing, no surge pricing.",
+          '', ''],
+        [2, '🛒', 'The Food Security Gap',
+          "Youngstown has many \"food deserts\" where a grocery store is miles away. Our bikes — fitted with rear racks and panniers — let you carry a week's worth of fresh food home in minutes.",
+          '', ''],
+        [3, '🎓', 'The Opportunity Gap',
+          "Whether it's evening classes at YSU or trade school training, your future shouldn't depend on when the WRTA stops running. An e-bike gives you 24/7 access to education on your own schedule.",
+          '', ''],
+        [4, '📉', 'The Financial Gap',
+          'Even with a car, gas, insurance, and repairs can lock you into a cycle of debt. Replacing a second car with an e-bike can save hundreds a month.',
+          'The math',
+          '$30/week is fixed and leads to ownership — no surprise $500 repair bills.'],
+      ],
+    },
+    'BridgeFeatures': {
+      // Bridge the Gap: the "Main features" checklist (the ✓ items).
+      header: ['order','title','desc'],
+      rows: [
+        [1, 'Path to Full Ownership',
+          'After 15 bi-weekly payments the bike is yours to keep — permanent transportation independence.'],
+        [2, 'Equity-Building "Layaway"',
+          "Every payment counts toward the bike's price while you ride it to work every day."],
+        [3, 'Creek Ready Certified',
+          '50-point safety inspection plus a professional master calibration of the motor and drivetrain before you take it home.'],
+        [4, 'Rust Belt Shield',
+          'Specialized corrosion inhibitor on every bike to resist Ohio road salt and grime.'],
+        [5, 'No Credit Checks or License Needed',
+          "Transportation is a right, not a privilege. No credit score and no driver's license required."],
+        [6, 'Low-Cost Commuting',
+          '$25–$30 a week saves you hundreds a month vs. daily Uber or Lyft.'],
+        [7, 'Direct Local Support',
+          'No big corporate help desk. Direct access to Cruise the Creek for maintenance and repairs.'],
+      ],
+    },
+    'BridgeCompare': {
+      // Bridge the Gap: the cost-comparison table rows.
+      // own_status: 'no' | 'maybe' | 'yes' — picks the badge color.
+      // highlight: TRUE makes the row visually accented (use for the
+      // Bridge the Gap row).
+      header: ['order','method','monthly','yearly','own_status','own_label','highlight'],
+      rows: [
+        [1, 'Uber / Lyft (round trip)',           '$400–$600', '$4,800+', 'no',    'No',                  false],
+        [2, 'Used Car (payment + ins + gas)',     '$350–$500', '$4,200+', 'maybe', 'Eventually',          false],
+        [3, 'Bridge the Gap E-Bike',              '$100–$120', '$1,200',  'yes',   'Yes — 30 weeks',      true],
+      ],
+    },
+    'BridgeBikeOptions': {
+      // Bridge the Gap: the bike-style picker on the application form.
+      //   id              — slug submitted as bike_selection (e.g. "step-over")
+      //   image           — full URL to the bike photo
+      //   name            — short heading on the card (e.g. "Step-Over")
+      //   range           — secondary line (e.g. "Best for 1–12 mi (one way)")
+      //   price + period  — large price on the card (e.g. "$50" + " /biweekly")
+      //   selection_label — label shown after the rider picks (e.g. "Step-Over Style (1–12 mi)")
+      //   selection_price — price shown next to it (e.g. "$50/Biweekly")
+      header: ['order','id','image','name','range','price','period','selection_label','selection_price'],
+      rows: [
+        [1, 'step-over',
+          'https://static.wixstatic.com/media/7e576d_893b4902c6f14884b09276918eec5a83~mv2.jpg',
+          'Step-Over',    'Best for 1–12 mi (one way)', '$50', ' /biweekly',
+          'Step-Over Style (1–12 mi)',  '$50/Biweekly'],
+        [2, 'step-thru',
+          'https://static.wixstatic.com/media/56427e_9a3de1eb837841cb9ab23814a95642b6~mv2.jpg',
+          'Step-Thru',    'Best for 1–20 mi (one way)', '$55', ' /biweekly',
+          'Step-Thru Style (1–20 mi)',  '$55/Biweekly'],
+        [3, 'city-cruiser',
+          'https://static.wixstatic.com/media/56427e_589102c83d184885b095fc64688ef4b0~mv2.jpg',
+          'City Cruiser', 'Best for 1–25 mi (one way)', '$60', ' /biweekly',
+          'City Cruiser (1–25 mi)',     '$60/Biweekly'],
       ],
     },
     'TrustStrip': {
