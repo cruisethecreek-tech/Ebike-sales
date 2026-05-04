@@ -478,10 +478,19 @@ function getTabDefs() {
     'SiteConfig': {
       header: ['key','value'],
       rows: [
-        // Site-wide contact (used wherever a page references the shop phone number)
-        ['phone_display',      '330-406-9682'],
-        ['phone_sms',          'sms:3304069682'],
-        ['phone_tel',          'tel:+13304069682'],
+        // ── Contact: two departments ──
+        // Info / Rentals / Tours / Sponsorships
+        ['info_phone_display',  '330-406-9686'],
+        ['info_phone_sms',      'sms:3304069686'],
+        ['info_phone_tel',      'tel:+13304069686'],
+        ['info_email_label',    'info@cruisethecreek.com'],
+        ['info_email_url',      'mailto:info@cruisethecreek.com'],
+        // Sales / Test Rides / Repairs
+        ['sales_phone_display', '330-406-9682'],
+        ['sales_phone_sms',     'sms:3304069682'],
+        ['sales_phone_tel',     'tel:+13304069682'],
+        ['sales_email_label',   'salesteam@cruisethecreek.com'],
+        ['sales_email_url',     'mailto:salesteam@cruisethecreek.com'],
         ['footer_tagline',     'Electric bikes built for creek country. Ride the trails, beat the heat, get home grinning.'],
         ['footer_copyright',   '© 2026 Cruise the Creek. All rights reserved.'],
         ['social_instagram',   ''],
@@ -696,8 +705,8 @@ function getTabDefs() {
           "Normal wear is on us. Rider negligence — collision, drop damage, missing parts — is on you, per the waiver you signed at booking. We'll assess any damage when you return the bike and let you know if there's a charge before billing anything. We don't surprise people with fees."],
 
         // ── Contact ──
-        [90, 'Contact', 'contact', "What's the fastest way to reach you?",
-          "**Text 330-406-9682.** We answer texts faster than calls or email — usually within an hour during the day. For non-urgent stuff, email [salesteam@cruisethecreek.com](mailto:salesteam@cruisethecreek.com) works great."],
+        [90, 'Contact', 'contact', 'Which department do I text?',
+          "We run two main desks. Pick the one that matches what you need.\n\n**Info — Rentals, Tours, Sponsorships**\n\n- Text: **330-406-9686**\n- Email: [info@cruisethecreek.com](mailto:info@cruisethecreek.com)\n\n**Sales — Test Rides, Repairs**\n\n- Text: **330-406-9682**\n- Email: [salesteam@cruisethecreek.com](mailto:salesteam@cruisethecreek.com)\n\nText is faster than email or a call — we usually answer within an hour during the day."],
         [91, 'Contact', '', 'Where are you located?',
           "**6685 Kirk Rd, Canfield, OH 44406** — right across from Mill Creek MetroParks. Pickup locations for rentals are at Bears Den / Scholl Pavilion (in the park) or the Kirk Road Trailhead (on the bikeway)."],
         [92, 'Contact', '', 'What are your hours?',
