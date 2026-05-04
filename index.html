@@ -638,8 +638,8 @@ body{font-family:'DM Sans',sans-serif;background:var(--cream);min-height:100vh;p
       <div style="background:#1a2e1c;border-radius:20px 20px 0 0;padding:24px 24px 20px;">
         <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px;">
           <div>
-            <div style="font-family:'Bebas Neue',sans-serif;font-size:2rem;color:white;letter-spacing:.06em;line-height:1;">CRUISE THE CREEK</div>
-            <div style="font-size:11px;color:#6B8F71;font-weight:700;letter-spacing:.15em;text-transform:uppercase;">Youngstown, Ohio · cruisethecreek.com</div>
+            <div data-cms-text="quote_brand_name" style="font-family:'Bebas Neue',sans-serif;font-size:2rem;color:white;letter-spacing:.06em;line-height:1;">CRUISE THE CREEK</div>
+            <div data-cms-text="quote_brand_subline" style="font-size:11px;color:#6B8F71;font-weight:700;letter-spacing:.15em;text-transform:uppercase;">Youngstown, Ohio · cruisethecreek.com</div>
           </div>
           <div style="text-align:right;">
             <div style="font-family:'Bebas Neue',sans-serif;font-size:1.1rem;color:#C9A96E;letter-spacing:.06em;" id="pvQuoteId"></div>
@@ -677,7 +677,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--cream);min-height:100vh;p
           <span style="font-family:'Bebas Neue',sans-serif;font-size:1.8rem;color:white;letter-spacing:.06em;">TOTAL DUE</span>
           <span style="font-family:'Bebas Neue',sans-serif;font-size:1.8rem;color:#C9A96E;" id="pvTotal"></span>
         </div>
-        <div style="margin-top:14px;padding-top:14px;border-top:1px solid #334155;font-size:11px;color:#64748b;text-align:center;font-weight:600;">
+        <div data-cms-text="quote_footer" style="margin-top:14px;padding-top:14px;border-top:1px solid #334155;font-size:11px;color:#64748b;text-align:center;font-weight:600;">
           Quote valid 7 days · Cruise the Creek · 330.406.9682
         </div>
       </div>
@@ -4140,6 +4140,41 @@ function closeInvoice() {
   </div>
   <iframe src="invoice.html" title="Invoice Generator" allow="clipboard-write"></iframe>
 </div>
+
+<script>
+/* ── CMS apply: pulls any element with data-cms-text / data-cms-href
+     from the Sheet (SiteConfig + Pages tab `index` row).
+     Add data-cms-text="some_key" / data-cms-href="some_key" to any
+     element here, then add `some_key` as a row in the SiteConfig tab
+     of the Sheet and edit it from there — no code change needed. ── */
+(function(){
+  const CMS_URL = 'https://script.google.com/macros/s/AKfycbxjg2ZsPCZNsmJEStYA0bRdsnkm4nNS-m-HNhm_Gin56VIVeYWVRE5j51j30zVHhb4PmQ/exec?page=index';
+  function isTrue(v){ return v===true||v==='TRUE'||v==='true'||v===1; }
+  fetch(CMS_URL, {cache:'no-store'})
+    .then(r => r.ok ? r.json() : Promise.reject(r.status))
+    .then(d => {
+      if (!d || typeof d !== 'object') return;
+      const map = Object.assign({}, d.site || {}, d.pageMeta || {});
+      document.querySelectorAll('[data-cms-text]').forEach(el => {
+        const v = map[el.dataset.cmsText];
+        if (v != null && String(v).trim() !== '') el.textContent = v;
+      });
+      document.querySelectorAll('[data-cms-href]').forEach(el => {
+        const v = map[el.dataset.cmsHref];
+        if (v) el.href = v;
+      });
+      document.querySelectorAll('[data-cms-src]').forEach(el => {
+        const v = map[el.dataset.cmsSrc];
+        if (v) el.src = v;
+      });
+      document.querySelectorAll('[data-cms-target]').forEach(el => {
+        const v = map[el.dataset.cmsTarget];
+        if (isTrue(v)) { el.target = '_blank'; el.rel = 'noopener'; }
+      });
+    })
+    .catch(err => console.warn('[index] CMS fetch failed, using static content:', err));
+})();
+</script>
 
 </body>
 </html>

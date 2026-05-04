@@ -493,6 +493,10 @@ function getTabDefs() {
         ['sales_email_url',     'mailto:salesteam@cruisethecreek.com'],
         ['footer_tagline',     'Electric bikes built for creek country. Ride the trails, beat the heat, get home grinning.'],
         ['footer_copyright',   '© 2026 Cruise the Creek. All rights reserved.'],
+        // Sales Pro quote card (index.html)
+        ['quote_brand_name',    'CRUISE THE CREEK'],
+        ['quote_brand_subline', 'Youngstown, Ohio · cruisethecreek.com'],
+        ['quote_footer',        'Quote valid 7 days · Cruise the Creek · 330-406-9682'],
         ['social_instagram',   ''],
         ['social_facebook',    ''],
         ['social_tiktok',      ''],
