@@ -172,7 +172,7 @@
         <div class="table-wrap"><table><thead><tr><th>Model</th><th>Price</th><th>Weight</th><th>Motor</th><th>Access</th></tr></thead><tbody id="compBody"></tbody></table></div>
         <button class="restart-btn" onclick="window.location.reload()">🔄 Start New Search</button>
         <div style="text-align:center; margin-top:20px; padding-top:15px; border-top:1px solid #eee; font-size:0.85rem; color:#666;">
-            <p style="margin:0 0 4px;">Have questions? Text us at <a href="sms:3304069682" style="color:var(--green); font-weight:700; text-decoration:none;">330-406-9682</a></p>
+            <p style="margin:0 0 4px;">Have questions? Text us at <a href="sms:3304069682" data-cms-href="sales_phone_sms" style="color:var(--green); font-weight:700; text-decoration:none;"><span data-cms-text="sales_phone_display">330-406-9682</span></a></p>
             <p style="margin:8px 0 0;">Browse our brands: <a href="https://www.heybike.com" target="_blank" style="color:var(--green); text-decoration:none; font-weight:600;">Heybike</a> · <a href="https://www.velotricbike.com" target="_blank" style="color:var(--green); text-decoration:none; font-weight:600;">Velotric</a> · <a href="https://www.jasionbike.com" target="_blank" style="color:var(--green); text-decoration:none; font-weight:600;">Jasion</a></p>
         </div>
     </div>
@@ -455,6 +455,28 @@
   document.addEventListener('touchend', function() {
     startX = null; startY = null;
   }, { passive: true });
+})();
+</script>
+
+<script>
+/* ── CMS apply: pull sales contact from SiteConfig ── */
+(function(){
+  const CMS_URL = 'https://script.google.com/macros/s/AKfycbxjg2ZsPCZNsmJEStYA0bRdsnkm4nNS-m-HNhm_Gin56VIVeYWVRE5j51j30zVHhb4PmQ/exec?page=quiz';
+  fetch(CMS_URL, {cache:'no-store'})
+    .then(r => r.ok ? r.json() : Promise.reject(r.status))
+    .then(d => {
+      if (!d || typeof d !== 'object') return;
+      const map = Object.assign({}, d.site || {}, d.pageMeta || {});
+      document.querySelectorAll('[data-cms-text]').forEach(el => {
+        const v = map[el.dataset.cmsText];
+        if (v != null && String(v).trim() !== '') el.textContent = v;
+      });
+      document.querySelectorAll('[data-cms-href]').forEach(el => {
+        const v = map[el.dataset.cmsHref];
+        if (v) el.href = v;
+      });
+    })
+    .catch(err => console.warn('[quiz] config fetch failed:', err));
 })();
 </script>
 </body>
