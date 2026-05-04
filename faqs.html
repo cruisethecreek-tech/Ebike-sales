@@ -4,113 +4,701 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>FAQs | Cruise the Creek</title>
-<meta name="description" content="Answers to the questions we hear most often.">
+<meta name="description" content="Everything you need to know about renting, buying, servicing, and riding an e-bike with Cruise the Creek — Youngstown, Ohio's authorized Heybike, Velotric, Jasion & Mooncool dealer.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,400;0,500;0,700;0,800;1,400&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 :root{
-  --sage:#6B8F71;--forest:#2D4A32;--dark:#1a2e1c;
-  --tan:#C9A96E;--cream:#F5F0E8;--cream-w:#fbf7ef;
-  --ink:#1a1a1a;--ink-2:#4a4a4a;
+  --sage:#6B8F71;--sage-d:#557159;--forest:#2D4A32;--dark:#1a2e1c;
+  --tan:#C9A96E;--tan-d:#a98843;--cream:#F5F0E8;--cream-w:#fbf7ef;
+  --ink:#1a1a1a;--ink-2:#3a3a3a;--ink-3:#5a5a5a;
 }
 html,body{height:100%}
-html{scroll-behavior:smooth}
+html{scroll-behavior:smooth;scroll-padding-top:120px}
 body{font-family:'DM Sans',sans-serif;color:var(--ink);background:var(--cream);
-  min-height:100vh;display:flex;flex-direction:column;line-height:1.75}
+  display:flex;flex-direction:column;min-height:100vh;line-height:1.7}
 a{color:inherit;text-decoration:none;transition:color .2s ease}
-button{font-family:inherit}
+img{max-width:100%;display:block}
 
-/* TOP BAR */
-.topbar{background:rgba(255,255,255,.95);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
-  color:var(--dark);padding:16px 24px;display:flex;align-items:center;justify-content:space-between;
-  position:sticky;top:0;z-index:100;border-bottom:1px solid rgba(0,0,0,.05)}
-.brand-logo{height:38px;width:auto;display:block}
+/* ── TOP BAR ── */
+.topbar{background:rgba(255,255,255,.95);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+  color:var(--dark);padding:14px 24px;display:flex;align-items:center;justify-content:space-between;
+  position:sticky;top:0;z-index:101;border-bottom:1px solid rgba(0,0,0,.05)}
+.brand-logo{height:34px;width:auto;display:block}
+.topbar a.nav-back{font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;
+  font-weight:700;color:var(--ink-3)}
+.topbar a.nav-back:hover{color:var(--forest)}
 
-/* HERO */
-.hero{position:relative;min-height:34vh;padding:64px 24px 48px;
-  display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;
-  color:#fff;background:var(--forest);overflow:hidden;isolation:isolate}
-.hero-topo{position:absolute;inset:0;z-index:-1;opacity:.18;pointer-events:none;
+/* ── HERO ── */
+.hero{position:relative;padding:64px 24px 48px;color:#fff;background:var(--forest);
+  overflow:hidden;isolation:isolate;text-align:center}
+.hero-topo{position:absolute;inset:0;z-index:-1;opacity:.15;pointer-events:none;
   background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 600 400' preserveAspectRatio='none'><g fill='none' stroke='%23F5F0E8' stroke-width='1.2'><path d='M0,80 Q150,60 300,90 T600,80'/><path d='M0,140 Q150,120 300,150 T600,140'/><path d='M0,200 Q150,180 300,210 T600,200'/><path d='M0,260 Q150,240 300,270 T600,260'/></g></svg>");
   background-size:cover}
-.hero-eyebrow{display:inline-block;font-size:.75rem;font-weight:700;letter-spacing:.2em;
-  text-transform:uppercase;color:var(--tan);margin-bottom:16px;
-  padding:6px 14px;border:1px solid rgba(201,169,110,.3);border-radius:4px;
-  background:rgba(26,46,28,.2)}
+.hero-eyebrow{display:inline-block;font-size:.72rem;font-weight:700;letter-spacing:.2em;
+  text-transform:uppercase;color:var(--tan);margin-bottom:14px;
+  padding:6px 14px;border:1px solid rgba(201,169,110,.4);border-radius:4px;
+  background:rgba(26,46,28,.25)}
 .hero h1{font-family:'Bebas Neue',sans-serif;font-size:clamp(2.4rem,7vw,4rem);
   letter-spacing:.02em;line-height:1;margin-bottom:14px}
-.hero p{font-size:clamp(1rem,2.4vw,1.1rem);color:rgba(255,255,255,.9);
-  max-width:480px;line-height:1.6}
+.hero p{font-size:clamp(.98rem,2.3vw,1.1rem);color:rgba(255,255,255,.9);
+  max-width:600px;margin:0 auto;line-height:1.55}
 
-/* BREADCRUMB */
-.crumb{max-width:880px;margin:0 auto;padding:24px 24px 0;
-  font-size:.75rem;letter-spacing:.1em;text-transform:uppercase;font-weight:700;color:var(--sage)}
-.crumb a{color:var(--ink-2)}
-.crumb a:hover{color:var(--forest)}
-.crumb .sep{color:rgba(0,0,0,.2);margin:0 8px}
+/* ── SAFETY ALERT ── */
+.alert{max-width:880px;margin:24px auto 0;padding:0 24px}
+.alert-inner{background:#fff;border:1px solid var(--tan);border-left:5px solid var(--tan);
+  border-radius:8px;padding:16px 22px;display:flex;gap:14px;align-items:flex-start;
+  box-shadow:0 4px 12px rgba(0,0,0,.04)}
+.alert-icon{font-size:1.5rem;line-height:1.3;flex-shrink:0}
+.alert-body strong{color:var(--forest);font-size:1rem;display:block;margin-bottom:2px}
+.alert-body p{font-size:.92rem;color:var(--ink-2);margin:0;line-height:1.55}
 
-/* PLACEHOLDER */
-main{flex:1;max-width:780px;margin:0 auto;padding:32px 24px 48px;width:100%}
-.placeholder{background:#fff;border:1px dashed rgba(201,169,110,.5);border-radius:8px;
-  padding:36px 30px;text-align:center;color:var(--ink-2);
-  box-shadow:0 4px 12px rgba(0,0,0,.03)}
-.ph-eyebrow{font-size:.7rem;letter-spacing:.15em;font-weight:700;
-  text-transform:uppercase;color:var(--sage);margin-bottom:8px}
-.ph-title{font-family:'Bebas Neue',sans-serif;font-size:1.75rem;
-  letter-spacing:.02em;color:var(--forest);margin-bottom:10px;line-height:1.1}
-.ph-note{font-size:1rem;line-height:1.6;max-width:520px;margin:0 auto}
-.back-cta{display:inline-flex;align-items:center;gap:8px;margin-top:24px;
-  background:var(--forest);color:#fff;padding:12px 24px;border-radius:4px;
-  font-weight:700;font-size:.9rem;letter-spacing:.04em;
-  transition:background .2s ease}
-.back-cta:hover{background:var(--dark)}
-.back-cta svg{width:14px;height:14px}
+/* ── TAB NAV ── */
+.tabnav{position:sticky;top:62px;z-index:100;background:var(--cream);
+  border-bottom:1px solid rgba(45,74,50,.12);
+  box-shadow:0 2px 8px rgba(0,0,0,.04)}
+.tabnav-inner{max-width:1100px;margin:0 auto;padding:0 8px;
+  display:flex;gap:4px;overflow-x:auto;scrollbar-width:none;-ms-overflow-style:none}
+.tabnav-inner::-webkit-scrollbar{display:none}
+.tab{flex-shrink:0;padding:14px 18px;font-size:.82rem;letter-spacing:.06em;
+  text-transform:uppercase;font-weight:700;color:var(--ink-3);
+  border-bottom:3px solid transparent;transition:color .2s ease,border-color .2s ease;
+  white-space:nowrap;cursor:pointer}
+.tab:hover{color:var(--forest)}
+.tab.active{color:var(--forest);border-bottom-color:var(--tan)}
 
-/* FOOTER */
-footer{background:var(--dark);color:rgba(255,255,255,.65);padding:32px 24px;
-  text-align:center;font-size:.85rem;letter-spacing:.02em}
-footer a{color:var(--tan);font-weight:500}
+/* ── ARTICLE / SECTIONS ── */
+main{flex:1;width:100%}
+.article{max-width:880px;margin:0 auto;padding:32px 24px 32px;width:100%}
+.faq-section{padding:32px 0;border-bottom:1px solid rgba(45,74,50,.08);scroll-margin-top:130px}
+.faq-section:last-of-type{border-bottom:none}
+.section-eyebrow{display:block;font-size:.72rem;letter-spacing:.18em;text-transform:uppercase;
+  font-weight:700;color:var(--sage);margin-bottom:8px}
+.section-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(1.8rem,4.5vw,2.5rem);
+  letter-spacing:.02em;color:var(--forest);line-height:1.1;margin-bottom:8px}
+.section-intro{font-size:.98rem;line-height:1.65;color:var(--ink-3);margin-bottom:18px;max-width:640px}
+
+/* ── ACCORDION (Q&A) ── */
+.qa{background:#fff;border:1px solid rgba(0,0,0,.06);border-radius:8px;
+  margin-bottom:10px;overflow:hidden;box-shadow:0 2px 6px rgba(0,0,0,.03)}
+.qa[open]{box-shadow:0 6px 18px rgba(45,74,50,.08);border-color:rgba(201,169,110,.4)}
+.qa summary{list-style:none;cursor:pointer;padding:16px 22px 16px 22px;
+  display:flex;align-items:flex-start;gap:14px;
+  font-weight:700;font-size:1rem;color:var(--forest);
+  transition:background .15s ease}
+.qa summary::-webkit-details-marker{display:none}
+.qa summary:hover{background:var(--cream-w)}
+.qa summary::after{content:'+';margin-left:auto;font-family:'DM Sans',sans-serif;
+  font-weight:400;font-size:1.6rem;line-height:1;color:var(--tan-d);
+  transition:transform .25s ease}
+.qa[open] summary::after{transform:rotate(45deg)}
+.qa-body{padding:0 22px 18px 22px;color:var(--ink-2);font-size:.96rem;line-height:1.7}
+.qa-body p{margin-bottom:10px}
+.qa-body p:last-child{margin-bottom:0}
+.qa-body strong{color:var(--dark);font-weight:700}
+.qa-body em{color:var(--tan-d);font-style:normal;font-weight:600}
+.qa-body ul,.qa-body ol{margin:6px 0 10px 22px}
+.qa-body li{margin-bottom:4px}
+.qa-body a{color:var(--forest);font-weight:600;border-bottom:1px solid rgba(45,74,50,.3)}
+.qa-body a:hover{color:var(--tan-d);border-bottom-color:var(--tan-d)}
+
+/* ── INLINE TABLE (sizing/age/etc) ── */
+.qa-table{width:100%;margin:10px 0 6px;border:1px solid rgba(45,74,50,.15);
+  border-radius:6px;overflow:hidden;background:var(--cream-w);font-size:.92rem}
+.qa-table th{background:var(--forest);color:#fff;padding:10px 14px;text-align:left;
+  font-size:.78rem;letter-spacing:.1em;text-transform:uppercase;font-weight:700}
+.qa-table td{padding:10px 14px;border-top:1px solid rgba(45,74,50,.08);vertical-align:top}
+.qa-table tr:first-child td{border-top:none}
+
+/* ── PILL ROW ── */
+.pill-row{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0 4px}
+.pill{display:inline-flex;align-items:center;padding:6px 12px;
+  background:var(--forest);color:#fff;border-radius:999px;
+  font-size:.78rem;font-weight:700;letter-spacing:.04em}
+
+/* ── CTA ── */
+.cta{background:var(--forest);color:#fff;
+  border-radius:10px;padding:36px 28px;margin:24px 0 0;text-align:center;
+  box-shadow:0 8px 24px rgba(45,74,50,.18)}
+.cta-eyebrow{font-size:.7rem;font-weight:700;letter-spacing:.2em;
+  text-transform:uppercase;color:var(--tan);display:block;margin-bottom:6px}
+.cta h2{font-family:'Bebas Neue',sans-serif;font-size:clamp(1.8rem,4.5vw,2.4rem);
+  letter-spacing:.02em;color:#fff;margin-bottom:8px;line-height:1.1}
+.cta p{color:rgba(255,255,255,.85);max-width:480px;margin:0 auto 20px;font-size:.98rem}
+.cta-row{display:flex;flex-wrap:wrap;gap:10px;justify-content:center}
+.cta-btn{display:inline-flex;align-items:center;gap:6px;padding:13px 22px;
+  border-radius:6px;font-weight:700;font-size:.92rem;letter-spacing:.04em;
+  transition:transform .2s ease,background .2s ease}
+.cta-btn.primary{background:var(--tan);color:var(--dark)}
+.cta-btn.primary:hover{background:#fff;transform:translateY(-1px)}
+.cta-btn.secondary{background:transparent;color:#fff;border:1px solid rgba(255,255,255,.5)}
+.cta-btn.secondary:hover{background:rgba(255,255,255,.1)}
+
+/* ── FOOTER ── */
+footer{background:var(--dark);color:rgba(255,255,255,.7);padding:28px 24px;
+  text-align:center;font-size:.88rem;letter-spacing:.02em}
+footer a{color:var(--tan);font-weight:600}
 footer a:hover{color:#fff}
+footer .foot-links{margin-top:8px}
+footer .foot-links a{margin:0 8px}
 
-@media(max-width:380px){
-  .topbar{padding:12px 16px}.brand-logo{height:32px}
-  .hero{padding:48px 16px 36px}main{padding:24px 16px 36px}
-  .placeholder{padding:26px 18px}
+@media(max-width:480px){
+  .topbar{padding:12px 16px}.brand-logo{height:30px}
+  .hero{padding:48px 16px 36px}
+  .article{padding:24px 16px 24px}
+  .alert{margin-top:18px;padding:0 16px}
+  .alert-inner{padding:14px 16px}
+  .cta{padding:26px 18px}
+  .qa summary{padding:14px 16px;font-size:.95rem}
+  .qa-body{padding:0 16px 14px 16px;font-size:.93rem}
+  .tabnav{top:58px}
+  .tab{padding:12px 14px;font-size:.76rem}
 }
 </style>
 </head>
 <body>
 
 <header class="topbar">
-  <a href="home.html" aria-label="Cruise the Creek home"><img class="brand-logo" src="BlackonTransparent.png" alt="Cruise the Creek"></a>
+  <a href="home.html" aria-label="Cruise the Creek home" data-cms-href="logo_url" data-cms-target="logo_external">
+    <img class="brand-logo" src="BlackonTransparent.png" alt="Cruise the Creek">
+  </a>
+  <a class="nav-back" href="home.html">← Home</a>
 </header>
 
 <section class="hero">
   <div class="hero-topo"></div>
-  <span class="hero-eyebrow">Common questions</span>
-  <h1>FAQs</h1>
-  <p>Answers to the questions we hear most often.</p>
+  <span class="hero-eyebrow" data-cms-text="hero_eyebrow">Frequently Asked Questions</span>
+  <h1 data-cms-text="hero_h1">Everything You Need to Know</h1>
+  <p data-cms-text="hero_tagline">Booking, sales, test rides, Bridge the Gap, safety, service, refunds — answers to the questions we hear most. Still stuck? Text Dru at 330-406-9682.</p>
 </section>
 
-<nav class="crumb"><a href="home.html">Home</a><span class="sep">/</span>Creek Life <span class="sep">/</span> FAQs</nav>
+<div class="alert">
+  <div class="alert-inner">
+    <div class="alert-icon">🛡️</div>
+    <div class="alert-body">
+      <strong data-cms-text="faqs_alert_title">Your safety is our priority</strong>
+      <p data-cms-text="faqs_alert_body">Please read the Safety &amp; Requirements section before your first ride. New to e-bikes? We recommend the Kirk Road bikeway for your first time — flat, paved, and car-free.</p>
+    </div>
+  </div>
+</div>
+
+<nav class="tabnav" id="tabnav">
+  <div class="tabnav-inner" id="tabnavInner">
+    <!-- Tabs render here from the Faqs tab. Static fallback below. -->
+    <a class="tab" href="#booking">Booking</a>
+    <a class="tab" href="#test-rides">Test Rides</a>
+    <a class="tab" href="#tours">Tours &amp; Rentals</a>
+    <a class="tab" href="#sales">Sales</a>
+    <a class="tab" href="#bridge-the-gap">Bridge the Gap</a>
+    <a class="tab" href="#safety">Safety</a>
+    <a class="tab" href="#service">Service</a>
+    <a class="tab" href="#policies">Policies</a>
+    <a class="tab" href="#contact">Contact</a>
+  </div>
+</nav>
 
 <main>
-  <div class="placeholder">
-    <div class="ph-eyebrow">Coming soon</div>
-    <div class="ph-title">FAQs content lands here</div>
-    <div class="ph-note">An accordion of FAQ items grouped by topic (rentals, service, adventures) will live here.</div>
-    <a class="back-cta" href="home.html">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
-      Back
-    </a>
-  </div>
+  <article class="article">
+
+    <!-- The body sections render from the Faqs tab in the spreadsheet
+         (page=faqs). Static fallback below stays if the fetch fails. -->
+    <div id="faqsContent">
+
+      <!-- ── BOOKING ── -->
+      <section class="faq-section" id="booking">
+        <span class="section-eyebrow">Reservations</span>
+        <h2 class="section-title">Booking &amp; Reservations</h2>
+        <p class="section-intro">Reserve a ride, hold a test-ride slot, or get on the calendar for service.</p>
+
+        <details class="qa"><summary>How do I book a rental?</summary><div class="qa-body">
+          <p>Book online through our reservation system — pick a pickup location (Bears Den / Scholl Pavilion or Kirk Road Trailhead), choose how many bikes and a time block, and you're done in under a minute. You'll get a confirmation email with waiver forms and pickup details.</p>
+          <p>Prefer the human touch? <strong>Text Dru at 330-406-9682</strong> and we'll book it for you.</p>
+        </div></details>
+
+        <details class="qa"><summary>How far in advance should I book?</summary><div class="qa-body">
+          <p>Weekends and warm-weather afternoons fill up — book at least <strong>2–3 days ahead</strong> for weekends, longer for holidays. Weekday mornings often have same-day availability. If you're flexible, message us and we'll fit you in.</p>
+        </div></details>
+
+        <details class="qa"><summary>Can I book for a group?</summary><div class="qa-body">
+          <p>Yes. Our fleet has <strong>11 e-bikes</strong> total — 4 all-purpose, 1 high-step, 2 cruisers, 2 cargo, and 2 e-trikes — so larger groups should reach out directly so we can confirm availability and the right mix of bikes for your party. Birthday rides, family reunions, and corporate outings all welcome.</p>
+        </div></details>
+
+        <details class="qa"><summary>Do I need to create an account?</summary><div class="qa-body">
+          <p>No account needed. Just an email so we can send your confirmation, waiver, and pickup instructions.</p>
+        </div></details>
+
+        <details class="qa"><summary>What happens after I book?</summary><div class="qa-body">
+          <p>You'll get an email with:</p>
+          <ul>
+            <li>Pickup location, date, and time</li>
+            <li>Waiver forms to sign before you arrive (saves time at pickup)</li>
+            <li>Contact details if anything changes</li>
+            <li>Helpful info about safety, gear, and what to expect</li>
+          </ul>
+          <p>Show up about 10 minutes early so we can fit your bike, adjust the seat and bars, and walk you through the controls.</p>
+        </div></details>
+      </section>
+
+      <!-- ── TEST RIDES ── -->
+      <section class="faq-section" id="test-rides">
+        <span class="section-eyebrow">Try before you buy</span>
+        <h2 class="section-title">Test Rides &amp; Demos</h2>
+        <p class="section-intro">Find the right bike with a no-pressure ride.</p>
+
+        <details class="qa"><summary>Can I try a bike before I buy?</summary><div class="qa-body">
+          <p><strong>Absolutely.</strong> We encourage test rides — it's the best way to find the right fit. We don't carry every model on the floor, but we have enough variety in our fleet to give you a feel for what to look for: throttle vs. pedal-assist, frame style, motor power, and seating position.</p>
+        </div></details>
+
+        <details class="qa"><summary>How do I schedule a test ride?</summary><div class="qa-body">
+          <p>Use the "Test Ride" booking link on the home page, or text our sales team directly at <strong>330-406-9682</strong>. We'll get you on the calendar.</p>
+        </div></details>
+
+        <details class="qa"><summary>Where should I do my first test ride?</summary><div class="qa-body">
+          <p>If it's your <strong>first time on an e-bike</strong>, we strongly recommend the <strong>Kirk Road location</strong>. The Mill Creek MetroParks Bikeway is flat, paved, and car-free — the perfect environment for a safe and easy first ride.</p>
+          <p>If you're an experienced rider and want to feel a bike on real terrain, we can set you up at Bears Den / Scholl Pavilion in Mill Creek Park to test it on the climbs.</p>
+        </div></details>
+
+        <details class="qa"><summary>How long is a test ride?</summary><div class="qa-body">
+          <p>Long enough to make a real decision — typically 20–30 minutes. We're not on a stopwatch. If you want longer, ask.</p>
+        </div></details>
+
+        <details class="qa"><summary>Is there a fee for a test ride?</summary><div class="qa-body">
+          <p>Test rides are <strong>free</strong>. No deposit, no commitment.</p>
+        </div></details>
+      </section>
+
+      <!-- ── TOURS & RENTALS ── -->
+      <section class="faq-section" id="tours">
+        <span class="section-eyebrow">Adventures</span>
+        <h2 class="section-title">Tours &amp; Rentals</h2>
+        <p class="section-intro">Two pickup spots, two completely different rides.</p>
+
+        <details class="qa"><summary>What rental options are available?</summary><div class="qa-body">
+          <p>Three flavors today, with a fourth on the way:</p>
+          <ul>
+            <li><strong>Adventures</strong> — pickup at Bears Den / Scholl Pavilion, in the heart of Mill Creek Park (4,400 acres of wooded trails, lakes, and historic landmarks).</li>
+            <li><strong>Trailside</strong> — pickup at the Kirk Road Trailhead in Canfield, with 11+ miles of the Mill Creek MetroParks Bikeway out and back.</li>
+            <li><strong>Bridge the Gap</strong> — our rent-to-own program (more in its own section below).</li>
+            <li><strong>Long Term</strong> — multi-month plans for riders who need a bike longer than a day but aren't ready to own. Coming soon.</li>
+          </ul>
+        </div></details>
+
+        <details class="qa"><summary>What's the difference between Adventures and Trailside?</summary><div class="qa-body">
+          <p><strong>Adventures (Bears Den):</strong> guided rides through Mill Creek Park's hidden corners — the Lily Pond loops, Lanterman's Mill, the covered bridge. Hilly, wooded, scenic. Great for explorers.</p>
+          <p><strong>Trailside (Kirk Road):</strong> flat, smooth, paved bikeway out and back. Family-friendly, easy on every skill level, plenty of rest stops, scenic without the climbs. Great for first-timers and casual cruises.</p>
+        </div></details>
+
+        <details class="qa"><summary>How long are typical rentals?</summary><div class="qa-body">
+          <p>Rentals are timed in flexible blocks. Whether you want a 90-minute family ride or a longer afternoon, both pickup locations have loops for your pace.</p>
+        </div></details>
+
+        <details class="qa"><summary>What's included with a rental?</summary><div class="qa-body">
+          <p>Every rental includes:</p>
+          <ul>
+            <li>A properly fitted e-bike (sized to you)</li>
+            <li>A properly fitted helmet</li>
+            <li>Eyewear (sport-style glasses)</li>
+            <li>A walkthrough of the bike, controls, and safety basics</li>
+            <li>A digital map of the local rides</li>
+          </ul>
+        </div></details>
+
+        <details class="qa"><summary>Can I bring my own helmet?</summary><div class="qa-body">
+          <p>Of course — bring your own helmet, glasses, gloves, padded shorts, anything you ride with already. We provide the basics free with every rental for everyone else.</p>
+        </div></details>
+
+        <details class="qa"><summary>What if I want to rent for longer than a day?</summary><div class="qa-body">
+          <p>Our <strong>Long Term Rental</strong> program (coming soon) covers multi-month plans for riders who need their bike longer than a day but aren't ready to own. In the meantime, look at <strong>Bridge the Gap</strong> below — it might be exactly what you're after.</p>
+        </div></details>
+
+        <details class="qa"><summary>Do you offer guided tours?</summary><div class="qa-body">
+          <p>The Adventures pickup at Bears Den puts you in the heart of Mill Creek Park, and we'll point you to the loops that match your group's pace and skill level. Custom guided experiences for groups, birthdays, and corporate outings can be arranged — text us to plan.</p>
+        </div></details>
+      </section>
+
+      <!-- ── SALES ── -->
+      <section class="faq-section" id="sales">
+        <span class="section-eyebrow">Buying a bike</span>
+        <h2 class="section-title">Sales &amp; Pricing</h2>
+        <p class="section-intro">We're an authorized dealer for four brands we'd ride ourselves.</p>
+
+        <details class="qa"><summary>What brands do you sell?</summary><div class="qa-body">
+          <p>We carry a deliberate mix of brands that complement each other and serve the diverse needs of the community:</p>
+          <ul>
+            <li><strong>Heybike</strong> — part of our original fleet since 2022, and nearly three quarters of our rentals. We've used them for years and stand behind their quality.</li>
+            <li><strong>Velotric</strong> — less "fat-tire," more traditional cycling feel. Perfect for riders transitioning into e-bikes who want a familiar ride.</li>
+            <li><strong>Jasion</strong> — budget-friendly without sacrificing performance. Strong value for the price.</li>
+            <li><strong>Mooncool</strong> — three-wheel e-trikes for riders who want extra stability.</li>
+          </ul>
+          <div class="pill-row">
+            <span class="pill">Heybike</span>
+            <span class="pill">Velotric</span>
+            <span class="pill">Jasion</span>
+            <span class="pill">Mooncool</span>
+          </div>
+        </div></details>
+
+        <details class="qa"><summary>How much do e-bikes cost?</summary><div class="qa-body">
+          <p>Our current lineup ranges from <strong>about $650 (Jasion)</strong> to <strong>about $2,400 (Velotric)</strong>. Most riders land somewhere in the $900–$1,500 range depending on motor power, range, and frame style. Prices subject to change — see the brand pages for the current lineup.</p>
+        </div></details>
+
+        <details class="qa"><summary>Do you assemble the bike for me?</summary><div class="qa-body">
+          <p>Yes. Every new e-bike we sell goes through our <strong>Creek Ready Setup</strong> ($100) — Andrew Barret's master assembly, 50-point safety check, Ohio Rust-Belt corrosion treatment, and a free 30-day break-in tune. Don't risk a DIY build on a 50-pound machine that sustains 28 mph.</p>
+        </div></details>
+
+        <details class="qa"><summary>Do you deliver?</summary><div class="qa-body">
+          <p>Local delivery is available in the tri-county area for an affordable flat fee. Contact us for a quote based on distance.</p>
+        </div></details>
+
+        <details class="qa"><summary>What's included with a new bike purchase?</summary><div class="qa-body">
+          <p>Manufacturer warranty, our Creek Ready Setup (if added), a 30-day break-in tune-up, our manufacturer-liaison support for any warranty issues, and the trust of buying from an authorized dealer who actually rides these bikes.</p>
+        </div></details>
+
+        <details class="qa"><summary>Do you take trade-ins?</summary><div class="qa-body">
+          <p>Talk to us — we evaluate trade-ins case by case based on brand, condition, and current demand. Text photos and the model to <strong>330-406-9682</strong> for a quote.</p>
+        </div></details>
+      </section>
+
+      <!-- ── BRIDGE THE GAP ── -->
+      <section class="faq-section" id="bridge-the-gap">
+        <span class="section-eyebrow">Rent-to-own</span>
+        <h2 class="section-title">Bridge the Gap</h2>
+        <p class="section-intro">Transportation independence on a bi-weekly payment plan.</p>
+
+        <details class="qa"><summary>What is Bridge the Gap?</summary><div class="qa-body">
+          <p>Our <strong>rent-to-own program</strong> for the Mahoning Valley. It's designed to make e-bike technology — which is a real investment — accessible to more residents by offering a flexible way to pay over time while you're already using and enjoying the bike.</p>
+        </div></details>
+
+        <details class="qa"><summary>How does the program work?</summary><div class="qa-body">
+          <p>Simple terms:</p>
+          <ul>
+            <li><strong>$25–$30 per week</strong> in bi-weekly payments</li>
+            <li><strong>15 bi-weekly payments</strong> total — then the bike is yours</li>
+            <li><strong>No credit checks</strong></li>
+            <li><strong>No driver's license required</strong></li>
+            <li>You're riding the bike the whole time you're paying</li>
+          </ul>
+        </div></details>
+
+        <details class="qa"><summary>Who qualifies?</summary><div class="qa-body">
+          <p>Bridge the Gap is built for residents who need reliable transportation but face barriers with traditional financing. Anyone of legal age can apply. Text us at <strong>330-406-9682</strong> or visit the Bridge the Gap page to start an application.</p>
+        </div></details>
+
+        <details class="qa"><summary>What if I want to stop early?</summary><div class="qa-body">
+          <p>Reach out — we'll work with you. Life happens, and we'd rather have an honest conversation than make this complicated.</p>
+        </div></details>
+
+        <details class="qa"><summary>How do I apply?</summary><div class="qa-body">
+          <p>Visit the <a href="bridge-the-gap.html">Bridge the Gap page</a> and tap "Apply Now" — or text us at <strong>330-406-9682</strong> and we'll walk you through it.</p>
+        </div></details>
+      </section>
+
+      <!-- ── SAFETY ── -->
+      <section class="faq-section" id="safety">
+        <span class="section-eyebrow">Ride smart</span>
+        <h2 class="section-title">Safety &amp; Requirements</h2>
+        <p class="section-intro">Quick answers here. The full guide lives on the <a href="safety.html">Safety &amp; Operations</a> page.</p>
+
+        <details class="qa"><summary>How old do you have to be to ride?</summary><div class="qa-body">
+          <table class="qa-table">
+            <tr><th>Age</th><th>Allowed bikes</th><th>Requirements</th></tr>
+            <tr><td><strong>14–15</strong></td><td>Class 1 &amp; 2 only</td><td>Height + maturity check, parent/guardian-signed waiver, helmet required</td></tr>
+            <tr><td><strong>16–17</strong></td><td>All classes (incl. Class 3)</td><td>Parent/guardian-signed waiver</td></tr>
+            <tr><td><strong>18+</strong></td><td>All classes</td><td>Signed waiver</td></tr>
+          </table>
+          <p><strong>All minors must have a waiver signed by a parent or legal guardian</strong> and cannot rent or ride without a guardian present.</p>
+        </div></details>
+
+        <details class="qa"><summary>What's the weight limit?</summary><div class="qa-body">
+          <p><strong>300 lbs</strong> is the rider weight limit for maximum range, performance, and safety. Above that, we may not have a bike rated for you.</p>
+        </div></details>
+
+        <details class="qa"><summary>Do I have to wear a helmet?</summary><div class="qa-body">
+          <p>Helmets are <strong>strongly recommended for every Cruise the Creek rider</strong>, regardless of age or experience. A properly fitted helmet is included free with every rental. Ohio law does not mandate helmets for adults, but we do — these are 50-pound machines that sustain 20–28 mph.</p>
+        </div></details>
+
+        <details class="qa"><summary>Are e-bikes hard to ride?</summary><div class="qa-body">
+          <p>Not at all. If you can ride a regular bike, you can ride an e-bike. Pedal-assist makes hills feel flat and long distances feel short. Our staff gives you a full tutorial before you head out.</p>
+          <p>If we don't feel confident in your readiness during the tutorial, we'll cancel the rental and offer a <strong>full refund</strong>. Guest safety is non-negotiable — we reserve the right to refuse rental to anyone we feel is unfit to ride an e-bike.</p>
+        </div></details>
+
+        <details class="qa"><summary>What if I crash or get hurt?</summary><div class="qa-body">
+          <p>Stop riding, get yourself to safety, and call <strong>330-406-9682</strong>. If it's an emergency, call 911 first. We'll come to you. The waiver you signed at booking covers the rental terms; rider safety always comes first.</p>
+        </div></details>
+
+        <details class="qa"><summary>What if the bike breaks down on the trail?</summary><div class="qa-body">
+          <p>Call or text <strong>330-406-9682</strong>. We'll send a tech to either fix the issue on the spot (e.g. a flat tire) or bring you back to the shop. Then we'll either swap you onto another bike to finish your ride, or revise your rental charge to the time you actually used.</p>
+        </div></details>
+      </section>
+
+      <!-- ── SERVICE ── -->
+      <section class="faq-section" id="service">
+        <span class="section-eyebrow">Keep your ride creek ready</span>
+        <h2 class="section-title">Service &amp; Maintenance</h2>
+        <p class="section-intro">We service every brand of e-bike — not just the ones we sell.</p>
+
+        <details class="qa"><summary>Do you service bikes you didn't sell?</summary><div class="qa-body">
+          <p>Yes. The <strong>Creek Ready Tune-Up</strong> is for ANY brand of e-bike. If it has a battery and a motor, we'll service it.</p>
+        </div></details>
+
+        <details class="qa"><summary>How much is a tune-up?</summary><div class="qa-body">
+          <p><strong>$125</strong> for the comprehensive Creek Ready Tune-Up. That covers a premium deep clean and rust prevention, derailleur and brake and bearing adjustment, motor performance and controller diagnostics, battery health assessment, and a full safety inspection with a professional test ride. <a href="tune-ups.html">Service details →</a></p>
+        </div></details>
+
+        <details class="qa"><summary>How long does a tune-up take?</summary><div class="qa-body">
+          <p>Most tune-ups are done in <strong>2–3 business days</strong>. Heavier work or special-order parts can extend the timeline — we'll tell you up front.</p>
+        </div></details>
+
+        <details class="qa"><summary>What is "Creek Ready Setup"?</summary><div class="qa-body">
+          <p>Our master-level new-bike build — <strong>$100</strong>, performed by Andrew Barret. Includes 50-point safety certification, Ohio Rust-Belt Shield corrosion treatment, a free 30-day break-in tune, and manufacturer-liaison support for any warranty issues. Don't risk a DIY build on a machine this heavy and this fast. <a href="assembly.html">Setup details →</a></p>
+        </div></details>
+
+        <details class="qa"><summary>Do you offer remote support?</summary><div class="qa-body">
+          <p>Yes — <strong>Video Diagnostics</strong>. Stuck on assembly or seeing an error code? Book a live video call with our factory-trained technician. 1-on-1, error-code troubleshooting, guided assembly support — Velotric, Heybike, and Jasion specialists, no travel needed. <a href="video-diagnostics.html">Book a session →</a></p>
+        </div></details>
+
+        <details class="qa"><summary>What about warranty work?</summary><div class="qa-body">
+          <p>As an authorized dealer for Heybike, Velotric, Jasion, and Mooncool, we handle warranty claims directly with the manufacturer. Bring the bike (and proof of purchase) to the shop and we'll get the conversation started.</p>
+        </div></details>
+      </section>
+
+      <!-- ── POLICIES ── -->
+      <section class="faq-section" id="policies">
+        <span class="section-eyebrow">The fine print</span>
+        <h2 class="section-title">Cancellations, Returns &amp; Refunds</h2>
+        <p class="section-intro">Honest terms, no surprises.</p>
+
+        <details class="qa"><summary>What's your cancellation policy on rentals?</summary><div class="qa-body">
+          <p>Cancel or reschedule with at least <strong>24 hours' notice</strong> for a full refund. Inside 24 hours we may not be able to refund the full amount, but we'll always work with you on weather, illness, or genuine emergencies. Just text us as soon as you know — <strong>330-406-9682</strong>.</p>
+          <p>Full policy: <a href="https://www.cruisethecreek.com/cancellation-policy" target="_blank" rel="noopener">cruisethecreek.com/cancellation-policy →</a></p>
+        </div></details>
+
+        <details class="qa"><summary>What if the weather is bad?</summary><div class="qa-body">
+          <p>If we cancel for weather, you get a full refund or a free reschedule — your call. Light rain isn't usually a reason to cancel; lightning, severe storms, ice, or unsafe trail conditions are. We'll reach out the morning of if it looks dicey.</p>
+        </div></details>
+
+        <details class="qa"><summary>Can I get a refund on a tune-up?</summary><div class="qa-body">
+          <p>Once work has begun, parts and labor are non-refundable. If we haven't started, you can cancel any time. If you're not happy with the work, talk to us — we stand behind every tune-up and will make it right.</p>
+        </div></details>
+
+        <details class="qa"><summary>Do you accept returns on a new bike purchase?</summary><div class="qa-body">
+          <p>Reach out before you buy if you're unsure — that's why test rides exist. Once a bike has been ridden outside the shop, we treat it as used and any return is handled case-by-case. We'd much rather you take a longer test ride than end up with a bike you don't love.</p>
+        </div></details>
+
+        <details class="qa"><summary>What if my bike has a warranty issue?</summary><div class="qa-body">
+          <p>That's separate from a "return" — bring the bike in (or text photos and a description) and we'll handle the warranty claim with the manufacturer on your behalf. Authorized dealer means we cut out the back-and-forth.</p>
+        </div></details>
+
+        <details class="qa"><summary>What if I damage the rental bike?</summary><div class="qa-body">
+          <p>Normal wear is on us. Rider negligence — collision, drop damage, missing parts — is on you, per the waiver you signed at booking. We'll assess any damage when you return the bike and let you know if there's a charge before billing anything. We don't surprise people with fees.</p>
+        </div></details>
+      </section>
+
+      <!-- ── CONTACT ── -->
+      <section class="faq-section" id="contact">
+        <span class="section-eyebrow">Reach us</span>
+        <h2 class="section-title">Contact &amp; Hours</h2>
+        <p class="section-intro">Text is fastest. We answer.</p>
+
+        <details class="qa"><summary>What's the fastest way to reach you?</summary><div class="qa-body">
+          <p><strong>Text 330-406-9682.</strong> We answer texts faster than calls or email — usually within an hour during the day. For non-urgent stuff, email <a href="mailto:salesteam@cruisethecreek.com">salesteam@cruisethecreek.com</a> works great.</p>
+        </div></details>
+
+        <details class="qa"><summary>Where are you located?</summary><div class="qa-body">
+          <p><strong>6685 Kirk Rd, Canfield, OH 44406</strong> — right across from Mill Creek MetroParks. Pickup locations for rentals are at Bears Den / Scholl Pavilion (in the park) or the Kirk Road Trailhead (on the bikeway).</p>
+        </div></details>
+
+        <details class="qa"><summary>What are your hours?</summary><div class="qa-body">
+          <p>Hours vary seasonally and we book by appointment. Text or email to confirm a slot — we'd rather give you our full attention than have you show up to a closed shop.</p>
+        </div></details>
+
+        <details class="qa"><summary>Can I just stop by?</summary><div class="qa-body">
+          <p>Best to text first so we know you're coming. Walk-ins are welcome when the showroom is staffed, but we're often out on rentals or service appointments — a heads-up means you'll definitely catch us.</p>
+        </div></details>
+      </section>
+
+    </div>
+
+    <div class="cta">
+      <span class="cta-eyebrow" data-cms-text="cta_eyebrow">Still have questions?</span>
+      <h2 data-cms-text="cta_title">We'd rather you ask.</h2>
+      <p data-cms-text="cta_subtitle">Text us, email us, or book a test ride and we'll walk you through anything that's still unclear.</p>
+      <div class="cta-row">
+        <a class="cta-btn primary" href="sms:3304069682" data-cms-href="cta_btn_primary_url"><span data-cms-text="cta_btn_primary_label">Text 330-406-9682</span></a>
+        <a class="cta-btn secondary" href="mailto:salesteam@cruisethecreek.com" data-cms-href="cta_btn_secondary_url"><span data-cms-text="cta_btn_secondary_label">Email Us</span></a>
+      </div>
+    </div>
+
+  </article>
 </main>
 
 <footer>
-  &copy; 2026 Cruise the Creek &middot; <a href="home.html">Home</a> &middot; <a href="shop.html">Shop</a>
+  <div>&copy; 2026 Cruise the Creek &middot; 6685 Kirk Rd, Canfield, OH 44406</div>
+  <div class="foot-links">
+    <a href="home.html">Home</a> &middot;
+    <a href="creek-ready.html">Service</a> &middot;
+    <a href="safety.html">Safety</a> &middot;
+    <a href="our-story.html">Our Story</a>
+  </div>
 </footer>
+
+<script>
+/* ── Tab nav: scroll-spy for active state, smooth scroll on click ── */
+(function(){
+  const tabs = document.querySelectorAll('.tabnav .tab');
+  if (!tabs.length) return;
+
+  function setActive(id) {
+    tabs.forEach(t => {
+      t.classList.toggle('active', t.getAttribute('href') === '#' + id);
+    });
+  }
+
+  // Track which section is in view; pick the topmost visible one.
+  const sections = Array.from(document.querySelectorAll('.faq-section'));
+  function onScroll() {
+    const top = window.scrollY + 200;
+    let current = sections[0];
+    for (const s of sections) {
+      if (s.offsetTop <= top) current = s;
+      else break;
+    }
+    if (current) setActive(current.id);
+  }
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+
+  // Auto-scroll the active tab into view on small screens.
+  tabs.forEach(t => t.addEventListener('click', () => {
+    setTimeout(() => t.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' }), 80);
+  }));
+})();
+</script>
+
+<script>
+/* ── CMS apply: hero copy + alert + CTA + Q&As pull from the Sheet
+     (Pages tab slug=faqs, Faqs tab page-wide).
+     Static markup remains as a fallback if the fetch fails. ── */
+const MENU_URL = 'https://script.google.com/macros/s/AKfycbxjg2ZsPCZNsmJEStYA0bRdsnkm4nNS-m-HNhm_Gin56VIVeYWVRE5j51j30zVHhb4PmQ/exec?page=faqs';
+
+function isTrue(v){ return v===true||v==='TRUE'||v==='true'||v===1; }
+function esc(s){ return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+/* Inline rich text: **bold**, *italic*, -- → em-dash, [text](url) → link, \n\n → paragraph break, - line → bullet list. */
+function rich(s){
+  let t = String(s ?? '');
+  // Split into paragraphs/lists.
+  const blocks = t.split(/\n{2,}/).map(b => b.trim()).filter(Boolean);
+  return blocks.map(b => {
+    // List block: every line starts with "- " or "* "
+    if (/^([-*])\s+/.test(b) && b.split('\n').every(line => /^([-*])\s+/.test(line.trim()))) {
+      const items = b.split('\n').map(line => inline(line.replace(/^([-*])\s+/, '')));
+      return '<ul>' + items.map(i => '<li>' + i + '</li>').join('') + '</ul>';
+    }
+    return '<p>' + inline(b).replace(/\n/g, '<br>') + '</p>';
+  }).join('');
+  function inline(s) {
+    let h = esc(s);
+    h = h.replace(/\[([^\]]+)\]\(([^)]+)\)/g, (_, txt, url) => '<a href="' + esc(url) + '" target="_blank" rel="noopener">' + esc(txt) + '</a>');
+    h = h.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+    h = h.replace(/\*([^*]+?)\*/g, '<em>$1</em>');
+    h = h.replace(/--/g, '&mdash;');
+    return h;
+  }
+}
+
+function applyCMS(remote){
+  const map = Object.assign({}, remote.site || {}, remote.pageMeta || {});
+  document.querySelectorAll('[data-cms-text]').forEach(el => {
+    const v = map[el.dataset.cmsText];
+    if (v != null && String(v).trim() !== '') el.textContent = v;
+  });
+  document.querySelectorAll('[data-cms-href]').forEach(el => {
+    const v = map[el.dataset.cmsHref];
+    if (v) el.href = v;
+  });
+  document.querySelectorAll('[data-cms-target]').forEach(el => {
+    const v = map[el.dataset.cmsTarget];
+    if (isTrue(v)) { el.target = '_blank'; el.rel = 'noopener'; }
+  });
+}
+
+/* Render Q&A sections from the Faqs tab.
+   Columns: order, section, anchor, question, answer
+   Rows are grouped by `section` in document order. The first row's
+   `anchor` becomes the section's id; if blank we slugify the section name.
+   Tab nav is rebuilt to match the sections that come back from the sheet. */
+function slugify(s){ return String(s || '').toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, ''); }
+
+function renderFaqs(rows){
+  const root = document.getElementById('faqsContent');
+  const tabnav = document.getElementById('tabnavInner');
+  if (!root || !Array.isArray(rows) || !rows.length) return;
+
+  // Group rows by section, preserving order of first appearance.
+  const order = [];
+  const groups = {};
+  rows.forEach(r => {
+    const sec = String(r.section || '').trim() || 'General';
+    if (!groups[sec]) { groups[sec] = { anchor: '', rows: [] }; order.push(sec); }
+    if (!groups[sec].anchor && r.anchor) groups[sec].anchor = String(r.anchor).trim();
+    groups[sec].rows.push(r);
+  });
+
+  // Build sections HTML.
+  let html = '';
+  const tabs = [];
+  order.forEach(sec => {
+    const g = groups[sec];
+    const anchor = g.anchor || slugify(sec);
+    tabs.push({ label: sec, anchor: anchor });
+    html += '<section class="faq-section" id="' + esc(anchor) + '">';
+    html += '<span class="section-eyebrow">' + esc(sec) + '</span>';
+    html += '<h2 class="section-title">' + esc(sec) + '</h2>';
+    g.rows.forEach(r => {
+      const q = String(r.question || '').trim();
+      if (!q) return;
+      html += '<details class="qa"><summary>' + esc(q) + '</summary><div class="qa-body">' + rich(r.answer || '') + '</div></details>';
+    });
+    html += '</section>';
+  });
+  // Append a Contact tab + section pointer if not already in the data.
+  root.innerHTML = html;
+
+  // Rebuild tab nav.
+  tabnav.innerHTML = tabs.map(t =>
+    '<a class="tab" href="#' + esc(t.anchor) + '">' + esc(t.label) + '</a>'
+  ).join('');
+
+  // Re-arm the scroll-spy for the new sections.
+  const tabEls = tabnav.querySelectorAll('.tab');
+  const sections = Array.from(document.querySelectorAll('.faq-section'));
+  function setActive(id) {
+    tabEls.forEach(t => t.classList.toggle('active', t.getAttribute('href') === '#' + id));
+  }
+  function onScroll() {
+    const top = window.scrollY + 200;
+    let current = sections[0];
+    for (const s of sections) {
+      if (s.offsetTop <= top) current = s;
+      else break;
+    }
+    if (current) setActive(current.id);
+  }
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+}
+
+fetch(MENU_URL, {cache:'no-store'})
+  .then(r => r.ok ? r.json() : Promise.reject(r.status))
+  .then(remote => {
+    if (!remote || typeof remote !== 'object') return;
+    applyCMS(remote);
+    if (Array.isArray(remote.faqs) && remote.faqs.length) renderFaqs(remote.faqs);
+  })
+  .catch(err => console.warn('[faqs] config fetch failed, using static content:', err));
+</script>
 
 </body>
 </html>

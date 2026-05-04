@@ -99,6 +99,10 @@ function doGet(e) {
   const steps = readSheet(ss, 'Steps')
     .sort(function(a, b){ return (a.order || 0) - (b.order || 0); });
 
+  // FAQs page: every Q&A row, grouped client-side by `section`.
+  const faqs = readSheet(ss, 'Faqs')
+    .sort(function(a, b){ return (a.order || 0) - (b.order || 0); });
+
   const data = {
     page:       page,
     pageMeta:   pageMeta,
@@ -107,6 +111,7 @@ function doGet(e) {
     trustStrip: trustStrip,
     services:   services,
     steps:      steps,
+    faqs:       faqs,
     tiles:      readSheet(ss, cap + '_Tiles'),
     submenus:   groupBy(readSheet(ss, cap + '_Submenus'), 'tile'),
   };
@@ -433,6 +438,24 @@ function getTabDefs() {
           'mailto:salesteam@cruisethecreek.com',
           false,
         ],
+        ['faqs',
+          'Frequently Asked Questions',
+          'Everything You Need',
+          'to Know',
+          "Booking, sales, test rides, Bridge the Gap, safety, service, refunds — answers to the questions we hear most. Still stuck? Text Dru at 330-406-9682.",
+          '',
+          '', '', false,
+          '', '',
+          'Still have questions?',
+          "We'd rather you ask.",
+          "Text us, email us, or book a test ride and we'll walk you through anything that's still unclear.",
+          'Text 330-406-9682',
+          'sms:3304069682',
+          false,
+          'Email Us',
+          'mailto:salesteam@cruisethecreek.com',
+          false,
+        ],
       ],
     },
     'SiteConfig': {
@@ -486,6 +509,9 @@ function getTabDefs() {
         ['cta_text_url',       'sms:3304069682'],
         ['cta_email_label',    '✉️ salesteam@cruisethecreek.com'],
         ['cta_email_url',      'mailto:salesteam@cruisethecreek.com'],
+        // FAQs page: top-of-page safety alert
+        ['faqs_alert_title',   'Your safety is our priority'],
+        ['faqs_alert_body',    'Please read the Safety & Requirements section before your first ride. New to e-bikes? We recommend the Kirk Road bikeway for your first time — flat, paved, and car-free.'],
       ],
     },
     'Services': {
@@ -518,6 +544,133 @@ function getTabDefs() {
           'Drop off on Kirk Road, visit the showroom, or hop on a video call — whatever works best.'],
         [3, '3', 'Ride Happy',
           'Pick up your Creek Ready e-bike, fully serviced and tested. Most tune-ups done in 2-3 business days.'],
+      ],
+    },
+    'Faqs': {
+      // FAQs page. Group rows by `section` (preserves order of first
+      // appearance). `anchor` is the URL hash for the section's tab — if
+      // blank, the renderer slugifies the section name. Inside `answer`
+      // you can use **bold**, *italic*, [link text](url), -- (em-dash),
+      // double-newline for paragraph break, and "- bullet" lines for lists.
+      header: ['order','section','anchor','question','answer'],
+      rows: [
+        // ── Booking ──
+        [10, 'Booking', 'booking', 'How do I book a rental?',
+          "Book online through our reservation system — pick a pickup location (Bears Den / Scholl Pavilion or Kirk Road Trailhead), choose how many bikes and a time block, and you're done in under a minute. You'll get a confirmation email with waiver forms and pickup details.\n\nPrefer the human touch? **Text Dru at 330-406-9682** and we'll book it for you."],
+        [11, 'Booking', '', 'How far in advance should I book?',
+          "Weekends and warm-weather afternoons fill up — book at least **2–3 days ahead** for weekends, longer for holidays. Weekday mornings often have same-day availability. If you're flexible, message us and we'll fit you in."],
+        [12, 'Booking', '', 'Can I book for a group?',
+          "Yes. Our fleet has **11 e-bikes** total — 4 all-purpose, 1 high-step, 2 cruisers, 2 cargo, and 2 e-trikes — so larger groups should reach out directly so we can confirm availability and the right mix of bikes for your party. Birthday rides, family reunions, and corporate outings all welcome."],
+        [13, 'Booking', '', 'Do I need to create an account?',
+          "No account needed. Just an email so we can send your confirmation, waiver, and pickup instructions."],
+        [14, 'Booking', '', 'What happens after I book?',
+          "You'll get an email with:\n\n- Pickup location, date, and time\n- Waiver forms to sign before you arrive (saves time at pickup)\n- Contact details if anything changes\n- Helpful info about safety, gear, and what to expect\n\nShow up about 10 minutes early so we can fit your bike, adjust the seat and bars, and walk you through the controls."],
+
+        // ── Test Rides ──
+        [20, 'Test Rides', 'test-rides', 'Can I try a bike before I buy?',
+          "**Absolutely.** We encourage test rides — it's the best way to find the right fit. We don't carry every model on the floor, but we have enough variety in our fleet to give you a feel for what to look for: throttle vs. pedal-assist, frame style, motor power, and seating position."],
+        [21, 'Test Rides', '', 'How do I schedule a test ride?',
+          "Use the \"Test Ride\" booking link on the home page, or text our sales team directly at **330-406-9682**. We'll get you on the calendar."],
+        [22, 'Test Rides', '', 'Where should I do my first test ride?',
+          "If it's your **first time on an e-bike**, we strongly recommend the **Kirk Road location**. The Mill Creek MetroParks Bikeway is flat, paved, and car-free — the perfect environment for a safe and easy first ride.\n\nIf you're an experienced rider and want to feel a bike on real terrain, we can set you up at Bears Den / Scholl Pavilion in Mill Creek Park to test it on the climbs."],
+        [23, 'Test Rides', '', 'How long is a test ride?',
+          "Long enough to make a real decision — typically 20–30 minutes. We're not on a stopwatch. If you want longer, ask."],
+        [24, 'Test Rides', '', 'Is there a fee for a test ride?',
+          "Test rides are **free**. No deposit, no commitment."],
+
+        // ── Tours & Rentals ──
+        [30, 'Tours & Rentals', 'tours', 'What rental options are available?',
+          "Three flavors today, with a fourth on the way:\n\n- **Adventures** — pickup at Bears Den / Scholl Pavilion, in the heart of Mill Creek Park (4,400 acres of wooded trails, lakes, and historic landmarks).\n- **Trailside** — pickup at the Kirk Road Trailhead in Canfield, with 11+ miles of the Mill Creek MetroParks Bikeway out and back.\n- **Bridge the Gap** — our rent-to-own program (more in its own section below).\n- **Long Term** — multi-month plans for riders who need a bike longer than a day but aren't ready to own. Coming soon."],
+        [31, 'Tours & Rentals', '', "What's the difference between Adventures and Trailside?",
+          "**Adventures (Bears Den):** guided rides through Mill Creek Park's hidden corners — the Lily Pond loops, Lanterman's Mill, the covered bridge. Hilly, wooded, scenic. Great for explorers.\n\n**Trailside (Kirk Road):** flat, smooth, paved bikeway out and back. Family-friendly, easy on every skill level, plenty of rest stops, scenic without the climbs. Great for first-timers and casual cruises."],
+        [32, 'Tours & Rentals', '', 'How long are typical rentals?',
+          "Rentals are timed in flexible blocks. Whether you want a 90-minute family ride or a longer afternoon, both pickup locations have loops for your pace."],
+        [33, 'Tours & Rentals', '', "What's included with a rental?",
+          "Every rental includes:\n\n- A properly fitted e-bike (sized to you)\n- A properly fitted helmet\n- Eyewear (sport-style glasses)\n- A walkthrough of the bike, controls, and safety basics\n- A digital map of the local rides"],
+        [34, 'Tours & Rentals', '', 'Can I bring my own helmet?',
+          "Of course — bring your own helmet, glasses, gloves, padded shorts, anything you ride with already. We provide the basics free with every rental for everyone else."],
+        [35, 'Tours & Rentals', '', 'What if I want to rent for longer than a day?',
+          "Our **Long Term Rental** program (coming soon) covers multi-month plans for riders who need their bike longer than a day but aren't ready to own. In the meantime, look at **Bridge the Gap** below — it might be exactly what you're after."],
+        [36, 'Tours & Rentals', '', 'Do you offer guided tours?',
+          "The Adventures pickup at Bears Den puts you in the heart of Mill Creek Park, and we'll point you to the loops that match your group's pace and skill level. Custom guided experiences for groups, birthdays, and corporate outings can be arranged — text us to plan."],
+
+        // ── Sales ──
+        [40, 'Sales', 'sales', 'What brands do you sell?',
+          "We carry a deliberate mix of brands that complement each other and serve the diverse needs of the community:\n\n- **Heybike** — part of our original fleet since 2022, and nearly three quarters of our rentals. We've used them for years and stand behind their quality.\n- **Velotric** — less \"fat-tire,\" more traditional cycling feel. Perfect for riders transitioning into e-bikes who want a familiar ride.\n- **Jasion** — budget-friendly without sacrificing performance. Strong value for the price.\n- **Mooncool** — three-wheel e-trikes for riders who want extra stability."],
+        [41, 'Sales', '', 'How much do e-bikes cost?',
+          "Our current lineup ranges from **about $650 (Jasion)** to **about $2,400 (Velotric)**. Most riders land somewhere in the $900–$1,500 range depending on motor power, range, and frame style. Prices subject to change — see the brand pages for the current lineup."],
+        [42, 'Sales', '', 'Do you assemble the bike for me?',
+          "Yes. Every new e-bike we sell goes through our **Creek Ready Setup** ($100) — Andrew Barret's master assembly, 50-point safety check, Ohio Rust-Belt corrosion treatment, and a free 30-day break-in tune. Don't risk a DIY build on a 50-pound machine that sustains 28 mph."],
+        [43, 'Sales', '', 'Do you deliver?',
+          "Local delivery is available in the tri-county area for an affordable flat fee. Contact us for a quote based on distance."],
+        [44, 'Sales', '', "What's included with a new bike purchase?",
+          "Manufacturer warranty, our Creek Ready Setup (if added), a 30-day break-in tune-up, our manufacturer-liaison support for any warranty issues, and the trust of buying from an authorized dealer who actually rides these bikes."],
+        [45, 'Sales', '', 'Do you take trade-ins?',
+          "Talk to us — we evaluate trade-ins case by case based on brand, condition, and current demand. Text photos and the model to **330-406-9682** for a quote."],
+
+        // ── Bridge the Gap ──
+        [50, 'Bridge the Gap', 'bridge-the-gap', 'What is Bridge the Gap?',
+          "Our **rent-to-own program** for the Mahoning Valley. It's designed to make e-bike technology — which is a real investment — accessible to more residents by offering a flexible way to pay over time while you're already using and enjoying the bike."],
+        [51, 'Bridge the Gap', '', 'How does the program work?',
+          "Simple terms:\n\n- **$25–$30 per week** in bi-weekly payments\n- **15 bi-weekly payments** total — then the bike is yours\n- **No credit checks**\n- **No driver's license required**\n- You're riding the bike the whole time you're paying"],
+        [52, 'Bridge the Gap', '', 'Who qualifies?',
+          "Bridge the Gap is built for residents who need reliable transportation but face barriers with traditional financing. Anyone of legal age can apply. Text us at **330-406-9682** or visit the Bridge the Gap page to start an application."],
+        [53, 'Bridge the Gap', '', 'What if I want to stop early?',
+          "Reach out — we'll work with you. Life happens, and we'd rather have an honest conversation than make this complicated."],
+        [54, 'Bridge the Gap', '', 'How do I apply?',
+          "Visit the [Bridge the Gap page](bridge-the-gap.html) and tap \"Apply Now\" — or text us at **330-406-9682** and we'll walk you through it."],
+
+        // ── Safety ──
+        [60, 'Safety', 'safety', 'How old do you have to be to ride?',
+          "**Ages 14–15:** Class 1 & 2 only. Height + maturity check, parent/guardian-signed waiver, helmet required.\n\n**Ages 16–17:** All classes (incl. Class 3) with a parent/guardian-signed waiver.\n\n**Ages 18+:** All classes with a signed waiver.\n\nAll minors must have a waiver signed by a parent or legal guardian and **cannot rent or ride without a guardian present**."],
+        [61, 'Safety', '', "What's the weight limit?",
+          "**300 lbs** is the rider weight limit for maximum range, performance, and safety. Above that, we may not have a bike rated for you."],
+        [62, 'Safety', '', 'Do I have to wear a helmet?',
+          "Helmets are **strongly recommended for every Cruise the Creek rider**, regardless of age or experience. A properly fitted helmet is included free with every rental. Ohio law does not mandate helmets for adults, but we do — these are 50-pound machines that sustain 20–28 mph."],
+        [63, 'Safety', '', 'Are e-bikes hard to ride?',
+          "Not at all. If you can ride a regular bike, you can ride an e-bike. Pedal-assist makes hills feel flat and long distances feel short. Our staff gives you a full tutorial before you head out.\n\nIf we don't feel confident in your readiness during the tutorial, we'll cancel the rental and offer a **full refund**. Guest safety is non-negotiable — we reserve the right to refuse rental to anyone we feel is unfit to ride an e-bike."],
+        [64, 'Safety', '', 'What if I crash or get hurt?',
+          "Stop riding, get yourself to safety, and call **330-406-9682**. If it's an emergency, call 911 first. We'll come to you. The waiver you signed at booking covers the rental terms; rider safety always comes first."],
+        [65, 'Safety', '', 'What if the bike breaks down on the trail?',
+          "Call or text **330-406-9682**. We'll send a tech to either fix the issue on the spot (e.g. a flat tire) or bring you back to the shop. Then we'll either swap you onto another bike to finish your ride, or revise your rental charge to the time you actually used."],
+
+        // ── Service ──
+        [70, 'Service', 'service', "Do you service bikes you didn't sell?",
+          "Yes. The **Creek Ready Tune-Up** is for ANY brand of e-bike. If it has a battery and a motor, we'll service it."],
+        [71, 'Service', '', 'How much is a tune-up?',
+          "**$125** for the comprehensive Creek Ready Tune-Up. That covers a premium deep clean and rust prevention, derailleur and brake and bearing adjustment, motor performance and controller diagnostics, battery health assessment, and a full safety inspection with a professional test ride. [Service details →](tune-ups.html)"],
+        [72, 'Service', '', 'How long does a tune-up take?',
+          "Most tune-ups are done in **2–3 business days**. Heavier work or special-order parts can extend the timeline — we'll tell you up front."],
+        [73, 'Service', '', "What is \"Creek Ready Setup\"?",
+          "Our master-level new-bike build — **$100**, performed by Andrew Barret. Includes 50-point safety certification, Ohio Rust-Belt Shield corrosion treatment, a free 30-day break-in tune, and manufacturer-liaison support for any warranty issues. Don't risk a DIY build on a machine this heavy and this fast. [Setup details →](assembly.html)"],
+        [74, 'Service', '', 'Do you offer remote support?',
+          "Yes — **Video Diagnostics**. Stuck on assembly or seeing an error code? Book a live video call with our factory-trained technician. 1-on-1, error-code troubleshooting, guided assembly support — Velotric, Heybike, and Jasion specialists, no travel needed. [Book a session →](video-diagnostics.html)"],
+        [75, 'Service', '', 'What about warranty work?',
+          "As an authorized dealer for Heybike, Velotric, Jasion, and Mooncool, we handle warranty claims directly with the manufacturer. Bring the bike (and proof of purchase) to the shop and we'll get the conversation started."],
+
+        // ── Policies ──
+        [80, 'Policies', 'policies', "What's your cancellation policy on rentals?",
+          "Cancel or reschedule with at least **24 hours' notice** for a full refund. Inside 24 hours we may not be able to refund the full amount, but we'll always work with you on weather, illness, or genuine emergencies. Just text us as soon as you know — **330-406-9682**.\n\nFull policy: [cruisethecreek.com/cancellation-policy](https://www.cruisethecreek.com/cancellation-policy)"],
+        [81, 'Policies', '', 'What if the weather is bad?',
+          "If we cancel for weather, you get a full refund or a free reschedule — your call. Light rain isn't usually a reason to cancel; lightning, severe storms, ice, or unsafe trail conditions are. We'll reach out the morning of if it looks dicey."],
+        [82, 'Policies', '', 'Can I get a refund on a tune-up?',
+          "Once work has begun, parts and labor are non-refundable. If we haven't started, you can cancel any time. If you're not happy with the work, talk to us — we stand behind every tune-up and will make it right."],
+        [83, 'Policies', '', 'Do you accept returns on a new bike purchase?',
+          "Reach out before you buy if you're unsure — that's why test rides exist. Once a bike has been ridden outside the shop, we treat it as used and any return is handled case-by-case. We'd much rather you take a longer test ride than end up with a bike you don't love."],
+        [84, 'Policies', '', 'What if my bike has a warranty issue?',
+          "That's separate from a \"return\" — bring the bike in (or text photos and a description) and we'll handle the warranty claim with the manufacturer on your behalf. Authorized dealer means we cut out the back-and-forth."],
+        [85, 'Policies', '', 'What if I damage the rental bike?',
+          "Normal wear is on us. Rider negligence — collision, drop damage, missing parts — is on you, per the waiver you signed at booking. We'll assess any damage when you return the bike and let you know if there's a charge before billing anything. We don't surprise people with fees."],
+
+        // ── Contact ──
+        [90, 'Contact', 'contact', "What's the fastest way to reach you?",
+          "**Text 330-406-9682.** We answer texts faster than calls or email — usually within an hour during the day. For non-urgent stuff, email [salesteam@cruisethecreek.com](mailto:salesteam@cruisethecreek.com) works great."],
+        [91, 'Contact', '', 'Where are you located?',
+          "**6685 Kirk Rd, Canfield, OH 44406** — right across from Mill Creek MetroParks. Pickup locations for rentals are at Bears Den / Scholl Pavilion (in the park) or the Kirk Road Trailhead (on the bikeway)."],
+        [92, 'Contact', '', 'What are your hours?',
+          "Hours vary seasonally and we book by appointment. Text or email to confirm a slot — we'd rather give you our full attention than have you show up to a closed shop."],
+        [93, 'Contact', '', 'Can I just stop by?',
+          "Best to text first so we know you're coming. Walk-ins are welcome when the showroom is staffed, but we're often out on rentals or service appointments — a heads-up means you'll definitely catch us."],
       ],
     },
     'TrustStrip': {
