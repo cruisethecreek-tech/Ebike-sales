@@ -1140,19 +1140,23 @@
             link.addEventListener('click', () => navLinks.classList.remove('open'));
         });
 
-        // Scroll-triggered fade-in
-        const observer = new IntersectionObserver((entries) => {
+        // Scroll-triggered fade-in. Exposed on window so the CMS render
+        // functions below can re-arm it for dynamically inserted cards.
+        const fadeObserver = new IntersectionObserver((entries) => {
             entries.forEach((entry, i) => {
                 if (entry.isIntersecting) {
                     setTimeout(() => {
                         entry.target.classList.add('visible');
                     }, i * 120);
-                    observer.unobserve(entry.target);
+                    fadeObserver.unobserve(entry.target);
                 }
             });
         }, { threshold: 0.15 });
+        window.observeFadeIn = function(root){
+            (root || document).querySelectorAll('.fade-in:not(.visible)').forEach(el => fadeObserver.observe(el));
+        };
 
-        document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+        document.querySelectorAll('.fade-in').forEach(el => fadeObserver.observe(el));
 
         // Smooth scroll for anchor links
         document.querySelectorAll('a[href^="#"]').forEach(a => {
@@ -1231,6 +1235,7 @@
               `</div>`
             );
         }).join('');
+        if (window.observeFadeIn) window.observeFadeIn(grid);
     }
 
     /* Render steps from the Steps tab. Columns: order, num, title, body. */
@@ -1244,12 +1249,33 @@
               `<p>${esc(r.body || '')}</p>` +
             `</div>`
         )).join('');
+        if (window.observeFadeIn) window.observeFadeIn(grid);
+    }
+
+    /* ── CMS cache: render cached Sheet data synchronously so repeat
+         visitors don't see the static fallback flash before the fetch lands. ── */
+    const CMS_CACHE_KEY = 'cms:creek-ready:v1';
+    function readCmsCache(){
+      try { const raw = localStorage.getItem(CMS_CACHE_KEY);
+            const p = raw ? JSON.parse(raw) : null;
+            return (p && typeof p === 'object') ? p : null;
+          } catch(e) { return null; }
+    }
+    function writeCmsCache(d){
+      try { localStorage.setItem(CMS_CACHE_KEY, JSON.stringify(d)); } catch(e) {}
+    }
+    const _cached = readCmsCache();
+    if (_cached) {
+      applyCMS(_cached);
+      if (Array.isArray(_cached.services)) renderServices(_cached.services);
+      if (Array.isArray(_cached.steps))    renderSteps(_cached.steps);
     }
 
     fetch(MENU_URL, {cache:'no-store'})
         .then(r => r.ok ? r.json() : Promise.reject(r.status))
         .then(remote => {
             if (!remote || typeof remote !== 'object') return;
+            writeCmsCache(remote);
             applyCMS(remote);
             if (Array.isArray(remote.services)) renderServices(remote.services);
             if (Array.isArray(remote.steps))    renderSteps(remote.steps);
