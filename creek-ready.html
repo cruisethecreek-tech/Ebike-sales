@@ -1140,19 +1140,23 @@
             link.addEventListener('click', () => navLinks.classList.remove('open'));
         });
 
-        // Scroll-triggered fade-in
-        const observer = new IntersectionObserver((entries) => {
+        // Scroll-triggered fade-in. Exposed on window so the CMS render
+        // functions below can re-arm it for dynamically inserted cards.
+        const fadeObserver = new IntersectionObserver((entries) => {
             entries.forEach((entry, i) => {
                 if (entry.isIntersecting) {
                     setTimeout(() => {
                         entry.target.classList.add('visible');
                     }, i * 120);
-                    observer.unobserve(entry.target);
+                    fadeObserver.unobserve(entry.target);
                 }
             });
         }, { threshold: 0.15 });
+        window.observeFadeIn = function(root){
+            (root || document).querySelectorAll('.fade-in:not(.visible)').forEach(el => fadeObserver.observe(el));
+        };
 
-        document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+        document.querySelectorAll('.fade-in').forEach(el => fadeObserver.observe(el));
 
         // Smooth scroll for anchor links
         document.querySelectorAll('a[href^="#"]').forEach(a => {
@@ -1231,6 +1235,7 @@
               `</div>`
             );
         }).join('');
+        if (window.observeFadeIn) window.observeFadeIn(grid);
     }
 
     /* Render steps from the Steps tab. Columns: order, num, title, body. */
@@ -1244,6 +1249,7 @@
               `<p>${esc(r.body || '')}</p>` +
             `</div>`
         )).join('');
+        if (window.observeFadeIn) window.observeFadeIn(grid);
     }
 
     fetch(MENU_URL, {cache:'no-store'})
