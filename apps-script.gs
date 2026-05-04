@@ -478,6 +478,10 @@ function getTabDefs() {
     'SiteConfig': {
       header: ['key','value'],
       rows: [
+        // Site-wide contact (used wherever a page references the shop phone number)
+        ['phone_display',      '330-406-9682'],
+        ['phone_sms',          'sms:3304069682'],
+        ['phone_tel',          'tel:+13304069682'],
         ['footer_tagline',     'Electric bikes built for creek country. Ride the trails, beat the heat, get home grinning.'],
         ['footer_copyright',   '© 2026 Cruise the Creek. All rights reserved.'],
         ['social_instagram',   ''],
