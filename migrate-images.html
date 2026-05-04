@@ -104,6 +104,7 @@ main { padding: 1.5rem; max-width: 1400px; margin: 0 auto; }
     <div class="progress">
         <span id="progressText">Loading…</span>
         <div class="progress-bar"><div class="progress-bar-fill" id="progressBar" style="width:0%"></div></div>
+        <button class="btn-secondary btn" onclick="runReport()" title="Download a CSV of every swatch grouped by status (Wix / empty / missing / assigned)">📋 Report</button>
         <button class="btn-secondary btn" onclick="reloadCatalog()">Reload</button>
     </div>
 </header>
@@ -530,6 +531,121 @@ function esc(s) {
     return String(s == null ? '' : s)
         .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
         .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+
+/* ── Audit report ──
+   Scans every swatch in the loaded inventory, classifies it, and
+   downloads a CSV the user can open in Sheets/Excel to cross-reference
+   what still needs uploaded to GitHub.
+
+   Status values:
+     wix           — image URL still points at wixstatic.com
+     empty         — no image URL on the swatch (gap in the data)
+     missing-local — local path is set but the file isn't in /images/
+     assigned      — local path is set AND the file exists in /images/
+     external      — some other URL (Apps Script returned a non-Wix, non-local URL) */
+function classifySwatch(sw) {
+    const img = sw && sw.img ? String(sw.img).trim() : '';
+    if (!img) return 'empty';
+    if (isWixUrl(img)) return 'wix';
+    if (isLocalPath(img)) return FILE_SET.has(strip(img)) ? 'assigned' : 'missing-local';
+    return 'external';
+}
+
+function csvCell(v) {
+    const s = String(v == null ? '' : v);
+    return /[",\n\r]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+}
+
+function runReport() {
+    if (!Array.isArray(bikes) || bikes.length === 0) {
+        setStatus('No inventory loaded yet — wait for the catalog to load, then click Report again.', 'error');
+        return;
+    }
+
+    const rows = [];
+    const counts = { wix: 0, empty: 0, 'missing-local': 0, assigned: 0, external: 0 };
+    const bikesWithWix = new Set();          // bike row #s that still have at least one Wix URL
+    const bikesAllAssigned = new Set();      // bike row #s where every swatch is assigned
+
+    bikes.forEach((bike, bIdx) => {
+        const rowNum = bIdx + 2; // sheet row # (header is row 1)
+        let total = 0, assigned = 0, hasWix = false;
+
+        walkSwatches(bike, (styleName, sizeName, sw) => {
+            const status = classifySwatch(sw);
+            counts[status]++;
+            total++;
+            if (status === 'assigned') assigned++;
+            if (status === 'wix') hasWix = true;
+
+            const suggested = (status === 'wix' || status === 'empty')
+                ? suggestFile(bike.name, styleName, sizeName, sw.name)
+                : '';
+
+            rows.push({
+                status: status,
+                brand:  bike.brand || '',
+                name:   bike.name  || '',
+                row:    rowNum,
+                id:     bike.id    || '',
+                style:  styleName  || '',
+                size:   sizeName   || '',
+                swatch: sw.name    || '',
+                url:    sw.img     || '',
+                suggested: suggested,
+            });
+        });
+
+        if (hasWix) bikesWithWix.add(rowNum);
+        if (total > 0 && total === assigned) bikesAllAssigned.add(rowNum);
+    });
+
+    // Sort: wix first (work to do), then empty, then missing-local, then external, then assigned.
+    const order = { wix: 0, empty: 1, 'missing-local': 2, external: 3, assigned: 4 };
+    rows.sort((a, b) => {
+        if (order[a.status] !== order[b.status]) return order[a.status] - order[b.status];
+        const an = (a.brand + ' ' + a.name).toLowerCase();
+        const bn = (b.brand + ' ' + b.name).toLowerCase();
+        if (an !== bn) return an < bn ? -1 : 1;
+        return 0;
+    });
+
+    // Build CSV.
+    const header = ['status','brand','name','sheet_row','bike_id','style','size','swatch','current_url','suggested_local'];
+    const lines = [header.join(',')];
+    rows.forEach(r => {
+        lines.push([r.status, r.brand, r.name, r.row, r.id, r.style, r.size, r.swatch, r.url, r.suggested]
+            .map(csvCell).join(','));
+    });
+    const csv = lines.join('\r\n');
+
+    // Trigger download.
+    const today = new Date().toISOString().slice(0, 10);
+    const filename = 'bike-image-migration-report-' + today + '.csv';
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 0);
+
+    // Summary in the status bar.
+    const totalSwatches = rows.length;
+    const summary =
+        '📋 Report downloaded (' + filename + '). ' +
+        'Total: ' + totalSwatches + ' swatches across ' + bikes.length + ' bikes — ' +
+        'Wix: ' + counts.wix + ' · ' +
+        'Empty: ' + counts.empty + ' · ' +
+        'Missing local: ' + counts['missing-local'] + ' · ' +
+        'External: ' + counts.external + ' · ' +
+        'Assigned: ' + counts.assigned + '. ' +
+        bikesWithWix.size + ' bike(s) still have at least one Wix image. ' +
+        bikesAllAssigned.size + ' bike(s) fully migrated.';
+    setStatus(summary, counts.wix === 0 && counts['missing-local'] === 0 ? 'success' : '');
+    console.log('[migrate-images] report counts:', counts);
+    console.log('[migrate-images] bikes still on Wix (sheet rows):', Array.from(bikesWithWix).sort((a,b)=>a-b));
 }
 
 refreshFileListFromGitHub();
