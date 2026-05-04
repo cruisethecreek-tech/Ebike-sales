@@ -112,22 +112,25 @@ function doGet(e) {
     .sort(function(a, b){ return (a.order || 0) - (b.order || 0); });
   const bridgeCompare = readSheet(ss, 'BridgeCompare')
     .sort(function(a, b){ return (a.order || 0) - (b.order || 0); });
+  const bridgeBikeOptions = readSheet(ss, 'BridgeBikeOptions')
+    .sort(function(a, b){ return (a.order || 0) - (b.order || 0); });
 
   const data = {
-    page:           page,
-    pageMeta:       pageMeta,
-    site:           site,
-    sections:       sections,
-    trustStrip:     trustStrip,
-    services:       services,
-    steps:          steps,
-    faqs:           faqs,
-    bridgePricing:  bridgePricing,
-    bridgeGaps:     bridgeGaps,
-    bridgeFeatures: bridgeFeatures,
-    bridgeCompare:  bridgeCompare,
-    tiles:          readSheet(ss, cap + '_Tiles'),
-    submenus:       groupBy(readSheet(ss, cap + '_Submenus'), 'tile'),
+    page:              page,
+    pageMeta:          pageMeta,
+    site:              site,
+    sections:          sections,
+    trustStrip:        trustStrip,
+    services:          services,
+    steps:             steps,
+    faqs:              faqs,
+    bridgePricing:     bridgePricing,
+    bridgeGaps:        bridgeGaps,
+    bridgeFeatures:    bridgeFeatures,
+    bridgeCompare:     bridgeCompare,
+    bridgeBikeOptions: bridgeBikeOptions,
+    tiles:             readSheet(ss, cap + '_Tiles'),
+    submenus:          groupBy(readSheet(ss, cap + '_Submenus'), 'tile'),
   };
   return ContentService
     .createTextOutput(JSON.stringify(data))
@@ -760,6 +763,31 @@ function getTabDefs() {
         [1, 'Uber / Lyft (round trip)',           '$400–$600', '$4,800+', 'no',    'No',                  false],
         [2, 'Used Car (payment + ins + gas)',     '$350–$500', '$4,200+', 'maybe', 'Eventually',          false],
         [3, 'Bridge the Gap E-Bike',              '$100–$120', '$1,200',  'yes',   'Yes — 30 weeks',      true],
+      ],
+    },
+    'BridgeBikeOptions': {
+      // Bridge the Gap: the bike-style picker on the application form.
+      //   id              — slug submitted as bike_selection (e.g. "step-over")
+      //   image           — full URL to the bike photo
+      //   name            — short heading on the card (e.g. "Step-Over")
+      //   range           — secondary line (e.g. "Best for 1–12 mi (one way)")
+      //   price + period  — large price on the card (e.g. "$50" + " /biweekly")
+      //   selection_label — label shown after the rider picks (e.g. "Step-Over Style (1–12 mi)")
+      //   selection_price — price shown next to it (e.g. "$50/Biweekly")
+      header: ['order','id','image','name','range','price','period','selection_label','selection_price'],
+      rows: [
+        [1, 'step-over',
+          'https://static.wixstatic.com/media/7e576d_893b4902c6f14884b09276918eec5a83~mv2.jpg',
+          'Step-Over',    'Best for 1–12 mi (one way)', '$50', ' /biweekly',
+          'Step-Over Style (1–12 mi)',  '$50/Biweekly'],
+        [2, 'step-thru',
+          'https://static.wixstatic.com/media/56427e_9a3de1eb837841cb9ab23814a95642b6~mv2.jpg',
+          'Step-Thru',    'Best for 1–20 mi (one way)', '$55', ' /biweekly',
+          'Step-Thru Style (1–20 mi)',  '$55/Biweekly'],
+        [3, 'city-cruiser',
+          'https://static.wixstatic.com/media/56427e_589102c83d184885b095fc64688ef4b0~mv2.jpg',
+          'City Cruiser', 'Best for 1–25 mi (one way)', '$60', ' /biweekly',
+          'City Cruiser (1–25 mi)',     '$60/Biweekly'],
       ],
     },
     'TrustStrip': {
