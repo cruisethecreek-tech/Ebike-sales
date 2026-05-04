@@ -93,12 +93,20 @@ function doGet(e) {
   const trustStrip = readSheet(ss, 'TrustStrip')
     .sort(function(a, b){ return (a.order || 0) - (b.order || 0); });
 
+  // creek-ready hub: the three service cards and the three "Simple as 1-2-3" steps.
+  const services = readSheet(ss, 'Services')
+    .sort(function(a, b){ return (a.order || 0) - (b.order || 0); });
+  const steps = readSheet(ss, 'Steps')
+    .sort(function(a, b){ return (a.order || 0) - (b.order || 0); });
+
   const data = {
     page:       page,
     pageMeta:   pageMeta,
     site:       site,
     sections:   sections,
     trustStrip: trustStrip,
+    services:   services,
+    steps:      steps,
     tiles:      readSheet(ss, cap + '_Tiles'),
     submenus:   groupBy(readSheet(ss, cap + '_Submenus'), 'tile'),
   };
@@ -135,21 +143,27 @@ function groupBy(rows, key) {
 }
 
 /**
- * One-time setup. Run from the Apps Script editor:
- *   1. Save this file.
- *   2. From the function dropdown, pick `setupSheet`.
- *   3. Click ▶ Run.  Approve the prompts.
- *   4. Done — open the bound Sheet to confirm four new tabs.
+ * Two functions are available from the Apps Script editor's function dropdown:
  *
- * Re-running is safe: it clears and re-seeds the four tabs.
- * Once seeded, edit the cells directly to change what shows up
- * on home.html and shop.html. Changes appear after Google's
- * ~5-min CDN cache expires (open the /exec URL to bust faster).
+ *   setupSheet()  — DESTRUCTIVE one-time seeder. Clears every tab and
+ *                   re-writes header + default seed rows. Use only on a fresh
+ *                   sheet. Re-running wipes any edits you've made.
+ *
+ *   updateSheet() — NON-DESTRUCTIVE sync. Run this when getTabDefs() picks
+ *                   up new tabs / columns / SiteConfig keys. Adds them in
+ *                   place without touching your existing data. Safe to re-run.
+ *
+ * Both pull their schema from getTabDefs() — the single source of truth.
+ *
+ * Edits in the sheet appear on the live site once Google's ~5-min CDN cache
+ * expires (open the /exec URL in a browser tab to bust the cache faster).
  */
-function setupSheet() {
-  const ss = SpreadsheetApp.getActiveSpreadsheet();
-
-  const tabs = {
+/**
+ * Schema source of truth — used by both setupSheet (full reseed)
+ * and updateSheet (additive sync).
+ */
+function getTabDefs() {
+  return {
     'Home_Tiles': {
       header: ['id','order','label','subtitle','type','url','external'],
       rows: [
@@ -460,6 +474,50 @@ function setupSheet() {
         ['policies_external',  true],
         ['our_story_url',      'our-story.html'],
         ['our_story_external', false],
+        // creek-ready hub: section headings & contact items
+        ['services_eyebrow',   'Our Services'],
+        ['services_title',     'Three Ways We Keep You Rolling'],
+        ['services_intro',     "Whether you need hands-on maintenance, a professional build, or expert guidance from anywhere — we've got you covered."],
+        ['how_eyebrow',        'How It Works'],
+        ['how_title',          'Simple as 1-2-3'],
+        ['how_intro',          "Getting service for your e-bike shouldn't be complicated."],
+        ['brands_label',       'Authorized Dealer & Factory-Trained Service'],
+        ['cta_text_label',     '💬 Text: 330-406-9682'],
+        ['cta_text_url',       'sms:3304069682'],
+        ['cta_email_label',    '✉️ salesteam@cruisethecreek.com'],
+        ['cta_email_url',      'mailto:salesteam@cruisethecreek.com'],
+      ],
+    },
+    'Services': {
+      // creek-ready service cards. `theme` controls the gradient
+      // (tuneup | assembly | video). `features` is a pipe-separated
+      // list of bullet items.
+      header: ['order','theme','price','badge','icon','title','desc','features','cta_label','cta_url','cta_external'],
+      rows: [
+        [1, 'tuneup',   '$125',         'All Brands', '🔧', 'Creek Ready Tune-Up',
+          'Our comprehensive "Creek Ready" maintenance service for ANY brand of e-bike. We catch problems before they become expensive failures.',
+          'Premium deep clean & rust prevention|Derailleur, brake & bearing adjustment|Motor performance & controller diagnostics|Battery health assessment|Full safety inspection & professional test ride',
+          'Learn More', 'tune-ups.html', false],
+        [2, 'assembly', '$100',         'New Bikes',  '📦', 'Creek Ready Setup',
+          "Don't risk a DIY build. Our master assembly by Andrew Barret ensures your new e-bike is built right the first time — with the CTC Care Standard.",
+          "50-point safety certification|Andrew Barret's master assembly|Ohio Rust-Belt Shield corrosion treatment|Free 30-day break-in tune included|Manufacturer liaison for warranty support",
+          'Learn More', 'assembly.html', false],
+        [3, 'video',    'Book Online',  '',           '📹', 'Video Diagnostics',
+          'Stuck on assembly or seeing an error code? Connect with our factory-trained technician via live video call — expert help from wherever you are.',
+          '1-on-1 live video with our technician|Error code diagnosis & troubleshooting|Guided assembly support|Velotric, Heybike & Jasion specialists|No travel needed — help from anywhere',
+          'Learn More', 'video-diagnostics.html', false],
+      ],
+    },
+    'Steps': {
+      // creek-ready "Simple as 1-2-3" steps.
+      header: ['order','num','title','body'],
+      rows: [
+        [1, '1', 'Reach Out',
+          "Text Dru at 330-406-9682 or book online. Tell us what's going on with your ride."],
+        [2, '2', 'We Diagnose',
+          'Drop off on Kirk Road, visit the showroom, or hop on a video call — whatever works best.'],
+        [3, '3', 'Ride Happy',
+          'Pick up your Creek Ready e-bike, fully serviced and tested. Most tune-ups done in 2-3 business days.'],
       ],
     },
     'TrustStrip': {
@@ -712,6 +770,31 @@ function setupSheet() {
       ],
     },
   };
+}
+
+/**
+ * Style a sheet's header row (forest green band, frozen).
+ */
+function styleHeader_(sh, len) {
+  sh.getRange(1, 1, 1, len)
+    .setFontWeight('bold')
+    .setBackground('#2D4A32')
+    .setFontColor('#ffffff');
+  sh.setFrozenRows(1);
+}
+
+/**
+ * setupSheet — DESTRUCTIVE one-time seeder.
+ *
+ * Clears every tab listed in getTabDefs() and re-writes header + seed rows.
+ * Run this on a fresh sheet only. Re-running wipes any edits you've made.
+ *
+ * Use updateSheet() instead if you want to pull in NEW tabs / columns /
+ * SiteConfig keys without losing your existing edits.
+ */
+function setupSheet() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const tabs = getTabDefs();
 
   let totalRows = 0;
   Object.keys(tabs).forEach(function(name) {
@@ -721,11 +804,7 @@ function setupSheet() {
     sh.clear();
     const all = [def.header].concat(def.rows);
     sh.getRange(1, 1, all.length, def.header.length).setValues(all);
-    sh.getRange(1, 1, 1, def.header.length)
-      .setFontWeight('bold')
-      .setBackground('#2D4A32')
-      .setFontColor('#ffffff');
-    sh.setFrozenRows(1);
+    styleHeader_(sh, def.header.length);
     sh.autoResizeColumns(1, def.header.length);
     totalRows += def.rows.length;
     console.log('  ✓ ' + name + ' — ' + def.rows.length + ' rows');
@@ -733,4 +812,114 @@ function setupSheet() {
 
   console.log('Done. Seeded ' + Object.keys(tabs).length + ' tabs / ' + totalRows + ' rows.');
   console.log('Test the API:  open the /exec URL — tiles[] should now have content.');
+}
+
+/**
+ * updateSheet — NON-DESTRUCTIVE sync.
+ *
+ * Run this whenever the schema in getTabDefs() picks up new tabs, new
+ * columns, or new SiteConfig/Pages rows. Existing data is preserved:
+ *
+ *  • Tab missing in your sheet            → create it + seed default rows.
+ *  • Tab exists but empty (header only)   → seed default rows.
+ *  • Tab exists with data:
+ *      - Add any missing columns to the right (header only — no row data).
+ *      - For SiteConfig / Pages (keyed tabs), append seed rows whose
+ *        key/slug isn't already in the sheet. Existing rows are never
+ *        modified or reordered.
+ *      - For row-list tabs (TrustStrip, Services, Steps, Sections,
+ *        *_Tiles, *_Submenus) the existing rows are left alone — the
+ *        defaults you see in getTabDefs() are NOT re-appended, since
+ *        you're expected to be curating those rows yourself.
+ *
+ * Safe to re-run as often as you like.
+ */
+function updateSheet() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const tabs = getTabDefs();
+  const KEYED = { 'SiteConfig': 'key', 'Pages': 'slug' };
+  const stats = { created: 0, seededEmpty: 0, addedCols: 0, addedRows: 0, untouched: 0 };
+
+  Object.keys(tabs).forEach(function(name) {
+    const def = tabs[name];
+    let sh = ss.getSheetByName(name);
+
+    // 1) Tab missing — create it and seed defaults.
+    if (!sh) {
+      sh = ss.insertSheet(name);
+      const all = [def.header].concat(def.rows);
+      sh.getRange(1, 1, all.length, def.header.length).setValues(all);
+      styleHeader_(sh, def.header.length);
+      sh.autoResizeColumns(1, def.header.length);
+      stats.created++;
+      console.log('+ Created tab: ' + name + ' (' + def.rows.length + ' rows)');
+      return;
+    }
+
+    // 2) Tab exists but is empty — seed defaults.
+    const lastRow = sh.getLastRow();
+    const lastCol = Math.max(1, sh.getLastColumn());
+    const firstCell = sh.getRange(1, 1).getValue();
+    if (lastRow === 0 || (lastRow === 1 && firstCell === '' && lastCol === 1)) {
+      sh.clear();
+      const all = [def.header].concat(def.rows);
+      sh.getRange(1, 1, all.length, def.header.length).setValues(all);
+      styleHeader_(sh, def.header.length);
+      sh.autoResizeColumns(1, def.header.length);
+      stats.seededEmpty++;
+      console.log('+ Seeded empty tab: ' + name + ' (' + def.rows.length + ' rows)');
+      return;
+    }
+
+    // 3) Tab exists with data — only ADD missing pieces.
+    const existingHeader = sh.getRange(1, 1, 1, lastCol).getValues()[0]
+      .map(function(h){ return String(h); });
+    const missingCols = def.header.filter(function(h){
+      return existingHeader.indexOf(h) === -1;
+    });
+    if (missingCols.length) {
+      sh.getRange(1, lastCol + 1, 1, missingCols.length).setValues([missingCols]);
+      styleHeader_(sh, lastCol + missingCols.length);
+      stats.addedCols += missingCols.length;
+      console.log('· ' + name + ': added ' + missingCols.length + ' column(s): ' + missingCols.join(', '));
+    }
+
+    // For keyed tabs, append rows whose key/slug isn't already present.
+    const keyCol = KEYED[name];
+    if (keyCol) {
+      const finalHeader = sh.getRange(1, 1, 1, sh.getLastColumn()).getValues()[0]
+        .map(function(h){ return String(h); });
+      const keyIdx    = finalHeader.indexOf(keyCol);
+      const defKeyIdx = def.header.indexOf(keyCol);
+      if (keyIdx !== -1 && defKeyIdx !== -1) {
+        const existingKeys = sh.getLastRow() > 1
+          ? sh.getRange(2, keyIdx + 1, sh.getLastRow() - 1, 1).getValues()
+              .map(function(r){ return String(r[0]).trim(); })
+          : [];
+        const newRows = def.rows.filter(function(row){
+          const k = String(row[defKeyIdx] || '').trim();
+          return k && existingKeys.indexOf(k) === -1;
+        });
+        if (newRows.length) {
+          // Map each seed row from def.header order → sheet header order.
+          const padded = newRows.map(function(row){
+            return finalHeader.map(function(h){
+              const i = def.header.indexOf(h);
+              return i === -1 ? '' : row[i];
+            });
+          });
+          sh.getRange(sh.getLastRow() + 1, 1, padded.length, finalHeader.length).setValues(padded);
+          stats.addedRows += padded.length;
+          console.log('· ' + name + ': appended ' + padded.length + ' new ' + keyCol + ' row(s)');
+        }
+      }
+    }
+
+    if (!missingCols.length && !KEYED[name]) stats.untouched++;
+  });
+
+  console.log('Done. Created ' + stats.created + ' tab(s), seeded ' + stats.seededEmpty +
+              ' empty tab(s), added ' + stats.addedCols + ' column(s), appended ' +
+              stats.addedRows + ' SiteConfig/Pages row(s).');
+  console.log('Row-list tabs (TrustStrip, Services, Steps, Sections, *_Tiles, *_Submenus) were left untouched.');
 }
