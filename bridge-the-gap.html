@@ -293,7 +293,7 @@ footer a:hover{color:#fff}
 
 <!-- PRICING STRIP -->
 <section class="pricing">
-  <div class="pricing-grid">
+  <div class="pricing-grid" id="bridgePricingGrid">
     <div class="price-card">
       <div class="price-label">Weekly Payment</div>
       <div class="price-amount">$25<span class="range">–$30</span></div>
@@ -315,15 +315,15 @@ footer a:hover{color:#fff}
 <!-- WHAT IT MEANS -->
 <section class="section gaps">
   <div class="section-inner">
-    <span class="section-eyebrow">Why it matters</span>
-    <h2 class="section-title">What it means to bridge the gap</h2>
-    <p class="section-lead">
+    <span class="section-eyebrow" data-cms-text="bridge_gaps_eyebrow">Why it matters</span>
+    <h2 class="section-title" data-cms-text="bridge_gaps_title">What it means to bridge the gap</h2>
+    <p class="section-lead" data-cms-text="bridge_gaps_intro">
       Most riders use the bike to get to work — but transportation is more than a paycheck. In the
-      <span class="valley">Mahoning Valley</span>, "the gap" is the distance between you and the
+      Mahoning Valley, "the gap" is the distance between you and the
       essentials of a good life. Here are four ways an e-bike closes it.
     </p>
 
-    <div class="gaps-grid">
+    <div class="gaps-grid" id="bridgeGapsGrid">
       <div class="gap-card">
         <div class="gap-head"><div class="gap-icon">🏥</div><h3 class="gap-title">The Healthcare Gap</h3></div>
         <p class="gap-desc">Missing a doctor's appointment because your ride fell through shouldn't happen. An e-bike gets you to local clinics and pharmacies on your schedule — no bus timing, no surge pricing.</p>
@@ -351,11 +351,11 @@ footer a:hover{color:#fff}
 <!-- MAIN FEATURES -->
 <section class="section features-bg" id="features">
   <div class="section-inner">
-    <span class="section-eyebrow">What you get</span>
-    <h2 class="section-title">Main features</h2>
-    <p class="section-lead">A reliable bike, set up to last Ohio winters, with no surprise costs and a clear path to ownership.</p>
+    <span class="section-eyebrow" data-cms-text="bridge_features_eyebrow">What you get</span>
+    <h2 class="section-title" data-cms-text="bridge_features_title">Main features</h2>
+    <p class="section-lead" data-cms-text="bridge_features_intro">A reliable bike, set up to last Ohio winters, with no surprise costs and a clear path to ownership.</p>
 
-    <div class="features-grid">
+    <div class="features-grid" id="bridgeFeaturesGrid">
       <div class="feature-item"><div class="feature-check">✓</div><div><div class="feature-title">Path to Full Ownership</div><div class="feature-desc">After 15 bi-weekly payments the bike is yours to keep — permanent transportation independence.</div></div></div>
       <div class="feature-item"><div class="feature-check">✓</div><div><div class="feature-title">Equity-Building "Layaway"</div><div class="feature-desc">Every payment counts toward the bike's price while you ride it to work every day.</div></div></div>
       <div class="feature-item"><div class="feature-check">✓</div><div><div class="feature-title">Creek Ready Certified</div><div class="feature-desc">50-point safety inspection plus a professional master calibration of the motor and drivetrain before you take it home.</div></div></div>
@@ -370,16 +370,16 @@ footer a:hover{color:#fff}
 <!-- COMPARISON -->
 <section class="section compare">
   <div class="section-inner">
-    <span class="section-eyebrow">The math</span>
-    <h2 class="section-title">The "Gap" savings comparison</h2>
-    <p class="section-lead">Same commute, very different cost.</p>
+    <span class="section-eyebrow" data-cms-text="bridge_compare_eyebrow">The math</span>
+    <h2 class="section-title" data-cms-text="bridge_compare_title">The "Gap" savings comparison</h2>
+    <p class="section-lead" data-cms-text="bridge_compare_intro">Same commute, very different cost.</p>
 
     <div class="table-wrap">
       <table class="compare-table">
         <thead>
           <tr><th>Commute Method</th><th>Monthly Cost</th><th>Yearly Cost</th><th>Own Your Ride?</th></tr>
         </thead>
-        <tbody>
+        <tbody id="bridgeCompareTbody">
           <tr><td>Uber / Lyft (round trip)</td><td><span class="cost-value">$400–$600</span></td><td><span class="cost-value">$4,800+</span></td><td><span class="own-badge own-no">No</span></td></tr>
           <tr><td>Used Car (payment + ins + gas)</td><td><span class="cost-value">$350–$500</span></td><td><span class="cost-value">$4,200+</span></td><td><span class="own-badge own-maybe">Eventually</span></td></tr>
           <tr class="highlight-row"><td>Bridge the Gap E-Bike</td><td><span class="cost-value">$100–$120</span></td><td><span class="cost-value">$1,200</span></td><td><span class="own-badge own-yes">Yes — 30 weeks</span></td></tr>
@@ -407,8 +407,8 @@ footer a:hover{color:#fff}
 <!-- APPLICATION -->
 <section class="application" id="application">
   <div class="application-inner">
-    <h2 class="application-title">Start your application</h2>
-    <p class="application-subtitle">Pick a bike style, fill out the form, and we'll be in touch within 24–48 hours.</p>
+    <h2 class="application-title" data-cms-text="bridge_application_title">Start your application</h2>
+    <p class="application-subtitle" data-cms-text="bridge_application_subtitle">Pick a bike style, fill out the form, and we'll be in touch within 24–48 hours.</p>
 
     <div class="bike-options">
       <div class="bike-option" data-bike-id="step-over" data-bike-name="Step-Over Style (1–12 mi)" data-bike-price="$50/Biweekly">
@@ -569,8 +569,13 @@ document.getElementById('successModal').addEventListener('click', e => {
   if (e.target.id === 'successModal') closeSuccessModal();
 });
 
-/* ====== CMS apply (Pages tab + SiteConfig) ====== */
+/* ====== CMS apply: hero / CTA / section labels via data-cms-*,
+         and four content blocks (pricing, gaps, features, compare)
+         from dedicated tabs. Static markup remains as fallback. ====== */
 const MENU_URL = 'https://script.google.com/macros/s/AKfycbxjg2ZsPCZNsmJEStYA0bRdsnkm4nNS-m-HNhm_Gin56VIVeYWVRE5j51j30zVHhb4PmQ/exec?page=bridge-the-gap';
+
+function isTrue(v){ return v===true||v==='TRUE'||v==='true'||v===1; }
+function esc(s){ return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 
 function applyCMS(remote){
   const map = Object.assign({}, remote.site || {}, remote.pageMeta || {});
@@ -588,10 +593,97 @@ function applyCMS(remote){
   });
 }
 
+/* Render the 3-card price strip from the BridgePricing tab.
+   Columns: order, label, amount, range, detail */
+function renderBridgePricing(rows){
+  const grid = document.getElementById('bridgePricingGrid');
+  if (!grid || !Array.isArray(rows) || !rows.length) return;
+  grid.innerHTML = rows.map(r => {
+    const range = r.range ? `<span class="range">${esc(r.range)}</span>` : '';
+    return (
+      '<div class="price-card">' +
+        '<div class="price-label">' + esc(r.label || '') + '</div>' +
+        '<div class="price-amount">' + esc(r.amount || '') + range + '</div>' +
+        '<div class="price-detail">' + esc(r.detail || '') + '</div>' +
+      '</div>'
+    );
+  }).join('');
+}
+
+/* Render the 4 "gap" cards from the BridgeGaps tab.
+   Columns: order, icon, title, desc, highlight_title, highlight_text */
+function renderBridgeGaps(rows){
+  const grid = document.getElementById('bridgeGapsGrid');
+  if (!grid || !Array.isArray(rows) || !rows.length) return;
+  grid.innerHTML = rows.map(r => {
+    const hl = (r.highlight_title || r.highlight_text)
+      ? '<div class="gap-highlight">' +
+          '<div class="highlight-title">' + esc(r.highlight_title || '') + '</div>' +
+          '<div class="highlight-text">' + esc(r.highlight_text || '') + '</div>' +
+        '</div>'
+      : '';
+    return (
+      '<div class="gap-card">' +
+        '<div class="gap-head">' +
+          '<div class="gap-icon">' + esc(r.icon || '') + '</div>' +
+          '<h3 class="gap-title">' + esc(r.title || '') + '</h3>' +
+        '</div>' +
+        '<p class="gap-desc">' + esc(r.desc || '') + '</p>' +
+        hl +
+      '</div>'
+    );
+  }).join('');
+}
+
+/* Render the feature checklist from the BridgeFeatures tab.
+   Columns: order, title, desc */
+function renderBridgeFeatures(rows){
+  const grid = document.getElementById('bridgeFeaturesGrid');
+  if (!grid || !Array.isArray(rows) || !rows.length) return;
+  grid.innerHTML = rows.map(r => (
+    '<div class="feature-item">' +
+      '<div class="feature-check">✓</div>' +
+      '<div>' +
+        '<div class="feature-title">' + esc(r.title || '') + '</div>' +
+        '<div class="feature-desc">' + esc(r.desc || '') + '</div>' +
+      '</div>' +
+    '</div>'
+  )).join('');
+}
+
+/* Render the comparison table rows from the BridgeCompare tab.
+   Columns: order, method, monthly, yearly, own_status, own_label, highlight
+   own_status: 'no' | 'maybe' | 'yes' (controls badge color)
+   highlight=TRUE renders the row with the .highlight-row accent. */
+function renderBridgeCompare(rows){
+  const tbody = document.getElementById('bridgeCompareTbody');
+  if (!tbody || !Array.isArray(rows) || !rows.length) return;
+  tbody.innerHTML = rows.map(r => {
+    const status = String(r.own_status || 'no').toLowerCase();
+    const cls = status === 'yes' ? 'own-yes' : status === 'maybe' ? 'own-maybe' : 'own-no';
+    const trCls = isTrue(r.highlight) ? ' class="highlight-row"' : '';
+    return (
+      '<tr' + trCls + '>' +
+        '<td>' + esc(r.method || '') + '</td>' +
+        '<td><span class="cost-value">' + esc(r.monthly || '') + '</span></td>' +
+        '<td><span class="cost-value">' + esc(r.yearly || '') + '</span></td>' +
+        '<td><span class="own-badge ' + cls + '">' + esc(r.own_label || '') + '</span></td>' +
+      '</tr>'
+    );
+  }).join('');
+}
+
 if (MENU_URL) {
   fetch(MENU_URL, {cache:'no-store'})
     .then(r => r.ok ? r.json() : Promise.reject(r.status))
-    .then(remote => { if (remote && typeof remote === 'object') applyCMS(remote); })
+    .then(remote => {
+      if (!remote || typeof remote !== 'object') return;
+      applyCMS(remote);
+      if (Array.isArray(remote.bridgePricing))  renderBridgePricing(remote.bridgePricing);
+      if (Array.isArray(remote.bridgeGaps))     renderBridgeGaps(remote.bridgeGaps);
+      if (Array.isArray(remote.bridgeFeatures)) renderBridgeFeatures(remote.bridgeFeatures);
+      if (Array.isArray(remote.bridgeCompare))  renderBridgeCompare(remote.bridgeCompare);
+    })
     .catch(err => console.warn('[bridge-the-gap] config fetch failed, using static content:', err));
 }
 </script>
