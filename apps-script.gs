@@ -346,10 +346,10 @@ function getTabDefs() {
           'Rental options',
           'Pick Your Plan',
           "Not sure which one?",
-          "Text Dru and we'll point you the right way.",
+          "Text our rentals desk and we'll point you the right way.",
           '',
-          'Text 330-406-9682',
-          'sms:3304069682',
+          'Text 330-406-9686',
+          'sms:3304069686',
           false,
           'See Service Plans',
           'creek-ready.html',
@@ -448,18 +448,18 @@ function getTabDefs() {
           '',
           'Questions before you ride?',
           "Reach out — we'll walk you through anything that's still unclear.",
-          'Text 330-406-9682',
-          'sms:3304069682',
+          'Text 330-406-9686',
+          'sms:3304069686',
           false,
           'Email Us',
-          'mailto:salesteam@cruisethecreek.com',
+          'mailto:info@cruisethecreek.com',
           false,
         ],
         ['faqs',
           'Frequently Asked Questions',
           'Everything You Need',
           'to Know',
-          "Booking, sales, test rides, Bridge the Gap, safety, service, refunds — answers to the questions we hear most. Still stuck? Text Dru at 330-406-9682.",
+          "Booking, sales, test rides, Bridge the Gap, safety, service, refunds — answers to the questions we hear most. Still stuck? See the Contact section below to text the right desk.",
           '',
           '', '', false,
           '', '',
@@ -478,8 +478,25 @@ function getTabDefs() {
     'SiteConfig': {
       header: ['key','value'],
       rows: [
+        // ── Contact: two departments ──
+        // Info / Rentals / Tours / Sponsorships
+        ['info_phone_display',  '330-406-9686'],
+        ['info_phone_sms',      'sms:3304069686'],
+        ['info_phone_tel',      'tel:+13304069686'],
+        ['info_email_label',    'info@cruisethecreek.com'],
+        ['info_email_url',      'mailto:info@cruisethecreek.com'],
+        // Sales / Test Rides / Repairs
+        ['sales_phone_display', '330-406-9682'],
+        ['sales_phone_sms',     'sms:3304069682'],
+        ['sales_phone_tel',     'tel:+13304069682'],
+        ['sales_email_label',   'salesteam@cruisethecreek.com'],
+        ['sales_email_url',     'mailto:salesteam@cruisethecreek.com'],
         ['footer_tagline',     'Electric bikes built for creek country. Ride the trails, beat the heat, get home grinning.'],
         ['footer_copyright',   '© 2026 Cruise the Creek. All rights reserved.'],
+        // Sales Pro quote card (index.html)
+        ['quote_brand_name',    'CRUISE THE CREEK'],
+        ['quote_brand_subline', 'Youngstown, Ohio · cruisethecreek.com'],
+        ['quote_footer',        'Quote valid 7 days · Cruise the Creek · 330-406-9682'],
         ['social_instagram',   ''],
         ['social_facebook',    ''],
         ['social_tiktok',      ''],
@@ -585,7 +602,7 @@ function getTabDefs() {
       rows: [
         // ── Booking ──
         [10, 'Booking', 'booking', 'How do I book a rental?',
-          "Book online through our reservation system — pick a pickup location (Bears Den / Scholl Pavilion or Kirk Road Trailhead), choose how many bikes and a time block, and you're done in under a minute. You'll get a confirmation email with waiver forms and pickup details.\n\nPrefer the human touch? **Text Dru at 330-406-9682** and we'll book it for you."],
+          "Book online through our reservation system — pick a pickup location (Bears Den / Scholl Pavilion or Kirk Road Trailhead), choose how many bikes and a time block, and you're done in under a minute. You'll get a confirmation email with waiver forms and pickup details.\n\nPrefer the human touch? **Text our rentals desk at 330-406-9686** and we'll book it for you."],
         [11, 'Booking', '', 'How far in advance should I book?',
           "Weekends and warm-weather afternoons fill up — book at least **2–3 days ahead** for weekends, longer for holidays. Weekday mornings often have same-day availability. If you're flexible, message us and we'll fit you in."],
         [12, 'Booking', '', 'Can I book for a group?',
@@ -643,11 +660,11 @@ function getTabDefs() {
         [51, 'Bridge the Gap', '', 'How does the program work?',
           "Simple terms:\n\n- **$25–$30 per week** in bi-weekly payments\n- **15 bi-weekly payments** total — then the bike is yours\n- **No credit checks**\n- **No driver's license required**\n- You're riding the bike the whole time you're paying"],
         [52, 'Bridge the Gap', '', 'Who qualifies?',
-          "Bridge the Gap is built for residents who need reliable transportation but face barriers with traditional financing. Anyone of legal age can apply. Text us at **330-406-9682** or visit the Bridge the Gap page to start an application."],
+          "Bridge the Gap is built for residents who need reliable transportation but face barriers with traditional financing. Anyone of legal age can apply. Text our rentals desk at **330-406-9686** or visit the Bridge the Gap page to start an application."],
         [53, 'Bridge the Gap', '', 'What if I want to stop early?',
           "Reach out — we'll work with you. Life happens, and we'd rather have an honest conversation than make this complicated."],
         [54, 'Bridge the Gap', '', 'How do I apply?',
-          "Visit the [Bridge the Gap page](bridge-the-gap.html) and tap \"Apply Now\" — or text us at **330-406-9682** and we'll walk you through it."],
+          "Visit the [Bridge the Gap page](bridge-the-gap.html) and tap \"Apply Now\" — or text the rentals desk at **330-406-9686** and we'll walk you through it."],
 
         // ── Safety ──
         [60, 'Safety', 'safety', 'How old do you have to be to ride?',
@@ -659,9 +676,9 @@ function getTabDefs() {
         [63, 'Safety', '', 'Are e-bikes hard to ride?',
           "Not at all. If you can ride a regular bike, you can ride an e-bike. Pedal-assist makes hills feel flat and long distances feel short. Our staff gives you a full tutorial before you head out.\n\nIf we don't feel confident in your readiness during the tutorial, we'll cancel the rental and offer a **full refund**. Guest safety is non-negotiable — we reserve the right to refuse rental to anyone we feel is unfit to ride an e-bike."],
         [64, 'Safety', '', 'What if I crash or get hurt?',
-          "Stop riding, get yourself to safety, and call **330-406-9682**. If it's an emergency, call 911 first. We'll come to you. The waiver you signed at booking covers the rental terms; rider safety always comes first."],
+          "Stop riding, get yourself to safety, and call our rentals desk at **330-406-9686**. If it's an emergency, call 911 first. We'll come to you. The waiver you signed at booking covers the rental terms; rider safety always comes first."],
         [65, 'Safety', '', 'What if the bike breaks down on the trail?',
-          "Call or text **330-406-9682**. We'll send a tech to either fix the issue on the spot (e.g. a flat tire) or bring you back to the shop. Then we'll either swap you onto another bike to finish your ride, or revise your rental charge to the time you actually used."],
+          "Call or text the rentals desk at **330-406-9686**. We'll send a tech to either fix the issue on the spot (e.g. a flat tire) or bring you back to the shop. Then we'll either swap you onto another bike to finish your ride, or revise your rental charge to the time you actually used."],
 
         // ── Service ──
         [70, 'Service', 'service', "Do you service bikes you didn't sell?",
@@ -679,7 +696,7 @@ function getTabDefs() {
 
         // ── Policies ──
         [80, 'Policies', 'policies', "What's your cancellation policy on rentals?",
-          "Cancel or reschedule with at least **24 hours' notice** for a full refund. Inside 24 hours we may not be able to refund the full amount, but we'll always work with you on weather, illness, or genuine emergencies. Just text us as soon as you know — **330-406-9682**.\n\nFull policy: [cruisethecreek.com/cancellation-policy](https://www.cruisethecreek.com/cancellation-policy)"],
+          "Cancel or reschedule with at least **24 hours' notice** for a full refund. Inside 24 hours we may not be able to refund the full amount, but we'll always work with you on weather, illness, or genuine emergencies. Just text the rentals desk as soon as you know — **330-406-9686**.\n\nFull policy: [cruisethecreek.com/cancellation-policy](https://www.cruisethecreek.com/cancellation-policy)"],
         [81, 'Policies', '', 'What if the weather is bad?',
           "If we cancel for weather, you get a full refund or a free reschedule — your call. Light rain isn't usually a reason to cancel; lightning, severe storms, ice, or unsafe trail conditions are. We'll reach out the morning of if it looks dicey."],
         [82, 'Policies', '', 'Can I get a refund on a tune-up?',
@@ -692,8 +709,8 @@ function getTabDefs() {
           "Normal wear is on us. Rider negligence — collision, drop damage, missing parts — is on you, per the waiver you signed at booking. We'll assess any damage when you return the bike and let you know if there's a charge before billing anything. We don't surprise people with fees."],
 
         // ── Contact ──
-        [90, 'Contact', 'contact', "What's the fastest way to reach you?",
-          "**Text 330-406-9682.** We answer texts faster than calls or email — usually within an hour during the day. For non-urgent stuff, email [salesteam@cruisethecreek.com](mailto:salesteam@cruisethecreek.com) works great."],
+        [90, 'Contact', 'contact', 'Which department do I text?',
+          "We run two main desks. Pick the one that matches what you need.\n\n**Info — Rentals, Tours, Sponsorships**\n\n- Text: **330-406-9686**\n- Email: [info@cruisethecreek.com](mailto:info@cruisethecreek.com)\n\n**Sales — Test Rides, Repairs**\n\n- Text: **330-406-9682**\n- Email: [salesteam@cruisethecreek.com](mailto:salesteam@cruisethecreek.com)\n\nText is faster than email or a call — we usually answer within an hour during the day."],
         [91, 'Contact', '', 'Where are you located?',
           "**6685 Kirk Rd, Canfield, OH 44406** — right across from Mill Creek MetroParks. Pickup locations for rentals are at Bears Den / Scholl Pavilion (in the park) or the Kirk Road Trailhead (on the bikeway)."],
         [92, 'Contact', '', 'What are your hours?',
