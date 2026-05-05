@@ -3,114 +3,303 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Donate | Cruise the Creek</title>
-<meta name="description" content="Help us keep the Cruise the Creek rental fleet trail-ready — donations go toward tune-ups, parts, and replacements.">
+<title>Support Cruise the Creek | Donate</title>
+<meta name="description" content="Help us keep the Cruise the Creek rental fleet trail-ready. Every donation upgrades the fleet and keeps our operations safe and fun. Donors get a spot on the Supporters Wall.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,400;0,500;0,700;0,800;1,400&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 :root{
-  --sage:#6B8F71;--forest:#2D4A32;--dark:#1a2e1c;
-  --tan:#C9A96E;--cream:#F5F0E8;--cream-w:#fbf7ef;
-  --ink:#1a1a1a;--ink-2:#4a4a4a;
+  --sage:#6B8F71;--sage-d:#557159;--forest:#2D4A32;--dark:#1a2e1c;
+  --tan:#C9A96E;--tan-d:#a98843;--cream:#F5F0E8;--cream-w:#fbf7ef;
+  --ink:#1a1a1a;--ink-2:#3a3a3a;--ink-3:#5a5a5a;
+  /* payment brand colors */
+  --cashapp:#00C244;--venmo:#3D95CE;--paypal:#003087;--paypal-light:#0070BA;
 }
 html,body{height:100%}
 html{scroll-behavior:smooth}
 body{font-family:'DM Sans',sans-serif;color:var(--ink);background:var(--cream);
-  min-height:100vh;display:flex;flex-direction:column;line-height:1.75}
+  display:flex;flex-direction:column;min-height:100vh;line-height:1.7}
 a{color:inherit;text-decoration:none;transition:color .2s ease}
-button{font-family:inherit}
+img{max-width:100%;display:block}
 
-/* TOP BAR */
-.topbar{background:rgba(255,255,255,.95);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
-  color:var(--dark);padding:16px 24px;display:flex;align-items:center;justify-content:space-between;
+/* ── TOP BAR ── */
+.topbar{background:rgba(255,255,255,.95);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+  color:var(--dark);padding:14px 24px;display:flex;align-items:center;justify-content:space-between;
   position:sticky;top:0;z-index:100;border-bottom:1px solid rgba(0,0,0,.05)}
-.brand-logo{height:38px;width:auto;display:block}
+.brand-logo{height:34px;width:auto;display:block}
+.topbar a.nav-back{font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;
+  font-weight:700;color:var(--ink-3)}
+.topbar a.nav-back:hover{color:var(--forest)}
 
-/* HERO */
-.hero{position:relative;min-height:34vh;padding:64px 24px 48px;
-  display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;
-  color:#fff;background:var(--forest);overflow:hidden;isolation:isolate}
-.hero-topo{position:absolute;inset:0;z-index:-1;opacity:.18;pointer-events:none;
+/* ── HERO ── */
+.hero{position:relative;padding:72px 24px 56px;color:#fff;background:var(--forest);
+  overflow:hidden;isolation:isolate;text-align:center}
+.hero-topo{position:absolute;inset:0;z-index:-1;opacity:.15;pointer-events:none;
   background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 600 400' preserveAspectRatio='none'><g fill='none' stroke='%23F5F0E8' stroke-width='1.2'><path d='M0,80 Q150,60 300,90 T600,80'/><path d='M0,140 Q150,120 300,150 T600,140'/><path d='M0,200 Q150,180 300,210 T600,200'/><path d='M0,260 Q150,240 300,270 T600,260'/></g></svg>");
   background-size:cover}
-.hero-eyebrow{display:inline-block;font-size:.75rem;font-weight:700;letter-spacing:.2em;
-  text-transform:uppercase;color:var(--tan);margin-bottom:16px;
-  padding:6px 14px;border:1px solid rgba(201,169,110,.3);border-radius:4px;
-  background:rgba(26,46,28,.2)}
-.hero h1{font-family:'Bebas Neue',sans-serif;font-size:clamp(2.4rem,7vw,4rem);
+.hero-eyebrow{display:inline-block;font-size:.72rem;font-weight:700;letter-spacing:.2em;
+  text-transform:uppercase;color:var(--tan);margin-bottom:14px;
+  padding:6px 14px;border:1px solid rgba(201,169,110,.4);border-radius:4px;
+  background:rgba(26,46,28,.25)}
+.hero h1{font-family:'Bebas Neue',sans-serif;font-size:clamp(2.4rem,7vw,4.2rem);
   letter-spacing:.02em;line-height:1;margin-bottom:14px}
-.hero p{font-size:clamp(1rem,2.4vw,1.1rem);color:rgba(255,255,255,.9);
-  max-width:480px;line-height:1.6}
+.hero h1 em{font-style:normal;color:var(--tan);display:block}
+.hero p{font-size:clamp(1rem,2.4vw,1.15rem);color:rgba(255,255,255,.9);
+  max-width:640px;margin:0 auto;line-height:1.6}
 
-/* BREADCRUMB */
-.crumb{max-width:880px;margin:0 auto;padding:24px 24px 0;
-  font-size:.75rem;letter-spacing:.1em;text-transform:uppercase;font-weight:700;color:var(--sage)}
-.crumb a{color:var(--ink-2)}
-.crumb a:hover{color:var(--forest)}
-.crumb .sep{color:rgba(0,0,0,.2);margin:0 8px}
+/* ── ARTICLE ── */
+main{flex:1;width:100%}
+.article{max-width:780px;margin:0 auto;padding:40px 24px 32px;width:100%}
+.section{padding:32px 0;border-bottom:1px solid rgba(45,74,50,.08)}
+.section:last-of-type{border-bottom:none}
+.section-eyebrow{display:block;font-size:.72rem;letter-spacing:.18em;text-transform:uppercase;
+  font-weight:700;color:var(--sage);margin-bottom:10px}
+.section h2{font-family:'Bebas Neue',sans-serif;font-size:clamp(1.9rem,4.6vw,2.6rem);
+  letter-spacing:.02em;color:var(--forest);line-height:1.1;margin-bottom:14px}
+.section p{font-size:1.02rem;line-height:1.75;color:var(--ink-2);margin-bottom:14px}
+.section p:last-child{margin-bottom:0}
+.section p strong{color:var(--dark);font-weight:700}
 
-/* PLACEHOLDER */
-main{flex:1;max-width:780px;margin:0 auto;padding:32px 24px 48px;width:100%}
-.placeholder{background:#fff;border:1px dashed rgba(201,169,110,.5);border-radius:8px;
-  padding:36px 30px;text-align:center;color:var(--ink-2);
-  box-shadow:0 4px 12px rgba(0,0,0,.03)}
-.ph-eyebrow{font-size:.7rem;letter-spacing:.15em;font-weight:700;
-  text-transform:uppercase;color:var(--sage);margin-bottom:8px}
-.ph-title{font-family:'Bebas Neue',sans-serif;font-size:1.75rem;
-  letter-spacing:.02em;color:var(--forest);margin-bottom:10px;line-height:1.1}
-.ph-note{font-size:1rem;line-height:1.6;max-width:520px;margin:0 auto}
-.back-cta{display:inline-flex;align-items:center;gap:8px;margin-top:24px;
-  background:var(--forest);color:#fff;padding:12px 24px;border-radius:4px;
-  font-weight:700;font-size:.9rem;letter-spacing:.04em;
-  transition:background .2s ease}
-.back-cta:hover{background:var(--dark)}
-.back-cta svg{width:14px;height:14px}
+/* ── PAYMENT BUTTONS ── */
+.give-section{padding:36px 0 24px;text-align:center}
+.give-eyebrow{display:block;font-size:.72rem;letter-spacing:.18em;text-transform:uppercase;
+  font-weight:700;color:var(--sage);margin-bottom:8px}
+.give-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(1.8rem,4vw,2.2rem);
+  letter-spacing:.02em;color:var(--forest);line-height:1.1;margin-bottom:6px}
+.give-sub{color:var(--ink-3);font-size:.96rem;margin-bottom:24px}
+.give-row{display:grid;grid-template-columns:1fr;gap:12px;max-width:520px;margin:0 auto}
+@media(min-width:560px){.give-row{grid-template-columns:1fr 1fr 1fr}}
 
-/* FOOTER */
-footer{background:var(--dark);color:rgba(255,255,255,.65);padding:32px 24px;
-  text-align:center;font-size:.85rem;letter-spacing:.02em}
-footer a{color:var(--tan);font-weight:500}
+.give-btn{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:22px 16px;border-radius:12px;color:#fff;font-weight:800;
+  text-decoration:none;transition:transform .2s ease,box-shadow .2s ease;
+  box-shadow:0 6px 16px rgba(0,0,0,.1);border:1px solid rgba(255,255,255,.1)}
+.give-btn:hover{transform:translateY(-2px);box-shadow:0 12px 28px rgba(0,0,0,.18);color:#fff}
+.give-btn .pay-icon{font-size:1.7rem;margin-bottom:8px;line-height:1;
+  font-family:'Bebas Neue',sans-serif;letter-spacing:.04em;
+  width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,.18);
+  display:flex;align-items:center;justify-content:center}
+.give-btn .pay-name{font-family:'Bebas Neue',sans-serif;font-size:1.3rem;letter-spacing:.06em;line-height:1;margin-bottom:4px}
+.give-btn .pay-handle{font-size:.78rem;letter-spacing:.04em;opacity:.92;font-weight:600;word-break:break-all}
+
+.give-btn.cashapp{background:var(--cashapp)}
+.give-btn.venmo  {background:var(--venmo)}
+.give-btn.paypal {background:linear-gradient(135deg,var(--paypal-light) 0%,var(--paypal) 100%)}
+
+.give-foot{margin-top:20px;font-size:.86rem;color:var(--ink-3);max-width:520px;margin-left:auto;margin-right:auto}
+
+/* ── SUPPORTERS WALL ── */
+.wall{padding:36px 0 16px}
+.wall-head{text-align:center;margin-bottom:22px}
+.wall-eyebrow{display:block;font-size:.72rem;letter-spacing:.18em;text-transform:uppercase;
+  font-weight:700;color:var(--tan-d);margin-bottom:8px}
+.wall-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(2rem,4.6vw,2.6rem);
+  letter-spacing:.02em;color:var(--forest);line-height:1.1;margin-bottom:6px}
+.wall-sub{color:var(--ink-3);font-size:.98rem;max-width:520px;margin:0 auto}
+
+.wall-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));
+  gap:10px;margin-top:18px}
+.supporter{background:#fff;border:1px solid rgba(0,0,0,.06);border-radius:8px;
+  padding:12px 14px;display:flex;flex-direction:column;
+  box-shadow:0 2px 6px rgba(0,0,0,.03)}
+.supporter .s-name{font-weight:700;color:var(--forest);font-size:.98rem;line-height:1.25}
+.supporter .s-meta{font-size:.78rem;color:var(--ink-3);margin-top:3px}
+.supporter.level-gold{border-left:3px solid var(--tan);background:linear-gradient(135deg,#fff 0%,var(--cream-w) 100%)}
+.supporter.level-silver{border-left:3px solid #b9bcc1}
+.supporter.level-bronze{border-left:3px solid #b08658}
+
+.wall-empty{text-align:center;padding:24px 18px;background:var(--cream-w);
+  border:1px dashed rgba(201,169,110,.4);border-radius:10px;
+  color:var(--ink-3);font-size:.92rem}
+
+/* ── FOOTER ── */
+footer{background:var(--dark);color:rgba(255,255,255,.7);padding:28px 24px;
+  text-align:center;font-size:.88rem;letter-spacing:.02em}
+footer a{color:var(--tan);font-weight:600}
 footer a:hover{color:#fff}
+footer .foot-links{margin-top:8px}
+footer .foot-links a{margin:0 8px}
 
-@media(max-width:380px){
-  .topbar{padding:12px 16px}.brand-logo{height:32px}
-  .hero{padding:48px 16px 36px}main{padding:24px 16px 36px}
-  .placeholder{padding:26px 18px}
+@media(max-width:480px){
+  .topbar{padding:12px 16px}.brand-logo{height:30px}
+  .hero{padding:56px 16px 40px}
+  .article{padding:28px 16px 28px}
+  .give-section{padding:28px 0 18px}
+  .give-btn{padding:18px 14px}
 }
 </style>
 </head>
 <body>
 
 <header class="topbar">
-  <a href="home.html" aria-label="Cruise the Creek home"><img class="brand-logo" src="BlackonTransparent.png" alt="Cruise the Creek"></a>
+  <a href="home.html" aria-label="Cruise the Creek home" data-cms-href="logo_url" data-cms-target="logo_external">
+    <img class="brand-logo" src="BlackonTransparent.png" alt="Cruise the Creek">
+  </a>
+  <a class="nav-back" href="home.html">← Home</a>
 </header>
 
 <section class="hero">
   <div class="hero-topo"></div>
-  <span class="hero-eyebrow">Keep the fleet rolling</span>
-  <h1>Donate</h1>
-  <p>Help us keep the rental fleet trail-ready &mdash; donations go toward tune-ups, parts, and replacements.</p>
+  <span class="hero-eyebrow" data-cms-text="hero_eyebrow">Support the ride</span>
+  <h1>
+    <span data-cms-text="hero_h1">Our Support</span>
+    <em data-cms-text="hero_h1_em">Fuels the Ride</em>
+  </h1>
+  <p data-cms-text="hero_tagline">Mill Creek is more than just a park — it's where our community comes together to explore and enjoy the outdoors. Help us keep the rides safe, the gear sharp, and the trails open to everyone.</p>
 </section>
 
-<nav class="crumb"><a href="home.html">Home</a><span class="sep">/</span>Creek Life <span class="sep">/</span> Donate</nav>
-
 <main>
-  <div class="placeholder">
-    <div class="ph-eyebrow">Coming soon</div>
-    <div class="ph-title">Fleet upkeep fund</div>
-    <div class="ph-note">A donation widget (Stripe / Venmo / PayPal link) plus a snapshot of current fleet condition and recent repairs will live here.</div>
-    <a class="back-cta" href="home.html">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
-      Back
-    </a>
-  </div>
+  <article class="article">
+
+    <section class="section">
+      <span class="section-eyebrow" data-cms-text="intro_eyebrow">Why we need you</span>
+      <h2 data-cms-text="intro_title">Be a direct part of our growth</h2>
+      <p data-cms-text="intro_body">To keep providing the high-quality equipment and experiences you've come to expect, we're inviting you to be a direct part of our growth. The future of our local trails is bright, and with your help, we can make the next season our best one yet.</p>
+    </section>
+
+    <section class="section">
+      <span class="section-eyebrow" data-cms-text="impact_eyebrow">Your impact</span>
+      <h2 data-cms-text="impact_title">Where every dollar goes</h2>
+      <p data-cms-text="impact_body">Every donation goes directly toward upgrading our fleet and maintaining the essential gear that keeps our operations safe and fun for everyone. This isn't about overhead — it's about ensuring we have the best tools available to serve you.</p>
+    </section>
+
+    <section class="section">
+      <span class="section-eyebrow" data-cms-text="thanks_eyebrow">Our appreciation</span>
+      <h2 data-cms-text="thanks_title">Thank you, in public</h2>
+      <p data-cms-text="thanks_body">As a thank you for your support, all donors will be featured on our <strong>Supporters Wall</strong> below. It's our way of making sure the community knows who helped keep us moving forward.</p>
+    </section>
+
+    <!-- ── PAYMENT BUTTONS ── -->
+    <section class="give-section" id="give">
+      <span class="give-eyebrow" data-cms-text="give_eyebrow">Send a tip</span>
+      <h2 class="give-title" data-cms-text="give_title">Pick the way that works for you</h2>
+      <p class="give-sub" data-cms-text="give_sub">Three options. Any amount helps. We see every transfer.</p>
+      <div class="give-row">
+        <a class="give-btn cashapp"
+           href="https://cash.app/$ctcsales"
+           target="_blank" rel="noopener"
+           data-cms-href="donate_cashapp_url">
+          <span class="pay-icon">$</span>
+          <span class="pay-name">Cash App</span>
+          <span class="pay-handle" data-cms-text="donate_cashapp_handle">$ctcsales</span>
+        </a>
+        <a class="give-btn venmo"
+           href="https://account.venmo.com/u/cruisethecreeksales"
+           target="_blank" rel="noopener"
+           data-cms-href="donate_venmo_url">
+          <span class="pay-icon">V</span>
+          <span class="pay-name">Venmo</span>
+          <span class="pay-handle" data-cms-text="donate_venmo_handle">@cruisethecreeksales</span>
+        </a>
+        <a class="give-btn paypal"
+           href="https://www.paypal.biz/cruisethecreek"
+           target="_blank" rel="noopener"
+           data-cms-href="donate_paypal_url">
+          <span class="pay-icon">P</span>
+          <span class="pay-name">PayPal</span>
+          <span class="pay-handle" data-cms-text="donate_paypal_handle">paypal.biz/cruisethecreek</span>
+        </a>
+      </div>
+      <p class="give-foot" data-cms-text="give_foot">After you send, drop us a note with how you'd like to appear on the Supporters Wall — first name, full name, business, or anonymous, your call.</p>
+    </section>
+
+    <!-- ── SUPPORTERS WALL ── -->
+    <section class="wall" id="wall">
+      <div class="wall-head">
+        <span class="wall-eyebrow" data-cms-text="wall_eyebrow">The supporters wall</span>
+        <h2 class="wall-title" data-cms-text="wall_title">Thank you, Creek Crew</h2>
+        <p class="wall-sub" data-cms-text="wall_sub">The names below kept the wheels turning this season.</p>
+      </div>
+      <div class="wall-grid" id="supportersGrid">
+        <div class="wall-empty" style="grid-column:1/-1">Be the first name on the wall — pick a payment method above.</div>
+      </div>
+    </section>
+
+  </article>
 </main>
 
 <footer>
-  &copy; 2026 Cruise the Creek &middot; <a href="home.html">Home</a> &middot; <a href="shop.html">Shop</a>
+  <div>&copy; 2026 Cruise the Creek &middot; 6685 Kirk Rd, Canfield, OH 44406</div>
+  <div class="foot-links">
+    <a href="home.html">Home</a> &middot;
+    <a href="creek-ready.html">Service</a> &middot;
+    <a href="trailside.html">Trailside</a> &middot;
+    <a href="faqs.html">FAQs</a>
+  </div>
 </footer>
+
+<script>
+/* ── CMS apply: hero copy + section labels via data-cms-*,
+     supporters from a dedicated Supporters tab.
+     Static markup remains as fallback if the fetch fails. ── */
+const MENU_URL = 'https://script.google.com/macros/s/AKfycbxjg2ZsPCZNsmJEStYA0bRdsnkm4nNS-m-HNhm_Gin56VIVeYWVRE5j51j30zVHhb4PmQ/exec?page=donate';
+
+function isTrue(v){ return v===true||v==='TRUE'||v==='true'||v===1; }
+function esc(s){ return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+function applyCMS(remote){
+  const map = Object.assign({}, remote.site || {}, remote.pageMeta || {});
+  document.querySelectorAll('[data-cms-text]').forEach(el => {
+    const v = map[el.dataset.cmsText];
+    if (v != null && String(v).trim() !== '') el.textContent = v;
+  });
+  document.querySelectorAll('[data-cms-href]').forEach(el => {
+    const v = map[el.dataset.cmsHref];
+    if (v) el.href = v;
+  });
+  document.querySelectorAll('[data-cms-target]').forEach(el => {
+    const v = map[el.dataset.cmsTarget];
+    if (isTrue(v)) { el.target = '_blank'; el.rel = 'noopener'; }
+  });
+}
+
+/* Render the Supporters Wall.
+   Columns: order, name, level (gold|silver|bronze|""), date, note */
+function renderSupporters(rows){
+  const grid = document.getElementById('supportersGrid');
+  if (!grid || !Array.isArray(rows) || !rows.length) return;
+  grid.innerHTML = rows.map(r => {
+    const lvl = String(r.level || '').trim().toLowerCase();
+    const cls = (lvl === 'gold' || lvl === 'silver' || lvl === 'bronze') ? ' level-' + lvl : '';
+    const meta = [r.note, r.date].filter(Boolean).map(esc).join(' · ');
+    return (
+      '<div class="supporter' + cls + '">' +
+        '<span class="s-name">' + esc(r.name || '—') + '</span>' +
+        (meta ? '<span class="s-meta">' + meta + '</span>' : '') +
+      '</div>'
+    );
+  }).join('');
+}
+
+/* ── CMS cache: kill the flash for repeat visitors. ── */
+const CMS_CACHE_KEY = 'cms:donate:v1';
+function readCmsCache(){
+  try { const raw = localStorage.getItem(CMS_CACHE_KEY);
+        const p = raw ? JSON.parse(raw) : null;
+        return (p && typeof p === 'object') ? p : null;
+      } catch(e) { return null; }
+}
+function writeCmsCache(d){
+  try { localStorage.setItem(CMS_CACHE_KEY, JSON.stringify(d)); } catch(e) {}
+}
+const _cached = readCmsCache();
+if (_cached) {
+  applyCMS(_cached);
+  if (Array.isArray(_cached.supporters) && _cached.supporters.length) renderSupporters(_cached.supporters);
+}
+
+fetch(MENU_URL, {cache:'no-store'})
+  .then(r => r.ok ? r.json() : Promise.reject(r.status))
+  .then(remote => {
+    if (!remote || typeof remote !== 'object') return;
+    writeCmsCache(remote);
+    applyCMS(remote);
+    if (Array.isArray(remote.supporters) && remote.supporters.length) renderSupporters(remote.supporters);
+  })
+  .catch(err => console.warn('[donate] config fetch failed, using static content:', err));
+</script>
 
 </body>
 </html>
