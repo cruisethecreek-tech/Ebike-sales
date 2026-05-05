@@ -409,6 +409,7 @@ footer a:hover{color:#fff}
   &middot; <a href="home.html">Home</a>
   &middot; <a href="rentals.html">Rentals</a>
   &middot; <a href="shop.html">Shop</a>
+  &middot; <a href="donate.html">Support</a>
 </footer>
 
 <script>
@@ -587,10 +588,28 @@ function _renderSwitch(rows){
   content.innerHTML = html;
 }
 
+/* ── CMS cache: kill the flash for repeat visitors. ── */
+const CMS_CACHE_KEY = 'cms:adventures:v1';
+function readCmsCache(){
+  try { const raw = localStorage.getItem(CMS_CACHE_KEY);
+        const p = raw ? JSON.parse(raw) : null;
+        return (p && typeof p === 'object') ? p : null;
+      } catch(e) { return null; }
+}
+function writeCmsCache(d){
+  try { localStorage.setItem(CMS_CACHE_KEY, JSON.stringify(d)); } catch(e) {}
+}
+const _cached = readCmsCache();
+if (_cached) {
+  applyCMS(_cached);
+  if (Array.isArray(_cached.sections)) renderSections(_cached.sections);
+}
+
 fetch(MENU_URL, {cache:'no-store'})
   .then(r => r.ok ? r.json() : Promise.reject(r.status))
   .then(remote => {
     if (!remote || typeof remote !== 'object') return;
+    writeCmsCache(remote);
     applyCMS(remote);
     if (Array.isArray(remote.sections)) renderSections(remote.sections);
   })

@@ -205,6 +205,7 @@ function getTabDefs() {
         ['services',   4, 'Services',   'Tune-ups & creek prep',              'menu', '',                                    false],
         ['test-rides', 5, 'Test Rides', 'Try before you buy',                 'link', 'test-ride.html',                      false],
         ['creek-life', 6, 'Creek Life', 'Stories, events, more',              'menu', '',                                    false],
+        ['donate',     7, 'Support',    'Help fuel the ride',                 'link', 'donate.html',                         false],
       ],
     },
     'Home_Submenus': {
