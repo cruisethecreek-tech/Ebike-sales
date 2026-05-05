@@ -119,6 +119,10 @@ function doGet(e) {
   const journeys = readSheet(ss, 'Journeys')
     .sort(function(a, b){ return (a.order || 0) - (b.order || 0); });
 
+  // Donations page: the Supporters Wall.
+  const supporters = readSheet(ss, 'Supporters')
+    .sort(function(a, b){ return (a.order || 0) - (b.order || 0); });
+
   const data = {
     page:              page,
     pageMeta:          pageMeta,
@@ -134,6 +138,7 @@ function doGet(e) {
     bridgeCompare:     bridgeCompare,
     bridgeBikeOptions: bridgeBikeOptions,
     journeys:          journeys,
+    supporters:        supporters,
     tiles:             readSheet(ss, cap + '_Tiles'),
     submenus:          groupBy(readSheet(ss, cap + '_Submenus'), 'tile'),
   };
@@ -200,6 +205,7 @@ function getTabDefs() {
         ['services',   4, 'Services',   'Tune-ups & creek prep',              'menu', '',                                    false],
         ['test-rides', 5, 'Test Rides', 'Try before you buy',                 'link', 'test-ride.html',                      false],
         ['creek-life', 6, 'Creek Life', 'Stories, events, more',              'menu', '',                                    false],
+        ['donate',     7, 'Support',    'Help fuel the ride',                 'link', 'donate.html',                         false],
       ],
     },
     'Home_Submenus': {
@@ -496,6 +502,18 @@ function getTabDefs() {
           'trailside.html',
           false,
         ],
+        ['donate',
+          'Support the ride',
+          'Our Support',
+          'Fuels the Ride',
+          "Mill Creek is more than just a park — it's where our community comes together to explore and enjoy the outdoors. Help us keep the rides safe, the gear sharp, and the trails open to everyone.",
+          '',
+          '', '', false,
+          '', '',
+          '', '', '',
+          '', '', false,
+          '', '', false,
+        ],
       ],
     },
     'SiteConfig': {
@@ -596,6 +614,29 @@ function getTabDefs() {
         ['north_title',        'Toward Austintown & Niles'],
         ['north_intro',        'Iconic overpass bridges, the Niles Greenway, and the McKinley Memorial — push north for a longer ride.'],
         ['hashtag',            '#TrailsideJourney'],
+        // Donations page (donate.html)
+        ['intro_eyebrow',      'Why we need you'],
+        ['intro_title',        'Be a direct part of our growth'],
+        ['intro_body',         "To keep providing the high-quality equipment and experiences you've come to expect, we're inviting you to be a direct part of our growth. The future of our local trails is bright, and with your help, we can make the next season our best one yet."],
+        ['impact_eyebrow',     'Your impact'],
+        ['impact_title',       'Where every dollar goes'],
+        ['impact_body',        "Every donation goes directly toward upgrading our fleet and maintaining the essential gear that keeps our operations safe and fun for everyone. This isn't about overhead — it's about ensuring we have the best tools available to serve you."],
+        ['thanks_eyebrow',     'Our appreciation'],
+        ['thanks_title',       'Thank you, in public'],
+        ['thanks_body',        "As a thank you for your support, all donors will be featured on our Supporters Wall below. It's our way of making sure the community knows who helped keep us moving forward."],
+        ['give_eyebrow',       'Send a tip'],
+        ['give_title',         'Pick the way that works for you'],
+        ['give_sub',           'Three options. Any amount helps. We see every transfer.'],
+        ['give_foot',          "After you send, drop us a note with how you'd like to appear on the Supporters Wall — first name, full name, business, or anonymous, your call."],
+        ['donate_cashapp_url', 'https://cash.app/$ctcsales'],
+        ['donate_cashapp_handle', '$ctcsales'],
+        ['donate_venmo_url',   'https://account.venmo.com/u/cruisethecreeksales'],
+        ['donate_venmo_handle', '@cruisethecreeksales'],
+        ['donate_paypal_url',  'https://www.paypal.biz/cruisethecreek'],
+        ['donate_paypal_handle', 'paypal.biz/cruisethecreek'],
+        ['wall_eyebrow',       'The supporters wall'],
+        ['wall_title',         'Thank you, Creek Crew'],
+        ['wall_sub',           'The names below kept the wheels turning this season.'],
       ],
     },
     'Services': {
@@ -892,6 +933,20 @@ function getTabDefs() {
           "Niles Greenway bridge|McKinley Memorial|Beautiful wooded trail|Connects to MetroParks Bikeway",
           'https://www.traillink.com/trail/niles-greenway/',
           ''],
+      ],
+    },
+    'Supporters': {
+      // Donor "Supporters Wall" on donate.html.
+      // level (optional): 'gold' | 'silver' | 'bronze' | '' — picks the
+      //                   side accent on the card. Leave blank for a plain card.
+      // date / note (optional): show as a subtitle under the donor name.
+      header: ['order','name','level','date','note'],
+      rows: [
+        // Seed empty so updateSheet just adds the tab. Add a row per donor.
+        // Example formats:
+        //   [1, 'Jane Smith',          'gold',   'Jul 2025', 'Founding supporter'],
+        //   [2, 'Anonymous',           '',       '',         ''],
+        //   [3, 'Smith Family',        'silver', 'Aug 2025', ''],
       ],
     },
     'Admin': {
