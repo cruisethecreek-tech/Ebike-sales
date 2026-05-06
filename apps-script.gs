@@ -894,7 +894,14 @@ function getTabDefs() {
       // Trailside Journey destinations rendered on journeys.html.
       // direction: 'south' or 'north'  (controls which grid the card lands in)
       // dining / highlights: pipe-separated lists ("Spot 1|Spot 2|Spot 3")
-      // image: filename in /media/ (e.g. "kirk-road.jpg") or a full URL
+      // image: per-row visual. Accepts:
+      //   • Image filename in /media/ (e.g. "kirk-road.jpg") or a full URL
+      //   • Video filename in /media/ ending in .mp4/.webm/.mov/.ogv —
+      //     renders as autoplay-muted-loop (silent immersive, like a GIF)
+      //   • YouTube URL (https://youtube.com/watch?v=… or youtu.be/…)
+      //   • Vimeo URL (https://vimeo.com/…)
+      //   The renderer picks the right element automatically. Leave blank
+      //   to fall back to the destination name on a tan gradient.
       // distance: short label like "9 miles round trip"
       // duration: short label like "approx 40 minutes"
       // intersections: number or short string (optional)
