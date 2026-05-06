@@ -61,13 +61,21 @@
         }
 
         .hero {
-            background: linear-gradient(135deg, rgba(61, 74, 45, 0.92), rgba(45, 58, 31, 0.92)), 
-                        url('https://images.unsplash.com/photo-1593133642436-f08960803459?auto=format&fit=crop&q=80&w=1000');
-            background-size: cover;
-            background-position: center;
+            background: var(--forest, #2D4A32);
             color: white;
             padding: 6rem 0;
             position: relative;
+            overflow: hidden;
+            isolation: isolate;
+        }
+        .hero-img {
+            position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover;
+            z-index: -3; opacity: 0; transition: opacity .6s ease;
+        }
+        .hero-img.loaded { opacity: 1; }
+        .hero-overlay {
+            position: absolute; inset: 0; z-index: -2;
+            background: linear-gradient(135deg, rgba(61, 74, 45, var(--hero-overlay, .92)), rgba(45, 58, 31, var(--hero-overlay, .92)));
         }
 
         .hero::before {
@@ -313,6 +321,10 @@
     
 
     <section class="hero">
+        <img class="hero-img" data-cms-src="hero_photo" alt=""
+             onload="this.classList.add('loaded')"
+             onerror="this.remove()">
+        <div class="hero-overlay"></div>
         <div class="container">
             <h2 data-cms-text="hero_h1">Get Expert Help from Anywhere</h2>
             <p data-cms-text="hero_tagline">Stuck on assembly or troubleshooting an error code? Connect with our factory-trained technician on a live video call and get your e-bike rolling — no travel required.</p>
@@ -371,11 +383,21 @@ function ctcApplyCMS(remote){
     const v = map[el.dataset.cmsHref];
     if (v) el.href = v;
   });
+  document.querySelectorAll('[data-cms-src]').forEach(el => {
+    const v = map[el.dataset.cmsSrc];
+    if (!v) return;
+    const url = /^https?:\/\//.test(v) ? v : 'media/' + encodeURI(String(v).replace(/^(media|images)\//, '').trim());
+    el.addEventListener('error', () => el.remove(), { once: true });
+    el.src = url;
+  });
   document.querySelectorAll('[data-cms-target]').forEach(el => {
     const v = map[el.dataset.cmsTarget];
     if (ctcIsTrue(v)) { el.target = '_blank'; el.rel = 'noopener'; }
     else { el.removeAttribute('target'); el.removeAttribute('rel'); }
   });
+  if (map.hero_overlay_opacity != null && map.hero_overlay_opacity !== '') {
+    document.documentElement.style.setProperty('--hero-overlay', String(map.hero_overlay_opacity));
+  }
 }
 fetch(CTC_MENU_URL, {cache:'no-store'})
   .then(r => r.ok ? r.json() : Promise.reject(r.status))
