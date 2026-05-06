@@ -122,7 +122,7 @@ main { padding: 1.5rem; max-width: 1400px; margin: 0 auto; }
 <script>
 // AS URL — same endpoint the rest of the site uses
 const AS_URL = 'https://script.google.com/macros/s/AKfycbxmzlQHP4ghYbTzInhTANG7Wv9Cjj4dHTPFv-m8Q7GYPwbtx0yC7ydt8Nd_gFLobsBE/exec';
-const IMAGE_PREFIX = 'media/';
+const IMAGE_PREFIX = 'images/';
 
 // All filenames currently in /images/ — regenerated when new files are uploaded
 const LOCAL_FILES = ["1768526627390.jpg","9b7b2749-1184-4a62-b1c3-82cbe87afd51.jpg","Alpha White Back.jpg","Alpha.jpg","Alpine Blue Black.jpg","Aqua Green Black.jpg","Artic White Black.jpg","Beast Brown Black.jpg","Black Black.jpg","Black Summit.jpg","Blue Black.1.jpg","Blue Black.jpg","Blue Mock  Discovery 3.jpg","Blue Summit.jpg","Blue highstep.jpg","Blue.jpg","Breeze 1 Badge.jpg","ChatGPT Image Jan 16, 2026, 01_37_34 PM.jpg","ChatGPT Image Jan 16, 2026, 01_45_57 PM.jpg","CityRun Green Black.jpg","Cityrun Orange Black.jpg","Cityrun black black.jpg","Cityrun.jpg","Discover 2 Badge.jpg","Discover 2 same.jpg","Discover Blue.jpg","Discover Gray.jpg","Discover Green.jpg","EB5 2.0 badge Black.jpg","EB5 2.0 badge.jpg","EB5 Roamer Badge Black.jpg","EB5 Roamer badge.jpg","EB5 Roamer.jpg","EB7 2.0 Badge Black.jpg","EB7 2.0 Badge.jpg","EB7 2.0 Road Trip.jpg","Electric Blue Black.jpg","F1__Pearl_White_right_side_d65b1aac-67cd-466f-bd37-6178695d8398.jpg","Fold 1 Badge.jpg","Fold 1 Plus Badge.jpg","Fold 1 blue.jpg","Fold Plus.jpg","Gray.jpg","Green Black.jpg","Green High.jpg","Green M.jpg","Green mid.jpg","Green.jpg","Grey Black.jpg","Helio F Emi Black.jpg","Helio F Green Black.jpg","Helio F pbp black.jpg","Helio Mark Black.jpg","Helio black.jpg","Helio maroon Black.jpg","Hero Black.jpg","HighBar Badge.jpg","HighBar.jpg","Highsilver .jpg","Highstep blue.jpg","Horizon Black Black.jpg","Horizon Black Green.jpg","Horizon Black.jpg","Horizon Blue black.jpg","Horizon Orange Black.jpg","Hunter Pro Badge Black.jpg","Hunter Pro Badge.jpg","Hunter Pro.jpg","Lime Yellow Black.jpg","Mars 2.0 Black.jpg","Mars 3.0 Black Black.jpg","Mars 3.0 Black.jpg","Mars 3.0 Blue Black.jpg","Mars 3.0 Orange Black.jpg","Mars Black Black.jpg","Mars Blue black.jpg","Mars Grey Black.jpg","Mars Orange Black.jpg","Merlot Black.jpg","Nomad 2 Badge.jpg","Nomad 2x Badge.jpg","Nomad Fig.jpg","Nomad Multi Cam.jpg","Nomad Sage.jpg","Orange Summit.jpg","Pale Green Black.jpg","Pearl.jpg","Phantom Black Black.jpg","Phantom Purple Black.jpg","Pink Black.jpg","Purple.jpg","Ranger 3.0 Green Black.jpg","Ranger 3.0 Red Black.jpg","Ranger 3.0 Sunset Black.jpg","Ranger 3.0.jpg","Ranger S.jpg","Red.jpg","RetroVolt Pro Badge Black.jpg","RetroVolt Pro Badge.jpg","RetroVolt Pro.jpg","Sage.jpg","Screenshot 2026-03-16 201209.jpg","Screenshot 2026-03-16 201310.jpg","Screenshot 2026-03-16 201335.jpg","Screenshot 2026-03-16 201353.jpg","Screenshot 2026-03-16 202146.jpg","Shadow Steel.jpg","Silver Mock  Discovery 3.jpg","Silver Mock Badge Discovery 3.jpg","Silver.jpg","Step thru Badge.jpg","Storm blue Black.jpg","Summit 1 Badge.jpg","T1ST.jpg","Tangerine Black.jpg","Thunder Grey Black.jpg","Thunder.jpg","Triker Badge.jpg","Venom Green.jpg","White Black.1.jpg","White Black.jpg","White M.jpg","badge.jpg","helio.jpg","hero.jpg","highstep camo.jpg","highstep multi.jpg","midorange.jpg","ranger 3.0 sunset.jpg","sage highstep.jpg","thunder Badge.jpg","unnamed.jpg","venus BLACK BADGE.jpg","violet.jpg","white.jpg"];
@@ -148,7 +148,7 @@ rebuildDatalist();
 const GITHUB_REPO = 'cruisethecreek-tech/Ebike-sales';
 const GITHUB_BRANCH = 'main';
 function refreshFileListFromGitHub() {
-    const url = 'https://api.github.com/repos/' + GITHUB_REPO + '/contents/media?ref=' + GITHUB_BRANCH;
+    const url = 'https://api.github.com/repos/' + GITHUB_REPO + '/contents/images?ref=' + GITHUB_BRANCH;
     fetch(url, { headers: { 'Accept': 'application/vnd.github+json' } })
         .then(r => {
             if (!r.ok) throw new Error('GitHub API HTTP ' + r.status);
@@ -248,12 +248,11 @@ function isWixUrl(s) {
 }
 
 function isLocalPath(s) {
-    if (typeof s !== 'string') return false;
-    return s.indexOf(IMAGE_PREFIX) === 0 || s.indexOf('images/') === 0;
+    return typeof s === 'string' && s.indexOf(IMAGE_PREFIX) === 0;
 }
 
 function strip(s) {
-    return (s || '').replace(/^(media|images)\//, '');
+    return (s || '').replace(/^images\//, '');
 }
 
 function updateProgress() {

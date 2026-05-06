@@ -962,7 +962,7 @@ function getTabDefs() {
       rows: [
         ['Migrate Wix images → GitHub',
           'https://ebike-sales.pages.dev/migrate-images.html',
-          'Loads bike inventory from Apps Script + the live /media/ list from GitHub. Map each Wix image to a local filename, click "Save Bike", done.'],
+          'Loads bike inventory from Apps Script + the live /images/ list from GitHub. Map each Wix image to a local filename, click "Save Bike", done. (Bike inventory uses /images/; page background photos use /media/.)'],
         ['Live site (home)',
           'https://ebike-sales.pages.dev/',
           'The deployed customer-facing site. Hard-refresh (Cmd-Shift-R / Ctrl-F5) after editing the Sheet to see changes immediately.'],
@@ -971,7 +971,7 @@ function getTabDefs() {
           'The internal sales-pro quote tool. Bookmarkable.'],
         ['GitHub repo',
           'https://github.com/cruisethecreek-tech/Ebike-sales',
-          'Source code. Drag/drop new bike photos into the /media/ folder here, then refresh the migration tool above.'],
+          'Source code. Two folders: /images/ for bike inventory photos (used by the migration tool above), /media/ for page hero backgrounds and other site photos.'],
       ],
     },
     'TrustStrip': {
