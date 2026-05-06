@@ -553,7 +553,7 @@ function getTabDefs() {
         ['creek_video_url',    'video-diagnostics.html'],
         ['creek_video_external', false],
         // creek-ready hub: top-left logo (link + text)
-        ['logo_url',           'creek-ready.html'],
+        ['logo_url',           'home.html'],
         ['logo_external',      false],
         ['logo_mark',          'CTC'],
         ['logo_text',          'Cruise'],

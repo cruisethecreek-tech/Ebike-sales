@@ -151,11 +151,12 @@
             justify-content: center;
             padding: 8rem 2rem 5rem;
             flex-shrink: 0;
-            background: 
+            background:
                 radial-gradient(ellipse at 20% 80%, rgba(107, 125, 85, 0.15) 0%, transparent 60%),
                 radial-gradient(ellipse at 80% 20%, rgba(212, 148, 58, 0.08) 0%, transparent 50%),
                 linear-gradient(175deg, var(--forest) 0%, #3A4F3A 35%, var(--moss) 70%, var(--sage) 100%);
             overflow: hidden;
+            isolation: isolate;
         }
 
         .hero::before {
