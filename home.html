@@ -76,13 +76,14 @@ button{font-family:inherit}
 }
 .hero-img{
   position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
-  z-index:-2;opacity:0;transition:opacity 1s ease;
+  z-index:-3;opacity:0;transition:opacity 1s ease;
 }
 .hero-img.loaded{opacity:1}
 .hero-overlay{
-  position:absolute;inset:0;z-index:-1;
-  background:linear-gradient(180deg,rgba(26,46,28,.02) 0%,rgba(26,46,28,.1) 100%);
+  position:absolute;inset:0;z-index:-2;opacity:0;transition:opacity .6s ease;
+  background:linear-gradient(180deg,rgba(26,46,28,.3) 0%,rgba(26,46,28,var(--hero-overlay,.55)) 100%);
 }
+.hero.has-photo .hero-overlay{opacity:1}
 .hero-topo{
   position:absolute;inset:0;z-index:-1;opacity:.18;pointer-events:none;
   background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 600 400' preserveAspectRatio='none'><g fill='none' stroke='%23F5F0E8' stroke-width='1.2'><path d='M0,80 Q150,60 300,90 T600,80'/><path d='M0,140 Q150,120 300,150 T600,140'/><path d='M0,200 Q150,180 300,210 T600,200'/><path d='M0,260 Q150,240 300,270 T600,260'/><path d='M0,320 Q150,300 300,330 T600,320'/></g></svg>");
@@ -382,7 +383,9 @@ footer{background:var(--dark);color:rgba(255,255,255,.75);padding:40px 24px 32px
 <!-- ── HERO ── -->
 <section class="hero">
   <!-- HERO PHOTO SLOT — set src here OR from the Sheet via Pages.hero_photo. -->
-  <img class="hero-img" data-cms-src="hero_photo" src="" alt="" onload="this.classList.add('loaded')" onerror="this.remove()">
+  <img class="hero-img" data-cms-src="hero_photo" alt=""
+       onload="this.classList.add('loaded');this.closest('.hero').classList.add('has-photo')"
+       onerror="this.remove()">
   <div class="hero-overlay"></div>
   <div class="hero-topo"></div>
   <div class="hero-content">
@@ -602,13 +605,19 @@ function applyCMS(remote){
   });
   document.querySelectorAll('[data-cms-src]').forEach(el => {
     const v = map[el.dataset.cmsSrc];
-    if (v) { el.src = v; el.classList.add('loaded'); }
+    if (!v) return;
+    const url = /^https?:\/\//.test(v) ? v : 'media/' + encodeURI(String(v).replace(/^(media|images)\//, '').trim());
+    el.addEventListener('error', () => el.remove(), { once: true });
+    el.src = url;
   });
   document.querySelectorAll('[data-cms-target]').forEach(el => {
     const v = map[el.dataset.cmsTarget];
     if (isTrue(v)) { el.target = '_blank'; el.rel = 'noopener'; }
     else { el.removeAttribute('target'); el.removeAttribute('rel'); }
   });
+  if (map.hero_overlay_opacity != null && map.hero_overlay_opacity !== '') {
+    document.documentElement.style.setProperty('--hero-overlay', String(map.hero_overlay_opacity));
+  }
   document.querySelectorAll('[data-cms-display-if]').forEach(el => {
     const v = map[el.dataset.cmsDisplayIf];
     el.style.display = (v != null && String(v).trim() !== '') ? '' : 'none';
