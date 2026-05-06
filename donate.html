@@ -36,6 +36,11 @@ img{max-width:100%;display:block}
 /* ── HERO ── */
 .hero{position:relative;padding:72px 24px 56px;color:#fff;background:var(--forest);
   overflow:hidden;isolation:isolate;text-align:center}
+.hero-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:-3;opacity:0;transition:opacity .6s ease}
+.hero-img.loaded{opacity:1}
+.hero-overlay{position:absolute;inset:0;z-index:-2;opacity:0;transition:opacity .6s ease;
+  background:linear-gradient(180deg,rgba(26,46,28,.3) 0%,rgba(26,46,28,var(--hero-overlay,.55)) 100%)}
+.hero.has-photo .hero-overlay{opacity:1}
 .hero-topo{position:absolute;inset:0;z-index:-1;opacity:.15;pointer-events:none;
   background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 600 400' preserveAspectRatio='none'><g fill='none' stroke='%23F5F0E8' stroke-width='1.2'><path d='M0,80 Q150,60 300,90 T600,80'/><path d='M0,140 Q150,120 300,150 T600,140'/><path d='M0,200 Q150,180 300,210 T600,200'/><path d='M0,260 Q150,240 300,270 T600,260'/></g></svg>");
   background-size:cover}
@@ -141,6 +146,10 @@ footer .foot-links a{margin:0 8px}
 </header>
 
 <section class="hero">
+  <img class="hero-img" data-cms-src="hero_photo" src="" alt=""
+       onload="this.classList.add('loaded');this.closest('.hero').classList.add('has-photo')"
+       onerror="this.remove()">
+  <div class="hero-overlay"></div>
   <div class="hero-topo"></div>
   <span class="hero-eyebrow" data-cms-text="hero_eyebrow">Support the ride</span>
   <h1>
@@ -249,10 +258,17 @@ function applyCMS(remote){
     const v = map[el.dataset.cmsHref];
     if (v) el.href = v;
   });
+  document.querySelectorAll('[data-cms-src]').forEach(el => {
+    const v = map[el.dataset.cmsSrc];
+    if (v) el.src = /^https?:\/\//.test(v) ? v : 'images/' + String(v).replace(/^images\//, '');
+  });
   document.querySelectorAll('[data-cms-target]').forEach(el => {
     const v = map[el.dataset.cmsTarget];
     if (isTrue(v)) { el.target = '_blank'; el.rel = 'noopener'; }
   });
+  if (map.hero_overlay_opacity != null && map.hero_overlay_opacity !== '') {
+    document.documentElement.style.setProperty('--hero-overlay', String(map.hero_overlay_opacity));
+  }
 }
 
 /* Render the Supporters Wall.

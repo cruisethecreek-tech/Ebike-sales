@@ -184,12 +184,28 @@
             inset: 0;
             opacity: 0.04;
             pointer-events: none;
+            z-index: -1;
         }
 
         .topo-lines svg {
             width: 100%;
             height: 100%;
         }
+
+        .hero-img {
+            position: absolute; inset: 0;
+            width: 100%; height: 100%; object-fit: cover;
+            z-index: -3; opacity: 0; transition: opacity .6s ease;
+        }
+        .hero-img.loaded { opacity: 1; }
+        .hero-overlay {
+            position: absolute; inset: 0; z-index: -2;
+            opacity: 0; transition: opacity .6s ease;
+            background: linear-gradient(180deg,
+              rgba(26,46,28,.3) 0%,
+              rgba(26,46,28, var(--hero-overlay, .55)) 100%);
+        }
+        .hero.has-photo .hero-overlay { opacity: 1; }
 
         .hero-content {
             position: relative;
@@ -922,6 +938,10 @@
 
     <!-- ─── HERO ─── -->
     <section class="hero">
+        <img class="hero-img" data-cms-src="hero_photo" src="" alt=""
+             onload="this.classList.add('loaded');this.closest('.hero').classList.add('has-photo')"
+             onerror="this.remove()">
+        <div class="hero-overlay"></div>
         <div class="topo-lines">
             <svg viewBox="0 0 1200 800" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M0 300 Q300 250 600 320 Q900 390 1200 280" stroke="white" stroke-width="1" fill="none"/>
@@ -1193,10 +1213,17 @@
             const v = map[el.dataset.cmsHref];
             if (v) el.href = v;
         });
+        document.querySelectorAll('[data-cms-src]').forEach(el => {
+            const v = map[el.dataset.cmsSrc];
+            if (v) el.src = /^https?:\/\//.test(v) ? v : 'images/' + String(v).replace(/^images\//, '');
+        });
         document.querySelectorAll('[data-cms-target]').forEach(el => {
             const v = map[el.dataset.cmsTarget];
             if (isTrue(v)) { el.target = '_blank'; el.rel = 'noopener'; }
         });
+        if (map.hero_overlay_opacity != null && map.hero_overlay_opacity !== '') {
+            document.documentElement.style.setProperty('--hero-overlay', String(map.hero_overlay_opacity));
+        }
     }
 
     /* Render service cards from the Services tab.

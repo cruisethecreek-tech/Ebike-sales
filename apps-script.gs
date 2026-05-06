@@ -538,6 +538,10 @@ function getTabDefs() {
         ['quote_brand_name',    'CRUISE THE CREEK'],
         ['quote_brand_subline', 'Youngstown, Ohio · cruisethecreek.com'],
         ['quote_footer',        'Quote valid 7 days · Cruise the Creek · 330-406-9682'],
+        // Hero background images: per-page hero_photo lives in the Pages tab.
+        // hero_overlay_opacity (0..1) tints the photo so white text stays
+        // readable. Lower = brighter photo, higher = darker forest tint.
+        ['hero_overlay_opacity', '0.55'],
         ['social_instagram',   ''],
         ['social_facebook',    ''],
         ['social_tiktok',      ''],
