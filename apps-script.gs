@@ -894,7 +894,7 @@ function getTabDefs() {
       // Trailside Journey destinations rendered on journeys.html.
       // direction: 'south' or 'north'  (controls which grid the card lands in)
       // dining / highlights: pipe-separated lists ("Spot 1|Spot 2|Spot 3")
-      // image: filename in /images/ (e.g. "kirk-road.jpg") or a full URL
+      // image: filename in /media/ (e.g. "kirk-road.jpg") or a full URL
       // distance: short label like "9 miles round trip"
       // duration: short label like "approx 40 minutes"
       // intersections: number or short string (optional)
@@ -962,7 +962,7 @@ function getTabDefs() {
       rows: [
         ['Migrate Wix images → GitHub',
           'https://ebike-sales.pages.dev/migrate-images.html',
-          'Loads bike inventory from Apps Script + the live /images/ list from GitHub. Map each Wix image to a local filename, click "Save Bike", done.'],
+          'Loads bike inventory from Apps Script + the live /media/ list from GitHub. Map each Wix image to a local filename, click "Save Bike", done.'],
         ['Live site (home)',
           'https://ebike-sales.pages.dev/',
           'The deployed customer-facing site. Hard-refresh (Cmd-Shift-R / Ctrl-F5) after editing the Sheet to see changes immediately.'],
@@ -971,7 +971,7 @@ function getTabDefs() {
           'The internal sales-pro quote tool. Bookmarkable.'],
         ['GitHub repo',
           'https://github.com/cruisethecreek-tech/Ebike-sales',
-          'Source code. Drag/drop new bike photos into the /images/ folder here, then refresh the migration tool above.'],
+          'Source code. Drag/drop new bike photos into the /media/ folder here, then refresh the migration tool above.'],
       ],
     },
     'TrustStrip': {
