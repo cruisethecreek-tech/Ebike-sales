@@ -334,7 +334,7 @@ function applyCMS(remote){
   document.querySelectorAll('[data-cms-src]').forEach(el => {
     const v = map[el.dataset.cmsSrc];
     if (v) {
-      const path = /^https?:\/\//.test(v) ? v : ('media/' + v.replace(/^(media|images)\//, ''));
+      const path = /^https?:\/\//.test(v) ? v : ('media/' + encodeURI(v.replace(/^(media|images)\//, '').trim()));
       el.src = path;
     }
   });
@@ -363,7 +363,7 @@ function renderJourneyCard(j){
   const dining = pipeList(j.dining);
   const hi = pipeList(j.highlights);
   const imgSrc = j.image
-    ? (/^https?:\/\//.test(j.image) ? j.image : 'media/' + String(j.image).replace(/^(media|images)\//, ''))
+    ? (/^https?:\/\//.test(j.image) ? j.image : 'media/' + encodeURI(String(j.image).replace(/^(media|images)\//, '').trim()))
     : '';
   const fallbackText = (j.destination || '').toString();
 
