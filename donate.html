@@ -260,7 +260,7 @@ function applyCMS(remote){
   });
   document.querySelectorAll('[data-cms-src]').forEach(el => {
     const v = map[el.dataset.cmsSrc];
-    if (v) el.src = /^https?:\/\//.test(v) ? v : 'media/' + String(v).replace(/^(media|images)\//, '');
+    if (v) el.src = /^https?:\/\//.test(v) ? v : 'media/' + encodeURI(String(v).replace(/^(media|images)\//, '').trim());
   });
   document.querySelectorAll('[data-cms-target]').forEach(el => {
     const v = map[el.dataset.cmsTarget];
