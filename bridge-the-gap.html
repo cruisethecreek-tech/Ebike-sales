@@ -277,7 +277,7 @@ footer a:hover{color:#fff}
 
 <!-- HERO -->
 <section class="hero">
-  <img class="hero-img" data-cms-src="hero_photo" src="" alt=""
+  <img class="hero-img" data-cms-src="hero_photo" alt=""
        onload="this.classList.add('loaded');this.closest('.hero').classList.add('has-photo')"
        onerror="this.remove()">
   <div class="hero-overlay"></div>
@@ -603,7 +603,10 @@ function applyCMS(remote){
   });
   document.querySelectorAll('[data-cms-src]').forEach(el => {
     const v = map[el.dataset.cmsSrc];
-    if (v) el.src = /^https?:\/\//.test(v) ? v : 'media/' + encodeURI(String(v).replace(/^(media|images)\//, '').trim());
+    if (!v) return;
+    const url = /^https?:\/\//.test(v) ? v : 'media/' + encodeURI(String(v).replace(/^(media|images)\//, '').trim());
+    el.addEventListener('error', () => el.remove(), { once: true });
+    el.src = url;
   });
   if (map.hero_overlay_opacity != null && map.hero_overlay_opacity !== '') {
     document.documentElement.style.setProperty('--hero-overlay', String(map.hero_overlay_opacity));

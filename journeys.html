@@ -200,7 +200,7 @@ footer .foot-links a{margin:0 8px}
 </header>
 
 <section class="hero">
-  <img class="hero-img" data-cms-src="hero_photo" src="" alt=""
+  <img class="hero-img" data-cms-src="hero_photo" alt=""
        onload="this.classList.add('loaded');this.closest('.hero').classList.add('has-photo')"
        onerror="this.remove()">
   <div class="hero-overlay"></div>
@@ -333,10 +333,10 @@ function applyCMS(remote){
   });
   document.querySelectorAll('[data-cms-src]').forEach(el => {
     const v = map[el.dataset.cmsSrc];
-    if (v) {
-      const path = /^https?:\/\//.test(v) ? v : ('media/' + encodeURI(v.replace(/^(media|images)\//, '').trim()));
-      el.src = path;
-    }
+    if (!v) return;
+    const url = /^https?:\/\//.test(v) ? v : ('media/' + encodeURI(String(v).replace(/^(media|images)\//, '').trim()));
+    el.addEventListener('error', () => el.remove(), { once: true });
+    el.src = url;
   });
   document.querySelectorAll('[data-cms-target]').forEach(el => {
     const v = map[el.dataset.cmsTarget];
