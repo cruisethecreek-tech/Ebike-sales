@@ -123,6 +123,10 @@ function doGet(e) {
   const supporters = readSheet(ss, 'Supporters')
     .sort(function(a, b){ return (a.order || 0) - (b.order || 0); });
 
+  // Rentals page: side-by-side "vibe check" cards (Kirk Road vs Bears Den).
+  const rentalsVibe = readSheet(ss, 'RentalsVibe')
+    .sort(function(a, b){ return (a.order || 0) - (b.order || 0); });
+
   const data = {
     page:              page,
     pageMeta:          pageMeta,
@@ -139,6 +143,7 @@ function doGet(e) {
     bridgeBikeOptions: bridgeBikeOptions,
     journeys:          journeys,
     supporters:        supporters,
+    rentalsVibe:       rentalsVibe,
     tiles:             readSheet(ss, cap + '_Tiles'),
     submenus:          groupBy(readSheet(ss, cap + '_Submenus'), 'tile'),
   };
@@ -615,6 +620,10 @@ function getTabDefs() {
         ['north_title',        'Toward Austintown & Niles'],
         ['north_intro',        'Iconic overpass bridges, the Niles Greenway, and the McKinley Memorial — push north for a longer ride.'],
         ['hashtag',            '#TrailsideJourney'],
+        // Rentals page: vibe-check section header
+        ['vibe_eyebrow',       'Vibe check'],
+        ['vibe_title',         'Which ride is right for you?'],
+        ['vibe_intro',         "New to Mill Creek? Here's the quick guide to picking the right pickup."],
         // Donations page (donate.html)
         ['intro_eyebrow',      'Why we need you'],
         ['intro_title',        'Be a direct part of our growth'],
@@ -955,6 +964,31 @@ function getTabDefs() {
         //   [1, 'Jane Smith',          'gold',   'Jul 2025', 'Founding supporter'],
         //   [2, 'Anonymous',           '',       '',         ''],
         //   [3, 'Smith Family',        'silver', 'Aug 2025', ''],
+      ],
+    },
+    'RentalsVibe': {
+      // Side-by-side "vibe check" cards on rentals.html. Helps a new
+      // visitor pick between Trailside (Kirk Road) and Adventures
+      // (Bears Den) based on their experience level.
+      //   slug:  'kirk' or 'bears' — picks the gradient color treatment
+      //          (sage gradient for kirk, dark forest for bears).
+      //   icon:  emoji shown above the card name.
+      //   recommendation: small badge at the top of the card
+      //                   (e.g. "First-time riders", "Confident riders").
+      //   traits: pipe-separated list of short keywords
+      //           (e.g. "Flat|Paved|Family-friendly").
+      header: ['order','slug','icon','recommendation','label','subtitle','tagline','descriptor','traits','url','cta_label'],
+      rows: [
+        [1, 'kirk',  '🌿', '⛅ First-time riders',
+          'Kirk Road', 'Trailside Journey', 'Flat. Fast. Pure Focus.',
+          "Paved bikeway. No cars, no climbs, no surprises — just smooth riding through the Mill Creek MetroParks corridor. Perfect first time on an e-bike.",
+          'Flat|Paved|Family-friendly|Easy on every level',
+          'trailside.html', 'See Trailside'],
+        [2, 'bears', '🏞️', '⛰ Confident riders',
+          'Bears Den', 'Unleash Your Adventure', 'Hills. Thrills. High Energy.',
+          "Straight into Mill Creek Park's hidden corners — Lily Pond loops, Lanterman's Mill, the covered bridge. Wooded, hilly, scenic. The bike does the climbs so you can take in the view.",
+          'Hills|Wooded trails|Scenic loops|Park interior',
+          'adventures.html', 'See Adventures'],
       ],
     },
     'Admin': {
