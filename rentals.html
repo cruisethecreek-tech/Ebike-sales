@@ -215,6 +215,55 @@ footer{background:var(--dark);color:rgba(255,255,255,.75);padding:40px 24px 32px
   to{opacity:1;transform:translateY(0)}
 }
 
+/* ── VIBE CHECK (compare two main rental experiences) ── */
+.vibe{max-width:1080px;margin:0 auto;padding:8px 24px 56px}
+.vibe-head{text-align:center;margin-bottom:24px}
+.vibe-eyebrow{display:inline-block;font-size:.72rem;letter-spacing:.18em;text-transform:uppercase;
+  font-weight:700;color:var(--sage);margin-bottom:8px}
+.vibe-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(1.9rem,4.5vw,2.5rem);
+  letter-spacing:.02em;color:var(--forest);line-height:1.1;margin-bottom:8px}
+.vibe-intro{color:var(--ink-3);font-size:.98rem;max-width:560px;margin:0 auto;line-height:1.55}
+
+.vibe-grid{display:grid;grid-template-columns:1fr;gap:18px;margin-top:8px}
+@media(min-width:780px){.vibe-grid{grid-template-columns:1fr 1fr;gap:22px}}
+
+.vibe-card{position:relative;border-radius:14px;overflow:hidden;
+  display:flex;flex-direction:column;color:#fff;
+  box-shadow:0 12px 32px rgba(45,74,50,.18);
+  transition:transform .25s ease,box-shadow .25s ease}
+.vibe-card:hover{transform:translateY(-3px);box-shadow:0 20px 44px rgba(45,74,50,.25)}
+.vibe-card-banner{padding:48px 28px 28px;position:relative;isolation:isolate;
+  display:flex;flex-direction:column;align-items:flex-start;gap:8px}
+.vibe-card-banner::before{content:'';position:absolute;inset:0;z-index:-1;
+  background:radial-gradient(circle at 80% 20%,rgba(255,255,255,.18) 0%,transparent 50%)}
+.vibe-card.kirk  .vibe-card-banner{background:linear-gradient(135deg,#557159 0%,#84a373 100%)}
+.vibe-card.bears .vibe-card-banner{background:linear-gradient(135deg,#1a2e1c 0%,#2D4A32 50%,#557159 100%)}
+
+.vibe-rec{display:inline-flex;align-items:center;gap:6px;
+  background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.3);
+  color:#fff;font-size:.72rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;
+  padding:6px 12px;border-radius:999px;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+.vibe-icon{font-size:1.6rem;line-height:1}
+.vibe-name{font-family:'Bebas Neue',sans-serif;font-size:clamp(1.7rem,3.5vw,2.1rem);
+  letter-spacing:.02em;line-height:1;margin-top:4px}
+.vibe-subtitle{font-size:.92rem;font-weight:600;color:rgba(255,255,255,.85);letter-spacing:.04em}
+.vibe-tagline{margin-top:10px;font-family:'Bebas Neue',sans-serif;font-size:1.4rem;
+  letter-spacing:.04em;color:var(--tan-light,#E8DFC8)}
+
+.vibe-card-body{background:#fff;color:var(--ink-2);padding:22px 26px 26px;flex:1;
+  display:flex;flex-direction:column;gap:14px}
+.vibe-descriptor{font-size:.97rem;line-height:1.65}
+.vibe-traits{display:flex;flex-wrap:wrap;gap:6px;margin-top:auto}
+.vibe-trait{background:var(--cream-w,#fbf7ef);color:var(--forest);
+  font-size:.78rem;font-weight:700;letter-spacing:.04em;
+  padding:6px 11px;border-radius:6px;border:1px solid rgba(45,74,50,.1)}
+.vibe-cta{display:inline-flex;align-items:center;gap:6px;
+  background:var(--forest);color:#fff;font-weight:700;font-size:.88rem;letter-spacing:.04em;
+  padding:11px 18px;border-radius:6px;align-self:flex-start;margin-top:6px;
+  transition:background .2s ease,transform .2s ease}
+.vibe-cta:hover{background:var(--dark,#1a2e1c);transform:translateX(2px)}
+.vibe-cta svg{width:14px;height:14px}
+
 /* ── RESPONSIVE ── */
 @media(min-width:640px){
   .topbar{padding:16px 32px}
@@ -296,6 +345,54 @@ footer{background:var(--dark);color:rgba(255,255,255,.75);padding:40px 24px 32px
     <div class="grid" id="grid"></div>
   </div>
 
+  <!-- ── VIBE CHECK (hydrates from RentalsVibe tab) ── -->
+  <section class="vibe">
+    <div class="vibe-head">
+      <span class="vibe-eyebrow" data-cms-text="vibe_eyebrow">Vibe check</span>
+      <h2 class="vibe-title" data-cms-text="vibe_title">Which ride is right for you?</h2>
+      <p class="vibe-intro" data-cms-text="vibe_intro">New to Mill Creek? Here's the quick guide to picking the right pickup.</p>
+    </div>
+    <div class="vibe-grid" id="vibeGrid">
+      <!-- Static fallback. Replaced from the Sheet (RentalsVibe tab). -->
+      <a class="vibe-card kirk" href="trailside.html">
+        <div class="vibe-card-banner">
+          <span class="vibe-rec">⛅ First-time riders</span>
+          <div class="vibe-icon">🌿</div>
+          <div class="vibe-name">Kirk Road</div>
+          <div class="vibe-subtitle">Trailside Journey</div>
+          <div class="vibe-tagline">Flat. Fast. Pure Focus.</div>
+        </div>
+        <div class="vibe-card-body">
+          <p class="vibe-descriptor">Paved bikeway. No cars, no climbs, no surprises — just smooth riding through the Mill Creek MetroParks corridor. Perfect first time on an e-bike.</p>
+          <div class="vibe-traits">
+            <span class="vibe-trait">Flat</span>
+            <span class="vibe-trait">Paved</span>
+            <span class="vibe-trait">Family-friendly</span>
+          </div>
+          <span class="vibe-cta">See Trailside <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg></span>
+        </div>
+      </a>
+      <a class="vibe-card bears" href="adventures.html">
+        <div class="vibe-card-banner">
+          <span class="vibe-rec">⛰ Confident riders</span>
+          <div class="vibe-icon">🏞️</div>
+          <div class="vibe-name">Bears Den</div>
+          <div class="vibe-subtitle">Unleash Your Adventure</div>
+          <div class="vibe-tagline">Hills. Thrills. High Energy.</div>
+        </div>
+        <div class="vibe-card-body">
+          <p class="vibe-descriptor">Straight into Mill Creek Park's hidden corners — Lily Pond loops, Lanterman's Mill, the covered bridge. Wooded, hilly, scenic. The bike does the climbs so you can take in the view.</p>
+          <div class="vibe-traits">
+            <span class="vibe-trait">Hills</span>
+            <span class="vibe-trait">Wooded trails</span>
+            <span class="vibe-trait">Scenic loops</span>
+          </div>
+          <span class="vibe-cta">See Adventures <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg></span>
+        </div>
+      </a>
+    </div>
+  </section>
+
   <!-- ── CTA STRIP ── -->
   <div class="cta">
     <div class="cta-inner">
@@ -366,6 +463,38 @@ const countEl = document.getElementById('rentalCount');
 function esc(s){ return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 function isTrue(v){ return v === true || v === 'TRUE' || v === 'true' || v === 1; }
 
+/* Render the side-by-side rental "vibe check" cards.
+   Columns supported on the RentalsVibe tab:
+     order, slug (kirk|bears = card color), icon, recommendation, label,
+     subtitle, tagline, descriptor, traits (pipe-separated), url, cta_label */
+function renderRentalsVibe(rows){
+  const grid = document.getElementById('vibeGrid');
+  if (!grid || !Array.isArray(rows) || !rows.length) return;
+  const arrow = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>';
+  grid.innerHTML = rows.map(r => {
+    const slug   = String(r.slug || '').toLowerCase().trim() || 'kirk';
+    const traits = String(r.traits || '').split('|').map(s => s.trim()).filter(Boolean);
+    return (
+      '<a class="vibe-card ' + esc(slug) + '" href="' + esc(r.url || '#') + '">' +
+        '<div class="vibe-card-banner">' +
+          (r.recommendation ? '<span class="vibe-rec">' + esc(r.recommendation) + '</span>' : '') +
+          (r.icon ? '<div class="vibe-icon">' + esc(r.icon) + '</div>' : '') +
+          '<div class="vibe-name">' + esc(r.label || '') + '</div>' +
+          (r.subtitle ? '<div class="vibe-subtitle">' + esc(r.subtitle) + '</div>' : '') +
+          (r.tagline ? '<div class="vibe-tagline">' + esc(r.tagline) + '</div>' : '') +
+        '</div>' +
+        '<div class="vibe-card-body">' +
+          (r.descriptor ? '<p class="vibe-descriptor">' + esc(r.descriptor) + '</p>' : '') +
+          (traits.length
+            ? '<div class="vibe-traits">' + traits.map(t => '<span class="vibe-trait">' + esc(t) + '</span>').join('') + '</div>'
+            : '') +
+          '<span class="vibe-cta">' + esc(r.cta_label || 'Learn more') + ' ' + arrow + '</span>' +
+        '</div>' +
+      '</a>'
+    );
+  }).join('');
+}
+
 function renderTiles(){
   const tiles = [...(DATA.tiles||[])].sort((a,b)=>(a.order||0)-(b.order||0));
   countEl.textContent = `${tiles.length} option${tiles.length===1?'':'s'}`;
@@ -428,6 +557,7 @@ const _cached = readCmsCache();
 if (_cached) {
   applyCMS(_cached);
   if (Array.isArray(_cached.tiles) && _cached.tiles.length) DATA = _cached;
+  if (Array.isArray(_cached.rentalsVibe) && _cached.rentalsVibe.length) renderRentalsVibe(_cached.rentalsVibe);
 }
 renderTiles();
 
@@ -442,6 +572,7 @@ if (MENU_URL) {
         DATA = remote;
         renderTiles();
       }
+      if (Array.isArray(remote.rentalsVibe) && remote.rentalsVibe.length) renderRentalsVibe(remote.rentalsVibe);
     })
     .catch(err => console.warn('[rentals] config fetch failed, using defaults:', err));
 }
