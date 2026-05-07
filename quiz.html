@@ -238,6 +238,17 @@
 
     let fleet = [];
 
+    // When a bike's `id` doesn't match a LOOKUP key, fall back to these
+    // brand-level defaults instead of the generic 'road' bucket. This
+    // matters most for Mooncool — it's an e-trike-only brand, so any
+    // Mooncool bike (whether or not we've explicitly classified its ID)
+    // should land in the trike category by default. Without this, a
+    // beginner who picks "Maximum Stability (3-Wheeler)" only sees the
+    // single LOOKUP-matched trike instead of the whole Mooncool lineup.
+    const BRAND_DEFAULTS = {
+        mooncool: { cat: 'trike', frame: 'ST', fold: 'no', feel: 'cadence' }
+    };
+
     function buildFleet(inventory) {
         if (!Array.isArray(inventory)) { fleet = []; return; }
         const discNames = JSON.parse(localStorage.getItem('ctc_discontinued_names') || '[]');
@@ -246,6 +257,8 @@
                        && !discNames.includes((b.name || '').toLowerCase().trim()))
             .map(b => {
                 const cls = LOOKUP[b.id] || null;
+                const brandKey = (b.brand || '').toLowerCase().replace(/\s+/g, '');
+                const brandDef = BRAND_DEFAULTS[brandKey] || {};
                 const price = Number(b.price) || 0;
                 const motor = (b.specs && b.specs.Motor) || '—';
                 const budget = price < 1200 ? 'entry' : price < 1800 ? 'mid' : 'high';
@@ -255,11 +268,11 @@
                     price:  price,
                     motor:  motor,
                     budget: budget,
-                    frame:  cls ? cls.frame  : 'unknown',
-                    fold:   cls ? cls.fold   : 'unknown',
+                    frame:  cls ? cls.frame  : (brandDef.frame  || 'unknown'),
+                    fold:   cls ? cls.fold   : (brandDef.fold   || 'unknown'),
                     weight: cls ? cls.weight : null,
-                    cat:    cls ? cls.cat    : 'road',
-                    feel:   cls ? cls.feel   : 'both',
+                    cat:    cls ? cls.cat    : (brandDef.cat    || 'road'),
+                    feel:   cls ? cls.feel   : (brandDef.feel   || 'both'),
                     unclassified: !cls
                 };
             });
