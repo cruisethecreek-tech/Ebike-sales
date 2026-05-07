@@ -247,12 +247,29 @@ function isWixUrl(s) {
     return typeof s === 'string' && s.indexOf('wixstatic.com') !== -1;
 }
 
+// Treat the bike-image URL as "already migrated to local" if it points
+// at /images/ either as a bare path or as a full URL on our deployed CDN.
+// Without this, a previously-saved value like
+//   https://ebike-sales.pages.dev/images/TK2White.jpg
+// gets bucketed as a non-local URL and looks like it's still on Wix.
 function isLocalPath(s) {
-    return typeof s === 'string' && s.indexOf(IMAGE_PREFIX) === 0;
+    if (typeof s !== 'string') return false;
+    if (s.indexOf(IMAGE_PREFIX) === 0 || s.indexOf('images/') === 0) return true;
+    // Full URL → check the path component for /images/<filename>
+    return /^https?:\/\/[^/]+\/images\//i.test(s);
 }
 
+// Reduce any local-pointing value down to just the filename, so we can
+// look it up in FILE_SET and pre-fill the rename input.
 function strip(s) {
-    return (s || '').replace(/^images\//, '');
+    if (!s) return '';
+    const m = String(s).match(/^https?:\/\/[^/]+\/images\/([^?#]+)/i);
+    if (m) {
+        let name = m[1];
+        try { name = decodeURIComponent(name); } catch(e) {}
+        return name;
+    }
+    return s.replace(/^(media|images)\//, '');
 }
 
 function updateProgress() {

@@ -288,6 +288,15 @@ const SITE_CONFIG = {
         footer a:hover{color:#fff}
 
         /* ── RESPONSIVE ── */
+        
+        /* ── PRICE SORT BAR ── */
+        .sort-bar{display:flex;align-items:center;justify-content:flex-end;gap:10px;
+          max-width:1400px;margin:8px auto 18px;padding:0 24px;font-size:.92rem;color:var(--ink-2,#3a3a3a)}
+        .sort-bar label{font-weight:600;color:var(--forest,#2D4A32);letter-spacing:.04em}
+        .sort-bar select{padding:8px 12px;border:1.5px solid rgba(45,74,50,.15);border-radius:6px;
+          background:#fff;font-family:inherit;font-size:.92rem;color:var(--ink,#1a1a1a);cursor:pointer}
+        .sort-bar select:focus{outline:2px solid var(--sage,#6B8F71);outline-offset:1px;border-color:transparent}
+        @media(max-width:480px){.sort-bar{justify-content:flex-start;padding:0 16px;font-size:.86rem}}
         @media(max-width:768px){.form-row{grid-template-columns:1fr}.hero h1{font-size:2.2rem}}
         @media(max-width:480px){
           .top-banner{font-size:.74rem;padding:.55rem .75rem}
@@ -371,6 +380,14 @@ const SITE_CONFIG = {
     </section>
     <section id="bikes" class="container">
         <h2 class="section-title">ELECTRIC BIKES</h2>
+        <div class="sort-bar">
+          <label for="sortBy">Sort by:</label>
+          <select id="sortBy" onchange="buildBikeCards(globalInventory)">
+            <option value="featured">Featured</option>
+            <option value="price-asc">Price: Low to High</option>
+            <option value="price-desc">Price: High to Low</option>
+          </select>
+        </div>
         <div class="bikes-grid" id="bikes-grid-container">
             <div style="text-align:center; width:100%; padding: 2rem; color:#2D4A32;font-weight:700;">Loading inventory...</div>
         </div>
@@ -512,6 +529,11 @@ const SITE_CONFIG = {
                 return;
             }
             let html = '';
+                        // Apply user-selected sort (default: featured / sheet order).
+            const sortBy = (document.getElementById('sortBy') || {}).value || 'featured';
+            if (sortBy === 'price-asc')  filteredInventory.sort((a,b) => (Number(a.price)||0) - (Number(b.price)||0));
+            if (sortBy === 'price-desc') filteredInventory.sort((a,b) => (Number(b.price)||0) - (Number(a.price)||0));
+
             filteredInventory.forEach(bike => {
                 // Find first non-empty image across all swatches (nested or flat)
                 const findFirstImg = (colors) => {
