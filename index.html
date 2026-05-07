@@ -253,6 +253,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--cream);min-height:100vh;p
         <option value="Heybike">Heybike</option>
         <option value="Velotric">Velotric</option>
         <option value="Jasion">Jasion</option>
+        <option value="Mooncool">Mooncool</option>
       </select>
       <select id="adminSortOrder" onchange="renderAdminList()"
         style="flex:1;padding:9px 12px;border:2px solid #e2e8f0;border-radius:12px;font-size:12px;font-weight:700;outline:none;font-family:'DM Sans',sans-serif;background:white;">
@@ -294,6 +295,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--cream);min-height:100vh;p
           <option value="Heybike">Heybike</option>
           <option value="Velotric">Velotric</option>
           <option value="Jasion">Jasion</option>
+          <option value="Mooncool">Mooncool</option>
         </select>
         <button onclick="resetOrder()" class="btn btn-o" style="padding:9px 14px;font-size:10px;">↺ Reset</button>
       </div>
@@ -311,6 +313,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--cream);min-height:100vh;p
         <button class="btn btn-g" id="siteBrandHey" onclick="setSiteBrand('Heybike')" style="flex:1;padding:10px;font-size:11px;">🟢 Heybike</button>
         <button class="btn btn-o" id="siteBrandVel" onclick="setSiteBrand('Velotric')" style="flex:1;padding:10px;font-size:11px;">🟡 Velotric</button>
         <button class="btn btn-o" id="siteBrandJas" onclick="setSiteBrand('Jasion')" style="flex:1;padding:10px;font-size:11px;">🔴 Jasion</button>
+        <button class="btn btn-o" id="siteBrandMoo" onclick="setSiteBrand('Mooncool')" style="flex:1;padding:10px;font-size:11px;">🔵 Mooncool</button>
       </div>
 
       <div id="siteSettingsForm">
@@ -1005,7 +1008,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--cream);min-height:100vh;p
             <a href="https://docs.google.com/spreadsheets/d/1bqzzIGY90fMuCLxVcT7pagnNWfkImuqODLzHG2bRNF8/edit?gid=0#gid=0" target="_blank"
               style="background:#7a5a20;color:#fdf3e0;border:none;border-radius:10px;padding:7px 14px;font-size:10px;font-weight:800;text-decoration:none;letter-spacing:.08em;white-space:nowrap;">OPEN ↗</a>
           </div>
-          <div style="padding:10px 14px;font-size:11px;color:#94a3b8;font-weight:600;">US Site stock levels — Heybike, Velotric, Jasion</div>
+          <div style="padding:10px 14px;font-size:11px;color:#94a3b8;font-weight:600;">US Site stock levels — Heybike, Velotric, Jasion, Mooncool</div>
         </div>
 
         <!-- Edit Contacts note -->
@@ -1246,7 +1249,7 @@ function accPrice(name, fallback) {
   const prices = getAccPrices();
   return (prices[name] !== undefined) ? prices[name] : fallback;
 }
-const FILTERS=['All','Heybike','Velotric','Jasion','Folding','Torque Sensor','Cadence Sensor','SensorSwap','Mid Drive'];
+const FILTERS=['All','Heybike','Velotric','Jasion','Mooncool','Folding','Torque Sensor','Cadence Sensor','SensorSwap','Mid Drive'];
 
 // ──────────────────────────────────────────────────────
 // UTILS
@@ -1722,6 +1725,7 @@ const SITE_DEFAULTS = {
   Heybike:  { hero1:'PREMIUM EBIKES BUILT FOR ADVENTURE', hero2:'Our rental fleet has over 25 HeyBikes — Experience the ultimate ride', annOn:true,  annText:'⚡ Limited Offer: Ranger S Bestseller Now from $1199! ⚡', testRideUrl:'', testRideLabel:'📅 Book a Test Ride', orderUrl:'' },
   Velotric: { hero1:'VELOTRIC EBIKES — BUILT TO EXPLORE',  hero2:'Discover our full lineup of Velotric e-bikes',                        annOn:false, annText:'', testRideUrl:'', testRideLabel:'📅 Book a Test Ride', orderUrl:'' },
   Jasion:   { hero1:'JASION EBIKES — POWER YOUR RIDE',     hero2:'Explore our lineup of Jasion e-bikes',                               annOn:false, annText:'', testRideUrl:'', testRideLabel:'📅 Book a Test Ride', orderUrl:'' },
+  Mooncool: { hero1:'MOONCOOL ETRIKES — STABILITY ON THREE WHEELS', hero2:'Three-wheel comfort for riders who want extra confidence',  annOn:false, annText:'', testRideUrl:'', testRideLabel:'📅 Book a Test Ride', orderUrl:'' },
 };
 
 function getSiteSettings() {
@@ -1732,10 +1736,10 @@ function saveSiteSettings(settings) { localStorage.setItem(SITE_SETTINGS_KEY, JS
 
 function setSiteBrand(brand) {
   currentSiteBrand = brand;
-  ['Hey','Vel','Jas'].forEach(b => {
+  ['Hey','Vel','Jas','Moo'].forEach(b => {
     const btn = document.getElementById('siteBrand'+b);
     if (!btn) return;
-    btn.className = 'btn ' + (brand === {Hey:'Heybike',Vel:'Velotric',Jas:'Jasion'}[b] ? 'btn-g' : 'btn-o');
+    btn.className = 'btn ' + (brand === {Hey:'Heybike',Vel:'Velotric',Jas:'Jasion',Moo:'Mooncool'}[b] ? 'btn-g' : 'btn-o');
     btn.style.flex = '1'; btn.style.padding = '10px'; btn.style.fontSize = '11px';
   });
   const settings = getSiteSettings();
@@ -1893,7 +1897,7 @@ function renderAdminList(){
 }
 
 const FF=[
-  {k:'brand',    l:'Brand',            t:'select', o:['Heybike','Velotric','Jasion']},
+  {k:'brand',    l:'Brand',            t:'select', o:['Heybike','Velotric','Jasion','Mooncool']},
   {k:'model',    l:'Model Name',       t:'text'},
   {k:'subtitle', l:'Subtitle',         t:'text'},
   {k:'type',     l:'Frame Type',       t:'text'},
