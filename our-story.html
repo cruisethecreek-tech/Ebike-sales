@@ -470,7 +470,10 @@ function applyCMS(remote){
     if (!v) return;
     // The site logo should never self-link to the current page.
     if (el.dataset.cmsHref === 'logo_url') {
-      try { if (new URL(v, location.href).pathname === location.pathname) return; } catch(e) {}
+      try {
+        const norm = (p) => p.replace(/\/index$/, "/").replace(/\.html$/, "").replace(/\/+$/, "") || "/";
+        if (norm(new URL(v, location.href).pathname) === norm(location.pathname)) return;
+      } catch(e) {}
     }
     el.href = v;
   });
