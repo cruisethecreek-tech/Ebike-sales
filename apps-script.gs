@@ -555,9 +555,6 @@ function getTabDefs() {
         // creek-ready hub: top-left logo (link + text)
         ['logo_url',           'home.html'],
         ['logo_external',      false],
-        ['logo_mark',          'CTC'],
-        ['logo_text',          'Cruise'],
-        ['logo_text_em',       'the Creek'],
         // creek-ready hub: nav CTA
         ['shop_ebikes_label',  'Shop E-Bikes'],
         ['shop_ebikes_url',    'https://www.cruisethecreek.com/shop-fix'],

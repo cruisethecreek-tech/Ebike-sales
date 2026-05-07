@@ -77,34 +77,16 @@
         .logo-group {
             display: flex;
             align-items: center;
-            gap: 1rem;
             text-decoration: none;
         }
 
-        .logo-mark {
-            width: 38px;
+        .logo-group img {
             height: 38px;
-            background: var(--sage);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.1rem;
-            color: var(--cream);
-            font-weight: 700;
-            letter-spacing: -0.5px;
-            font-family: 'DM Serif Display', serif;
-        }
-
-        .logo-text {
-            color: var(--cream);
-            font-family: 'DM Serif Display', serif;
-            font-size: 1.25rem;
-            letter-spacing: 0.5px;
-        }
-
-        .logo-text span {
-            color: var(--sage-light);
+            width: auto;
+            display: block;
+            /* The provided logo is dark, but the creek-ready header is dark forest.
+               Invert + brighten so it reads as a creamy white wordmark. */
+            filter: invert(1) brightness(1.1);
         }
 
         .nav-links {
@@ -919,9 +901,8 @@
     <!-- ─── HEADER ─── -->
     <header class="site-header" id="siteHeader">
         <nav class="nav-inner">
-            <a href="https://www.cruisethecreek.com" class="logo-group" data-cms-href="logo_url" data-cms-target="logo_external">
-                <div class="logo-mark" data-cms-text="logo_mark">CTC</div>
-                <div class="logo-text"><span data-cms-text="logo_text">Cruise</span> <span data-cms-text="logo_text_em">the Creek</span></div>
+            <a href="home.html" class="logo-group" aria-label="Cruise the Creek home" data-cms-href="logo_url" data-cms-target="logo_external">
+                <img src="BlackonTransparent.png" alt="Cruise the Creek">
             </a>
 
             <button class="mobile-toggle" id="mobileToggle" aria-label="Toggle menu">
