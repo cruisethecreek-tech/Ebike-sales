@@ -381,7 +381,12 @@ function ctcApplyCMS(remote){
   });
   document.querySelectorAll('[data-cms-href]').forEach(el => {
     const v = map[el.dataset.cmsHref];
-    if (v) el.href = v;
+    if (!v) return;
+    // The site logo should never self-link to the current page.
+    if (el.dataset.cmsHref === 'logo_url') {
+      try { if (new URL(v, location.href).pathname === location.pathname) return; } catch(e) {}
+    }
+    el.href = v;
   });
   document.querySelectorAll('[data-cms-src]').forEach(el => {
     const v = map[el.dataset.cmsSrc];
