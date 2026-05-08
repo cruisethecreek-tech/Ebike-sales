@@ -3,114 +3,449 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Events | Cruise the Creek</title>
-<meta name="description" content="Upcoming rides, races, and shop events.">
+<title>Show Up &amp; Show Out · Youngstown Events | Cruise the Creek</title>
+<meta name="description" content="What's happening around Mill Creek Park, downtown Youngstown, and the Mahoning Valley. Festivals, music, family fun, fitness, art — filter by category, ride your e-bike, show up.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,400;0,500;0,700;0,800;1,400&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 :root{
-  --sage:#6B8F71;--forest:#2D4A32;--dark:#1a2e1c;
-  --tan:#C9A96E;--cream:#F5F0E8;--cream-w:#fbf7ef;
-  --ink:#1a1a1a;--ink-2:#4a4a4a;
+  --sage:#6B8F71;--sage-d:#557159;--forest:#2D4A32;--dark:#1a2e1c;
+  --tan:#C9A96E;--tan-d:#a98843;--cream:#F5F0E8;--cream-w:#fbf7ef;
+  --ink:#1a1a1a;--ink-2:#3a3a3a;--ink-3:#5a5a5a;
+  --c-fests:#D4943A;--c-family:#5C8FCB;--c-arts:#A56FB5;
+  --c-adult:#3F7A57;--c-wellness:#2D9B8E;--c-music:#D45F5F;--c-edu:#8C6E47;
 }
 html,body{height:100%}
-html{scroll-behavior:smooth}
+html{scroll-behavior:smooth;scroll-padding-top:120px}
 body{font-family:'DM Sans',sans-serif;color:var(--ink);background:var(--cream);
-  min-height:100vh;display:flex;flex-direction:column;line-height:1.75}
+  display:flex;flex-direction:column;min-height:100vh;line-height:1.7}
 a{color:inherit;text-decoration:none;transition:color .2s ease}
-button{font-family:inherit}
+img{max-width:100%;display:block}
 
-/* TOP BAR */
-.topbar{background:rgba(255,255,255,.95);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
-  color:var(--dark);padding:16px 24px;display:flex;align-items:center;justify-content:space-between;
-  position:sticky;top:0;z-index:100;border-bottom:1px solid rgba(0,0,0,.05)}
-.brand-logo{height:38px;width:auto;display:block}
+.topbar{background:rgba(255,255,255,.95);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+  color:var(--dark);padding:14px 24px;display:flex;align-items:center;justify-content:space-between;
+  position:sticky;top:0;z-index:101;border-bottom:1px solid rgba(0,0,0,.05)}
+.brand-logo{height:34px;width:auto;display:block}
+.topbar a.nav-back{font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;
+  font-weight:700;color:var(--ink-3)}
+.topbar a.nav-back:hover{color:var(--forest)}
 
-/* HERO */
-.hero{position:relative;min-height:34vh;padding:64px 24px 48px;
-  display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;
-  color:#fff;background:var(--forest);overflow:hidden;isolation:isolate}
-.hero-topo{position:absolute;inset:0;z-index:-1;opacity:.18;pointer-events:none;
+.hero{position:relative;padding:80px 24px 60px;color:#fff;background:var(--forest);
+  overflow:hidden;isolation:isolate;text-align:center}
+.hero-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:-3;opacity:0;transition:opacity .6s ease}
+.hero-img.loaded{opacity:1}
+.hero-overlay{position:absolute;inset:0;z-index:-2;opacity:0;transition:opacity .6s ease;
+  background:linear-gradient(180deg,rgba(26,46,28,.3) 0%,rgba(26,46,28,var(--hero-overlay,.55)) 100%)}
+.hero.has-photo .hero-overlay{opacity:1}
+.hero-topo{position:absolute;inset:0;z-index:-1;opacity:.15;pointer-events:none;
   background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 600 400' preserveAspectRatio='none'><g fill='none' stroke='%23F5F0E8' stroke-width='1.2'><path d='M0,80 Q150,60 300,90 T600,80'/><path d='M0,140 Q150,120 300,150 T600,140'/><path d='M0,200 Q150,180 300,210 T600,200'/><path d='M0,260 Q150,240 300,270 T600,260'/></g></svg>");
   background-size:cover}
-.hero-eyebrow{display:inline-block;font-size:.75rem;font-weight:700;letter-spacing:.2em;
-  text-transform:uppercase;color:var(--tan);margin-bottom:16px;
-  padding:6px 14px;border:1px solid rgba(201,169,110,.3);border-radius:4px;
-  background:rgba(26,46,28,.2)}
-.hero h1{font-family:'Bebas Neue',sans-serif;font-size:clamp(2.4rem,7vw,4rem);
+.hero-eyebrow{display:inline-block;font-size:.74rem;font-weight:700;letter-spacing:.22em;
+  text-transform:uppercase;color:var(--tan);margin-bottom:14px;
+  padding:6px 14px;border:1px solid rgba(201,169,110,.4);border-radius:4px;
+  background:rgba(26,46,28,.25)}
+.hero h1{font-family:'Bebas Neue',sans-serif;font-size:clamp(2.6rem,8vw,5rem);
   letter-spacing:.02em;line-height:1;margin-bottom:14px}
-.hero p{font-size:clamp(1rem,2.4vw,1.1rem);color:rgba(255,255,255,.9);
-  max-width:480px;line-height:1.6}
+.hero h1 em{font-style:normal;color:var(--tan);display:block}
+.hero p{font-size:clamp(1rem,2.4vw,1.15rem);color:rgba(255,255,255,.9);
+  max-width:640px;margin:0 auto;line-height:1.55}
+.hero-cta-row{margin-top:22px;display:flex;flex-wrap:wrap;gap:10px;justify-content:center}
+.hero-btn{display:inline-flex;align-items:center;gap:6px;padding:13px 22px;border-radius:6px;
+  font-weight:700;font-size:.92rem;letter-spacing:.04em;
+  transition:transform .2s ease,background .2s ease}
+.hero-btn.primary{background:var(--tan);color:var(--dark)}
+.hero-btn.primary:hover{background:#fff;transform:translateY(-1px)}
+.hero-btn.secondary{background:transparent;color:#fff;border:1px solid rgba(255,255,255,.5)}
+.hero-btn.secondary:hover{background:rgba(255,255,255,.1)}
 
-/* BREADCRUMB */
-.crumb{max-width:880px;margin:0 auto;padding:24px 24px 0;
-  font-size:.75rem;letter-spacing:.1em;text-transform:uppercase;font-weight:700;color:var(--sage)}
-.crumb a{color:var(--ink-2)}
-.crumb a:hover{color:var(--forest)}
-.crumb .sep{color:rgba(0,0,0,.2);margin:0 8px}
+.filters{position:sticky;top:62px;z-index:100;background:var(--cream);
+  border-bottom:1px solid rgba(45,74,50,.12);box-shadow:0 2px 8px rgba(0,0,0,.04)}
+.filters-inner{max-width:1100px;margin:0 auto;padding:14px 16px;
+  display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.filters-label{font-size:.74rem;letter-spacing:.16em;text-transform:uppercase;
+  font-weight:800;color:var(--sage);margin-right:6px}
+.chip{flex-shrink:0;background:#fff;border:1.5px solid rgba(45,74,50,.15);border-radius:999px;
+  padding:8px 14px;font-size:.82rem;font-weight:700;color:var(--ink-2);
+  cursor:pointer;transition:all .15s ease;letter-spacing:.02em}
+.chip:hover{border-color:var(--sage)}
+.chip.active{background:var(--forest);color:#fff;border-color:var(--forest)}
+.chip.fam{margin-left:auto;background:var(--cream-w);border-color:rgba(201,169,110,.4)}
+.chip.fam.active{background:var(--tan);color:var(--dark);border-color:var(--tan)}
+.chip-dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px;vertical-align:middle}
+.chip-fests .chip-dot{background:var(--c-fests)}
+.chip-family .chip-dot{background:var(--c-family)}
+.chip-arts .chip-dot{background:var(--c-arts)}
+.chip-adult .chip-dot{background:var(--c-adult)}
+.chip-wellness .chip-dot{background:var(--c-wellness)}
+.chip-music .chip-dot{background:var(--c-music)}
+.chip-edu .chip-dot{background:var(--c-edu)}
 
-/* PLACEHOLDER */
-main{flex:1;max-width:780px;margin:0 auto;padding:32px 24px 48px;width:100%}
-.placeholder{background:#fff;border:1px dashed rgba(201,169,110,.5);border-radius:8px;
-  padding:36px 30px;text-align:center;color:var(--ink-2);
-  box-shadow:0 4px 12px rgba(0,0,0,.03)}
-.ph-eyebrow{font-size:.7rem;letter-spacing:.15em;font-weight:700;
-  text-transform:uppercase;color:var(--sage);margin-bottom:8px}
-.ph-title{font-family:'Bebas Neue',sans-serif;font-size:1.75rem;
-  letter-spacing:.02em;color:var(--forest);margin-bottom:10px;line-height:1.1}
-.ph-note{font-size:1rem;line-height:1.6;max-width:520px;margin:0 auto}
-.back-cta{display:inline-flex;align-items:center;gap:8px;margin-top:24px;
-  background:var(--forest);color:#fff;padding:12px 24px;border-radius:4px;
-  font-weight:700;font-size:.9rem;letter-spacing:.04em;
-  transition:background .2s ease}
-.back-cta:hover{background:var(--dark)}
-.back-cta svg{width:14px;height:14px}
+main{flex:1;width:100%}
+.article{max-width:1080px;margin:0 auto;padding:32px 24px 32px;width:100%}
+.intro{text-align:center;color:var(--ink-3);font-size:.98rem;max-width:620px;margin:0 auto 24px}
+.intro strong{color:var(--forest)}
 
-/* FOOTER */
-footer{background:var(--dark);color:rgba(255,255,255,.65);padding:32px 24px;
-  text-align:center;font-size:.85rem;letter-spacing:.02em}
-footer a{color:var(--tan);font-weight:500}
+.day-block{margin-bottom:28px;scroll-margin-top:140px}
+.day-head{display:flex;align-items:baseline;gap:10px;margin-bottom:12px;
+  padding-bottom:8px;border-bottom:2px solid rgba(45,74,50,.12)}
+.day-name{font-family:'Bebas Neue',sans-serif;font-size:1.7rem;letter-spacing:.04em;
+  color:var(--forest);line-height:1}
+.day-count{font-size:.8rem;font-weight:700;color:var(--ink-3);letter-spacing:.06em;text-transform:uppercase}
+
+.event{background:#fff;border:1px solid rgba(0,0,0,.06);border-radius:10px;
+  padding:14px 18px;margin-bottom:8px;display:grid;
+  grid-template-columns:auto 1fr;gap:12px 16px;align-items:flex-start;
+  box-shadow:0 2px 6px rgba(0,0,0,.03);
+  transition:transform .15s ease,box-shadow .15s ease,border-color .15s ease;
+  position:relative}
+.event:hover{transform:translateY(-1px);box-shadow:0 8px 20px rgba(45,74,50,.08);border-color:rgba(201,169,110,.4)}
+.event::before{content:'';position:absolute;left:0;top:14px;bottom:14px;width:4px;border-radius:0 4px 4px 0;background:var(--sage)}
+.event.cat-fests::before{background:var(--c-fests)}
+.event.cat-family::before{background:var(--c-family)}
+.event.cat-arts::before{background:var(--c-arts)}
+.event.cat-adult::before{background:var(--c-adult)}
+.event.cat-wellness::before{background:var(--c-wellness)}
+.event.cat-music::before{background:var(--c-music)}
+.event.cat-edu::before{background:var(--c-edu)}
+
+.event-time{font-family:'Bebas Neue',sans-serif;font-size:1.05rem;letter-spacing:.04em;
+  color:var(--forest);min-width:84px;line-height:1.2;padding-top:2px;padding-left:6px}
+.event-body{display:flex;flex-direction:column;gap:4px}
+.event-title{font-weight:800;color:var(--dark);font-size:1.02rem;line-height:1.35}
+.event-meta{display:flex;flex-wrap:wrap;gap:8px;align-items:center;font-size:.82rem;color:var(--ink-3)}
+.event-cat{font-size:.7rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;
+  padding:3px 9px;border-radius:999px;background:rgba(107,143,113,.12);color:var(--forest)}
+.event.cat-fests .event-cat{background:rgba(212,148,58,.16);color:var(--c-fests)}
+.event.cat-family .event-cat{background:rgba(92,143,203,.14);color:var(--c-family)}
+.event.cat-arts .event-cat{background:rgba(165,111,181,.14);color:var(--c-arts)}
+.event.cat-adult .event-cat{background:rgba(63,122,87,.14);color:var(--c-adult)}
+.event.cat-wellness .event-cat{background:rgba(45,155,142,.14);color:var(--c-wellness)}
+.event.cat-music .event-cat{background:rgba(212,95,95,.14);color:var(--c-music)}
+.event.cat-edu .event-cat{background:rgba(140,110,71,.14);color:var(--c-edu)}
+.event-fam{font-size:.7rem;font-weight:800;letter-spacing:.06em;
+  padding:3px 9px;border-radius:999px;background:var(--cream-w);color:var(--tan-d);
+  border:1px solid rgba(201,169,110,.35)}
+.event-venue{font-weight:600;color:var(--ink-2)}
+.event-desc{font-size:.92rem;color:var(--ink-3);line-height:1.55;margin-top:2px}
+.event-link{font-size:.84rem;font-weight:700;color:var(--forest);
+  border-bottom:1px solid rgba(45,74,50,.3);align-self:flex-start;margin-top:2px}
+.event-link:hover{color:var(--tan-d);border-bottom-color:var(--tan-d)}
+
+@media(min-width:600px){
+  .event{grid-template-columns:96px 1fr;gap:14px 18px}
+  .event-time{min-width:96px}
+}
+@media(max-width:480px){
+  .event{padding:12px 14px}
+  .event::before{top:12px;bottom:12px}
+  .event-time{padding-left:4px}
+}
+
+.empty-state{text-align:center;padding:48px 24px;color:var(--ink-3);
+  background:var(--cream-w);border:1px dashed rgba(201,169,110,.4);border-radius:10px;
+  margin-top:14px}
+.empty-state strong{color:var(--forest);font-family:'Bebas Neue',sans-serif;
+  font-size:1.4rem;display:block;margin-bottom:6px;letter-spacing:.04em}
+
+.cta{background:var(--forest);color:#fff;border-radius:12px;
+  padding:36px 28px;margin:32px 0 0;text-align:center;
+  box-shadow:0 12px 30px rgba(45,74,50,.18)}
+.cta-eyebrow{font-size:.7rem;font-weight:700;letter-spacing:.2em;
+  text-transform:uppercase;color:var(--tan);display:block;margin-bottom:8px}
+.cta h2{font-family:'Bebas Neue',sans-serif;font-size:clamp(1.9rem,4.5vw,2.6rem);
+  letter-spacing:.02em;color:#fff;margin-bottom:8px;line-height:1.1}
+.cta p{color:rgba(255,255,255,.85);max-width:520px;margin:0 auto 20px;font-size:.98rem}
+.cta-row{display:flex;flex-wrap:wrap;gap:10px;justify-content:center}
+.cta-btn{display:inline-flex;align-items:center;gap:6px;padding:13px 22px;
+  border-radius:6px;font-weight:700;font-size:.92rem;letter-spacing:.04em;
+  transition:transform .2s ease,background .2s ease}
+.cta-btn.primary{background:var(--tan);color:var(--dark)}
+.cta-btn.primary:hover{background:#fff;transform:translateY(-1px)}
+.cta-btn.secondary{background:transparent;color:#fff;border:1px solid rgba(255,255,255,.5)}
+.cta-btn.secondary:hover{background:rgba(255,255,255,.1)}
+
+footer{background:var(--dark);color:rgba(255,255,255,.7);padding:28px 24px;
+  text-align:center;font-size:.88rem;letter-spacing:.02em}
+footer a{color:var(--tan);font-weight:600}
 footer a:hover{color:#fff}
+footer .foot-links{margin-top:8px}
+footer .foot-links a{margin:0 8px}
 
-@media(max-width:380px){
-  .topbar{padding:12px 16px}.brand-logo{height:32px}
-  .hero{padding:48px 16px 36px}main{padding:24px 16px 36px}
-  .placeholder{padding:26px 18px}
+@media(max-width:480px){
+  .topbar{padding:12px 16px}.brand-logo{height:30px}
+  .hero{padding:56px 16px 40px}
+  .article{padding:24px 16px 24px}
+  .filters-inner{padding:12px 12px;gap:6px}
+  .filters{top:58px}
+  .chip{padding:7px 11px;font-size:.78rem}
+  .cta{padding:26px 18px}
 }
 </style>
 </head>
 <body>
 
 <header class="topbar">
-  <a href="home.html" aria-label="Cruise the Creek home"><img class="brand-logo" src="BlackonTransparent.png" alt="Cruise the Creek"></a>
+  <a href="home.html" aria-label="Cruise the Creek home" data-cms-href="logo_url" data-cms-target="logo_external">
+    <img class="brand-logo" src="BlackonTransparent.png" alt="Cruise the Creek">
+  </a>
+  <a class="nav-back" href="home.html">← Home</a>
 </header>
 
 <section class="hero">
+  <img class="hero-img" data-cms-src="hero_photo" alt=""
+       onload="this.classList.add('loaded');this.closest('.hero').classList.add('has-photo')"
+       onerror="this.remove()">
+  <div class="hero-overlay"></div>
   <div class="hero-topo"></div>
-  <span class="hero-eyebrow">Group rides & happenings</span>
-  <h1>Events</h1>
-  <p>Upcoming rides, races, and shop events.</p>
+  <span class="hero-eyebrow" data-cms-text="hero_eyebrow">What's happening</span>
+  <h1>
+    <span data-cms-text="hero_h1">Show Up</span>
+    <em data-cms-text="hero_h1_em">&amp; Show Out</em>
+  </h1>
+  <p data-cms-text="hero_tagline">Festivals, farmers markets, music, fitness rides — everything happening around Mill Creek Park, downtown Youngstown, and the Mahoning Valley. Filter by what you're into. Ride your e-bike. Show up.</p>
+  <div class="hero-cta-row">
+    <a class="hero-btn primary" href="rentals.html"><span data-cms-text="hero_cta_primary">🚲 Rent an E-Bike</span></a>
+    <a class="hero-btn secondary" href="adventures.html"><span data-cms-text="hero_cta_secondary">Plan an Adventure</span></a>
+  </div>
 </section>
 
-<nav class="crumb"><a href="home.html">Home</a><span class="sep">/</span>Creek Life <span class="sep">/</span> Events</nav>
+<nav class="filters" id="filters">
+  <div class="filters-inner" id="filtersInner">
+    <span class="filters-label">Filter:</span>
+    <button class="chip active" data-cat="all">All</button>
+    <button class="chip chip-fests" data-cat="fests"><span class="chip-dot"></span>Fests</button>
+    <button class="chip chip-family" data-cat="family"><span class="chip-dot"></span>Family Fun</button>
+    <button class="chip chip-arts" data-cat="arts"><span class="chip-dot"></span>Arts &amp; Culture</button>
+    <button class="chip chip-music" data-cat="music"><span class="chip-dot"></span>Music</button>
+    <button class="chip chip-wellness" data-cat="wellness"><span class="chip-dot"></span>Wellness</button>
+    <button class="chip chip-adult" data-cat="adult"><span class="chip-dot"></span>Adult Social</button>
+    <button class="chip chip-edu" data-cat="edu"><span class="chip-dot"></span>Educational</button>
+    <button class="chip fam" data-fam="1">👨‍👩‍👧 Family-friendly only</button>
+  </div>
+</nav>
 
 <main>
-  <div class="placeholder">
-    <div class="ph-eyebrow">Coming soon</div>
-    <div class="ph-title">Events content lands here</div>
-    <div class="ph-note">Event calendar, RSVP forms, and recaps from past events will live here.</div>
-    <a class="back-cta" href="home.html">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
-      Back
-    </a>
-  </div>
+  <article class="article">
+    <p class="intro" data-cms-text="intro">
+      Stay in the loop on what's going on around the Mahoning Valley — and ride your <strong>Cruise the Creek</strong> e-bike to it.
+    </p>
+
+    <div id="eventsList">
+      <div class="empty-state">
+        <strong>Loading this month's events…</strong>
+        Hang tight — fresh listings on the way.
+      </div>
+    </div>
+
+    <div class="cta">
+      <span class="cta-eyebrow" data-cms-text="cta_eyebrow">Make it easy</span>
+      <h2 data-cms-text="cta_title">Skip the parking. Ride to the event.</h2>
+      <p data-cms-text="cta_subtitle">Rent a Cruise the Creek e-bike and roll into downtown Youngstown straight from Mill Creek Park. No tickets, no traffic, no hunting for a spot.</p>
+      <div class="cta-row">
+        <a class="cta-btn primary" href="rentals.html" data-cms-href="cta_btn_primary_url"><span data-cms-text="cta_btn_primary_label">🚲 See Rental Options</span></a>
+        <a class="cta-btn secondary" href="https://www.cruisethecreek.com/book-a-rental" target="_blank" rel="noopener" data-cms-href="cta_btn_secondary_url"><span data-cms-text="cta_btn_secondary_label">Book a Rental</span></a>
+      </div>
+    </div>
+  </article>
 </main>
 
 <footer>
-  &copy; 2026 Cruise the Creek &middot; <a href="home.html">Home</a> &middot; <a href="shop.html">Shop</a>
+  <div>&copy; 2026 Cruise the Creek &middot; 6685 Kirk Rd, Canfield, OH 44406</div>
+  <div class="foot-links">
+    <a href="home.html">Home</a> &middot;
+    <a href="rentals.html">Rentals</a> &middot;
+    <a href="trailside.html">Trailside</a> &middot;
+    <a href="faqs.html">FAQs</a> &middot;
+    <a href="donate.html">Support</a>
+  </div>
 </footer>
+
+<script>
+const CAT_MAP = {
+  fests:    { slug: 'fests',    cls: 'cat-fests',    label: 'Fests & Celebrations' },
+  family:   { slug: 'family',   cls: 'cat-family',   label: 'Family Fun' },
+  arts:     { slug: 'arts',     cls: 'cat-arts',     label: 'Arts & Culture' },
+  adult:    { slug: 'adult',    cls: 'cat-adult',    label: 'Adult Social' },
+  wellness: { slug: 'wellness', cls: 'cat-wellness', label: 'Health & Wellness' },
+  music:    { slug: 'music',    cls: 'cat-music',    label: 'Music Events' },
+  edu:      { slug: 'edu',      cls: 'cat-edu',      label: 'Educational' },
+};
+function normalizeCat(s){
+  const k = String(s || '').toLowerCase().trim();
+  if (CAT_MAP[k]) return CAT_MAP[k];
+  if (k.startsWith('fest')) return CAT_MAP.fests;
+  if (k.startsWith('family')) return CAT_MAP.family;
+  if (k.startsWith('art'))    return CAT_MAP.arts;
+  if (k.startsWith('adult'))  return CAT_MAP.adult;
+  if (k.startsWith('health') || k.includes('wellness') || k.includes('fitness')) return CAT_MAP.wellness;
+  if (k.startsWith('music'))  return CAT_MAP.music;
+  if (k.startsWith('edu'))    return CAT_MAP.edu;
+  return { slug: 'other', cls: '', label: 'Event' };
+}
+function isTruthy(v){ return v === true || v === 'TRUE' || v === 'true' || v === 1 || v === '1' || String(v).toLowerCase() === 'yes' || String(v).toLowerCase() === 'y'; }
+function esc(s){ return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+let _events = [];
+let _filterCat = 'all';
+let _filterFam = false;
+
+function parseDateKey(row){
+  const iso = row.date_iso || row.date || '';
+  if (iso) {
+    const d = new Date(iso);
+    if (!isNaN(d)) return d.getTime();
+  }
+  return Number(row.order || 0) * 86400000;
+}
+function dayLabel(row){
+  if (row.day_label) return String(row.day_label);
+  const iso = row.date_iso || row.date;
+  if (iso) {
+    const d = new Date(iso);
+    if (!isNaN(d)) return d.toLocaleDateString(undefined, { weekday:'long', month:'long', day:'numeric' });
+  }
+  return 'TBA';
+}
+
+function renderEvents(){
+  const root = document.getElementById('eventsList');
+  if (!root) return;
+  const filtered = _events.filter(e => {
+    if (_filterCat !== 'all' && normalizeCat(e.category).slug !== _filterCat) return false;
+    if (_filterFam && !isTruthy(e.family_friendly)) return false;
+    return true;
+  });
+  if (!filtered.length) {
+    root.innerHTML = '<div class="empty-state"><strong>Nothing matching here yet.</strong>Try a different filter, or check back as the calendar fills in.</div>';
+    return;
+  }
+  filtered.sort((a, b) => parseDateKey(a) - parseDateKey(b));
+  const groups = [];
+  const byDay = {};
+  filtered.forEach(e => {
+    const key = dayLabel(e);
+    if (!byDay[key]) { byDay[key] = []; groups.push(key); }
+    byDay[key].push(e);
+  });
+  let html = '';
+  groups.forEach(day => {
+    const items = byDay[day];
+    html += '<section class="day-block"><div class="day-head">' +
+              '<span class="day-name">' + esc(day) + '</span>' +
+              '<span class="day-count">' + items.length + ' event' + (items.length === 1 ? '' : 's') + '</span>' +
+            '</div>';
+    items.forEach(e => {
+      const cat = normalizeCat(e.category);
+      const venue = e.venue ? '<span class="event-venue">' + esc(e.venue) + '</span>' : '';
+      const fam   = isTruthy(e.family_friendly) ? '<span class="event-fam">👨‍👩‍👧 Family</span>' : '';
+      const link  = e.url
+        ? '<a class="event-link" href="' + esc(e.url) + '" target="_blank" rel="noopener">More info →</a>'
+        : '';
+      html += '<article class="event' + (cat.cls ? ' ' + cat.cls : '') + '">' +
+                '<div class="event-time">' + esc(e.time || 'TBA') + '</div>' +
+                '<div class="event-body">' +
+                  '<div class="event-title">' + esc(e.title || '(untitled)') + '</div>' +
+                  '<div class="event-meta">' +
+                    '<span class="event-cat">' + esc(cat.label) + '</span>' +
+                    fam + venue +
+                  '</div>' +
+                  (e.description ? '<div class="event-desc">' + esc(e.description) + '</div>' : '') +
+                  link +
+                '</div>' +
+              '</article>';
+    });
+    html += '</section>';
+  });
+  root.innerHTML = html;
+}
+
+document.getElementById('filtersInner').addEventListener('click', (ev) => {
+  const btn = ev.target.closest('.chip');
+  if (!btn) return;
+  if (btn.dataset.fam) {
+    _filterFam = !_filterFam;
+    btn.classList.toggle('active', _filterFam);
+  } else if (btn.dataset.cat) {
+    _filterCat = btn.dataset.cat;
+    document.querySelectorAll('.chip[data-cat]').forEach(c => c.classList.toggle('active', c.dataset.cat === _filterCat));
+  }
+  renderEvents();
+});
+</script>
+
+<script>
+const MENU_URL = 'https://script.google.com/macros/s/AKfycbxjg2ZsPCZNsmJEStYA0bRdsnkm4nNS-m-HNhm_Gin56VIVeYWVRE5j51j30zVHhb4PmQ/exec?page=events';
+
+function isTrue(v){ return v===true||v==='TRUE'||v==='true'||v===1; }
+
+function applyCMS(remote){
+  const map = Object.assign({}, remote.site || {}, remote.pageMeta || {});
+  document.querySelectorAll('[data-cms-text]').forEach(el => {
+    const v = map[el.dataset.cmsText];
+    if (v != null && String(v).trim() !== '') el.textContent = v;
+  });
+  document.querySelectorAll('[data-cms-href]').forEach(el => {
+    const v = map[el.dataset.cmsHref];
+    if (!v) return;
+    if (el.dataset.cmsHref === 'logo_url') {
+      try {
+        const norm = (p) => p.replace(/\/index$/, "/").replace(/\.html$/, "").replace(/\/+$/, "") || "/";
+        if (norm(new URL(v, location.href).pathname) === norm(location.pathname)) return;
+      } catch(e) {}
+    }
+    el.href = v;
+  });
+  document.querySelectorAll('[data-cms-src]').forEach(el => {
+    const v = map[el.dataset.cmsSrc];
+    if (!v) return;
+    const url = /^https?:\/\//.test(v) ? v : 'media/' + encodeURI(String(v).replace(/^(media|images)\//, '').trim());
+    el.addEventListener('error', () => el.remove(), { once: true });
+    el.src = url;
+  });
+  document.querySelectorAll('[data-cms-target]').forEach(el => {
+    const v = map[el.dataset.cmsTarget];
+    if (isTrue(v)) { el.target = '_blank'; el.rel = 'noopener'; }
+  });
+  if (map.hero_overlay_opacity != null && map.hero_overlay_opacity !== '') {
+    document.documentElement.style.setProperty('--hero-overlay', String(map.hero_overlay_opacity));
+  }
+}
+
+const CMS_CACHE_KEY = 'cms:events:v1';
+function readCmsCache(){
+  try { const raw = localStorage.getItem(CMS_CACHE_KEY);
+        const p = raw ? JSON.parse(raw) : null;
+        return (p && typeof p === 'object') ? p : null;
+      } catch(e) { return null; }
+}
+function writeCmsCache(d){
+  try { localStorage.setItem(CMS_CACHE_KEY, JSON.stringify(d)); } catch(e) {}
+}
+
+const _cached = readCmsCache();
+if (_cached) {
+  applyCMS(_cached);
+  if (Array.isArray(_cached.events) && _cached.events.length) {
+    _events = _cached.events;
+    renderEvents();
+  }
+}
+
+fetch(MENU_URL, {cache:'no-store'})
+  .then(r => r.ok ? r.json() : Promise.reject(r.status))
+  .then(remote => {
+    if (!remote || typeof remote !== 'object') return;
+    writeCmsCache(remote);
+    applyCMS(remote);
+    if (Array.isArray(remote.events)) {
+      _events = remote.events;
+      renderEvents();
+    }
+  })
+  .catch(err => console.warn('[events] config fetch failed, using static content:', err));
+</script>
 
 </body>
 </html>
