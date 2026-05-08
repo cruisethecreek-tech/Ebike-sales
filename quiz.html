@@ -347,10 +347,20 @@
         if (answers.skill === 'no' && bike.cat !== 'trike') return null;
         if (answers.weight === 'light' && !bike.unclassified && bike.weight !== null && bike.weight > 55) return null;
 
+        // Hard riding-style filters — if the rider picked trike, only show
+        // trikes; if they picked a non-trike feel, hide trikes. The "both"
+        // sensor flag describes pedal-assist style (torque/cadence), not
+        // wheel count, so don't let it leak across this category boundary.
+        if (answers.feel === 'trike' && bike.cat !== 'trike') return null;
+        if (answers.feel && answers.feel !== 'trike' && bike.cat === 'trike') return null;
+
         // Riding style (45 pts) — skip if unclassified so the bike isn't penalised
         if (bike.unclassified) {
             gaps.push("New product — classifications pending");
-        } else if (answers.feel === bike.feel || bike.feel === 'both' || (answers.feel === 'trike' && bike.cat === 'trike')) {
+        } else if (answers.feel === 'trike') {
+            // Already narrowed to trikes only above; everyone gets the bonus.
+            score += 45; r.push("Three-wheel stability");
+        } else if (answers.feel === bike.feel || bike.feel === 'both') {
             score += 45; r.push("Perfect match for riding style");
         } else if (answers.feel === 'torque' && bike.feel === 'cadence') {
             gaps.push("Cadence sensor only — no torque/mid-drive response");
