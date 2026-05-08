@@ -1010,131 +1010,131 @@ function getTabDefs() {
       //                    is toggled.
       //   description      Short blurb (optional).
       //   url              External info link (optional).
-      header: ['order','date_iso','day_label','time','title','venue','category','family_friendly','description','url','lat','lng'],
+      header: ['order','date_iso','day_label','time','title','venue','category','family_friendly','description','url','lat','lng','bike_friendly'],
       rows: [
         // ── Friday, May 1 ──
-        [10,  '2026-05-01', 'Friday, May 1',  '4:00 pm – 8:00 pm',  'Food Company Band',                'Twisted Rivets',                          'music',    false, '', '', '', ''],
-        [11,  '2026-05-01', '',                '4:00 pm – 10:00 pm', 'Penguin City Brewing Company',     'Penguin City Brewing Company',           'adult',    false, 'Brewery taproom open.', '', '', ''],
-        [12,  '2026-05-01', '',                '5:00 pm – 9:00 pm',  'Cinco de Mayo on Phelps Street',   'Phelps Street Gateway',                   'fests',    true,  'Tacos, music, and downtown vibes.', '', '', ''],
-        [13,  '2026-05-01', '',                '6:00 pm – 9:00 pm',  'Greek Comedy Show',                'Tisone Wrestling Banquet Center',         'adult',    false, '', '', '', ''],
-        [14,  '2026-05-01', '',                '6:00 pm – 9:00 pm',  'Ryan Goodcase',                    'The Apollo Event Center',                 'music',    false, '', '', '', ''],
+        [10, '2026-05-01', 'Friday, May 1', '4:00 pm – 8:00 pm', 'Food Company Band', 'Twisted Rivets', 'music', false, '', '', 41.1004, -80.6489, true],
+        [11, '2026-05-01', '', '4:00 pm – 10:00 pm', 'Penguin City Brewing Company', 'Penguin City Brewing Company', 'adult', false, 'Brewery taproom open.', '', 41.1017, -80.6416, true],
+        [12, '2026-05-01', '', '5:00 pm – 9:00 pm', 'Cinco de Mayo on Phelps Street', 'Phelps Street Gateway', 'fests', true, 'Tacos, music, and downtown vibes.', '', 41.1008, -80.6496, true],
+        [13, '2026-05-01', '', '6:00 pm – 9:00 pm', 'Greek Comedy Show', 'Tisone Wrestling Banquet Center', 'adult', false, '', '', 41.1198, -80.6033, ''],
+        [14, '2026-05-01', '', '6:00 pm – 9:00 pm', 'Ryan Goodcase', 'The Apollo Event Center', 'music', false, '', '', 41.0998, -80.6469, true],
 
         // ── Saturday, May 2 ──
-        [20,  '2026-05-02', 'Saturday, May 2', '10:00 am – 12:00 pm','Latin Night',                      'The Social',                              'music',    false, '', '', '', ''],
-        [21,  '2026-05-02', '',                '10:00 am – 1:00 pm', 'Country Line Dancing',             'Penguin City Brewing Company',           'adult',    false, 'Beginner-friendly, free lessons.', '', '', ''],
-        [22,  '2026-05-02', '',                '12:00 pm – 4:00 pm', 'Folkfest Launch Party',            'Yonkos Hall',                             'fests',    true,  '', '', '', ''],
-        [23,  '2026-05-02', '',                '5:00 pm – 9:00 pm',  'Halfway to Halloween Horror Fest', 'Ward Beecher Planetarium',                'adult',    false, '', '', '', ''],
-        [24,  '2026-05-02', '',                '7:00 pm – 9:00 pm',  'Visitor Appreciation Weekend',     'Mahoning Valley Historical Society',      'edu',      true,  '', '', '', ''],
-        [25,  '2026-05-02', '',                '8:00 pm – 11:00 pm', 'Country Line Dancing',             'Penguin City Brewing Company',           'adult',    false, '', '', '', ''],
+        [20, '2026-05-02', 'Saturday, May 2', '10:00 am – 12:00 pm', 'Latin Night', 'The Social', 'music', false, '', '', 41.1001, -80.6508, true],
+        [21, '2026-05-02', '', '10:00 am – 1:00 pm', 'Country Line Dancing', 'Penguin City Brewing Company', 'adult', false, 'Beginner-friendly, free lessons.', '', 41.1017, -80.6416, true],
+        [22, '2026-05-02', '', '12:00 pm – 4:00 pm', 'Folkfest Launch Party', 'Yonkos Hall', 'fests', true, '', '', '', '', true],
+        [23, '2026-05-02', '', '5:00 pm – 9:00 pm', 'Halfway to Halloween Horror Fest', 'Ward Beecher Planetarium', 'adult', false, '', '', 41.1054, -80.6475, true],
+        [24, '2026-05-02', '', '7:00 pm – 9:00 pm', 'Visitor Appreciation Weekend', 'Mahoning Valley Historical Society', 'edu', true, '', '', 41.1102, -80.6441, true],
+        [25, '2026-05-02', '', '8:00 pm – 11:00 pm', 'Country Line Dancing', 'Penguin City Brewing Company', 'adult', false, '', '', 41.1017, -80.6416, true],
 
         // ── Sunday, May 3 ──
-        [30,  '2026-05-03', 'Sunday, May 3',   '10:00 am – 1:00 pm', 'BYOB Brunch',                      'Penguin City Brewing Company',           'adult',    false, 'Build-your-own brunch — bring the family.', '', '', ''],
-        [31,  '2026-05-03', '',                '11:00 am – 4:00 pm', 'Sensory Sunday',                   'Butler Institute of American Art',       'family',   true,  'Quiet hours and sensory-friendly programming.', '', '', ''],
-        [32,  '2026-05-03', '',                '12:00 pm – 5:00 pm', 'Twisted Roots Brunch & Vibe + Live Music', 'Twisted Rivets',                  'music',    false, '', '', '', ''],
-        [33,  '2026-05-03', '',                '1:00 pm – 4:00 pm',  'World Press Freedom Day',          'Butler Institute of American Art',       'edu',      false, '', '', '', ''],
-        [34,  '2026-05-03', '',                '2:00 pm – 4:00 pm',  'Youth Orchestra Concert',          'Stambaugh Auditorium',                   'arts',     true,  '', '', '', ''],
-        [35,  '2026-05-03', '',                '4:00 pm – 7:00 pm',  'The Beauty Legacy Industry Mixer', 'Penguin City Brewing Company',           'adult',    false, '', '', '', ''],
+        [30, '2026-05-03', 'Sunday, May 3', '10:00 am – 1:00 pm', 'BYOB Brunch', 'Penguin City Brewing Company', 'adult', false, 'Build-your-own brunch — bring the family.', '', 41.1017, -80.6416, true],
+        [31, '2026-05-03', '', '11:00 am – 4:00 pm', 'Sensory Sunday', 'Butler Institute of American Art', 'family', true, 'Quiet hours and sensory-friendly programming.', '', 41.1068, -80.6457, true],
+        [32, '2026-05-03', '', '12:00 pm – 5:00 pm', 'Twisted Roots Brunch & Vibe + Live Music', 'Twisted Rivets', 'music', false, '', '', 41.1004, -80.6489, true],
+        [33, '2026-05-03', '', '1:00 pm – 4:00 pm', 'World Press Freedom Day', 'Butler Institute of American Art', 'edu', false, '', '', 41.1068, -80.6457, true],
+        [34, '2026-05-03', '', '2:00 pm – 4:00 pm', 'Youth Orchestra Concert', 'Stambaugh Auditorium', 'arts', true, '', '', 41.1157, -80.6521, true],
+        [35, '2026-05-03', '', '4:00 pm – 7:00 pm', 'The Beauty Legacy Industry Mixer', 'Penguin City Brewing Company', 'adult', false, '', '', 41.1017, -80.6416, true],
 
         // ── Tuesday, May 5 ──
-        [40,  '2026-05-05', 'Tuesday, May 5',  '6:00 pm – 8:00 pm',  'Workshop: Writing Through Grief',  'Penguin City Brewing Company',           'wellness', false, '', '', '', ''],
+        [40, '2026-05-05', 'Tuesday, May 5', '6:00 pm – 8:00 pm', 'Workshop: Writing Through Grief', 'Penguin City Brewing Company', 'wellness', false, '', '', 41.1017, -80.6416, true],
 
         // ── Wednesday, May 6 ──
-        [50,  '2026-05-06', 'Wednesday, May 6','6:00 pm – 8:00 pm',  'Mahoning Valley Civic Forum',      'Mahoning Valley Historical Society',     'edu',      false, '', '', '', ''],
+        [50, '2026-05-06', 'Wednesday, May 6', '6:00 pm – 8:00 pm', 'Mahoning Valley Civic Forum', 'Mahoning Valley Historical Society', 'edu', false, '', '', 41.1102, -80.6441, true],
 
         // ── Thursday, May 7 ──
-        [60,  '2026-05-07', 'Thursday, May 7', '6:00 pm – 9:00 pm',  'The Hops Conference',              'Covelli Centre',                          'adult',    false, '', '', '', ''],
-        [61,  '2026-05-07', '',                '6:00 pm – 11:00 pm', 'Young Friends Adventure 2026',     'Youngstown Country Club',                 'adult',    false, '', '', '', ''],
+        [60, '2026-05-07', 'Thursday, May 7', '6:00 pm – 9:00 pm', 'The Hops Conference', 'Covelli Centre', 'adult', false, '', '', 41.0971, -80.6467, true],
+        [61, '2026-05-07', '', '6:00 pm – 11:00 pm', 'Young Friends Adventure 2026', 'Youngstown Country Club', 'adult', false, '', '', 41.1444, -80.6272, ''],
 
         // ── Friday, May 16 ──
-        [70,  '2026-05-16', 'Friday, May 16',  '4:00 pm – 7:00 pm',  'Food for Thought',                 'Phelps Street Gateway',                   'fests',    true,  '', '', '', ''],
-        [71,  '2026-05-16', '',                '5:00 pm – 9:00 pm',  'Trivia Night',                     'Penguin City Brewing Company',           'adult',    false, '', '', '', ''],
-        [72,  '2026-05-16', '',                '7:00 pm – 11:00 pm', 'Thirsty Thursday Karaoke',         'Penguin City Brewing Company',           'music',    false, '', '', '', ''],
+        [70, '2026-05-16', 'Friday, May 16', '4:00 pm – 7:00 pm', 'Food for Thought', 'Phelps Street Gateway', 'fests', true, '', '', 41.1008, -80.6496, true],
+        [71, '2026-05-16', '', '5:00 pm – 9:00 pm', 'Trivia Night', 'Penguin City Brewing Company', 'adult', false, '', '', 41.1017, -80.6416, true],
+        [72, '2026-05-16', '', '7:00 pm – 11:00 pm', 'Thirsty Thursday Karaoke', 'Penguin City Brewing Company', 'music', false, '', '', 41.1017, -80.6416, true],
 
         // ── Saturday, May 17 ──
-        [80,  '2026-05-17', 'Saturday, May 17','9:00 am – 1:00 pm',  'Mahoning Valley Civic Forum',      'Mahoning Valley Historical Society',     'edu',      false, '', '', '', ''],
-        [81,  '2026-05-17', '',                '10:00 am – 4:00 pm', 'Young Friends Adventure 2026',     'Youngstown Country Club',                 'family',   true,  '', '', '', ''],
-        [82,  '2026-05-17', '',                '12:00 pm – 4:00 pm', 'Country Line Dancing',             'Penguin City Brewing Company',           'adult',    false, '', '', '', ''],
-        [83,  '2026-05-17', '',                '1:00 pm – 4:00 pm',  'Live Wire Mickey Cruz Tribute & Space Monkey Aces Mountain Trax Tribute', 'Twisted Rivets', 'music', false, '', '', '', ''],
-        [84,  '2026-05-17', '',                '7:30 pm – 9:30 pm',  'Live Music: Ruby — Mountain Soul', 'Twisted Rivets',                          'music',    false, '', '', '', ''],
+        [80, '2026-05-17', 'Saturday, May 17', '9:00 am – 1:00 pm', 'Mahoning Valley Civic Forum', 'Mahoning Valley Historical Society', 'edu', false, '', '', 41.1102, -80.6441, true],
+        [81, '2026-05-17', '', '10:00 am – 4:00 pm', 'Young Friends Adventure 2026', 'Youngstown Country Club', 'family', true, '', '', 41.1444, -80.6272, ''],
+        [82, '2026-05-17', '', '12:00 pm – 4:00 pm', 'Country Line Dancing', 'Penguin City Brewing Company', 'adult', false, '', '', 41.1017, -80.6416, true],
+        [83, '2026-05-17', '', '1:00 pm – 4:00 pm', 'Live Wire Mickey Cruz Tribute & Space Monkey Aces Mountain Trax Tribute', 'Twisted Rivets', 'music', false, '', '', 41.1004, -80.6489, true],
+        [84, '2026-05-17', '', '7:30 pm – 9:30 pm', 'Live Music: Ruby — Mountain Soul', 'Twisted Rivets', 'music', false, '', '', 41.1004, -80.6489, true],
 
         // ── Sunday, May 18 ──
-        [90,  '2026-05-18', 'Sunday, May 18',  '10:00 am – 4:00 pm', 'BYOB Brunch',                      'Penguin City Brewing Company',           'adult',    false, '', '', '', ''],
-        [91,  '2026-05-18', '',                '4:00 pm – 7:00 pm',  'BNB Build (Beats and Beers)',      'Penguin City Brewing Company',           'music',    false, '', '', '', ''],
+        [90, '2026-05-18', 'Sunday, May 18', '10:00 am – 4:00 pm', 'BYOB Brunch', 'Penguin City Brewing Company', 'adult', false, '', '', 41.1017, -80.6416, true],
+        [91, '2026-05-18', '', '4:00 pm – 7:00 pm', 'BNB Build (Beats and Beers)', 'Penguin City Brewing Company', 'music', false, '', '', 41.1017, -80.6416, true],
 
         // ── Friday, May 23 ──
-        [100, '2026-05-23', 'Friday, May 23',  '10:00 am – 12:00 pm','Meditation at American Masterpieces','Butler Institute of American Art',     'wellness', false, '', '', '', ''],
-        [101, '2026-05-23', '',                '5:00 pm – 8:00 pm',  'Michael W. Smith — Live in the Valley', 'Covelli Centre',                     'music',    false, '', '', '', ''],
-        [102, '2026-05-23', '',                '6:00 pm – 10:00 pm', 'Full Spectrum: "Unity Prom"',      'Covelli Centre',                          'adult',    false, '', '', '', ''],
-        [103, '2026-05-23', '',                '7:00 pm – 11:00 pm', 'Carmin/Memorial Day Bash',         'Penguin City Brewing Company',           'fests',    true,  '', '', '', ''],
-        [104, '2026-05-23', '',                '8:00 pm – 11:00 pm', 'Live Music: Lec O Angelos',        'Twisted Rivets',                          'music',    false, '', '', '', ''],
+        [100, '2026-05-23', 'Friday, May 23', '10:00 am – 12:00 pm', 'Meditation at American Masterpieces', 'Butler Institute of American Art', 'wellness', false, '', '', 41.1068, -80.6457, true],
+        [101, '2026-05-23', '', '5:00 pm – 8:00 pm', 'Michael W. Smith — Live in the Valley', 'Covelli Centre', 'music', false, '', '', 41.0971, -80.6467, true],
+        [102, '2026-05-23', '', '6:00 pm – 10:00 pm', 'Full Spectrum: "Unity Prom"', 'Covelli Centre', 'adult', false, '', '', 41.0971, -80.6467, true],
+        [103, '2026-05-23', '', '7:00 pm – 11:00 pm', 'Carmin/Memorial Day Bash', 'Penguin City Brewing Company', 'fests', true, '', '', 41.1017, -80.6416, true],
+        [104, '2026-05-23', '', '8:00 pm – 11:00 pm', 'Live Music: Lec O Angelos', 'Twisted Rivets', 'music', false, '', '', 41.1004, -80.6489, true],
 
         // ── Saturday, May 24 ──
-        [110, '2026-05-24', 'Saturday, May 24','8:00 am – 12:00 pm', 'Workshop: Writing Through Grief',  'Penguin City Brewing Company',           'wellness', false, '', '', '', ''],
-        [111, '2026-05-24', '',                '8:00 am – 4:00 pm',  'Pop Up on Phelps',                 'Phelps Street Gateway',                   'fests',    true,  'Pop-up market in the open air. Family-friendly.', '', '', ''],
-        [112, '2026-05-24', '',                '11:00 am – 4:00 pm', 'Downtown Youngstown Farmers Market','Phelps Street Gateway',                  'family',   true,  '', '', '', ''],
-        [113, '2026-05-24', '',                '12:00 pm – 4:00 pm', 'Trivia Night with Greg G',         'Twisted Rivets',                          'adult',    false, '', '', '', ''],
-        [114, '2026-05-24', '',                '7:30 pm – 11:00 pm', 'Open Mic Night',                   'Penguin City Brewing Company',           'music',    false, '', '', '', ''],
+        [110, '2026-05-24', 'Saturday, May 24', '8:00 am – 12:00 pm', 'Workshop: Writing Through Grief', 'Penguin City Brewing Company', 'wellness', false, '', '', 41.1017, -80.6416, true],
+        [111, '2026-05-24', '', '8:00 am – 4:00 pm', 'Pop Up on Phelps', 'Phelps Street Gateway', 'fests', true, 'Pop-up market in the open air. Family-friendly.', '', 41.1008, -80.6496, true],
+        [112, '2026-05-24', '', '11:00 am – 4:00 pm', 'Downtown Youngstown Farmers Market', 'Phelps Street Gateway', 'family', true, '', '', 41.1008, -80.6496, true],
+        [113, '2026-05-24', '', '12:00 pm – 4:00 pm', 'Trivia Night with Greg G', 'Twisted Rivets', 'adult', false, '', '', 41.1004, -80.6489, true],
+        [114, '2026-05-24', '', '7:30 pm – 11:00 pm', 'Open Mic Night', 'Penguin City Brewing Company', 'music', false, '', '', 41.1017, -80.6416, true],
 
         // ── Sunday, May 25 ──
-        [120, '2026-05-25', 'Sunday, May 25',  '11:00 am – 4:00 pm', 'BYOB Brunch',                      'Penguin City Brewing Company',           'adult',    false, '', '', '', ''],
-        [121, '2026-05-25', '',                '11:00 am – 5:00 pm', 'Pop Up on Phelps',                 'Phelps Street Gateway',                   'fests',    true,  '', '', '', ''],
-        [122, '2026-05-25', '',                '7:00 pm – 9:00 pm',  'Visitor Appreciation Weekend',     'Mahoning Valley Historical Society',      'edu',      true,  '', '', '', ''],
+        [120, '2026-05-25', 'Sunday, May 25', '11:00 am – 4:00 pm', 'BYOB Brunch', 'Penguin City Brewing Company', 'adult', false, '', '', 41.1017, -80.6416, true],
+        [121, '2026-05-25', '', '11:00 am – 5:00 pm', 'Pop Up on Phelps', 'Phelps Street Gateway', 'fests', true, '', '', 41.1008, -80.6496, true],
+        [122, '2026-05-25', '', '7:00 pm – 9:00 pm', 'Visitor Appreciation Weekend', 'Mahoning Valley Historical Society', 'edu', true, '', '', 41.1102, -80.6441, true],
 
         // ── Friday, May 29 ──
-        [130, '2026-05-29', 'Friday, May 29',  '5:00 pm – 8:00 pm',  'Summer Exhibitions Opening',       'Butler Institute of American Art',       'arts',     true,  '', '', '', ''],
-        [131, '2026-05-29', '',                '8:00 pm – 11:00 pm', 'Live Music: Frenz',                'Twisted Rivets',                          'music',    false, '', '', '', ''],
+        [130, '2026-05-29', 'Friday, May 29', '5:00 pm – 8:00 pm', 'Summer Exhibitions Opening', 'Butler Institute of American Art', 'arts', true, '', '', 41.1068, -80.6457, true],
+        [131, '2026-05-29', '', '8:00 pm – 11:00 pm', 'Live Music: Frenz', 'Twisted Rivets', 'music', false, '', '', 41.1004, -80.6489, true],
 
         // ── Saturday, May 30 ──
-        [140, '2026-05-30', 'Saturday, May 30','9:30 am – 1:00 pm',  '25th Annual Stonewall Painting Day', 'Tod Park',                              'family',   true,  'Community paint-and-mural day. All ages welcome.', '', '', ''],
-        [141, '2026-05-30', '',                '10:00 am – 12:00 pm','Youngstown Marathon — Solo to City', 'Downtown Youngstown',                   'wellness', true,  '', '', '', ''],
-        [142, '2026-05-30', '',                '8:00 pm – 11:00 pm', 'BYOB Brunch',                      'Penguin City Brewing Company',           'adult',    false, '', '', '', ''],
+        [140, '2026-05-30', 'Saturday, May 30', '9:30 am – 1:00 pm', '25th Annual Stonewall Painting Day', 'Tod Park', 'family', true, 'Community paint-and-mural day. All ages welcome.', '', '', '', true],
+        [141, '2026-05-30', '', '10:00 am – 12:00 pm', 'Youngstown Marathon — Solo to City', 'Downtown Youngstown', 'wellness', true, '', '', '', '', true],
+        [142, '2026-05-30', '', '8:00 pm – 11:00 pm', 'BYOB Brunch', 'Penguin City Brewing Company', 'adult', false, '', '', 41.1017, -80.6416, true],
 
         // ── Saturday, May 9 (Explore Mahoning) ──
-        [200, '2026-05-09', 'Saturday, May 9', '9:00 am – 3:00 pm',  "Mr. Darby's Trunk Sale",                              "Mr. Darby's Vintage & Antiques · 7386 Market St., Boardman", 'fests',    true,  '', '', '', ''],
-        [201, '2026-05-09', '',                '10:00 am – 2:00 pm', '2nd Annual Pollinator Palooza',                       'Mahoning Soil & Water Conservation District · 850 Industrial Rd., Youngstown', 'wellness', true,  '', '', '', ''],
-        [202, '2026-05-09', '',                '10:00 am – 5:00 pm', "15th Birthday Bash — OH WOW! Children's Center",      "OH WOW! Children's Center · 15 Central Square, Youngstown",   'family',   true,  '', '', '', ''],
-        [203, '2026-05-09', '',                '11:00 am – 3:00 pm', '3rd Annual Plant Swap',                               'Penguin City Brewing Company · 460 E. Federal St., Youngstown', 'family',   true,  'Bring a plant, take a plant.', '', '', ''],
-        [204, '2026-05-09', '',                '12:00 pm – 2:00 pm', "Mother's Day Weekend Bouquet Bar",                    "L'uva Bella Winery & Bistro · 6597 Center Rd., Lowellville",  'arts',     true,  '', '', '', ''],
+        [200, '2026-05-09', 'Saturday, May 9', '9:00 am – 3:00 pm', "Mr. Darby's Trunk Sale", "Mr. Darby's Vintage & Antiques · 7386 Market St., Boardman", 'fests', true, '', '', '', '', ''],
+        [201, '2026-05-09', '', '10:00 am – 2:00 pm', '2nd Annual Pollinator Palooza', 'Mahoning Soil & Water Conservation District · 850 Industrial Rd., Youngstown', 'wellness', true, '', '', '', '', true],
+        [202, '2026-05-09', '', '10:00 am – 5:00 pm', "15th Birthday Bash — OH WOW! Children's Center", "OH WOW! Children's Center · 15 Central Square, Youngstown", 'family', true, '', '', 41.1002, -80.6491, true],
+        [203, '2026-05-09', '', '11:00 am – 3:00 pm', '3rd Annual Plant Swap', 'Penguin City Brewing Company · 460 E. Federal St., Youngstown', 'family', true, 'Bring a plant, take a plant.', '', 41.1017, -80.6416, true],
+        [204, '2026-05-09', '', '12:00 pm – 2:00 pm', "Mother's Day Weekend Bouquet Bar", "L'uva Bella Winery & Bistro · 6597 Center Rd., Lowellville", 'arts', true, '', '', '', '', ''],
 
         // ── Sunday, May 10 (Explore Mahoning) ──
-        [210, '2026-05-10', 'Sunday, May 10',  '11:00 am – 3:00 pm', "Mother's Day Brunch Buffet",                          "L'uva Bella Winery & Bistro · 6597 Center Rd., Lowellville",  'family',   true,  '', '', '', ''],
-        [211, '2026-05-10', '',                '11:00 am – 4:00 pm', "Mother's Day Buffet",                                 'Waypoint 4180 · 4180 Westford Pl., Canfield',                  'family',   true,  '', '', '', ''],
+        [210, '2026-05-10', 'Sunday, May 10', '11:00 am – 3:00 pm', "Mother's Day Brunch Buffet", "L'uva Bella Winery & Bistro · 6597 Center Rd., Lowellville", 'family', true, '', '', '', '', ''],
+        [211, '2026-05-10', '', '11:00 am – 4:00 pm', "Mother's Day Buffet", 'Waypoint 4180 · 4180 Westford Pl., Canfield', 'family', true, '', '', '', '', ''],
 
         // ── Wednesday, May 13 (Explore Mahoning) ──
-        [220, '2026-05-13', 'Wednesday, May 13','5:30 pm',           'Friends of Poland Forest Meeting & Lecture',          'Poland Library · 311 S. Main St., Poland',                     'edu',      false, '', '', '', ''],
+        [220, '2026-05-13', 'Wednesday, May 13', '5:30 pm', 'Friends of Poland Forest Meeting & Lecture', 'Poland Library · 311 S. Main St., Poland', 'edu', false, '', '', '', '', ''],
 
         // ── Thursday, May 14 (Explore Mahoning) ──
-        [230, '2026-05-14', 'Thursday, May 14','4:00 pm – 7:30 pm',  'Downtown Youngstown Farmers Market',                  'Main Library · 305 Wick Ave., Youngstown',                     'family',   true,  '', '', '', ''],
-        [231, '2026-05-14', '',                '5:00 pm',            'Move at the Market — Walking Series',                 'Main Library · 305 Wick Ave., Youngstown',                     'wellness', true,  'Group walk around downtown.', '', '', ''],
-        [232, '2026-05-14', '',                '5:30 pm',            'Food for Thought Book Discussion',                    'Noble Creature Wild Ales & Lagers · 126 E. Rayen Ave.',        'edu',      false, 'Lit Youngstown First Wednesday Readers Series.', '', '', ''],
+        [230, '2026-05-14', 'Thursday, May 14', '4:00 pm – 7:30 pm', 'Downtown Youngstown Farmers Market', 'Main Library · 305 Wick Ave., Youngstown', 'family', true, '', '', '', '', true],
+        [231, '2026-05-14', '', '5:00 pm', 'Move at the Market — Walking Series', 'Main Library · 305 Wick Ave., Youngstown', 'wellness', true, 'Group walk around downtown.', '', '', '', true],
+        [232, '2026-05-14', '', '5:30 pm', 'Food for Thought Book Discussion', 'Noble Creature Wild Ales & Lagers · 126 E. Rayen Ave.', 'edu', false, 'Lit Youngstown First Wednesday Readers Series.', '', 41.1051, -80.6443, true],
 
         // ── Friday, May 15 (Explore Mahoning) ──
-        [240, '2026-05-15', 'Friday, May 15',  '6:00 pm',            "Music on the Patio — L'uva Bella",                    "L'uva Bella Winery & Bistro · 6597 Center Rd., Lowellville",  'music',    true,  '', '', '', ''],
-        [241, '2026-05-15', '',                '7:30 pm',            'Inextinguishable',                                    'Stambaugh Auditorium · 1000 Fifth Ave., Youngstown',           'arts',     false, 'Symphony performance.', '', '', ''],
+        [240, '2026-05-15', 'Friday, May 15', '6:00 pm', "Music on the Patio — L'uva Bella", "L'uva Bella Winery & Bistro · 6597 Center Rd., Lowellville", 'music', true, '', '', '', '', ''],
+        [241, '2026-05-15', '', '7:30 pm', 'Inextinguishable', 'Stambaugh Auditorium · 1000 Fifth Ave., Youngstown', 'arts', false, 'Symphony performance.', '', 41.1157, -80.6521, true],
 
         // ── Saturday, May 16 (Explore Mahoning, same day as existing entries) ──
-        [250, '2026-05-16', '',                '8:00 am – 1:00 pm',  'Baby Bargain Boutique',                               'Boardman Township Park · 375 Boardman-Poland Rd., Boardman',   'family',   true,  '', '', '', ''],
-        [251, '2026-05-16', '',                '6:00 pm',            "Music on the Patio — L'uva Bella",                    "L'uva Bella Winery & Bistro · 6597 Center Rd., Lowellville",  'music',    true,  '', '', '', ''],
+        [250, '2026-05-16', '', '8:00 am – 1:00 pm', 'Baby Bargain Boutique', 'Boardman Township Park · 375 Boardman-Poland Rd., Boardman', 'family', true, '', '', '', '', ''],
+        [251, '2026-05-16', '', '6:00 pm', "Music on the Patio — L'uva Bella", "L'uva Bella Winery & Bistro · 6597 Center Rd., Lowellville", 'music', true, '', '', '', '', ''],
 
         // ── Sunday, May 17 (Explore Mahoning, same day as existing entries) ──
-        [260, '2026-05-17', '',                '12:00 pm',           'Bike Belmont',                                        'Wick Park · 260 Park Ave., Youngstown',                        'wellness', true,  'Group ride through Belmont — perfect e-bike outing.', '', '', ''],
-        [261, '2026-05-17', '',                '3:00 pm',            '#LoveMusic Legacy Concert',                           'Stambaugh Auditorium · 1000 Fifth Ave., Youngstown',           'music',    true,  '', '', '', ''],
+        [260, '2026-05-17', '', '12:00 pm', 'Bike Belmont', 'Wick Park · 260 Park Ave., Youngstown', 'wellness', true, 'Group ride through Belmont — perfect e-bike outing.', '', 41.1158, -80.6472, true],
+        [261, '2026-05-17', '', '3:00 pm', '#LoveMusic Legacy Concert', 'Stambaugh Auditorium · 1000 Fifth Ave., Youngstown', 'music', true, '', '', 41.1157, -80.6521, true],
 
         // ── Wednesday, May 20 (Explore Mahoning) ──
-        [270, '2026-05-20', 'Wednesday, May 20','9:00 am – 5:00 pm', 'Tent Sale',                                           'Habitat ReStore · 480 Youngstown-Poland Rd., Struthers',       'fests',    true,  '', '', '', ''],
-        [271, '2026-05-20', '',                '6:00 pm – 7:30 pm',  'History of Youngstown & Mahoning Valley Restaurants', 'Main Library · 305 Wick Ave., Youngstown',                     'edu',      false, 'Community Cookbooks: Food talk.', '', '', ''],
-        [272, '2026-05-20', '',                "6:00 pm – 8:00 pm",  "Mom's Night Out",                                     'Southern Park Mall · 7401 Market St., Boardman',               'adult',    false, '', '', '', ''],
-        [273, '2026-05-20', '',                '7:30 pm – 9:30 pm',  'NEUR NetWorks: Connecting & Communicating for Creatives', 'The Concept Studio · 217 W. Federal St., Youngstown',      'adult',    false, '', '', '', ''],
+        [270, '2026-05-20', 'Wednesday, May 20', '9:00 am – 5:00 pm', 'Tent Sale', 'Habitat ReStore · 480 Youngstown-Poland Rd., Struthers', 'fests', true, '', '', '', '', ''],
+        [271, '2026-05-20', '', '6:00 pm – 7:30 pm', 'History of Youngstown & Mahoning Valley Restaurants', 'Main Library · 305 Wick Ave., Youngstown', 'edu', false, 'Community Cookbooks: Food talk.', '', '', '', true],
+        [272, '2026-05-20', '', "6:00 pm – 8:00 pm", "Mom's Night Out", 'Southern Park Mall · 7401 Market St., Boardman', 'adult', false, '', '', '', '', ''],
+        [273, '2026-05-20', '', '7:30 pm – 9:30 pm', 'NEUR NetWorks: Connecting & Communicating for Creatives', 'The Concept Studio · 217 W. Federal St., Youngstown', 'adult', false, '', '', 41.0999, -80.6528, true],
 
         // ── Friday, May 22 (Explore Mahoning) ──
-        [280, '2026-05-22', 'Friday, May 22',  '6:00 pm',            "Music on the Patio — L'uva Bella",                    "L'uva Bella Winery & Bistro · 6597 Center Rd., Lowellville",  'music',    true,  '', '', '', ''],
+        [280, '2026-05-22', 'Friday, May 22', '6:00 pm', "Music on the Patio — L'uva Bella", "L'uva Bella Winery & Bistro · 6597 Center Rd., Lowellville", 'music', true, '', '', '', '', ''],
 
         // ── Saturday, May 23 (Explore Mahoning, same day as existing entries) ──
-        [290, '2026-05-23', '',                '10:00 am',           'Furry Angels Run',                                    'Eastside Civics · 968 E. Midlothian Blvd., Youngstown',        'wellness', true,  'Charity run — bring the family and a dog.', '', '', ''],
-        [291, '2026-05-23', '',                '6:00 pm',            "Music on the Patio — L'uva Bella",                    "L'uva Bella Winery & Bistro · 6597 Center Rd., Lowellville",  'music',    true,  '', '', '', ''],
+        [290, '2026-05-23', '', '10:00 am', 'Furry Angels Run', 'Eastside Civics · 968 E. Midlothian Blvd., Youngstown', 'wellness', true, 'Charity run — bring the family and a dog.', '', '', '', true],
+        [291, '2026-05-23', '', '6:00 pm', "Music on the Patio — L'uva Bella", "L'uva Bella Winery & Bistro · 6597 Center Rd., Lowellville", 'music', true, '', '', '', '', ''],
 
         // ── Monday, May 25 (Explore Mahoning, same day as existing entries) ──
-        [300, '2026-05-25', '',                '10:00 am – 1:00 pm', 'Memorial Day Parade & Ceremony',                      'Boardman Township Park · 375 Boardman-Poland Rd., Boardman',   'fests',    true,  '', '', '', ''],
+        [300, '2026-05-25', '', '10:00 am – 1:00 pm', 'Memorial Day Parade & Ceremony', 'Boardman Township Park · 375 Boardman-Poland Rd., Boardman', 'fests', true, '', '', '', '', true],
       ],
     },
     'RentalsVibe': {
