@@ -127,6 +127,14 @@ function doGet(e) {
   const rentalsVibe = readSheet(ss, 'RentalsVibe')
     .sort(function(a, b){ return (a.order || 0) - (b.order || 0); });
 
+  // Photo galleries: rows are filtered by `page` and rendered as a simple
+  // grid on the matching page (adventures, trailside, etc).
+  const galleries = readSheet(ss, 'Galleries')
+    .filter(function(r){
+      return String(r.page || '').trim().toLowerCase() === page;
+    })
+    .sort(function(a, b){ return (a.order || 0) - (b.order || 0); });
+
   // Events page: one row per event, grouped client-side by day.
   const events = readSheet(ss, 'Events');
 
@@ -181,6 +189,7 @@ function doGet(e) {
     supporters:        supporters,
     rentalsVibe:       rentalsVibe,
     events:            events,
+    galleries:         galleries,
     tiles:             readSheet(ss, cap + '_Tiles'),
     submenus:          groupBy(readSheet(ss, cap + '_Submenus'), 'tile'),
   };
@@ -239,15 +248,15 @@ function groupBy(rows, key) {
 function getTabDefs() {
   return {
     'Home_Tiles': {
-      header: ['id','order','label','subtitle','type','url','external'],
+      header: ['id','order','label','subtitle','type','url','external','photo'],
       rows: [
-        ['adventures', 1, 'Adventures', 'Guided rides & maps',                'link', 'https://adventure-map.pages.dev/v2', true],
-        ['rentals',    2, 'Rentals',    'Day rides, ownership & long term',   'link', 'rentals.html',                        false],
-        ['shop',       3, 'Shop',       'Browse bikes & gear',                'link', 'shop.html',                           false],
-        ['services',   4, 'Services',   'Tune-ups & creek prep',              'menu', '',                                    false],
-        ['test-rides', 5, 'Test Rides', 'Try before you buy',                 'link', 'test-ride.html',                      false],
-        ['creek-life', 6, 'Creek Life', 'Stories, events, more',              'menu', '',                                    false],
-        ['donate',     7, 'Support',    'Help fuel the ride',                 'link', 'donate.html',                         false],
+        ['adventures', 1, 'Adventures', 'Guided rides & maps',                'link', 'https://adventure-map.pages.dev/v2', true,  ''],
+        ['rentals',    2, 'Rentals',    'Day rides, ownership & long term',   'link', 'rentals.html',                        false, ''],
+        ['shop',       3, 'Shop',       'Browse bikes & gear',                'link', 'shop.html',                           false, ''],
+        ['services',   4, 'Services',   'Tune-ups & creek prep',              'menu', '',                                    false, ''],
+        ['test-rides', 5, 'Test Rides', 'Try before you buy',                 'link', 'test-ride.html',                      false, ''],
+        ['creek-life', 6, 'Creek Life', 'Stories, events, more',              'menu', '',                                    false, ''],
+        ['donate',     7, 'Support',    'Help fuel the ride',                 'link', 'donate.html',                         false, ''],
       ],
     },
     'Home_Submenus': {
@@ -262,12 +271,12 @@ function getTabDefs() {
       ],
     },
     'Rentals_Tiles': {
-      header: ['id','order','label','subtitle','type','url','external','badge'],
+      header: ['id','order','label','subtitle','type','url','external','badge','photo'],
       rows: [
-        ['adventures', 1, 'Adventures',     'Guided rides through Mill Creek Park',     'link', 'adventures.html',           false, ''],
-        ['trailside',  2, 'Trailside',      'Pickup at Kirk Road Trailhead, Canfield',  'link', 'trailside.html',            false, ''],
-        ['bridge',     3, 'Bridge the Gap', 'Own the bike after 15 bi-weekly payments', 'link', 'bridge-the-gap.html',       false, ''],
-        ['long-term',  4, 'Long Term',      'Multi-month plans (coming soon)',          'link', 'long-term-rental.html',     false, 'Coming Soon'],
+        ['adventures', 1, 'Adventures',     'Guided rides through Mill Creek Park',     'link', 'adventures.html',           false, '',            ''],
+        ['trailside',  2, 'Trailside',      'Pickup at Kirk Road Trailhead, Canfield',  'link', 'trailside.html',            false, '',            ''],
+        ['bridge',     3, 'Bridge the Gap', 'Own the bike after 15 bi-weekly payments', 'link', 'bridge-the-gap.html',       false, '',            ''],
+        ['long-term',  4, 'Long Term',      'Multi-month plans (coming soon)',          'link', 'long-term-rental.html',     false, 'Coming Soon', ''],
       ],
     },
     'Rentals_Submenus': {
@@ -275,13 +284,13 @@ function getTabDefs() {
       rows: [],
     },
     'Shop_Tiles': {
-      header: ['id','order','label','subtitle','type','url','external'],
+      header: ['id','order','label','subtitle','type','url','external','photo'],
       rows: [
-        ['heybike',  1, 'Heybike',  'Affordable, easygoing rides', 'link', 'heybike.html',  false],
-        ['velotric', 2, 'Velotric', 'Sleek, premium e-bikes',      'link', 'velotric.html', false],
-        ['jasion',   3, 'Jasion',   'Trail-ready power',           'link', 'jasion.html',   false],
-        ['mooncool', 4, 'Mooncool', 'Three-wheel comfort',         'link', 'mooncool.html', false],
-        ['apparel',  5, 'Apparel',  'Tees, caps & ride threads',   'link', 'apparel.html',  false],
+        ['heybike',  1, 'Heybike',  'Affordable, easygoing rides', 'link', 'heybike.html',  false, ''],
+        ['velotric', 2, 'Velotric', 'Sleek, premium e-bikes',      'link', 'velotric.html', false, ''],
+        ['jasion',   3, 'Jasion',   'Trail-ready power',           'link', 'jasion.html',   false, ''],
+        ['mooncool', 4, 'Mooncool', 'Three-wheel comfort',         'link', 'mooncool.html', false, ''],
+        ['apparel',  5, 'Apparel',  'Tees, caps & ride threads',   'link', 'apparel.html',  false, ''],
       ],
     },
     'Shop_Submenus': {
@@ -1254,6 +1263,20 @@ function getTabDefs() {
         ['GitHub repo',
           'https://github.com/cruisethecreek-tech/Ebike-sales',
           'Source code. Two folders: /images/ for bike inventory photos (used by the migration tool above), /media/ for page hero backgrounds and other site photos.'],
+      ],
+    },
+    'Galleries': {
+      // Photo galleries rendered on the page that matches `page`.
+      // image  = filename in /media/  (or full https:// URL for off-site images)
+      // caption = optional short caption shown under the photo
+      header: ['page','order','image','caption'],
+      rows: [
+        ['adventures', 1, '', ''],
+        ['adventures', 2, '', ''],
+        ['adventures', 3, '', ''],
+        ['trailside',  1, '', ''],
+        ['trailside',  2, '', ''],
+        ['trailside',  3, '', ''],
       ],
     },
     'TrustStrip': {

@@ -177,10 +177,17 @@ main{flex:1;width:100%}
   display:flex;align-items:center;justify-content:center;
   overflow:hidden;
 }
+.tile-photo-img{
+  position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;z-index:0;
+}
 .tile-photo::after{
-  content:'';position:absolute;inset:0;
+  /* Topo-line decoration when there's no photo, dark overlay when there is. */
+  content:'';position:absolute;inset:0;pointer-events:none;
   background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 100' preserveAspectRatio='none'><g fill='none' stroke='white' stroke-opacity='0.18' stroke-width='.8'><path d='M0,30 Q50,20 100,32 T200,28'/><path d='M0,55 Q50,45 100,57 T200,53'/><path d='M0,80 Q50,70 100,82 T200,78'/></g></svg>");
   background-size:cover;
+}
+.tile-photo.has-photo::after{
+  background-image:linear-gradient(180deg,rgba(26,46,28,.15) 0%,rgba(26,46,28,.55) 100%);
 }
 .tile-icon-wrap{
   position:relative;z-index:1;
@@ -548,8 +555,21 @@ function renderTiles(){
   const tiles = [...(DATA.tiles||[])].sort((a,b)=>(a.order||0)-(b.order||0));
   grid.innerHTML = tiles.map(t => {
     const icon = ICONS[t.id] || ICONS['adventures'];
+    // If a `photo` cell is filled in on the Home_Tiles tab, render it as a
+    // background image; the existing gradient stays as the fallback color.
+    // Bare filenames resolve under /media/; full URLs pass through.
+    const rawPhoto = String(t.photo || '').trim();
+    const photoUrl = rawPhoto
+      ? (/^https?:\/\//.test(rawPhoto) ? rawPhoto : 'media/' + encodeURI(rawPhoto.replace(/^(media|images)\//, '')))
+      : '';
+    const photoImg = photoUrl
+      ? `<img class="tile-photo-img" src="${esc(photoUrl)}" alt="" onerror="this.remove()">`
+      : '';
     const inner = `
-      <div class="tile-photo"><div class="tile-icon-wrap" aria-hidden="true">${icon}</div></div>
+      <div class="tile-photo${photoUrl ? ' has-photo' : ''}">
+        ${photoImg}
+        <div class="tile-icon-wrap" aria-hidden="true">${icon}</div>
+      </div>
       <div class="tile-body">
         <span class="tile-label">${esc(t.label)}</span>
         ${t.subtitle ? `<span class="tile-sub">${esc(t.subtitle)}</span>` : ''}
