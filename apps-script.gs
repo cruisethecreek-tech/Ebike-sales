@@ -1088,6 +1088,53 @@ function getTabDefs() {
         [140, '2026-05-30', 'Saturday, May 30','9:30 am – 1:00 pm',  '25th Annual Stonewall Painting Day', 'Tod Park',                              'family',   true,  'Community paint-and-mural day. All ages welcome.', ''],
         [141, '2026-05-30', '',                '10:00 am – 12:00 pm','Youngstown Marathon — Solo to City', 'Downtown Youngstown',                   'wellness', true,  '', ''],
         [142, '2026-05-30', '',                '8:00 pm – 11:00 pm', 'BYOB Brunch',                      'Penguin City Brewing Company',           'adult',    false, '', ''],
+
+        // ── Saturday, May 9 (Explore Mahoning) ──
+        [200, '2026-05-09', 'Saturday, May 9', '9:00 am – 3:00 pm',  "Mr. Darby's Trunk Sale",                              "Mr. Darby's Vintage & Antiques · 7386 Market St., Boardman", 'fests',    true,  '', ''],
+        [201, '2026-05-09', '',                '10:00 am – 2:00 pm', '2nd Annual Pollinator Palooza',                       'Mahoning Soil & Water Conservation District · 850 Industrial Rd., Youngstown', 'wellness', true,  '', ''],
+        [202, '2026-05-09', '',                '10:00 am – 5:00 pm', "15th Birthday Bash — OH WOW! Children's Center",      "OH WOW! Children's Center · 15 Central Square, Youngstown",   'family',   true,  '', ''],
+        [203, '2026-05-09', '',                '11:00 am – 3:00 pm', '3rd Annual Plant Swap',                               'Penguin City Brewing Company · 460 E. Federal St., Youngstown', 'family',   true,  'Bring a plant, take a plant.', ''],
+        [204, '2026-05-09', '',                '12:00 pm – 2:00 pm', "Mother's Day Weekend Bouquet Bar",                    "L'uva Bella Winery & Bistro · 6597 Center Rd., Lowellville",  'arts',     true,  '', ''],
+
+        // ── Sunday, May 10 (Explore Mahoning) ──
+        [210, '2026-05-10', 'Sunday, May 10',  '11:00 am – 3:00 pm', "Mother's Day Brunch Buffet",                          "L'uva Bella Winery & Bistro · 6597 Center Rd., Lowellville",  'family',   true,  '', ''],
+        [211, '2026-05-10', '',                '11:00 am – 4:00 pm', "Mother's Day Buffet",                                 'Waypoint 4180 · 4180 Westford Pl., Canfield',                  'family',   true,  '', ''],
+
+        // ── Wednesday, May 13 (Explore Mahoning) ──
+        [220, '2026-05-13', 'Wednesday, May 13','5:30 pm',           'Friends of Poland Forest Meeting & Lecture',          'Poland Library · 311 S. Main St., Poland',                     'edu',      false, '', ''],
+
+        // ── Thursday, May 14 (Explore Mahoning) ──
+        [230, '2026-05-14', 'Thursday, May 14','4:00 pm – 7:30 pm',  'Downtown Youngstown Farmers Market',                  'Main Library · 305 Wick Ave., Youngstown',                     'family',   true,  '', ''],
+        [231, '2026-05-14', '',                '5:00 pm',            'Move at the Market — Walking Series',                 'Main Library · 305 Wick Ave., Youngstown',                     'wellness', true,  'Group walk around downtown.', ''],
+        [232, '2026-05-14', '',                '5:30 pm',            'Food for Thought Book Discussion',                    'Noble Creature Wild Ales & Lagers · 126 E. Rayen Ave.',        'edu',      false, 'Lit Youngstown First Wednesday Readers Series.', ''],
+
+        // ── Friday, May 15 (Explore Mahoning) ──
+        [240, '2026-05-15', 'Friday, May 15',  '6:00 pm',            "Music on the Patio — L'uva Bella",                    "L'uva Bella Winery & Bistro · 6597 Center Rd., Lowellville",  'music',    true,  '', ''],
+        [241, '2026-05-15', '',                '7:30 pm',            'Inextinguishable',                                    'Stambaugh Auditorium · 1000 Fifth Ave., Youngstown',           'arts',     false, 'Symphony performance.', ''],
+
+        // ── Saturday, May 16 (Explore Mahoning, same day as existing entries) ──
+        [250, '2026-05-16', '',                '8:00 am – 1:00 pm',  'Baby Bargain Boutique',                               'Boardman Township Park · 375 Boardman-Poland Rd., Boardman',   'family',   true,  '', ''],
+        [251, '2026-05-16', '',                '6:00 pm',            "Music on the Patio — L'uva Bella",                    "L'uva Bella Winery & Bistro · 6597 Center Rd., Lowellville",  'music',    true,  '', ''],
+
+        // ── Sunday, May 17 (Explore Mahoning, same day as existing entries) ──
+        [260, '2026-05-17', '',                '12:00 pm',           'Bike Belmont',                                        'Wick Park · 260 Park Ave., Youngstown',                        'wellness', true,  'Group ride through Belmont — perfect e-bike outing.', ''],
+        [261, '2026-05-17', '',                '3:00 pm',            '#LoveMusic Legacy Concert',                           'Stambaugh Auditorium · 1000 Fifth Ave., Youngstown',           'music',    true,  '', ''],
+
+        // ── Wednesday, May 20 (Explore Mahoning) ──
+        [270, '2026-05-20', 'Wednesday, May 20','9:00 am – 5:00 pm', 'Tent Sale',                                           'Habitat ReStore · 480 Youngstown-Poland Rd., Struthers',       'fests',    true,  '', ''],
+        [271, '2026-05-20', '',                '6:00 pm – 7:30 pm',  'History of Youngstown & Mahoning Valley Restaurants', 'Main Library · 305 Wick Ave., Youngstown',                     'edu',      false, 'Community Cookbooks: Food talk.', ''],
+        [272, '2026-05-20', '',                "6:00 pm – 8:00 pm",  "Mom's Night Out",                                     'Southern Park Mall · 7401 Market St., Boardman',               'adult',    false, '', ''],
+        [273, '2026-05-20', '',                '7:30 pm – 9:30 pm',  'NEUR NetWorks: Connecting & Communicating for Creatives', 'The Concept Studio · 217 W. Federal St., Youngstown',      'adult',    false, '', ''],
+
+        // ── Friday, May 22 (Explore Mahoning) ──
+        [280, '2026-05-22', 'Friday, May 22',  '6:00 pm',            "Music on the Patio — L'uva Bella",                    "L'uva Bella Winery & Bistro · 6597 Center Rd., Lowellville",  'music',    true,  '', ''],
+
+        // ── Saturday, May 23 (Explore Mahoning, same day as existing entries) ──
+        [290, '2026-05-23', '',                '10:00 am',           'Furry Angels Run',                                    'Eastside Civics · 968 E. Midlothian Blvd., Youngstown',        'wellness', true,  'Charity run — bring the family and a dog.', ''],
+        [291, '2026-05-23', '',                '6:00 pm',            "Music on the Patio — L'uva Bella",                    "L'uva Bella Winery & Bistro · 6597 Center Rd., Lowellville",  'music',    true,  '', ''],
+
+        // ── Monday, May 25 (Explore Mahoning, same day as existing entries) ──
+        [300, '2026-05-25', '',                '10:00 am – 1:00 pm', 'Memorial Day Parade & Ceremony',                      'Boardman Township Park · 375 Boardman-Poland Rd., Boardman',   'fests',    true,  '', ''],
       ],
     },
     'RentalsVibe': {

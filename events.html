@@ -322,18 +322,26 @@ function renderEvents(){
     return;
   }
   filtered.sort((a, b) => parseDateKey(a) - parseDateKey(b));
+  // Group by the underlying date (date_iso) so two events on the same day
+  // can't split into separate sections just because one of them has a
+  // typed day_label override and the other relies on the derived format.
+  // The first event seen for a date sets that group's heading.
   const groups = [];
   const byDay = {};
   filtered.forEach(e => {
-    const key = dayLabel(e);
-    if (!byDay[key]) { byDay[key] = []; groups.push(key); }
-    byDay[key].push(e);
+    const key = String(e.date_iso || e.date || dayLabel(e));
+    if (!byDay[key]) {
+      byDay[key] = { label: dayLabel(e), items: [] };
+      groups.push(key);
+    }
+    byDay[key].items.push(e);
   });
   let html = '';
-  groups.forEach(day => {
-    const items = byDay[day];
+  groups.forEach(key => {
+    const group = byDay[key];
+    const items = group.items;
     html += '<section class="day-block"><div class="day-head">' +
-              '<span class="day-name">' + esc(day) + '</span>' +
+              '<span class="day-name">' + esc(group.label) + '</span>' +
               '<span class="day-count">' + items.length + ' event' + (items.length === 1 ? '' : 's') + '</span>' +
             '</div>';
     items.forEach(e => {
