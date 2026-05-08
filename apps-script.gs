@@ -130,6 +130,39 @@ function doGet(e) {
   // Events page: one row per event, grouped client-side by day.
   const events = readSheet(ss, 'Events');
 
+  // Cross-reference each event's venue against the Venues lookup tab and
+  // back-fill lat/lng server-side. Lets the Events tab stay tidy: just type
+  // a venue name and the coordinates flow from the Venues table at serve
+  // time. A row that has its own lat/lng wins — so per-event overrides
+  // still work for one-off locations.
+  const venueRows = readSheet(ss, 'Venues');
+  const venueLookup = venueRows
+    .map(function(v){
+      const lat = parseFloat(v.lat);
+      const lng = parseFloat(v.lng);
+      const match = String(v.venue || '').trim().toLowerCase();
+      return (match && !isNaN(lat) && !isNaN(lng)) ? { match: match, lat: lat, lng: lng } : null;
+    })
+    .filter(Boolean)
+    // Longest match-keys first so "L'uva Bella Winery & Bistro" wins over
+    // a hypothetical "L'uva Bella" prefix entry.
+    .sort(function(a, b){ return b.match.length - a.match.length; });
+
+  events.forEach(function(e){
+    const hasLat = e.lat !== '' && e.lat != null && !isNaN(parseFloat(e.lat));
+    const hasLng = e.lng !== '' && e.lng != null && !isNaN(parseFloat(e.lng));
+    if (hasLat && hasLng) return; // explicit per-event coords win
+    const venue = String(e.venue || '').toLowerCase();
+    if (!venue) return;
+    for (let i = 0; i < venueLookup.length; i++) {
+      if (venue.indexOf(venueLookup[i].match) !== -1) {
+        if (!hasLat) e.lat = venueLookup[i].lat;
+        if (!hasLng) e.lng = venueLookup[i].lng;
+        break;
+      }
+    }
+  });
+
   const data = {
     page:              page,
     pageMeta:          pageMeta,
@@ -1135,6 +1168,46 @@ function getTabDefs() {
 
         // ── Monday, May 25 (Explore Mahoning, same day as existing entries) ──
         [300, '2026-05-25', '', '10:00 am – 1:00 pm', 'Memorial Day Parade & Ceremony', 'Boardman Township Park · 375 Boardman-Poland Rd., Boardman', 'fests', true, '', '', '', '', true],
+      ],
+    },
+    'Venues': {
+      // Lat/lng lookup table for events.html. doGet matches each event's
+      // `venue` column against this list (substring, case-insensitive)
+      // and back-fills lat/lng if the event row doesn't already have its
+      // own coords. So you only have to type the venue name on the Events
+      // tab — coordinates flow from here automatically.
+      //
+      // Add a new venue: drop in a row with `venue` (the name, or any
+      // distinctive substring of it), `lat`, `lng`. Longer venue strings
+      // win in case of overlap, so "L'uva Bella Winery & Bistro" beats
+      // a more generic prefix.
+      header: ['venue','lat','lng'],
+      rows: [
+        // Downtown Youngstown / YSU campus
+        ['Twisted Rivets',                       41.1004, -80.6489],
+        ['Penguin City Brewing Company',         41.1017, -80.6416],
+        ['Phelps Street Gateway',                41.1008, -80.6496],
+        ['Tisone Wrestling Banquet Center',      41.1198, -80.6033],
+        ['The Apollo Event Center',              41.0998, -80.6469],
+        ['The Social',                           41.1001, -80.6508],
+        ['Ward Beecher Planetarium',             41.1054, -80.6475],
+        ['Mahoning Valley Historical Society',   41.1102, -80.6441],
+        ['Butler Institute of American Art',     41.1068, -80.6457],
+        ['Stambaugh Auditorium',                 41.1157, -80.6521],
+        ['Covelli Centre',                       41.0971, -80.6467],
+        ['Youngstown Country Club',              41.1444, -80.6272],
+        ["OH WOW",                               41.1002, -80.6491],
+        ['Noble Creature',                       41.1051, -80.6443],
+        ['Wick Park',                            41.1158, -80.6472],
+        ['The Concept Studio',                   41.0999, -80.6528],
+        // Surrounding area
+        ["Mr. Darby's Vintage & Antiques",       41.0205, -80.6625],
+        ["L'uva Bella Winery & Bistro",          41.0223, -80.5471],
+        ['Waypoint 4180',                        41.0264, -80.7584],
+        ['Boardman Township Park',               41.0187, -80.6473],
+        ['Southern Park Mall',                   41.0232, -80.6644],
+        ['Poland Library',                       41.0235, -80.6128],
+        ['Habitat ReStore',                      41.0559, -80.6158],
       ],
     },
     'RentalsVibe': {
