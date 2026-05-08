@@ -300,10 +300,18 @@ function parseDateKey(row){
   return Number(row.order || 0) * 86400000;
 }
 function dayLabel(row){
-  if (row.day_label) return String(row.day_label);
-  const iso = row.date_iso || row.date;
-  if (iso) {
-    const d = new Date(iso);
+  // Render a friendly date heading. Three cases the Sheet can send us:
+  //   • day_label typed as text (e.g. "Friday, May 1") — use as-is
+  //   • day_label auto-coerced to a Date by Sheets and serialized back
+  //     as an ISO timestamp (e.g. "2026-05-01T04:00:00.000Z") — parse
+  //     and format
+  //   • day_label blank — derive from date_iso
+  const lbl = String(row.day_label || '').trim();
+  const isISOLike = /^\d{4}-\d{2}-\d{2}/.test(lbl);
+  if (lbl && !isISOLike) return lbl;
+  const src = isISOLike ? lbl : (row.date_iso || row.date || '');
+  if (src) {
+    const d = new Date(src);
     if (!isNaN(d)) return d.toLocaleDateString(undefined, { weekday:'long', month:'long', day:'numeric' });
   }
   return 'TBA';
