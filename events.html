@@ -128,6 +128,11 @@ main{flex:1;width:100%}
   padding:3px 9px;border-radius:999px;background:var(--cream-w);color:var(--tan-d);
   border:1px solid rgba(201,169,110,.35)}
 .event-venue{font-weight:600;color:var(--ink-2)}
+.event-map{display:inline-flex;align-items:center;gap:4px;
+  font-size:.76rem;font-weight:700;color:var(--forest);letter-spacing:.04em;
+  padding:3px 9px;border-radius:999px;background:var(--cream-w);
+  border:1px solid rgba(45,74,50,.15);transition:all .15s ease}
+.event-map:hover{background:var(--forest);color:#fff;border-color:var(--forest)}
 .event-desc{font-size:.92rem;color:var(--ink-3);line-height:1.55;margin-top:2px}
 .event-link{font-size:.84rem;font-weight:700;color:var(--forest);
   border-bottom:1px solid rgba(45,74,50,.3);align-self:flex-start;margin-top:2px}
@@ -287,6 +292,23 @@ function normalizeCat(s){
 function isTruthy(v){ return v === true || v === 'TRUE' || v === 'true' || v === 1 || v === '1' || String(v).toLowerCase() === 'yes' || String(v).toLowerCase() === 'y'; }
 function esc(s){ return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 
+// Build a Google Maps URL for an event. Prefers precise lat/lng if both
+// are filled in on the Sheet row. Falls back to a venue-text search,
+// which works fine for named places like "Penguin City Brewing Company".
+// Returns '' if the row has neither lat/lng nor a venue.
+function buildMapUrl(e){
+  const lat = parseFloat(e.lat);
+  const lng = parseFloat(e.lng);
+  if (!isNaN(lat) && !isNaN(lng)) {
+    return 'https://www.google.com/maps/search/?api=1&query=' + lat + ',' + lng;
+  }
+  const venue = String(e.venue || '').trim();
+  if (venue) {
+    return 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(venue);
+  }
+  return '';
+}
+
 let _events = [];
 let _filterCat = 'all';
 let _filterFam = false;
@@ -356,6 +378,10 @@ function renderEvents(){
       const cat = normalizeCat(e.category);
       const venue = e.venue ? '<span class="event-venue">' + esc(e.venue) + '</span>' : '';
       const fam   = isTruthy(e.family_friendly) ? '<span class="event-fam">👨‍👩‍👧 Family</span>' : '';
+      const mapUrl = buildMapUrl(e);
+      const map   = mapUrl
+        ? '<a class="event-map" href="' + esc(mapUrl) + '" target="_blank" rel="noopener" aria-label="Open in maps">📍 Map</a>'
+        : '';
       const link  = e.url
         ? '<a class="event-link" href="' + esc(e.url) + '" target="_blank" rel="noopener">More info →</a>'
         : '';
@@ -365,7 +391,7 @@ function renderEvents(){
                   '<div class="event-title">' + esc(e.title || '(untitled)') + '</div>' +
                   '<div class="event-meta">' +
                     '<span class="event-cat">' + esc(cat.label) + '</span>' +
-                    fam + venue +
+                    fam + venue + map +
                   '</div>' +
                   (e.description ? '<div class="event-desc">' + esc(e.description) + '</div>' : '') +
                   link +
