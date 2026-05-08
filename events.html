@@ -32,7 +32,7 @@ img{max-width:100%;display:block}
   font-weight:700;color:var(--ink-3)}
 .topbar a.nav-back:hover{color:var(--forest)}
 
-.hero{position:relative;padding:80px 24px 60px;color:#fff;background:var(--forest);
+.hero{position:relative;padding:56px 24px 44px;color:#fff;background:var(--forest);
   overflow:hidden;isolation:isolate;text-align:center}
 .hero-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:-3;opacity:0;transition:opacity .6s ease}
 .hero-img.loaded{opacity:1}
@@ -46,8 +46,8 @@ img{max-width:100%;display:block}
   text-transform:uppercase;color:var(--tan);margin-bottom:14px;
   padding:6px 14px;border:1px solid rgba(201,169,110,.4);border-radius:4px;
   background:rgba(26,46,28,.25)}
-.hero h1{font-family:'Bebas Neue',sans-serif;font-size:clamp(2.6rem,8vw,5rem);
-  letter-spacing:.02em;line-height:1;margin-bottom:14px}
+.hero h1{font-family:'Bebas Neue',sans-serif;font-size:clamp(2.4rem,6.5vw,3.6rem);
+  letter-spacing:.02em;line-height:1.05;margin-bottom:12px}
 .hero h1 em{font-style:normal;color:var(--tan);display:block}
 .hero p{font-size:clamp(1rem,2.4vw,1.15rem);color:rgba(255,255,255,.9);
   max-width:640px;margin:0 auto;line-height:1.55}
@@ -81,6 +81,10 @@ img{max-width:100%;display:block}
 .chip-wellness .chip-dot{background:var(--c-wellness)}
 .chip-music .chip-dot{background:var(--c-music)}
 .chip-edu .chip-dot{background:var(--c-edu)}
+.chip.bike{background:var(--cream-w);border-color:rgba(107,143,113,.4)}
+.chip.bike.active{background:var(--sage);color:#fff;border-color:var(--sage)}
+.chip.past{background:var(--cream-w);border-color:rgba(212,95,95,.35);color:var(--c-music,#D45F5F)}
+.chip.past.active{background:var(--c-music,#D45F5F);color:#fff;border-color:var(--c-music,#D45F5F)}
 
 main{flex:1;width:100%}
 .article{max-width:1080px;margin:0 auto;padding:32px 24px 32px;width:100%}
@@ -90,6 +94,13 @@ main{flex:1;width:100%}
 .day-block{margin-bottom:28px;scroll-margin-top:140px}
 .day-head{display:flex;align-items:baseline;gap:10px;margin-bottom:12px;
   padding-bottom:8px;border-bottom:2px solid rgba(45,74,50,.12)}
+.day-block.past{opacity:.7}
+.day-block.past .day-name{color:var(--c-music,#D45F5F)}
+.day-block.past .day-count::before{content:'PAST · ';color:var(--c-music,#D45F5F)}
+.day-block.past .event{background:#fcf6f4}
+.event-bike{font-size:.7rem;font-weight:800;letter-spacing:.06em;
+  padding:3px 9px;border-radius:999px;background:rgba(107,143,113,.14);color:var(--sage-d);
+  border:1px solid rgba(107,143,113,.3)}
 .day-name{font-family:'Bebas Neue',sans-serif;font-size:1.7rem;letter-spacing:.04em;
   color:var(--forest);line-height:1}
 .day-count{font-size:.8rem;font-weight:700;color:var(--ink-3);letter-spacing:.06em;text-transform:uppercase}
@@ -227,7 +238,9 @@ footer .foot-links a{margin:0 8px}
     <button class="chip chip-wellness" data-cat="wellness"><span class="chip-dot"></span>Wellness</button>
     <button class="chip chip-adult" data-cat="adult"><span class="chip-dot"></span>Adult Social</button>
     <button class="chip chip-edu" data-cat="edu"><span class="chip-dot"></span>Educational</button>
+    <button class="chip bike" data-bike="1">🚲 Bike-friendly only</button>
     <button class="chip fam" data-fam="1">👨‍👩‍👧 Family-friendly only</button>
+    <button class="chip past" data-past="1">📅 Show past events</button>
   </div>
 </nav>
 
@@ -312,31 +325,39 @@ function buildMapUrl(e){
 let _events = [];
 let _filterCat = 'all';
 let _filterFam = false;
+let _filterBike = false;
+let _filterPast = false;
 
+// Parse a YYYY-MM-DD value as LOCAL midnight, not UTC midnight. Without
+// this fix, "2026-05-16" was becoming May 15 8 PM in Eastern Time —
+// which then rendered as "Friday, May 15" instead of "Saturday, May 16".
+function parseLocalDate(src) {
+  if (!src) return null;
+  const s = String(src);
+  const m = s.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  const d = m ? new Date(+m[1], +m[2] - 1, +m[3]) : new Date(s);
+  return isNaN(d) ? null : d;
+}
 function parseDateKey(row){
-  const iso = row.date_iso || row.date || '';
-  if (iso) {
-    const d = new Date(iso);
-    if (!isNaN(d)) return d.getTime();
-  }
+  const d = parseLocalDate(row.date_iso || row.date || '');
+  if (d) return d.getTime();
   return Number(row.order || 0) * 86400000;
 }
 function dayLabel(row){
-  // Render a friendly date heading. Three cases the Sheet can send us:
-  //   • day_label typed as text (e.g. "Friday, May 1") — use as-is
-  //   • day_label auto-coerced to a Date by Sheets and serialized back
-  //     as an ISO timestamp (e.g. "2026-05-01T04:00:00.000Z") — parse
-  //     and format
-  //   • day_label blank — derive from date_iso
   const lbl = String(row.day_label || '').trim();
   const isISOLike = /^\d{4}-\d{2}-\d{2}/.test(lbl);
   if (lbl && !isISOLike) return lbl;
-  const src = isISOLike ? lbl : (row.date_iso || row.date || '');
-  if (src) {
-    const d = new Date(src);
-    if (!isNaN(d)) return d.toLocaleDateString(undefined, { weekday:'long', month:'long', day:'numeric' });
-  }
+  const d = parseLocalDate(isISOLike ? lbl : (row.date_iso || row.date || ''));
+  if (d) return d.toLocaleDateString(undefined, { weekday:'long', month:'long', day:'numeric' });
   return 'TBA';
+}
+// Compare a row's date to today (00:00 local). Returns true for past days.
+function isPastDay(row){
+  const d = parseLocalDate(row.date_iso || row.date || '');
+  if (!d) return false;
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  return d.getTime() < today.getTime();
 }
 
 function renderEvents(){
@@ -345,6 +366,12 @@ function renderEvents(){
   const filtered = _events.filter(e => {
     if (_filterCat !== 'all' && normalizeCat(e.category).slug !== _filterCat) return false;
     if (_filterFam && !isTruthy(e.family_friendly)) return false;
+    if (_filterBike && !isTruthy(e.bike_friendly)) return false;
+    // Past-events visibility: by default hide them. The "Show past events"
+    // chip flips to past-only mode.
+    const past = isPastDay(e);
+    if (_filterPast && !past) return false;
+    if (!_filterPast && past) return false;
     return true;
   });
   if (!filtered.length) {
@@ -352,16 +379,12 @@ function renderEvents(){
     return;
   }
   filtered.sort((a, b) => parseDateKey(a) - parseDateKey(b));
-  // Group by the underlying date (date_iso) so two events on the same day
-  // can't split into separate sections just because one of them has a
-  // typed day_label override and the other relies on the derived format.
-  // The first event seen for a date sets that group's heading.
   const groups = [];
   const byDay = {};
   filtered.forEach(e => {
     const key = String(e.date_iso || e.date || dayLabel(e));
     if (!byDay[key]) {
-      byDay[key] = { label: dayLabel(e), items: [] };
+      byDay[key] = { label: dayLabel(e), items: [], past: isPastDay(e) };
       groups.push(key);
     }
     byDay[key].items.push(e);
@@ -370,7 +393,7 @@ function renderEvents(){
   groups.forEach(key => {
     const group = byDay[key];
     const items = group.items;
-    html += '<section class="day-block"><div class="day-head">' +
+    html += '<section class="day-block' + (group.past ? ' past' : '') + '"><div class="day-head">' +
               '<span class="day-name">' + esc(group.label) + '</span>' +
               '<span class="day-count">' + items.length + ' event' + (items.length === 1 ? '' : 's') + '</span>' +
             '</div>';
@@ -378,6 +401,7 @@ function renderEvents(){
       const cat = normalizeCat(e.category);
       const venue = e.venue ? '<span class="event-venue">' + esc(e.venue) + '</span>' : '';
       const fam   = isTruthy(e.family_friendly) ? '<span class="event-fam">👨‍👩‍👧 Family</span>' : '';
+      const bike  = isTruthy(e.bike_friendly)   ? '<span class="event-bike">🚲 Bike-friendly</span>' : '';
       const mapUrl = buildMapUrl(e);
       const map   = mapUrl
         ? '<a class="event-map" href="' + esc(mapUrl) + '" target="_blank" rel="noopener" aria-label="Open in maps">📍 Map</a>'
@@ -391,7 +415,7 @@ function renderEvents(){
                   '<div class="event-title">' + esc(e.title || '(untitled)') + '</div>' +
                   '<div class="event-meta">' +
                     '<span class="event-cat">' + esc(cat.label) + '</span>' +
-                    fam + venue + map +
+                    fam + bike + venue + map +
                   '</div>' +
                   (e.description ? '<div class="event-desc">' + esc(e.description) + '</div>' : '') +
                   link +
@@ -409,6 +433,12 @@ document.getElementById('filtersInner').addEventListener('click', (ev) => {
   if (btn.dataset.fam) {
     _filterFam = !_filterFam;
     btn.classList.toggle('active', _filterFam);
+  } else if (btn.dataset.bike) {
+    _filterBike = !_filterBike;
+    btn.classList.toggle('active', _filterBike);
+  } else if (btn.dataset.past) {
+    _filterPast = !_filterPast;
+    btn.classList.toggle('active', _filterPast);
   } else if (btn.dataset.cat) {
     _filterCat = btn.dataset.cat;
     document.querySelectorAll('.chip[data-cat]').forEach(c => c.classList.toggle('active', c.dataset.cat === _filterCat));
