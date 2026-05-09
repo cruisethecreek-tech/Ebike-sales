@@ -635,6 +635,10 @@ function getTabDefs() {
         ['brand_velotric_external', false],
         ['brand_jasion_url',   'jasion.html'],
         ['brand_jasion_external', false],
+        // assembly.html: pipe-separated authorized brand list. Drives both the
+        // inline brand mentions ("factory-trained on …") and the trust badges
+        // ("Heybike Authorized" pills) at the bottom of the page.
+        ['assembly_authorized_brands', 'Heybike|Velotric|Jasion|Mooncool'],
         // creek-ready hub: footer links
         ['faq_url',            'faqs.html'],
         ['faq_external',       false],
