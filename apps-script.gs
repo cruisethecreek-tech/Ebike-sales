@@ -2053,6 +2053,17 @@ function cleanBody_(html) {
   s = s.replace(/<source\b[^>]*\/?>/gi, '');
   s = s.replace(/<picture[^>]*>([\s\S]*?)<\/picture>/gi, '$1');
 
+  // Pass 3.5 — strip Wix LQIP thumbnail <img> tags. After unwrap, every
+  // figure may still contain TWO imgs: the real one (w_980+) AND a
+  // 250×250 (or smaller) low-quality preview that Wix bakes into the
+  // page next to the full image. Both render. We keep the real one and
+  // drop anything from wixstatic.com whose URL specifies w_<400px —
+  // safely targets thumbnails without false positives on content art.
+  s = s.replace(
+    /<img\b[^>]*\bsrc="https?:\/\/[^"]*\.wixstatic\.com\/[^"]*\bw_(\d+)[^"]*"[^>]*\/?>/gi,
+    function(match, w) { return parseInt(w, 10) < 400 ? '' : match; }
+  );
+
   // Pass 4 — unwrap Wix internal hashtag/tag archive links. They point
   // to /road-trips/hashtags/N which doesn't exist on Cloudflare.
   s = s.replace(/<a [^>]*href="[^"]*\/(?:hashtags|tags)\/[^"]*"[^>]*>([\s\S]*?)<\/a>/gi, '$1');
