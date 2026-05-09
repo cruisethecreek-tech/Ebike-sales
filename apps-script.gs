@@ -2034,10 +2034,24 @@ function cleanBody_(html) {
   // <iframe> — embedded video / Wix widgets. Drop for now; phase-4 image
   // migration will revisit if any post needs an embed back.
   s = stripTagBlock_(s, 'iframe');
+  // <canvas> — Wix uses these as low-quality image placeholders that
+  // its client JS draws on. Without the JS they render as blank/blurry
+  // boxes above each real image.
+  s = stripTagBlock_(s, 'canvas');
 
-  // Pass 3 — unwrap Wix custom elements.
+  // Pass 3 — unwrap Wix custom elements + multi-source picture wraps.
   // <wow-image> wraps every <img>. Keep the inner img.
   s = s.replace(/<wow-image[^>]*>([\s\S]*?)<\/wow-image>/gi, '$1');
+  // Belt-and-braces: any remaining <wow-*> custom elements (wow-iframe,
+  // wow-video, wow-canvas, etc) — drop the wrapper, keep contents.
+  s = s.replace(/<wow-([a-z-]+)[^>]*>([\s\S]*?)<\/wow-\1>/gi, '$2');
+  // <picture> wraps an <img> plus one-or-more <source> elements with
+  // alternate format/size URLs. Browsers pick a <source> they support
+  // and ignore the <img>. The LQIP blurry-box above the real photo is
+  // typically rendered from a low-quality <source>. Strip <source>
+  // tags entirely, then unwrap <picture> to leave just the <img>.
+  s = s.replace(/<source\b[^>]*\/?>/gi, '');
+  s = s.replace(/<picture[^>]*>([\s\S]*?)<\/picture>/gi, '$1');
 
   // Pass 4 — unwrap Wix internal hashtag/tag archive links. They point
   // to /road-trips/hashtags/N which doesn't exist on Cloudflare.
