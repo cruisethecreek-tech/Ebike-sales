@@ -84,10 +84,14 @@ function doGet(e) {
     return String(r.slug || '').trim().toLowerCase() === page;
   }) || {};
 
-  // Site-wide key/value pairs (SiteConfig tab).
+  // Site-wide key/value pairs (SiteConfig tab). Banner rows whose key
+  // starts with "──" are visual separators in the Sheet for grouping;
+  // they're skipped here so they never enter the live CMS payload.
   const site = {};
   readSheet(ss, 'SiteConfig').forEach(function(r){
-    if (r.key) site[String(r.key).trim()] = r.value;
+    const key = String(r.key || '').trim();
+    if (!key || key.indexOf('──') === 0) return;
+    site[key] = r.value;
   });
   // Photos tab merges on top of SiteConfig — Pat edits photos there,
   // SiteConfig stays for text-only keys. A non-empty Photos value wins
@@ -407,6 +411,98 @@ function handleApparelOrder(p) {
  */
 function getTabDefs() {
   return {
+    '_README': {
+      // Documentation-only tab. Lists every other tab and what it
+      // controls, so Pat can find what to edit without grepping the
+      // schema. Underscore prefix keeps it sorted to the top of any
+      // alphabetic listing. updateSheet() creates this on existing
+      // sheets — drag it to the leftmost position by hand once for
+      // ergonomics.
+      //
+      // The doGet handler ignores this tab entirely (it's not read
+      // back into the CMS payload), so editing it never breaks the
+      // site.
+      header: ['category','tab','controls','edit when / where it shows'],
+      rows: [
+        ['── PAGE COPY (text + heroes) ──', '', '', ''],
+        ['Page copy',  'Pages',           'Per-page hero (eyebrow / h1 / tagline / photo) and primary CTA buttons.',
+                                          'When you want to change the big banner text, hero photo, or main CTA on any page (home, rentals, shop, faqs, etc.). Slug column = filename minus .html.'],
+        ['Page copy',  'SiteConfig',      'Cross-cutting + page-scoped text snippets keyed by name (kirk_title, info_phone, etc).',
+                                          'Most edits to body text outside heroes happen here. Banner rows starting with "──" are visual separators only.'],
+        ['Page copy',  'Sections',        'Long-form content blocks rendered inside a page body.',
+                                          'When you need rich sections beyond a hero — e.g. multi-paragraph stories on a single page.'],
+        ['Page copy',  'TrustStrip',      'Four trust cards rendered identically on every brand page.',
+                                          'Edit one row, every brand page (heybike, velotric, mooncool, jasion) updates.'],
+
+        ['── PHOTOS & GALLERIES ──', '', '', ''],
+        ['Photos',     'Photos',          'Body-photo controls (key → URL/filename) for orphan images like the Kirk Road card.',
+                                          'For any <img data-cms-src="..."> binding outside a hero. Hero photos live on Pages.hero_photo.'],
+        ['Photos',     'Galleries',       'Photo gallery rows shown on the page named in `page` column.',
+                                          'When you want to add a photo strip / gallery to a page.'],
+
+        ['── NAVIGATION (tile menus) ──', '', '', ''],
+        ['Navigation', 'Home_Tiles',      'The 6 main tiles on the home page.',
+                                          'Order/label/subtitle/photo of each home tile.'],
+        ['Navigation', 'Home_Submenus',   'Sub-items inside each Home tile menu.',
+                                          'When a home tile is type=menu, this drives its dropdown items.'],
+        ['Navigation', 'Rentals_Tiles',   'Tiles on rentals.html.', 'Same pattern as Home_Tiles.'],
+        ['Navigation', 'Rentals_Submenus','Sub-items in Rentals tile menus.', 'Same pattern as Home_Submenus.'],
+        ['Navigation', 'Shop_Tiles',      'Tiles on shop.html.', 'Same pattern as Home_Tiles.'],
+        ['Navigation', 'Shop_Submenus',   'Sub-items in Shop tile menus.', 'Same pattern as Home_Submenus.'],
+
+        ['── BRIDGE THE GAP (rent-to-own) ──', '', '', ''],
+        ['Bridge',     'BridgePricing',   'Three pricing tiles (weekly / total / monthly).',
+                                          'Edit the dollar amounts and labels at the top of bridge-the-gap.html.'],
+        ['Bridge',     'BridgeGaps',      '"Gaps" cards (healthcare, food, etc) explaining why mobility matters.',
+                                          'Add/remove cards in the WHAT IT MEANS section.'],
+        ['Bridge',     'BridgeFeatures',  'Program feature checklist.', 'Add/remove items in the FEATURES section.'],
+        ['Bridge',     'BridgeCompare',   'Side-by-side cost comparison rows (us vs rideshare).', 'Edit the comparison table.'],
+        ['Bridge',     'BridgeBikeOptions','The bike picks shown in the application form.',
+                                          'Add/remove which bikes are eligible for Bridge the Gap.'],
+
+        ['── TRAILSIDE / ADVENTURES ──', '', '', ''],
+        ['Trailside',  'Journeys',        'Trailside Journey destinations (south + north stops).',
+                                          'Add/remove a stop, change image/distance/duration/dining/highlights.'],
+        ['Rentals',    'RentalsVibe',     'Kirk Road vs Bears Den vibe-check side-by-side.',
+                                          'Edit the comparison cards on rentals.html.'],
+
+        ['── SERVICES & SUPPORT ──', '', '', ''],
+        ['Services',   'Services',        'Creek-Ready service cards (tune-up / assembly / video).',
+                                          'Edit price / features / CTA on creek-ready.html.'],
+        ['Services',   'Steps',           'Three-step "how it works" rows.',
+                                          'Edit any 1-2-3 process explainer (booking flow, etc).'],
+        ['Services',   'Faqs',            'FAQ accordions.',
+                                          'Add/edit any frequently-asked-question entry.'],
+
+        ['── EVENTS & DONATIONS ──', '', '', ''],
+        ['Events',     'Events',          'Event listings on events.html.',
+                                          'Add/remove an event. Venue is looked up from the Venues tab.'],
+        ['Events',     'Venues',          'Venue lat/lng lookup table referenced by Events.',
+                                          'Add a new venue once, reuse across many events.'],
+        ['Donations',  'Supporters',      'Names on the donations page wall.',
+                                          'Add/remove supporters who chipped in.'],
+
+        ['── APPAREL ──', '', '', ''],
+        ['Apparel',    'ApparelProducts', 'One row per print/design (Trail Map Tee, Neon Watercolor, etc).',
+                                          'Add a new design, change pricing, restrict colors per product.'],
+        ['Apparel',    'ApparelColors',   'Global color palette (Black, Forest Green, Sand, White…).',
+                                          'Add a new shirt color (applies to all products unless narrowed).'],
+        ['Apparel',    'ApparelPlacements','Print placement options (Front, Back, Sleeve…).',
+                                          'Edit the placement chooser on the order form.'],
+        ['Apparel',    'Apparel_Orders',  'Submitted orders log (read-only — written by the order form).',
+                                          'Browse for fulfillment. Each row also has paymentLink (Stripe URL).'],
+
+        ['── BLOG ──', '', '', ''],
+        ['Blog',       'Blog',            'One row per blog post (slug, title, body_html, hero, etc).',
+                                          'Edit a post, mark unpublished, change hero. body_html is the full post.'],
+
+        ['── ADMIN / TOOLING ──', '', '', ''],
+        ['Admin',      'Admin',           'Admin panel feature flags + secrets (e.g. salespro password).',
+                                          'Rarely touched. Owners only.'],
+        ['Admin',      '_README',         'This tab. Read-only documentation.',
+                                          'Updated automatically when the schema changes — re-run updateSheet().'],
+      ],
+    },
     'Home_Tiles': {
       header: ['id','order','label','subtitle','type','url','external','photo'],
       rows: [
@@ -747,81 +843,95 @@ function getTabDefs() {
     },
     'SiteConfig': {
       header: ['key','value'],
+      // Rows are grouped with banner separators (── HEADING ──) so the
+      // tab is scannable in the spreadsheet UI. The doGet handler skips
+      // any row whose key starts with "──" — they're cosmetic only.
+      // To apply this grouping to your existing Sheet without losing
+      // edits, run reorganizeSiteConfig() once.
       rows: [
-        // ── Contact: two departments ──
-        // Info / Rentals / Tours / Sponsorships
+        ['── CONTACT · INFO DESK (rentals / tours / sponsorships) ──', ''],
         ['info_phone_display',  '330-406-9686'],
         ['info_phone_sms',      'sms:3304069686'],
         ['info_phone_tel',      'tel:+13304069686'],
         ['info_email_label',    'info@cruisethecreek.com'],
         ['info_email_url',      'mailto:info@cruisethecreek.com'],
-        // Sales / Test Rides / Repairs
+
+        ['── CONTACT · SALES DESK (sales / test rides / repairs) ──', ''],
         ['sales_phone_display', '330-406-9682'],
         ['sales_phone_sms',     'sms:3304069682'],
         ['sales_phone_tel',     'tel:+13304069682'],
         ['sales_email_label',   'salesteam@cruisethecreek.com'],
         ['sales_email_url',     'mailto:salesteam@cruisethecreek.com'],
-        ['footer_tagline',     'Electric bikes built for creek country. Ride the trails, beat the heat, get home grinning.'],
-        ['footer_copyright',   '© 2026 Cruise the Creek. All rights reserved.'],
-        // Sales Pro quote card (index.html)
+
+        ['── FOOTER (every page) ──', ''],
+        ['footer_tagline',      'Electric bikes built for creek country. Ride the trails, beat the heat, get home grinning.'],
+        ['footer_copyright',    '© 2026 Cruise the Creek. All rights reserved.'],
+
+        ['── SOCIAL LINKS (leave blank to hide) ──', ''],
+        ['social_instagram',    ''],
+        ['social_facebook',     ''],
+        ['social_tiktok',       ''],
+        ['social_youtube',      ''],
+
+        ['── HERO TINT (every page hero photo) ──', ''],
+        // 0..1. Lower = brighter photo, higher = darker forest tint.
+        ['hero_overlay_opacity', '0.55'],
+
+        ['── BRAND / LOGO LINKS ──', ''],
+        ['logo_url',            'home.html'],
+        ['logo_external',       false],
+        ['shop_ebikes_label',   'Shop E-Bikes'],
+        ['shop_ebikes_url',     'https://www.cruisethecreek.com/shop-fix'],
+        ['shop_ebikes_external', true],
+        ['brand_heybike_url',   'heybike.html'],
+        ['brand_heybike_external', false],
+        ['brand_velotric_url',  'velotric.html'],
+        ['brand_velotric_external', false],
+        ['brand_jasion_url',    'jasion.html'],
+        ['brand_jasion_external', false],
+        // assembly.html: pipe-separated brand list drives inline mentions
+        // ("factory-trained on …") + trust badges at page bottom.
+        ['assembly_authorized_brands', 'Heybike|Velotric|Jasion|Mooncool'],
+
+        ['── FOOTER & POLICY LINKS ──', ''],
+        ['faq_url',             'faqs.html'],
+        ['faq_external',        false],
+        ['policies_url',        'https://www.cruisethecreek.com/cancellation-policy'],
+        ['policies_external',   true],
+        ['our_story_url',       'our-story.html'],
+        ['our_story_external',  false],
+
+        ['── CREEK READY HUB · service URLs ──', ''],
+        ['creek_tuneup_url',    'tune-ups.html'],
+        ['creek_tuneup_external', false],
+        ['creek_setup_url',     'assembly.html'],
+        ['creek_setup_external', false],
+        ['creek_video_url',     'video-diagnostics.html'],
+        ['creek_video_external', false],
+
+        ['── CREEK READY HUB · section copy ──', ''],
+        ['services_eyebrow',    'Our Services'],
+        ['services_title',      'Three Ways We Keep You Rolling'],
+        ['services_intro',      "Whether you need hands-on maintenance, a professional build, or expert guidance from anywhere — we've got you covered."],
+        ['how_eyebrow',         'How It Works'],
+        ['how_title',           'Simple as 1-2-3'],
+        ['how_intro',           "Getting service for your e-bike shouldn't be complicated."],
+        ['brands_label',        'Authorized Dealer & Factory-Trained Service'],
+        ['cta_text_label',      '💬 Text: 330-406-9682'],
+        ['cta_text_url',        'sms:3304069682'],
+        ['cta_email_label',     '✉️ salesteam@cruisethecreek.com'],
+        ['cta_email_url',       'mailto:salesteam@cruisethecreek.com'],
+
+        ['── SALES PRO · quote card ──', ''],
         ['quote_brand_name',    'CRUISE THE CREEK'],
         ['quote_brand_subline', 'Youngstown, Ohio · cruisethecreek.com'],
         ['quote_footer',        'Quote valid 7 days · Cruise the Creek · 330-406-9682'],
-        // Hero background images: per-page hero_photo lives in the Pages tab.
-        // hero_overlay_opacity (0..1) tints the photo so white text stays
-        // readable. Lower = brighter photo, higher = darker forest tint.
-        ['hero_overlay_opacity', '0.55'],
-        ['social_instagram',   ''],
-        ['social_facebook',    ''],
-        ['social_tiktok',      ''],
-        ['social_youtube',     ''],
-        ['creek_tuneup_url',   'tune-ups.html'],
-        ['creek_tuneup_external', false],
-        ['creek_setup_url',    'assembly.html'],
-        ['creek_setup_external', false],
-        ['creek_video_url',    'video-diagnostics.html'],
-        ['creek_video_external', false],
-        // creek-ready hub: top-left logo (link + text)
-        ['logo_url',           'home.html'],
-        ['logo_external',      false],
-        // creek-ready hub: nav CTA
-        ['shop_ebikes_label',  'Shop E-Bikes'],
-        ['shop_ebikes_url',    'https://www.cruisethecreek.com/shop-fix'],
-        ['shop_ebikes_external', true],
-        // creek-ready hub: authorized brand links
-        ['brand_heybike_url',  'heybike.html'],
-        ['brand_heybike_external', false],
-        ['brand_velotric_url', 'velotric.html'],
-        ['brand_velotric_external', false],
-        ['brand_jasion_url',   'jasion.html'],
-        ['brand_jasion_external', false],
-        // assembly.html: pipe-separated authorized brand list. Drives both the
-        // inline brand mentions ("factory-trained on …") and the trust badges
-        // ("Heybike Authorized" pills) at the bottom of the page.
-        ['assembly_authorized_brands', 'Heybike|Velotric|Jasion|Mooncool'],
-        // creek-ready hub: footer links
-        ['faq_url',            'faqs.html'],
-        ['faq_external',       false],
-        ['policies_url',       'https://www.cruisethecreek.com/cancellation-policy'],
-        ['policies_external',  true],
-        ['our_story_url',      'our-story.html'],
-        ['our_story_external', false],
-        // creek-ready hub: section headings & contact items
-        ['services_eyebrow',   'Our Services'],
-        ['services_title',     'Three Ways We Keep You Rolling'],
-        ['services_intro',     "Whether you need hands-on maintenance, a professional build, or expert guidance from anywhere — we've got you covered."],
-        ['how_eyebrow',        'How It Works'],
-        ['how_title',          'Simple as 1-2-3'],
-        ['how_intro',          "Getting service for your e-bike shouldn't be complicated."],
-        ['brands_label',       'Authorized Dealer & Factory-Trained Service'],
-        ['cta_text_label',     '💬 Text: 330-406-9682'],
-        ['cta_text_url',       'sms:3304069682'],
-        ['cta_email_label',    '✉️ salesteam@cruisethecreek.com'],
-        ['cta_email_url',      'mailto:salesteam@cruisethecreek.com'],
-        // FAQs page: top-of-page safety alert
-        ['faqs_alert_title',   'Your safety is our priority'],
-        ['faqs_alert_body',    'Please read the Safety & Requirements section before your first ride. New to e-bikes? We recommend the Kirk Road bikeway for your first time — flat, paved, and car-free.'],
-        // Bridge the Gap: section labels + application form intro
+
+        ['── FAQs page · safety alert banner ──', ''],
+        ['faqs_alert_title',    'Your safety is our priority'],
+        ['faqs_alert_body',     'Please read the Safety & Requirements section before your first ride. New to e-bikes? We recommend the Kirk Road bikeway for your first time — flat, paved, and car-free.'],
+
+        ['── BRIDGE THE GAP page · section labels ──', ''],
         ['bridge_gaps_eyebrow',       'Why it matters'],
         ['bridge_gaps_title',         'What it means to bridge the gap'],
         ['bridge_gaps_intro',         "Most riders use the bike to get to work — but transportation is more than a paycheck. In the Mahoning Valley, \"the gap\" is the distance between you and the essentials of a good life. Here are four ways an e-bike closes it."],
@@ -833,48 +943,57 @@ function getTabDefs() {
         ['bridge_compare_intro',      'Same commute, very different cost.'],
         ['bridge_application_title',  'Start your application'],
         ['bridge_application_subtitle', "Pick a bike style, fill out the form, and we'll be in touch within 24–48 hours."],
-        // Trailside Journeys page (journeys.html)
-        ['kirk_image',         ''],
-        ['kirk_badge',         'Pickup & Drop-off'],
-        ['kirk_title',         'Kirk Road Trailhead'],
-        ['kirk_where',         'Canfield, Ohio'],
-        ['kirk_body_1',        'This award-winning trailhead provides a fifty-car parking lot, restrooms, water fountains, a picnic pavilion, and a location for educational and trailside activities.'],
-        ['kirk_body_2',        'The 11-mile Mill Creek Bikeway is owned and operated by Mill Creek MetroParks — paved and tranquil end to end.'],
-        ['kirk_speed',         '15 mph speed limit strictly enforced'],
-        ['south_eyebrow',      'Head south'],
-        ['south_title',        'Toward Canfield'],
-        ['south_intro',        'Wooded paths, working farms, and a hidden playground — gentle southbound rides for any pace.'],
-        ['north_eyebrow',      'Head north'],
-        ['north_title',        'Toward Austintown & Niles'],
-        ['north_intro',        'Iconic overpass bridges, the Niles Greenway, and the McKinley Memorial — push north for a longer ride.'],
-        ['hashtag',            '#TrailsideJourney'],
-        // Rentals page: vibe-check section header
-        ['vibe_eyebrow',       'Vibe check'],
-        ['vibe_title',         'Which ride is right for you?'],
-        ['vibe_intro',         "New to Mill Creek? Here's the quick guide to picking the right pickup."],
-        // Donations page (donate.html)
-        ['intro_eyebrow',      'Why we need you'],
-        ['intro_title',        'Be a direct part of our growth'],
-        ['intro_body',         "To keep providing the high-quality equipment and experiences you've come to expect, we're inviting you to be a direct part of our growth. The future of our local trails is bright, and with your help, we can make the next season our best one yet."],
-        ['impact_eyebrow',     'Your impact'],
-        ['impact_title',       'Where every dollar goes'],
-        ['impact_body',        "Every donation goes directly toward upgrading our fleet and maintaining the essential gear that keeps our operations safe and fun for everyone. This isn't about overhead — it's about ensuring we have the best tools available to serve you."],
-        ['thanks_eyebrow',     'Our appreciation'],
-        ['thanks_title',       'Thank you, in public'],
-        ['thanks_body',        "As a thank you for your support, all donors will be featured on our Supporters Wall below. It's our way of making sure the community knows who helped keep us moving forward."],
-        ['give_eyebrow',       'Send a tip'],
-        ['give_title',         'Pick the way that works for you'],
-        ['give_sub',           'Three options. Any amount helps. We see every transfer.'],
-        ['give_foot',          "After you send, drop us a note with how you'd like to appear on the Supporters Wall — first name, full name, business, or anonymous, your call."],
-        ['donate_cashapp_url', 'https://cash.app/$ctcsales'],
+
+        ['── TRAILSIDE JOURNEY page · Kirk Road card + headings ──', ''],
+        // kirk_image is now editable in the Photos tab too — either place
+        // works, but Photos is the recommended home for image controls.
+        ['kirk_image',          ''],
+        ['kirk_badge',          'Pickup & Drop-off'],
+        ['kirk_title',          'Kirk Road Trailhead'],
+        ['kirk_where',          'Canfield, Ohio'],
+        ['kirk_body_1',         'This award-winning trailhead provides a fifty-car parking lot, restrooms, water fountains, a picnic pavilion, and a location for educational and trailside activities.'],
+        ['kirk_body_2',         'The 11-mile Mill Creek Bikeway is owned and operated by Mill Creek MetroParks — paved and tranquil end to end.'],
+        ['kirk_speed',          '15 mph speed limit strictly enforced'],
+        ['south_eyebrow',       'Head south'],
+        ['south_title',         'Toward Canfield'],
+        ['south_intro',         'Wooded paths, working farms, and a hidden playground — gentle southbound rides for any pace.'],
+        ['north_eyebrow',       'Head north'],
+        ['north_title',         'Toward Austintown & Niles'],
+        ['north_intro',         'Iconic overpass bridges, the Niles Greenway, and the McKinley Memorial — push north for a longer ride.'],
+        ['hashtag',             '#TrailsideJourney'],
+
+        ['── RENTALS page · vibe-check section ──', ''],
+        ['vibe_eyebrow',        'Vibe check'],
+        ['vibe_title',          'Which ride is right for you?'],
+        ['vibe_intro',          "New to Mill Creek? Here's the quick guide to picking the right pickup."],
+
+        ['── DONATIONS page · why-we-need-you ──', ''],
+        ['intro_eyebrow',       'Why we need you'],
+        ['intro_title',         'Be a direct part of our growth'],
+        ['intro_body',          "To keep providing the high-quality equipment and experiences you've come to expect, we're inviting you to be a direct part of our growth. The future of our local trails is bright, and with your help, we can make the next season our best one yet."],
+        ['impact_eyebrow',      'Your impact'],
+        ['impact_title',        'Where every dollar goes'],
+        ['impact_body',         "Every donation goes directly toward upgrading our fleet and maintaining the essential gear that keeps our operations safe and fun for everyone. This isn't about overhead — it's about ensuring we have the best tools available to serve you."],
+        ['thanks_eyebrow',      'Our appreciation'],
+        ['thanks_title',        'Thank you, in public'],
+        ['thanks_body',         "As a thank you for your support, all donors will be featured on our Supporters Wall below. It's our way of making sure the community knows who helped keep us moving forward."],
+
+        ['── DONATIONS page · payment links ──', ''],
+        ['give_eyebrow',        'Send a tip'],
+        ['give_title',          'Pick the way that works for you'],
+        ['give_sub',            'Three options. Any amount helps. We see every transfer.'],
+        ['give_foot',           "After you send, drop us a note with how you'd like to appear on the Supporters Wall — first name, full name, business, or anonymous, your call."],
+        ['donate_cashapp_url',  'https://cash.app/$ctcsales'],
         ['donate_cashapp_handle', '$ctcsales'],
-        ['donate_venmo_url',   'https://account.venmo.com/u/cruisethecreeksales'],
+        ['donate_venmo_url',    'https://account.venmo.com/u/cruisethecreeksales'],
         ['donate_venmo_handle', '@cruisethecreeksales'],
-        ['donate_paypal_url',  'https://www.paypal.biz/cruisethecreek'],
+        ['donate_paypal_url',   'https://www.paypal.biz/cruisethecreek'],
         ['donate_paypal_handle', 'paypal.biz/cruisethecreek'],
-        ['wall_eyebrow',       'The supporters wall'],
-        ['wall_title',         'Thank you, Creek Crew'],
-        ['wall_sub',           'The names below kept the wheels turning this season.'],
+
+        ['── DONATIONS page · supporters wall heading ──', ''],
+        ['wall_eyebrow',        'The supporters wall'],
+        ['wall_title',          'Thank you, Creek Crew'],
+        ['wall_sub',            'The names below kept the wheels turning this season.'],
       ],
     },
     'Photos': {
@@ -2255,6 +2374,76 @@ function cleanBlogBodies() {
 
   Logger.log('Done: ' + JSON.stringify(stats));
   return stats;
+}
+
+// Apply the latest SiteConfig grouping (banner separator rows from
+// getTabDefs) to the existing SiteConfig tab without losing any edits.
+//
+// Behaviour:
+//   1. Read every existing key/value pair off the SiteConfig tab.
+//      Skip current banner rows (key starts with "──") so we don't
+//      duplicate them — banners come fresh from the schema.
+//   2. Walk the schema's row list in order. For each non-banner key:
+//      use the current Sheet value if one exists, else the schema
+//      default. For banner rows: pass them through verbatim.
+//   3. Append schema-new keys (added since last run) at the end under
+//      a "── NEWLY ADDED ──" banner so they're easy to spot.
+//   4. Append any orphan keys still in the Sheet but no longer in the
+//      schema (custom keys Pat added) under a "── CUSTOM ──" banner
+//      so they're preserved, not silently lost.
+//   5. Clear and re-write the SiteConfig tab.
+//
+// Run from the Apps Script editor's function dropdown: reorganizeSiteConfig.
+function reorganizeSiteConfig() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const sh = ss.getSheetByName('SiteConfig');
+  if (!sh) { Logger.log('No SiteConfig tab. Run updateSheet() first.'); return; }
+
+  const lastRow = sh.getLastRow();
+  if (lastRow < 2) { Logger.log('SiteConfig is empty.'); return; }
+
+  // 1) Capture current values, ignoring banner rows.
+  const rows = sh.getRange(2, 1, lastRow - 1, 2).getValues();
+  const currentByKey = {};
+  rows.forEach(function(r) {
+    const k = String(r[0] || '').trim();
+    if (!k || k.indexOf('──') === 0) return;
+    currentByKey[k] = r[1];
+  });
+
+  // 2) Walk schema rows. Banners pass through; data rows take the
+  //    Sheet value when present, else schema default.
+  const schemaRows = getTabDefs().SiteConfig.rows;
+  const seenKeys = {};
+  const out = [];
+  schemaRows.forEach(function(r) {
+    const k = String(r[0] || '').trim();
+    if (!k) return;
+    if (k.indexOf('──') === 0) {
+      out.push([k, '']);
+    } else {
+      const value = (k in currentByKey) ? currentByKey[k] : r[1];
+      out.push([k, value]);
+      seenKeys[k] = true;
+    }
+  });
+
+  // 3 + 4) Surface orphan keys at the bottom under a CUSTOM banner.
+  const orphans = Object.keys(currentByKey).filter(function(k){ return !seenKeys[k]; });
+  if (orphans.length) {
+    out.push(['── CUSTOM (keys added by hand — keep, rename, or remove) ──', '']);
+    orphans.forEach(function(k){ out.push([k, currentByKey[k]]); });
+  }
+
+  // 5) Re-write the tab. Header stays put; we only rewrite from row 2.
+  sh.getRange(2, 1, lastRow - 1, 2).clearContent();
+  sh.getRange(2, 1, out.length, 2).setValues(out);
+
+  Logger.log('Reorganized SiteConfig: '
+             + (schemaRows.length) + ' schema rows, '
+             + Object.keys(currentByKey).length + ' values preserved, '
+             + orphans.length + ' orphans saved at bottom.');
+  return { reorganized: true, valuesPreserved: Object.keys(currentByKey).length, orphans: orphans.length };
 }
 
 function setupSheet() {
