@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cruise the Creek</title>
+<meta name="description" content="Cruise the Creek blog post.">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Cruise the Creek">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --sage:#6B8F71;--forest:#2D4A32;--forest-l:#3a5d40;--dark:#1a2e1c;
+  --tan:#C9A96E;--tan-d:#a98843;--cream:#F5F0E8;--cream-w:#fbf7ef;
+  --ink:#1a1a1a;--ink-2:#4a4a4a;--ink-3:#7a7a7a;
+}
+html,body{height:100%}
+html{scroll-behavior:smooth}
+body{font-family:'DM Sans',sans-serif;color:var(--ink);background:var(--cream);
+  min-height:100vh;display:flex;flex-direction:column;line-height:1.6}
+a{color:inherit;text-decoration:none;transition:color .2s ease}
+button{font-family:inherit;cursor:pointer;border:none;background:none}
+
+.topbar{background:rgba(255,255,255,.95);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+  color:var(--dark);padding:16px 24px;display:flex;align-items:center;justify-content:space-between;
+  position:sticky;top:0;z-index:100;border-bottom:1px solid rgba(0,0,0,.05)}
+.brand-logo{height:38px;width:auto;display:block}
+
+/* HERO — uses post hero image as bg with forest-tinted overlay */
+.post-hero{position:relative;min-height:42vh;padding:80px 24px 60px;
+  display:flex;flex-direction:column;align-items:center;justify-content:flex-end;text-align:center;
+  color:#fff;background:var(--forest);overflow:hidden;isolation:isolate}
+.post-hero-bg{position:absolute;inset:0;z-index:-2;background-size:cover;background-position:center;filter:brightness(.55)}
+.post-hero-overlay{position:absolute;inset:0;z-index:-1;
+  background:linear-gradient(180deg,rgba(26,46,28,.4) 0%,rgba(26,46,28,.85) 100%)}
+.post-hero-meta{font-size:.72rem;letter-spacing:.18em;text-transform:uppercase;font-weight:700;
+  color:var(--tan);margin-bottom:12px;display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap}
+.post-hero-meta .dot{opacity:.5}
+.post-hero h1{font-family:'Bebas Neue',sans-serif;font-size:clamp(2.2rem,6vw,3.6rem);
+  letter-spacing:.02em;line-height:1.05;max-width:780px;margin:0 auto 14px}
+.post-hero-author{font-size:.86rem;color:rgba(255,255,255,.78);letter-spacing:.04em}
+.post-hero-author strong{color:var(--tan);font-weight:700}
+
+.crumb{max-width:780px;margin:0 auto;padding:18px 24px 0;
+  font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;font-weight:700;color:var(--sage)}
+.crumb a{color:var(--ink-2)}.crumb a:hover{color:var(--forest)}
+.crumb .sep{color:rgba(0,0,0,.2);margin:0 8px}
+
+main{flex:1;width:100%;max-width:780px;margin:0 auto;padding:32px 24px 64px}
+
+/* POST BODY TYPOGRAPHY */
+.post-body{font-size:1.05rem;line-height:1.75;color:var(--ink-2)}
+.post-body > *:first-child{margin-top:0}
+.post-body p{margin:0 0 1.1em}
+.post-body h1,.post-body h2,.post-body h3,.post-body h4{
+  font-family:'DM Sans',sans-serif;color:var(--forest);
+  font-weight:800;letter-spacing:-.01em;line-height:1.2;
+  margin:1.8em 0 .6em}
+.post-body h2{font-size:clamp(1.4rem,3.5vw,1.7rem)}
+.post-body h3{font-size:clamp(1.2rem,3vw,1.4rem);color:var(--forest-l)}
+.post-body h4{font-size:1.05rem}
+.post-body strong,.post-body b{color:var(--ink);font-weight:800}
+.post-body em,.post-body i{color:var(--ink)}
+.post-body a{color:var(--tan-d);font-weight:700;border-bottom:1px solid rgba(169,136,67,.3);
+  transition:border-color .15s ease}
+.post-body a:hover{border-bottom-color:var(--tan-d)}
+.post-body ul,.post-body ol{margin:0 0 1.1em 1.4em;padding:0}
+.post-body li{margin-bottom:.4em}
+.post-body blockquote{margin:1.4em 0;padding:14px 22px;
+  border-left:3px solid var(--tan);background:#fff;border-radius:0 6px 6px 0;
+  color:var(--ink);font-style:italic;font-size:1.05em;line-height:1.6}
+.post-body blockquote p:last-child{margin-bottom:0}
+.post-body img{display:block;max-width:100%;height:auto;margin:1.6em auto;
+  border-radius:6px;box-shadow:0 4px 14px rgba(0,0,0,.08)}
+.post-body figure{margin:1.6em 0}
+.post-body figure img{margin:0 auto}
+.post-body figcaption{text-align:center;font-size:.82rem;color:var(--ink-3);margin-top:6px;font-style:italic}
+.post-body hr{border:0;height:1px;background:rgba(0,0,0,.1);margin:2em 0}
+.post-body code{background:#f4ebd9;padding:2px 6px;border-radius:3px;
+  font-family:'SF Mono',Menlo,monospace;font-size:.92em}
+.post-body pre{background:var(--dark);color:var(--cream);padding:16px 20px;border-radius:6px;
+  overflow-x:auto;margin:1.4em 0;font-size:.88em;line-height:1.55}
+.post-body pre code{background:transparent;padding:0;color:inherit}
+.post-body table{width:100%;border-collapse:collapse;margin:1.4em 0;background:#fff;border-radius:6px;overflow:hidden;
+  box-shadow:0 2px 8px rgba(0,0,0,.04);font-size:.94em}
+.post-body th{background:var(--forest);color:#fff;text-align:left;padding:10px 14px;
+  font-size:.78rem;letter-spacing:.08em;text-transform:uppercase;font-weight:700}
+.post-body td{padding:10px 14px;border-top:1px solid rgba(0,0,0,.06)}
+
+/* TAGS */
+.post-tags{margin-top:2.5em;padding-top:1.6em;border-top:1px solid rgba(0,0,0,.08);
+  display:flex;flex-wrap:wrap;gap:8px}
+.post-tag{padding:6px 12px;background:#fff;border:1px solid rgba(45,74,50,.12);
+  border-radius:99px;font-size:.78rem;font-weight:700;letter-spacing:.04em;
+  color:var(--forest);text-transform:lowercase}
+
+/* FOOT NAV */
+.foot-nav{margin-top:3em;padding-top:2em;border-top:1px solid rgba(0,0,0,.08);
+  display:grid;grid-template-columns:1fr;gap:14px}
+@media(min-width:640px){.foot-nav{grid-template-columns:1fr 1fr}}
+.nav-card{background:#fff;border:1px solid rgba(0,0,0,.06);border-radius:8px;
+  padding:18px 20px;display:flex;flex-direction:column;gap:6px;
+  transition:transform .2s ease,box-shadow .2s ease,border-color .2s ease;
+  box-shadow:0 2px 8px rgba(0,0,0,.03)}
+.nav-card:hover{transform:translateY(-2px);box-shadow:0 10px 22px rgba(45,74,50,.08);border-color:var(--sage)}
+.nav-eyebrow{font-size:.66rem;letter-spacing:.18em;text-transform:uppercase;font-weight:800;color:var(--tan-d);
+  display:flex;align-items:center;gap:6px}
+.nav-eyebrow svg{width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2.5}
+.nav-card.next{text-align:right}
+.nav-card.next .nav-eyebrow{justify-content:flex-end}
+.nav-title{font-family:'Bebas Neue',sans-serif;font-size:1.15rem;color:var(--forest);
+  letter-spacing:.02em;text-transform:uppercase;line-height:1.1}
+
+.back-blog{display:inline-flex;align-items:center;gap:8px;margin-top:1.6em;
+  padding:11px 20px;background:var(--forest);color:#fff;border-radius:5px;
+  font-weight:700;font-size:.84rem;letter-spacing:.04em;text-transform:uppercase;transition:background .2s ease}
+.back-blog:hover{background:var(--dark)}
+.back-blog svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2.5}
+
+/* ERROR / LOADING */
+.notice{padding:54px 24px;text-align:center;color:var(--ink-3);font-size:.95rem;line-height:1.6;
+  background:#fff;border:1px dashed rgba(0,0,0,.1);border-radius:8px}
+.notice strong{color:var(--ink-2);display:block;margin-bottom:6px;font-size:1rem}
+
+footer{background:var(--dark);color:rgba(255,255,255,.7);padding:32px 24px;
+  text-align:center;font-size:.85rem;letter-spacing:.02em;border-top:2px solid var(--tan)}
+footer a{color:var(--tan);font-weight:500}footer a:hover{color:#fff}
+
+@media(max-width:480px){
+  .topbar{padding:12px 16px}.brand-logo{height:32px}
+  .post-hero{padding:62px 18px 44px}
+  .crumb{padding:14px 16px 0}
+  main{padding:24px 16px 48px}
+  .post-body{font-size:1rem;line-height:1.7}
+}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <a href="home.html" aria-label="Cruise the Creek home"><img class="brand-logo" src="BlackonTransparent.png" alt="Cruise the Creek"></a>
+</header>
+
+<section class="post-hero" id="post-hero">
+  <div class="post-hero-bg" id="post-hero-bg"></div>
+  <div class="post-hero-overlay"></div>
+  <div class="post-hero-meta" id="post-hero-meta">
+    <span>Loading…</span>
+  </div>
+  <h1 id="post-title">&nbsp;</h1>
+  <div class="post-hero-author" id="post-hero-author"></div>
+</section>
+
+<nav class="crumb"><a href="home.html">Home</a><span class="sep">/</span><a href="blog.html">Blog</a><span class="sep">/</span> <span id="crumb-title">…</span></nav>
+
+<main>
+  <div id="post-shell">
+    <div class="notice"><strong>Loading…</strong>Pulling the post.</div>
+  </div>
+</main>
+
+<footer>
+  &copy; 2026 <a href="home.html">Cruise the Creek</a> &middot; <a href="blog.html">All posts</a>
+</footer>
+
+<script>
+const MENU_URL = 'https://script.google.com/macros/s/AKfycbxjg2ZsPCZNsmJEStYA0bRdsnkm4nNS-m-HNhm_Gin56VIVeYWVRE5j51j30zVHhb4PmQ/exec?page=blog';
+const CACHE_KEY = 'cms:blog:v1';
+
+function getSlug(){
+  const u = new URL(location.href);
+  return (u.searchParams.get('slug') || '').trim();
+}
+function esc(s){ return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function stripTags(s){ return String(s || '').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim(); }
+function fmtDate(iso){
+  if (!iso) return '';
+  const d = new Date(iso);
+  if (isNaN(d.getTime())) return iso;
+  return d.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+}
+function readTime(html){
+  const words = stripTags(html).split(/\s+/).filter(Boolean).length;
+  return Math.max(1, Math.round(words / 200)) + ' min read';
+}
+
+// Sanitize body_html before injection. Whitelists semantic tags + strips
+// event handlers and remaining inline noise. Posts come from a Sheet you
+// edit, so this is belt-and-braces — not full XSS protection.
+function sanitizeBody(html){
+  return String(html || '')
+    .replace(/<script\b[\s\S]*?<\/script>/gi, '')
+    .replace(/<style\b[\s\S]*?<\/style>/gi, '')
+    .replace(/<noscript\b[\s\S]*?<\/noscript>/gi, '')
+    .replace(/<iframe\b[\s\S]*?<\/iframe>/gi, '')
+    .replace(/\son\w+="[^"]*"/gi, '')
+    .replace(/\son\w+='[^']*'/gi, '');
+}
+
+function renderError(msg, sub){
+  document.getElementById('post-shell').innerHTML =
+    '<div class="notice"><strong>' + esc(msg) + '</strong>' + esc(sub || '') + '</div>'
+    + '<a class="back-blog" href="blog.html"><svg viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg> All posts</a>';
+}
+
+function renderPost(post, allPosts){
+  // SEO meta — best-effort; phase 3 will pre-render real static <meta>.
+  const title = post.title + ' | Cruise the Creek';
+  document.title = title;
+  document.querySelector('meta[name="description"]').setAttribute('content', stripTags(post.excerpt || post.body_html).slice(0, 160));
+  function setOg(prop, val){
+    let el = document.querySelector('meta[property="' + prop + '"]');
+    if (!el) { el = document.createElement('meta'); el.setAttribute('property', prop); document.head.appendChild(el); }
+    el.setAttribute('content', val);
+  }
+  setOg('og:title', post.title);
+  setOg('og:description', stripTags(post.excerpt || post.body_html).slice(0, 200));
+  if (post.hero) setOg('og:image', post.hero);
+  setOg('og:url', location.href);
+
+  // Hero
+  if (post.hero) document.getElementById('post-hero-bg').style.backgroundImage = "url('" + post.hero + "')";
+  document.getElementById('post-hero-meta').innerHTML =
+    '<span>' + esc(fmtDate(post.date)) + '</span>' +
+    '<span class="dot">·</span>' +
+    '<span>' + esc(readTime(post.body_html)) + '</span>';
+  document.getElementById('post-title').textContent = post.title;
+  document.getElementById('post-hero-author').innerHTML = post.author ? 'By <strong>' + esc(post.author) + '</strong>' : '';
+  document.getElementById('crumb-title').textContent = post.title;
+
+  // Body + tags + nav
+  const tags = String(post.tags || '').split(',').map(t => t.trim()).filter(Boolean);
+  const tagsHtml = tags.length
+    ? '<div class="post-tags">' + tags.map(t => '<span class="post-tag">' + esc(t) + '</span>').join('') + '</div>'
+    : '';
+
+  // Prev/next based on the (date-desc-sorted) full list.
+  const idx = allPosts.findIndex(p => p.slug === post.slug);
+  const newer = idx > 0 ? allPosts[idx - 1] : null;             // earlier in list = newer
+  const older = idx >= 0 && idx < allPosts.length - 1 ? allPosts[idx + 1] : null;
+  const navHtml =
+    '<div class="foot-nav">' +
+      (older
+        ? '<a class="nav-card" href="blog-post.html?slug=' + encodeURIComponent(older.slug) + '">' +
+            '<span class="nav-eyebrow"><svg viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg> Previous</span>' +
+            '<span class="nav-title">' + esc(older.title) + '</span></a>'
+        : '<span></span>') +
+      (newer
+        ? '<a class="nav-card next" href="blog-post.html?slug=' + encodeURIComponent(newer.slug) + '">' +
+            '<span class="nav-eyebrow">Next <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span>' +
+            '<span class="nav-title">' + esc(newer.title) + '</span></a>'
+        : '<span></span>') +
+    '</div>';
+
+  document.getElementById('post-shell').innerHTML =
+    '<article class="post-body">' + sanitizeBody(post.body_html) + '</article>' +
+    tagsHtml + navHtml +
+    '<a class="back-blog" href="blog.html"><svg viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg> All posts</a>';
+}
+
+function applyData(d){
+  const slug = getSlug();
+  if (!slug) {
+    renderError('No post selected', 'Head back to the blog index to pick one.');
+    return;
+  }
+  const posts = Array.isArray(d.blog) ? d.blog : [];
+  const post = posts.find(p => p.slug === slug);
+  if (!post) {
+    renderError("Post not found", "We couldn't find that post — it may have moved.");
+    return;
+  }
+  renderPost(post, posts);
+}
+
+function readCache(){ try { const r = localStorage.getItem(CACHE_KEY); return r ? JSON.parse(r) : null; } catch(e) { return null; } }
+function writeCache(d){ try { localStorage.setItem(CACHE_KEY, JSON.stringify(d)); } catch(e) {} }
+
+const cached = readCache();
+if (cached) applyData(cached);
+
+fetch(MENU_URL, { cache: 'no-store' })
+  .then(r => r.ok ? r.json() : Promise.reject(r.status))
+  .then(remote => {
+    if (!remote || typeof remote !== 'object') return;
+    writeCache(remote);
+    applyData(remote);
+  })
+  .catch(err => {
+    console.warn('[blog-post] config fetch failed:', err);
+    if (!cached) renderError("Couldn't load this post", 'Refresh the page or check back in a moment.');
+  });
+</script>
+
+</body>
+</html>
