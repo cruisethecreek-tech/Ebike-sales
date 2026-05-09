@@ -8,6 +8,13 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,500&display=swap" rel="stylesheet">
+<!-- Hide the page until CMS hydration completes (cache hit OR network).
+     Failsafe timeout reveals it after 3.5s so a CMS outage doesn't strand
+     a permanently-blank page. Repeat visitors with a warm cache hit see
+     instant content because the cache path fires the cms:ready event
+     synchronously. -->
+<style>body{opacity:0;transition:opacity .25s ease-out}body.cms-loaded{opacity:1}</style>
+<script>(function(){function r(){document.body&&document.body.classList.add('cms-loaded')}window.addEventListener('cms:ready',r);setTimeout(r,3500);})();</script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 :root{
@@ -263,7 +270,7 @@ footer a:hover{color:#fff}
 
 <!-- TOP BAR -->
 <header class="topbar">
-  <a href="home.html" aria-label="Cruise the Creek home">
+  <a href="index.html" aria-label="Cruise the Creek home">
     <img class="brand-logo" src="BlackonTransparent.png" alt="Cruise the Creek">
   </a>
   <nav class="top-nav">
@@ -273,7 +280,7 @@ footer a:hover{color:#fff}
 </header>
 
 <!-- BREADCRUMB -->
-<nav class="crumb"><a href="home.html">Home</a><span class="sep">/</span>Rentals<span class="sep">/</span>Bridge the Gap</nav>
+<nav class="crumb"><a href="index.html">Home</a><span class="sep">/</span>Rentals<span class="sep">/</span>Bridge the Gap</nav>
 
 <!-- HERO -->
 <section class="hero">
@@ -495,7 +502,7 @@ footer a:hover{color:#fff}
 
 <footer>
   <span data-cms-text="footer_copyright">&copy; 2026 Cruise the Creek</span>
-  &middot; <a href="home.html">Home</a>
+  &middot; <a href="index.html">Home</a>
   &middot; <a href="shop.html">Shop</a>
   &middot; <a href="donate.html">Support</a>
 </footer>
@@ -752,6 +759,8 @@ function hydrateBridge(d){
   if (Array.isArray(d.bridgeFeatures))    renderBridgeFeatures(d.bridgeFeatures);
   if (Array.isArray(d.bridgeCompare))     renderBridgeCompare(d.bridgeCompare);
   if (Array.isArray(d.bridgeBikeOptions)) renderBridgeBikeOptions(d.bridgeBikeOptions);
+  // Reveal the page now that real CMS content is rendered.
+  window.dispatchEvent(new Event('cms:ready'));
 }
 const _cached = readCmsCache();
 if (_cached) hydrateBridge(_cached);
