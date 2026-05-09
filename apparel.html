@@ -4,23 +4,24 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Apparel | Cruise the Creek</title>
-<meta name="description" content="Tees, caps, and ride-ready threads.">
+<meta name="description" content="Cruise the Creek tees and ride-ready threads. Pick a print, color, and size — built and shipped from Youngstown, Ohio.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 :root{
-  --sage:#6B8F71;--forest:#2D4A32;--dark:#1a2e1c;
-  --tan:#C9A96E;--cream:#F5F0E8;--cream-w:#fbf7ef;
-  --ink:#1a1a1a;--ink-2:#4a4a4a;
+  --sage:#6B8F71;--forest:#2D4A32;--forest-l:#3a5d40;--dark:#1a2e1c;
+  --tan:#C9A96E;--tan-d:#a98843;--cream:#F5F0E8;--cream-w:#fbf7ef;
+  --ink:#1a1a1a;--ink-2:#4a4a4a;--ink-3:#7a7a7a;
+  --error:#c44a3a;
 }
 html,body{height:100%}
 html{scroll-behavior:smooth}
 body{font-family:'DM Sans',sans-serif;color:var(--ink);background:var(--cream);
-  min-height:100vh;display:flex;flex-direction:column;line-height:1.75}
+  min-height:100vh;display:flex;flex-direction:column;line-height:1.6}
 a{color:inherit;text-decoration:none;transition:color .2s ease}
-button{font-family:inherit}
+button{font-family:inherit;cursor:pointer;border:none;background:none}
 
 /* TOP BAR */
 .topbar{background:rgba(255,255,255,.95);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
@@ -29,55 +30,189 @@ button{font-family:inherit}
 .brand-logo{height:38px;width:auto;display:block}
 
 /* HERO */
-.hero{position:relative;min-height:34vh;padding:64px 24px 48px;
+.hero{position:relative;min-height:30vh;padding:54px 24px 42px;
   display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;
   color:#fff;background:var(--forest);overflow:hidden;isolation:isolate}
 .hero-topo{position:absolute;inset:0;z-index:-1;opacity:.18;pointer-events:none;
   background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 600 400' preserveAspectRatio='none'><g fill='none' stroke='%23F5F0E8' stroke-width='1.2'><path d='M0,80 Q150,60 300,90 T600,80'/><path d='M0,140 Q150,120 300,150 T600,140'/><path d='M0,200 Q150,180 300,210 T600,200'/><path d='M0,260 Q150,240 300,270 T600,260'/></g></svg>");
   background-size:cover}
-.hero-eyebrow{display:inline-block;font-size:.75rem;font-weight:700;letter-spacing:.2em;
-  text-transform:uppercase;color:var(--tan);margin-bottom:16px;
-  padding:6px 14px;border:1px solid rgba(201,169,110,.3);border-radius:4px;
+.hero-eyebrow{display:inline-block;font-size:.72rem;font-weight:700;letter-spacing:.2em;
+  text-transform:uppercase;color:var(--tan);margin-bottom:14px;
+  padding:6px 14px;border:1px solid rgba(201,169,110,.35);border-radius:4px;
   background:rgba(26,46,28,.2)}
-.hero h1{font-family:'Bebas Neue',sans-serif;font-size:clamp(2.4rem,7vw,4rem);
-  letter-spacing:.02em;line-height:1;margin-bottom:14px}
-.hero p{font-size:clamp(1rem,2.4vw,1.1rem);color:rgba(255,255,255,.9);
-  max-width:480px;line-height:1.6}
+.hero h1{font-family:'Bebas Neue',sans-serif;font-size:clamp(2.4rem,7vw,3.8rem);
+  letter-spacing:.02em;line-height:1;margin-bottom:12px}
+.hero p{font-size:clamp(.96rem,2.4vw,1.05rem);color:rgba(255,255,255,.88);
+  max-width:520px;line-height:1.6}
 
 /* BREADCRUMB */
-.crumb{max-width:880px;margin:0 auto;padding:24px 24px 0;
-  font-size:.75rem;letter-spacing:.1em;text-transform:uppercase;font-weight:700;color:var(--sage)}
-.crumb a{color:var(--ink-2)}
-.crumb a:hover{color:var(--forest)}
+.crumb{max-width:1080px;margin:0 auto;padding:18px 24px 0;
+  font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;font-weight:700;color:var(--sage)}
+.crumb a{color:var(--ink-2)}.crumb a:hover{color:var(--forest)}
 .crumb .sep{color:rgba(0,0,0,.2);margin:0 8px}
 
-/* PLACEHOLDER */
-main{flex:1;max-width:780px;margin:0 auto;padding:32px 24px 48px;width:100%}
-.placeholder{background:#fff;border:1px dashed rgba(201,169,110,.5);border-radius:8px;
-  padding:36px 30px;text-align:center;color:var(--ink-2);
+/* MAIN */
+main{flex:1;max-width:1080px;width:100%;margin:0 auto;padding:28px 24px 64px}
+
+/* SECTION HEADERS */
+.section-eyebrow{display:block;font-size:.7rem;letter-spacing:.22em;text-transform:uppercase;
+  font-weight:700;color:var(--tan-d);margin-bottom:6px}
+.section-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(1.7rem,4vw,2.4rem);
+  letter-spacing:.04em;line-height:1.05;color:var(--forest);margin-bottom:18px;text-transform:uppercase}
+
+/* PRODUCT GRID */
+.product-grid{display:grid;grid-template-columns:1fr;gap:16px;margin-bottom:36px}
+@media(min-width:640px){.product-grid{grid-template-columns:repeat(3,1fr);gap:18px}}
+.product-card{background:#fff;border:1px solid rgba(0,0,0,.06);border-radius:8px;
+  overflow:hidden;display:flex;flex-direction:column;text-align:left;
+  box-shadow:0 4px 12px rgba(0,0,0,.04);transition:transform .2s ease,box-shadow .2s ease,border-color .2s ease}
+.product-card:hover{transform:translateY(-2px);box-shadow:0 12px 28px rgba(45,74,50,.1);border-color:var(--sage)}
+.product-card.is-active{border-color:var(--forest);box-shadow:0 0 0 2px var(--forest),0 12px 28px rgba(45,74,50,.18)}
+.product-card.is-soldout{opacity:.55;cursor:not-allowed}
+.product-card.is-soldout:hover{transform:none;box-shadow:0 4px 12px rgba(0,0,0,.04);border-color:rgba(0,0,0,.06)}
+.product-photo{position:relative;aspect-ratio:4/5;background:linear-gradient(135deg,var(--cream-w),var(--cream));
+  display:flex;align-items:center;justify-content:center;overflow:hidden}
+.product-photo img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+.product-photo .ph-empty{font-family:'Bebas Neue',sans-serif;font-size:1.2rem;letter-spacing:.04em;
+  color:var(--ink-3);text-transform:uppercase;text-align:center;padding:24px}
+.product-badge{position:absolute;top:10px;left:10px;background:var(--tan);color:var(--dark);
+  font-size:.66rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;padding:5px 10px;border-radius:3px}
+.product-badge.soldout{background:var(--ink-3);color:#fff}
+.product-body{padding:16px 18px 18px;display:flex;flex-direction:column;gap:6px}
+.product-name{font-family:'Bebas Neue',sans-serif;font-size:1.3rem;color:var(--forest);
+  letter-spacing:.04em;text-transform:uppercase;line-height:1.05}
+.product-price{font-weight:800;font-size:1rem;color:var(--tan-d);letter-spacing:.02em}
+.product-desc{font-size:.86rem;color:var(--ink-2);line-height:1.55;margin-top:4px}
+.product-pick{margin-top:10px;display:inline-flex;align-items:center;gap:6px;color:var(--forest);
+  font-weight:700;font-size:.78rem;letter-spacing:.06em;text-transform:uppercase}
+.product-pick svg{width:12px;height:12px;transition:transform .2s ease}
+.product-card:hover .product-pick svg{transform:translateX(3px)}
+.product-card.is-active .product-pick{color:var(--tan-d)}
+
+/* ORDER FORM PANEL — invoice.html-inspired forest panel */
+.order-panel{background:var(--forest);color:#fff;border-radius:10px;overflow:hidden;
+  box-shadow:0 12px 32px rgba(26,46,28,.25);position:relative;isolation:isolate}
+.order-panel::before{content:'';position:absolute;inset:0;z-index:0;opacity:.12;pointer-events:none;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 200'><g fill='none' stroke='%23C9A96E' stroke-width='1'><circle cx='350' cy='40' r='40'/><circle cx='350' cy='40' r='80'/><circle cx='350' cy='40' r='120'/></g></svg>");
+  background-position:right top;background-repeat:no-repeat}
+.order-head{position:relative;z-index:1;padding:22px 24px 14px;border-bottom:1px solid rgba(255,255,255,.1)}
+.order-head .oh-eyebrow{font-size:.68rem;letter-spacing:.22em;text-transform:uppercase;font-weight:700;color:var(--tan)}
+.order-head .oh-title{font-family:'Bebas Neue',sans-serif;font-size:1.7rem;letter-spacing:.04em;text-transform:uppercase;margin-top:4px}
+.order-head .oh-sub{font-size:.86rem;color:rgba(255,255,255,.72);margin-top:6px;line-height:1.5}
+.order-body{position:relative;z-index:1;padding:22px 24px}
+.order-empty{padding:36px 24px;text-align:center;color:rgba(255,255,255,.7);font-size:.95rem;line-height:1.6}
+.order-empty strong{color:#fff}
+
+/* FORM BLOCKS */
+.form-section{margin-bottom:18px}
+.form-section:last-child{margin-bottom:0}
+.form-label{display:block;font-size:.66rem;letter-spacing:.18em;text-transform:uppercase;font-weight:800;
+  color:var(--tan);margin-bottom:8px}
+.form-row{display:grid;grid-template-columns:1fr;gap:12px}
+@media(min-width:640px){.form-row.two{grid-template-columns:1fr 1fr}}
+.form-input,.form-textarea{width:100%;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18);
+  border-radius:6px;padding:11px 14px;color:#fff;font-size:.92rem;font-family:inherit;
+  transition:border-color .15s ease,background .15s ease}
+.form-input::placeholder,.form-textarea::placeholder{color:rgba(255,255,255,.4)}
+.form-input:focus,.form-textarea:focus{outline:none;border-color:var(--tan);background:rgba(255,255,255,.12)}
+.form-textarea{min-height:78px;resize:vertical}
+
+/* COLOR SWATCHES */
+.swatch-row{display:flex;flex-wrap:wrap;gap:10px}
+.swatch{position:relative;width:46px;height:46px;border-radius:50%;border:2px solid rgba(255,255,255,.15);
+  cursor:pointer;transition:transform .15s ease,border-color .15s ease;padding:0}
+.swatch:hover{transform:scale(1.06)}
+.swatch.is-active{border-color:var(--tan);box-shadow:0 0 0 3px rgba(201,169,110,.25)}
+.swatch.is-disabled{opacity:.35;cursor:not-allowed}
+.swatch.is-disabled:hover{transform:none}
+.swatch[data-light='1']{border-color:rgba(0,0,0,.18)}
+.swatch[data-light='1'].is-active{border-color:var(--tan)}
+.swatch-label{font-size:.78rem;color:rgba(255,255,255,.85);margin-top:6px;min-height:18px;font-weight:600}
+
+/* SIZE PILLS */
+.pill-row{display:flex;flex-wrap:wrap;gap:8px}
+.pill{padding:9px 16px;border:1px solid rgba(255,255,255,.22);border-radius:6px;
+  background:rgba(255,255,255,.04);color:#fff;font-size:.86rem;font-weight:700;letter-spacing:.04em;
+  transition:all .15s ease;min-width:54px}
+.pill:hover{border-color:var(--tan);background:rgba(201,169,110,.12)}
+.pill.is-active{background:var(--tan);color:var(--dark);border-color:var(--tan)}
+
+/* PLACEMENT TOGGLE */
+.placement-row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.placement-btn{padding:14px 12px;border:1px solid rgba(255,255,255,.22);border-radius:6px;
+  background:rgba(255,255,255,.04);color:#fff;text-align:center;
+  display:flex;flex-direction:column;align-items:center;gap:4px;
+  font-size:.78rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;transition:all .15s ease}
+.placement-btn:hover{border-color:var(--tan);background:rgba(201,169,110,.12)}
+.placement-btn.is-active{background:var(--tan);color:var(--dark);border-color:var(--tan)}
+.placement-btn svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.6}
+.placement-btn .pb-sub{font-size:.65rem;font-weight:600;letter-spacing:.1em;opacity:.7}
+
+/* QTY */
+.qty-row{display:flex;align-items:center;gap:8px}
+.qty-btn{width:38px;height:38px;border-radius:6px;border:1px solid rgba(255,255,255,.22);
+  background:rgba(255,255,255,.04);color:#fff;font-size:1.2rem;font-weight:700;display:flex;align-items:center;justify-content:center;
+  transition:all .15s ease}
+.qty-btn:hover{border-color:var(--tan);color:var(--tan)}
+.qty-input{width:60px;padding:9px 0;text-align:center;background:rgba(255,255,255,.08);
+  border:1px solid rgba(255,255,255,.18);border-radius:6px;color:#fff;font-size:.95rem;font-weight:700;font-family:inherit}
+.qty-input:focus{outline:none;border-color:var(--tan)}
+
+/* TOTAL + SUBMIT */
+.order-totals{margin-top:18px;padding-top:18px;border-top:1px dashed rgba(255,255,255,.18);
+  display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+.totals-label{font-size:.7rem;letter-spacing:.18em;text-transform:uppercase;font-weight:700;color:var(--tan)}
+.totals-value{font-family:'Bebas Neue',sans-serif;font-size:2.1rem;letter-spacing:.02em;color:#fff;line-height:1}
+.submit-btn{width:100%;margin-top:16px;background:var(--tan);color:var(--dark);
+  padding:15px 22px;border-radius:6px;font-size:.92rem;font-weight:800;letter-spacing:.06em;
+  text-transform:uppercase;transition:background .2s ease,transform .15s ease}
+.submit-btn:hover:not(:disabled){background:#dbb978;transform:translateY(-1px)}
+.submit-btn:disabled{opacity:.55;cursor:not-allowed}
+.form-note{font-size:.78rem;color:rgba(255,255,255,.6);text-align:center;margin-top:10px;line-height:1.5}
+
+/* SUCCESS MODAL */
+.modal-overlay{display:none;position:fixed;inset:0;z-index:200;background:rgba(26,46,28,.7);
+  backdrop-filter:blur(4px);align-items:center;justify-content:center;padding:24px}
+.modal-overlay.is-open{display:flex}
+.modal{background:#fff;border-radius:10px;padding:32px 28px;max-width:420px;width:100%;
+  text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+.modal-icon{font-size:3rem;line-height:1;margin-bottom:10px}
+.modal-title{font-family:'Bebas Neue',sans-serif;font-size:1.7rem;letter-spacing:.04em;
+  color:var(--forest);text-transform:uppercase;margin-bottom:10px;line-height:1.05}
+.modal-body{font-size:.94rem;color:var(--ink-2);line-height:1.6;margin-bottom:18px}
+.modal-id{display:inline-block;background:var(--cream);padding:6px 14px;border-radius:4px;
+  font-family:'DM Sans',monospace;font-size:.8rem;font-weight:700;color:var(--forest);letter-spacing:.04em;margin-bottom:18px}
+.modal-btn{background:var(--forest);color:#fff;padding:11px 24px;border-radius:5px;
+  font-weight:700;font-size:.86rem;letter-spacing:.04em;text-transform:uppercase}
+.modal-btn:hover{background:var(--dark)}
+
+/* ACCESSORIES TEASER */
+.acc-teaser{margin-top:36px;background:var(--cream-w);border:1px solid rgba(0,0,0,.06);
+  border-radius:8px;padding:22px 24px;display:flex;flex-direction:column;gap:8px;
   box-shadow:0 4px 12px rgba(0,0,0,.03)}
-.ph-eyebrow{font-size:.7rem;letter-spacing:.15em;font-weight:700;
-  text-transform:uppercase;color:var(--sage);margin-bottom:8px}
-.ph-title{font-family:'Bebas Neue',sans-serif;font-size:1.75rem;
-  letter-spacing:.02em;color:var(--forest);margin-bottom:10px;line-height:1.1}
-.ph-note{font-size:1rem;line-height:1.6;max-width:520px;margin:0 auto}
-.back-cta{display:inline-flex;align-items:center;gap:8px;margin-top:24px;
-  background:var(--forest);color:#fff;padding:12px 24px;border-radius:4px;
-  font-weight:700;font-size:.9rem;letter-spacing:.04em;
-  transition:background .2s ease}
-.back-cta:hover{background:var(--dark)}
-.back-cta svg{width:14px;height:14px}
+@media(min-width:640px){.acc-teaser{flex-direction:row;align-items:center;justify-content:space-between;gap:16px}}
+.acc-text{flex:1}
+.acc-eyebrow{font-size:.66rem;letter-spacing:.2em;text-transform:uppercase;font-weight:800;color:var(--tan-d);margin-bottom:4px}
+.acc-title{font-family:'Bebas Neue',sans-serif;font-size:1.3rem;color:var(--forest);letter-spacing:.04em;text-transform:uppercase;line-height:1.05;margin-bottom:4px}
+.acc-sub{font-size:.86rem;color:var(--ink-2);line-height:1.55}
+.acc-cta{display:inline-flex;align-items:center;gap:8px;background:var(--forest);color:#fff;
+  padding:11px 18px;border-radius:5px;font-weight:700;font-size:.82rem;letter-spacing:.04em;text-transform:uppercase;
+  flex-shrink:0;align-self:flex-start;transition:background .2s ease}
+.acc-cta:hover{background:var(--dark)}
+.acc-cta svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2.4}
 
 /* FOOTER */
-footer{background:var(--dark);color:rgba(255,255,255,.65);padding:32px 24px;
-  text-align:center;font-size:.85rem;letter-spacing:.02em}
-footer a{color:var(--tan);font-weight:500}
-footer a:hover{color:#fff}
+footer{background:var(--dark);color:rgba(255,255,255,.7);padding:32px 24px;
+  text-align:center;font-size:.85rem;letter-spacing:.02em;border-top:2px solid var(--tan)}
+footer a{color:var(--tan);font-weight:500}footer a:hover{color:#fff}
 
-@media(max-width:380px){
+@media(max-width:480px){
   .topbar{padding:12px 16px}.brand-logo{height:32px}
-  .hero{padding:48px 16px 36px}main{padding:24px 16px 36px}
-  .placeholder{padding:26px 18px}
+  .hero{padding:42px 16px 32px}
+  .crumb{padding:14px 16px 0}
+  main{padding:20px 16px 48px}
+  .order-head,.order-body{padding:18px 16px}
+  .acc-teaser{padding:18px 16px}
 }
 </style>
 </head>
@@ -91,26 +226,334 @@ footer a:hover{color:#fff}
   <div class="hero-topo"></div>
   <span class="hero-eyebrow">Cruise the Creek gear</span>
   <h1>Apparel</h1>
-  <p>Tees, caps, and ride-ready threads.</p>
+  <p>Pick your print, pick your color, pick your spot. Built and shipped from Youngstown, Ohio.</p>
 </section>
 
-<nav class="crumb"><a href="home.html">Home</a><span class="sep">/</span><a href="shop.html">Shop</a> <span class="sep">/</span> Apparel</nav>
+<nav class="crumb"><a href="home.html">Home</a><span class="sep">/</span><a href="shop.html">Shop</a><span class="sep">/</span> Apparel</nav>
 
 <main>
-  <div class="placeholder">
-    <div class="ph-eyebrow">Coming soon</div>
-    <div class="ph-title">Apparel content lands here</div>
-    <div class="ph-note">Product grid or external Printful/Shopify embed will live here.</div>
-    <a class="back-cta" href="shop.html">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
-      Back
+
+  <span class="section-eyebrow">Step 1</span>
+  <h2 class="section-title">Choose your print</h2>
+  <div class="product-grid" id="product-grid">
+    <!-- product cards rendered from Sheet -->
+  </div>
+
+  <section class="order-panel" id="order-panel">
+    <div class="order-head">
+      <div class="oh-eyebrow">Step 2 · Build & order</div>
+      <h2 class="oh-title" id="oh-title">Pick a print to start</h2>
+      <p class="oh-sub" id="oh-sub">Tap a tee above and the order form unlocks here. Color, size, and front-or-back placement live in this panel.</p>
+    </div>
+    <div class="order-body" id="order-body">
+      <div class="order-empty">
+        <strong>No print selected yet.</strong><br>
+        Choose one of the designs above to start building your order.
+      </div>
+    </div>
+  </section>
+
+  <div class="acc-teaser">
+    <div class="acc-text">
+      <div class="acc-eyebrow">Need accessories?</div>
+      <div class="acc-title">Helmets, locks, lights & more</div>
+      <div class="acc-sub">We don't stock most accessories in-shop, but we curate Amazon picks we'd actually run on our own bikes.</div>
+    </div>
+    <a class="acc-cta" href="accessories.html">
+      Browse picks
+      <svg viewBox="0 0 24 24"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
     </a>
   </div>
+
 </main>
+
+<div class="modal-overlay" id="success-modal" role="dialog" aria-modal="true">
+  <div class="modal">
+    <div class="modal-icon">✅</div>
+    <div class="modal-title">Order received</div>
+    <div class="modal-body">
+      We'll reach out within a few hours to confirm color/size availability and arrange pickup or delivery.
+    </div>
+    <div class="modal-id" id="modal-id">—</div><br>
+    <button class="modal-btn" onclick="closeModal()">Done</button>
+  </div>
+</div>
 
 <footer>
   &copy; 2026 Cruise the Creek &middot; <a href="home.html">Home</a> &middot; <a href="shop.html">Shop</a>
 </footer>
+
+<script>
+const MENU_URL = 'https://script.google.com/macros/s/AKfycbxjg2ZsPCZNsmJEStYA0bRdsnkm4nNS-m-HNhm_Gin56VIVeYWVRE5j51j30zVHhb4PmQ/exec?page=apparel';
+const SUBMIT_URL = 'https://script.google.com/macros/s/AKfycbxjg2ZsPCZNsmJEStYA0bRdsnkm4nNS-m-HNhm_Gin56VIVeYWVRE5j51j30zVHhb4PmQ/exec';
+const SIZES = ['S','M','L','XL','XXL'];
+const PLACEMENTS = ['Front','Back'];
+
+let DATA = { products: [], colors: [] };
+let SELECTION = { productId: null, color: null, size: null, placement: 'Front', qty: 1 };
+
+function esc(s){ return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function isTrue(v){ return v === true || v === 'TRUE' || v === 'true' || v === 1; }
+function resolveImg(name){
+  const v = String(name || '').trim();
+  if (!v) return '';
+  return /^https?:\/\//.test(v) ? v : 'media/' + encodeURI(v.replace(/^(media|images)\//, ''));
+}
+function isLightSwatch(hex){
+  const m = String(hex || '').match(/^#?([0-9a-f]{6})$/i);
+  if (!m) return false;
+  const r = parseInt(m[1].slice(0,2),16), g = parseInt(m[1].slice(2,4),16), b = parseInt(m[1].slice(4,6),16);
+  return (r*299 + g*587 + b*114) / 1000 > 200;
+}
+
+/* ── product grid ────────────────────────────────────── */
+function renderProducts(){
+  const grid = document.getElementById('product-grid');
+  if (!DATA.products.length) {
+    grid.innerHTML = '<div style="grid-column:1/-1;padding:24px;text-align:center;color:var(--ink-3)">Loading prints…</div>';
+    return;
+  }
+  grid.innerHTML = DATA.products.map(p => {
+    const available = isTrue(p.available);
+    const img = resolveImg(p.photo);
+    const photo = img
+      ? `<img src="${esc(img)}" alt="${esc(p.name)}" loading="lazy" onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'ph-empty',textContent:'Photo coming soon'}))">`
+      : `<div class="ph-empty">Photo coming soon</div>`;
+    const badge = available
+      ? (p.badge ? `<span class="product-badge">${esc(p.badge)}</span>` : '')
+      : '<span class="product-badge soldout">Coming Soon</span>';
+    const cls = `product-card${available ? '' : ' is-soldout'}${SELECTION.productId === p.id ? ' is-active' : ''}`;
+    return `<button type="button" class="${cls}" data-id="${esc(p.id)}" ${available ? '' : 'aria-disabled="true"'}>
+      <div class="product-photo">${photo}${badge}</div>
+      <div class="product-body">
+        <div class="product-name">${esc(p.name)}</div>
+        <div class="product-price">$${(parseFloat(p.base_price) || 30).toFixed(0)}</div>
+        ${p.description ? `<div class="product-desc">${esc(p.description)}</div>` : ''}
+        <div class="product-pick">${available ? 'Pick this print' : 'Notify me'} <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></div>
+      </div>
+    </button>`;
+  }).join('');
+  grid.querySelectorAll('.product-card').forEach(card => {
+    card.addEventListener('click', () => {
+      const p = DATA.products.find(x => x.id === card.dataset.id);
+      if (!p) return;
+      selectProduct(p.id, isTrue(p.available));
+    });
+  });
+}
+
+/* ── order panel render ─────────────────────────────── */
+function selectProduct(id, available){
+  SELECTION.productId = id;
+  SELECTION.color = SELECTION.color || (DATA.colors.find(c => isTrue(c.available)) || {}).name || null;
+  SELECTION.size = SELECTION.size || 'M';
+  renderProducts();
+  renderOrderPanel(available);
+  document.getElementById('order-panel').scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+function renderOrderPanel(available){
+  const product = DATA.products.find(p => p.id === SELECTION.productId);
+  const head    = document.getElementById('oh-title');
+  const sub     = document.getElementById('oh-sub');
+  const body    = document.getElementById('order-body');
+  if (!product) {
+    head.textContent = 'Pick a print to start';
+    sub.textContent  = 'Tap a tee above and the order form unlocks here. Color, size, and front-or-back placement live in this panel.';
+    body.innerHTML   = `<div class="order-empty"><strong>No print selected yet.</strong><br>Choose one of the designs above to start building your order.</div>`;
+    return;
+  }
+  head.textContent = product.name;
+  if (!available) {
+    sub.textContent = "This design is on the way. Drop your info and we'll let you know the second it ships.";
+  } else {
+    sub.textContent = 'Pick a color, size, and where you want the print. Submit and we\'ll confirm by phone.';
+  }
+
+  const colorSwatches = DATA.colors.map(c => {
+    const avail = isTrue(c.available);
+    const active = SELECTION.color === c.name;
+    const light = isLightSwatch(c.swatch) ? '1' : '0';
+    return `<button type="button" class="swatch${active ? ' is-active' : ''}${avail ? '' : ' is-disabled'}"
+              style="background:${esc(c.swatch || '#888')}" data-color="${esc(c.name)}" data-light="${light}"
+              title="${esc(c.name)}" ${avail ? '' : 'aria-disabled="true"'}></button>`;
+  }).join('');
+
+  const sizeBtns = SIZES.map(s => `<button type="button" class="pill${SELECTION.size === s ? ' is-active' : ''}" data-size="${s}">${s}</button>`).join('');
+
+  const placementBtns = PLACEMENTS.map(pl => {
+    const active = SELECTION.placement === pl;
+    const icon = pl === 'Front'
+      ? '<svg viewBox="0 0 24 24"><path d="M8 3l-3 3v15h14V6l-3-3M8 3h8M8 3v3h8V3"/><circle cx="12" cy="12" r="2.4"/></svg>'
+      : '<svg viewBox="0 0 24 24"><path d="M8 3l-3 3v15h14V6l-3-3M8 3h8M8 3v3h8V3"/><path d="M9.5 12h5"/></svg>';
+    return `<button type="button" class="placement-btn${active ? ' is-active' : ''}" data-placement="${pl}">
+      ${icon}<span>${pl}</span><span class="pb-sub">${pl === 'Front' ? 'Chest' : 'Shoulders'}</span></button>`;
+  }).join('');
+
+  const submitDisabled = !available;
+  body.innerHTML = `
+    <form id="order-form" novalidate>
+      <div class="form-section">
+        <label class="form-label">Color · <span id="color-label" style="color:rgba(255,255,255,.7);font-weight:500;letter-spacing:.04em">${esc(SELECTION.color || 'Pick a color')}</span></label>
+        <div class="swatch-row">${colorSwatches}</div>
+      </div>
+      <div class="form-section">
+        <label class="form-label">Size</label>
+        <div class="pill-row">${sizeBtns}</div>
+      </div>
+      <div class="form-section">
+        <label class="form-label">Print placement</label>
+        <div class="placement-row">${placementBtns}</div>
+      </div>
+      <div class="form-section">
+        <label class="form-label">Quantity</label>
+        <div class="qty-row">
+          <button type="button" class="qty-btn" data-qty="-1" aria-label="Decrease">−</button>
+          <input type="number" class="qty-input" id="qty-input" min="1" max="20" value="${SELECTION.qty}">
+          <button type="button" class="qty-btn" data-qty="+1" aria-label="Increase">+</button>
+        </div>
+      </div>
+
+      <div class="form-section">
+        <label class="form-label">Your info</label>
+        <div class="form-row two">
+          <input type="text" class="form-input" id="f-first" placeholder="First name" required>
+          <input type="text" class="form-input" id="f-last"  placeholder="Last name"  required>
+        </div>
+      </div>
+      <div class="form-section">
+        <div class="form-row two">
+          <input type="email" class="form-input" id="f-email" placeholder="Email"  required>
+          <input type="tel"   class="form-input" id="f-phone" placeholder="Phone"  required>
+        </div>
+      </div>
+      <div class="form-section">
+        <textarea class="form-textarea" id="f-comments" placeholder="Notes — gift wrap? rush? specific shade?"></textarea>
+      </div>
+
+      <div class="order-totals">
+        <span class="totals-label">Total</span>
+        <span class="totals-value" id="total-value">$${((parseFloat(product.base_price) || 30) * SELECTION.qty).toFixed(0)}</span>
+      </div>
+      <button type="submit" class="submit-btn" id="submit-btn" ${submitDisabled ? 'disabled' : ''}>
+        ${available ? 'Submit order' : 'Notify me when this drops'}
+      </button>
+      <div class="form-note">No payment now. We'll confirm details and arrange pickup or delivery.</div>
+    </form>
+  `;
+  bindForm(product, available);
+}
+
+function bindForm(product, available){
+  const body = document.getElementById('order-body');
+  const totalEl = document.getElementById('total-value');
+  const recalc = () => {
+    const price = parseFloat(product.base_price) || 30;
+    totalEl.textContent = '$' + (price * SELECTION.qty).toFixed(0);
+  };
+
+  body.querySelectorAll('.swatch').forEach(b => b.addEventListener('click', () => {
+    if (b.classList.contains('is-disabled')) return;
+    SELECTION.color = b.dataset.color;
+    body.querySelectorAll('.swatch').forEach(s => s.classList.toggle('is-active', s.dataset.color === SELECTION.color));
+    document.getElementById('color-label').textContent = SELECTION.color;
+  }));
+  body.querySelectorAll('.pill').forEach(b => b.addEventListener('click', () => {
+    SELECTION.size = b.dataset.size;
+    body.querySelectorAll('.pill').forEach(s => s.classList.toggle('is-active', s.dataset.size === SELECTION.size));
+  }));
+  body.querySelectorAll('.placement-btn').forEach(b => b.addEventListener('click', () => {
+    SELECTION.placement = b.dataset.placement;
+    body.querySelectorAll('.placement-btn').forEach(s => s.classList.toggle('is-active', s.dataset.placement === SELECTION.placement));
+  }));
+  const qtyInput = document.getElementById('qty-input');
+  body.querySelectorAll('.qty-btn').forEach(b => b.addEventListener('click', () => {
+    const delta = b.dataset.qty === '+1' ? 1 : -1;
+    SELECTION.qty = Math.max(1, Math.min(20, SELECTION.qty + delta));
+    qtyInput.value = SELECTION.qty;
+    recalc();
+  }));
+  qtyInput.addEventListener('input', () => {
+    SELECTION.qty = Math.max(1, Math.min(20, parseInt(qtyInput.value, 10) || 1));
+    qtyInput.value = SELECTION.qty;
+    recalc();
+  });
+
+  document.getElementById('order-form').addEventListener('submit', e => {
+    e.preventDefault();
+    submitOrder(product, available);
+  });
+}
+
+/* ── submit ─────────────────────────────────────────── */
+function submitOrder(product, available){
+  const btn = document.getElementById('submit-btn');
+  const v = id => (document.getElementById(id).value || '').trim();
+  const first = v('f-first'), last = v('f-last'), email = v('f-email'), phone = v('f-phone');
+  if (!first || !last || !email || !phone) {
+    alert('Please fill in your name, email, and phone so we can reach you.');
+    return;
+  }
+  if (available && !SELECTION.color) {
+    alert('Pick a color before submitting.');
+    return;
+  }
+  btn.disabled = true;
+  btn.textContent = 'Submitting…';
+
+  const params = new URLSearchParams({
+    action:    'apparelOrder',
+    firstName: first,
+    lastName:  last,
+    email:     email,
+    phone:     phone,
+    product:   product.name + ' (' + product.id + ')',
+    color:     SELECTION.color || '—',
+    size:      SELECTION.size  || '—',
+    placement: SELECTION.placement || '—',
+    qty:       String(SELECTION.qty),
+    total:     String(((parseFloat(product.base_price) || 30) * SELECTION.qty).toFixed(2)),
+    comments:  v('f-comments'),
+  });
+
+  fetch(SUBMIT_URL + '?' + params.toString(), { redirect: 'follow' })
+    .then(r => r.ok ? r.json().catch(() => ({ ok: true, id: '' })) : Promise.reject(r.status))
+    .then(res => openModal((res && res.id) || ''))
+    .catch(() => openModal(''))  // Apps Script may redirect — show success anyway
+    .finally(() => { btn.disabled = false; btn.textContent = available ? 'Submit order' : 'Notify me when this drops'; });
+}
+
+function openModal(id){
+  document.getElementById('modal-id').textContent = id ? 'Order #' + id : 'Confirmation on the way';
+  document.getElementById('success-modal').classList.add('is-open');
+}
+function closeModal(){ document.getElementById('success-modal').classList.remove('is-open'); }
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+/* ── load CMS ───────────────────────────────────────── */
+const CMS_CACHE_KEY = 'cms:apparel:v1';
+function readCmsCache(){ try { const r = localStorage.getItem(CMS_CACHE_KEY); return r ? JSON.parse(r) : null; } catch(e) { return null; } }
+function writeCmsCache(d){ try { localStorage.setItem(CMS_CACHE_KEY, JSON.stringify(d)); } catch(e) {} }
+
+function applyData(d){
+  DATA.products = Array.isArray(d.apparelProducts) ? d.apparelProducts : [];
+  DATA.colors   = Array.isArray(d.apparelColors)   ? d.apparelColors   : [];
+  renderProducts();
+}
+
+const _c = readCmsCache();
+if (_c) applyData(_c);
+renderProducts();
+
+fetch(MENU_URL, { cache: 'no-store' })
+  .then(r => r.ok ? r.json() : Promise.reject(r.status))
+  .then(remote => {
+    if (!remote || typeof remote !== 'object') return;
+    writeCmsCache(remote);
+    applyData(remote);
+  })
+  .catch(err => console.warn('[apparel] config fetch failed:', err));
+</script>
 
 </body>
 </html>
