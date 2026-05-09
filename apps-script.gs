@@ -63,6 +63,15 @@
  */
 
 function doGet(e) {
+  const action = String((e && e.parameter && e.parameter.action) || '').trim();
+
+  // Order submission path. Handled BEFORE the CMS read so the response
+  // shape stays narrow ({ok, id, error}) instead of dragging the whole
+  // CMS payload along.
+  if (action === 'apparelOrder') {
+    return handleApparelOrder(e.parameter || {});
+  }
+
   const page = ((e && e.parameter && e.parameter.page) || 'home')
                  .toString().trim().toLowerCase();
   const cap  = page.charAt(0).toUpperCase() + page.slice(1);
@@ -190,6 +199,10 @@ function doGet(e) {
     rentalsVibe:       rentalsVibe,
     events:            events,
     galleries:         galleries,
+    apparelProducts:   readSheet(ss, 'ApparelProducts')
+                         .sort(function(a, b){ return (a.order || 0) - (b.order || 0); }),
+    apparelColors:     readSheet(ss, 'ApparelColors')
+                         .sort(function(a, b){ return (a.order || 0) - (b.order || 0); }),
     tiles:             readSheet(ss, cap + '_Tiles'),
     submenus:          groupBy(readSheet(ss, cap + '_Submenus'), 'tile'),
   };
@@ -223,6 +236,93 @@ function groupBy(rows, key) {
       (out[k] = out[k] || []).push(r);
     });
   return out;
+}
+
+/**
+ * Apparel order intake. Called from apparel.html via:
+ *   GET .../exec?action=apparelOrder&firstName=...&product=...&...
+ *
+ * Appends a row to Apparel_Orders and emails salesteam@cruisethecreek.com.
+ * Returns JSON {ok:true, id:'AP-1234'} so the front-end can show a
+ * confirmation. On any error, still returns JSON so fetch().then() runs —
+ * the front-end always shows confirmation either way (matches the bike
+ * order flow), but the {ok:false, error} payload is logged.
+ */
+function handleApparelOrder(p) {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const json = function(obj) {
+    return ContentService
+      .createTextOutput(JSON.stringify(obj))
+      .setMimeType(ContentService.MimeType.JSON);
+  };
+
+  try {
+    // Required fields. If any missing, still record the row so the data
+    // isn't lost — but flag it.
+    const now = new Date();
+    const id  = 'AP-' + Utilities.formatDate(now, 'America/New_York', 'yyMMdd-HHmmss');
+    const row = {
+      id:        id,
+      timestamp: now,
+      first:     String(p.firstName || '').trim(),
+      last:      String(p.lastName  || '').trim(),
+      email:     String(p.email     || '').trim(),
+      phone:     String(p.phone     || '').trim(),
+      product:   String(p.product   || '').trim(),
+      color:     String(p.color     || '').trim(),
+      size:      String(p.size      || '').trim(),
+      placement: String(p.placement || '').trim(),
+      qty:       parseInt(p.qty, 10) || 1,
+      total:     parseFloat(p.total) || 0,
+      comments:  String(p.comments  || '').trim(),
+    };
+
+    let sh = ss.getSheetByName('Apparel_Orders');
+    if (!sh) {
+      sh = ss.insertSheet('Apparel_Orders');
+      sh.appendRow(['id','timestamp','first','last','email','phone',
+                    'product','color','size','placement','qty','total','comments']);
+      sh.getRange(1, 1, 1, 13).setFontWeight('bold');
+    }
+    sh.appendRow([row.id, row.timestamp, row.first, row.last, row.email, row.phone,
+                  row.product, row.color, row.size, row.placement, row.qty, row.total, row.comments]);
+
+    // Notify the sales team. Wrapped so a mail failure doesn't sink the
+    // whole request — the order still landed in the Sheet.
+    try {
+      const body = [
+        'New apparel order — ' + row.id,
+        '',
+        'Customer: ' + row.first + ' ' + row.last,
+        'Email:    ' + row.email,
+        'Phone:    ' + row.phone,
+        '',
+        'Product:   ' + row.product,
+        'Color:     ' + row.color,
+        'Size:      ' + row.size,
+        'Placement: ' + row.placement,
+        'Qty:       ' + row.qty,
+        'Total:     $' + row.total.toFixed(2),
+        '',
+        'Comments:  ' + (row.comments || '(none)'),
+        '',
+        'Logged at ' + row.timestamp,
+      ].join('\n');
+      MailApp.sendEmail({
+        to:      'salesteam@cruisethecreek.com',
+        replyTo: row.email || 'salesteam@cruisethecreek.com',
+        subject: 'Apparel order ' + row.id + ' — ' + row.product + ' (' + row.color + ', ' + row.size + ')',
+        body:    body,
+      });
+    } catch (mailErr) {
+      console.warn('Apparel order email failed: ' + mailErr);
+    }
+
+    return json({ ok: true, id: row.id });
+  } catch (err) {
+    console.error('handleApparelOrder failed: ' + err);
+    return json({ ok: false, error: String(err) });
+  }
 }
 
 /**
@@ -1282,6 +1382,40 @@ function getTabDefs() {
         ['trailside',  2, '', ''],
         ['trailside',  3, '', ''],
       ],
+    },
+    'ApparelProducts': {
+      // Each row is one print/design. Color and size live in their own
+      // tabs (ApparelColors + hardcoded sizes in apparel.html) so a single
+      // print can be ordered in any color/size combo. `available=false`
+      // renders the card as "Coming Soon" and disables ordering.
+      header: ['id','order','name','base_price','photo','description','available'],
+      rows: [
+        ['tee-trail', 1, 'Trail Map Tee',       30, 'tee-trail-green.jpg',
+          "Cream-and-tan trail mark with the Cruise the Creek bike, trees, and dotted-line park trails. Soft cotton blend.", true],
+        ['tee-neon',  2, 'Neon Watercolor Tee', 30, 'tee-neon-black.jpg',
+          "Vivid neon-watercolor design with chains, trees, and the Youngstown OH stamp. Heavyweight cotton.", true],
+        ['tee-three', 3, 'Print 3 (TBA)',       30, '',
+          "Third design lands soon. Drop your name on the order form and we'll let you know when it ships.", false],
+      ],
+    },
+    'ApparelColors': {
+      // Drives the color-swatch picker on apparel.html. `swatch` is the
+      // hex used to render the swatch button. `available=false` greys out
+      // a color without removing the row.
+      header: ['order','name','swatch','available'],
+      rows: [
+        [1, 'Black',        '#1a1a1a', true],
+        [2, 'Forest Green', '#4a6650', true],
+        [3, 'Sand',         '#d4c5a0', true],
+        [4, 'White',         '#f8f6f0', true],
+      ],
+    },
+    'Apparel_Orders': {
+      // Order log. Header only — rows are appended at submission time by
+      // handleApparelOrder(). The id column is generated server-side.
+      header: ['id','timestamp','first','last','email','phone',
+               'product','color','size','placement','qty','total','comments'],
+      rows: [],
     },
     'TrustStrip': {
       // Same four cards render on every brand page (heybike, velotric,
