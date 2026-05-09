@@ -8,12 +8,23 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,500&display=swap" rel="stylesheet">
-<!-- Hide the page until CMS hydration completes (cache hit OR network).
-     Failsafe timeout reveals it after 3.5s so a CMS outage doesn't strand
-     a permanently-blank page. Repeat visitors with a warm cache hit see
-     instant content because the cache path fires the cms:ready event
-     synchronously. -->
-<style>body{opacity:0;transition:opacity .25s ease-out}body.cms-loaded{opacity:1}</style>
+<!-- Hide the page until CMS hydration completes (cache hit OR network),
+     show a centered spinner during the wait. Loader appears after a 180ms
+     delay so cache hits (which fire cms:ready synchronously) don't flash
+     the spinner at all. Failsafe timeout reveals the page after 3.5s so a
+     CMS outage doesn't strand a permanently-blank page. -->
+<style>
+body{opacity:0;transition:opacity .25s ease-out}body.cms-loaded{opacity:1}
+.cms-loader{position:fixed;inset:0;z-index:9999;background:#F5F0E8;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;
+  opacity:0;animation:cms-loader-show .25s ease-out .18s forwards;pointer-events:none}
+body.cms-loaded .cms-loader{opacity:0;animation:none;transition:opacity .2s ease-out;pointer-events:none}
+.cms-loader-dot{width:30px;height:30px;border:3px solid rgba(45,74,50,.15);
+  border-top-color:#2D4A32;border-radius:50%;animation:cms-loader-spin .8s linear infinite}
+.cms-loader-mark{font-family:'Bebas Neue',sans-serif;font-size:.78rem;letter-spacing:.22em;color:#a98843}
+@keyframes cms-loader-show{to{opacity:1}}
+@keyframes cms-loader-spin{to{transform:rotate(360deg)}}
+</style>
 <script>(function(){function r(){document.body&&document.body.classList.add('cms-loaded')}window.addEventListener('cms:ready',r);setTimeout(r,3500);})();</script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
@@ -267,6 +278,10 @@ footer a:hover{color:#fff}
 </style>
 </head>
 <body>
+<div class="cms-loader" aria-hidden="true">
+  <div class="cms-loader-dot"></div>
+  <div class="cms-loader-mark">LOADING</div>
+</div>
 
 <!-- TOP BAR -->
 <header class="topbar">
