@@ -2045,16 +2045,31 @@ function syncDiscontinuedToSheet(d) {
         sb.name.toLowerCase().trim() === d.model.toLowerCase().trim() &&
         sb.brand.toLowerCase() === d.brand.toLowerCase()
       );
-      if (!match || !match.rowIndex) return;
+      if (!match || !match.rowIndex) {
+        console.warn('[discontinue] no Sheet match for ' + d.brand + ' ' + d.model + ' — Sheet not updated');
+        toast('⚠️ ' + d.model + ' not found in Sheet — fix manually');
+        return;
+      }
       const disc = d.discontinued === 'Yes' ? 'Yes' : '';
-      fetch(AS_URL + '?action=setDiscontinued&rowIndex=' + match.rowIndex + '&discontinued=' + encodeURIComponent(disc), {redirect:'follow', mode:'cors'})
-        .then(r => r.json())
-        .then(res => {
-          if (res.status === 'ok') console.log('Discontinued status synced to sheet for ' + d.model);
+      // mode:'no-cors' matches the bike-order pattern (heybike.html:726).
+      // The Apps Script setDiscontinued action returns no CORS headers, so
+      // mode:'cors' was being blocked outright — the request never landed.
+      // With no-cors the browser fires the request fire-and-forget; the
+      // Sheet write happens server-side, but we can't read the response.
+      fetch(AS_URL + '?action=setDiscontinued&rowIndex=' + match.rowIndex + '&discontinued=' + encodeURIComponent(disc), {redirect:'follow', mode:'no-cors'})
+        .then(() => {
+          console.log('[discontinue] sync request sent for ' + d.model + ' (row ' + match.rowIndex + ', value: ' + (disc || 'cleared') + ')');
+          toast('🔄 ' + d.model + ' synced to Sheet');
         })
-        .catch(() => {});
+        .catch(err => {
+          console.error('[discontinue] sync failed for ' + d.model + ':', err);
+          toast('⚠️ ' + d.model + ' Sheet sync failed — fix manually');
+        });
     })
-    .catch(() => {});
+    .catch(err => {
+      console.error('[discontinue] could not load Sheet inventory:', err);
+      toast('⚠️ Sheet offline — ' + d.model + ' discontinue saved locally only');
+    });
 }
 
 function askDel(id){delId=id;const b=bikes.find(x=>x.id===id);document.getElementById('delName').textContent=b?.model||'bike';openM('mDel');}
