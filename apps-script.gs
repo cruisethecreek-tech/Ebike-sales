@@ -262,30 +262,32 @@ function handleApparelOrder(p) {
     const now = new Date();
     const id  = 'AP-' + Utilities.formatDate(now, 'America/New_York', 'yyMMdd-HHmmss');
     const row = {
-      id:        id,
-      timestamp: now,
-      first:     String(p.firstName || '').trim(),
-      last:      String(p.lastName  || '').trim(),
-      email:     String(p.email     || '').trim(),
-      phone:     String(p.phone     || '').trim(),
-      product:   String(p.product   || '').trim(),
-      color:     String(p.color     || '').trim(),
-      size:      String(p.size      || '').trim(),
-      placement: String(p.placement || '').trim(),
-      qty:       parseInt(p.qty, 10) || 1,
-      total:     parseFloat(p.total) || 0,
-      comments:  String(p.comments  || '').trim(),
+      id:          id,
+      timestamp:   now,
+      first:       String(p.firstName   || '').trim(),
+      last:        String(p.lastName    || '').trim(),
+      email:       String(p.email       || '').trim(),
+      phone:       String(p.phone       || '').trim(),
+      product:     String(p.product     || '').trim(),
+      color:       String(p.color       || '').trim(),
+      size:        String(p.size        || '').trim(),
+      placement:   String(p.placement   || '').trim(),
+      qty:         parseInt(p.qty, 10) || 1,
+      total:       parseFloat(p.total) || 0,
+      comments:    String(p.comments    || '').trim(),
+      paymentLink: String(p.paymentLink || '').trim(),
     };
 
     let sh = ss.getSheetByName('Apparel_Orders');
     if (!sh) {
       sh = ss.insertSheet('Apparel_Orders');
       sh.appendRow(['id','timestamp','first','last','email','phone',
-                    'product','color','size','placement','qty','total','comments']);
-      sh.getRange(1, 1, 1, 13).setFontWeight('bold');
+                    'product','color','size','placement','qty','total','comments','paymentLink']);
+      sh.getRange(1, 1, 1, 14).setFontWeight('bold');
     }
     sh.appendRow([row.id, row.timestamp, row.first, row.last, row.email, row.phone,
-                  row.product, row.color, row.size, row.placement, row.qty, row.total, row.comments]);
+                  row.product, row.color, row.size, row.placement, row.qty, row.total,
+                  row.comments, row.paymentLink]);
 
     // Notify the sales team. Wrapped so a mail failure doesn't sink the
     // whole request — the order still landed in the Sheet.
@@ -304,6 +306,8 @@ function handleApparelOrder(p) {
         'Qty:       ' + row.qty,
         'Total:     $' + row.total.toFixed(2),
         '',
+        'Payment link: ' + (row.paymentLink || '(Stripe link generation failed — send manually)'),
+        '',
         'Comments:  ' + (row.comments || '(none)'),
         '',
         'Logged at ' + row.timestamp,
@@ -315,10 +319,48 @@ function handleApparelOrder(p) {
         body:    body,
       });
     } catch (mailErr) {
-      console.warn('Apparel order email failed: ' + mailErr);
+      console.warn('Apparel order sales-team email failed: ' + mailErr);
     }
 
-    return json({ ok: true, id: row.id });
+    // Customer confirmation. Only send when we have both a valid email AND
+    // a Stripe link — without the link there's nothing actionable, and the
+    // sales team will follow up by hand.
+    if (row.email && row.paymentLink) {
+      try {
+        const customerBody = [
+          'Hi ' + (row.first || 'there') + ',',
+          '',
+          "Thanks for your Cruise the Creek apparel order. Here's the summary:",
+          '',
+          '  Product:   ' + row.product,
+          '  Color:     ' + row.color,
+          '  Size:      ' + row.size,
+          '  Placement: ' + row.placement,
+          '  Qty:       ' + row.qty,
+          '  Total:     $' + row.total.toFixed(2),
+          '',
+          'Pay securely here:',
+          row.paymentLink,
+          '',
+          "Once your payment clears we'll reach out to confirm pickup or delivery. Reply to this email if you have any questions.",
+          '',
+          'Order #: ' + row.id,
+          '',
+          '— Cruise the Creek',
+          '   Youngstown, OH',
+        ].join('\n');
+        MailApp.sendEmail({
+          to:      row.email,
+          replyTo: 'salesteam@cruisethecreek.com',
+          subject: 'Your Cruise the Creek apparel order — pay & confirm (' + row.id + ')',
+          body:    customerBody,
+        });
+      } catch (mailErr) {
+        console.warn('Apparel order customer email failed: ' + mailErr);
+      }
+    }
+
+    return json({ ok: true, id: row.id, paymentLink: row.paymentLink });
   } catch (err) {
     console.error('handleApparelOrder failed: ' + err);
     return json({ ok: false, error: String(err) });
@@ -1413,8 +1455,10 @@ function getTabDefs() {
     'Apparel_Orders': {
       // Order log. Header only — rows are appended at submission time by
       // handleApparelOrder(). The id column is generated server-side.
+      // paymentLink is the Stripe Payment Link URL (empty if Stripe failed
+      // or the print is a "Coming Soon" notify-me row).
       header: ['id','timestamp','first','last','email','phone',
-               'product','color','size','placement','qty','total','comments'],
+               'product','color','size','placement','qty','total','comments','paymentLink'],
       rows: [],
     },
     'TrustStrip': {

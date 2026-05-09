@@ -31,7 +31,7 @@ export default async function handler(req, res) {
 
   // ── 4. Handle the POST ─────────────────────────────────────
   try {
-    const { customerName, customerEmail, invoiceNumber, total, items } = req.body;
+    const { customerName, customerEmail, invoiceNumber, total, items, productName, description } = req.body;
 
     // Validate required fields
     if (!customerEmail || !total || total <= 0) {
@@ -44,6 +44,23 @@ export default async function handler(req, res) {
       return res.status(500).json({ error: 'Stripe not configured' });
     }
 
+    // Allow callers (apparel.html) to pass an explicit productName so the
+    // Stripe checkout shows a human-readable line. Falls back to the legacy
+    // "${invoiceNumber} - ${customerName}" shape used by invoice.html.
+    const lineName = (productName && String(productName).trim())
+      || `${invoiceNumber} - ${customerName}`;
+
+    const linePayload = {
+      'line_items[0][price_data][currency]': 'usd',
+      'line_items[0][price_data][product_data][name]': lineName,
+      'line_items[0][price_data][unit_amount]': Math.round(total * 100),
+      'line_items[0][quantity]': '1',
+      'billing_address_collection': 'auto',
+    };
+    if (description && String(description).trim()) {
+      linePayload['line_items[0][price_data][product_data][description]'] = String(description).trim();
+    }
+
     // Create Stripe Payment Link
     const response = await fetch('https://api.stripe.com/v1/payment_links', {
       method: 'POST',
@@ -51,13 +68,7 @@ export default async function handler(req, res) {
         'Authorization': `Bearer ${stripeSecretKey}`,
         'Content-Type': 'application/x-www-form-urlencoded',
       },
-      body: new URLSearchParams({
-        'line_items[0][price_data][currency]': 'usd',
-        'line_items[0][price_data][product_data][name]': `${invoiceNumber} - ${customerName}`,
-        'line_items[0][price_data][unit_amount]': Math.round(total * 100),
-        'line_items[0][quantity]': '1',
-        'billing_address_collection': 'auto',
-      }),
+      body: new URLSearchParams(linePayload),
     });
 
     const data = await response.json();
