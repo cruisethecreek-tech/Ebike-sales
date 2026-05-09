@@ -893,6 +893,27 @@ function getTabDefs() {
         // ("factory-trained on …") + trust badges at page bottom.
         ['assembly_authorized_brands', 'Heybike|Velotric|Jasion|Mooncool'],
 
+        ['── ASSEMBLY page · "Ride with Certainty" pricing cards ──', ''],
+        ['assembly_pricing_title',     'Ride with Certainty.'],
+        ['assembly_pricing_sub',       "Don't leave your safety to a factory box. Get it Creek Ready."],
+        // Card 1 — bundled with new bike purchase from CTC.
+        ['assembly_card1_title',       'New Bike Purchase'],
+        ['assembly_card1_price',       '$100'],
+        ['assembly_card1_sub',         'Add-On with purchase from Cruise the Creek'],
+        ['assembly_card1_cta_label',   'Shop E-Bikes'],
+        ['assembly_card1_cta_url',     'https://www.cruisethecreek.com/shop-fix'],
+        ['assembly_card1_cta_external', true],
+        // Card 2 — externally purchased bikes (Stripe checkout).
+        ['assembly_card2_title',       'Already Own Your Bike?'],
+        ['assembly_card2_price',       '$225'],
+        ['assembly_card2_sub',         'For Heybike, Velotric, or Jasion purchased online'],
+        ['assembly_card2_cta_label',   'Get Creek Ready'],
+        ['assembly_card2_cta_url',     'https://buy.stripe.com/3cIeVe04M3ag7Fxbzf6Zy01'],
+        ['assembly_card2_cta_external', true],
+        // Footer email link below the pricing cards.
+        ['assembly_email_label',       'Questions? Email us →'],
+        ['assembly_email_url',         'mailto:salesteam@cruisethecreek.com'],
+
         ['── FOOTER & POLICY LINKS ──', ''],
         ['faq_url',             'faqs.html'],
         ['faq_external',        false],
