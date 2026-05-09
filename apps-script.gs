@@ -1811,10 +1811,11 @@ function importWixPosts(opts) {
   const feedUrl   = opts.feedUrl   || WIX_FEED_URL_DEFAULT;
   const skipSlugs = opts.skipSlugs || WIX_SKIP_SLUGS_DEFAULT;
   const dryRun    = !!opts.dryRun;
+  const force     = !!opts.force;  // re-import even if slug already in Sheet
   const skipSet   = {}; skipSlugs.forEach(function(s){ skipSet[s] = true; });
 
   const summary = { total: 0, imported: 0, skipped: 0, failed: 0,
-                    notes: [], dryRun: dryRun };
+                    notes: [], dryRun: dryRun, force: force };
 
   // 1) Fetch RSS.
   let feedXml;
@@ -1841,9 +1842,16 @@ function importWixPosts(opts) {
     sh.getRange(1, 1, 1, 10).setFontWeight('bold');
   }
   const existingSlugs = {};
+  const existingRowBySlug = {};  // slug → 1-based row index in Sheet
   if (sh && sh.getLastRow() > 1) {
     const slugCol = sh.getRange(2, 1, sh.getLastRow() - 1, 1).getValues();
-    slugCol.forEach(function(r){ if (r[0]) existingSlugs[String(r[0]).trim()] = true; });
+    slugCol.forEach(function(r, i){
+      const v = String(r[0] || '').trim();
+      if (v) {
+        existingSlugs[v] = true;
+        existingRowBySlug[v] = i + 2;  // +2 because data starts at row 2 and i is 0-based
+      }
+    });
   }
 
   // 4) For each item, scrape, derive slug, write row.
@@ -1860,7 +1868,7 @@ function importWixPosts(opts) {
     // human-readable). If you want to override per-post, edit the slug
     // cell in the Sheet after import — wix_slug stays put for redirects.
     const slug = wixSlug;
-    if (existingSlugs[slug]) {
+    if (existingSlugs[slug] && !force) {
       summary.skipped++;
       summary.notes.push({ slug: slug, status: 'skipped (already in Sheet)', title: it.title });
       Logger.log('SKIP (already in Sheet): ' + slug);
@@ -1902,6 +1910,22 @@ function importWixPosts(opts) {
     if (dryRun) {
       summary.notes.push({ slug: slug, status: 'would import', strategy: scrape.strategy,
                            bodyChars: scrape.html.length, preview: scrape.html.slice(0, 200) });
+    } else if (force && existingSlugs[slug]) {
+      // Re-import: overwrite the existing row in place so we don't
+      // disturb its position or any manual edits to other columns.
+      // We only refresh the columns derived from Wix; keep tags +
+      // wix_slug + published in the existing row untouched (tags is
+      // user-edited, wix_slug never changes, published may have been
+      // toggled).
+      const r = existingRowBySlug[slug];
+      sh.getRange(r, 2).setValue(it.title);                         // title
+      sh.getRange(r, 3).setValue(it.pubDate ? new Date(it.pubDate).toISOString().slice(0, 10) : '');
+      sh.getRange(r, 4).setValue(it.author || 'Patrick Simms');
+      sh.getRange(r, 5).setValue(it.heroImage || '');
+      sh.getRange(r, 6).setValue(it.description || makeExcerpt_(scrape.html, 220));
+      sh.getRange(r, 7).setValue(scrape.html);
+      summary.notes.push({ slug: slug, status: 're-imported', strategy: scrape.strategy,
+                           bodyChars: scrape.html.length });
     } else {
       sh.appendRow(row);
       summary.notes.push({ slug: slug, status: 'imported', strategy: scrape.strategy,
@@ -2053,15 +2077,20 @@ function cleanBody_(html) {
   s = s.replace(/<source\b[^>]*\/?>/gi, '');
   s = s.replace(/<picture[^>]*>([\s\S]*?)<\/picture>/gi, '$1');
 
-  // Pass 3.5 — strip Wix LQIP thumbnail <img> tags. After unwrap, every
-  // figure may still contain TWO imgs: the real one (w_980+) AND a
-  // 250×250 (or smaller) low-quality preview that Wix bakes into the
-  // page next to the full image. Both render. We keep the real one and
-  // drop anything from wixstatic.com whose URL specifies w_<400px —
-  // safely targets thumbnails without false positives on content art.
+  // Pass 3.5 — strip Wix LQIP previews via media-hash deduplication.
+  // Wix sometimes serves both a low-quality preview AND the real image
+  // as separate <img> tags pointing to the SAME source asset at
+  // different sizes. They share the {hash}~mv2 segment in the URL, so
+  // we group all wixstatic imgs by hash and keep only the largest in
+  // each group. Imgs that don't pair with a larger sibling are always
+  // kept — no false positives on legitimately small content art.
+  s = dedupeWixImages_(s);
+  // Belt-and-braces: drop standalone Wix imgs at LQIP-only sizes
+  // (w_<50). At those dimensions there's no plausible content use,
+  // they're always preview thumbnails — even when not paired.
   s = s.replace(
     /<img\b[^>]*\bsrc="https?:\/\/[^"]*\.wixstatic\.com\/[^"]*\bw_(\d+)[^"]*"[^>]*\/?>/gi,
-    function(match, w) { return parseInt(w, 10) < 400 ? '' : match; }
+    function(match, w) { return parseInt(w, 10) < 50 ? '' : match; }
   );
 
   // Pass 4 — unwrap Wix internal hashtag/tag archive links. They point
@@ -2114,6 +2143,44 @@ function stripTagBlock_(s, tag) {
     s = s.replace(blockRe, '');
   } while (s !== prev);
   s = s.replace(new RegExp('<' + tag + '\\b[^>]*\\/>', 'gi'), '');
+  return s;
+}
+
+// Drop wixstatic.com <img> tags that have a larger sibling pointing at
+// the same source asset. Wix URLs encode the source as
+//   https://static.wixstatic.com/media/{hash}~mv2.{ext}/v1/fill/w_{W},...
+// The {hash} segment is unique per uploaded image. If two imgs share
+// the hash but render at different widths, the smaller is the LQIP
+// preview — safe to drop.
+function dedupeWixImages_(html) {
+  const re = /<img\b[^>]*\bsrc="https?:\/\/[^"]*\.wixstatic\.com\/media\/([^~"]+)~mv2[^"]*\bw_(\d+)[^"]*"[^>]*\/?>/gi;
+  const imgs = [];
+  let m;
+  while ((m = re.exec(html))) {
+    imgs.push({ tag: m[0], hash: m[1], width: parseInt(m[2], 10) });
+  }
+  if (imgs.length < 2) return html;
+
+  const maxByHash = {};
+  imgs.forEach(function(img) {
+    if (!(img.hash in maxByHash) || img.width > maxByHash[img.hash]) {
+      maxByHash[img.hash] = img.width;
+    }
+  });
+
+  // Tags to remove are smaller-than-max for their hash. Use a Set to
+  // avoid double-stripping when the same exact tag string appears more
+  // than once.
+  const toRemove = {};
+  imgs.forEach(function(img) {
+    if (img.width < maxByHash[img.hash]) toRemove[img.tag] = true;
+  });
+
+  let s = html;
+  Object.keys(toRemove).forEach(function(tag) {
+    const escaped = tag.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    s = s.replace(new RegExp(escaped, 'g'), '');
+  });
   return s;
 }
 
