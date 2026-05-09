@@ -205,6 +205,14 @@ function doGet(e) {
                          .sort(function(a, b){ return (a.order || 0) - (b.order || 0); }),
     apparelPlacements: readSheet(ss, 'ApparelPlacements')
                          .sort(function(a, b){ return (a.order || 0) - (b.order || 0); }),
+    blog:              readSheet(ss, 'Blog')
+                         .filter(function(r){ return r.published === true || r.published === 'TRUE' || r.published === 'true'; })
+                         .sort(function(a, b){
+                           // Newest first. Treat blank dates as oldest.
+                           const ad = a.date ? new Date(a.date).getTime() : 0;
+                           const bd = b.date ? new Date(b.date).getTime() : 0;
+                           return bd - ad;
+                         }),
     tiles:             readSheet(ss, cap + '_Tiles'),
     submenus:          groupBy(readSheet(ss, cap + '_Submenus'), 'tile'),
   };
@@ -1481,6 +1489,22 @@ function getTabDefs() {
                'product','color','size','placement','qty','total','comments','paymentLink'],
       rows: [],
     },
+    'Blog': {
+      // One row per blog post. Migrated from Wix via importWixPosts().
+      // Edit-flow: change body_html / hero / excerpt / tags here, save,
+      // then re-run the static renderer (scripts/build-blog.js) to push
+      // the changes to /blog/[slug]/index.html.
+      //
+      // slug      = URL identifier under /blog/[slug]/  (kebab-case, no spaces)
+      // wix_slug  = original Wix /post/[slug] for the _redirects file
+      // hero      = featured image URL or /media/blog/[slug]/[file] path
+      // excerpt   = short teaser shown on the blog index card (1–2 sentences)
+      // body_html = the full post HTML (h2/p/img/ul tags fine)
+      // tags      = comma-separated, e.g. "trails, e-bikes"
+      // published = TRUE shows in /blog. FALSE hides without deleting.
+      header: ['slug','title','date','author','hero','excerpt','body_html','tags','wix_slug','published'],
+      rows: [],
+    },
     'TrustStrip': {
       // Same four cards render on every brand page (heybike, velotric,
       // mooncool, jasion). Edit here once.
@@ -1753,6 +1777,260 @@ function styleHeader_(sh, len) {
  * Use updateSheet() instead if you want to pull in NEW tabs / columns /
  * SiteConfig keys without losing your existing edits.
  */
+
+// ─── Blog: Wix → Sheet importer ──────────────────────────────────────
+//
+// One-shot migration helper. Run from the Apps Script editor:
+//
+//   importWixPosts()         — full run, writes to the Blog tab
+//   importWixPosts({dryRun:true})  — log only, no Sheet writes
+//
+// Idempotent: rows with a slug that's already in the Blog tab are
+// skipped on re-run (so you can re-run after fixing one bad post
+// without duplicating the rest).
+//
+// Returns a summary object with counts + per-post strategy notes; also
+// dumps to Logger so you can read it under "Executions".
+
+const WIX_FEED_URL_DEFAULT = 'https://www.cruisethecreek.com/blog-feed.xml';
+
+// Wix slugs from when the blog was first set up — these are placeholder
+// template posts whose URLs no longer match their content. Skipped by
+// default; pass {skipSlugs: []} to disable.
+const WIX_SKIP_SLUGS_DEFAULT = [
+  'surfer-s-paradise-where-to-stop-for-best-waves',
+  'lockdown-escape-work-travel-from-your-rv',
+  'best-routes-for-seeing-fall-foliage',
+  'why-we-love-rv-travel',
+  'spectacular-places-to-go-camping-under-the-stars',
+  '5-breathtaking-spots-to-watch-the-sunset',
+];
+
+function importWixPosts(opts) {
+  opts = opts || {};
+  const feedUrl   = opts.feedUrl   || WIX_FEED_URL_DEFAULT;
+  const skipSlugs = opts.skipSlugs || WIX_SKIP_SLUGS_DEFAULT;
+  const dryRun    = !!opts.dryRun;
+  const skipSet   = {}; skipSlugs.forEach(function(s){ skipSet[s] = true; });
+
+  const summary = { total: 0, imported: 0, skipped: 0, failed: 0,
+                    notes: [], dryRun: dryRun };
+
+  // 1) Fetch RSS.
+  let feedXml;
+  try {
+    feedXml = UrlFetchApp.fetch(feedUrl, { muteHttpExceptions: true }).getContentText();
+  } catch (err) {
+    Logger.log('FATAL: could not fetch RSS at ' + feedUrl + ' — ' + err);
+    return { error: String(err) };
+  }
+
+  // 2) Parse <item> blocks. We don't use XmlService because Wix's RSS
+  //    contains CDATA-wrapped HTML that XmlService's namespace handling
+  //    occasionally chokes on. Regex on the raw text is more forgiving.
+  const items = extractRssItems_(feedXml);
+  summary.total = items.length;
+  Logger.log('Found ' + items.length + ' RSS items');
+
+  // 3) Read existing Blog tab so we can de-dupe by slug.
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  let sh = ss.getSheetByName('Blog');
+  if (!sh && !dryRun) {
+    sh = ss.insertSheet('Blog');
+    sh.appendRow(['slug','title','date','author','hero','excerpt','body_html','tags','wix_slug','published']);
+    sh.getRange(1, 1, 1, 10).setFontWeight('bold');
+  }
+  const existingSlugs = {};
+  if (sh && sh.getLastRow() > 1) {
+    const slugCol = sh.getRange(2, 1, sh.getLastRow() - 1, 1).getValues();
+    slugCol.forEach(function(r){ if (r[0]) existingSlugs[String(r[0]).trim()] = true; });
+  }
+
+  // 4) For each item, scrape, derive slug, write row.
+  items.forEach(function(it) {
+    const wixSlug = wixSlugFromLink_(it.link);
+    if (skipSet[wixSlug]) {
+      summary.skipped++;
+      summary.notes.push({ wixSlug: wixSlug, status: 'skipped (placeholder)', title: it.title });
+      Logger.log('SKIP (placeholder): ' + wixSlug);
+      return;
+    }
+
+    // The clean-slug is the Wix slug for the 10 keepers (already
+    // human-readable). If you want to override per-post, edit the slug
+    // cell in the Sheet after import — wix_slug stays put for redirects.
+    const slug = wixSlug;
+    if (existingSlugs[slug]) {
+      summary.skipped++;
+      summary.notes.push({ slug: slug, status: 'skipped (already in Sheet)', title: it.title });
+      Logger.log('SKIP (already in Sheet): ' + slug);
+      return;
+    }
+
+    // Scrape the post page for the full body.
+    let scrape;
+    try {
+      const postHtml = UrlFetchApp.fetch(it.link, { muteHttpExceptions: true }).getContentText();
+      scrape = extractWixPostBody_(postHtml);
+    } catch (err) {
+      Logger.log('FAIL fetch: ' + slug + ' — ' + err);
+      summary.failed++;
+      summary.notes.push({ slug: slug, status: 'fetch failed', error: String(err) });
+      return;
+    }
+    if (!scrape || !scrape.html) {
+      Logger.log('FAIL parse: ' + slug + ' — no extraction strategy matched');
+      summary.failed++;
+      summary.notes.push({ slug: slug, status: 'parse failed', title: it.title });
+      return;
+    }
+    Logger.log('OK ' + slug + ' (strategy: ' + scrape.strategy + ', ' + scrape.html.length + ' chars)');
+
+    const row = [
+      slug,
+      it.title,
+      it.pubDate ? new Date(it.pubDate).toISOString().slice(0, 10) : '',
+      it.author || 'Patrick Simms',
+      it.heroImage || '',
+      it.description || makeExcerpt_(scrape.html, 220),
+      scrape.html,
+      '',           // tags — Wix RSS doesn't carry them; Pat fills in by hand
+      wixSlug,
+      true,         // published
+    ];
+
+    if (dryRun) {
+      summary.notes.push({ slug: slug, status: 'would import', strategy: scrape.strategy,
+                           bodyChars: scrape.html.length, preview: scrape.html.slice(0, 200) });
+    } else {
+      sh.appendRow(row);
+      summary.notes.push({ slug: slug, status: 'imported', strategy: scrape.strategy,
+                           bodyChars: scrape.html.length });
+    }
+    summary.imported++;
+  });
+
+  Logger.log('Done: ' + JSON.stringify({ total: summary.total, imported: summary.imported,
+                                         skipped: summary.skipped, failed: summary.failed }));
+  return summary;
+}
+
+// ─── RSS parsing (regex, not XmlService — see note above) ─────────────
+function extractRssItems_(xml) {
+  const out = [];
+  const itemRe = /<item\b[\s\S]*?<\/item>/g;
+  const items = xml.match(itemRe) || [];
+  items.forEach(function(block) {
+    out.push({
+      title:       cdata_(pluck_(block, /<title>([\s\S]*?)<\/title>/)),
+      link:        (pluck_(block, /<link>([\s\S]*?)<\/link>/) || '').trim(),
+      pubDate:     (pluck_(block, /<pubDate>([\s\S]*?)<\/pubDate>/) || '').trim(),
+      author:      cdata_(pluck_(block, /<dc:creator>([\s\S]*?)<\/dc:creator>/)),
+      description: stripTags_(cdata_(pluck_(block, /<description>([\s\S]*?)<\/description>/))),
+      heroImage:   pluck_(block, /<enclosure[^>]*\burl="([^"]+)"/) || '',
+    });
+  });
+  return out;
+}
+
+function pluck_(s, re) { const m = s.match(re); return m ? m[1] : ''; }
+function cdata_(s) { return String(s || '').replace(/^\s*<!\[CDATA\[/, '').replace(/\]\]>\s*$/, '').trim(); }
+function stripTags_(s) { return String(s || '').replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim(); }
+function wixSlugFromLink_(link) {
+  const m = String(link || '').match(/\/post\/([^\/?#]+)/);
+  return m ? m[1] : '';
+}
+function makeExcerpt_(html, maxChars) {
+  const text = stripTags_(html);
+  if (text.length <= maxChars) return text;
+  return text.slice(0, maxChars).replace(/\s+\S*$/, '') + '…';
+}
+
+// ─── Body extractor: 3 strategies, first match wins ───────────────────
+//
+// Wix's blog DOM has shifted over time. Rather than depend on one
+// selector, we try the most-reliable patterns in order and report which
+// one worked (so we can iterate if the first run misses).
+function extractWixPostBody_(html) {
+  // Strategy 1 — JSON-LD articleBody. Wix embeds a BlogPosting schema in
+  // a <script type="application/ld+json"> block. articleBody is plain
+  // text (no HTML formatting), but it's the most reliable signal that
+  // we've located the right content if other strategies fail.
+  const ldMatch = html.match(/<script[^>]+type="application\/ld\+json"[^>]*>([\s\S]*?)<\/script>/g) || [];
+  for (let i = 0; i < ldMatch.length; i++) {
+    const inner = ldMatch[i].replace(/<script[^>]*>/, '').replace(/<\/script>/, '');
+    try {
+      const data = JSON.parse(inner);
+      const list = Array.isArray(data) ? data : [data];
+      for (let j = 0; j < list.length; j++) {
+        const d = list[j] || {};
+        if ((d['@type'] === 'BlogPosting' || d['@type'] === 'Article') && d.articleBody) {
+          // Wrap paragraphs so the rendered post still has structure.
+          const paras = String(d.articleBody)
+            .split(/\n{2,}/)
+            .map(function(p){ return '<p>' + p.trim().replace(/\n/g, '<br>') + '</p>'; })
+            .filter(function(p){ return p !== '<p></p>'; })
+            .join('\n');
+          return { strategy: 'json-ld', html: paras };
+        }
+      }
+    } catch (e) { /* try next ld+json block */ }
+  }
+
+  // Strategy 2 — <div data-hook="post-description">. The container Wix
+  // uses for the rendered rich-text body. Has formatting preserved.
+  const dh = sliceBalanced_(html, /<div[^>]*data-hook="post-description"[^>]*>/);
+  if (dh) return { strategy: 'data-hook=post-description', html: cleanBody_(dh) };
+
+  // Strategy 3 — <article>. HTML5 fallback; Wix sometimes wraps the
+  // rendered post in this. Less reliable because it can include
+  // share/comment widgets, but usable.
+  const am = html.match(/<article\b[\s\S]*?<\/article>/);
+  if (am) return { strategy: 'article', html: cleanBody_(am[0]) };
+
+  return null;
+}
+
+// Return everything between the matched opening tag and its balanced
+// closing </div>. Walks tag-by-tag to avoid mis-matching on nested divs.
+function sliceBalanced_(html, openRe) {
+  const m = html.match(openRe);
+  if (!m) return null;
+  const start = m.index + m[0].length;
+  let depth = 1, i = start;
+  const tagRe = /<\/?div\b[^>]*>/g;
+  tagRe.lastIndex = start;
+  let t;
+  while ((t = tagRe.exec(html))) {
+    if (t[0].slice(0, 2) === '</') {
+      depth--;
+      if (depth === 0) return html.slice(start, t.index);
+    } else if (t[0].slice(-2) !== '/>') {
+      depth++;
+    }
+    i = tagRe.lastIndex;
+  }
+  return null;
+}
+
+// Remove Wix-specific noise from the extracted body — share buttons,
+// engagement widgets, tracking pixels, etc. Keeps semantic tags.
+function cleanBody_(html) {
+  return String(html)
+    .replace(/<script\b[\s\S]*?<\/script>/gi, '')
+    .replace(/<style\b[\s\S]*?<\/style>/gi, '')
+    .replace(/<noscript\b[\s\S]*?<\/noscript>/gi, '')
+    .replace(/\s+data-[a-z-]+="[^"]*"/gi, '')
+    .replace(/\s+aria-[a-z-]+="[^"]*"/gi, '')
+    .replace(/\s+class="[^"]*"/gi, '')
+    .replace(/\s+style="[^"]*"/gi, '')
+    .replace(/\s+id="[^"]*"/gi, '')
+    .replace(/<div[^>]*>\s*<\/div>/gi, '')
+    .replace(/[\t ]+\n/g, '\n')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim();
+}
+
 function setupSheet() {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
   const tabs = getTabDefs();
