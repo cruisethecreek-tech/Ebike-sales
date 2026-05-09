@@ -89,6 +89,14 @@ function doGet(e) {
   readSheet(ss, 'SiteConfig').forEach(function(r){
     if (r.key) site[String(r.key).trim()] = r.value;
   });
+  // Photos tab merges on top of SiteConfig — Pat edits photos there,
+  // SiteConfig stays for text-only keys. A non-empty Photos value wins
+  // over any duplicate row in SiteConfig.
+  readSheet(ss, 'Photos').forEach(function(r){
+    if (r.key && r.value !== '' && r.value != null) {
+      site[String(r.key).trim()] = r.value;
+    }
+  });
 
   // Long-form section rows for this page (Sections tab).
   const sections = readSheet(ss, 'Sections')
@@ -867,6 +875,30 @@ function getTabDefs() {
         ['wall_eyebrow',       'The supporters wall'],
         ['wall_title',         'Thank you, Creek Crew'],
         ['wall_sub',           'The names below kept the wheels turning this season.'],
+      ],
+    },
+    'Photos': {
+      // Friendly home for image controls that don't fit elsewhere. Each
+      // row's `value` is merged into the `site` object on top of the
+      // matching SiteConfig key — so the front-end binding
+      // `data-cms-src="kirk_image"` reads from here automatically.
+      //
+      // `key`      = matches the site config key the page binds to
+      //              (e.g., kirk_image). Don't change this — it's how
+      //              the page finds the photo.
+      // `page`     = which HTML file the photo appears on (helps you
+      //              find rows when the list grows).
+      // `location` = friendly description of where on the page.
+      // `value`    = filename in /media/ (e.g. kirk-road-trailhead.jpg)
+      //              OR full https:// URL. Leave blank for no photo.
+      // `notes`    = freeform — recommended dimensions, source, etc.
+      //
+      // Hero photos already live on the Pages tab (column hero_photo)
+      // because they're cleanly per-page; they don't need to be here.
+      header: ['key','page','location','value','notes'],
+      rows: [
+        ['kirk_image', 'journeys.html', 'Kirk Road Trailhead card (top of Trailside Journey page)', '',
+          'Filename in /media/ or full https:// URL. Recommended: 1200×800 landscape JPG.'],
       ],
     },
     'Services': {
