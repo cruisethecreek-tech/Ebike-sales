@@ -2016,19 +2016,121 @@ function sliceBalanced_(html, openRe) {
 // Remove Wix-specific noise from the extracted body — share buttons,
 // engagement widgets, tracking pixels, etc. Keeps semantic tags.
 function cleanBody_(html) {
-  return String(html)
-    .replace(/<script\b[\s\S]*?<\/script>/gi, '')
-    .replace(/<style\b[\s\S]*?<\/style>/gi, '')
-    .replace(/<noscript\b[\s\S]*?<\/noscript>/gi, '')
-    .replace(/\s+data-[a-z-]+="[^"]*"/gi, '')
-    .replace(/\s+aria-[a-z-]+="[^"]*"/gi, '')
-    .replace(/\s+class="[^"]*"/gi, '')
-    .replace(/\s+style="[^"]*"/gi, '')
-    .replace(/\s+id="[^"]*"/gi, '')
-    .replace(/<div[^>]*>\s*<\/div>/gi, '')
-    .replace(/[\t ]+\n/g, '\n')
-    .replace(/\n{3,}/g, '\n\n')
-    .trim();
+  let s = String(html);
+
+  // Pass 1 — kill obvious script/style/widget chrome.
+  s = s.replace(/<script\b[\s\S]*?<\/script>/gi, '')
+       .replace(/<style\b[\s\S]*?<\/style>/gi, '')
+       .replace(/<noscript\b[\s\S]*?<\/noscript>/gi, '');
+
+  // Pass 2 — kill structural Wix chrome blocks. The <article> Wix
+  // serves wraps the post body in a <header> (title/date/share button)
+  // and <footer> (social-share buttons), with image-expand <button>
+  // controls scattered through. None of that belongs in our render.
+  s = stripTagBlock_(s, 'header');
+  s = stripTagBlock_(s, 'footer');
+  s = stripTagBlock_(s, 'button');
+  s = stripTagBlock_(s, 'svg');
+  // <iframe> — embedded video / Wix widgets. Drop for now; phase-4 image
+  // migration will revisit if any post needs an embed back.
+  s = stripTagBlock_(s, 'iframe');
+
+  // Pass 3 — unwrap Wix custom elements.
+  // <wow-image> wraps every <img>. Keep the inner img.
+  s = s.replace(/<wow-image[^>]*>([\s\S]*?)<\/wow-image>/gi, '$1');
+
+  // Pass 4 — unwrap Wix internal hashtag/tag archive links. They point
+  // to /road-trips/hashtags/N which doesn't exist on Cloudflare.
+  s = s.replace(/<a [^>]*href="[^"]*\/(?:hashtags|tags)\/[^"]*"[^>]*>([\s\S]*?)<\/a>/gi, '$1');
+
+  // Pass 5 — strip presentation-only line breaks Wix injects between
+  // rich-text blocks. Real <br> tags inside paragraphs are kept.
+  s = s.replace(/<br[^>]*role="presentation"[^>]*\/?>/gi, '');
+
+  // Pass 6 — strip noise attributes from every remaining tag.
+  s = s.replace(/\s+data-[a-z-]+="[^"]*"/gi, '')
+       .replace(/\s+aria-[a-z-]+="[^"]*"/gi, '')
+       .replace(/\s+class="[^"]*"/gi, '')
+       .replace(/\s+style="[^"]*"/gi, '')
+       .replace(/\s+id="[^"]*"/gi, '')
+       .replace(/\s+(?:dir|tabindex|role|draggable|title)="[^"]*"/gi, '');
+
+  // Pass 7 — flatten redundant <span> nesting. After attribute strip,
+  // most spans have no attrs and are pure rich-text noise.
+  for (let i = 0; i < 6; i++) {
+    const before = s;
+    s = s.replace(/<span\s*>([\s\S]*?)<\/span>/gi, '$1');
+    if (s === before) break;
+  }
+
+  // Pass 8 — drop empty containers (after content has been stripped).
+  for (let i = 0; i < 5; i++) {
+    const before = s;
+    s = s.replace(/<(div|section|figure|p)>\s*<\/\1>/gi, '');
+    if (s === before) break;
+  }
+
+  // Pass 9 — whitespace tidy.
+  s = s.replace(/[\t ]+\n/g, '\n')
+       .replace(/\n{3,}/g, '\n\n')
+       .trim();
+
+  return s;
+}
+
+// Remove every <tag>...</tag> block, including ones whose contents
+// straddle nested same-name tags (rare, but we loop until stable).
+// Self-closing variants (<svg .../>) handled at the end.
+function stripTagBlock_(s, tag) {
+  const blockRe = new RegExp('<' + tag + '\\b[^>]*>[\\s\\S]*?<\\/' + tag + '>', 'gi');
+  let prev;
+  do {
+    prev = s;
+    s = s.replace(blockRe, '');
+  } while (s !== prev);
+  s = s.replace(new RegExp('<' + tag + '\\b[^>]*\\/>', 'gi'), '');
+  return s;
+}
+
+// Retroactive cleanup pass for already-imported Blog rows. Runs the
+// updated cleanBody_ over each row's body_html and writes the cleaned
+// result back. Idempotent — re-running produces the same output.
+//
+// Use after cleanBody_ improves to back-propagate fixes without
+// re-importing from Wix.
+function cleanBlogBodies() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const sh = ss.getSheetByName('Blog');
+  if (!sh) { Logger.log('No Blog tab — run importWixPosts first'); return; }
+  const lastRow = sh.getLastRow();
+  if (lastRow < 2) { Logger.log('Blog tab is empty'); return; }
+
+  const header = sh.getRange(1, 1, 1, sh.getLastColumn()).getValues()[0]
+    .map(function(h){ return String(h); });
+  const slugCol = header.indexOf('slug');
+  const bodyCol = header.indexOf('body_html');
+  if (slugCol === -1 || bodyCol === -1) {
+    Logger.log('Blog tab missing slug or body_html column');
+    return;
+  }
+
+  const rows = sh.getRange(2, 1, lastRow - 1, sh.getLastColumn()).getValues();
+  const stats = { total: rows.length, cleaned: 0, unchanged: 0 };
+
+  rows.forEach(function(r, i) {
+    const before = String(r[bodyCol] || '');
+    const after  = cleanBody_(before);
+    if (after !== before) {
+      sh.getRange(i + 2, bodyCol + 1).setValue(after);
+      Logger.log('Cleaned ' + r[slugCol] + ' (' + before.length + ' → ' + after.length + ' chars)');
+      stats.cleaned++;
+    } else {
+      stats.unchanged++;
+    }
+  });
+
+  Logger.log('Done: ' + JSON.stringify(stats));
+  return stats;
 }
 
 function setupSheet() {
