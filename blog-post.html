@@ -154,7 +154,7 @@ footer a{color:var(--tan);font-weight:500}footer a:hover{color:#fff}
   <div class="post-hero-author" id="post-hero-author"></div>
 </section>
 
-<nav class="crumb"><a href="home.html">Home</a><span class="sep">/</span><a href="blog.html">Blog</a><span class="sep">/</span> <span id="crumb-title">…</span></nav>
+<nav class="crumb"><a href="home.html">Home</a><span class="sep">/</span> Creek Life <span class="sep">/</span><a href="creek-life-blog.html">Blog</a><span class="sep">/</span> <span id="crumb-title">…</span></nav>
 
 <main>
   <div id="post-shell">
@@ -163,7 +163,7 @@ footer a{color:var(--tan);font-weight:500}footer a:hover{color:#fff}
 </main>
 
 <footer>
-  &copy; 2026 <a href="home.html">Cruise the Creek</a> &middot; <a href="blog.html">All posts</a>
+  &copy; 2026 <a href="home.html">Cruise the Creek</a> &middot; <a href="creek-life-blog.html">All posts</a>
 </footer>
 
 <script>
@@ -203,7 +203,7 @@ function sanitizeBody(html){
 function renderError(msg, sub){
   document.getElementById('post-shell').innerHTML =
     '<div class="notice"><strong>' + esc(msg) + '</strong>' + esc(sub || '') + '</div>'
-    + '<a class="back-blog" href="blog.html"><svg viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg> All posts</a>';
+    + '<a class="back-blog" href="creek-life-blog.html"><svg viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg> All posts</a>';
 }
 
 function renderPost(post, allPosts){
@@ -258,7 +258,7 @@ function renderPost(post, allPosts){
   document.getElementById('post-shell').innerHTML =
     '<article class="post-body">' + sanitizeBody(post.body_html) + '</article>' +
     tagsHtml + navHtml +
-    '<a class="back-blog" href="blog.html"><svg viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg> All posts</a>';
+    '<a class="back-blog" href="creek-life-blog.html"><svg viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg> All posts</a>';
 }
 
 function applyData(d){
