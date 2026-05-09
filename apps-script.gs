@@ -1432,14 +1432,21 @@ function getTabDefs() {
       // tabs (ApparelColors + hardcoded sizes in apparel.html) so a single
       // print can be ordered in any color/size combo. `available=false`
       // renders the card as "Coming Soon" and disables ordering.
-      header: ['id','order','name','base_price','photo','description','available'],
+      //
+      // `colors` narrows which ApparelColors rows show for this product.
+      // Comma-separated list of color names, e.g. "Black, Forest Green".
+      // Leave blank to allow every color in ApparelColors.
+      header: ['id','order','name','base_price','photo','description','colors','available'],
       rows: [
         ['tee-trail', 1, 'Trail Map Tee',       30, 'tee-trail-green.jpg',
-          "Cream-and-tan trail mark with the Cruise the Creek bike, trees, and dotted-line park trails. Soft cotton blend.", true],
+          "Cream-and-tan trail mark with the Cruise the Creek bike, trees, and dotted-line park trails. Soft cotton blend.",
+          '', true],
         ['tee-neon',  2, 'Neon Watercolor Tee', 30, 'tee-neon-black.jpg',
-          "Vivid neon-watercolor design with chains, trees, and the Youngstown OH stamp. Heavyweight cotton.", true],
+          "Vivid neon-watercolor design with chains, trees, and the Youngstown OH stamp. Heavyweight cotton.",
+          'Black', true],
         ['tee-three', 3, 'Print 3 (TBA)',       30, '',
-          "Third design lands soon. Drop your name on the order form and we'll let you know when it ships.", false],
+          "Third design lands soon. Drop your name on the order form and we'll let you know when it ships.",
+          '', false],
       ],
     },
     'ApparelColors': {

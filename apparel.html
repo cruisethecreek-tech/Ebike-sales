@@ -408,14 +408,30 @@ function renderOrderPanel(available){
     sub.textContent = 'Pick a color, size, and where you want the print. Submit and we\'ll confirm by phone.';
   }
 
-  const colorSwatches = DATA.colors.map(c => {
+  // Per-product color narrowing. ApparelProducts.colors is a comma-separated
+  // list of color names; blank means "all colors". Names match against
+  // ApparelColors.name case-insensitively so "black" / "Black" / " Black "
+  // all line up.
+  const allowList = String(product.colors || '')
+    .split(',').map(s => s.trim().toLowerCase()).filter(Boolean);
+  const productColors = allowList.length
+    ? DATA.colors.filter(c => allowList.indexOf(String(c.name || '').toLowerCase()) !== -1)
+    : DATA.colors;
+
+  // If the previously-picked color isn't valid for this product, drop it
+  // and fall back to the first available color in the narrowed list.
+  if (SELECTION.color && !productColors.some(c => c.name === SELECTION.color && isTrue(c.available))) {
+    SELECTION.color = (productColors.find(c => isTrue(c.available)) || {}).name || null;
+  }
+
+  const colorSwatches = productColors.map(c => {
     const avail = isTrue(c.available);
     const active = SELECTION.color === c.name;
     const light = isLightSwatch(c.swatch) ? '1' : '0';
     return `<button type="button" class="swatch${active ? ' is-active' : ''}${avail ? '' : ' is-disabled'}"
               style="background:${esc(c.swatch || '#888')}" data-color="${esc(c.name)}" data-light="${light}"
               title="${esc(c.name)}" ${avail ? '' : 'aria-disabled="true"'}></button>`;
-  }).join('');
+  }).join('') || '<span style="color:rgba(255,255,255,.5);font-size:.85rem">No colors configured for this print yet.</span>';
 
   const sizeBtns = SIZES.map(s => `<button type="button" class="pill${SELECTION.size === s ? ' is-active' : ''}" data-size="${s}">${s}</button>`).join('');
 
