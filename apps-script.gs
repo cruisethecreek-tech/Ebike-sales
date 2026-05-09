@@ -1018,6 +1018,10 @@ function getTabDefs() {
       rows: [
         ['kirk_image', 'journeys.html', 'Kirk Road Trailhead card (top of Trailside Journey page)', '',
           'Filename in /media/ or full https:// URL. Recommended: 1200×800 landscape JPG.'],
+        ['lemonade_ride_image', 'our-story.html', 'Lemonade Stands intro — left photo (caption: "Riding an e-bike, enjoying a lemonade.")', '',
+          'Filename in /media/ or full https:// URL. Recommended: 1200×800 landscape JPG.'],
+        ['mill_creek_park_image', 'our-story.html', 'Lemonade Stands intro — right photo (caption: "Mill Creek Park, Youngstown.")', '',
+          'Filename in /media/ or full https:// URL. Recommended: 1200×800 landscape JPG.'],
       ],
     },
     'Services': {
