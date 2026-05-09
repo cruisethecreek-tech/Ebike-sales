@@ -1018,6 +1018,10 @@ function getTabDefs() {
       rows: [
         ['kirk_image', 'journeys.html', 'Kirk Road Trailhead card (top of Trailside Journey page)', '',
           'Filename in /media/ or full https:// URL. Recommended: 1200×800 landscape JPG.'],
+        ['lemonade_ride_image', 'our-story.html', 'Lemonade Stands intro — left photo (caption: "Riding an e-bike, enjoying a lemonade.")', '',
+          'Filename in /media/ or full https:// URL. Recommended: 1200×800 landscape JPG.'],
+        ['mill_creek_park_image', 'our-story.html', 'Lemonade Stands intro — right photo (caption: "Mill Creek Park, Youngstown.")', '',
+          'Filename in /media/ or full https:// URL. Recommended: 1200×800 landscape JPG.'],
       ],
     },
     'Services': {
@@ -2478,9 +2482,9 @@ function setupSheet() {
  *  • Tab exists but empty (header only)   → seed default rows.
  *  • Tab exists with data:
  *      - Add any missing columns to the right (header only — no row data).
- *      - For SiteConfig / Pages (keyed tabs), append seed rows whose
- *        key/slug isn't already in the sheet. Existing rows are never
- *        modified or reordered.
+ *      - For SiteConfig / Pages / Photos (keyed tabs), append seed rows
+ *        whose key/slug isn't already in the sheet. Existing rows are
+ *        never modified or reordered.
  *      - For row-list tabs (TrustStrip, Services, Steps, Sections,
  *        *_Tiles, *_Submenus) the existing rows are left alone — the
  *        defaults you see in getTabDefs() are NOT re-appended, since
@@ -2491,7 +2495,7 @@ function setupSheet() {
 function updateSheet() {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
   const tabs = getTabDefs();
-  const KEYED = { 'SiteConfig': 'key', 'Pages': 'slug' };
+  const KEYED = { 'SiteConfig': 'key', 'Pages': 'slug', 'Photos': 'key' };
   const stats = { created: 0, seededEmpty: 0, addedCols: 0, addedRows: 0, untouched: 0 };
 
   Object.keys(tabs).forEach(function(name) {
