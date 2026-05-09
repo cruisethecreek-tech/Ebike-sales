@@ -182,6 +182,14 @@ main{flex:1;max-width:1080px;width:100%;margin:0 auto;padding:28px 24px 64px}
 .modal-body{font-size:.94rem;color:var(--ink-2);line-height:1.6;margin-bottom:18px}
 .modal-id{display:inline-block;background:var(--cream);padding:6px 14px;border-radius:4px;
   font-family:'DM Sans',monospace;font-size:.8rem;font-weight:700;color:var(--forest);letter-spacing:.04em;margin-bottom:18px}
+.modal-pay-row{margin-bottom:14px}
+.modal-pay-btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  width:100%;background:var(--tan);color:var(--dark);padding:14px 22px;border-radius:6px;
+  font-weight:800;font-size:.95rem;letter-spacing:.06em;text-transform:uppercase;
+  text-decoration:none;transition:background .2s ease,transform .15s ease}
+.modal-pay-btn:hover{background:#dbb978;transform:translateY(-1px)}
+.modal-pay-btn svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2.4}
+.modal-pay-note{font-size:.74rem;color:var(--ink-3);margin-top:8px;letter-spacing:.04em}
 .modal-btn{background:var(--forest);color:#fff;padding:11px 24px;border-radius:5px;
   font-weight:700;font-size:.86rem;letter-spacing:.04em;text-transform:uppercase}
 .modal-btn:hover{background:var(--dark)}
@@ -271,10 +279,17 @@ footer a{color:var(--tan);font-weight:500}footer a:hover{color:#fff}
   <div class="modal">
     <div class="modal-icon">✅</div>
     <div class="modal-title">Order received</div>
-    <div class="modal-body">
+    <div class="modal-body" id="modal-body">
       We'll reach out within a few hours to confirm color/size availability and arrange pickup or delivery.
     </div>
-    <div class="modal-id" id="modal-id">—</div><br>
+    <div class="modal-id" id="modal-id">—</div>
+    <div class="modal-pay-row" id="modal-pay-row" style="display:none">
+      <a class="modal-pay-btn" id="modal-pay-btn" href="#" target="_blank" rel="noopener">
+        Pay securely now
+        <svg viewBox="0 0 24 24"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+      </a>
+      <div class="modal-pay-note">Opens Stripe Checkout in a new tab.</div>
+    </div>
     <button class="modal-btn" onclick="closeModal()">Done</button>
   </div>
 </div>
@@ -284,13 +299,19 @@ footer a{color:var(--tan);font-weight:500}footer a:hover{color:#fff}
 </footer>
 
 <script>
-const MENU_URL = 'https://script.google.com/macros/s/AKfycbxjg2ZsPCZNsmJEStYA0bRdsnkm4nNS-m-HNhm_Gin56VIVeYWVRE5j51j30zVHhb4PmQ/exec?page=apparel';
-const SUBMIT_URL = 'https://script.google.com/macros/s/AKfycbxjg2ZsPCZNsmJEStYA0bRdsnkm4nNS-m-HNhm_Gin56VIVeYWVRE5j51j30zVHhb4PmQ/exec';
+const MENU_URL    = 'https://script.google.com/macros/s/AKfycbxjg2ZsPCZNsmJEStYA0bRdsnkm4nNS-m-HNhm_Gin56VIVeYWVRE5j51j30zVHhb4PmQ/exec?page=apparel';
+const SUBMIT_URL  = 'https://script.google.com/macros/s/AKfycbxjg2ZsPCZNsmJEStYA0bRdsnkm4nNS-m-HNhm_Gin56VIVeYWVRE5j51j30zVHhb4PmQ/exec';
+const STRIPE_URL  = 'https://ebike-sales-nu.vercel.app/api/create-payment-link';
 const SIZES = ['S','M','L','XL','XXL'];
-const PLACEMENTS = ['Front','Back'];
+// Fallback placements if the ApparelPlacements Sheet is empty / hasn't been
+// seeded yet. Once the tab has rows, those win.
+const FALLBACK_PLACEMENTS = [
+  { order: 1, name: 'Front', sublabel: 'Chest',     available: true },
+  { order: 2, name: 'Back',  sublabel: 'Shoulders', available: true },
+];
 
-let DATA = { products: [], colors: [] };
-let SELECTION = { productId: null, color: null, size: null, placement: 'Front', qty: 1 };
+let DATA = { products: [], colors: [], placements: FALLBACK_PLACEMENTS.slice() };
+let SELECTION = { productId: null, color: null, size: null, placement: null, qty: 1 };
 
 function esc(s){ return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 function isTrue(v){ return v === true || v === 'TRUE' || v === 'true' || v === 1; }
@@ -304,6 +325,20 @@ function isLightSwatch(hex){
   if (!m) return false;
   const r = parseInt(m[1].slice(0,2),16), g = parseInt(m[1].slice(2,4),16), b = parseInt(m[1].slice(4,6),16);
   return (r*299 + g*587 + b*114) / 1000 > 200;
+}
+
+// Pick a glyph for a placement label so Sheet-defined names (Front, Back,
+// Sleeve, Pocket, Center Chest…) still get a sensible icon. Falls through
+// to a generic tee outline when the name doesn't match a known keyword.
+function placementIcon(name){
+  const n = String(name || '').toLowerCase();
+  const tee = '<path d="M8 3l-3 3v15h14V6l-3-3M8 3h8M8 3v3h8V3"/>';
+  if (/back/.test(n))                 return `<svg viewBox="0 0 24 24">${tee}<path d="M9.5 12h5"/></svg>`;
+  if (/sleeve|arm/.test(n))           return `<svg viewBox="0 0 24 24">${tee}<circle cx="6" cy="9" r="1.4"/></svg>`;
+  if (/pocket/.test(n))               return `<svg viewBox="0 0 24 24">${tee}<rect x="9.5" y="9.5" width="5" height="4" rx=".5"/></svg>`;
+  if (/front|chest|center|left|right/.test(n))
+                                      return `<svg viewBox="0 0 24 24">${tee}<circle cx="12" cy="12" r="2.4"/></svg>`;
+  return `<svg viewBox="0 0 24 24">${tee}</svg>`;
 }
 
 /* ── product grid ────────────────────────────────────── */
@@ -347,6 +382,9 @@ function selectProduct(id, available){
   SELECTION.productId = id;
   SELECTION.color = SELECTION.color || (DATA.colors.find(c => isTrue(c.available)) || {}).name || null;
   SELECTION.size = SELECTION.size || 'M';
+  SELECTION.placement = SELECTION.placement
+    || (DATA.placements.find(p => isTrue(p.available)) || {}).name
+    || null;
   renderProducts();
   renderOrderPanel(available);
   document.getElementById('order-panel').scrollIntoView({behavior:'smooth', block:'start'});
@@ -370,24 +408,40 @@ function renderOrderPanel(available){
     sub.textContent = 'Pick a color, size, and where you want the print. Submit and we\'ll confirm by phone.';
   }
 
-  const colorSwatches = DATA.colors.map(c => {
+  // Per-product color narrowing. ApparelProducts.colors is a comma-separated
+  // list of color names; blank means "all colors". Names match against
+  // ApparelColors.name case-insensitively so "black" / "Black" / " Black "
+  // all line up.
+  const allowList = String(product.colors || '')
+    .split(',').map(s => s.trim().toLowerCase()).filter(Boolean);
+  const productColors = allowList.length
+    ? DATA.colors.filter(c => allowList.indexOf(String(c.name || '').toLowerCase()) !== -1)
+    : DATA.colors;
+
+  // If the previously-picked color isn't valid for this product, drop it
+  // and fall back to the first available color in the narrowed list.
+  if (SELECTION.color && !productColors.some(c => c.name === SELECTION.color && isTrue(c.available))) {
+    SELECTION.color = (productColors.find(c => isTrue(c.available)) || {}).name || null;
+  }
+
+  const colorSwatches = productColors.map(c => {
     const avail = isTrue(c.available);
     const active = SELECTION.color === c.name;
     const light = isLightSwatch(c.swatch) ? '1' : '0';
     return `<button type="button" class="swatch${active ? ' is-active' : ''}${avail ? '' : ' is-disabled'}"
               style="background:${esc(c.swatch || '#888')}" data-color="${esc(c.name)}" data-light="${light}"
               title="${esc(c.name)}" ${avail ? '' : 'aria-disabled="true"'}></button>`;
-  }).join('');
+  }).join('') || '<span style="color:rgba(255,255,255,.5);font-size:.85rem">No colors configured for this print yet.</span>';
 
   const sizeBtns = SIZES.map(s => `<button type="button" class="pill${SELECTION.size === s ? ' is-active' : ''}" data-size="${s}">${s}</button>`).join('');
 
-  const placementBtns = PLACEMENTS.map(pl => {
-    const active = SELECTION.placement === pl;
-    const icon = pl === 'Front'
-      ? '<svg viewBox="0 0 24 24"><path d="M8 3l-3 3v15h14V6l-3-3M8 3h8M8 3v3h8V3"/><circle cx="12" cy="12" r="2.4"/></svg>'
-      : '<svg viewBox="0 0 24 24"><path d="M8 3l-3 3v15h14V6l-3-3M8 3h8M8 3v3h8V3"/><path d="M9.5 12h5"/></svg>';
-    return `<button type="button" class="placement-btn${active ? ' is-active' : ''}" data-placement="${pl}">
-      ${icon}<span>${pl}</span><span class="pb-sub">${pl === 'Front' ? 'Chest' : 'Shoulders'}</span></button>`;
+  const placements = (DATA.placements || []).filter(p => isTrue(p.available));
+  const placementBtns = placements.map(pl => {
+    const name = String(pl.name || '').trim();
+    const sub  = String(pl.sublabel || '').trim();
+    const active = SELECTION.placement === name;
+    return `<button type="button" class="placement-btn${active ? ' is-active' : ''}" data-placement="${esc(name)}">
+      ${placementIcon(name)}<span>${esc(name)}</span>${sub ? `<span class="pb-sub">${esc(sub)}</span>` : ''}</button>`;
   }).join('');
 
   const submitDisabled = !available;
@@ -486,7 +540,7 @@ function bindForm(product, available){
 }
 
 /* ── submit ─────────────────────────────────────────── */
-function submitOrder(product, available){
+async function submitOrder(product, available){
   const btn = document.getElementById('submit-btn');
   const v = id => (document.getElementById(id).value || '').trim();
   const first = v('f-first'), last = v('f-last'), email = v('f-email'), phone = v('f-phone');
@@ -499,32 +553,83 @@ function submitOrder(product, available){
     return;
   }
   btn.disabled = true;
-  btn.textContent = 'Submitting…';
 
+  const total = (parseFloat(product.base_price) || 30) * SELECTION.qty;
+  const lineName = product.name + ' · ' + (SELECTION.color || '—')
+                 + ' · ' + (SELECTION.size || '—')
+                 + ' · ' + (SELECTION.placement || '—')
+                 + (SELECTION.qty > 1 ? ' · ×' + SELECTION.qty : '');
+
+  // Step 1: ask Stripe for a payment link (only if the print is buyable).
+  // If Stripe is down or the page is on a non-allowlisted origin, we still
+  // log the order and fall back to manual follow-up — same UX as before.
+  let paymentLink = '';
+  if (available) {
+    btn.textContent = 'Generating payment link…';
+    try {
+      const stripeRes = await fetch(STRIPE_URL, {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          customerName:  first + ' ' + last,
+          customerEmail: email,
+          invoiceNumber: 'CTC-AP',
+          productName:   lineName,
+          description:   'Cruise the Creek apparel — ' + product.name + ' (qty ' + SELECTION.qty + ')',
+          total:         total,
+        }),
+      });
+      if (stripeRes.ok) {
+        const data = await stripeRes.json().catch(() => null);
+        if (data && data.paymentLink) paymentLink = data.paymentLink;
+      }
+    } catch (err) {
+      console.warn('[apparel] payment link generation failed:', err);
+    }
+  }
+
+  // Step 2: log the order to the Sheet + email sales team. Always runs,
+  // whether or not the Stripe call succeeded.
+  btn.textContent = 'Submitting…';
   const params = new URLSearchParams({
-    action:    'apparelOrder',
-    firstName: first,
-    lastName:  last,
-    email:     email,
-    phone:     phone,
-    product:   product.name + ' (' + product.id + ')',
-    color:     SELECTION.color || '—',
-    size:      SELECTION.size  || '—',
-    placement: SELECTION.placement || '—',
-    qty:       String(SELECTION.qty),
-    total:     String(((parseFloat(product.base_price) || 30) * SELECTION.qty).toFixed(2)),
-    comments:  v('f-comments'),
+    action:      'apparelOrder',
+    firstName:   first,
+    lastName:    last,
+    email:       email,
+    phone:       phone,
+    product:     product.name + ' (' + product.id + ')',
+    color:       SELECTION.color || '—',
+    size:        SELECTION.size  || '—',
+    placement:   SELECTION.placement || '—',
+    qty:         String(SELECTION.qty),
+    total:       total.toFixed(2),
+    comments:    v('f-comments'),
+    paymentLink: paymentLink,
   });
 
   fetch(SUBMIT_URL + '?' + params.toString(), { redirect: 'follow' })
     .then(r => r.ok ? r.json().catch(() => ({ ok: true, id: '' })) : Promise.reject(r.status))
-    .then(res => openModal((res && res.id) || ''))
-    .catch(() => openModal(''))  // Apps Script may redirect — show success anyway
+    .then(res => openModal((res && res.id) || '', paymentLink, available))
+    .catch(() => openModal('', paymentLink, available))  // Apps Script may redirect — show success anyway
     .finally(() => { btn.disabled = false; btn.textContent = available ? 'Submit order' : 'Notify me when this drops'; });
 }
 
-function openModal(id){
+function openModal(id, paymentLink, available){
   document.getElementById('modal-id').textContent = id ? 'Order #' + id : 'Confirmation on the way';
+  const payRow  = document.getElementById('modal-pay-row');
+  const payBtn  = document.getElementById('modal-pay-btn');
+  const bodyEl  = document.getElementById('modal-body');
+  if (paymentLink && available) {
+    payBtn.href = paymentLink;
+    payRow.style.display = '';
+    bodyEl.innerHTML = "Your secure payment link is ready below — we've also emailed it to you. Pay now and we'll arrange pickup or delivery once it clears.";
+  } else if (available) {
+    payRow.style.display = 'none';
+    bodyEl.innerHTML = "We'll reach out within a few hours with a payment link and to confirm pickup or delivery.";
+  } else {
+    payRow.style.display = 'none';
+    bodyEl.innerHTML = "Thanks — we'll let you know the second this print drops.";
+  }
   document.getElementById('success-modal').classList.add('is-open');
 }
 function closeModal(){ document.getElementById('success-modal').classList.remove('is-open'); }
@@ -536,8 +641,12 @@ function readCmsCache(){ try { const r = localStorage.getItem(CMS_CACHE_KEY); re
 function writeCmsCache(d){ try { localStorage.setItem(CMS_CACHE_KEY, JSON.stringify(d)); } catch(e) {} }
 
 function applyData(d){
-  DATA.products = Array.isArray(d.apparelProducts) ? d.apparelProducts : [];
-  DATA.colors   = Array.isArray(d.apparelColors)   ? d.apparelColors   : [];
+  DATA.products   = Array.isArray(d.apparelProducts)   ? d.apparelProducts   : [];
+  DATA.colors     = Array.isArray(d.apparelColors)     ? d.apparelColors     : [];
+  // If the Sheet has rows for placements, use them. Otherwise keep the
+  // hardcoded fallback so a missing/empty tab doesn't strand the page.
+  const sheetPlacements = Array.isArray(d.apparelPlacements) ? d.apparelPlacements : [];
+  DATA.placements = sheetPlacements.length ? sheetPlacements : FALLBACK_PLACEMENTS.slice();
   renderProducts();
 }
 
