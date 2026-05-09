@@ -203,6 +203,8 @@ function doGet(e) {
                          .sort(function(a, b){ return (a.order || 0) - (b.order || 0); }),
     apparelColors:     readSheet(ss, 'ApparelColors')
                          .sort(function(a, b){ return (a.order || 0) - (b.order || 0); }),
+    apparelPlacements: readSheet(ss, 'ApparelPlacements')
+                         .sort(function(a, b){ return (a.order || 0) - (b.order || 0); }),
     tiles:             readSheet(ss, cap + '_Tiles'),
     submenus:          groupBy(readSheet(ss, cap + '_Submenus'), 'tile'),
   };
@@ -1450,6 +1452,17 @@ function getTabDefs() {
         [2, 'Forest Green', '#4a6650', true],
         [3, 'Sand',         '#d4c5a0', true],
         [4, 'White',         '#f8f6f0', true],
+      ],
+    },
+    'ApparelPlacements': {
+      // Drives the print-placement toggle on apparel.html. `name` is the
+      // primary label + the value saved to Apparel_Orders. `sublabel` is
+      // the small text under the name (optional — leave blank to hide).
+      // `available=false` hides the option entirely.
+      header: ['order','name','sublabel','available'],
+      rows: [
+        [1, 'Front', 'Chest',     true],
+        [2, 'Back',  'Shoulders', true],
       ],
     },
     'Apparel_Orders': {
