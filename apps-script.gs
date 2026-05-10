@@ -548,11 +548,12 @@ function getTabDefs() {
     'Shop_Tiles': {
       header: ['id','order','label','subtitle','type','url','external','photo'],
       rows: [
-        ['heybike',  1, 'Heybike',  'Affordable, easygoing rides', 'link', 'heybike.html',  false, ''],
-        ['velotric', 2, 'Velotric', 'Sleek, premium e-bikes',      'link', 'velotric.html', false, ''],
-        ['jasion',   3, 'Jasion',   'Trail-ready power',           'link', 'jasion.html',   false, ''],
-        ['mooncool', 4, 'Mooncool', 'Three-wheel comfort',         'link', 'mooncool.html', false, ''],
-        ['apparel',  5, 'Apparel',  'Tees, caps & ride threads',   'link', 'apparel.html',  false, ''],
+        ['heybike',     1, 'Heybike',     'Affordable, easygoing rides', 'link', 'heybike.html',     false, ''],
+        ['velotric',    2, 'Velotric',    'Sleek, premium e-bikes',      'link', 'velotric.html',    false, ''],
+        ['jasion',      3, 'Jasion',      'Trail-ready power',           'link', 'jasion.html',      false, ''],
+        ['mooncool',    4, 'Mooncool',    'Three-wheel comfort',         'link', 'mooncool.html',    false, ''],
+        ['apparel',     5, 'Apparel',     'Tees, caps & ride threads',   'link', 'apparel.html',     false, ''],
+        ['accessories', 6, 'Accessories', 'Saddles, seat posts & tools', 'link', 'accessories.html', false, ''],
       ],
     },
     'Shop_Submenus': {

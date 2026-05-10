@@ -185,6 +185,7 @@ main{flex:1;width:100%}
 .t-jasion   .tile-photo{background:linear-gradient(135deg,#2D4A32 0%,#557159 100%)}
 .t-mooncool .tile-photo{background:linear-gradient(135deg,#5c4a7d 0%,#9484b8 100%)}
 .t-apparel  .tile-photo{background:linear-gradient(135deg,#7a4f3c 0%,#b58968 100%)}
+.t-accessories .tile-photo{background:linear-gradient(135deg,#3a4f5a 0%,#6b8693 100%)}
 
 /* ── FEATURED PLACEHOLDER ── */
 .featured-slot{
@@ -476,15 +477,19 @@ const ICONS = {
   'jasion':   '<span style="font-family:\'Bebas Neue\',sans-serif">J</span>',
   'mooncool': '<span style="font-family:\'Bebas Neue\',sans-serif">M</span>',
   'apparel':  '<svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M16 12l-8 6 4 8 6-3v25h28V23l6 3 4-8-8-6-7-2c-2 4-5 6-9 6s-7-2-9-6z"/></svg>',
+  // Accessories: bike with comfort saddle — represents the saddle/seat-post
+  // category that drives most of our affiliate picks.
+  'accessories': '<svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="14" cy="46" r="9"/><circle cx="50" cy="46" r="9"/><path d="M14 46l11-19h16l9 19"/><path d="M25 27l8 12"/><path d="M33 27v-6h7"/><path d="M22 21h6"/><ellipse cx="25" cy="20" rx="6" ry="2.2"/></svg>',
 };
 
 const DEFAULT_DATA = {
   tiles: [
-    {id:'heybike',  order:1, label:'Heybike',  subtitle:'Affordable, easygoing rides',  type:'link', url:'heybike.html'},
-    {id:'velotric', order:2, label:'Velotric', subtitle:'Sleek, premium e-bikes',       type:'link', url:'velotric.html'},
-    {id:'jasion',   order:3, label:'Jasion',   subtitle:'Trail-ready power',            type:'link', url:'jasion.html'},
-    {id:'mooncool', order:4, label:'Mooncool', subtitle:'Three-wheel comfort',          type:'link', url:'mooncool.html'},
-    {id:'apparel',  order:5, label:'Apparel',  subtitle:'Tees, caps & ride threads',    type:'link', url:'apparel.html'},
+    {id:'heybike',     order:1, label:'Heybike',     subtitle:'Affordable, easygoing rides',  type:'link', url:'heybike.html'},
+    {id:'velotric',    order:2, label:'Velotric',    subtitle:'Sleek, premium e-bikes',       type:'link', url:'velotric.html'},
+    {id:'jasion',      order:3, label:'Jasion',      subtitle:'Trail-ready power',            type:'link', url:'jasion.html'},
+    {id:'mooncool',    order:4, label:'Mooncool',    subtitle:'Three-wheel comfort',          type:'link', url:'mooncool.html'},
+    {id:'apparel',     order:5, label:'Apparel',     subtitle:'Tees, caps & ride threads',    type:'link', url:'apparel.html'},
+    {id:'accessories', order:6, label:'Accessories', subtitle:'Saddles, seat posts & tools',  type:'link', url:'accessories.html'},
   ],
   submenus: {},
 };
