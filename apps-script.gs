@@ -913,6 +913,11 @@ function getTabDefs() {
         // Footer email link below the pricing cards.
         ['assembly_email_label',       'Questions? Email us →'],
         ['assembly_email_url',         'mailto:salesteam@cruisethecreek.com'],
+        // FAQ "What if I already bought my bike online?" answer reuses
+        // assembly_card2_price + _cta_url + _cta_external above (same product),
+        // so changing the price/URL there updates both spots.
+        ['assembly_faq_cta_label',     'Purchase Creek Ready Package'],
+        ['assembly_faq_post_payment',  "After payment, we'll contact you within 24 hours to schedule your drop-off."],
 
         ['── FOOTER & POLICY LINKS ──', ''],
         ['faq_url',             'faqs.html'],
