@@ -205,18 +205,6 @@ footer a:hover{color:#fff}
       <span class="section-eyebrow">Where it began</span>
       <h2>Remember those neighborhood lemonade stands?</h2>
 
-      <div class="photo-grid">
-        <!-- These two slots are re-rendered from the Sections tab on
-             page load (row: page=our-story, type=photo-pair). To change
-             the photos, edit that row's `extra` column in the sheet. -->
-        <div class="photo-slot" data-caption="Riding an e-bike, enjoying a lemonade.">
-          <img src="riding-e-bike-lemonade.jpg" alt="" onerror="this.remove()">
-        </div>
-        <div class="photo-slot" data-caption="Mill Creek Park, Youngstown.">
-          <img src="mill-creek-park-ebikes.jpg" alt="" onerror="this.remove()">
-        </div>
-      </div>
-
       <p class="lead">They were simple. Honest. They were run by kids who understood something we adults often forget: <strong>the best things in life are meant to be shared.</strong></p>
 
       <p>I grew up with those stands in mind. But during the pandemic, when screens became our default escape, I realized my two sons &mdash; 16 and 13 &mdash; were living a life disconnected from the world right outside our window. Across the street sat 2,658 acres of <strong>Mill Creek Park</strong>: trails, hills, lakes, and hidden beauty that most of us just drive past.</p>
@@ -447,17 +435,14 @@ function renderSections(rows){
     } else if (t === 'photo-pair') {
       const files = String(ex).split('|');
       const caps  = String(bo).split('|');
-      html += '<div class="photo-grid">';
+      const slots = [];
       for (let i = 0; i < files.length; i++) {
         const f = (files[i] || '').trim();
-        const c = (caps[i]  || '').trim();
-        if (!f && !c) continue;
-        const src = f
-          ? (/^https?:\/\//.test(f) ? f : ('media/' + encodeURI(f.replace(/^(media|images)\//, ''))))
-          : '';
-        html += `<div class="photo-slot" data-caption="${esc(c)}">${src ? `<img src="${esc(src)}" alt="" onerror="this.remove()">` : ''}</div>`;
+        if (!f) continue;
+        const src = /^https?:\/\//.test(f) ? f : ('media/' + encodeURI(f.replace(/^(media|images)\//, '')));
+        slots.push(`<div class="photo-slot" data-caption="${esc((caps[i] || '').trim())}"><img src="${esc(src)}" alt="" onerror="this.parentNode.remove()"></div>`);
       }
-      html += '</div>';
+      if (slots.length) html += '<div class="photo-grid">' + slots.join('') + '</div>';
     } else if (t === 'list-item') {
       if (!inList) { html += '<ul class="mission-list">'; inList = true; }
       const lead = ti ? `<strong>${esc(ti)}</strong> ` : '';

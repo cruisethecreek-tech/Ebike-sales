@@ -1781,9 +1781,6 @@ function getTabDefs() {
         // ── Our Story (slot left blank — flat prose render) ──
         ['our-story',  1, '', 'eyebrow',    'Where it began', '', ''],
         ['our-story',  2, '', 'h2',         'Remember those neighborhood lemonade stands?', '', ''],
-        ['our-story',  3, '', 'photo-pair', '',
-          'Riding an e-bike, enjoying a lemonade.|Mill Creek Park, Youngstown.',
-          'riding-e-bike-lemonade.jpg|mill-creek-park-ebikes.jpg'],
         ['our-story',  4, '', 'lead', '',
           "They were simple. Honest. They were run by kids who understood something we adults often forget: **the best things in life are meant to be shared.**", ''],
         ['our-story',  5, '', 'body', '',
