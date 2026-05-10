@@ -545,18 +545,16 @@ window.addEventListener('load', () => {
   }, 50);
 });
 
-/* ── Trail overview map (Leaflet + GPX) ──────────────
-   Fetches live route data from the adventure-map app so this page
-   stays in sync automatically. If the GPX host doesn't allow CORS
-   from this origin, the map fails gracefully with a static message
-   (see .trail-map.is-error). To enable cross-origin reads, add a
-   _headers file to the adventure-map project containing:
-     /locations/mill-creek/trailside.gpx
-       Access-Control-Allow-Origin: *                                */
+/* ── Trail overview map (Leaflet + GPX waypoints) ────
+   Reads media/trailside.gpx (same-origin, no CORS) and plots
+   each <wpt> as a marker. Trailheads (sym="Bicycle Trail") render
+   bigger and forest-green; everything else renders tan. To refresh
+   the trail data, replace media/trailside.gpx with an updated export
+   from the adventure-map app.                                       */
 (function initTrailMap(){
   const el = document.getElementById('trail-map');
   if (!el) return;
-  const GPX_URL = 'https://adventure-map.pages.dev/locations/mill-creek/trailside.gpx';
+  const GPX_URL = 'media/trailside.gpx';
 
   el.classList.add('is-loading');
 
@@ -573,27 +571,61 @@ window.addEventListener('load', () => {
     }, 60);
   }
 
-  function parseGpx(text){
-    const xml = new DOMParser().parseFromString(text, 'application/xml');
-    if (xml.getElementsByTagName('parsererror').length) return [];
-    const nodes = [
-      ...xml.getElementsByTagName('trkpt'),
-      ...xml.getElementsByTagName('rtept'),
-    ];
-    return nodes
-      .map(p => [parseFloat(p.getAttribute('lat')), parseFloat(p.getAttribute('lon'))])
-      .filter(([a, b]) => Number.isFinite(a) && Number.isFinite(b));
+  function txt(node, tag){
+    const n = node.getElementsByTagName(tag)[0];
+    return n ? (n.textContent || '').trim() : '';
   }
 
-  function renderMap(points){
+  function parseWaypoints(text){
+    const xml = new DOMParser().parseFromString(text, 'application/xml');
+    if (xml.getElementsByTagName('parsererror').length) return [];
+    return [...xml.getElementsByTagName('wpt')].map(w => ({
+      lat: parseFloat(w.getAttribute('lat')),
+      lon: parseFloat(w.getAttribute('lon')),
+      name: txt(w, 'name'),
+      desc: txt(w, 'desc'),
+      sym:  txt(w, 'sym'),
+    })).filter(p => Number.isFinite(p.lat) && Number.isFinite(p.lon));
+  }
+
+  function escapeHtml(s){
+    return String(s).replace(/[&<>"']/g, c => (
+      {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]
+    ));
+  }
+
+  function renderMap(waypoints){
     el.classList.remove('is-loading');
     const map = L.map(el, { scrollWheelZoom: false });
     L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
       maxZoom: 17,
       attribution: 'Map data © <a href="https://openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors · Tiles <a href="https://opentopomap.org" target="_blank" rel="noopener">OpenTopoMap</a> (CC-BY-SA)',
     }).addTo(map);
-    const line = L.polyline(points, { color: '#2D4A32', weight: 4, opacity: .9 }).addTo(map);
-    map.fitBounds(line.getBounds(), { padding: [24, 24] });
+
+    const markers = waypoints.map(w => {
+      const isTrailhead = /trail/i.test(w.sym);
+      const m = L.circleMarker([w.lat, w.lon], {
+        radius:      isTrailhead ? 9 : 6,
+        color:       '#fff',
+        weight:      isTrailhead ? 2 : 1.5,
+        fillColor:   isTrailhead ? '#2D4A32' : '#C9A96E',
+        fillOpacity: 1,
+      }).addTo(map);
+      if (w.name) {
+        m.bindTooltip(w.name, { direction: 'top', offset: [0, -6] });
+        const popup = w.desc
+          ? '<strong>' + escapeHtml(w.name) + '</strong><br>' + escapeHtml(w.desc)
+          : '<strong>' + escapeHtml(w.name) + '</strong>';
+        m.bindPopup(popup, { maxWidth: 240 });
+      }
+      return m;
+    });
+
+    if (markers.length) {
+      map.fitBounds(L.featureGroup(markers).getBounds(), { padding: [30, 30] });
+    } else {
+      map.setView([41.07, -80.78], 11);
+    }
   }
 
   const io = new IntersectionObserver((entries, obs) => {
@@ -603,8 +635,8 @@ window.addEventListener('load', () => {
       fetch(GPX_URL, { credentials: 'omit' })
         .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.text(); })
         .then(text => {
-          const pts = parseGpx(text);
-          if (!pts.length) throw new Error('No track points in GPX');
+          const pts = parseWaypoints(text);
+          if (!pts.length) throw new Error('No waypoints in GPX');
           renderMap(pts);
         })
         .catch(err => {

@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gpx version="1.1" creator="Cruise the Creek — Adventure Map"
+     xmlns="http://www.topografix.com/GPX/1/1"
+     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+     xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd">
+  <metadata>
+    <name>Trailside Journey — Mill Creek MetroParks Bikeway</name>
+    <desc>Waypoints and route along the Mill Creek MetroParks Bikeway from Kirk Road (Canfield) north to Niles. Generated from Cruise the Creek Adventure Map.</desc>
+    <author><name>Cruise the Creek</name></author>
+    <link href="https://adventure-map.pages.dev"><text>Cruise the Creek</text></link>
+    <time>2026-05-10T13:15:56.190Z</time>
+    <keywords>Mill Creek, Youngstown, Canfield, Niles, e-bike, bikeway, trailside</keywords>
+  </metadata>
+  <wpt lat="41.0685029" lon="-80.7891074">
+    <name>Kirk Road Trailhead</name>
+    <desc>Kirk Road Trailhead is the main launch point for the Mill Creek Bikeway and the Cruise the Creek E-Bike rental program. The trailhead provides a 50-car parking lot, restrooms, water fountains, a picnic pavilion, and a location for educational and trailside activities. This 11-mile paved bike trail offers a tranquil experience owned and operated by Mill Creek MetroParks. 15 mph speed limit strictly enforced.</desc>
+    <cmt>🏁 Trailhead, 🅿️ Parking, 🚻 Restrooms, 🚲 E-Bike Pickup</cmt>
+    <sym>Bicycle Trail</sym>
+    <type>Trailside</type>
+  </wpt>
+  <wpt lat="41.029601" lon="-80.7735994">
+    <name>Canfield High School</name>
+    <desc>Canfield High School sits along the bikeway route heading south from Kirk Road Trailhead. A good landmark to gauge your progress on the ride toward MetroParks Farm and the Walnut Grove.</desc>
+    <cmt>📍 Landmark, 🚴 Along the Bikeway</cmt>
+    <sym>Waypoint</sym>
+    <type>Trailside</type>
+  </wpt>
+  <wpt lat="41.0125663" lon="-80.7556785">
+    <name>Canfield Fairgrounds</name>
+    <desc>The Canfield Fairgrounds hosts the annual Canfield Fair, one of Ohio&apos;s largest and most beloved county fairs. Located just off the bikeway on your ride south from Kirk Road. The fairgrounds are a hub for community events throughout the year.</desc>
+    <cmt>🎪 Events, 📍 Landmark, 🚴 Along the Bikeway</cmt>
+    <sym>Waypoint</sym>
+    <type>Trailside</type>
+  </wpt>
+  <wpt lat="41.0116042" lon="-80.7616907">
+    <name>MetroParks Farm</name>
+    <desc>Mill Creek MetroParks Farm is a 402-acre working farm that promotes agriculture through educational programming, tours, and display areas. Beginning in the 1910s, the property served as the Mahoning County Experimental Farm. The Ohio State University managed it until 1990, researching improvements in planting, livestock production, and pest management. Highlights include an archery range, disc golf course, Adventure Barn (seasonal), and sunflower field.</desc>
+    <cmt>🌾 Farm, 🎯 Destination, 🚴 Bikeway South, 📍 9mi Round Trip</cmt>
+    <sym>Waypoint</sym>
+    <type>Trailside</type>
+  </wpt>
+  <wpt lat="40.9909634" lon="-80.7623814">
+    <name>Walnut Grove Playground</name>
+    <desc>The Walnut Grove Playground is a popular family destination at the southern end of the Mill Creek Bikeway. Open from dawn &apos;til dusk, this playground is surrounded by beautiful walnut trees and green space. A great turnaround point for a longer southbound E-Bike journey from Kirk Road.</desc>
+    <cmt>🛝 Playground, 🎯 Destination, 🚴 Bikeway South, 📍 12mi Round Trip</cmt>
+    <sym>Waypoint</sym>
+    <type>Trailside</type>
+  </wpt>
+  <wpt lat="41.1002532" lon="-80.7898458">
+    <name>Mahoning Avenue Trailhead</name>
+    <desc>The Mahoning Avenue Trailhead is located in Austintown along the northbound Mill Creek Bikeway. The ride features beautiful scenery and the iconic bikeway overpass bridge. 10 intersections on the round trip — 15 mph speed limit, must yield to all pedestrians.</desc>
+    <cmt>🏁 Trailhead, 🎯 Destination, 🚴 Bikeway North, 📍 5mi Round Trip</cmt>
+    <sym>Bicycle Trail</sym>
+    <type>Trailside</type>
+  </wpt>
+  <wpt lat="41.0999847" lon="-80.7905649">
+    <name>Bikeway Overpass Bridge</name>
+    <desc>The Mill Creek Bikeway overpass bridge is one of the most recognizable landmarks along the trail. This scenic crossing offers great views and is a favorite photo opportunity for riders.</desc>
+    <cmt>📸 Photo Op, 🌉 Bridge, 🚴 Along the Bikeway</cmt>
+    <sym>Waypoint</sym>
+    <type>Trailside</type>
+  </wpt>
+  <wpt lat="41.1596453" lon="-80.7698624">
+    <name>Niles Greenway — Central Park Trailhead</name>
+    <desc>The Niles Greenway is a paved, multi-use path running north–south between the county line on the south and the town of Niles. The pleasant trail passes through a mix of wooded areas, scattered light industrial estates and a few suburban back yards. The trail offers easy access to downtown Niles, Meander Creek Reservoir and an off-road route between Niles and towns south, including Austintown and Canfield. 40 intersections round trip — 15 mph speed limit, must yield to all pedestrians.</desc>
+    <cmt>🏁 Trailhead, 🎯 Destination, 🚴 Bikeway North, 📍 18mi Round Trip</cmt>
+    <sym>Bicycle Trail</sym>
+    <type>Trailside</type>
+  </wpt>
+  <wpt lat="41.185" lon="-80.758">
+    <name>McKinley Memorial</name>
+    <desc>The McKinley Memorial in Niles honors the 25th President of the United States, William McKinley, who was born in Niles in 1843. Located near the Niles Greenway trailhead, it&apos;s a worthwhile stop on the northernmost leg of the E-Bike journey.</desc>
+    <cmt>🏛️ Historic, 📸 Photo Op, 🚴 Near Niles Trailhead</cmt>
+    <sym>Waypoint</sym>
+    <type>Trailside</type>
+  </wpt>
+  <wpt lat="41.0509104" lon="-80.7919981">
+    <name>Sawmill Creek Preserve</name>
+    <desc></desc>
+    <sym>Waypoint</sym>
+    <type>Trailside</type>
+  </wpt>
+  <wpt lat="41.1472994" lon="-80.7799389">
+    <name>Meander Creek Dam/Reservoir</name>
+    <desc></desc>
+    <sym>Waypoint</sym>
+    <type>Trailside</type>
+  </wpt>
+  <rte>
+    <name>Trailside Journey — Kirk Road to Niles</name>
+    <desc>Suggested order from southern endpoints (MetroParks Farm / Walnut Grove) through Kirk Road north to Niles Greenway and McKinley Memorial.</desc>
+    <rtept lat="41.0685029" lon="-80.7891074"><name>Kirk Road Trailhead</name></rtept>
+    <rtept lat="41.029601" lon="-80.7735994"><name>Canfield High School</name></rtept>
+    <rtept lat="41.0125663" lon="-80.7556785"><name>Canfield Fairgrounds</name></rtept>
+    <rtept lat="41.0116042" lon="-80.7616907"><name>MetroParks Farm</name></rtept>
+    <rtept lat="40.9909634" lon="-80.7623814"><name>Walnut Grove Playground</name></rtept>
+    <rtept lat="41.1002532" lon="-80.7898458"><name>Mahoning Avenue Trailhead</name></rtept>
+    <rtept lat="41.0999847" lon="-80.7905649"><name>Bikeway Overpass Bridge</name></rtept>
+    <rtept lat="41.1596453" lon="-80.7698624"><name>Niles Greenway — Central Park Trailhead</name></rtept>
+    <rtept lat="41.185" lon="-80.758"><name>McKinley Memorial</name></rtept>
+    <rtept lat="41.0509104" lon="-80.7919981"><name>Sawmill Creek Preserve</name></rtept>
+    <rtept lat="41.1472994" lon="-80.7799389"><name>Meander Creek Dam/Reservoir</name></rtept>
+  </rte>
+</gpx>
