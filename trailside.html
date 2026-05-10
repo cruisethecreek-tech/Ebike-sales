@@ -651,6 +651,10 @@ function _renderSwitch(rows){
 
 /* ── CMS cache: kill the flash for repeat visitors. ── */
 const CMS_CACHE_KEY = 'cms:trailside:v1';
+// Repeat visitors within this window skip the network fetch entirely —
+// no second-paint flash. Append ?refresh=1 to the URL to bypass the
+// cache (useful when previewing sheet edits).
+const CMS_TTL_MS = 5 * 60 * 1000;
 function readCmsCache(){
   try { const raw = localStorage.getItem(CMS_CACHE_KEY);
         const p = raw ? JSON.parse(raw) : null;
@@ -658,25 +662,34 @@ function readCmsCache(){
       } catch(e) { return null; }
 }
 function writeCmsCache(d){
-  try { localStorage.setItem(CMS_CACHE_KEY, JSON.stringify(d)); } catch(e) {}
+  try { localStorage.setItem(CMS_CACHE_KEY, JSON.stringify({_ts: Date.now(), data: d})); } catch(e) {}
 }
-const _cached = readCmsCache();
+function unwrapCache(p){ return p && p.data ? p.data : p; }
+function isCacheFresh(p){ return p && p._ts && (Date.now() - p._ts < CMS_TTL_MS); }
+
+const _wrapped = readCmsCache();
+const _cached  = unwrapCache(_wrapped);
 if (_cached) {
   applyCMS(_cached);
   if (Array.isArray(_cached.sections))  renderSections(_cached.sections);
   if (Array.isArray(_cached.galleries)) renderGallery(_cached.galleries);
 }
 
-fetch(MENU_URL, {cache:'no-store'})
-  .then(r => r.ok ? r.json() : Promise.reject(r.status))
-  .then(remote => {
-    if (!remote || typeof remote !== 'object') return;
-    writeCmsCache(remote);
-    applyCMS(remote);
-    if (Array.isArray(remote.sections))  renderSections(remote.sections);
-    if (Array.isArray(remote.galleries)) renderGallery(remote.galleries);
-  })
-  .catch(err => console.warn('[trailside] config fetch failed, using static content:', err));
+const _bypassCache = /[?&]refresh=1\b/.test(location.search);
+if (_bypassCache || !isCacheFresh(_wrapped)) {
+  fetch(MENU_URL, {cache:'no-store'})
+    .then(r => r.ok ? r.json() : Promise.reject(r.status))
+    .then(remote => {
+      if (!remote || typeof remote !== 'object') return;
+      writeCmsCache(remote);
+      // Skip the second-paint flash when nothing actually changed.
+      if (_cached && JSON.stringify(remote) === JSON.stringify(_cached)) return;
+      applyCMS(remote);
+      if (Array.isArray(remote.sections))  renderSections(remote.sections);
+      if (Array.isArray(remote.galleries)) renderGallery(remote.galleries);
+    })
+    .catch(err => console.warn('[trailside] config fetch failed, using static content:', err));
+}
 </script>
 
 </body>
