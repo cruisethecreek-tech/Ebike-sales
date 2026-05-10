@@ -187,6 +187,17 @@ footer .foot-links a{margin:0 8px}
 </style>
 <script src="cms-loader.js"></script>
 <script src="site-enhance.js"></script>
+<meta property="og:title" content="FAQs">
+<meta property="og:description" content="Everything you need to know about renting, buying, servicing, and riding an e-bike with Cruise the Creek — Youngstown, Ohio's authorized Heybike, Velotric, Jasion &amp; Mooncool dealer.">
+<meta property="og:image" content="https://www.cruisethecreek.com/cityrunblackblack.jpg">
+<meta property="og:url" content="https://www.cruisethecreek.com/faqs.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Cruise the Creek">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="FAQs">
+<meta name="twitter:description" content="Everything you need to know about renting, buying, servicing, and riding an e-bike with Cruise the Creek — Youngstown, Ohio's authorized Heybike, Velotric, Jasion &amp; Mooncool dealer.">
+<meta name="twitter:image" content="https://www.cruisethecreek.com/cityrunblackblack.jpg">
+<link rel="canonical" href="https://www.cruisethecreek.com/faqs.html">
 </head>
 <body>
 
@@ -774,6 +785,49 @@ function applyCMS(remote){
    Tab nav is rebuilt to match the sections that come back from the sheet. */
 function slugify(s){ return String(s || '').toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, ''); }
 
+/* ── FAQPage JSON-LD ─────────────────────────────────────
+   Builds Schema.org structured data from the rendered Q&A
+   list so Google can show rich-result FAQ accordions in
+   search. Re-runs whenever the CMS swaps the FAQ DOM. */
+function injectFaqJsonLd(){
+  try {
+    const items = [];
+    document.querySelectorAll('.qa').forEach(card => {
+      const qEl = card.querySelector('summary');
+      const aEl = card.querySelector('.qa-body');
+      if (!qEl || !aEl) return;
+      const q = (qEl.textContent || '').trim();
+      const a = (aEl.textContent || '').trim();
+      if (!q || !a) return;
+      items.push({
+        '@type': 'Question',
+        'name': q,
+        'acceptedAnswer': { '@type': 'Answer', 'text': a }
+      });
+    });
+    if (!items.length) return;
+    const data = {
+      '@context': 'https://schema.org',
+      '@type': 'FAQPage',
+      'mainEntity': items
+    };
+    let tag = document.getElementById('faq-jsonld');
+    if (!tag) {
+      tag = document.createElement('script');
+      tag.type = 'application/ld+json';
+      tag.id = 'faq-jsonld';
+      document.head.appendChild(tag);
+    }
+    tag.textContent = JSON.stringify(data);
+  } catch (e) { /* non-fatal */ }
+}
+// Build JSON-LD from the static fallback FAQs on first load too.
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', injectFaqJsonLd, { once: true });
+} else {
+  injectFaqJsonLd();
+}
+
 function renderFaqs(rows){
   const root = document.getElementById('faqsContent');
   const tabnav = document.getElementById('tabnavInner');
@@ -808,6 +862,7 @@ function renderFaqs(rows){
   });
   // Append a Contact tab + section pointer if not already in the data.
   root.innerHTML = html;
+  injectFaqJsonLd();
 
   // Rebuild tab nav.
   tabnav.innerHTML = tabs.map(t =>

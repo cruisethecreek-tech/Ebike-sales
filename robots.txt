@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+Disallow: /invoice.html
+Disallow: /salespro.html
+Disallow: /balance.html
+Disallow: /migrate-images.html
+
+Sitemap: https://www.cruisethecreek.com/sitemap.xml
