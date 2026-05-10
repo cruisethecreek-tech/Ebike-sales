@@ -242,6 +242,8 @@ footer{background:var(--dark);color:rgba(255,255,255,.75);padding:40px 24px 32px
   background:radial-gradient(circle at 80% 20%,rgba(255,255,255,.18) 0%,transparent 50%)}
 .vibe-card.kirk  .vibe-card-banner{background:linear-gradient(135deg,#557159 0%,#84a373 100%)}
 .vibe-card.bears .vibe-card-banner{background:linear-gradient(135deg,#1a2e1c 0%,#2D4A32 50%,#557159 100%)}
+.vibe-card-banner.has-image{background-size:cover;background-position:center}
+.vibe-card-banner.has-image::before{background:linear-gradient(135deg,rgba(26,46,28,.65) 0%,rgba(26,46,28,.4) 45%,rgba(26,46,28,.7) 100%)}
 
 .vibe-rec{display:inline-flex;align-items:center;gap:6px;
   background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.3);
@@ -483,17 +485,28 @@ function isTrue(v){ return v === true || v === 'TRUE' || v === 'true' || v === 1
 /* Render the side-by-side rental "vibe check" cards.
    Columns supported on the RentalsVibe tab:
      order, slug (kirk|bears = card color), icon, recommendation, label,
-     subtitle, tagline, descriptor, traits (pipe-separated), url, cta_label */
+     subtitle, tagline, descriptor, traits (pipe-separated), url, cta_label,
+     image (filename in /media/ or full URL — replaces the green gradient) */
 function renderRentalsVibe(rows){
   const grid = document.getElementById('vibeGrid');
   if (!grid || !Array.isArray(rows) || !rows.length) return;
   const arrow = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>';
+  const resolveMedia = v => {
+    const s = String(v || '').trim();
+    if (!s) return '';
+    if (/^https?:\/\//i.test(s) || s.startsWith('/') || s.startsWith('media/')) return s;
+    return 'media/' + s;
+  };
   grid.innerHTML = rows.map(r => {
     const slug   = String(r.slug || '').toLowerCase().trim() || 'kirk';
     const traits = String(r.traits || '').split('|').map(s => s.trim()).filter(Boolean);
+    const image  = resolveMedia(r.image);
+    const bannerAttrs = image
+      ? ' class="vibe-card-banner has-image" style="background-image:url(\'' + image.replace(/'/g, '%27') + '\')"'
+      : ' class="vibe-card-banner"';
     return (
       '<a class="vibe-card ' + esc(slug) + '" href="' + esc(r.url || '#') + '">' +
-        '<div class="vibe-card-banner">' +
+        '<div' + bannerAttrs + '>' +
           (r.recommendation ? '<span class="vibe-rec">' + esc(r.recommendation) + '</span>' : '') +
           (r.icon ? '<div class="vibe-icon">' + esc(r.icon) + '</div>' : '') +
           '<div class="vibe-name">' + esc(r.label || '') + '</div>' +

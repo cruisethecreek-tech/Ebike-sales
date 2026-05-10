@@ -1595,18 +1595,23 @@ function getTabDefs() {
       //                   (e.g. "First-time riders", "Confident riders").
       //   traits: pipe-separated list of short keywords
       //           (e.g. "Flat|Paved|Family-friendly").
-      header: ['order','slug','icon','recommendation','label','subtitle','tagline','descriptor','traits','url','cta_label'],
+      //   image: optional photo for the green banner area. Accepts a
+      //          filename in /media/ (e.g. "kirk-banner.jpg") or a full
+      //          URL. A dark overlay is layered on top so the white
+      //          text stays readable. Leave blank to fall back to the
+      //          green gradient.
+      header: ['order','slug','icon','recommendation','label','subtitle','tagline','descriptor','traits','url','cta_label','image'],
       rows: [
         [1, 'kirk',  '🌿', '⛅ First-time riders',
           'Kirk Road', 'Trailside Journey', 'Flat. Fast. Pure Focus.',
           "Paved bikeway. No cars, no climbs, no surprises — just smooth riding through the Mill Creek MetroParks corridor. Perfect first time on an e-bike.",
           'Flat|Paved|Family-friendly|Easy on every level',
-          'trailside.html', 'See Trailside'],
+          'trailside.html', 'See Trailside', ''],
         [2, 'bears', '🏞️', '⛰ Confident riders',
           'Bears Den', 'Unleash Your Adventure', 'Hills. Thrills. High Energy.',
           "Straight into Mill Creek Park's hidden corners — Lily Pond loops, Lanterman's Mill, the covered bridge. Wooded, hilly, scenic. The bike does the climbs so you can take in the view.",
           'Hills|Wooded trails|Scenic loops|Park interior',
-          'adventures.html', 'See Adventures'],
+          'adventures.html', 'See Adventures', ''],
       ],
     },
     'Admin': {
