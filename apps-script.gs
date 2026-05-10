@@ -217,6 +217,8 @@ function doGet(e) {
                          .sort(function(a, b){ return (a.order || 0) - (b.order || 0); }),
     apparelPlacements: readSheet(ss, 'ApparelPlacements')
                          .sort(function(a, b){ return (a.order || 0) - (b.order || 0); }),
+    accessories:       readSheet(ss, 'Accessories')
+                         .sort(function(a, b){ return (a.order || 0) - (b.order || 0); }),
     blog:              readSheet(ss, 'Blog')
                          .filter(function(r){ return r.published === true || r.published === 'TRUE' || r.published === 'true'; })
                          .sort(function(a, b){
@@ -491,6 +493,10 @@ function getTabDefs() {
                                           'Edit the placement chooser on the order form.'],
         ['Apparel',    'Apparel_Orders',  'Submitted orders log (read-only — written by the order form).',
                                           'Browse for fulfillment. Each row also has paymentLink (Stripe URL).'],
+
+        ['── ACCESSORIES (Amazon affiliate picks) ──', '', '', ''],
+        ['Accessories','Accessories',     'One row per affiliate pick on accessories.html. Grouped by `category` and optional `subgroup`.',
+                                          'Add a new pick: append a row, fill in name/description/url, and bump `order`. The first row in each category supplies the section eyebrow/intro/icon — leave those blank on later rows in the same category.'],
 
         ['── BLOG ──', '', '', ''],
         ['Blog',       'Blog',            'One row per blog post (slug, title, body_html, hero, etc).',
@@ -918,6 +924,21 @@ function getTabDefs() {
         // so changing the price/URL there updates both spots.
         ['assembly_faq_cta_label',     'Purchase Creek Ready Package'],
         ['assembly_faq_post_payment',  "After payment, we'll contact you within 24 hours to schedule your drop-off."],
+
+        ['── ACCESSORIES page · hero + framing copy ──', ''],
+        ['acc_hero_eyebrow',    'Curated picks'],
+        ['acc_hero_h1',         'Accessories'],
+        ['acc_hero_tagline',    "Saddles, seat posts, tools — gear we'd actually run on our own bikes, hand-picked from Amazon."],
+        ['acc_disclosure_title','Amazon Associate disclosure.'],
+        ['acc_disclosure_body', 'The links below are affiliate links — if you buy through them, we may earn a small commission at no extra cost to you. We only recommend gear we\'d actually use ourselves.'],
+        ['acc_fineprint',       'As an Amazon Associate, Cruise the Creek earns from qualifying purchases. Prices, availability, and product options are set by Amazon and may change without notice.'],
+        // Cross-promo block at the bottom — points back to apparel by default.
+        ['acc_promo_eyebrow',   'Pair it with the threads'],
+        ['acc_promo_title',     'Cruise the Creek apparel'],
+        ['acc_promo_sub',       'Tees and ride-ready threads, built and shipped from Youngstown.'],
+        ['acc_promo_cta_label', 'Shop apparel'],
+        ['acc_promo_cta_url',   'apparel.html'],
+        ['acc_promo_cta_external', false],
 
         ['── FOOTER & POLICY LINKS ──', ''],
         ['faq_url',             'faqs.html'],
@@ -1655,6 +1676,58 @@ function getTabDefs() {
       rows: [
         [1, 'Front', 'Chest',     true],
         [2, 'Back',  'Shoulders', true],
+      ],
+    },
+    'Accessories': {
+      // Each row is one Amazon affiliate pick on accessories.html. Cards
+      // are grouped by `category`, then optionally by `subgroup` (a bold
+      // sub-heading inside the category). `order` controls global sort.
+      //
+      // The FIRST row encountered for each category supplies the section
+      // header text (`cat_eyebrow`, `cat_intro`, `cat_icon`); leave those
+      // blank on later rows in the same category. Same goes for `subgroup`
+      // — repeat the value on every row that belongs to the sub-group.
+      //
+      // `id` is a stable slug used to dedupe on updateSheet() — never reuse.
+      // `photo` = filename in /media/ or full https:// URL (blank = stylized
+      // text placeholder). `available=false` hides the row.
+      header: ['id','order','category','cat_eyebrow','cat_intro','cat_icon','subgroup','name','description','badge','photo','url','available'],
+      rows: [
+        // Saddles & Seats — Bluewind sub-group
+        ['bluewind-backrest', 10, 'Saddles & Seats', 'Comfort upgrades',
+          "The factory saddle on most e-bikes is the first thing riders want to swap. These are wider, softer, and built for longer rides — picks for both stationary and rolling bikes.",
+          '🪑', 'Bluewind', 'Oversized Backrest Saddle',
+          "Wide bicycle saddle with novel backrest design. Universal fit for e-bikes, exercise bikes, or stationary road bikes — built for men & women.",
+          'Top Pick', '', 'https://amzn.to/4l0PXJc', true],
+        ['bluewind-noseless', 20, 'Saddles & Seats', '', '', '',
+          'Bluewind', 'Noseless Oversized Saddle',
+          "Same wide backrest design — but noseless, for riders who want to take pressure off the perineum on longer cruises.",
+          'Noseless', '', 'https://amzn.to/3Ouvhxb', true],
+        ['bluewind-wing',     30, 'Saddles & Seats', '', '', '',
+          'Bluewind', 'Wing-Padded Wide Saddle',
+          "Extra-wide cushion with comfort wings. Drop-in replacement for Peloton, stationary bikes, e-bikes, cruisers, and city bikes.",
+          '', '', 'https://amzn.to/4aCFH6q', true],
+        // Saddles & Seats — Cloud-9 sub-group
+        ['cloud9-cruiser',    40, 'Saddles & Seats', '', '', '',
+          'Cloud-9', 'Cruiser Select Saddle',
+          "10.5″ × 10.75″ cruiser saddle in soft-touch black vinyl. The classic Cloud-9 sit-up-and-cruise feel.",
+          'Cruiser', '', 'https://amzn.to/47fta6D', true],
+        ['cloud9-suspension', 50, 'Saddles & Seats', '', '', '',
+          'Cloud-9', 'Suspension Cruiser Saddle',
+          "Sunlite Cloud-9 with built-in suspension and cruiser gel — tri-color black. Smooths out the bumpy bits without losing comfort.",
+          'Suspension Gel', '', 'https://amzn.to/4r3naVQ', true],
+        // Seat Posts — single-product category
+        ['post-spring-susp',  60, 'Seat Posts', 'Suspension',
+          "Add suspension at the seat without buying a whole new bike. A spring-loaded seat post takes the sting out of cracks, curbs, and gravel.",
+          '⚡', '', 'Spring Suspension Seat Post',
+          "Shock-absorbing seat post with spring suspension — available in 27.2 mm, 30.9 mm, and 31.6 mm. Check your bike's seat tube before ordering.",
+          '3 Sizes', '', 'https://amzn.to/40wqHkr', true],
+        // Tools — single-product category
+        ['tool-ratchet-40',   70, 'Tools', 'Workshop',
+          "A small starter kit for assembly, tweaks, and trailside fixes. Nothing fancy — just the stuff that lives in our shop drawer.",
+          '🔧', '', '40-in-1 Ratcheting Screwdriver',
+          "S2 steel bits with detachable ratchet handle. Handles bike tweaks, electronics repair, furniture assembly, and general DIY.",
+          '40-in-1', '', 'https://amzn.to/4d2ppoG', true],
       ],
     },
     'Apparel_Orders': {
@@ -2504,9 +2577,9 @@ function setupSheet() {
  *  • Tab exists but empty (header only)   → seed default rows.
  *  • Tab exists with data:
  *      - Add any missing columns to the right (header only — no row data).
- *      - For SiteConfig / Pages / Photos (keyed tabs), append seed rows
- *        whose key/slug isn't already in the sheet. Existing rows are
- *        never modified or reordered.
+ *      - For SiteConfig / Pages / Photos / Accessories (keyed tabs),
+ *        append seed rows whose key/slug/id isn't already in the sheet.
+ *        Existing rows are never modified or reordered.
  *      - For row-list tabs (TrustStrip, Services, Steps, Sections,
  *        *_Tiles, *_Submenus) the existing rows are left alone — the
  *        defaults you see in getTabDefs() are NOT re-appended, since
@@ -2517,7 +2590,7 @@ function setupSheet() {
 function updateSheet() {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
   const tabs = getTabDefs();
-  const KEYED = { 'SiteConfig': 'key', 'Pages': 'slug', 'Photos': 'key' };
+  const KEYED = { 'SiteConfig': 'key', 'Pages': 'slug', 'Photos': 'key', 'Accessories': 'id' };
   const stats = { created: 0, seededEmpty: 0, addedCols: 0, addedRows: 0, untouched: 0 };
 
   Object.keys(tabs).forEach(function(name) {
