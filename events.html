@@ -199,6 +199,7 @@ footer .foot-links a{margin:0 8px}
   .cta{padding:26px 18px}
 }
 </style>
+<script src="cms-loader.js"></script>
 </head>
 <body>
 
@@ -485,38 +486,18 @@ function applyCMS(remote){
   }
 }
 
-const CMS_CACHE_KEY = 'cms:events:v1';
-function readCmsCache(){
-  try { const raw = localStorage.getItem(CMS_CACHE_KEY);
-        const p = raw ? JSON.parse(raw) : null;
-        return (p && typeof p === 'object') ? p : null;
-      } catch(e) { return null; }
-}
-function writeCmsCache(d){
-  try { localStorage.setItem(CMS_CACHE_KEY, JSON.stringify(d)); } catch(e) {}
-}
-
-const _cached = readCmsCache();
-if (_cached) {
-  applyCMS(_cached);
-  if (Array.isArray(_cached.events) && _cached.events.length) {
-    _events = _cached.events;
-    renderEvents();
-  }
-}
-
-fetch(MENU_URL, {cache:'no-store'})
-  .then(r => r.ok ? r.json() : Promise.reject(r.status))
-  .then(remote => {
-    if (!remote || typeof remote !== 'object') return;
-    writeCmsCache(remote);
-    applyCMS(remote);
-    if (Array.isArray(remote.events)) {
-      _events = remote.events;
+/* ── CMS bootstrap (cache, TTL, loader) ──────────── */
+cmsBoot({
+  key: 'cms:events:v1',
+  url: MENU_URL,
+  onApply(data) {
+    applyCMS(data);
+    if (Array.isArray(data.events)) {
+      _events = data.events;
       renderEvents();
     }
-  })
-  .catch(err => console.warn('[events] config fetch failed, using static content:', err));
+  },
+});
 </script>
 
 </body>

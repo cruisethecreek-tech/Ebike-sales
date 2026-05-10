@@ -223,6 +223,7 @@ footer a{color:var(--tan);font-weight:500}footer a:hover{color:#fff}
   .acc-teaser{padding:18px 16px}
 }
 </style>
+<script src="cms-loader.js"></script>
 </head>
 <body>
 
@@ -636,10 +637,6 @@ function closeModal(){ document.getElementById('success-modal').classList.remove
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
 
 /* ── load CMS ───────────────────────────────────────── */
-const CMS_CACHE_KEY = 'cms:apparel:v1';
-function readCmsCache(){ try { const r = localStorage.getItem(CMS_CACHE_KEY); return r ? JSON.parse(r) : null; } catch(e) { return null; } }
-function writeCmsCache(d){ try { localStorage.setItem(CMS_CACHE_KEY, JSON.stringify(d)); } catch(e) {} }
-
 function applyData(d){
   DATA.products   = Array.isArray(d.apparelProducts)   ? d.apparelProducts   : [];
   DATA.colors     = Array.isArray(d.apparelColors)     ? d.apparelColors     : [];
@@ -650,18 +647,12 @@ function applyData(d){
   renderProducts();
 }
 
-const _c = readCmsCache();
-if (_c) applyData(_c);
-renderProducts();
-
-fetch(MENU_URL, { cache: 'no-store' })
-  .then(r => r.ok ? r.json() : Promise.reject(r.status))
-  .then(remote => {
-    if (!remote || typeof remote !== 'object') return;
-    writeCmsCache(remote);
-    applyData(remote);
-  })
-  .catch(err => console.warn('[apparel] config fetch failed:', err));
+renderProducts(); // initial paint with empty defaults
+cmsBoot({
+  key: 'cms:apparel:v1',
+  url: MENU_URL,
+  onApply: applyData,
+});
 </script>
 
 </body>

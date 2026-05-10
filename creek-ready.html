@@ -895,6 +895,7 @@
             }
         }
     </style>
+<script src="cms-loader.js"></script>
 </head>
 <body>
 
@@ -1273,35 +1274,16 @@
         if (window.observeFadeIn) window.observeFadeIn(grid);
     }
 
-    /* ── CMS cache: render cached Sheet data synchronously so repeat
-         visitors don't see the static fallback flash before the fetch lands. ── */
-    const CMS_CACHE_KEY = 'cms:creek-ready:v1';
-    function readCmsCache(){
-      try { const raw = localStorage.getItem(CMS_CACHE_KEY);
-            const p = raw ? JSON.parse(raw) : null;
-            return (p && typeof p === 'object') ? p : null;
-          } catch(e) { return null; }
-    }
-    function writeCmsCache(d){
-      try { localStorage.setItem(CMS_CACHE_KEY, JSON.stringify(d)); } catch(e) {}
-    }
-    const _cached = readCmsCache();
-    if (_cached) {
-      applyCMS(_cached);
-      if (Array.isArray(_cached.services)) renderServices(_cached.services);
-      if (Array.isArray(_cached.steps))    renderSteps(_cached.steps);
-    }
-
-    fetch(MENU_URL, {cache:'no-store'})
-        .then(r => r.ok ? r.json() : Promise.reject(r.status))
-        .then(remote => {
-            if (!remote || typeof remote !== 'object') return;
-            writeCmsCache(remote);
-            applyCMS(remote);
-            if (Array.isArray(remote.services)) renderServices(remote.services);
-            if (Array.isArray(remote.steps))    renderSteps(remote.steps);
-        })
-        .catch(err => console.warn('[creek-ready] config fetch failed, using static content:', err));
+    /* ── CMS bootstrap (cache, TTL, loader) ──────────── */
+    cmsBoot({
+      key: 'cms:creek-ready:v1',
+      url: MENU_URL,
+      onApply(data) {
+        applyCMS(data);
+        if (Array.isArray(data.services)) renderServices(data.services);
+        if (Array.isArray(data.steps))    renderSteps(data.steps);
+      },
+    });
     </script>
 
 </body>

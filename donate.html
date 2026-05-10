@@ -135,6 +135,7 @@ footer .foot-links a{margin:0 8px}
   .give-btn{padding:18px 14px}
 }
 </style>
+<script src="cms-loader.js"></script>
 </head>
 <body>
 
@@ -300,32 +301,15 @@ function renderSupporters(rows){
   }).join('');
 }
 
-/* ── CMS cache: kill the flash for repeat visitors. ── */
-const CMS_CACHE_KEY = 'cms:donate:v1';
-function readCmsCache(){
-  try { const raw = localStorage.getItem(CMS_CACHE_KEY);
-        const p = raw ? JSON.parse(raw) : null;
-        return (p && typeof p === 'object') ? p : null;
-      } catch(e) { return null; }
-}
-function writeCmsCache(d){
-  try { localStorage.setItem(CMS_CACHE_KEY, JSON.stringify(d)); } catch(e) {}
-}
-const _cached = readCmsCache();
-if (_cached) {
-  applyCMS(_cached);
-  if (Array.isArray(_cached.supporters) && _cached.supporters.length) renderSupporters(_cached.supporters);
-}
-
-fetch(MENU_URL, {cache:'no-store'})
-  .then(r => r.ok ? r.json() : Promise.reject(r.status))
-  .then(remote => {
-    if (!remote || typeof remote !== 'object') return;
-    writeCmsCache(remote);
-    applyCMS(remote);
-    if (Array.isArray(remote.supporters) && remote.supporters.length) renderSupporters(remote.supporters);
-  })
-  .catch(err => console.warn('[donate] config fetch failed, using static content:', err));
+/* ── CMS bootstrap (cache, TTL, loader) ──────────── */
+cmsBoot({
+  key: 'cms:donate:v1',
+  url: MENU_URL,
+  onApply(data) {
+    applyCMS(data);
+    if (Array.isArray(data.supporters) && data.supporters.length) renderSupporters(data.supporters);
+  },
+});
 </script>
 
 </body>
