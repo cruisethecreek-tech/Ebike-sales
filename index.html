@@ -220,6 +220,46 @@ main{flex:1;width:100%}
 .t-test-rides .tile-photo{background:linear-gradient(135deg,#7a8b46 0%,#b9a259 100%)}
 .t-creek-life .tile-photo{background:linear-gradient(135deg,#34618a 0%,#6B8F71 100%)}
 
+/* ── TRUST STRIP ── */
+.trust{max-width:1080px;margin:24px auto 0;padding:0 24px}
+.trust-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+@media(min-width:720px){.trust-grid{grid-template-columns:repeat(4,1fr);gap:18px}}
+.trust-card{background:#fff;border:1px solid rgba(0,0,0,.06);border-radius:8px;
+  padding:18px 18px;text-align:center;display:flex;flex-direction:column;gap:6px;
+  box-shadow:0 4px 12px rgba(0,0,0,.03)}
+.trust-icon{font-size:1.7rem;line-height:1}
+.trust-title{font-family:'Bebas Neue',sans-serif;font-size:1.05rem;letter-spacing:.04em;
+  text-transform:uppercase;color:var(--forest);line-height:1.05}
+.trust-desc{font-size:.84rem;color:var(--ink-2);line-height:1.55}
+
+/* ── TESTIMONIALS ── */
+.reviews{max-width:1080px;margin:48px auto 0;padding:0 24px}
+.reviews-head{display:flex;align-items:flex-end;justify-content:space-between;gap:14px;
+  margin-bottom:18px;flex-wrap:wrap}
+.reviews-head .rh-eyebrow{font-size:.72rem;letter-spacing:.18em;font-weight:700;
+  text-transform:uppercase;color:var(--tan-d);margin-bottom:4px}
+.reviews-head h2{font-family:'Bebas Neue',sans-serif;font-size:clamp(1.6rem,4vw,2.2rem);
+  letter-spacing:.04em;line-height:1.05;color:var(--forest);text-transform:uppercase}
+.reviews-grid{display:grid;grid-template-columns:1fr;gap:16px}
+@media(min-width:720px){.reviews-grid{grid-template-columns:repeat(3,1fr);gap:20px}}
+.review-card{background:#fff;border:1px solid rgba(0,0,0,.06);border-radius:8px;
+  padding:22px 22px;display:flex;flex-direction:column;gap:12px;
+  box-shadow:0 4px 12px rgba(0,0,0,.04);position:relative}
+.review-card::before{content:'\201C';position:absolute;top:-6px;left:14px;
+  font-family:'Bebas Neue',sans-serif;font-size:4.4rem;line-height:1;color:var(--tan);opacity:.4}
+.review-stars{color:var(--tan-d);letter-spacing:.05em;font-size:.95rem;font-weight:700;margin-top:14px}
+.review-body{font-size:.94rem;line-height:1.65;color:var(--ink-2);font-style:italic;flex:1}
+.review-author{display:flex;align-items:center;gap:10px;padding-top:10px;
+  border-top:1px solid rgba(0,0,0,.06)}
+.review-avatar{width:38px;height:38px;border-radius:50%;background:var(--cream-w);
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Bebas Neue',sans-serif;color:var(--forest);font-size:1rem;flex-shrink:0;
+  border:1px solid rgba(0,0,0,.05);overflow:hidden}
+.review-avatar img{width:100%;height:100%;object-fit:cover}
+.review-author-meta{flex:1;min-width:0}
+.review-name{font-weight:700;font-size:.88rem;color:var(--ink);line-height:1.2}
+.review-where{font-size:.76rem;color:var(--ink-3);letter-spacing:.04em;margin-top:2px}
+
 /* ── CTA STRIP ── */
 .cta{
   max-width:1080px;margin:24px auto 48px;padding:0 24px;
@@ -471,6 +511,22 @@ footer{background:var(--dark);color:rgba(255,255,255,.75);padding:40px 24px 32px
     <div class="grid" id="grid"></div>
   </div>
 
+  <!-- ── TRUST STRIP (CMS-driven, see TrustStrip tab) ── -->
+  <section class="trust fade-in" id="trustWrap" hidden>
+    <div class="trust-grid" id="trustGrid"></div>
+  </section>
+
+  <!-- ── REVIEWS (CMS-driven, see Testimonials tab) ── -->
+  <section class="reviews fade-in" id="reviewsWrap" hidden>
+    <div class="reviews-head">
+      <div>
+        <div class="rh-eyebrow" data-cms-text="reviews_eyebrow">From the Creek Crew</div>
+        <h2 data-cms-text="reviews_title">Riders making lemonade.</h2>
+      </div>
+    </div>
+    <div class="reviews-grid" id="reviewsGrid"></div>
+  </section>
+
   <!-- ── CTA STRIP ── -->
   <div class="cta fade-in">
     <div class="cta-inner">
@@ -700,6 +756,60 @@ document.querySelectorAll('[data-cms-display-if]').forEach(el => { el.style.disp
 
 /* ── CMS bootstrap (cache, TTL, loader) ──────────── */
 renderTiles(); // initial paint with default DATA
+function escHome(s){ return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+function renderTrustStrip(rows){
+  const wrap = document.getElementById('trustWrap');
+  const grid = document.getElementById('trustGrid');
+  if (!wrap || !grid) return;
+  if (!Array.isArray(rows) || !rows.length) { wrap.hidden = true; return; }
+  rows = rows.slice().sort((a,b) => (a.order || 0) - (b.order || 0));
+  grid.innerHTML = rows.map(r => `
+    <div class="trust-card">
+      <div class="trust-icon" aria-hidden="true">${escHome(r.icon || '')}</div>
+      <div class="trust-title">${escHome(r.title || '')}</div>
+      <div class="trust-desc">${escHome(r.desc || '')}</div>
+    </div>`).join('');
+  wrap.hidden = false;
+}
+
+function renderTestimonials(rows){
+  const wrap = document.getElementById('reviewsWrap');
+  const grid = document.getElementById('reviewsGrid');
+  if (!wrap || !grid) return;
+  const live = (Array.isArray(rows) ? rows : []).filter(r =>
+    (r.available === true || r.available === 'TRUE' || r.available === 'true' || r.available === 1 || r.available === '' || r.available == null) &&
+    String(r.quote || '').trim()
+  );
+  if (!live.length) { wrap.hidden = true; return; }
+  live.sort((a,b) => (a.order || 0) - (b.order || 0));
+  grid.innerHTML = live.slice(0, 6).map(r => {
+    const stars = Math.max(1, Math.min(5, parseInt(r.rating, 10) || 5));
+    const initial = String(r.name || '?').trim().charAt(0).toUpperCase();
+    const photo = String(r.photo || '').trim();
+    const photoSrc = photo
+      ? (/^https?:\/\//.test(photo) ? photo : 'media/' + encodeURI(photo.replace(/^(media|images)\//, '')))
+      : '';
+    const avatar = photoSrc
+      ? `<img src="${escHome(photoSrc)}" alt="" onerror="this.parentNode.textContent='${escHome(initial)}'">`
+      : escHome(initial);
+    return `
+    <article class="review-card">
+      <div class="review-stars" aria-label="${stars} out of 5">${'★'.repeat(stars)}${'☆'.repeat(5 - stars)}</div>
+      <p class="review-body">${escHome(r.quote)}</p>
+      <div class="review-author">
+        <div class="review-avatar" aria-hidden="true">${avatar}</div>
+        <div class="review-author-meta">
+          <div class="review-name">${escHome(r.name || '')}</div>
+          ${r.where ? `<div class="review-where">${escHome(r.where)}</div>` : ''}
+        </div>
+      </div>
+    </article>`;
+  }).join('');
+  wrap.hidden = false;
+  if (window.siteEnhance && window.siteEnhance.rescanFadeIns) window.siteEnhance.rescanFadeIns();
+}
+
 if (MENU_URL) cmsBoot({
   key: 'cms:home:v1',
   url: MENU_URL,
@@ -709,6 +819,8 @@ if (MENU_URL) cmsBoot({
       DATA = data;
       renderTiles();
     }
+    renderTrustStrip(data.trustStrip);
+    renderTestimonials(data.testimonials);
   },
 });
 </script>
