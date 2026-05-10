@@ -156,6 +156,7 @@ footer a{color:var(--tan);font-weight:500}footer a:hover{color:#fff}
   .cat-section{margin-bottom:36px}
 }
 </style>
+<script src="cms-loader.js"></script>
 </head>
 <body>
 
@@ -320,29 +321,26 @@ function applyCMS(map){
   });
 }
 
-const CMS_CACHE_KEY = 'cms:accessories:v1';
-function readCmsCache(){ try { const r = localStorage.getItem(CMS_CACHE_KEY); return r ? JSON.parse(r) : null; } catch(e) { return null; } }
-function writeCmsCache(d){ try { localStorage.setItem(CMS_CACHE_KEY, JSON.stringify(d)); } catch(e) {} }
-
-const _c = readCmsCache();
-if (_c) {
-  applyCMS(_c.site || {});
-  renderCards(_c.accessories || []);
-}
-
-fetch(MENU_URL, { cache: 'no-store' })
-  .then(r => r.ok ? r.json() : Promise.reject(r.status))
-  .then(remote => {
-    if (!remote || typeof remote !== 'object') return;
-    writeCmsCache(remote);
-    applyCMS(remote.site || {});
-    renderCards(remote.accessories || []);
-  })
-  .catch(err => {
-    console.warn('[accessories] config fetch failed:', err);
-    if (!_c) document.getElementById('acc-grid').innerHTML =
-      '<div class="acc-loading">Couldn\'t reach the catalog right now. Please refresh in a moment.</div>';
-  });
+/* ── CMS bootstrap (cache, TTL, loader) ──────────── */
+let _accApplied = false;
+cmsBoot({
+  key: 'cms:accessories:v1',
+  url: MENU_URL,
+  onApply(data) {
+    _accApplied = true;
+    applyCMS(data.site || {});
+    renderCards(data.accessories || []);
+  },
+});
+// Show a friendly error if the first-ever fetch fails (no cache to fall back on).
+window.addEventListener('load', () => setTimeout(() => {
+  if (!_accApplied) {
+    const g = document.getElementById('acc-grid');
+    if (g && g.querySelector('.acc-loading')) {
+      g.innerHTML = '<div class="acc-loading">Couldn\'t reach the catalog right now. Please refresh in a moment.</div>';
+    }
+  }
+}, 8000));
 </script>
 
 </body>

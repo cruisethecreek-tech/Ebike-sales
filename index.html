@@ -377,6 +377,7 @@ footer{background:var(--dark);color:rgba(255,255,255,.75);padding:40px 24px 32px
   .hero-scroll{animation:none}
 }
 </style>
+<script src="cms-loader.js"></script>
 </head>
 <body>
 
@@ -654,47 +655,19 @@ function applyCMS(remote){
 /* Hide social slots by default — they only appear if a URL is in SiteConfig. */
 document.querySelectorAll('[data-cms-display-if]').forEach(el => { el.style.display = 'none'; });
 
-/* ── CMS cache: kill the flash-of-default-content for repeat visitors.
-     On first visit the static fallback paints, then the fetch lands and
-     we cache the response. Every visit after that, we read the cache
-     synchronously and apply it BEFORE the fetch resolves — so the page
-     already shows your edited Sheet content the moment it paints. ── */
-const CMS_CACHE_KEY = 'cms:home:v1';
-function readCache(){
-  try {
-    const raw = localStorage.getItem(CMS_CACHE_KEY);
-    if (!raw) return null;
-    const parsed = JSON.parse(raw);
-    return (parsed && typeof parsed === 'object') ? parsed : null;
-  } catch (e) { return null; }
-}
-function writeCache(remote){
-  try { localStorage.setItem(CMS_CACHE_KEY, JSON.stringify(remote)); } catch (e) {}
-}
-
-const cached = readCache();
-if (cached) {
-  applyCMS(cached);
-  if (Array.isArray(cached.tiles) && cached.tiles.length) {
-    DATA = cached;
-  }
-}
-renderTiles();
-
-if (MENU_URL) {
-  fetch(MENU_URL, {cache:'no-store'})
-    .then(r => r.ok ? r.json() : Promise.reject(r.status))
-    .then(remote => {
-      if (!remote || typeof remote !== 'object') return;
-      writeCache(remote);
-      applyCMS(remote);
-      if (Array.isArray(remote.tiles) && remote.tiles.length) {
-        DATA = remote;
-        renderTiles();
-      }
-    })
-    .catch(err => console.warn('[home] config fetch failed, using defaults:', err));
-}
+/* ── CMS bootstrap (cache, TTL, loader) ──────────── */
+renderTiles(); // initial paint with default DATA
+if (MENU_URL) cmsBoot({
+  key: 'cms:home:v1',
+  url: MENU_URL,
+  onApply(data) {
+    applyCMS(data);
+    if (Array.isArray(data.tiles) && data.tiles.length) {
+      DATA = data;
+      renderTiles();
+    }
+  },
+});
 </script>
 
 </body>

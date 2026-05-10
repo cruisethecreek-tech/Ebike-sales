@@ -276,6 +276,7 @@ footer a:hover{color:#fff}
 @keyframes rise{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
 @media(prefers-reduced-motion:reduce){.hero-content{animation:none;opacity:1;transform:none}}
 </style>
+<script src="cms-loader.js"></script>
 </head>
 <body>
 <div class="cms-loader" aria-hidden="true">
@@ -756,17 +757,7 @@ function renderBridgeBikeOptions(rows){
   clearBikeSelection();
 }
 
-/* ── CMS cache: kill the flash for repeat visitors. ── */
-const CMS_CACHE_KEY = 'cms:bridge-the-gap:v1';
-function readCmsCache(){
-  try { const raw = localStorage.getItem(CMS_CACHE_KEY);
-        const p = raw ? JSON.parse(raw) : null;
-        return (p && typeof p === 'object') ? p : null;
-      } catch(e) { return null; }
-}
-function writeCmsCache(d){
-  try { localStorage.setItem(CMS_CACHE_KEY, JSON.stringify(d)); } catch(e) {}
-}
+/* ── CMS bootstrap (cache, TTL, loader) ──────────── */
 function hydrateBridge(d){
   applyCMS(d);
   if (Array.isArray(d.bridgePricing))     renderBridgePricing(d.bridgePricing);
@@ -777,19 +768,11 @@ function hydrateBridge(d){
   // Reveal the page now that real CMS content is rendered.
   window.dispatchEvent(new Event('cms:ready'));
 }
-const _cached = readCmsCache();
-if (_cached) hydrateBridge(_cached);
-
-if (MENU_URL) {
-  fetch(MENU_URL, {cache:'no-store'})
-    .then(r => r.ok ? r.json() : Promise.reject(r.status))
-    .then(remote => {
-      if (!remote || typeof remote !== 'object') return;
-      writeCmsCache(remote);
-      hydrateBridge(remote);
-    })
-    .catch(err => console.warn('[bridge-the-gap] config fetch failed, using static content:', err));
-}
+if (MENU_URL) cmsBoot({
+  key: 'cms:bridge-the-gap:v1',
+  url: MENU_URL,
+  onApply: hydrateBridge,
+});
 </script>
 
 </body>

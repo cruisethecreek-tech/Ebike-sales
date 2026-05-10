@@ -100,6 +100,7 @@ footer a{color:var(--tan);font-weight:500}footer a:hover{color:#fff}
   main{padding:22px 16px 48px}
 }
 </style>
+<script src="cms-loader.js"></script>
 </head>
 <body>
 
@@ -217,25 +218,18 @@ function applyData(d){
   renderPosts();
 }
 
-function readCache(){ try { const r = localStorage.getItem(CACHE_KEY); return r ? JSON.parse(r) : null; } catch(e) { return null; } }
-function writeCache(d){ try { localStorage.setItem(CACHE_KEY, JSON.stringify(d)); } catch(e) {} }
-
-const cached = readCache();
-if (cached) applyData(cached);
-
-fetch(MENU_URL, { cache: 'no-store' })
-  .then(r => r.ok ? r.json() : Promise.reject(r.status))
-  .then(remote => {
-    if (!remote || typeof remote !== 'object') return;
-    writeCache(remote);
-    applyData(remote);
-  })
-  .catch(err => {
-    console.warn('[blog] config fetch failed:', err);
-    if (!cached) {
-      document.getElementById('posts').innerHTML = '<div class="empty" style="grid-column:1/-1">Couldn\'t load posts right now. Refresh in a moment.</div>';
-    }
-  });
+/* ── CMS bootstrap (cache, TTL, loader) ──────────── */
+let _blogApplied = false;
+cmsBoot({
+  key: CACHE_KEY,
+  url: MENU_URL,
+  onApply(data) { _blogApplied = true; applyData(data); },
+});
+window.addEventListener('load', () => setTimeout(() => {
+  if (!_blogApplied) {
+    document.getElementById('posts').innerHTML = '<div class="empty" style="grid-column:1/-1">Couldn\'t load posts right now. Refresh in a moment.</div>';
+  }
+}, 8000));
 </script>
 
 </body>

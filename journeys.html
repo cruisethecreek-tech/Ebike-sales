@@ -189,6 +189,7 @@ footer .foot-links a{margin:0 8px}
   .tab{padding:12px 14px;font-size:.76rem}
 }
 </style>
+<script src="cms-loader.js"></script>
 </head>
 <body>
 
@@ -469,32 +470,15 @@ function renderJourneys(rows){
   if (north && groups.north.length) north.innerHTML = groups.north.map(renderJourneyCard).join('');
 }
 
-/* ── CMS cache: kill the flash for repeat visitors. ── */
-const CMS_CACHE_KEY = 'cms:journeys:v1';
-function readCmsCache(){
-  try { const raw = localStorage.getItem(CMS_CACHE_KEY);
-        const p = raw ? JSON.parse(raw) : null;
-        return (p && typeof p === 'object') ? p : null;
-      } catch(e) { return null; }
-}
-function writeCmsCache(d){
-  try { localStorage.setItem(CMS_CACHE_KEY, JSON.stringify(d)); } catch(e) {}
-}
-const _cached = readCmsCache();
-if (_cached) {
-  applyCMS(_cached);
-  if (Array.isArray(_cached.journeys) && _cached.journeys.length) renderJourneys(_cached.journeys);
-}
-
-fetch(MENU_URL, {cache:'no-store'})
-  .then(r => r.ok ? r.json() : Promise.reject(r.status))
-  .then(remote => {
-    if (!remote || typeof remote !== 'object') return;
-    writeCmsCache(remote);
-    applyCMS(remote);
-    if (Array.isArray(remote.journeys) && remote.journeys.length) renderJourneys(remote.journeys);
-  })
-  .catch(err => console.warn('[journeys] config fetch failed, using static content:', err));
+/* ── CMS bootstrap (cache, TTL, loader) ──────────── */
+cmsBoot({
+  key: 'cms:journeys:v1',
+  url: MENU_URL,
+  onApply(data) {
+    applyCMS(data);
+    if (Array.isArray(data.journeys) && data.journeys.length) renderJourneys(data.journeys);
+  },
+});
 
 /* If neither cache nor fetch populates the grids (first ever visit), seed
    an empty placeholder so the section doesn't look broken. */

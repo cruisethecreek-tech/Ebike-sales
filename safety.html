@@ -150,6 +150,7 @@ footer .foot-links a{margin:0 8px}
   .sizing-row{grid-template-columns:90px 1fr}
 }
 </style>
+<script src="cms-loader.js"></script>
 </head>
 <body>
 
@@ -416,36 +417,15 @@ function applyCMS(remote){
   }
 }
 
-/* ── CMS cache: kill the flash for repeat visitors. ── */
-const CMS_CACHE_KEY = 'cms:safety:v1';
-function readCmsCache(){
-  try { const raw = localStorage.getItem(CMS_CACHE_KEY);
-        const p = raw ? JSON.parse(raw) : null;
-        return (p && typeof p === 'object') ? p : null;
-      } catch(e) { return null; }
-}
-function writeCmsCache(d){
-  try { localStorage.setItem(CMS_CACHE_KEY, JSON.stringify(d)); } catch(e) {}
-}
-const _cached = readCmsCache();
-if (_cached) {
-  applyCMS(_cached);
-  if (Array.isArray(_cached.sections) && _cached.sections.length) {
-    renderSections(_cached.sections);
-  }
-}
-
-fetch(MENU_URL, {cache:'no-store'})
-  .then(r => r.ok ? r.json() : Promise.reject(r.status))
-  .then(remote => {
-    if (!remote || typeof remote !== 'object') return;
-    writeCmsCache(remote);
-    applyCMS(remote);
-    if (Array.isArray(remote.sections) && remote.sections.length) {
-      renderSections(remote.sections);
-    }
-  })
-  .catch(err => console.warn('[safety] config fetch failed, using static content:', err));
+/* ── CMS bootstrap (cache, TTL, loader) ──────────── */
+cmsBoot({
+  key: 'cms:safety:v1',
+  url: MENU_URL,
+  onApply(data) {
+    applyCMS(data);
+    if (Array.isArray(data.sections) && data.sections.length) renderSections(data.sections);
+  },
+});
 </script>
 
 </body>

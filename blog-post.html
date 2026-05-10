@@ -137,6 +137,7 @@ footer a{color:var(--tan);font-weight:500}footer a:hover{color:#fff}
   .post-body{font-size:1rem;line-height:1.7}
 }
 </style>
+<script src="cms-loader.js"></script>
 </head>
 <body>
 
@@ -276,23 +277,16 @@ function applyData(d){
   renderPost(post, posts);
 }
 
-function readCache(){ try { const r = localStorage.getItem(CACHE_KEY); return r ? JSON.parse(r) : null; } catch(e) { return null; } }
-function writeCache(d){ try { localStorage.setItem(CACHE_KEY, JSON.stringify(d)); } catch(e) {} }
-
-const cached = readCache();
-if (cached) applyData(cached);
-
-fetch(MENU_URL, { cache: 'no-store' })
-  .then(r => r.ok ? r.json() : Promise.reject(r.status))
-  .then(remote => {
-    if (!remote || typeof remote !== 'object') return;
-    writeCache(remote);
-    applyData(remote);
-  })
-  .catch(err => {
-    console.warn('[blog-post] config fetch failed:', err);
-    if (!cached) renderError("Couldn't load this post", 'Refresh the page or check back in a moment.');
-  });
+/* ── CMS bootstrap (cache, TTL, loader) ──────────── */
+let _bpApplied = false;
+cmsBoot({
+  key: CACHE_KEY,
+  url: MENU_URL,
+  onApply(data) { _bpApplied = true; applyData(data); },
+});
+window.addEventListener('load', () => setTimeout(() => {
+  if (!_bpApplied) renderError("Couldn't load this post", 'Refresh the page or check back in a moment.');
+}, 8000));
 </script>
 
 </body>
