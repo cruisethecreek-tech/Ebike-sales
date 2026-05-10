@@ -188,33 +188,7 @@ footer .foot-links a{margin:0 8px}
   .tabnav{top:58px}
   .tab{padding:12px 14px;font-size:.76rem}
 }
-
-/* ── Trail overview map ──────────────────────────── */
-.trail-map-wrap{background:#fff;border:1px solid rgba(0,0,0,.06);border-radius:14px;
-  overflow:hidden;box-shadow:0 4px 12px rgba(0,0,0,.04)}
-.trail-map{height:340px;background:var(--cream);position:relative}
-.trail-map.is-loading::after,
-.trail-map.is-error::after{content:'Loading trail…';position:absolute;inset:0;
-  display:flex;align-items:center;justify-content:center;color:var(--ink-3);
-  font-size:.9rem;letter-spacing:.04em;pointer-events:none}
-.trail-map.is-error::after{content:'Trail map unavailable'}
-.trail-map-foot{padding:14px 18px;display:flex;align-items:center;justify-content:space-between;
-  gap:14px;background:var(--cream-w);border-top:1px solid rgba(0,0,0,.05)}
-.trail-map-note{font-size:.82rem;color:var(--ink-3);line-height:1.5}
-.trail-cta{display:inline-flex;align-items:center;gap:.4rem;
-  background:var(--forest);color:#fff;padding:10px 18px;border-radius:999px;
-  font-size:.86rem;font-weight:700;letter-spacing:.02em;white-space:nowrap;
-  transition:background .2s ease}
-.trail-cta:hover{background:var(--dark)}
-.leaflet-container{font-family:'DM Sans',sans-serif;background:var(--cream)}
-@media (max-width:600px){
-  .trail-map{height:260px}
-  .trail-map-foot{flex-direction:column;align-items:stretch;padding:12px 14px}
-  .trail-cta{justify-content:center}
-}
 </style>
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
-<script defer src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 <script src="cms-loader.js"></script>
 <script src="site-enhance.js"></script>
 <meta property="og:title" content="Trailside Journeys">
@@ -280,20 +254,6 @@ footer .foot-links a{margin:0 8px}
           <p data-cms-text="kirk_body_1">This award-winning trailhead provides a fifty-car parking lot, restrooms, water fountains, a picnic pavilion, and a location for educational and trailside activities.</p>
           <p data-cms-text="kirk_body_2">The 11-mile Mill Creek Bikeway is owned and operated by Mill Creek MetroParks — paved and tranquil end to end.</p>
           <span class="speed">⚠ <span data-cms-text="kirk_speed">15 mph speed limit strictly enforced</span></span>
-        </div>
-      </div>
-    </section>
-
-    <!-- ── TRAIL OVERVIEW MAP ── -->
-    <section class="dir-section" id="trail-overview">
-      <span class="dir-eyebrow">The full trail</span>
-      <h2 class="dir-title">Mill Creek Bikeway</h2>
-      <p class="dir-intro">Kirk Road sits in the middle. Head south through Canfield's farms and woods, or north over the iconic overpass toward Austintown and Niles.</p>
-      <div class="trail-map-wrap">
-        <div id="trail-map" class="trail-map" aria-label="Mill Creek Bikeway trail map"></div>
-        <div class="trail-map-foot">
-          <span class="trail-map-note">Live route data from our adventure map.</span>
-          <a class="trail-cta" href="https://adventure-map.pages.dev/v2" target="_blank" rel="noopener">View on Adventure Map →</a>
         </div>
       </div>
     </section>
@@ -544,111 +504,6 @@ window.addEventListener('load', () => {
     });
   }, 50);
 });
-
-/* ── Trail overview map (Leaflet + GPX waypoints) ────
-   Reads media/trailside.gpx (same-origin, no CORS) and plots
-   each <wpt> as a marker. Trailheads (sym="Bicycle Trail") render
-   bigger and forest-green; everything else renders tan. To refresh
-   the trail data, replace media/trailside.gpx with an updated export
-   from the adventure-map app.                                       */
-(function initTrailMap(){
-  const el = document.getElementById('trail-map');
-  if (!el) return;
-  const GPX_URL = 'media/trailside.gpx';
-
-  el.classList.add('is-loading');
-
-  function whenLeafletReady(cb){
-    if (window.L) return cb();
-    let tries = 0;
-    const id = setInterval(() => {
-      if (window.L) { clearInterval(id); cb(); }
-      else if (++tries > 100) {
-        clearInterval(id);
-        el.classList.remove('is-loading');
-        el.classList.add('is-error');
-      }
-    }, 60);
-  }
-
-  function txt(node, tag){
-    const n = node.getElementsByTagName(tag)[0];
-    return n ? (n.textContent || '').trim() : '';
-  }
-
-  function parseWaypoints(text){
-    const xml = new DOMParser().parseFromString(text, 'application/xml');
-    if (xml.getElementsByTagName('parsererror').length) return [];
-    return [...xml.getElementsByTagName('wpt')].map(w => ({
-      lat: parseFloat(w.getAttribute('lat')),
-      lon: parseFloat(w.getAttribute('lon')),
-      name: txt(w, 'name'),
-      desc: txt(w, 'desc'),
-      sym:  txt(w, 'sym'),
-    })).filter(p => Number.isFinite(p.lat) && Number.isFinite(p.lon));
-  }
-
-  function escapeHtml(s){
-    return String(s).replace(/[&<>"']/g, c => (
-      {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]
-    ));
-  }
-
-  function renderMap(waypoints){
-    el.classList.remove('is-loading');
-    const map = L.map(el, { scrollWheelZoom: false });
-    L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
-      maxZoom: 17,
-      attribution: 'Map data © <a href="https://openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors · Tiles <a href="https://opentopomap.org" target="_blank" rel="noopener">OpenTopoMap</a> (CC-BY-SA)',
-    }).addTo(map);
-
-    const markers = waypoints.map(w => {
-      const isTrailhead = /trail/i.test(w.sym);
-      const m = L.circleMarker([w.lat, w.lon], {
-        radius:      isTrailhead ? 9 : 6,
-        color:       '#fff',
-        weight:      isTrailhead ? 2 : 1.5,
-        fillColor:   isTrailhead ? '#2D4A32' : '#C9A96E',
-        fillOpacity: 1,
-      }).addTo(map);
-      if (w.name) {
-        m.bindTooltip(w.name, { direction: 'top', offset: [0, -6] });
-        const popup = w.desc
-          ? '<strong>' + escapeHtml(w.name) + '</strong><br>' + escapeHtml(w.desc)
-          : '<strong>' + escapeHtml(w.name) + '</strong>';
-        m.bindPopup(popup, { maxWidth: 240 });
-      }
-      return m;
-    });
-
-    if (markers.length) {
-      map.fitBounds(L.featureGroup(markers).getBounds(), { padding: [30, 30] });
-    } else {
-      map.setView([41.07, -80.78], 11);
-    }
-  }
-
-  const io = new IntersectionObserver((entries, obs) => {
-    if (!entries.some(e => e.isIntersecting)) return;
-    obs.disconnect();
-    whenLeafletReady(() => {
-      fetch(GPX_URL, { credentials: 'omit' })
-        .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.text(); })
-        .then(text => {
-          const pts = parseWaypoints(text);
-          if (!pts.length) throw new Error('No waypoints in GPX');
-          renderMap(pts);
-        })
-        .catch(err => {
-          console.warn('[trail-map] failed to load GPX:', err);
-          el.classList.remove('is-loading');
-          el.classList.add('is-error');
-        });
-    });
-  }, { rootMargin: '200px 0px' });
-
-  io.observe(el);
-})();
 </script>
 
 </body>
