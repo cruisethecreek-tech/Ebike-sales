@@ -206,12 +206,14 @@ footer a:hover{color:#fff}
       <h2>Remember those neighborhood lemonade stands?</h2>
 
       <div class="photo-grid">
-        <!-- Drop the photo at this filename to fill this slot. -->
+        <!-- These two slots are re-rendered from the Sections tab on
+             page load (row: page=our-story, type=photo-pair). To change
+             the photos, edit that row's `extra` column in the sheet. -->
         <div class="photo-slot" data-caption="Riding an e-bike, enjoying a lemonade.">
-          <img data-cms-src="lemonade_ride_image" src="riding-e-bike-lemonade.jpg" alt="" onerror="this.remove()">
+          <img src="riding-e-bike-lemonade.jpg" alt="" onerror="this.remove()">
         </div>
         <div class="photo-slot" data-caption="Mill Creek Park, Youngstown.">
-          <img data-cms-src="mill_creek_park_image" src="mill-creek-park-ebikes.jpg" alt="" onerror="this.remove()">
+          <img src="mill-creek-park-ebikes.jpg" alt="" onerror="this.remove()">
         </div>
       </div>
 
@@ -450,7 +452,10 @@ function renderSections(rows){
         const f = (files[i] || '').trim();
         const c = (caps[i]  || '').trim();
         if (!f && !c) continue;
-        html += `<div class="photo-slot" data-caption="${esc(c)}"><img src="${esc(f)}" alt="" onerror="this.remove()"></div>`;
+        const src = f
+          ? (/^https?:\/\//.test(f) ? f : ('media/' + encodeURI(f.replace(/^(media|images)\//, ''))))
+          : '';
+        html += `<div class="photo-slot" data-caption="${esc(c)}">${src ? `<img src="${esc(src)}" alt="" onerror="this.remove()">` : ''}</div>`;
       }
       html += '</div>';
     } else if (t === 'list-item') {
@@ -485,7 +490,9 @@ function applyCMS(remote){
   });
   document.querySelectorAll('[data-cms-src]').forEach(el => {
     const v = map[el.dataset.cmsSrc];
-    if (v) { el.src = v; el.classList.add('loaded'); }
+    if (!v) return;
+    const url = /^https?:\/\//.test(v) ? v : ('media/' + encodeURI(String(v).replace(/^(media|images)\//, '').trim()));
+    el.src = url; el.classList.add('loaded');
   });
   document.querySelectorAll('[data-cms-target]').forEach(el => {
     const v = map[el.dataset.cmsTarget];
