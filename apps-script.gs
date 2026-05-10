@@ -219,6 +219,8 @@ function doGet(e) {
                          .sort(function(a, b){ return (a.order || 0) - (b.order || 0); }),
     accessories:       readSheet(ss, 'Accessories')
                          .sort(function(a, b){ return (a.order || 0) - (b.order || 0); }),
+    testimonials:      readSheet(ss, 'Testimonials')
+                         .sort(function(a, b){ return (a.order || 0) - (b.order || 0); }),
     blog:              readSheet(ss, 'Blog')
                          .filter(function(r){ return r.published === true || r.published === 'TRUE' || r.published === 'true'; })
                          .sort(function(a, b){
@@ -497,6 +499,10 @@ function getTabDefs() {
         ['── ACCESSORIES (Amazon affiliate picks) ──', '', '', ''],
         ['Accessories','Accessories',     'One row per affiliate pick on accessories.html. Grouped by `category` and optional `subgroup`.',
                                           'Add a new pick: append a row, fill in name/description/url, and bump `order`. The first row in each category supplies the section eyebrow/intro/icon — leave those blank on later rows in the same category.'],
+
+        ['── HOMEPAGE TESTIMONIALS ──', '', '', ''],
+        ['Testimonials','Testimonials',   'Customer reviews shown in the "Riders making lemonade" section on index.html.',
+                                          'Add a new review: append a row, fill in quote/name/where/rating, set available=TRUE. Up to 6 most-recent live reviews render.'],
 
         ['── BLOG ──', '', '', ''],
         ['Blog',       'Blog',            'One row per blog post (slug, title, body_html, hero, etc).',
@@ -925,6 +931,10 @@ function getTabDefs() {
         // so changing the price/URL there updates both spots.
         ['assembly_faq_cta_label',     'Purchase Creek Ready Package'],
         ['assembly_faq_post_payment',  "After payment, we'll contact you within 24 hours to schedule your drop-off."],
+
+        ['── HOMEPAGE · testimonials section ──', ''],
+        ['reviews_eyebrow',     'From the Creek Crew'],
+        ['reviews_title',       'Riders making lemonade.'],
 
         ['── ACCESSORIES page · hero + framing copy ──', ''],
         ['acc_hero_eyebrow',    'Curated picks'],
@@ -1729,6 +1739,35 @@ function getTabDefs() {
           '🔧', '', '40-in-1 Ratcheting Screwdriver',
           "S2 steel bits with detachable ratchet handle. Handles bike tweaks, electronics repair, furniture assembly, and general DIY.",
           '40-in-1', '', 'https://amzn.to/4d2ppoG', true],
+      ],
+    },
+    'Testimonials': {
+      // Customer reviews rendered in the homepage "Riders making
+      // lemonade" section. Up to 6 most-recent live rows show.
+      //
+      // `id`     = stable slug used to dedupe on updateSheet()
+      // `order`  = sort order; lowest first. Use gaps of 10 so you can
+      //            slot a new review between existing ones.
+      // `name`   = "First L." or full name. Shown beside the avatar.
+      // `where`  = location/short context like "Youngstown, OH" or
+      //            "Trail Map Tee buyer". Optional.
+      // `rating` = 1-5 stars (defaults to 5 if blank/invalid)
+      // `quote`  = the review body. Plain text only (no HTML).
+      // `photo`  = filename in /media/ or full URL. Blank shows the
+      //            customer's first initial in a cream circle.
+      // `available` = FALSE to hide a row without deleting it.
+      header: ['id','order','name','where','rating','quote','photo','available'],
+      rows: [
+        // Seed rows — replace with real customer reviews when you have them.
+        ['seed-1', 10, 'Sarah M.', 'Youngstown, OH', 5,
+          "Andrew built our two e-bikes like he was building them for himself. The Creek Ready setup made all the difference — we've had zero issues in six months and the trails feel made for these things.",
+          '', false],
+        ['seed-2', 20, 'Mike R.',  'Canfield, OH', 5,
+          "Pat and the crew turned a Saturday rental into our new family Sunday tradition. Kids actually ask to ride to the park now. That's a small miracle in 2026.",
+          '', false],
+        ['seed-3', 30, 'Dana T.',  'Boardman, OH', 5,
+          "I thought I needed a car for my commute. The Bridge the Gap program got me onto a bike, paid down over a few months. Best decision I made this year.",
+          '', false],
       ],
     },
     'Apparel_Orders': {
@@ -2588,7 +2627,7 @@ function setupSheet() {
 function updateSheet() {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
   const tabs = getTabDefs();
-  const KEYED = { 'SiteConfig': 'key', 'Pages': 'slug', 'Photos': 'key', 'Accessories': 'id' };
+  const KEYED = { 'SiteConfig': 'key', 'Pages': 'slug', 'Photos': 'key', 'Accessories': 'id', 'Testimonials': 'id' };
   const stats = { created: 0, seededEmpty: 0, addedCols: 0, addedRows: 0, untouched: 0 };
 
   Object.keys(tabs).forEach(function(name) {
