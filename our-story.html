@@ -203,7 +203,7 @@ footer a:hover{color:#fff}
   <article class="article" id="cmsArticleContent">
 
     <!-- ── INTRO: Lemonade stands ── -->
-    <section class="section">
+    <section class="section fade-in">
       <span class="section-eyebrow">Where it began</span>
       <h2>Remember those neighborhood lemonade stands?</h2>
 
@@ -219,7 +219,7 @@ footer a:hover{color:#fff}
     </section>
 
     <!-- ── WHY E-BIKES ── -->
-    <section class="section">
+    <section class="section fade-in">
       <span class="section-eyebrow">Why we ride</span>
       <h2>Why E-Bikes Change Everything</h2>
 
@@ -239,7 +239,7 @@ footer a:hover{color:#fff}
     <div class="divider"><span>The Story</span></div>
 
     <!-- ── THE TURNING POINT ── -->
-    <section class="section">
+    <section class="section fade-in">
       <div class="section-date">
         <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>
         April 30, 2022
@@ -256,7 +256,7 @@ footer a:hover{color:#fff}
     </section>
 
     <!-- ── THE SARASOTA EPIPHANY ── -->
-    <section class="section">
+    <section class="section fade-in">
       <div class="section-date">
         <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>
         June 6, 2022
@@ -277,7 +277,7 @@ footer a:hover{color:#fff}
     </section>
 
     <!-- ── OUR MISSION ── -->
-    <section class="section">
+    <section class="section fade-in">
       <span class="section-eyebrow">Our mission</span>
       <h2>Time matters. Experiences matter.</h2>
 
@@ -396,12 +396,12 @@ function rich(s){
 
 const CAL_SVG = '<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>';
 
-/* Group rows into <section class="section"> blocks at every divider. */
+/* Group rows into <section class="section fade-in"> blocks at every divider. */
 function renderSections(rows){
   const root = document.getElementById('cmsArticleContent');
   if (!root) return;
 
-  let html = '<section class="section">';
+  let html = '<section class="section fade-in">';
   let inList = false;
 
   function closeList(){ if (inList) { html += '</ul>'; inList = false; } }
@@ -433,7 +433,7 @@ function renderSections(rows){
     } else if (t === 'qa') {
       html += `<div class="qa"><h4>${esc(ti)}</h4><p>${rich(bo)}</p></div>`;
     } else if (t === 'divider') {
-      html += `</section><div class="divider"><span>${esc(ti)}</span></div><section class="section">`;
+      html += `</section><div class="divider"><span>${esc(ti)}</span></div><section class="section fade-in">`;
     } else if (t === 'photo-pair') {
       const files = String(ex).split('|');
       const caps  = String(bo).split('|');
@@ -455,6 +455,8 @@ function renderSections(rows){
   closeList();
   html += '</section>';
   root.innerHTML = html;
+  // Wire the new .fade-in nodes into the observer.
+  if (window.siteEnhance && window.siteEnhance.rescanFadeIns) window.siteEnhance.rescanFadeIns();
 }
 
 function applyCMS(remote){

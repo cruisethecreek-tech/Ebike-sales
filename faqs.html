@@ -85,6 +85,29 @@ main{flex:1;width:100%}
   letter-spacing:.02em;color:var(--forest);line-height:1.1;margin-bottom:8px}
 .section-intro{font-size:.98rem;line-height:1.65;color:var(--ink-3);margin-bottom:18px;max-width:640px}
 
+/* ── SEARCH BAR ── */
+.faq-search{max-width:880px;margin:24px auto 0;padding:0 24px;width:100%;position:relative}
+.faq-search input{width:100%;padding:14px 44px 14px 44px;font-size:1rem;
+  font-family:'DM Sans',sans-serif;background:#fff;color:var(--ink);
+  border:1px solid rgba(0,0,0,.08);border-radius:8px;
+  box-shadow:0 2px 8px rgba(0,0,0,.04);transition:border-color .15s ease,box-shadow .15s ease}
+.faq-search input:focus{outline:none;border-color:var(--tan);box-shadow:0 0 0 3px rgba(201,169,110,.18)}
+.faq-search input::placeholder{color:var(--ink-3)}
+.faq-search .fs-icon{position:absolute;left:38px;top:50%;transform:translateY(-50%);
+  width:18px;height:18px;color:var(--ink-3);pointer-events:none}
+.faq-search .fs-clear{position:absolute;right:38px;top:50%;transform:translateY(-50%);
+  width:24px;height:24px;border:none;background:transparent;cursor:pointer;
+  color:var(--ink-3);font-size:1.1rem;line-height:1;display:none;border-radius:99px;
+  align-items:center;justify-content:center}
+.faq-search .fs-clear:hover{color:var(--forest);background:var(--cream-w)}
+.faq-search.has-text .fs-clear{display:flex}
+.faq-no-results{max-width:880px;margin:24px auto;padding:32px 24px;text-align:center;
+  color:var(--ink-3);font-size:.95rem;background:#fff;border:1px dashed rgba(0,0,0,.1);
+  border-radius:8px;display:none}
+.faq-no-results.is-show{display:block}
+.faq-no-results strong{color:var(--ink-2);display:block;margin-bottom:6px;font-size:1rem}
+.qa.is-hidden,.faq-section.is-hidden{display:none}
+
 /* ── ACCORDION (Q&A) ── */
 .qa{background:#fff;border:1px solid rgba(0,0,0,.06);border-radius:8px;
   margin-bottom:10px;overflow:hidden;box-shadow:0 2px 6px rgba(0,0,0,.03)}
@@ -209,6 +232,18 @@ footer .foot-links a{margin:0 8px}
     <a class="tab" href="#contact">Contact</a>
   </div>
 </nav>
+
+<div class="faq-search" id="faqSearchWrap">
+  <svg class="fs-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+    <circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/>
+  </svg>
+  <input type="search" id="faqSearch" placeholder="Search FAQs — booking, helmets, e-trike, refunds…" aria-label="Search FAQs">
+  <button type="button" class="fs-clear" id="faqSearchClear" aria-label="Clear search">×</button>
+</div>
+<div class="faq-no-results" id="faqNoResults">
+  <strong>No matches</strong>
+  Try a different search term or clear the filter to see all questions.
+</div>
 
 <main>
   <article class="article">
@@ -602,6 +637,68 @@ footer .foot-links a{margin:0 8px}
   tabs.forEach(t => t.addEventListener('click', () => {
     setTimeout(() => t.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' }), 80);
   }));
+
+  /* ── Live FAQ search ──────────────────────────────────────────
+     Filters .qa cards by their question + answer text. Sections
+     with zero visible cards are hidden too. Re-runs whenever the
+     CMS swaps the FAQ DOM, so static and CMS-rendered FAQs both
+     get filtered. ─────────────────────────────────────────────── */
+  const searchInput = document.getElementById('faqSearch');
+  const searchWrap  = document.getElementById('faqSearchWrap');
+  const searchClear = document.getElementById('faqSearchClear');
+  const noResults   = document.getElementById('faqNoResults');
+  const tabnavEl    = document.getElementById('tabnav');
+
+  function applyFaqFilter() {
+    if (!searchInput) return;
+    const q = (searchInput.value || '').trim().toLowerCase();
+    searchWrap.classList.toggle('has-text', q.length > 0);
+    const sections = document.querySelectorAll('.faq-section');
+    let totalVisible = 0;
+    sections.forEach(section => {
+      const cards = section.querySelectorAll('.qa');
+      let visible = 0;
+      cards.forEach(card => {
+        if (!q) {
+          card.classList.remove('is-hidden');
+          visible++;
+          return;
+        }
+        const haystack = (card.textContent || '').toLowerCase();
+        if (haystack.indexOf(q) !== -1) {
+          card.classList.remove('is-hidden');
+          // Auto-open matching cards so the matched text is visible.
+          if (q.length >= 2) card.setAttribute('open', '');
+          visible++;
+        } else {
+          card.classList.add('is-hidden');
+          card.removeAttribute('open');
+        }
+      });
+      section.classList.toggle('is-hidden', visible === 0 && q.length > 0);
+      totalVisible += visible;
+    });
+    if (noResults) noResults.classList.toggle('is-show', q.length > 0 && totalVisible === 0);
+    // While searching, hide the section tabnav to avoid jumping to
+    // a section that's been filtered out.
+    if (tabnavEl) tabnavEl.style.display = q ? 'none' : '';
+  }
+
+  if (searchInput) {
+    searchInput.addEventListener('input', applyFaqFilter);
+    if (searchClear) searchClear.addEventListener('click', () => {
+      searchInput.value = '';
+      applyFaqFilter();
+      searchInput.focus();
+    });
+    // Re-apply after the CMS renders a new FAQ DOM so the user
+    // doesn't have to retype.
+    const obs = new MutationObserver(() => {
+      if (searchInput.value) applyFaqFilter();
+    });
+    const target = document.getElementById('faqsContent');
+    if (target) obs.observe(target, { childList: true, subtree: true });
+  }
 })();
 </script>
 
