@@ -356,6 +356,30 @@ function applyCMS(remote){
     const v = map[el.dataset.cmsSrc];
     if (!v) return;
     const url = /^https?:\/\//.test(v) ? v : ('media/' + encodeURI(String(v).replace(/^(media|images)\//, '').trim()));
+
+    // Video support: if the URL ends in a video extension, swap the <img>
+    // for an autoplay-muted-loop <video>. Lets the same Photos value drive
+    // either format — Pat can change kirk_image from a JPG to an MP4 and
+    // the page picks the right element automatically.
+    if (/\.(mp4|webm|mov|ogv|m4v)(\?|$)/i.test(url) && el.tagName === 'IMG') {
+      const video = document.createElement('video');
+      video.src = url;
+      video.autoplay = true;
+      video.muted = true;
+      video.loop = true;
+      video.playsInline = true;
+      video.setAttribute('playsinline', '');
+      video.setAttribute('aria-hidden', 'true');
+      // Preserve any class/alt the original <img> had for layout parity.
+      if (el.className) video.className = el.className;
+      video.addEventListener('error', () => {
+        video.parentNode && video.parentNode.classList.add('no-img');
+        video.remove();
+      }, { once: true });
+      el.parentNode.replaceChild(video, el);
+      return;
+    }
+
     el.addEventListener('error', () => el.remove(), { once: true });
     el.src = url;
   });
