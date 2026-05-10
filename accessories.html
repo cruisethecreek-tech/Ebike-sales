@@ -71,6 +71,9 @@ main{flex:1;max-width:1080px;width:100%;margin:0 auto;padding:24px 24px 64px}
   letter-spacing:.04em;line-height:1.05;color:var(--forest);text-transform:uppercase}
 .section-intro{font-size:.94rem;color:var(--ink-2);max-width:640px;margin:14px 0 22px;line-height:1.6}
 .cat-icon{font-size:1.6rem;line-height:1;flex-shrink:0;color:var(--tan-d)}
+.subgroup-head{font-family:'Bebas Neue',sans-serif;font-size:1.2rem;letter-spacing:.06em;
+  color:var(--forest);text-transform:uppercase;margin:8px 0 14px}
+.subgroup-head:not(:first-of-type){margin-top:32px}
 
 /* PRODUCT GRID */
 .product-grid{display:grid;grid-template-columns:1fr;gap:16px}
@@ -80,7 +83,7 @@ main{flex:1;max-width:1080px;width:100%;margin:0 auto;padding:24px 24px 64px}
 .product-grid.cols-2{grid-template-columns:1fr}
 @media(min-width:560px){.product-grid.cols-2{grid-template-columns:repeat(2,1fr);max-width:720px}}
 
-/* PRODUCT CARD — built as a single anchor for full-card click */
+/* PRODUCT CARD */
 .product-card{background:#fff;border:1px solid rgba(0,0,0,.06);border-radius:8px;
   overflow:hidden;display:flex;flex-direction:column;text-align:left;color:inherit;
   box-shadow:0 4px 12px rgba(0,0,0,.04);
@@ -90,11 +93,12 @@ main{flex:1;max-width:1080px;width:100%;margin:0 auto;padding:24px 24px 64px}
   background:linear-gradient(135deg,var(--cream-w),var(--cream));
   display:flex;align-items:center;justify-content:center;overflow:hidden;
   border-bottom:1px solid rgba(0,0,0,.04)}
-.product-photo::before{content:'';position:absolute;inset:0;opacity:.18;
+.product-photo .ph-bg{position:absolute;inset:0;opacity:.18;
   background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 150'><g fill='none' stroke='%236B8F71' stroke-width='1'><path d='M0,40 Q50,30 100,45 T200,40'/><path d='M0,80 Q50,70 100,85 T200,80'/></g></svg>");
   background-size:cover}
+.product-photo img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
 .ph-icon{position:relative;font-family:'Bebas Neue',sans-serif;font-size:2.6rem;letter-spacing:.04em;
-  color:var(--forest);opacity:.55;text-transform:uppercase;text-align:center;padding:0 18px}
+  color:var(--forest);opacity:.55;text-transform:uppercase;text-align:center;padding:0 18px;line-height:.95}
 .product-badge{position:absolute;top:10px;left:10px;background:var(--tan);color:var(--dark);
   font-size:.66rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;
   padding:5px 10px;border-radius:3px;z-index:1}
@@ -111,7 +115,7 @@ main{flex:1;max-width:1080px;width:100%;margin:0 auto;padding:24px 24px 64px}
   transition:transform .2s ease}
 .product-card:hover .product-cta svg{transform:translate(2px,-2px)}
 
-/* APPAREL CROSS-PROMO (mirrors apparel.html's accessories teaser) */
+/* CROSS-PROMO */
 .cross-promo{margin-top:36px;background:var(--forest);color:#fff;border-radius:10px;
   padding:24px 26px;display:flex;flex-direction:column;gap:10px;
   position:relative;overflow:hidden;isolation:isolate;
@@ -133,9 +137,10 @@ main{flex:1;max-width:1080px;width:100%;margin:0 auto;padding:24px 24px 64px}
 .cp-cta:hover{background:#dbb978;transform:translateY(-1px)}
 .cp-cta svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2.4}
 
-/* DISCLOSURE FINE PRINT */
 .fine-print{margin-top:32px;text-align:center;font-size:.78rem;color:var(--ink-3);
   line-height:1.55;max-width:640px;margin-left:auto;margin-right:auto}
+
+.acc-loading{padding:48px 24px;text-align:center;color:var(--ink-3);font-size:.95rem}
 
 /* FOOTER */
 footer{background:var(--dark);color:rgba(255,255,255,.7);padding:32px 24px;
@@ -160,9 +165,9 @@ footer a{color:var(--tan);font-weight:500}footer a:hover{color:#fff}
 
 <section class="hero">
   <div class="hero-topo"></div>
-  <span class="hero-eyebrow">Curated picks</span>
-  <h1>Accessories</h1>
-  <p>Saddles, seat posts, tools — gear we'd actually run on our own bikes, hand-picked from Amazon.</p>
+  <span class="hero-eyebrow" data-cms-text="acc_hero_eyebrow">Curated picks</span>
+  <h1 data-cms-text="acc_hero_h1">Accessories</h1>
+  <p data-cms-text="acc_hero_tagline">Saddles, seat posts, tools — gear we'd actually run on our own bikes, hand-picked from Amazon.</p>
 </section>
 
 <nav class="crumb"><a href="index.html">Home</a><span class="sep">/</span><a href="shop.html">Shop</a><span class="sep">/</span> Accessories</nav>
@@ -171,165 +176,27 @@ footer a{color:var(--tan);font-weight:500}footer a:hover{color:#fff}
 
   <div class="aff-banner">
     <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>
-    <div><strong>Amazon Associate disclosure.</strong> The links below are affiliate links — if you buy through them, we may earn a small commission at no extra cost to you. We only recommend gear we'd actually use ourselves.</div>
+    <div><strong data-cms-text="acc_disclosure_title">Amazon Associate disclosure.</strong> <span data-cms-text="acc_disclosure_body">The links below are affiliate links — if you buy through them, we may earn a small commission at no extra cost to you. We only recommend gear we'd actually use ourselves.</span></div>
   </div>
 
-  <!-- ── SADDLES & SEATS ─────────────────────────────── -->
-  <section class="cat-section">
-    <div class="cat-head">
-      <div class="cat-head-text">
-        <span class="section-eyebrow">Comfort upgrades</span>
-        <h2 class="section-title">Saddles &amp; Seats</h2>
-      </div>
-      <span class="cat-icon" aria-hidden="true">🪑</span>
-    </div>
-    <p class="section-intro">The factory saddle on most e-bikes is the first thing riders want to swap. These are wider, softer, and built for longer rides — picks for both stationary and rolling bikes.</p>
+  <div id="acc-grid">
+    <div class="acc-loading">Loading picks…</div>
+  </div>
 
-    <!-- Bluewind sub-group -->
-    <h3 style="font-family:'Bebas Neue',sans-serif;font-size:1.2rem;letter-spacing:.06em;color:var(--forest);text-transform:uppercase;margin:8px 0 14px">Bluewind</h3>
-    <div class="product-grid">
-      <a class="product-card" href="https://amzn.to/4l0PXJc" target="_blank" rel="noopener sponsored">
-        <div class="product-photo">
-          <span class="product-badge">Top Pick</span>
-          <span class="ph-icon">Bluewind<br>Backrest</span>
-        </div>
-        <div class="product-body">
-          <div class="product-name">Oversized Backrest Saddle</div>
-          <div class="product-desc">Wide bicycle saddle with novel backrest design. Universal fit for e-bikes, exercise bikes, or stationary road bikes — built for men &amp; women.</div>
-          <span class="product-cta">View on Amazon
-            <svg viewBox="0 0 24 24"><path d="M7 17L17 7M9 7h8v8"/></svg>
-          </span>
-        </div>
-      </a>
-      <a class="product-card" href="https://amzn.to/3Ouvhxb" target="_blank" rel="noopener sponsored">
-        <div class="product-photo">
-          <span class="product-badge">Noseless</span>
-          <span class="ph-icon">Bluewind<br>Noseless</span>
-        </div>
-        <div class="product-body">
-          <div class="product-name">Noseless Oversized Saddle</div>
-          <div class="product-desc">Same wide backrest design — but noseless, for riders who want to take pressure off the perineum on longer cruises.</div>
-          <span class="product-cta">View on Amazon
-            <svg viewBox="0 0 24 24"><path d="M7 17L17 7M9 7h8v8"/></svg>
-          </span>
-        </div>
-      </a>
-      <a class="product-card" href="https://amzn.to/4aCFH6q" target="_blank" rel="noopener sponsored">
-        <div class="product-photo">
-          <span class="ph-icon">Wing<br>Padded</span>
-        </div>
-        <div class="product-body">
-          <div class="product-name">Wing-Padded Wide Saddle</div>
-          <div class="product-desc">Extra-wide cushion with comfort wings. Drop-in replacement for Peloton, stationary bikes, e-bikes, cruisers, and city bikes.</div>
-          <span class="product-cta">View on Amazon
-            <svg viewBox="0 0 24 24"><path d="M7 17L17 7M9 7h8v8"/></svg>
-          </span>
-        </div>
-      </a>
-    </div>
-
-    <!-- Cloud-9 sub-group -->
-    <h3 style="font-family:'Bebas Neue',sans-serif;font-size:1.2rem;letter-spacing:.06em;color:var(--forest);text-transform:uppercase;margin:32px 0 14px">Cloud-9</h3>
-    <div class="product-grid cols-2">
-      <a class="product-card" href="https://amzn.to/47fta6D" target="_blank" rel="noopener sponsored">
-        <div class="product-photo">
-          <span class="product-badge">Cruiser</span>
-          <span class="ph-icon">Cloud-9<br>Select</span>
-        </div>
-        <div class="product-body">
-          <div class="product-name">Cruiser Select Saddle</div>
-          <div class="product-desc">10.5″ × 10.75″ cruiser saddle in soft-touch black vinyl. The classic Cloud-9 sit-up-and-cruise feel.</div>
-          <span class="product-cta">View on Amazon
-            <svg viewBox="0 0 24 24"><path d="M7 17L17 7M9 7h8v8"/></svg>
-          </span>
-        </div>
-      </a>
-      <a class="product-card" href="https://amzn.to/4r3naVQ" target="_blank" rel="noopener sponsored">
-        <div class="product-photo">
-          <span class="product-badge">Suspension Gel</span>
-          <span class="ph-icon">Cloud-9<br>Suspension</span>
-        </div>
-        <div class="product-body">
-          <div class="product-name">Suspension Cruiser Saddle</div>
-          <div class="product-desc">Sunlite Cloud-9 with built-in suspension and cruiser gel — tri-color black. Smooths out the bumpy bits without losing comfort.</div>
-          <span class="product-cta">View on Amazon
-            <svg viewBox="0 0 24 24"><path d="M7 17L17 7M9 7h8v8"/></svg>
-          </span>
-        </div>
-      </a>
-    </div>
-  </section>
-
-  <!-- ── SEAT POSTS ──────────────────────────────────── -->
-  <section class="cat-section">
-    <div class="cat-head">
-      <div class="cat-head-text">
-        <span class="section-eyebrow">Suspension</span>
-        <h2 class="section-title">Seat Posts</h2>
-      </div>
-      <span class="cat-icon" aria-hidden="true">⚡</span>
-    </div>
-    <p class="section-intro">Add suspension at the seat without buying a whole new bike. A spring-loaded seat post takes the sting out of cracks, curbs, and gravel.</p>
-
-    <div class="product-grid cols-1">
-      <a class="product-card" href="https://amzn.to/40wqHkr" target="_blank" rel="noopener sponsored">
-        <div class="product-photo">
-          <span class="product-badge">3 Sizes</span>
-          <span class="ph-icon">Spring<br>Suspension</span>
-        </div>
-        <div class="product-body">
-          <div class="product-name">Spring Suspension Seat Post</div>
-          <div class="product-desc">Shock-absorbing seat post with spring suspension — available in 27.2&nbsp;mm, 30.9&nbsp;mm, and 31.6&nbsp;mm. Check your bike's seat tube before ordering.</div>
-          <span class="product-cta">View on Amazon
-            <svg viewBox="0 0 24 24"><path d="M7 17L17 7M9 7h8v8"/></svg>
-          </span>
-        </div>
-      </a>
-    </div>
-  </section>
-
-  <!-- ── TOOLS ───────────────────────────────────────── -->
-  <section class="cat-section">
-    <div class="cat-head">
-      <div class="cat-head-text">
-        <span class="section-eyebrow">Workshop</span>
-        <h2 class="section-title">Tools</h2>
-      </div>
-      <span class="cat-icon" aria-hidden="true">🔧</span>
-    </div>
-    <p class="section-intro">A small starter kit for assembly, tweaks, and trailside fixes. Nothing fancy — just the stuff that lives in our shop drawer.</p>
-
-    <div class="product-grid cols-1">
-      <a class="product-card" href="https://amzn.to/4d2ppoG" target="_blank" rel="noopener sponsored">
-        <div class="product-photo">
-          <span class="product-badge">40-in-1</span>
-          <span class="ph-icon">Ratcheting<br>Driver</span>
-        </div>
-        <div class="product-body">
-          <div class="product-name">40-in-1 Ratcheting Screwdriver</div>
-          <div class="product-desc">S2 steel bits with detachable ratchet handle. Handles bike tweaks, electronics repair, furniture assembly, and general DIY.</div>
-          <span class="product-cta">View on Amazon
-            <svg viewBox="0 0 24 24"><path d="M7 17L17 7M9 7h8v8"/></svg>
-          </span>
-        </div>
-      </a>
-    </div>
-  </section>
-
-  <!-- ── APPAREL CROSS-PROMO ─────────────────────────── -->
   <section class="cross-promo">
     <div class="cp-text">
-      <div class="cp-eyebrow">Pair it with the threads</div>
-      <div class="cp-title">Cruise the Creek apparel</div>
-      <div class="cp-sub">Tees and ride-ready threads, built and shipped from Youngstown.</div>
+      <div class="cp-eyebrow" data-cms-text="acc_promo_eyebrow">Pair it with the threads</div>
+      <div class="cp-title" data-cms-text="acc_promo_title">Cruise the Creek apparel</div>
+      <div class="cp-sub" data-cms-text="acc_promo_sub">Tees and ride-ready threads, built and shipped from Youngstown.</div>
     </div>
-    <a class="cp-cta" href="apparel.html">
-      Shop apparel
+    <a class="cp-cta" href="apparel.html"
+       data-cms-href="acc_promo_cta_url" data-cms-target="acc_promo_cta_external">
+      <span data-cms-text="acc_promo_cta_label">Shop apparel</span>
       <svg viewBox="0 0 24 24"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
     </a>
   </section>
 
-  <p class="fine-print">
+  <p class="fine-print" data-cms-text="acc_fineprint">
     As an Amazon Associate, Cruise the Creek earns from qualifying purchases.
     Prices, availability, and product options are set by Amazon and may change without notice.
   </p>
@@ -339,6 +206,144 @@ footer a{color:var(--tan);font-weight:500}footer a:hover{color:#fff}
 <footer>
   &copy; 2026 Cruise the Creek &middot; <a href="index.html">Home</a> &middot; <a href="shop.html">Shop</a> &middot; <a href="apparel.html">Apparel</a>
 </footer>
+
+<script>
+const MENU_URL = 'https://script.google.com/macros/s/AKfycbxjg2ZsPCZNsmJEStYA0bRdsnkm4nNS-m-HNhm_Gin56VIVeYWVRE5j51j30zVHhb4PmQ/exec?page=accessories';
+
+function isTrue(v){ return v === true || v === 'TRUE' || v === 'true' || v === 1; }
+function esc(s){ return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function resolveImg(name){
+  const v = String(name || '').trim();
+  if (!v) return '';
+  return /^https?:\/\//.test(v) ? v : 'media/' + encodeURI(v.replace(/^(media|images)\//, ''));
+}
+
+function renderCards(rows){
+  const grid = document.getElementById('acc-grid');
+  const live = (Array.isArray(rows) ? rows : []).filter(r => isTrue(r.available !== '' && r.available != null ? r.available : true));
+  if (!live.length) {
+    grid.innerHTML = '<div class="acc-loading">Picks coming soon — check back shortly.</div>';
+    return;
+  }
+
+  // Group by category in row order, preserving the first-row metadata
+  // (eyebrow / intro / icon) for each category.
+  const cats = [];
+  const catIndex = {};
+  live.forEach(r => {
+    const cat = String(r.category || 'Picks').trim();
+    if (catIndex[cat] == null) {
+      catIndex[cat] = cats.length;
+      cats.push({
+        name: cat,
+        eyebrow: String(r.cat_eyebrow || '').trim(),
+        intro:   String(r.cat_intro   || '').trim(),
+        icon:    String(r.cat_icon    || '').trim(),
+        rows:    [],
+      });
+    }
+    cats[catIndex[cat]].rows.push(r);
+  });
+
+  let html = '';
+  cats.forEach(cat => {
+    // Within a category, group by subgroup (preserves row order).
+    const subs = [];
+    const subIndex = {};
+    cat.rows.forEach(r => {
+      const sub = String(r.subgroup || '').trim();
+      const k = sub || '__none__';
+      if (subIndex[k] == null) {
+        subIndex[k] = subs.length;
+        subs.push({ name: sub, rows: [] });
+      }
+      subs[subIndex[k]].rows.push(r);
+    });
+
+    html += '<section class="cat-section">';
+    html += '<div class="cat-head"><div class="cat-head-text">';
+    if (cat.eyebrow) html += `<span class="section-eyebrow">${esc(cat.eyebrow)}</span>`;
+    html += `<h2 class="section-title">${esc(cat.name)}</h2>`;
+    html += '</div>';
+    if (cat.icon) html += `<span class="cat-icon" aria-hidden="true">${esc(cat.icon)}</span>`;
+    html += '</div>';
+    if (cat.intro) html += `<p class="section-intro">${esc(cat.intro)}</p>`;
+
+    subs.forEach(sub => {
+      if (sub.name) html += `<h3 class="subgroup-head">${esc(sub.name)}</h3>`;
+      const gridClass = sub.rows.length === 1 ? 'product-grid cols-1'
+                      : sub.rows.length === 2 ? 'product-grid cols-2'
+                      : 'product-grid';
+      html += `<div class="${gridClass}">`;
+      sub.rows.forEach(r => {
+        const photo = resolveImg(r.photo);
+        const photoHtml = photo
+          ? `<img src="${esc(photo)}" alt="${esc(r.name)}" loading="lazy" onerror="this.remove()">`
+          : `<div class="ph-bg"></div><span class="ph-icon">${esc(r.name)}</span>`;
+        const badge = String(r.badge || '').trim()
+          ? `<span class="product-badge">${esc(r.badge)}</span>` : '';
+        const url = String(r.url || '').trim() || '#';
+        html += `<a class="product-card" href="${esc(url)}" target="_blank" rel="noopener sponsored">
+          <div class="product-photo">${badge}${photoHtml}</div>
+          <div class="product-body">
+            <div class="product-name">${esc(r.name)}</div>
+            ${r.description ? `<div class="product-desc">${esc(r.description)}</div>` : ''}
+            <span class="product-cta">View on Amazon
+              <svg viewBox="0 0 24 24"><path d="M7 17L17 7M9 7h8v8"/></svg>
+            </span>
+          </div>
+        </a>`;
+      });
+      html += '</div>';
+    });
+
+    html += '</section>';
+  });
+
+  grid.innerHTML = html;
+}
+
+function applyCMS(map){
+  if (!map) return;
+  document.querySelectorAll('[data-cms-text]').forEach(el => {
+    const v = map[el.dataset.cmsText];
+    if (v != null && String(v).trim() !== '') el.textContent = v;
+  });
+  document.querySelectorAll('[data-cms-href]').forEach(el => {
+    const v = map[el.dataset.cmsHref];
+    if (v) el.href = v;
+  });
+  document.querySelectorAll('[data-cms-target]').forEach(el => {
+    const v = map[el.dataset.cmsTarget];
+    if (isTrue(v)) { el.target = '_blank'; el.rel = 'noopener'; }
+    else { el.removeAttribute('target'); el.removeAttribute('rel'); }
+  });
+}
+
+const CMS_CACHE_KEY = 'cms:accessories:v1';
+function readCmsCache(){ try { const r = localStorage.getItem(CMS_CACHE_KEY); return r ? JSON.parse(r) : null; } catch(e) { return null; } }
+function writeCmsCache(d){ try { localStorage.setItem(CMS_CACHE_KEY, JSON.stringify(d)); } catch(e) {} }
+
+const _c = readCmsCache();
+if (_c) {
+  applyCMS(_c.site || {});
+  renderCards(_c.accessories || []);
+}
+
+fetch(MENU_URL, { cache: 'no-store' })
+  .then(r => r.ok ? r.json() : Promise.reject(r.status))
+  .then(remote => {
+    if (!remote || typeof remote !== 'object') return;
+    writeCmsCache(remote);
+    applyCMS(remote.site || {});
+    renderCards(remote.accessories || []);
+  })
+  .catch(err => {
+    console.warn('[accessories] config fetch failed:', err);
+    if (!_c) document.getElementById('acc-grid').innerHTML =
+      '<div class="acc-loading">Couldn\'t reach the catalog right now. Please refresh in a moment.</div>';
+  });
+</script>
 
 </body>
 </html>
