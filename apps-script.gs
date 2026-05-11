@@ -71,6 +71,9 @@ function doGet(e) {
   if (action === 'apparelOrder') {
     return handleApparelOrder(e.parameter || {});
   }
+  if (action === 'bookingLead') {
+    return handleBookingLead(e.parameter || {});
+  }
 
   const page = ((e && e.parameter && e.parameter.page) || 'home')
                  .toString().trim().toLowerCase();
@@ -217,6 +220,7 @@ function doGet(e) {
                          .sort(function(a, b){ return (a.order || 0) - (b.order || 0); }),
     apparelPlacements: readSheet(ss, 'ApparelPlacements')
                          .sort(function(a, b){ return (a.order || 0) - (b.order || 0); }),
+    bookingLinks:      readSheet(ss, 'BookingLinks'),
     accessories:       readSheet(ss, 'Accessories')
                          .sort(function(a, b){ return (a.order || 0) - (b.order || 0); }),
     testimonials:      readSheet(ss, 'Testimonials')
@@ -389,6 +393,101 @@ function handleApparelOrder(p) {
     return json({ ok: true, id: row.id, paymentLink: row.paymentLink });
   } catch (err) {
     console.error('handleApparelOrder failed: ' + err);
+    return json({ ok: false, error: String(err) });
+  }
+}
+
+/**
+ * Booking-lead intake. Called from api/chat.js when the chatbot's
+ * `submit_booking_lead` tool fires. Same pattern as handleApparelOrder:
+ *   1. Append a row to Booking_Leads
+ *   2. Email salesteam@cruisethecreek.com with the structured details
+ *   3. Return { ok, id, peek_link } so the bot can echo the confirmation
+ *
+ * Required-ish fields (won't reject on missing — the salesteam email
+ * surfaces "(missing)" placeholders so Pat can text the customer back
+ * for whatever's blank):
+ *   name, email|phone, product, date, qty, pickup
+ * Optional:
+ *   time, experience, notes, peek_link
+ */
+function handleBookingLead(p) {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const json = function(obj) {
+    return ContentService.createTextOutput(JSON.stringify(obj))
+      .setMimeType(ContentService.MimeType.JSON);
+  };
+
+  try {
+    const now = new Date();
+    const id  = 'BL-' + Utilities.formatDate(now, 'America/New_York', 'yyMMdd-HHmmss');
+    const row = {
+      id:         id,
+      timestamp:  now,
+      name:       String(p.name       || '').trim(),
+      email:      String(p.email      || '').trim(),
+      phone:      String(p.phone      || '').trim(),
+      product:    String(p.product    || '').trim(),
+      date:       String(p.date       || '').trim(),
+      time:       String(p.time       || '').trim(),
+      qty:        String(p.qty        || '').trim(),
+      pickup:     String(p.pickup     || '').trim(),
+      experience: String(p.experience || '').trim(),
+      notes:      String(p.notes      || '').trim(),
+      peek_link:  String(p.peek_link  || '').trim(),
+      status:     'new',
+    };
+
+    let sh = ss.getSheetByName('Booking_Leads');
+    if (!sh) {
+      sh = ss.insertSheet('Booking_Leads');
+      sh.appendRow(['id','timestamp','name','email','phone','product','date',
+                    'time','qty','pickup','experience','notes','peek_link','status']);
+      sh.getRange(1, 1, 1, 14).setFontWeight('bold');
+    }
+    sh.appendRow([row.id, row.timestamp, row.name, row.email, row.phone,
+                  row.product, row.date, row.time, row.qty, row.pickup,
+                  row.experience, row.notes, row.peek_link, row.status]);
+
+    // Notify the sales team. Mail failure logs but doesn't sink the
+    // request — the row in the Sheet is the source of truth.
+    try {
+      const fmt = function(label, value) {
+        return label + ' ' + (value || '(missing — ask customer)');
+      };
+      const body = [
+        'New booking lead from the Creek Concierge chat — ' + row.id,
+        '',
+        fmt('Name:      ', row.name),
+        fmt('Email:     ', row.email),
+        fmt('Phone:     ', row.phone),
+        '',
+        fmt('Product:   ', row.product),
+        fmt('Date:      ', row.date),
+        fmt('Time:      ', row.time),
+        fmt('Quantity:  ', row.qty),
+        fmt('Pickup:    ', row.pickup),
+        fmt('Experience:', row.experience),
+        '',
+        'Customer notes: ' + (row.notes || '(none)'),
+        '',
+        'Pre-filled Peek link sent to customer: ' + (row.peek_link || '(none)'),
+        '',
+        'Logged at ' + row.timestamp + ' (Booking_Leads tab, status=new)',
+      ].join('\n');
+      MailApp.sendEmail({
+        to:      'salesteam@cruisethecreek.com',
+        replyTo: row.email || 'salesteam@cruisethecreek.com',
+        subject: 'Booking lead ' + row.id + ' — ' + (row.product || 'unspecified') + ' · ' + (row.date || 'no date') + ' · ' + (row.qty || '?') + ' bike(s)',
+        body:    body,
+      });
+    } catch (mailErr) {
+      console.warn('Booking lead email failed: ' + mailErr);
+    }
+
+    return json({ ok: true, id: row.id, peek_link: row.peek_link });
+  } catch (err) {
+    console.error('handleBookingLead failed: ' + err);
     return json({ ok: false, error: String(err) });
   }
 }
@@ -1783,6 +1882,54 @@ function getTabDefs() {
       header: ['id','timestamp','first','last','email','phone',
                'product','color','size','placement','qty','total','comments','paymentLink'],
       rows: [],
+    },
+    'Booking_Leads': {
+      // Booking intent captured by the Creek Concierge chatbot
+      // (chatbot.js → api/chat.js → handleBookingLead). Each row is a
+      // structured summary of what the visitor wants. status is "new"
+      // on insert; Pat updates it as he works the lead.
+      //
+      // product = Trailside | Adventures | Bridge the Gap | Other
+      // experience = first-time | casual | confident | (blank)
+      // peek_link = pre-filled Peek booking URL handed to the customer,
+      //             if the bot was able to generate one. Empty otherwise.
+      header: ['id','timestamp','name','email','phone','product','date',
+               'time','qty','pickup','experience','notes','peek_link','status'],
+      rows: [],
+    },
+    'BookingLinks': {
+      // Maps product names → Peek Pro booking URLs. The chatbot hands
+      // the matching URL to the customer after capturing their lead so
+      // they can self-serve the date/time/payment step on Peek.
+      //
+      // product = matches the enum on submit_booking_lead's `product`
+      //           field (Trailside | Adventures | Bridge the Gap | Other)
+      //           OR any extra product Pat wants to expose (Test Ride,
+      //           Tune-up, etc.). The bot looks up case-insensitively.
+      // peek_url = the full https://book.peek.com/s/{partner}/{code}
+      //            URL. Leave blank to suppress the link handoff for
+      //            that product (e.g., Bridge the Gap which uses a
+      //            form, not Peek).
+      // notes = freeform — what's at this URL, last verified, etc.
+      //
+      // Seeded with codes already in the codebase. Pat: confirm or
+      // edit each row, then add any missing products (Adventures, etc.)
+      // by adding a new row.
+      header: ['product','peek_url','notes'],
+      rows: [
+        ['Trailside',       'https://book.peek.com/s/57e3b62e-4f48-4cc4-8876-7b79f4c11baa/XRP8N',
+          'Trailside / Kirk Road bikeway rental.'],
+        ['Adventures',      'https://book.peek.com/s/57e3b62e-4f48-4cc4-8876-7b79f4c11baa/V1ORX',
+          'Adventures / Bears Den / Scholl Pavilion rental.'],
+        ['Test Ride',       'https://book.peek.com/s/57e3b62e-4f48-4cc4-8876-7b79f4c11baa/17Aw9',
+          'Free in-shop test ride booking.'],
+        ['Bridge the Gap',  '',
+          'Leave blank — Bridge the Gap uses the bridge-the-gap.html application form, not a Peek booking.'],
+        ['Tune-up',         'https://book.peek.com/s/57e3b62e-4f48-4cc4-8876-7b79f4c11baa/yo7ym',
+          'Tune-up service (referenced from Services tab CTA).'],
+        ['Video Diagnostics','https://book.peek.com/s/57e3b62e-4f48-4cc4-8876-7b79f4c11baa/dmkOV',
+          'Live video troubleshooting session (referenced from Services tab CTA).'],
+      ],
     },
     'Blog': {
       // One row per blog post. Migrated from Wix via importWixPosts().
