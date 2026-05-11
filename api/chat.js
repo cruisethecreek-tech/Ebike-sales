@@ -102,6 +102,17 @@ function renderKB(d) {
     }
   }
 
+  // Booking URLs for each product. The bot quotes the matching URL to
+  // the customer after submit_booking_lead succeeds so they can self-
+  // serve the date/time/payment on Peek.
+  if (Array.isArray(d.bookingLinks) && d.bookingLinks.length) {
+    const usable = d.bookingLinks.filter(l => l.product && l.peek_url);
+    if (usable.length) {
+      lines.push('\n## Peek booking URLs (share with customer AFTER submit_booking_lead succeeds)');
+      usable.forEach(l => lines.push(`- ${l.product}: ${l.peek_url}`));
+    }
+  }
+
   return lines.join('\n');
 }
 
@@ -130,9 +141,17 @@ Intake order (don't ask all at once — one or two at a time, conversational):
 
 Once you have name + (email OR phone) + product + date + qty + pickup, CALL THE TOOL. Don't ask 10 questions before submitting — if the customer is brief, submit with what you have and put unanswered things in the "notes" field for Pat to follow up on.
 
-After the tool returns success, confirm back in plain language: "Got it — Pat or the team will text/email within an hour to lock in the time and send a payment link. Anything else?" Don't repeat the booking ID unless asked.
+If a Peek booking URL is available for the chosen product in the knowledge base ("Peek booking URLs" section), include it in the tool call's "peek_link" argument so the Sheet captures which link the customer got.
 
-If the customer just wants to self-serve without an intake, point them to rentals.html or the Peek booking link directly without calling the tool.
+After the tool returns success, do TWO things in your confirmation:
+  1. Confirm Pat will text/email to lock in time + send a payment link.
+  2. If a Peek URL exists for their product, share it as a faster self-serve option: "Or jump straight to the calendar to lock in your time: <URL>".
+
+Example: "Got it — Pat or the team will text within the hour to confirm. If you want to lock the time in faster, jump straight to the calendar here: https://book.peek.com/... Anything else I can help with?"
+
+Don't repeat the booking ID unless asked. Don't share a Peek URL if the knowledge base doesn't have one for that product (e.g., Bridge the Gap uses an application form on bridge-the-gap.html instead).
+
+If the customer just wants to self-serve without an intake, share the matching Peek URL from the knowledge base directly without calling the tool.
 
 ==== OTHER PAGES (link, don't intake) ====
 - Service → creek-ready.html

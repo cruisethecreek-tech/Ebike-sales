@@ -220,6 +220,7 @@ function doGet(e) {
                          .sort(function(a, b){ return (a.order || 0) - (b.order || 0); }),
     apparelPlacements: readSheet(ss, 'ApparelPlacements')
                          .sort(function(a, b){ return (a.order || 0) - (b.order || 0); }),
+    bookingLinks:      readSheet(ss, 'BookingLinks'),
     accessories:       readSheet(ss, 'Accessories')
                          .sort(function(a, b){ return (a.order || 0) - (b.order || 0); }),
     testimonials:      readSheet(ss, 'Testimonials')
@@ -1895,6 +1896,40 @@ function getTabDefs() {
       header: ['id','timestamp','name','email','phone','product','date',
                'time','qty','pickup','experience','notes','peek_link','status'],
       rows: [],
+    },
+    'BookingLinks': {
+      // Maps product names → Peek Pro booking URLs. The chatbot hands
+      // the matching URL to the customer after capturing their lead so
+      // they can self-serve the date/time/payment step on Peek.
+      //
+      // product = matches the enum on submit_booking_lead's `product`
+      //           field (Trailside | Adventures | Bridge the Gap | Other)
+      //           OR any extra product Pat wants to expose (Test Ride,
+      //           Tune-up, etc.). The bot looks up case-insensitively.
+      // peek_url = the full https://book.peek.com/s/{partner}/{code}
+      //            URL. Leave blank to suppress the link handoff for
+      //            that product (e.g., Bridge the Gap which uses a
+      //            form, not Peek).
+      // notes = freeform — what's at this URL, last verified, etc.
+      //
+      // Seeded with codes already in the codebase. Pat: confirm or
+      // edit each row, then add any missing products (Adventures, etc.)
+      // by adding a new row.
+      header: ['product','peek_url','notes'],
+      rows: [
+        ['Trailside',       'https://book.peek.com/s/57e3b62e-4f48-4cc4-8876-7b79f4c11baa/V1ORX',
+          'Confirm: is V1ORX the Trailside / Kirk Road rental activity?'],
+        ['Adventures',      '',
+          'Add the Bears Den / Scholl Pavilion rental Peek URL here.'],
+        ['Bridge the Gap',  '',
+          'Leave blank — Bridge the Gap uses the bridge-the-gap.html application form, not a Peek booking.'],
+        ['Test Ride',       '',
+          'Optional. Add the test-ride Peek URL if there is one.'],
+        ['Tune-up',         'https://book.peek.com/s/57e3b62e-4f48-4cc4-8876-7b79f4c11baa/yo7ym',
+          'Tune-up service (referenced from Services tab CTA).'],
+        ['Video Diagnostics','https://book.peek.com/s/57e3b62e-4f48-4cc4-8876-7b79f4c11baa/dmkOV',
+          'Live video troubleshooting session (referenced from Services tab CTA).'],
+      ],
     },
     'Blog': {
       // One row per blog post. Migrated from Wix via importWixPosts().
