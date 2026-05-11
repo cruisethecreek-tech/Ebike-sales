@@ -573,10 +573,21 @@ bikeContainer.addEventListener('click', e => {
   hiddenInput.value = card.dataset.bikeId || '';
 });
 
-/* ====== Form submit (placeholder handler — wire to your endpoint later) ====== */
+/* ====== Form submit — sends to Apps Script handleBridgeApplication ======
+   The page form sat as a TODO placeholder for months: it just popped
+   the success modal locally and never POSTed anywhere, so no
+   applications reached the Sheet or Pat's inbox. Now it serializes
+   every named field to the same Apps Script web app that serves the
+   page's CMS reads, and that script's handleBridgeApplication writes
+   to Bridge_Applications + emails info@/salesteam@ + pushes Discord. */
 const form = document.getElementById('application-form');
 const formMsg = document.getElementById('form-message');
 const submitBtn = document.getElementById('submit-btn');
+
+// Same /exec deployment as the CMS read above — handleBridgeApplication
+// branches on ?action=bridgeApplication. GET (not POST) avoids the
+// CORS preflight that Apps Script can't respond to without extra setup.
+const APPLICATION_URL = 'https://script.google.com/macros/s/AKfycbxjg2ZsPCZNsmJEStYA0bRdsnkm4nNS-m-HNhm_Gin56VIVeYWVRE5j51j30zVHhb4PmQ/exec';
 
 form.addEventListener('submit', e => {
   e.preventDefault();
@@ -599,15 +610,28 @@ form.addEventListener('submit', e => {
   submitBtn.disabled = true;
   submitBtn.textContent = 'Submitting…';
 
-  // TODO: POST to your Apps Script web app or Formspree.
-  // For now, just show the success modal locally.
-  setTimeout(() => {
-    document.getElementById('successModal').classList.add('shown');
-    form.reset();
-    clearBikeSelection();
-    submitBtn.disabled = false;
-    submitBtn.textContent = 'Submit Application';
-  }, 600);
+  const params = new URLSearchParams();
+  params.set('action', 'bridgeApplication');
+  new FormData(form).forEach((value, key) => params.append(key, value));
+
+  fetch(APPLICATION_URL + '?' + params.toString(), { redirect: 'follow' })
+    .then(r => r.ok ? r.json() : Promise.reject(r.status))
+    .then(resp => {
+      if (!resp || resp.ok !== true) throw new Error(resp && resp.error || 'unknown error');
+      document.getElementById('successModal').classList.add('shown');
+      form.reset();
+      clearBikeSelection();
+    })
+    .catch(err => {
+      console.error('[bridge-application] submit failed:', err);
+      formMsg.className = 'error';
+      formMsg.textContent = "We couldn't submit your application. Please call or text 330-406-9686 and we'll take it down by hand.";
+      formMsg.scrollIntoView({behavior:'smooth', block:'center'});
+    })
+    .then(() => {
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Submit Application';
+    });
 });
 
 function closeSuccessModal() {
