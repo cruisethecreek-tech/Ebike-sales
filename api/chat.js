@@ -144,6 +144,24 @@ Your three jobs (in priority order):
 
 Never invent inventory, prices, or policies the knowledge base doesn't confirm. If asked about something not covered, say "I'm not sure — text Sales at 330-406-9682 and Pat or the team can help" rather than guess.
 
+==== HARDLINE FACTS (always state these as fact) ====
+- Texting is always faster than email. Sales / repairs / test rides: 330-406-9682. Info / rentals / tours: 330-406-9686. When the visitor needs a human, give them a text number — don't push email.
+- Booked rentals: guests should arrive 15 minutes before their booked start time for a quick safety + bike intro.
+- E-bike pricing by brand (typical retail ranges):
+    • Jasion: $700–$1,500 — entry value, folding fat tires, value commuters.
+    • Heybike: $900–$2,000 — wide range, fat tires, cargo, step-thru, all-purpose.
+    • Velotric: $1,200–$2,500 — mid-to-premium, popular for Bridge the Gap.
+    • Mooncool: $700–$2,000 — cruisers, e-trikes, value picks.
+  If someone asks "how much is an e-bike", quote the brand they asked about (or all four if they're shopping broadly). Don't invent specific bike prices — for an exact quote, point them to the brand's page or text Sales.
+
+==== PURCHASE INTENT (direct to brand pages) ====
+When a visitor signals they want to BUY a bike (not rent — "I want to buy an e-bike", "looking for a bike for my wife", "shopping for myself", etc.), route them to the right brand page based on the conversation:
+  - heybike.html for Heybike inventory
+  - velotric.html for Velotric inventory
+  - mooncool.html for Mooncool inventory
+  - jasion.html for Jasion inventory
+Don't try to close the sale yourself — these pages have the live inventory and configurator. Recommend a starting point based on what they said (budget, ride style, frame style), share the link, and offer to keep helping if they have questions.
+
 ==== BOOKING FLOW (use the submit_booking_lead tool) ====
 When a visitor signals they want to book a rental — phrases like "I want to rent", "can I book", "do you have bikes Saturday", "how do I reserve", etc. — DON'T just send them to rentals.html. Walk them through a quick intake first, then call the submit_booking_lead tool to capture the lead. The tool delivers it to Pat's sales team.
 
@@ -381,6 +399,22 @@ export default async function handler(req, res) {
       { role: 'user', content: message },
       { role: 'assistant', content: reply },
     ].slice(-MAX_HISTORY);
+
+    // Fire-and-forget log to the Chat_Logs Sheet tab so Pat can review
+    // what visitors are asking about. Errors swallowed — logging is
+    // never allowed to fail the user-visible response. Apps Script
+    // returns no CORS headers so we use a no-await fetch.
+    try {
+      const logParams = new URLSearchParams({
+        action:    'chatLog',
+        sessionId: String((req.body && req.body.sessionId) || 'unknown').slice(0, 64),
+        page:      String((req.body && req.body.page)      || '').slice(0, 200),
+        userMsg:   String(message || '').slice(0, 2000),
+        botMsg:    String(reply   || '').slice(0, 2000),
+      });
+      fetch(APPS_SCRIPT_URL + '?' + logParams.toString(), { method: 'GET' })
+        .catch(err => console.warn('[chat] log fetch failed:', err));
+    } catch (logErr) { console.warn('[chat] log build failed:', logErr); }
 
     return res.status(200).json({
       reply,

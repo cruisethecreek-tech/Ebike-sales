@@ -16,11 +16,26 @@
   if (window.__ctcChatLoaded) return;
   window.__ctcChatLoaded = true;
 
-  const API_URL    = 'https://ebike-sales-nu.vercel.app/api/chat';
-  const STORE_KEY  = 'ctc:chat:history:v1';
-  const MAX_LOCAL  = 12;     // last N turns we keep client-side (server caps too)
-  const BRAND_NAME = 'Creek Concierge';
-  const GREETING   = "Hey! I'm the Creek Concierge — ask me anything about rentals, bikes, services, or the trails. What's on your mind?";
+  const API_URL     = 'https://ebike-sales-nu.vercel.app/api/chat';
+  const STORE_KEY   = 'ctc:chat:history:v1';
+  const SESSION_KEY = 'ctc:chat:session:v1';
+  const MAX_LOCAL   = 12;     // last N turns we keep client-side (server caps too)
+  const BRAND_NAME  = 'Creek Concierge';
+  const GREETING    = "Hey! I'm the Creek Concierge — ask me anything about rentals, bikes, services, or the trails. What's on your mind?";
+
+  // Stable per-visitor ID so Pat can group conversations in the
+  // Chat_Logs Sheet tab. New devices/browsers get their own. Survives
+  // reloads but resets when localStorage is cleared.
+  function sessionId() {
+    try {
+      let s = localStorage.getItem(SESSION_KEY);
+      if (!s) {
+        s = 'cs-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 8);
+        localStorage.setItem(SESSION_KEY, s);
+      }
+      return s;
+    } catch (e) { return 'cs-anon'; }
+  }
 
   // ── Styles ───────────────────────────────────────────────────
   const css = document.createElement('style');
@@ -303,9 +318,12 @@
         method:  'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          message: text,
+          message:   text,
           // Send the prior history (without the just-added user msg).
-          history: history.slice(0, -1),
+          history:   history.slice(0, -1),
+          // Logging context — server logs each turn to Chat_Logs.
+          sessionId: sessionId(),
+          page:      (typeof location !== 'undefined' && location.href) ? location.href : '',
         }),
       });
       typing.remove();
