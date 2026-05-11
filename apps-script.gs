@@ -221,6 +221,8 @@ function doGet(e) {
     apparelPlacements: readSheet(ss, 'ApparelPlacements')
                          .sort(function(a, b){ return (a.order || 0) - (b.order || 0); }),
     bookingLinks:      readSheet(ss, 'BookingLinks'),
+    bookingTroubleshooting: readSheet(ss, 'Booking_Troubleshooting')
+                         .sort(function(a, b){ return (a.order || 0) - (b.order || 0); }),
     accessories:       readSheet(ss, 'Accessories')
                          .sort(function(a, b){ return (a.order || 0) - (b.order || 0); }),
     testimonials:      readSheet(ss, 'Testimonials')
@@ -1929,6 +1931,60 @@ function getTabDefs() {
           'Tune-up service (referenced from Services tab CTA).'],
         ['Video Diagnostics','https://book.peek.com/s/57e3b62e-4f48-4cc4-8876-7b79f4c11baa/dmkOV',
           'Live video troubleshooting session (referenced from Services tab CTA).'],
+      ],
+    },
+    'Booking_Troubleshooting': {
+      // Stuck-point playbook for the Creek Concierge chatbot. When a
+      // visitor describes a Peek booking issue, the bot looks for a
+      // matching `situation` here and uses the `answer` text. Edit
+      // these rows as you see real customers get stuck — the bot picks
+      // up changes on the next CMS cache flush (~5 min).
+      //
+      // step     = where in the flow the issue happens (date / guests
+      //            / contact / payment / general). Just for grouping —
+      //            the bot matches on `situation` text.
+      // situation = the symptom in the customer's own words. Short and
+      //            natural — what they'd actually type.
+      // answer   = the response the bot should give. Be specific:
+      //            mention exact button labels, where to tap, what to
+      //            check. Keep it under ~3 sentences so the chat reply
+      //            stays scannable.
+      //
+      // Seed rows are educated guesses based on typical Peek flows.
+      // Pat: send screenshots of your actual Peek pages and I'll refine
+      // these answers to match the UI exactly.
+      header: ['order','step','situation','answer'],
+      rows: [
+        [10, 'date',     'I can\'t see any available dates',
+          "Tap the ◀ ▶ arrows at the top of the calendar to scroll months. Greyed-out dates are fully booked — try the next available date. If nothing's open in the next 2 weeks, text Sales at 330-406-9682 and we can squeeze you in."],
+        [20, 'date',     'The calendar isn\'t loading',
+          "Refresh the page once. If it still won't load, switch to a different browser (Chrome or Safari work best) or text Sales at 330-406-9682 and we can book you over the phone."],
+        [30, 'guests',   'I picked a bike but nothing\'s happening',
+          "After you add a bike, Peek opens a small \"Who will be riding?\" popup with rider-type counters. Tap the + next to '16 Years or Older' to set the rider count to at least 1, then — this is the part most people miss — tap the green Save button at the bottom of the popup. The form moves on once every bike has at least one rider saved."],
+        [35, 'guests',   'The Continue button is greyed out',
+          "Almost always means the \"Who will be riding?\" popup didn't get Saved on one of your bikes. Scroll up to each bike in your cart, tap to reopen its popup, make sure '16 Years or Older' is at least 1, and hit the green Save button at the bottom. Repeat for every bike. Continue activates once every bike has riders saved."],
+        [40, 'guests',   'What is the Stroller Add-On',
+          "Optional — for kids under 60 lbs who ride in a child stroller attached to one of our e-bikes. Leave at 0 if you don't need one. Text Sales at 330-406-9682 to confirm stroller availability before booking."],
+        [42, 'guests',   'What is the Pet Stroller',
+          "Optional — for a small dog in a pet carrier attachment. Leave at 0 if you're not bringing a pet. Text Sales at 330-406-9682 to confirm availability before you book."],
+        [45, 'guests',   'I have more riders than bikes',
+          "Each rider 16+ needs their own e-bike. If you have kids under 60 lbs, the Stroller Add-On lets them ride in a child stroller attached to a bike. Go back to the bike list and add the right number of bikes for your group, or text Sales at 330-406-9682 if you want help sizing it."],
+        [48, 'guests',   'I want more bikes than the slot has left',
+          "Our fleet caps at 11 e-bikes total. If your group is larger than what the slot shows available, text Sales at 330-406-9682 — we can sometimes shuffle inventory or open a custom slot for big groups."],
+        [50, 'time',     'No time slots are showing for the date I picked',
+          "That date might be fully booked. Try the next day, or text Sales at 330-406-9682 — we occasionally have a private slot we can open up."],
+        [60, 'contact',  'It won\'t accept my address',
+          "Type your address slowly and pick from the auto-suggest dropdown that appears below the field — Peek validates against that list. If it still won\'t take it, you can put 6685 Kirk Rd, Canfield, OH 44406 as a placeholder and we\'ll sort details at pickup."],
+        [70, 'contact',  'It\'s asking for a promo code',
+          'The promo / coupon field is optional. Just leave it blank and tap Continue.'],
+        [80, 'payment',  'My card was declined',
+          "Try a different card, or text Sales at 330-406-9682 and we can take payment manually. We accept Visa, Mastercard, Discover, and Amex."],
+        [90, 'payment',  'I don\'t want to pay online',
+          "No problem — text Sales at 330-406-9682 with your date and group size and we can hold the slot. Payment can happen at pickup."],
+        [100,'general',  'The booking page is in Spanish (or wrong language)',
+          'Scroll to the very bottom of the booking page and tap the language selector — you can switch back to English there.'],
+        [110,'general',  'How long does the booking take to confirm',
+          "You'll see a confirmation screen + email within a minute of paying. If you don't see the email after 5 minutes, check your spam folder, then text Sales at 330-406-9682."],
       ],
     },
     'Blog': {
