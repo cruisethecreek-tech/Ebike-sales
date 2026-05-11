@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gallery | Cruise the Creek</title>
+<meta name="description" content="Photos from the trail, the shop, and creek life. Group rides, bears den, bridge the gap stories — see what we get to do every day.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,400;0,500;0,700;0,800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --sage:#6B8F71;--sage-d:#557159;--forest:#2D4A32;--dark:#1a2e1c;
+  --tan:#C9A96E;--tan-d:#a98843;--cream:#F5F0E8;--cream-w:#fbf7ef;
+  --ink:#1a1a1a;--ink-2:#3a3a3a;--ink-3:#5a5a5a;
+}
+html,body{height:100%}
+html{scroll-behavior:smooth}
+body{font-family:'DM Sans',sans-serif;color:var(--ink);background:var(--cream);
+  display:flex;flex-direction:column;min-height:100vh;overflow-x:hidden}
+a{color:inherit;text-decoration:none;transition:color 0.2s ease}
+img{max-width:100%;display:block}
+
+/* ── TOP BAR ── */
+.topbar{background:rgba(255,255,255,.95);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+  color:var(--dark);padding:16px 24px;display:flex;align-items:center;justify-content:space-between;
+  position:sticky;top:0;z-index:100;border-bottom:1px solid rgba(0,0,0,.05)}
+.brand-logo{height:32px}
+
+/* ── HERO ── */
+.hero{position:relative;min-height:46vh;display:flex;align-items:flex-end;justify-content:center;
+  padding:80px 24px 56px;overflow:hidden;isolation:isolate;color:#fff;background:var(--forest)}
+.hero-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
+  z-index:-2;opacity:0;transition:opacity 1s ease}
+.hero-img.loaded{opacity:1}
+.hero-overlay{position:absolute;inset:0;z-index:-1;
+  background:linear-gradient(180deg,rgba(26,46,28,.35) 0%,rgba(26,46,28,.75) 100%)}
+.hero-content{position:relative;z-index:1;text-align:center;max-width:740px;
+  animation:rise .8s cubic-bezier(.16,1,.3,1) both}
+.hero-eyebrow{display:inline-block;font-size:.74rem;font-weight:700;letter-spacing:.2em;
+  text-transform:uppercase;color:var(--tan);margin-bottom:18px}
+.hero h1{font-family:'Bebas Neue',sans-serif;font-size:clamp(2.6rem,7vw,4.6rem);
+  line-height:1;letter-spacing:.02em;margin-bottom:14px;text-shadow:0 4px 12px rgba(0,0,0,.2)}
+.hero h1 em{font-style:normal;color:var(--tan);display:block}
+.hero-tag{font-size:clamp(1rem,2.2vw,1.18rem);color:rgba(255,255,255,.9)}
+
+/* ── BREADCRUMB ── */
+.crumb{max-width:1200px;margin:0 auto;padding:22px 24px 0;
+  font-size:.74rem;letter-spacing:.1em;text-transform:uppercase;font-weight:600;color:var(--sage)}
+.crumb a{color:var(--ink-3)}
+.crumb a:hover{color:var(--forest)}
+.crumb .sep{color:rgba(0,0,0,.2);margin:0 8px}
+
+main{flex:1;width:100%}
+
+/* ── GALLERY GRID — CSS columns for an effortless masonry. ── */
+.gallery-section{max-width:1200px;margin:0 auto;padding:40px 24px 24px;width:100%}
+.section-eyebrow{display:block;font-size:.72rem;letter-spacing:.18em;text-transform:uppercase;
+  font-weight:800;color:var(--tan-d);margin-bottom:10px}
+.gallery-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(2rem,4.4vw,3rem);
+  letter-spacing:.02em;color:var(--forest);line-height:1.05;margin-bottom:10px}
+.gallery-sub{font-size:1rem;color:var(--ink-2);line-height:1.55;margin-bottom:28px;max-width:680px}
+.gallery-grid{column-count:1;column-gap:14px}
+@media(min-width:560px){.gallery-grid{column-count:2}}
+@media(min-width:900px){.gallery-grid{column-count:3}}
+@media(min-width:1200px){.gallery-grid{column-count:4}}
+.gallery-item{
+  position:relative;background:var(--cream-w);
+  border-radius:8px;overflow:hidden;
+  margin:0 0 14px 0;break-inside:avoid;
+  box-shadow:0 4px 14px rgba(0,0,0,.06);
+  cursor:zoom-in;transition:transform .25s ease, box-shadow .25s ease;
+}
+.gallery-item:hover{transform:translateY(-2px);box-shadow:0 12px 26px rgba(45,74,50,.12)}
+.gallery-item img{width:100%;height:auto;display:block}
+.gallery-item video{width:100%;height:auto;display:block;background:#000}
+.gallery-item .cap{
+  position:absolute;left:0;right:0;bottom:0;padding:18px 16px 12px;color:#fff;
+  font-size:.78rem;font-weight:600;letter-spacing:.02em;
+  background:linear-gradient(0deg,rgba(0,0,0,.7) 0%,rgba(0,0,0,0) 100%);
+  opacity:0;transform:translateY(4px);transition:opacity .2s ease, transform .2s ease;
+}
+.gallery-item:hover .cap{opacity:1;transform:translateY(0)}
+.gallery-loading,.gallery-empty{
+  grid-column:1/-1;padding:40px 20px;text-align:center;color:var(--ink-3);font-size:.95rem;line-height:1.6;
+}
+.gallery-empty strong{display:block;font-family:'Bebas Neue',sans-serif;color:var(--forest);
+  font-size:1.4rem;letter-spacing:.04em;text-transform:uppercase;margin-bottom:8px}
+
+/* ── LIGHTBOX — click any photo to open at full size. ── */
+.lightbox{
+  position:fixed;inset:0;z-index:10000;background:rgba(15,28,18,.92);
+  display:none;align-items:center;justify-content:center;padding:24px;
+  animation:lb-in .2s ease-out;
+}
+.lightbox.is-open{display:flex}
+.lightbox img,.lightbox video{max-width:96vw;max-height:90vh;border-radius:6px;box-shadow:0 30px 80px rgba(0,0,0,.4)}
+.lightbox .close{
+  position:absolute;top:16px;right:18px;background:transparent;border:none;cursor:pointer;
+  color:#fff;font-size:2.4rem;line-height:1;padding:6px;opacity:.85;font-family:inherit;
+}
+.lightbox .close:hover{opacity:1}
+.lightbox .cap{
+  position:absolute;left:0;right:0;bottom:0;padding:24px 24px 20px;color:#fff;
+  font-size:.88rem;text-align:center;background:linear-gradient(0deg,rgba(0,0,0,.65),rgba(0,0,0,0))
+}
+@keyframes lb-in{from{opacity:0}to{opacity:1}}
+
+/* ── SOCIAL SECTION ── */
+.social-section{max-width:1200px;margin:0 auto;padding:32px 24px 80px;width:100%}
+.social-head{margin-bottom:22px}
+.social-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(1.8rem,4vw,2.6rem);
+  letter-spacing:.02em;color:var(--forest);line-height:1.05;margin-bottom:8px}
+.social-sub{font-size:.98rem;color:var(--ink-2);line-height:1.55;max-width:620px}
+.social-grid{
+  display:grid;grid-template-columns:repeat(auto-fit, minmax(180px, 1fr));gap:14px;
+}
+.social-card{
+  display:flex;align-items:center;gap:14px;background:#fff;border:1px solid rgba(0,0,0,.06);
+  border-radius:10px;padding:16px 18px;
+  transition:transform .15s ease, box-shadow .2s ease, border-color .2s ease;
+}
+.social-card:hover{transform:translateY(-2px);box-shadow:0 12px 26px rgba(45,74,50,.12);border-color:var(--sage)}
+.social-icon{
+  width:42px;height:42px;border-radius:10px;display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;color:#fff;
+}
+.social-icon svg{width:22px;height:22px;fill:currentColor}
+.social-card.instagram .social-icon{background:linear-gradient(135deg,#f09433,#e6683c 25%,#dc2743 50%,#cc2366 75%,#bc1888)}
+.social-card.facebook  .social-icon{background:#1877f2}
+.social-card.tiktok    .social-icon{background:#000}
+.social-card.youtube   .social-icon{background:#ff0000}
+.social-meta{min-width:0}
+.social-platform{font-family:'Bebas Neue',sans-serif;font-size:1.05rem;letter-spacing:.04em;
+  text-transform:uppercase;color:var(--forest);line-height:1.1}
+.social-handle{font-size:.82rem;color:var(--ink-2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-top:2px}
+
+/* ── FOOTER ── */
+footer{background:var(--dark);color:rgba(255,255,255,.7);text-align:center;
+  padding:32px 24px;font-size:.84rem}
+footer a{color:var(--tan);font-weight:600}
+
+@keyframes rise{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+@media (prefers-reduced-motion: reduce){
+  .hero-content,.gallery-item,.social-card{animation:none!important;transition:none!important}
+}
+@media(max-width:640px){
+  .gallery-section,.social-section{padding-left:16px;padding-right:16px}
+}
+</style>
+
+<meta property="og:title" content="Gallery | Cruise the Creek">
+<meta property="og:description" content="Photos from the trail, the shop, and creek life — Mill Creek MetroParks from two wheels.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://www.cruisethecreek.com/gallery.html">
+<link rel="canonical" href="https://www.cruisethecreek.com/gallery.html">
+</head>
+
+<body>
+
+<header class="topbar">
+  <a href="index.html" aria-label="Cruise the Creek home"><img class="brand-logo" src="BlackonTransparent.png" alt="Cruise the Creek"></a>
+</header>
+
+<section class="hero">
+  <img class="hero-img" data-cms-src="hero_photo" src="" alt="" onload="this.classList.add('loaded')" onerror="this.remove()">
+  <div class="hero-overlay"></div>
+  <div class="hero-content">
+    <span class="hero-eyebrow" data-cms-text="hero_eyebrow">Gallery</span>
+    <h1><span data-cms-text="hero_h1">Mill Creek</span><em data-cms-text="hero_h1_em">From Two Wheels.</em></h1>
+    <p class="hero-tag" data-cms-text="hero_tagline">Trail moments, group rides, and creek-life snapshots — the views that make us want to keep building.</p>
+  </div>
+</section>
+
+<nav class="crumb"><a href="index.html">Home</a><span class="sep">/</span>Gallery</nav>
+
+<main>
+  <section class="gallery-section">
+    <span class="section-eyebrow" data-cms-text="gallery_eyebrow">Recent rides</span>
+    <h2 class="gallery-title" data-cms-text="gallery_h2">Out on the trail</h2>
+    <p class="gallery-sub" data-cms-text="gallery_sub">A rolling collection of moments from Cruise the Creek customers, our crew, and the trail. Tap any photo to view it full-screen.</p>
+    <div class="gallery-grid" id="gallery-grid">
+      <div class="gallery-loading">Loading photos…</div>
+    </div>
+  </section>
+
+  <section class="social-section">
+    <div class="social-head">
+      <span class="section-eyebrow" data-cms-text="social_eyebrow">Follow along</span>
+      <h2 class="social-title" data-cms-text="social_h2">Daily creek life on social</h2>
+      <p class="social-sub" data-cms-text="social_sub">More photos, behind-the-scenes, and the occasional bear cameo. Tap a platform to follow.</p>
+    </div>
+    <div class="social-grid" id="social-grid"></div>
+  </section>
+</main>
+
+<div class="lightbox" id="lightbox" role="dialog" aria-label="Photo full-screen view">
+  <button class="close" type="button" aria-label="Close" onclick="closeLightbox()">&times;</button>
+  <div id="lightbox-media"></div>
+  <div class="cap" id="lightbox-cap"></div>
+</div>
+
+<footer>
+  &copy; 2026 Cruise the Creek &middot; <a href="index.html">Home</a> &middot; <a href="shop.html">Shop</a> &middot; <a href="our-story.html">Our Story</a>
+</footer>
+
+<script src="cms-loader.js"></script>
+<script>
+function esc(s){ return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+function resolveImg(name){
+  const v = String(name || '').trim();
+  if (!v) return '';
+  return /^https?:\/\//.test(v) ? v : 'media/' + encodeURI(v.replace(/^(media|images)\//, ''));
+}
+
+function isVideo(filename){
+  return /\.(mp4|mov|webm)(\?.*)?$/i.test(String(filename || ''));
+}
+
+/* Generic CMS text/src binder. data-cms-text → textContent,
+   data-cms-src → src attribute. */
+function applyCMS(site){
+  if (!site) return;
+  document.querySelectorAll('[data-cms-text]').forEach(el => {
+    const v = site[el.dataset.cmsText];
+    if (v != null && String(v).trim() !== '') el.textContent = v;
+  });
+  document.querySelectorAll('[data-cms-src]').forEach(el => {
+    const v = site[el.dataset.cmsSrc];
+    if (v != null && String(v).trim() !== '') el.src = resolveImg(v);
+  });
+}
+
+function renderGallery(rows){
+  const grid = document.getElementById('gallery-grid');
+  if (!grid) return;
+  const live = (Array.isArray(rows) ? rows : []).filter(r => {
+    const img = String(r.image || '').trim();
+    return img.length > 0;
+  });
+  if (!live.length) {
+    grid.innerHTML = `
+      <div class="gallery-empty">
+        <strong>Gallery's coming soon</strong>
+        We're collecting trail photos and creek-life moments. Check back soon — or follow us on social below.
+      </div>`;
+    return;
+  }
+  grid.innerHTML = live.map(r => {
+    const src = resolveImg(r.image);
+    const cap = String(r.caption || '').trim();
+    const video = isVideo(src);
+    const media = video
+      ? `<video src="${esc(src)}" muted playsinline preload="metadata" controls></video>`
+      : `<img src="${esc(src)}" alt="${esc(cap)}" loading="lazy" onerror="this.parentElement.remove()">`;
+    return `
+      <figure class="gallery-item" data-src="${esc(src)}" data-cap="${esc(cap)}" data-video="${video ? '1' : '0'}">
+        ${media}
+        ${cap ? `<figcaption class="cap">${esc(cap)}</figcaption>` : ''}
+      </figure>`;
+  }).join('');
+
+  // Wire lightbox open. Skip video items — they already have native controls.
+  grid.querySelectorAll('.gallery-item').forEach(fig => {
+    fig.addEventListener('click', () => {
+      if (fig.dataset.video === '1') return;
+      openLightbox(fig.dataset.src, fig.dataset.cap);
+    });
+  });
+}
+
+const SOCIAL_PLATFORMS = [
+  {
+    key: 'instagram', label: 'Instagram', cls: 'instagram',
+    icon: '<svg viewBox="0 0 24 24"><path d="M12 2.16c3.2 0 3.58 0 4.85.07 1.17.05 1.8.25 2.22.41.56.22.96.48 1.38.9.42.42.68.82.9 1.38.16.42.36 1.05.41 2.22.06 1.27.07 1.65.07 4.85s0 3.58-.07 4.85c-.05 1.17-.25 1.8-.41 2.22-.22.56-.48.96-.9 1.38-.42.42-.82.68-1.38.9-.42.16-1.05.36-2.22.41-1.27.06-1.65.07-4.85.07s-3.58 0-4.85-.07c-1.17-.05-1.8-.25-2.22-.41-.56-.22-.96-.48-1.38-.9-.42-.42-.68-.82-.9-1.38-.16-.42-.36-1.05-.41-2.22-.06-1.27-.07-1.65-.07-4.85s0-3.58.07-4.85c.05-1.17.25-1.8.41-2.22.22-.56.48-.96.9-1.38.42-.42.82-.68 1.38-.9.42-.16 1.05-.36 2.22-.41C8.42 2.17 8.8 2.16 12 2.16zm0 1.94c-3.15 0-3.5 0-4.74.07-1.07.05-1.65.23-2.04.38-.5.2-.86.43-1.24.8-.37.38-.6.74-.8 1.24-.15.39-.33.97-.38 2.04-.07 1.24-.07 1.59-.07 4.74s0 3.5.07 4.74c.05 1.07.23 1.65.38 2.04.2.5.43.86.8 1.24.38.37.74.6 1.24.8.39.15.97.33 2.04.38 1.24.07 1.59.07 4.74.07s3.5 0 4.74-.07c1.07-.05 1.65-.23 2.04-.38.5-.2.86-.43 1.24-.8.37-.38.6-.74.8-1.24.15-.39.33-.97.38-2.04.07-1.24.07-1.59.07-4.74s0-3.5-.07-4.74c-.05-1.07-.23-1.65-.38-2.04-.2-.5-.43-.86-.8-1.24-.38-.37-.74-.6-1.24-.8-.39-.15-.97-.33-2.04-.38-1.24-.07-1.59-.07-4.74-.07zm0 3.3a4.6 4.6 0 1 1 0 9.2 4.6 4.6 0 0 1 0-9.2zm0 1.94a2.66 2.66 0 1 0 0 5.32 2.66 2.66 0 0 0 0-5.32zm5.85-1.94a1.08 1.08 0 1 1-2.16 0 1.08 1.08 0 0 1 2.16 0z"/></svg>',
+  },
+  {
+    key: 'facebook', label: 'Facebook', cls: 'facebook',
+    icon: '<svg viewBox="0 0 24 24"><path d="M22 12a10 10 0 1 0-11.56 9.88v-6.98H7.9V12h2.54V9.8c0-2.5 1.49-3.89 3.78-3.89 1.09 0 2.24.2 2.24.2v2.46h-1.26c-1.24 0-1.63.77-1.63 1.56V12h2.77l-.44 2.9h-2.33v6.98A10 10 0 0 0 22 12z"/></svg>',
+  },
+  {
+    key: 'tiktok', label: 'TikTok', cls: 'tiktok',
+    icon: '<svg viewBox="0 0 24 24"><path d="M19.6 6.66a5.74 5.74 0 0 1-3.36-1.08 5.7 5.7 0 0 1-2.25-3.58h-3.27v13.04c0 1.53-1.24 2.78-2.78 2.78a2.78 2.78 0 1 1 0-5.56c.28 0 .55.04.8.12V9.04a6 6 0 0 0-.8-.06 6.07 6.07 0 1 0 6.07 6.07V8.69a8.95 8.95 0 0 0 5.59 1.92V7.34a5.7 5.7 0 0 1 0-.68z"/></svg>',
+  },
+  {
+    key: 'youtube', label: 'YouTube', cls: 'youtube',
+    icon: '<svg viewBox="0 0 24 24"><path d="M21.58 7.19a2.51 2.51 0 0 0-1.77-1.77C18.25 5 12 5 12 5s-6.25 0-7.81.42a2.51 2.51 0 0 0-1.77 1.77A26.16 26.16 0 0 0 2 12a26.16 26.16 0 0 0 .42 4.81 2.51 2.51 0 0 0 1.77 1.77C5.75 19 12 19 12 19s6.25 0 7.81-.42a2.51 2.51 0 0 0 1.77-1.77A26.16 26.16 0 0 0 22 12a26.16 26.16 0 0 0-.42-4.81zM10 15V9l5.2 3-5.2 3z"/></svg>',
+  },
+];
+
+function prettyHandle(url){
+  try {
+    const u = new URL(url);
+    const p = u.pathname.replace(/^\/|\/$/g, '');
+    if (p) return '@' + p.split('/')[0];
+    return u.host.replace(/^www\./, '');
+  } catch (e) {
+    return url;
+  }
+}
+
+function renderSocial(site){
+  const grid = document.getElementById('social-grid');
+  if (!grid) return;
+  const cards = SOCIAL_PLATFORMS
+    .map(p => ({ p, url: String((site && site['social_' + p.key]) || '').trim() }))
+    .filter(x => x.url.length > 0);
+
+  if (!cards.length) {
+    grid.innerHTML = `
+      <div class="gallery-empty" style="grid-column:1/-1;text-align:left;padding:0">
+        <p>Social links coming soon — set <strong>social_instagram</strong>, <strong>social_facebook</strong>, <strong>social_tiktok</strong>, or <strong>social_youtube</strong> in SiteConfig to wire them up.</p>
+      </div>`;
+    return;
+  }
+  grid.innerHTML = cards.map(({ p, url }) => `
+    <a class="social-card ${p.cls}" href="${esc(url)}" target="_blank" rel="noopener">
+      <div class="social-icon">${p.icon}</div>
+      <div class="social-meta">
+        <div class="social-platform">${esc(p.label)}</div>
+        <div class="social-handle">${esc(prettyHandle(url))}</div>
+      </div>
+    </a>
+  `).join('');
+}
+
+function openLightbox(src, cap){
+  const box = document.getElementById('lightbox');
+  const media = document.getElementById('lightbox-media');
+  const capEl = document.getElementById('lightbox-cap');
+  media.innerHTML = `<img src="${esc(src)}" alt="${esc(cap || '')}">`;
+  capEl.textContent = cap || '';
+  capEl.style.display = cap ? 'block' : 'none';
+  box.classList.add('is-open');
+}
+function closeLightbox(){
+  const box = document.getElementById('lightbox');
+  box.classList.remove('is-open');
+  document.getElementById('lightbox-media').innerHTML = '';
+}
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLightbox(); });
+document.getElementById('lightbox').addEventListener('click', e => {
+  if (e.target.id === 'lightbox') closeLightbox();
+});
+
+const MENU_URL = 'https://script.google.com/macros/s/AKfycbxjg2ZsPCZNsmJEStYA0bRdsnkm4nNS-m-HNhm_Gin56VIVeYWVRE5j51j30zVHhb4PmQ/exec?page=gallery';
+
+cmsBoot({
+  key: 'cms:gallery:v1',
+  url: MENU_URL,
+  onApply(data){
+    applyCMS(data.site || {});
+    renderGallery(data.galleries || []);
+    renderSocial(data.site || {});
+  },
+});
+</script>
+
+<script src="cart.js" defer></script>
+<script src="chatbot.js" defer></script>
+</body>
+</html>
