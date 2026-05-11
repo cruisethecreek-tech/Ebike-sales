@@ -92,6 +92,17 @@
 .ctc-msg a{color:#a98843;font-weight:700;border-bottom:1px solid rgba(169,136,67,.35)}
 .ctc-msg.user a{color:#C9A96E;border-bottom-color:rgba(201,169,110,.5)}
 
+.ctc-chips{display:flex;flex-wrap:wrap;gap:6px;margin:2px 0 6px;padding-left:2px;align-self:flex-start;max-width:90%;
+  animation:ctc-chip-in .25s ease-out}
+@keyframes ctc-chip-in{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:translateY(0)}}
+.ctc-chip{
+  background:#fff;color:#2D4A32;border:1px solid #C9A96E;border-radius:99px;
+  padding:7px 14px;font-size:.84rem;font-weight:700;letter-spacing:.02em;
+  cursor:pointer;font-family:inherit;transition:all .15s ease;line-height:1.2;
+}
+.ctc-chip:hover{background:#C9A96E;color:#1a2e1c}
+.ctc-chip:active{transform:scale(.96)}
+
 .ctc-chat-foot{
   background:#fff;border-top:1px solid rgba(0,0,0,.08);padding:10px 12px;
   display:flex;gap:8px;align-items:flex-end;flex-shrink:0;
@@ -188,6 +199,48 @@
     return s;
   }
 
+  // Pull the bot's quick-reply marker off the end of a message.
+  // Convention (taught in the system prompt):
+  //   [OPTIONS: First-time | Confident | Bridge the Gap | Other]
+  // Returns { text, options } where text is the message with the marker
+  // stripped, and options is an array of strings (or null if no marker).
+  function parseOptions(raw) {
+    const m = String(raw || '').match(/\n?\s*\[OPTIONS:\s*([^\]]+)\]\s*$/i);
+    if (!m) return { text: raw, options: null };
+    const opts = m[1].split('|').map(s => s.trim()).filter(Boolean);
+    if (!opts.length) return { text: raw, options: null };
+    return { text: raw.slice(0, m.index).trim(), options: opts };
+  }
+
+  // Remove chip rows from any older bot messages — only the LATEST bot
+  // bubble should have active chips. Called whenever a new user input
+  // lands (typed or chip tap) so the conversation history doesn't
+  // accumulate clickable chips that no longer make sense.
+  function clearOldChips() {
+    body.querySelectorAll('.ctc-chips').forEach(el => el.remove());
+  }
+
+  function renderChips(opts) {
+    if (!opts || !opts.length) return null;
+    const wrap = document.createElement('div');
+    wrap.className = 'ctc-chips';
+    opts.forEach(o => {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'ctc-chip';
+      b.textContent = o;
+      b.addEventListener('click', () => {
+        if (busy) return;
+        input.value = o;
+        submit();   // submit() calls clearOldChips before sending
+      });
+      wrap.appendChild(b);
+    });
+    body.appendChild(wrap);
+    scrollDown();
+    return wrap;
+  }
+
   function paintHistory() {
     body.innerHTML = '';
     if (!history.length) {
@@ -201,7 +254,18 @@
   function addBubble(kind, text) {
     const el = document.createElement('div');
     el.className = 'ctc-msg ' + kind;
-    el.innerHTML = kind === 'user' ? escape(text) : renderMsg(text);
+    if (kind === 'user' || kind === 'err') {
+      el.innerHTML = kind === 'user' ? escape(text) : renderMsg(text);
+    } else {
+      // Bot message — strip the [OPTIONS: ...] marker before display,
+      // then render chip row underneath if there were options.
+      const { text: cleanText, options } = parseOptions(text);
+      el.innerHTML = renderMsg(cleanText);
+      body.appendChild(el);
+      renderChips(options);
+      scrollDown();
+      return el;
+    }
     body.appendChild(el);
     scrollDown();
     return el;
@@ -228,6 +292,9 @@
     input.value = '';
     autosize();
     send.disabled = true;
+    // Strip any chips from previous bot messages — only the LATEST
+    // assistant reply should have tappable options at any time.
+    clearOldChips();
     addUser(text);
     const typing = showTyping();
 
