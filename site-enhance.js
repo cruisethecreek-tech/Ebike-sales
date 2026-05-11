@@ -231,3 +231,173 @@
   root.siteEnhance = { rescanFadeIns: setupFadeIns };
 
 })(typeof window !== 'undefined' ? window : this);
+
+/* ─────────────────────────────────────────────────────────────────
+ * cmsBoot — inlined from the former cms-loader.js
+ *
+ * Originally lived in its own file, but cruisethecreek.com (Wix
+ * proxy → Pages.dev) was returning HTTP 500 for `/cms-loader.js`
+ * — apparently a route conflict with Wix's built-in CMS path
+ * handler. Every page that depended on the script then died with
+ * `ReferenceError: cmsBoot is not defined` and never rendered its
+ * Sheet content (so visitors saw a blank or static-fallback page).
+ *
+ * Solution: ship the same logic from site-enhance.js, which does
+ * load cleanly across the proxy. The two IIFEs are independent —
+ * combining them in one file changes nothing about the runtime
+ * behaviour, only the filename the browser asks for.
+ *
+ * Public surface (unchanged): window.cmsBoot, window.showCmsLoader,
+ * window.hideCmsLoader. ?refresh=1 still bypasses the TTL.
+ * ──────────────────────────────────────────────────────────────── */
+
+(function (root) {
+  'use strict';
+
+  var DEFAULT_TTL_MS = 60 * 1000;
+  var LOGO_SRC = 'BlackonTransparent.png';
+  var LOADER_LABEL = 'Updating';
+
+  var loaderInjected = false;
+  var hideTimer = null;
+
+  function injectLoaderStyles() {
+    var css =
+      '.cms-loader{position:fixed;bottom:18px;right:18px;z-index:9999;' +
+      'background:rgba(255,255,255,.96);padding:8px 14px 8px 8px;' +
+      'border-radius:999px;box-shadow:0 8px 24px rgba(45,74,50,.2);' +
+      'display:flex;align-items:center;gap:10px;' +
+      'opacity:0;transform:translateY(8px);pointer-events:none;' +
+      'transition:opacity .25s ease,transform .25s ease;' +
+      "font-family:'DM Sans',system-ui,sans-serif;font-size:.74rem;" +
+      'font-weight:700;color:#2D4A32;letter-spacing:.08em;' +
+      'text-transform:uppercase}' +
+      '.cms-loader.is-show{opacity:1;transform:translateY(0)}' +
+      '.cms-loader img{width:26px;height:26px;display:block;' +
+      'animation:cms-pulse 1.4s ease-in-out infinite}' +
+      '@keyframes cms-pulse{' +
+      '0%,100%{transform:scale(1);opacity:.85}' +
+      '50%{transform:scale(1.1);opacity:1}}' +
+      '@media (max-width:480px){' +
+      '.cms-loader{bottom:12px;right:12px;padding:6px 12px 6px 6px;font-size:.68rem}' +
+      '.cms-loader img{width:22px;height:22px}}' +
+      '@media (prefers-reduced-motion:reduce){' +
+      '.cms-loader{transition:opacity .15s linear;transform:none}' +
+      '.cms-loader.is-show{transform:none}' +
+      '.cms-loader img{animation:none}}';
+    var style = document.createElement('style');
+    style.setAttribute('data-cms-loader', '1');
+    style.textContent = css;
+    document.head.appendChild(style);
+  }
+
+  function injectLoaderDom() {
+    var el = document.createElement('div');
+    el.className = 'cms-loader';
+    el.id = 'cms-loader';
+    el.setAttribute('role', 'status');
+    el.setAttribute('aria-live', 'polite');
+    el.innerHTML =
+      '<img src="' + LOGO_SRC + '" alt=""><span>' + LOADER_LABEL + '</span>';
+    (document.body || document.documentElement).appendChild(el);
+  }
+
+  function ensureLoader() {
+    if (loaderInjected) return;
+    loaderInjected = true;
+    injectLoaderStyles();
+    if (document.body) {
+      injectLoaderDom();
+    } else {
+      document.addEventListener('DOMContentLoaded', injectLoaderDom, { once: true });
+    }
+  }
+
+  function showCmsLoader() {
+    ensureLoader();
+    if (hideTimer) { clearTimeout(hideTimer); hideTimer = null; }
+    var el = document.getElementById('cms-loader');
+    if (!el) {
+      document.addEventListener('DOMContentLoaded', showCmsLoader, { once: true });
+      return;
+    }
+    requestAnimationFrame(function () { el.classList.add('is-show'); });
+  }
+
+  function hideCmsLoader() {
+    var el = document.getElementById('cms-loader');
+    if (!el) return;
+    hideTimer = setTimeout(function () { el.classList.remove('is-show'); }, 120);
+  }
+
+  function readCache(key) {
+    try {
+      var raw = localStorage.getItem(key);
+      var p = raw ? JSON.parse(raw) : null;
+      return (p && typeof p === 'object') ? p : null;
+    } catch (e) { return null; }
+  }
+
+  function writeCache(key, data) {
+    try {
+      localStorage.setItem(key, JSON.stringify({ _ts: Date.now(), data: data }));
+    } catch (e) {}
+  }
+
+  function unwrapCache(wrapped) {
+    if (!wrapped) return null;
+    if (wrapped.data && wrapped._ts) return wrapped.data;
+    if (wrapped._ts && !wrapped.data) return null;
+    return wrapped;
+  }
+
+  function isCacheFresh(wrapped, ttlMs) {
+    return !!(wrapped && wrapped._ts && (Date.now() - wrapped._ts < ttlMs));
+  }
+
+  function bypassCacheRequested() {
+    return /[?&]refresh=1\b/.test(location.search);
+  }
+
+  function cmsBoot(opts) {
+    if (!opts || typeof opts.onApply !== 'function' || !opts.url || !opts.key) {
+      console.warn('[cms] cmsBoot called without {key, url, onApply}');
+      return;
+    }
+    var ttlMs   = opts.ttlMs || DEFAULT_TTL_MS;
+    var wrapped = readCache(opts.key);
+    var cached  = unwrapCache(wrapped);
+    if (cached) {
+      try { opts.onApply(cached); }
+      catch (e) { console.warn('[cms] onApply (cached) failed:', e); }
+    }
+
+    if (!bypassCacheRequested() && isCacheFresh(wrapped, ttlMs)) {
+      return;
+    }
+
+    showCmsLoader();
+    fetch(opts.url, { cache: 'no-store' })
+      .then(function (r) { return r.ok ? r.json() : Promise.reject(r.status); })
+      .then(function (remote) {
+        if (!remote || typeof remote !== 'object') return;
+        writeCache(opts.key, remote);
+        if (cached) {
+          try {
+            if (JSON.stringify(remote) === JSON.stringify(cached)) return;
+          } catch (e) { /* fall through to re-render */ }
+        }
+        try { opts.onApply(remote); }
+        catch (e) { console.warn('[cms] onApply (remote) failed:', e); }
+      })
+      .catch(function (err) {
+        console.warn('[cms]', opts.key, 'fetch failed:', err);
+      })
+      .then(hideCmsLoader, hideCmsLoader);
+  }
+
+  root.cmsBoot         = cmsBoot;
+  root.showCmsLoader   = showCmsLoader;
+  root.hideCmsLoader   = hideCmsLoader;
+
+})(typeof window !== 'undefined' ? window : this);
