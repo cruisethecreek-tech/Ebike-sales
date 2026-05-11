@@ -52,9 +52,16 @@
     ':focus{outline:none}',
     ':focus-visible{outline:2px solid ' + BRAND.tan + ';outline-offset:2px;border-radius:3px}',
 
-    /* View Transitions API — Chrome/Edge/Safari pick this up; others ignore. */
-    '@view-transition{navigation:auto}',
-    '::view-transition-old(root),::view-transition-new(root){animation-duration:.32s}',
+    /* View Transitions API — DISABLED. We previously opted into
+       cross-document transitions (`@view-transition{navigation:auto}`),
+       but cruisethecreek.com is served through a Wix-proxy → Pages.dev
+       chain that redirects mid-navigation. The browser then aborts the
+       transition and throws an uncaught "AbortError: Transition was
+       skipped" — worse, on some Chromium builds the ::view-transition-new
+       snapshot stays pinned at opacity 0, leaving visitors on a blank
+       page below the nav (the bikes, trust strip, and CMS-driven hero
+       look gone). Falling back to a hard nav across pages eliminates
+       both the console error and the blank-render symptom. */
 
     /* Animated topo drift on hero backgrounds. */
     '.hero-topo{animation:hero-topo-drift 80s ease-in-out infinite alternate;will-change:transform}',
@@ -163,12 +170,54 @@
     Array.prototype.forEach.call(els, function (el) { io.observe(el); });
   }
 
+  /* ── HTTPS upgrade for sheet-driven image URLs ────── */
+
+  // The Apps Script sheet stores some image URLs as
+  //   http://ebike-sales.pages.dev/images/foo.jpg
+  // Chrome upgrades these to HTTPS automatically but logs a noisy
+  // Mixed-Content warning per image — and Safari/older WebKit don't
+  // upgrade at all, which fails the image entirely. Normalize at the
+  // DOM layer so the inline render code on each brand page (and any
+  // future CMS surface) doesn't have to remember to do it.
+  var HTTP_PREFIX = 'http://ebike-sales.pages.dev/';
+  var HTTPS_PREFIX = 'https://ebike-sales.pages.dev/';
+
+  function upgradeImage(img) {
+    var src = img.getAttribute('src');
+    if (src && src.indexOf(HTTP_PREFIX) === 0) {
+      img.setAttribute('src', HTTPS_PREFIX + src.slice(HTTP_PREFIX.length));
+    }
+  }
+
+  function upgradeAllImages(root) {
+    var imgs = (root || document).querySelectorAll('img[src^="' + HTTP_PREFIX + '"]');
+    Array.prototype.forEach.call(imgs, upgradeImage);
+  }
+
+  function watchForLateImages() {
+    if (typeof MutationObserver === 'undefined') return;
+    var mo = new MutationObserver(function (records) {
+      for (var i = 0; i < records.length; i++) {
+        var added = records[i].addedNodes;
+        for (var j = 0; j < added.length; j++) {
+          var n = added[j];
+          if (n.nodeType !== 1) continue;
+          if (n.tagName === 'IMG') upgradeImage(n);
+          else if (n.querySelectorAll) upgradeAllImages(n);
+        }
+      }
+    });
+    mo.observe(document.documentElement, { childList: true, subtree: true });
+  }
+
   /* ── Boot ─────────────────────────────────────────── */
 
   function boot() {
     injectCSS();
     ensureStickyCTA();
     setupFadeIns();
+    upgradeAllImages(document);
+    watchForLateImages();
   }
 
   if (document.readyState === 'loading') {
