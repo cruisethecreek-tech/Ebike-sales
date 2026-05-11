@@ -41,7 +41,7 @@
   background:#2D4A32;color:#C9A96E;border:none;cursor:pointer;
   display:flex;align-items:center;justify-content:center;
   box-shadow:0 8px 24px rgba(45,74,50,.32),0 2px 6px rgba(0,0,0,.18);
-  transition:transform .2s ease, background .2s ease;
+  transition:transform .25s ease, background .2s ease, opacity .25s ease;
   font-family:'DM Sans',-apple-system,system-ui,sans-serif;
 }
 .ctc-cart-fab:hover{transform:translateY(-2px);background:#1a2e1c}
@@ -52,7 +52,12 @@
   display:flex;align-items:center;justify-content:center;
   box-shadow:0 0 0 2px #2D4A32;letter-spacing:.02em;
 }
-.ctc-cart-fab.empty .ctc-cart-badge{display:none}
+/* Hide the FAB entirely when the cart is empty — keeps the bottom-of-page
+   real estate clean. The FAB fades in the moment a visitor adds an item
+   (renderBadge flips .empty off), and out again if they clear the cart. */
+.ctc-cart-fab.empty{
+  opacity:0;transform:translateY(8px) scale(.9);pointer-events:none;
+}
 .ctc-cart-fab.bump{animation:ctc-cart-bump .35s ease}
 @keyframes ctc-cart-bump{
   0%,100%{transform:scale(1)}
