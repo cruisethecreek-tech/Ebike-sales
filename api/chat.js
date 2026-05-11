@@ -327,6 +327,21 @@ export default async function handler(req, res) {
     //   3. Stop when stop_reason !== 'tool_use', or after the cap.
     // 4 iterations is plenty for our single-tool case but bounds runaway.
     let final = null;
+    // Mascot persona — taken from SiteConfig.mascot_*. When the name
+    // is set, the bot speaks in-character. The chatbot widget renders
+    // the avatar separately; this block just shapes the voice.
+    const mascotName = (kb && kb.site && kb.site.mascot_name)  || '';
+    const mascotBio  = (kb && kb.site && kb.site.mascot_bio)   || '';
+    let mascotBlock = '';
+    if (mascotName.trim()) {
+      mascotBlock = 'You ARE the Cruise the Creek mascot. Your name is "' + mascotName.trim() + '"' +
+        (mascotBio.trim() ? ' — ' + mascotBio.trim() : '') + '. ' +
+        'Refer to yourself by this name. Sign messages with personality and warmth ' +
+        '(a touch of trail/outdoors flavor is welcome). Don\'t break character to say ' +
+        '"as an AI" — you\'re the shop\'s friendly mascot, period. Substance over schtick: ' +
+        'lead with helpful answers, not bear puns.';
+    }
+
     // Build the visitor context block — injected after the cached KB
     // so it doesn't bust the prompt cache. Per-visitor info changes
     // every conversation, so it stays uncached on purpose.
@@ -349,6 +364,7 @@ export default async function handler(req, res) {
         { type: 'text', text: 'Knowledge base (current site content):\n\n' + kbBlock,
           cache_control: { type: 'ephemeral' } },
       ];
+      if (mascotBlock)  systemBlocks.push({ type: 'text', text: mascotBlock });
       if (visitorBlock) systemBlocks.push({ type: 'text', text: visitorBlock });
 
       const body = {
