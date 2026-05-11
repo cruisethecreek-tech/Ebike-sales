@@ -234,6 +234,8 @@ function doGet(e) {
                          .sort(function(a, b){ return (a.order || 0) - (b.order || 0); }),
     accessories:       readSheet(ss, 'Accessories')
                          .sort(function(a, b){ return (a.order || 0) - (b.order || 0); }),
+    directInventory:   readSheet(ss, 'Direct_Inventory')
+                         .sort(function(a, b){ return (a.order || 0) - (b.order || 0); }),
     testimonials:      readSheet(ss, 'Testimonials')
                          .sort(function(a, b){ return (a.order || 0) - (b.order || 0); }),
     blog:              readSheet(ss, 'Blog')
@@ -2259,6 +2261,47 @@ function getTabDefs() {
           '40-in-1', '', 'https://amzn.to/4d2ppoG', true],
       ],
     },
+    'Direct_Inventory': {
+      // Items Pat sells DIRECTLY (not affiliate links). Rendered on
+      // accessories.html in a section ABOVE the Amazon picks, each
+      // with an "Add to Cart" button that pushes into the shared cart
+      // drawer (cart.js).
+      //
+      // Field guide:
+      //   id          = stable slug used to dedupe on updateSheet()
+      //   order       = sort order, lowest first. Use gaps of 10.
+      //   category    = section grouping ("Helmets", "Lights",
+      //                 "Locks", "Cargo", etc.). Items with the same
+      //                 category cluster together in the section.
+      //   name        = product name as it shows on the card
+      //   description = 1-2 sentences, optional. Shows under the name.
+      //   price       = number only, no $ or commas. Stored as the
+      //                 line price in the cart. Set to 0 for "ask"
+      //                 pricing and the card hides the price tag.
+      //   condition   = "new" or "used". Used items get an amber
+      //                 USED badge in the corner of the card.
+      //   photo       = filename in /media/ or full https:// URL.
+      //                 Blank shows a stylized name placeholder.
+      //   badge       = optional small badge ("Last One", "Like New",
+      //                 etc.) — shown alongside the USED badge when
+      //                 condition=used, or on its own otherwise.
+      //   available   = FALSE to hide a row without deleting it.
+      header: ['id','order','category','name','description','price','condition','photo','badge','available'],
+      rows: [
+        // Seed rows — replace with Pat's actual inventory. Both new
+        // and used examples included so the rendering can be eyeballed
+        // even before real items are added.
+        ['seed-helmet-1',  10, 'Helmets', 'Cruise the Creek Branded Helmet',
+          'Lightweight commuter helmet with rear LED. Branded with the CTC logo on the side.',
+          59,  'new',  '', '', false],
+        ['seed-lock-1',    20, 'Locks',   'Heavy-Duty U-Lock',
+          'Solid steel U-lock with carry bracket. Good for parking at the trailhead.',
+          39,  'new',  '', '', false],
+        ['seed-light-1',   30, 'Lights',  'Used Front Headlight Set',
+          'Trade-in headlight, fully tested. Cosmetic scuffs only. Comes off a 2024 Velotric.',
+          15,  'used', '', 'Like New', false],
+      ],
+    },
     'Testimonials': {
       // Customer reviews rendered in the homepage "Riders making
       // lemonade" section. Up to 6 most-recent live rows show.
@@ -3280,7 +3323,7 @@ function setupSheet() {
 function updateSheet() {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
   const tabs = getTabDefs();
-  const KEYED = { 'SiteConfig': 'key', 'Pages': 'slug', 'Photos': 'key', 'Accessories': 'id', 'Testimonials': 'id' };
+  const KEYED = { 'SiteConfig': 'key', 'Pages': 'slug', 'Photos': 'key', 'Accessories': 'id', 'Direct_Inventory': 'id', 'Testimonials': 'id' };
   const stats = { created: 0, seededEmpty: 0, addedCols: 0, addedRows: 0, untouched: 0 };
 
   Object.keys(tabs).forEach(function(name) {

@@ -92,6 +92,13 @@
 }
 .ctc-cart-empty strong{display:block;color:#2D4A32;font-family:'Bebas Neue',sans-serif;
   font-size:1.2rem;letter-spacing:.04em;margin-bottom:6px;text-transform:uppercase}
+.ctc-cart-empty-suggest{display:flex;gap:8px;justify-content:center;margin-top:14px;flex-wrap:wrap}
+.ctc-cart-empty-suggest a{
+  background:#2D4A32;color:#C9A96E;text-decoration:none;font-weight:800;
+  padding:8px 14px;border-radius:4px;font-size:.74rem;letter-spacing:.08em;
+  text-transform:uppercase;transition:background .15s ease;font-family:inherit;
+}
+.ctc-cart-empty-suggest a:hover{background:#1a2e1c}
 
 .ctc-cart-item{
   background:#fff;border:1px solid rgba(0,0,0,.06);border-radius:8px;
@@ -124,6 +131,25 @@
   padding:2px 4px;font-family:inherit;font-weight:600;
 }
 .ctc-cart-remove:hover{color:#c44a3a}
+
+.ctc-cart-suggest{
+  padding:12px 22px 4px;background:#fbf7ef;border-top:1px solid rgba(0,0,0,.06);
+  display:flex;flex-direction:column;gap:8px;flex-shrink:0;
+}
+.ctc-cart-suggest[hidden]{display:none}
+.ctc-cart-suggest-eyebrow{font-size:.64rem;letter-spacing:.18em;text-transform:uppercase;
+  font-weight:800;color:#a98843}
+.ctc-cart-suggest-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.ctc-cart-suggest-card{
+  background:#fff;border:1px solid rgba(0,0,0,.06);border-radius:6px;
+  padding:9px 12px;text-decoration:none;color:#2D4A32;
+  display:flex;flex-direction:column;gap:1px;
+  transition:border-color .15s ease, transform .1s ease;
+}
+.ctc-cart-suggest-card:hover{border-color:#C9A96E;transform:translateY(-1px)}
+.ctc-cart-suggest-card strong{font-size:.82rem;letter-spacing:.02em;font-weight:800;
+  font-family:'Bebas Neue','DM Sans',sans-serif;text-transform:uppercase;line-height:1.1}
+.ctc-cart-suggest-card span{font-size:.66rem;color:#5a5a5a;line-height:1.3}
 
 .ctc-cart-totals{
   padding:14px 22px;background:#fff;border-top:1px solid rgba(0,0,0,.08);
@@ -234,6 +260,19 @@
         <button class="ctc-cart-close" type="button" data-act="close" aria-label="Close">×</button>
       </header>
       <div class="ctc-cart-items"></div>
+      <div class="ctc-cart-suggest" hidden>
+        <span class="ctc-cart-suggest-eyebrow">While you're here</span>
+        <div class="ctc-cart-suggest-grid">
+          <a class="ctc-cart-suggest-card" href="accessories.html">
+            <strong>Accessories</strong>
+            <span>Locks, lights, helmets, gear</span>
+          </a>
+          <a class="ctc-cart-suggest-card" href="apparel.html">
+            <strong>Apparel</strong>
+            <span>Cruise the Creek merch</span>
+          </a>
+        </div>
+      </div>
       <div class="ctc-cart-totals">
         <span>Subtotal</span>
         <strong class="ctc-cart-subtotal">$0</strong>
@@ -255,6 +294,7 @@
         <strong>Order sent.</strong>
         <p>Pat or the team will text or email shortly to confirm details and send a payment link.</p>
         <div class="ctc-cart-success-id"></div>
+        <div class="ctc-cart-empty-suggest"></div>
         <button type="button" data-act="close">Keep browsing</button>
       </div>
     </aside>
@@ -278,6 +318,9 @@
         <div class="ctc-cart-empty">
           <strong>Cart's empty</strong>
           Add a bike or accessory and it'll show up here.
+          <div class="ctc-cart-empty-suggest">
+            ${suggestLinks().map(l => `<a href="${l.href}">${l.label}</a>`).join('')}
+          </div>
         </div>`;
     } else {
       itemsEl.innerHTML = cart.items.map((it, idx) => `
@@ -300,6 +343,36 @@
     }
     const subtotal = cart.items.reduce((s, i) => s + (parseFloat(i.price) || 0) * (parseInt(i.qty, 10) || 1), 0);
     wrap.querySelector('.ctc-cart-subtotal').textContent = '$' + formatPrice(subtotal);
+    renderSuggest();
+  }
+
+  // Cross-sell rail. Sits between items and totals, only shows when
+  // the cart has items so the suggestion lands after the customer has
+  // committed to something — not as cold "browse this" noise.
+  function renderSuggest() {
+    const suggestEl = wrap.querySelector('.ctc-cart-suggest');
+    const hasItems = cart.items.length > 0;
+    suggestEl.hidden = !hasItems;
+    if (!hasItems) return;
+    // Hide whichever suggestion points at the page we're already on.
+    const here = (typeof location !== 'undefined' && location.pathname || '').toLowerCase();
+    suggestEl.querySelectorAll('.ctc-cart-suggest-card').forEach(card => {
+      const href = (card.getAttribute('href') || '').toLowerCase();
+      card.style.display = (href && here.endsWith('/' + href)) ? 'none' : '';
+    });
+  }
+
+  // Suggested next-stops for the empty-state and the post-checkout
+  // success screen. Suppresses the page we're already on so the
+  // suggestion always points somewhere new.
+  function suggestLinks() {
+    const here = (typeof location !== 'undefined' && location.pathname || '').toLowerCase();
+    const all = [
+      { href: 'shop.html',        label: 'Shop' },
+      { href: 'accessories.html', label: 'Accessories' },
+      { href: 'apparel.html',     label: 'Apparel' },
+    ];
+    return all.filter(l => !here.endsWith('/' + l.href));
   }
 
   renderBadge();
@@ -392,6 +465,10 @@
       successEl.hidden = false;
       const idEl = successEl.querySelector('.ctc-cart-success-id');
       idEl.textContent = orderId ? 'Order #' + orderId : '';
+      // Inject the cross-sell links into the success screen too — keeps
+      // the visitor on-site after a conversion instead of bouncing.
+      const suggestEl = successEl.querySelector('.ctc-cart-empty-suggest');
+      suggestEl.innerHTML = suggestLinks().map(l => `<a href="${l.href}">${l.label}</a>`).join('');
     } finally {
       btn.disabled = false;
       btn.textContent = 'Send Order';
