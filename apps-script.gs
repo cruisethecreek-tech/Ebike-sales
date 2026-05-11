@@ -71,6 +71,9 @@ function doGet(e) {
   if (action === 'apparelOrder') {
     return handleApparelOrder(e.parameter || {});
   }
+  if (action === 'cartOrder') {
+    return handleCartOrder(e.parameter || {});
+  }
   if (action === 'bookingLead') {
     return handleBookingLead(e.parameter || {});
   }
@@ -422,6 +425,136 @@ function handleApparelOrder(p) {
     return json({ ok: true, id: row.id, paymentLink: row.paymentLink });
   } catch (err) {
     console.error('handleApparelOrder failed: ' + err);
+    return json({ ok: false, error: String(err) });
+  }
+}
+
+/**
+ * Multi-item cart order. Triggered by cart.js (shared drawer widget)
+ * when a visitor submits the checkout form with one or more bikes /
+ * accessories. Mirrors handleApparelOrder structurally:
+ *   1. Append a Cart_Orders row (creating the tab on first call)
+ *   2. Email salesteam@ AND info@cruisethecreek.com with item list
+ *   3. Push to Discord
+ *   4. Return { ok, id, subtotal }
+ *
+ * The `cart` param is a JSON string array of items. Each item:
+ *   { kind, brand, name, category, price, qty, configuration:
+ *     { style, size, color }, condition: 'new'|'used' }
+ *
+ * Payment is NOT collected here — sales follows up manually with a
+ * Stripe/Peek link per the existing rental flow.
+ */
+function handleCartOrder(p) {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const json = function(obj) {
+    return ContentService
+      .createTextOutput(JSON.stringify(obj))
+      .setMimeType(ContentService.MimeType.JSON);
+  };
+
+  try {
+    const now = new Date();
+    const id  = 'CT-' + Utilities.formatDate(now, 'America/New_York', 'yyMMdd-HHmmss');
+
+    let items = [];
+    try {
+      const parsed = JSON.parse(p.cart || '[]');
+      if (Array.isArray(parsed)) items = parsed;
+    } catch (e) { items = []; }
+
+    const customer = {
+      first: String(p.firstName || '').trim(),
+      last:  String(p.lastName  || '').trim(),
+      email: String(p.email     || '').trim(),
+      phone: String(p.phone     || '').trim(),
+      notes: String(p.notes     || '').trim(),
+      page:  String(p.page      || '').trim(),
+    };
+
+    // Format one item per line for both the Sheet cell and the email.
+    function itemLine(it) {
+      const c = (it && it.configuration) || {};
+      const cfg = [c.style, c.size, c.color].filter(function(v){ return v && String(v).trim(); }).join(' / ');
+      const cond = (it && it.condition === 'used') ? ' [Used]' : '';
+      const qty = parseInt(it && it.qty, 10) || 1;
+      const price = parseFloat(it && it.price) || 0;
+      return qty + 'x ' + (it.brand ? it.brand + ' ' : '') + (it.name || '(unnamed)') +
+             (cfg ? ' (' + cfg + ')' : '') + cond +
+             ' — $' + price.toFixed(0) + (qty > 1 ? ' ea' : '');
+    }
+    const itemsText = items.map(itemLine).join('\n');
+    let subtotal = 0;
+    items.forEach(function(it){
+      subtotal += (parseFloat(it.price) || 0) * (parseInt(it.qty, 10) || 1);
+    });
+
+    let sh = ss.getSheetByName('Cart_Orders');
+    if (!sh) {
+      sh = ss.insertSheet('Cart_Orders');
+      sh.appendRow(['id','timestamp','first','last','email','phone',
+                    'itemCount','subtotal','items','notes','page']);
+      sh.getRange(1, 1, 1, 11).setFontWeight('bold');
+    }
+    sh.appendRow([id, now, customer.first, customer.last, customer.email, customer.phone,
+                  items.length, subtotal, itemsText, customer.notes, customer.page]);
+
+    // Sales-team email — sent to BOTH inboxes Pat configured.
+    try {
+      const body = [
+        'New cart order — ' + id,
+        '',
+        'Customer: ' + customer.first + ' ' + customer.last,
+        'Email:    ' + (customer.email || '(none — call by phone)'),
+        'Phone:    ' + (customer.phone || '(none — email only)'),
+        '',
+        'Items (' + items.length + '):',
+        itemsText || '(empty cart — log only)',
+        '',
+        'Subtotal: $' + subtotal.toFixed(2),
+        '',
+        'Notes:    ' + (customer.notes || '(none)'),
+        '',
+        'From:     ' + (customer.page || '(unknown page)'),
+        'Logged:   ' + now,
+        '',
+        'Follow up to confirm and send a payment link.',
+      ].join('\n');
+      MailApp.sendEmail({
+        to:      'salesteam@cruisethecreek.com,info@cruisethecreek.com',
+        replyTo: customer.email || 'salesteam@cruisethecreek.com',
+        subject: 'Cart order ' + id + ' — ' + items.length + ' item' +
+                 (items.length === 1 ? '' : 's') + ', $' + subtotal.toFixed(0),
+        body:    body,
+      });
+    } catch (mailErr) {
+      console.warn('Cart order email failed: ' + mailErr);
+    }
+
+    // Discord notification — same pattern as handleApparelOrder. The
+    // items field gets truncated to 1020 chars to stay inside Discord's
+    // 1024 field-value cap.
+    var itemsForDiscord = itemsText || '(none)';
+    if (itemsForDiscord.length > 1020) itemsForDiscord = itemsForDiscord.substring(0, 1017) + '...';
+    postToDiscord_(
+      '🛒 New cart order — ' + id,
+      13215086, // tan 0xC9A96E
+      [
+        { name: '👤 Customer', value:
+            ((customer.first || '') + ' ' + (customer.last || '')).trim() +
+            (customer.phone ? '\n📞 ' + customer.phone : '') +
+            (customer.email ? '\n✉️ ' + customer.email : ''), inline: false },
+        { name: '🛍️ Items (' + items.length + ')', value: itemsForDiscord, inline: false },
+        { name: '💵 Subtotal', value: '$' + subtotal.toFixed(2), inline: true },
+        { name: '🌐 Page', value: (customer.page || '(unknown)').substring(0, 200), inline: true },
+        { name: '📝 Notes', value: customer.notes || '(none)', inline: false },
+      ],
+      'Follow up to confirm and send a payment link'
+    );
+
+    return json({ ok: true, id: id, subtotal: subtotal });
+  } catch (err) {
+    console.error('handleCartOrder failed: ' + err);
     return json({ ok: false, error: String(err) });
   }
 }

@@ -118,7 +118,9 @@ const SITE_CONFIG = {
         .section-title{font-family:'Bebas Neue',sans-serif;
           font-size:clamp(1.75rem,4vw,2.5rem);font-weight:900;letter-spacing:.04em;text-transform:uppercase;
           color:var(--forest);margin-bottom:24px}
-        .bikes-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:20px}
+        .bikes-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+        @media(max-width:980px){.bikes-grid{grid-template-columns:repeat(2,1fr)}}
+        @media(max-width:640px){.bikes-grid{grid-template-columns:1fr}}
 
         .bike-card{background:#fff;border:1px solid rgba(0,0,0,.06);border-radius:8px;
           display:flex;flex-direction:column;overflow:hidden;
@@ -176,6 +178,12 @@ const SITE_CONFIG = {
           font-size:.92rem;text-transform:uppercase;letter-spacing:.06em;
           transition:background .2s ease;margin-top:auto;font-family:inherit}
         .buy-button:hover{background:var(--accent-d)}
+        .cart-button{display:block;background:transparent;color:var(--accent-d);
+          padding:.7rem 1rem;text-align:center;font-weight:800;
+          border-radius:4px;border:1.5px solid var(--accent);cursor:pointer;width:100%;
+          font-size:.82rem;text-transform:uppercase;letter-spacing:.06em;
+          transition:all .2s ease;margin-top:8px;font-family:inherit}
+        .cart-button:hover{background:var(--accent);color:var(--on-accent)}
 
         /* FEATURES (jasion only — harmless on others) */
         .features{background:var(--cream-w);padding:48px 24px;border-top:1px solid rgba(0,0,0,.06)}
@@ -645,7 +653,7 @@ const SITE_CONFIG = {
                 for (const [specName, specValue] of Object.entries(bike.specs)) {
                     html += `<li><span class="spec-label">${specName}</span><span class="spec-value">${specValue}</span></li>`;
                 }
-                html += `</ul><button class="buy-button" onclick="selectBikeAndScroll(this)">SUBMIT ORDER REQUEST</button></div></div>`;
+                html += `</ul><button class="buy-button" onclick="selectBikeAndScroll(this)">SUBMIT ORDER REQUEST</button><button class="cart-button" type="button" onclick="addBikeToCart(this)">Add to Cart</button></div></div>`;
             });
 
             container.innerHTML = html;
@@ -692,6 +700,45 @@ const SITE_CONFIG = {
             priceDisplay.innerHTML = `$${Number(newPrice).toLocaleString()}<br>${testRideText}`;
             swatch.closest('.swatches').querySelectorAll('.swatch').forEach(s => s.classList.remove('active'));
             swatch.classList.add('active');
+        }
+
+        /**
+         * Add the currently-configured bike (the same selection
+         * selectBikeAndScroll captures) into the shared cart drawer.
+         * Reuses the swatch / size / style extraction so the cart line
+         * always matches what the customer sees on the card.
+         */
+        function addBikeToCart(button) {
+            if (!window.ctcCart || !window.ctcCart.add) return;
+            const card = button.closest('.bike-card');
+            const bikeName = card.getAttribute('data-bike-name') || '';
+            const styleBtn = card.querySelector('.style-btn.active');
+            const visibleWrapper = card.querySelector('.nested-style-wrapper[style*="display: block"]')
+                                || card.querySelector('.nested-style-wrapper:not([style*="display: none"])');
+            const sizeScope = visibleWrapper || card;
+            const sizeBtn = sizeScope.querySelector('.size-btn.active:not(.size-unavailable)');
+            const activeSwatch = sizeScope.querySelector('.swatch-group[style*="display: block"] .swatch.active')
+                               || sizeScope.querySelector('.swatch.active')
+                               || card.querySelector('.swatch.active');
+            // Swatch price overrides base price when the variant has one.
+            const swatchPrice = activeSwatch && activeSwatch.getAttribute('data-price');
+            const basePrice = card.getAttribute('data-bike-price') || '0';
+            const price = parseFloat(String(swatchPrice || basePrice).replace(/[^0-9.-]+/g, '')) || 0;
+            const category = (card.querySelector('.bike-style')?.textContent || '').trim();
+            window.ctcCart.add({
+                kind: 'bike',
+                brand: 'Velotric',
+                name: bikeName,
+                category: category,
+                price: price,
+                configuration: {
+                    style: styleBtn ? styleBtn.getAttribute('data-style') : '',
+                    size:  sizeBtn  ? sizeBtn.getAttribute('data-size')   : '',
+                    color: activeSwatch ? activeSwatch.getAttribute('data-color') : '',
+                },
+                condition: 'new',
+                qty: 1,
+            });
         }
 
         function selectBikeAndScroll(button) {
@@ -914,6 +961,7 @@ const SITE_CONFIG = {
     .catch(err => console.warn('[trust-strip] fetch failed, using static cards:', err));
 })();
 </script>
+<script src="cart.js" defer></script>
 <script src="chatbot.js" defer></script>
 </body>
 </html>

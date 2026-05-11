@@ -117,7 +117,9 @@ const SITE_CONFIG = {
         .section-title{font-family:'Bebas Neue',sans-serif;
           font-size:clamp(1.75rem,4vw,2.5rem);font-weight:900;letter-spacing:.04em;text-transform:uppercase;
           color:var(--forest);margin-bottom:24px}
-        .bikes-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:20px}
+        .bikes-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+        @media(max-width:980px){.bikes-grid{grid-template-columns:repeat(2,1fr)}}
+        @media(max-width:640px){.bikes-grid{grid-template-columns:1fr}}
 
         .bike-card{background:#fff;border:1px solid rgba(0,0,0,.06);border-radius:8px;
           display:flex;flex-direction:column;overflow:hidden;
