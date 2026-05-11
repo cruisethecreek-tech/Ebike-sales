@@ -18,12 +18,86 @@
 
   const API_URL     = 'https://ebike-sales-nu.vercel.app/api/chat';
   const VISITOR_URL = 'https://script.google.com/macros/s/AKfycbxjg2ZsPCZNsmJEStYA0bRdsnkm4nNS-m-HNhm_Gin56VIVeYWVRE5j51j30zVHhb4PmQ/exec';
+  const CMS_URL     = VISITOR_URL + '?page=chat'; // for mascot config
   const STORE_KEY   = 'ctc:chat:history:v1';
   const SESSION_KEY = 'ctc:chat:session:v1';
   const VISITOR_KEY = 'ctc:chat:visitor:v1';
+  const MASCOT_KEY  = 'ctc:chat:mascot:v1';
   const MAX_LOCAL   = 12;     // last N turns we keep client-side (server caps too)
-  const BRAND_NAME  = 'Creek Concierge';
-  const GREETING    = "Hey! I'm the Creek Concierge — ask me anything about rentals, bikes, services, or the trails. What's on your mind?";
+
+  // Default mascot identity. Overridden at runtime by SiteConfig keys
+  // (mascot_name, mascot_avatar_url, mascot_greeting, mascot_bio).
+  // Pat: pick a name + upload the bear image → paste into the Sheet,
+  // no code change needed. Defaults below are the unbranded fallback.
+  let MASCOT = readMascot() || {
+    name:      'Creek Concierge',
+    avatarUrl: '',  // empty → "CC" letter avatar
+    greeting:  "Hey! I'm the Creek Concierge — ask me anything about rentals, bikes, services, or the trails. What's on your mind?",
+    bio:       'Usually replies right away',
+  };
+  let BRAND_NAME  = MASCOT.name;
+  let GREETING    = MASCOT.greeting;
+
+  function readMascot() {
+    try { return JSON.parse(localStorage.getItem(MASCOT_KEY) || 'null'); }
+    catch (e) { return null; }
+  }
+  function writeMascot(m) {
+    try { localStorage.setItem(MASCOT_KEY, JSON.stringify(m)); }
+    catch (e) {}
+  }
+
+  // Resolve a mascot avatar URL — bare filename → /media/ prefix,
+  // full URL → kept as-is. Mirrors the resolveImg pattern used
+  // elsewhere on the site.
+  function mascotUrl(v) {
+    const s = String(v || '').trim();
+    if (!s) return '';
+    if (/^(https?:|data:)/.test(s)) return s;
+    return 'media/' + s.replace(/^(media|images)\//, '');
+  }
+
+  // Fetch the mascot config from the CMS once per panel open. Cache
+  // in localStorage so repeat opens don't re-fetch. Updates the chat
+  // header avatar / name / greeting in place if the mascot has been
+  // configured since last fetch.
+  function refreshMascot() {
+    fetch(CMS_URL, { cache: 'no-store' })
+      .then(r => r.ok ? r.json() : Promise.reject(r.status))
+      .then(d => {
+        const site = (d && d.site) || {};
+        const m = {
+          name:      String(site.mascot_name       || '').trim() || 'Creek Concierge',
+          avatarUrl: mascotUrl(site.mascot_avatar_url),
+          greeting:  String(site.mascot_greeting   || '').trim() ||
+            "Hey! I'm " + (site.mascot_name || 'the Creek Concierge') + " — ask me anything about rentals, bikes, services, or the trails. What's on your mind?",
+          bio:       String(site.mascot_bio        || '').trim() || 'Usually replies right away',
+        };
+        MASCOT = m;
+        BRAND_NAME = m.name;
+        GREETING = m.greeting;
+        writeMascot(m);
+        applyMascot();
+      })
+      .catch(err => console.warn('[chatbot] mascot fetch failed:', err));
+  }
+
+  // Apply the current MASCOT to the DOM. Called after fetch + on each
+  // panel open (in case the user has multiple tabs / cache shifted).
+  function applyMascot() {
+    const av = panel && panel.querySelector('.avatar');
+    if (av) {
+      if (MASCOT.avatarUrl) {
+        av.innerHTML = '<img src="' + MASCOT.avatarUrl + '" alt="' + escape(MASCOT.name) + '" onerror="this.replaceWith(Object.assign(document.createElement(\'span\'),{textContent:\'CC\'}))">';
+      } else {
+        av.textContent = (MASCOT.name || 'CC').split(' ').map(s => s[0]).join('').slice(0, 2).toUpperCase() || 'CC';
+      }
+    }
+    const nameEl = panel && panel.querySelector('.who strong');
+    if (nameEl) nameEl.textContent = MASCOT.name;
+    const bioEl = panel && panel.querySelector('.who .status');
+    if (bioEl) bioEl.textContent = MASCOT.bio;
+  }
 
   // Visitor persists across reloads. New device/browser → new intake.
   function readVisitor() {
@@ -94,9 +168,13 @@
   display:flex;align-items:center;gap:10px;flex-shrink:0;
 }
 .ctc-chat-head .avatar{
-  width:32px;height:32px;border-radius:50%;background:#C9A96E;color:#1a2e1c;
-  display:flex;align-items:center;justify-content:center;
+  width:36px;height:36px;border-radius:50%;background:#C9A96E;color:#1a2e1c;
+  display:flex;align-items:center;justify-content:center;overflow:hidden;
   font-family:'Bebas Neue',sans-serif;font-size:.95rem;font-weight:700;letter-spacing:.04em;
+  flex-shrink:0;
+}
+.ctc-chat-head .avatar img{
+  width:100%;height:100%;object-fit:cover;display:block;
 }
 .ctc-chat-head .who{flex:1;min-width:0}
 .ctc-chat-head .who strong{display:block;font-size:.95rem;font-weight:700;letter-spacing:.02em}
@@ -280,6 +358,11 @@
 
   document.body.appendChild(panel);
   document.body.appendChild(fab);
+
+  // Paint cached mascot on initial mount so returning visitors see
+  // the bear/name instantly. The refresh fires on first panel open
+  // to keep idle pages from making an Apps Script call.
+  applyMascot();
 
   const body   = panel.querySelector('.ctc-chat-body');
   const foot   = panel.querySelector('.ctc-chat-foot');
@@ -535,11 +618,15 @@
   }
 
   // ── Wire events ──────────────────────────────────────────────
+  let mascotFetched = false;
   fab.addEventListener('click', () => {
     const isOpen = panel.classList.toggle('is-open');
     fab.classList.toggle('is-open', isOpen);
-    fab.setAttribute('aria-label', isOpen ? 'Close chat' : 'Open chat with Creek Concierge');
+    fab.setAttribute('aria-label', isOpen ? ('Close chat with ' + MASCOT.name) : ('Open chat with ' + MASCOT.name));
     if (isOpen) {
+      // Refresh mascot from CMS on first open per page-load (deferred
+      // here so idle pages don't ping Apps Script).
+      if (!mascotFetched) { mascotFetched = true; refreshMascot(); }
       // Gate: brand-new visitor → intake form. Returning visitor → chat.
       if (visitor && visitor.first) showChat(); else showIntake();
     }

@@ -583,13 +583,25 @@ function getSiteConfigValue_(key) {
 function postToDiscord_(title, color, fields, footer) {
   const url = getSiteConfigValue_('discord_webhook_url');
   if (!url || url.indexOf('https://') !== 0) return;  // blank or invalid
+  const mascotName   = getSiteConfigValue_('mascot_name')       || 'Creek Concierge';
+  const mascotAvatar = getSiteConfigValue_('mascot_avatar_url') || '';
+  // Resolve avatar URL the same way the chat widget does — bare
+  // filename gets the /media/ prefix; full https:// is kept as-is.
+  // Discord requires an absolute URL for avatar_url, so a bare filename
+  // resolves against the production domain (Cloudflare Pages).
+  let avatarUrl = '';
+  if (mascotAvatar) {
+    if (/^https?:\/\//.test(mascotAvatar)) avatarUrl = mascotAvatar;
+    else avatarUrl = 'https://www.cruisethecreek.com/media/' + mascotAvatar.replace(/^(media|images)\//, '');
+  }
   try {
     UrlFetchApp.fetch(url, {
       method:      'post',
       contentType: 'application/json',
       muteHttpExceptions: true,
       payload: JSON.stringify({
-        username: 'Creek Concierge',
+        username:   mascotName,
+        avatar_url: avatarUrl || undefined,
         embeds: [{
           title:     title,
           color:     color,
@@ -1394,6 +1406,32 @@ function getTabDefs() {
         ['chat_price_heybike',  'Heybike e-bikes: $900–$2,000. Wide range — fat tires, cargo, step-thru, all-purpose.'],
         ['chat_price_velotric', 'Velotric e-bikes: $1,200–$2,500. Mid-to-premium tier — commuter, fat tire, cargo. Strong components, popular for Bridge the Gap.'],
         ['chat_price_mooncool', 'Mooncool e-bikes: $700–$2,000. Cruisers, e-trikes, value picks.'],
+
+        ['── MASCOT (chatbot personality) ──', ''],
+        // Fill these in once you pick a name + upload the bear image.
+        //   mascot_name      = first name shown in chat header subtitle,
+        //                      bot greeting, and Discord username.
+        //                      Leave blank → falls back to "Creek
+        //                      Concierge" default.
+        //   mascot_avatar_url= filename in /media/ (e.g.
+        //                      mascot-bear.png) or full https:// URL.
+        //                      Used in the chat header avatar circle
+        //                      AND in Discord embed avatar. Blank →
+        //                      falls back to "CC" letter avatar.
+        //   mascot_greeting  = first-message text shown when chat
+        //                      opens for a new visitor. {name} is
+        //                      substituted with the visitor's first
+        //                      name if available. Blank → generic
+        //                      default greeting.
+        //   mascot_bio       = one-liner shown under the name in the
+        //                      chat header. "Usually replies right
+        //                      away" by default. Replace with character
+        //                      flavor, e.g. "Trail bear · Mill Creek's
+        //                      unofficial mayor".
+        ['mascot_name',         ''],
+        ['mascot_avatar_url',   ''],
+        ['mascot_greeting',     ''],
+        ['mascot_bio',          ''],
       ],
     },
     'Photos': {
