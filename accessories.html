@@ -83,6 +83,35 @@ main{flex:1;max-width:1080px;width:100%;margin:0 auto;padding:24px 24px 64px}
 .product-grid.cols-2{grid-template-columns:1fr}
 @media(min-width:560px){.product-grid.cols-2{grid-template-columns:repeat(2,1fr);max-width:720px}}
 
+/* DIRECT-SALE CARDS — items Pat carries in the shop (new + used).
+   Sits above the affiliate Amazon picks. Reuses .product-photo + .ph-icon
+   from the affiliate card system so visuals stay coherent. */
+.direct-section{margin-bottom:42px}
+.direct-card{background:#fff;border:1px solid rgba(0,0,0,.06);border-radius:8px;
+  overflow:hidden;display:flex;flex-direction:column;text-align:left;
+  box-shadow:0 4px 12px rgba(0,0,0,.04);
+  transition:transform .2s ease,box-shadow .2s ease,border-color .2s ease}
+.direct-card:hover{transform:translateY(-3px);box-shadow:0 14px 32px rgba(45,74,50,.12);border-color:var(--sage)}
+.direct-card .direct-body{padding:16px 18px 18px;display:flex;flex-direction:column;gap:6px;flex:1}
+.direct-card .direct-name{font-family:'Bebas Neue',sans-serif;font-size:1.25rem;
+  color:var(--forest);letter-spacing:.04em;text-transform:uppercase;line-height:1.1}
+.direct-card .direct-cat{font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;
+  font-weight:700;color:var(--tan-d);margin-bottom:2px}
+.direct-card .direct-desc{font-size:.84rem;color:var(--ink-2);line-height:1.55;margin-top:4px;flex:1}
+.direct-card .direct-price{font-family:'Bebas Neue',sans-serif;font-size:1.8rem;
+  color:var(--forest);letter-spacing:.02em;line-height:1;margin-top:10px}
+.direct-card .direct-price .ask{font-family:'DM Sans',sans-serif;font-size:.78rem;
+  color:var(--ink-3);font-weight:600;letter-spacing:.04em;text-transform:uppercase}
+.direct-card .direct-cart{margin-top:10px;display:inline-flex;align-items:center;
+  justify-content:center;gap:8px;background:var(--forest);color:#fff;border:none;cursor:pointer;
+  padding:10px 16px;border-radius:5px;font-family:inherit;font-weight:800;font-size:.8rem;
+  letter-spacing:.06em;text-transform:uppercase;transition:background .15s ease,transform .1s ease}
+.direct-card .direct-cart:hover{background:var(--dark)}
+.direct-card .direct-cart:active{transform:scale(.98)}
+.direct-card .used-badge{position:absolute;top:10px;right:10px;background:#a98843;color:#fff;
+  font-size:.66rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;
+  padding:5px 10px;border-radius:3px;z-index:1}
+
 /* PRODUCT CARD */
 .product-card{background:#fff;border:1px solid rgba(0,0,0,.06);border-radius:8px;
   overflow:hidden;display:flex;flex-direction:column;text-align:left;color:inherit;
@@ -192,6 +221,10 @@ footer a{color:var(--tan);font-weight:500}footer a:hover{color:#fff}
     <div><strong data-cms-text="acc_disclosure_title">Amazon Associate disclosure.</strong> <span data-cms-text="acc_disclosure_body">The links below are affiliate links — if you buy through them, we may earn a small commission at no extra cost to you. We only recommend gear we'd actually use ourselves.</span></div>
   </div>
 
+  <!-- Direct-sale inventory rendered above the affiliate picks. Hidden
+       when empty so the affiliate section stays at the top. -->
+  <div id="direct-grid" hidden></div>
+
   <div id="acc-grid">
     <section class="cat-section" aria-hidden="true">
       <div class="cat-head"><div class="cat-head-text">
@@ -260,6 +293,95 @@ function resolveImg(name){
   const v = String(name || '').trim();
   if (!v) return '';
   return /^https?:\/\//.test(v) ? v : 'media/' + encodeURI(v.replace(/^(media|images)\//, ''));
+}
+
+/* Render the direct-sale (Pat-stocked) inventory. Each card has an
+   Add-to-Cart button that hooks the shared cart.js widget. Used items
+   get an amber badge in the corner so they're scannable at a glance.
+   Section is hidden when no live rows so the affiliate grid stays at
+   the top of the page. */
+function renderDirect(rows){
+  const grid = document.getElementById('direct-grid');
+  const live = (Array.isArray(rows) ? rows : []).filter(r => isTrue(r.available !== '' && r.available != null ? r.available : true));
+  if (!live.length) { grid.hidden = true; grid.innerHTML = ''; return; }
+  grid.hidden = false;
+
+  // Group by category in row order.
+  const cats = [];
+  const idx = {};
+  live.forEach(r => {
+    const c = String(r.category || 'In Stock').trim();
+    if (idx[c] == null) { idx[c] = cats.length; cats.push({ name: c, rows: [] }); }
+    cats[idx[c]].rows.push(r);
+  });
+
+  let html = '<section class="cat-section direct-section">';
+  html += '<div class="cat-head"><div class="cat-head-text">';
+  html += '<span class="section-eyebrow">In stock at the shop</span>';
+  html += '<h2 class="section-title">New &amp; Used Inventory</h2>';
+  html += '</div></div>';
+  html += '<p class="section-intro">Pulled from our shop floor — ready to pick up or ship locally. Add to cart and we\'ll follow up to confirm and send a payment link.</p>';
+
+  cats.forEach(cat => {
+    html += `<h3 class="subgroup-head">${esc(cat.name)}</h3>`;
+    const gridClass = cat.rows.length === 1 ? 'product-grid cols-1'
+                    : cat.rows.length === 2 ? 'product-grid cols-2'
+                    : 'product-grid';
+    html += `<div class="${gridClass}">`;
+    cat.rows.forEach(r => {
+      const photo = resolveImg(r.photo);
+      const photoHtml = photo
+        ? `<img src="${esc(photo)}" alt="${esc(r.name)}" loading="lazy" onerror="this.remove()">`
+        : `<div class="ph-bg"></div><span class="ph-icon">${esc(r.name)}</span>`;
+      const isUsed = String(r.condition || '').trim().toLowerCase() === 'used';
+      const usedBadge = isUsed ? '<span class="used-badge">Used</span>' : '';
+      const otherBadge = String(r.badge || '').trim()
+        ? `<span class="product-badge">${esc(r.badge)}</span>` : '';
+      const priceNum = parseFloat(r.price);
+      const priceHtml = isFinite(priceNum) && priceNum > 0
+        ? `<div class="direct-price">$${priceNum.toLocaleString('en-US')}</div>`
+        : `<div class="direct-price"><span class="ask">Ask for price</span></div>`;
+      // Stash the cart payload as data-attrs so the click handler is
+      // brand-agnostic (no inline onclick needed).
+      html += `<div class="direct-card"
+                    data-name="${esc(r.name)}"
+                    data-category="${esc(r.category || '')}"
+                    data-price="${isFinite(priceNum) ? priceNum : 0}"
+                    data-condition="${isUsed ? 'used' : 'new'}">
+        <div class="product-photo">${otherBadge}${usedBadge}${photoHtml}</div>
+        <div class="direct-body">
+          <div class="direct-cat">${esc(r.category || '')}</div>
+          <div class="direct-name">${esc(r.name)}</div>
+          ${r.description ? `<div class="direct-desc">${esc(r.description)}</div>` : ''}
+          ${priceHtml}
+          <button class="direct-cart" type="button" onclick="addAccessoryToCart(this)">Add to Cart</button>
+        </div>
+      </div>`;
+    });
+    html += '</div>';
+  });
+  html += '</section>';
+  grid.innerHTML = html;
+}
+
+/* Push the clicked direct-inventory card into the shared cart drawer.
+   Card data-attrs carry name/category/price/condition; the brand is
+   left blank (these are Cruise the Creek's own inventory, not a third
+   party). */
+function addAccessoryToCart(button) {
+  if (!window.ctcCart || !window.ctcCart.add) return;
+  const card = button.closest('.direct-card');
+  if (!card) return;
+  window.ctcCart.add({
+    kind: 'accessory',
+    brand: '',
+    name: card.dataset.name || '',
+    category: card.dataset.category || '',
+    price: parseFloat(card.dataset.price) || 0,
+    configuration: {},
+    condition: card.dataset.condition === 'used' ? 'used' : 'new',
+    qty: 1,
+  });
 }
 
 function renderCards(rows){
@@ -372,6 +494,7 @@ cmsBoot({
   onApply(data) {
     _accApplied = true;
     applyCMS(data.site || {});
+    renderDirect(data.directInventory || []);
     renderCards(data.accessories || []);
   },
 });
