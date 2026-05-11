@@ -17,11 +17,23 @@
   window.__ctcChatLoaded = true;
 
   const API_URL     = 'https://ebike-sales-nu.vercel.app/api/chat';
+  const VISITOR_URL = 'https://script.google.com/macros/s/AKfycbxjg2ZsPCZNsmJEStYA0bRdsnkm4nNS-m-HNhm_Gin56VIVeYWVRE5j51j30zVHhb4PmQ/exec';
   const STORE_KEY   = 'ctc:chat:history:v1';
   const SESSION_KEY = 'ctc:chat:session:v1';
+  const VISITOR_KEY = 'ctc:chat:visitor:v1';
   const MAX_LOCAL   = 12;     // last N turns we keep client-side (server caps too)
   const BRAND_NAME  = 'Creek Concierge';
   const GREETING    = "Hey! I'm the Creek Concierge — ask me anything about rentals, bikes, services, or the trails. What's on your mind?";
+
+  // Visitor persists across reloads. New device/browser → new intake.
+  function readVisitor() {
+    try { return JSON.parse(localStorage.getItem(VISITOR_KEY) || 'null'); }
+    catch (e) { return null; }
+  }
+  function writeVisitor(v) {
+    try { localStorage.setItem(VISITOR_KEY, JSON.stringify(v)); }
+    catch (e) {}
+  }
 
   // Stable per-visitor ID so Pat can group conversations in the
   // Chat_Logs Sheet tab. New devices/browsers get their own. Survives
@@ -41,7 +53,11 @@
   const css = document.createElement('style');
   css.textContent = `
 .ctc-chat-fab{
-  position:fixed;right:20px;bottom:20px;z-index:9998;
+  position:fixed;right:20px;
+  /* Sits above typical sticky CTA bars (~76px tall on home/rentals) with
+     a comfortable gap. Falls back to safe-area-inset on iOS notch devices. */
+  bottom:calc(96px + env(safe-area-inset-bottom, 0px));
+  z-index:9998;
   width:60px;height:60px;border-radius:50%;
   background:#2D4A32;color:#C9A96E;border:none;cursor:pointer;
   box-shadow:0 12px 32px rgba(45,74,50,.32),0 2px 8px rgba(0,0,0,.18);
@@ -60,8 +76,10 @@
 @keyframes ctc-pulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.4);opacity:.6}}
 
 .ctc-chat-panel{
-  position:fixed;right:20px;bottom:92px;z-index:9999;
-  width:min(360px, calc(100vw - 32px));height:min(540px, calc(100vh - 120px));
+  position:fixed;right:20px;
+  bottom:calc(170px + env(safe-area-inset-bottom, 0px));
+  z-index:9999;
+  width:min(360px, calc(100vw - 32px));height:min(540px, calc(100vh - 200px));
   background:#fbf7ef;border-radius:14px;
   box-shadow:0 24px 64px rgba(26,46,28,.32),0 4px 14px rgba(0,0,0,.12);
   display:none;flex-direction:column;overflow:hidden;
@@ -137,9 +155,44 @@
 .ctc-chat-send svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2.4}
 .ctc-chat-note{font-size:.7rem;color:#7a7a7a;text-align:center;padding:4px 12px 8px;background:#fff}
 
+/* ── PRE-CHAT INTAKE FORM ─────────────────────────────────── */
+.ctc-intake{flex:1;overflow-y:auto;padding:20px 22px 22px;background:#fbf7ef;
+  display:flex;flex-direction:column;gap:14px;animation:ctc-pop .2s ease-out}
+.ctc-intake-eyebrow{font-size:.66rem;letter-spacing:.22em;text-transform:uppercase;font-weight:800;color:#a98843}
+.ctc-intake-title{font-family:'Bebas Neue','DM Sans',sans-serif;font-size:1.25rem;letter-spacing:.02em;
+  color:#2D4A32;line-height:1.15;text-transform:uppercase}
+.ctc-intake-sub{font-size:.86rem;color:#4a4a4a;line-height:1.55;margin-bottom:4px}
+.ctc-intake-field{display:flex;flex-direction:column;gap:5px}
+.ctc-intake-row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.ctc-intake-label{font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;font-weight:700;color:#2D4A32}
+.ctc-intake-input,.ctc-intake-select{
+  width:100%;border:1px solid rgba(45,74,50,.18);border-radius:8px;
+  padding:9px 12px;font-family:inherit;font-size:.92rem;color:#1a1a1a;background:#fff;
+  transition:border-color .15s ease;
+}
+.ctc-intake-input:focus,.ctc-intake-select:focus{outline:none;border-color:#6B8F71}
+.ctc-intake-select{appearance:none;background-image:linear-gradient(45deg,transparent 50%,#a98843 50%),linear-gradient(135deg,#a98843 50%,transparent 50%);
+  background-position:calc(100% - 18px) 50%,calc(100% - 12px) 50%;background-size:6px 6px,6px 6px;background-repeat:no-repeat;padding-right:32px}
+.ctc-intake-error{font-size:.78rem;color:#c44a3a;line-height:1.4;display:none}
+.ctc-intake-error.show{display:block}
+.ctc-intake-submit{
+  background:#2D4A32;color:#C9A96E;border:none;cursor:pointer;
+  padding:12px 16px;border-radius:8px;font-family:inherit;font-weight:800;
+  font-size:.9rem;letter-spacing:.08em;text-transform:uppercase;margin-top:6px;
+  transition:background .15s ease,transform .1s ease;
+}
+.ctc-intake-submit:hover{background:#1a2e1c}
+.ctc-intake-submit:active{transform:scale(.98)}
+.ctc-intake-submit:disabled{opacity:.5;cursor:not-allowed}
+.ctc-intake-privacy{font-size:.68rem;color:#7a7a7a;line-height:1.4;text-align:center;margin-top:2px}
+.ctc-intake-skip{background:transparent;border:none;color:#7a7a7a;cursor:pointer;
+  font-family:inherit;font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;
+  padding:4px;margin-top:-4px;text-decoration:underline}
+.ctc-intake-skip:hover{color:#2D4A32}
+
 @media(max-width:480px){
-  .ctc-chat-panel{right:12px;left:12px;width:auto;bottom:84px;height:calc(100vh - 110px)}
-  .ctc-chat-fab{right:14px;bottom:14px}
+  .ctc-chat-panel{right:12px;left:12px;width:auto;bottom:calc(160px + env(safe-area-inset-bottom, 0px));height:calc(100vh - 200px)}
+  .ctc-chat-fab{right:14px;bottom:calc(88px + env(safe-area-inset-bottom, 0px))}
 }
 `;
   document.head.appendChild(css);
@@ -167,27 +220,146 @@
       </div>
       <button class="reset" type="button" aria-label="Start over">Reset</button>
     </header>
-    <div class="ctc-chat-body" aria-live="polite"></div>
-    <div class="ctc-chat-foot">
+
+    <!-- Pre-chat intake form. Shown only on first open (gated by
+         localStorage). Submits to Apps Script ?action=chatVisitor,
+         then hides itself and reveals the chat body/footer. -->
+    <form class="ctc-intake" novalidate>
+      <span class="ctc-intake-eyebrow">Quick intro</span>
+      <h2 class="ctc-intake-title">Let's match you with the right answer</h2>
+      <p class="ctc-intake-sub">Drop a few details so we know who's reaching out and can follow up if the chat needs a hand-off.</p>
+
+      <div class="ctc-intake-row">
+        <div class="ctc-intake-field">
+          <label class="ctc-intake-label" for="ctc-intake-first">First name</label>
+          <input id="ctc-intake-first" class="ctc-intake-input" type="text" autocomplete="given-name" required>
+        </div>
+        <div class="ctc-intake-field">
+          <label class="ctc-intake-label" for="ctc-intake-last">Last name</label>
+          <input id="ctc-intake-last" class="ctc-intake-input" type="text" autocomplete="family-name" required>
+        </div>
+      </div>
+
+      <div class="ctc-intake-field">
+        <label class="ctc-intake-label" for="ctc-intake-email">Email</label>
+        <input id="ctc-intake-email" class="ctc-intake-input" type="email" autocomplete="email" placeholder="you@example.com">
+      </div>
+
+      <div class="ctc-intake-field">
+        <label class="ctc-intake-label" for="ctc-intake-phone">Phone</label>
+        <input id="ctc-intake-phone" class="ctc-intake-input" type="tel" autocomplete="tel" placeholder="330-555-1234">
+      </div>
+
+      <div class="ctc-intake-field">
+        <label class="ctc-intake-label" for="ctc-intake-reason">Reason for chat</label>
+        <select id="ctc-intake-reason" class="ctc-intake-select" required>
+          <option value="">— pick one —</option>
+          <option>Booking a rental</option>
+          <option>Service or repair</option>
+          <option>Looking to buy</option>
+          <option>Just a question</option>
+          <option>Other</option>
+        </select>
+      </div>
+
+      <div class="ctc-intake-error" id="ctc-intake-error"></div>
+
+      <button class="ctc-intake-submit" type="submit">Start chat →</button>
+      <div class="ctc-intake-privacy">Stored privately and used only to follow up with you about Cruise the Creek. Email or phone — one is enough.</div>
+    </form>
+
+    <div class="ctc-chat-body" aria-live="polite" hidden></div>
+    <div class="ctc-chat-foot" hidden>
       <textarea class="ctc-chat-input" rows="1" placeholder="Ask about rentals, bikes, services…" aria-label="Type a message"></textarea>
       <button class="ctc-chat-send" type="button" aria-label="Send">
         <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
       </button>
     </div>
-    <div class="ctc-chat-note">Replies powered by Claude. Not always perfect — text Sales at 330-406-9682 for the human team.</div>
+    <div class="ctc-chat-note" hidden>Replies powered by Claude. Not always perfect — text Sales at 330-406-9682 for the human team.</div>
   `;
 
   document.body.appendChild(panel);
   document.body.appendChild(fab);
 
   const body   = panel.querySelector('.ctc-chat-body');
+  const foot   = panel.querySelector('.ctc-chat-foot');
+  const note   = panel.querySelector('.ctc-chat-note');
   const input  = panel.querySelector('.ctc-chat-input');
   const send   = panel.querySelector('.ctc-chat-send');
   const reset  = panel.querySelector('.reset');
+  const intake = panel.querySelector('.ctc-intake');
+  const intakeErr = panel.querySelector('#ctc-intake-error');
 
   // ── State ────────────────────────────────────────────────────
   let history = readHistory();
+  let visitor = readVisitor();
   let busy    = false;
+
+  // Reveal chat surface (body + footer + note), hide intake form.
+  // Called after a successful intake submit OR immediately on open if
+  // the visitor has already filled the form on a previous visit.
+  function showChat() {
+    intake.style.display = 'none';
+    body.hidden = false;
+    foot.hidden = false;
+    note.hidden = false;
+    if (!body.children.length) paintHistory();
+    setTimeout(() => input.focus(), 60);
+  }
+  function showIntake() {
+    intake.style.display = '';
+    body.hidden = true;
+    foot.hidden = true;
+    note.hidden = true;
+    setTimeout(() => panel.querySelector('#ctc-intake-first').focus(), 60);
+  }
+
+  // ── Intake form submission ───────────────────────────────────
+  async function submitIntake(e) {
+    e.preventDefault();
+    const first  = panel.querySelector('#ctc-intake-first').value.trim();
+    const last   = panel.querySelector('#ctc-intake-last').value.trim();
+    const email  = panel.querySelector('#ctc-intake-email').value.trim();
+    const phone  = panel.querySelector('#ctc-intake-phone').value.trim();
+    const reason = panel.querySelector('#ctc-intake-reason').value.trim();
+    intakeErr.classList.remove('show');
+
+    const missing = [];
+    if (!first)  missing.push('first name');
+    if (!last)   missing.push('last name');
+    if (!email && !phone) missing.push('email or phone');
+    if (!reason) missing.push('reason');
+    if (missing.length) {
+      intakeErr.textContent = 'Please add: ' + missing.join(', ') + '.';
+      intakeErr.classList.add('show');
+      return;
+    }
+
+    const submitBtn = panel.querySelector('.ctc-intake-submit');
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Starting…';
+
+    const sid = sessionId();
+    const payload = { first, last, email, phone, reason };
+
+    // Fire-and-forget POST so a slow Apps Script doesn't block the
+    // chat from opening. The lead is also baked into localStorage
+    // for the bot to read on its first call.
+    try {
+      const params = new URLSearchParams({
+        action:    'chatVisitor',
+        sessionId: sid,
+        first, last, email, phone, reason,
+        page:      (typeof location !== 'undefined' && location.href) ? location.href : '',
+      });
+      fetch(VISITOR_URL + '?' + params.toString(), { method: 'GET', mode: 'no-cors' })
+        .catch(err => console.warn('[chatbot] visitor log failed:', err));
+    } catch (e) { /* swallow */ }
+
+    visitor = payload;
+    writeVisitor(payload);
+    showChat();
+  }
 
   function readHistory() {
     try {
@@ -324,6 +496,10 @@
           // Logging context — server logs each turn to Chat_Logs.
           sessionId: sessionId(),
           page:      (typeof location !== 'undefined' && location.href) ? location.href : '',
+          // Visitor info captured by the pre-chat intake form. Injected
+          // into the bot's system prompt so it greets by name and uses
+          // their stated reason as context.
+          visitor:   visitor || null,
         }),
       });
       typing.remove();
@@ -364,17 +540,18 @@
     fab.classList.toggle('is-open', isOpen);
     fab.setAttribute('aria-label', isOpen ? 'Close chat' : 'Open chat with Creek Concierge');
     if (isOpen) {
-      if (!body.children.length) paintHistory();
-      setTimeout(() => input.focus(), 60);
+      // Gate: brand-new visitor → intake form. Returning visitor → chat.
+      if (visitor && visitor.first) showChat(); else showIntake();
     }
   });
+  intake.addEventListener('submit', submitIntake);
   send.addEventListener('click', submit);
   input.addEventListener('input', autosize);
   input.addEventListener('keydown', e => {
     if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); submit(); }
   });
   reset.addEventListener('click', () => {
-    if (!confirm('Clear the chat?')) return;
+    if (!confirm('Clear the chat? (Your contact info stays saved — only the conversation is reset.)')) return;
     history = [];
     writeHistory();
     paintHistory();
