@@ -357,6 +357,27 @@ function handleApparelOrder(p) {
       console.warn('Apparel order sales-team email failed: ' + mailErr);
     }
 
+    // Discord push (if configured). Fires alongside the email.
+    postToDiscord_(
+      '🛍️ New apparel order — ' + row.id,
+      13215086, // tan 0xC9A96E
+      [
+        { name: '👤 Customer', value:
+            ((row.first || '') + ' ' + (row.last || '')).trim() +
+            (row.phone ? '\n📞 ' + row.phone : '') +
+            (row.email ? '\n✉️ ' + row.email : ''), inline: false },
+        { name: '👕 Product',   value: row.product || '(unspecified)', inline: false },
+        { name: '🎨 Color',     value: row.color  || '?', inline: true },
+        { name: '📏 Size',      value: row.size   || '?', inline: true },
+        { name: '📍 Placement', value: row.placement || '?', inline: true },
+        { name: '🔢 Qty',       value: String(row.qty || '?'),         inline: true },
+        { name: '💵 Total',     value: '$' + (row.total || 0).toFixed(2), inline: true },
+        { name: '💳 Pay link',  value: row.paymentLink ? row.paymentLink : '(Stripe failed — send manually)', inline: false },
+        { name: '📝 Comments',  value: row.comments || '(none)', inline: false },
+      ],
+      'Customer also emailed the pay link — follow up if not paid in 24h'
+    );
+
     // Customer confirmation. Only send when we have both a valid email AND
     // a Stripe link — without the link there's nothing actionable, and the
     // sales team will follow up by hand.
@@ -481,8 +502,10 @@ function handleBookingLead(p) {
         'Logged at ' + row.timestamp + ' (Booking_Leads tab, status=new)',
       ].join('\n');
       MailApp.sendEmail({
-        to:      'salesteam@cruisethecreek.com',
-        replyTo: row.email || 'salesteam@cruisethecreek.com',
+        // Rentals desk (info@) is the primary recipient since bookings
+        // are rentals; salesteam@ is cc'd so the whole team sees it.
+        to:      'info@cruisethecreek.com,salesteam@cruisethecreek.com',
+        replyTo: row.email || 'info@cruisethecreek.com',
         subject: 'Booking lead ' + row.id + ' — ' + (row.product || 'unspecified') + ' · ' + (row.date || 'no date') + ' · ' + (row.qty || '?') + ' bike(s)',
         body:    body,
       });
@@ -490,10 +513,91 @@ function handleBookingLead(p) {
       console.warn('Booking lead email failed: ' + mailErr);
     }
 
+    // Instant phone-push via Discord webhook (if Pat has configured one
+    // in SiteConfig.discord_webhook_url). Fires alongside the email.
+    postToDiscord_(
+      '📅 New booking lead — ' + row.id,
+      2968114, // forest 0x2D4A32
+      [
+        { name: '👤 Customer', value:
+            (row.name  || '(name missing)') +
+            (row.phone ? '\n📞 ' + row.phone : '') +
+            (row.email ? '\n✉️ ' + row.email : ''), inline: false },
+        { name: '🚲 Product', value: row.product || '(unspecified)',  inline: true },
+        { name: '📅 When',    value: (row.date || '?') + (row.time ? ', ' + row.time : ''), inline: true },
+        { name: '👥 Group',   value: String(row.qty || '?'),           inline: true },
+        { name: '📍 Pickup',  value: row.pickup || '(not specified)',  inline: true },
+        { name: '🚴 Level',   value: row.experience || '(not asked)',  inline: true },
+        { name: '🔗 Peek',    value: row.peek_link ? row.peek_link : '(none — bot did not have a link)', inline: false },
+        { name: '📝 Notes',   value: row.notes || '(none)',            inline: false },
+      ],
+      'Reply within the hour to lock it in — text the customer'
+    );
+
     return json({ ok: true, id: row.id, peek_link: row.peek_link });
   } catch (err) {
     console.error('handleBookingLead failed: ' + err);
     return json({ ok: false, error: String(err) });
+  }
+}
+
+/**
+ * Read a single SiteConfig value by key. Used for runtime config like
+ * the Discord webhook URL. Tiny helper — readSheet returns all rows
+ * which is overkill when we only want one key.
+ */
+function getSiteConfigValue_(key) {
+  try {
+    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    const sh = ss.getSheetByName('SiteConfig');
+    if (!sh) return '';
+    const rows = sh.getDataRange().getValues();
+    for (let i = 1; i < rows.length; i++) {
+      if (String(rows[i][0] || '').trim() === key) {
+        return String(rows[i][1] || '').trim();
+      }
+    }
+    return '';
+  } catch (err) {
+    console.warn('getSiteConfigValue_ failed for ' + key + ': ' + err);
+    return '';
+  }
+}
+
+/**
+ * Fire a Discord webhook with a formatted embed. Used for instant
+ * phone-push notifications on booking leads and apparel orders.
+ *
+ *   title  — short headline (e.g. "📅 New booking lead — BL-…")
+ *   color  — sidebar color as a decimal RGB int (use forest:
+ *            0x2D4A32 = 2968114, or tan: 0xC9A96E = 13215086)
+ *   fields — array of {name, value, inline?} objects
+ *   footer — optional small footer text
+ *
+ * No-op when discord_webhook_url is blank — fail open so emails still
+ * deliver even if Discord isn't configured.
+ */
+function postToDiscord_(title, color, fields, footer) {
+  const url = getSiteConfigValue_('discord_webhook_url');
+  if (!url || url.indexOf('https://') !== 0) return;  // blank or invalid
+  try {
+    UrlFetchApp.fetch(url, {
+      method:      'post',
+      contentType: 'application/json',
+      muteHttpExceptions: true,
+      payload: JSON.stringify({
+        username: 'Creek Concierge',
+        embeds: [{
+          title:     title,
+          color:     color,
+          fields:    fields,
+          footer:    footer ? { text: footer } : undefined,
+          timestamp: new Date().toISOString(),
+        }],
+      }),
+    });
+  } catch (err) {
+    console.warn('Discord webhook failed: ' + err);
   }
 }
 
@@ -1199,6 +1303,14 @@ function getTabDefs() {
         ['wall_eyebrow',        'The supporters wall'],
         ['wall_title',          'Thank you, Creek Crew'],
         ['wall_sub',            'The names below kept the wheels turning this season.'],
+
+        ['── NOTIFICATIONS (Discord webhook) ──', ''],
+        // Paste a Discord webhook URL here to get an instant phone
+        // push every time a booking lead or apparel order lands.
+        // How to create: open Discord → server settings → Integrations
+        // → Webhooks → New Webhook → pick a channel → Copy Webhook URL.
+        // Leave blank to disable Discord notifications (emails still send).
+        ['discord_webhook_url', ''],
 
         ['── CHATBOT FACTS (Creek Concierge knowledge base) ──', ''],
         // The bot reads these from the rendered system prompt. Edit
