@@ -923,15 +923,18 @@ function toggleNestedSwatchGroup(btn, sizeGroupId) {
 })();
 </script>
 
+<script src="cms-loader.js"></script>
 <script>
-/* ── Trust strip: pull the four cards from the CMS sheet (TrustStrip tab).
-     Static cards in #trustStripGrid stay as fallback if the fetch fails. ── */
+/* Trust strip — pull the four cards from the CMS (TrustStrip tab).
+   Static cards in #trustStripGrid stay as fallback if the fetch fails.
+   Uses cmsBoot for free localStorage caching + stale-while-revalidate,
+   so repeat brand-page visits within 60s skip the network entirely. */
 (function(){
-  const CMS_URL = 'https://script.google.com/macros/s/AKfycbxjg2ZsPCZNsmJEStYA0bRdsnkm4nNS-m-HNhm_Gin56VIVeYWVRE5j51j30zVHhb4PmQ/exec';
   function esc(s){ return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
-  fetch(CMS_URL, {cache:'no-store'})
-    .then(r => r.ok ? r.json() : Promise.reject(r.status))
-    .then(d => {
+  cmsBoot({
+    key: 'cms:trustStrip:v1',
+    url: 'https://script.google.com/macros/s/AKfycbxjg2ZsPCZNsmJEStYA0bRdsnkm4nNS-m-HNhm_Gin56VIVeYWVRE5j51j30zVHhb4PmQ/exec',
+    onApply(d) {
       const grid = document.getElementById('trustStripGrid');
       if (!grid || !d || !Array.isArray(d.trustStrip) || !d.trustStrip.length) return;
       grid.innerHTML = d.trustStrip.map(c =>
@@ -941,8 +944,8 @@ function toggleNestedSwatchGroup(btn, sizeGroupId) {
           '<div class="feature-desc">' + esc(c.desc) + '</div>' +
         '</div>'
       ).join('');
-    })
-    .catch(err => console.warn('[trust-strip] fetch failed, using static cards:', err));
+    }
+  });
 })();
 </script>
 <script src="cart.js" defer></script>

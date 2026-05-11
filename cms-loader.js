@@ -35,7 +35,18 @@
 (function (root) {
   'use strict';
 
-  var DEFAULT_TTL_MS = 5 * 60 * 1000; // 5 minutes
+  // Browser-side cache TTL. Kept short so Pat's Sheet edits don't
+  // stay invisible to repeat visitors for long. The Apps Script
+  // tab cache (60s, busted on every cell edit by the onEdit trigger)
+  // already absorbs the cost of re-reading sheets, so a short
+  // browser TTL doesn't translate into actual latency — every
+  // window-expired refresh still completes in tens of ms.
+  //
+  // Net effect on edits: cell change → onEdit clears server cache
+  // → next visitor's request reads fresh sheet data → that visitor
+  // caches for 60s. Worst case for a third visitor: 60s of browser
+  // staleness while the page is open.
+  var DEFAULT_TTL_MS = 60 * 1000; // 60 seconds
   var LOGO_SRC = 'BlackonTransparent.png';
   var LOADER_LABEL = 'Updating';
 
