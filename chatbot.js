@@ -187,6 +187,7 @@
 .ctc-chat-head .reset:hover{color:#C9A96E}
 
 .ctc-chat-body{flex:1;overflow-y:auto;padding:16px;background:#fbf7ef;display:flex;flex-direction:column;gap:10px}
+.ctc-chat-body[hidden],.ctc-chat-foot[hidden],.ctc-chat-note[hidden]{display:none}
 .ctc-msg{max-width:85%;padding:10px 14px;border-radius:14px;line-height:1.5;font-size:.92rem;word-wrap:break-word;white-space:pre-wrap}
 .ctc-msg.user{align-self:flex-end;background:#2D4A32;color:#fff;border-bottom-right-radius:4px}
 .ctc-msg.bot{align-self:flex-start;background:#fff;color:#1a1a1a;
