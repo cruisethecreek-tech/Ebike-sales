@@ -1106,9 +1106,10 @@ function getTabDefs() {
         ['services',   1, 'Creek Ready',     'creek-ready.html',    false],
         ['creek-life', 1, 'Creek Life Blog', 'creek-life-blog.html',false],
         ['creek-life', 2, 'Our Story',       'our-story.html',      false],
-        ['creek-life', 3, 'Events',          'events.html',         false],
-        ['creek-life', 4, 'Donate',          'donate.html',         false],
-        ['creek-life', 5, 'FAQs',            'faqs.html',           false],
+        ['creek-life', 3, 'Gallery',         'gallery.html',        false],
+        ['creek-life', 4, 'Events',          'events.html',         false],
+        ['creek-life', 5, 'Donate',          'donate.html',         false],
+        ['creek-life', 6, 'FAQs',            'faqs.html',           false],
       ],
     },
     'Rentals_Tiles': {
@@ -1204,6 +1205,22 @@ function getTabDefs() {
           'Back Home',
           'home.html',
           false,
+        ],
+        ['gallery',
+          'Gallery · Cruise the Creek',
+          'Mill Creek',
+          'From Two Wheels.',
+          'Trail moments, group rides, and creek-life snapshots — the views that make us want to keep building.',
+          '',
+          '', '', false,
+          '', '',
+          'Want to be in here?',
+          'Tag @cruisethecreek on your ride photos and we\'ll feature the best ones.',
+          '',
+          'Book a Ride',
+          'rentals.html',
+          false,
+          '', '', false,
         ],
         ['bridge-the-gap',
           'Bridge the Gap · Mahoning Valley',
@@ -2257,6 +2274,8 @@ function getTabDefs() {
       // Photo galleries rendered on the page that matches `page`.
       // image  = filename in /media/  (or full https:// URL for off-site images)
       // caption = optional short caption shown under the photo
+      // Videos (.mp4, .mov, .webm) work too — the gallery page renders them
+      // inline with native controls.
       header: ['page','order','image','caption'],
       rows: [
         ['adventures', 1, '', ''],
@@ -2265,6 +2284,20 @@ function getTabDefs() {
         ['trailside',  1, '', ''],
         ['trailside',  2, '', ''],
         ['trailside',  3, '', ''],
+        // gallery.html. Seeded with a starter set so the page renders something
+        // out of the box; Pat replaces these with real photos.
+        ['gallery',    10, 'FamilyRiding.jpg',           'Family ride at Kirk Road'],
+        ['gallery',    20, 'fallsgroup.jpg',             'Group at Lanterman\'s Falls'],
+        ['gallery',    30, 'Lantermans Falls.jpg',       'Lanterman\'s Falls'],
+        ['gallery',    40, 'Lantermans falls 2.jpg',     'Closer look at the falls'],
+        ['gallery',    50, 'BikeCloseup.jpg',            'Up close at the shop'],
+        ['gallery',    60, 'Bikeway.jpg',                'Out on the bikeway'],
+        ['gallery',    70, 'low trail.jpg',              'Low trail on a calm morning'],
+        ['gallery',    80, 'Bike Close up 2.jpg',        'Configured and creek-ready'],
+        ['gallery',    90, 'Group Ride 1.jpg',           'Group ride'],
+        ['gallery',   100, 'Audio Tours walk.jpg',       'Audio tour stop'],
+        ['gallery',   110, 'schollpickup.jpg',           'Pickup at Scholl Pavilion'],
+        ['gallery',   120, 'Lemonadebike.jpg',           'Lemonade stop'],
       ],
     },
     'ApparelProducts': {

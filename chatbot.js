@@ -84,6 +84,8 @@
 
   // Apply the current MASCOT to the DOM. Called after fetch + on each
   // panel open (in case the user has multiple tabs / cache shifted).
+  // Also sets the mascot photo on the FAB so the waving-bear animation
+  // shows when the avatar is configured.
   function applyMascot() {
     const av = panel && panel.querySelector('.avatar');
     if (av) {
@@ -97,6 +99,20 @@
     if (nameEl) nameEl.textContent = MASCOT.name;
     const bioEl = panel && panel.querySelector('.who .status');
     if (bioEl) bioEl.textContent = MASCOT.bio;
+    // FAB mascot. has-mascot class swaps the speech-bubble SVG for the
+    // photo + enables the wiggle keyframe. img.onerror falls back to
+    // the SVG by removing the photo + class.
+    const bear = fab && fab.querySelector('.bear-avatar');
+    if (bear) {
+      if (MASCOT.avatarUrl) {
+        bear.src = MASCOT.avatarUrl;
+        bear.alt = MASCOT.name || '';
+        fab.classList.add('has-mascot');
+      } else {
+        bear.removeAttribute('src');
+        fab.classList.remove('has-mascot');
+      }
+    }
   }
 
   // Visitor persists across reloads. New device/browser → new intake.
@@ -135,18 +151,89 @@
   width:60px;height:60px;border-radius:50%;
   background:#2D4A32;color:#C9A96E;border:none;cursor:pointer;
   box-shadow:0 12px 32px rgba(45,74,50,.32),0 2px 8px rgba(0,0,0,.18);
-  display:flex;align-items:center;justify-content:center;
+  display:flex;align-items:center;justify-content:center;overflow:hidden;
   transition:transform .2s ease,box-shadow .2s ease;
 }
 .ctc-chat-fab:hover{transform:translateY(-2px);box-shadow:0 16px 40px rgba(45,74,50,.4)}
 .ctc-chat-fab svg{width:26px;height:26px;stroke:currentColor;fill:none;stroke-width:2}
-.ctc-chat-fab.is-open svg.icon-chat{display:none}
+.ctc-chat-fab.is-open svg.icon-chat,.ctc-chat-fab.has-mascot svg.icon-chat{display:none}
 .ctc-chat-fab:not(.is-open) svg.icon-close{display:none}
+
+/* Mascot photo inside the FAB. Replaces the speech-bubble SVG when
+   site.mascot_avatar_url is set in SiteConfig. The gentle wiggle keyframe
+   gives the bear a subtle "wave" cycle every 5 seconds — eye-catching
+   without being annoying. Pivot point sits below center so the rotation
+   reads like a friendly head-bob, not a coin-flip. */
+.ctc-chat-fab .bear-avatar{
+  width:100%;height:100%;object-fit:cover;display:none;
+  transform-origin:50% 70%;
+}
+.ctc-chat-fab.has-mascot:not(.is-open) .bear-avatar{display:block;animation:ctc-bear-wave 5s ease-in-out infinite}
+.ctc-chat-fab.has-mascot:hover:not(.is-open) .bear-avatar{animation-duration:1.6s}
+@keyframes ctc-bear-wave{
+  0%, 70%, 100% { transform: rotate(0deg) scale(1); }
+  74%  { transform: rotate(-6deg) scale(1.03); }
+  78%  { transform: rotate(8deg)  scale(1.03); }
+  82%  { transform: rotate(-4deg) scale(1.02); }
+  86%  { transform: rotate(3deg)  scale(1.01); }
+  90%  { transform: rotate(0deg)  scale(1.01); }
+}
+@media (prefers-reduced-motion: reduce){
+  .ctc-chat-fab.has-mascot:not(.is-open) .bear-avatar{animation:none}
+}
 .ctc-chat-fab .dot{
   position:absolute;top:8px;right:8px;width:10px;height:10px;border-radius:50%;
   background:#C9A96E;box-shadow:0 0 0 2px #2D4A32;animation:ctc-pulse 2s ease-in-out infinite;
 }
 .ctc-chat-fab.is-open .dot{display:none}
+
+/* "Let's chat" speech-bubble tooltip. Appears to the left of the FAB
+   2 seconds after page load (giving the page time to settle) and stays
+   until the visitor opens chat or clicks the tiny ✕ dismiss. Dismissed
+   state is per-session via sessionStorage so returning visitors get a
+   fresh prompt. */
+.ctc-chat-tip{
+  position:fixed;
+  right:calc(88px + env(safe-area-inset-right, 0px));
+  bottom:calc(112px + env(safe-area-inset-bottom, 0px));
+  z-index:9998;
+  background:#fff;color:#2D4A32;
+  padding:9px 28px 9px 14px;border-radius:18px;
+  box-shadow:0 8px 24px rgba(45,74,50,.18),0 1px 4px rgba(0,0,0,.08);
+  font-family:'DM Sans',-apple-system,system-ui,sans-serif;
+  font-size:.86rem;font-weight:700;letter-spacing:.01em;
+  cursor:pointer;white-space:nowrap;
+  opacity:0;transform:translateX(8px);
+  pointer-events:none;
+  transition:opacity .35s ease, transform .35s ease;
+  animation:ctc-tip-bob 2.6s ease-in-out infinite;
+  animation-play-state:paused;
+}
+.ctc-chat-tip.is-show{opacity:1;transform:translateX(0);pointer-events:auto;animation-play-state:running}
+.ctc-chat-tip::after{
+  content:'';position:absolute;right:-7px;top:50%;transform:translateY(-50%);
+  width:0;height:0;border:7px solid transparent;border-left-color:#fff;
+  border-right:0;
+}
+.ctc-chat-tip-x{
+  position:absolute;right:6px;top:50%;transform:translateY(-50%);
+  width:18px;height:18px;border:none;background:transparent;
+  color:#9a9a9a;cursor:pointer;font-size:1rem;line-height:1;padding:0;
+  display:flex;align-items:center;justify-content:center;font-family:inherit;
+}
+.ctc-chat-tip-x:hover{color:#2D4A32}
+@keyframes ctc-tip-bob{
+  0%, 100% { transform: translateX(0) translateY(0); }
+  50%      { transform: translateX(-2px) translateY(-2px); }
+}
+@media (prefers-reduced-motion: reduce){
+  .ctc-chat-tip{animation:none!important}
+  .ctc-chat-tip.is-show{transform:translateX(0)}
+}
+@media (max-width: 480px){
+  .ctc-chat-tip{font-size:.78rem;padding:7px 24px 7px 12px}
+  .ctc-chat-tip{right:calc(74px + env(safe-area-inset-right, 0px));bottom:calc(102px + env(safe-area-inset-bottom, 0px))}
+}
 @keyframes ctc-pulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.4);opacity:.6}}
 
 .ctc-chat-panel{
@@ -282,9 +369,37 @@
   fab.setAttribute('aria-label', 'Open chat with Creek Concierge');
   fab.innerHTML = `
     <span class="dot"></span>
+    <img class="bear-avatar" alt="" onerror="this.remove()">
     <svg class="icon-chat" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
     <svg class="icon-close" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
   `;
+
+  // "Let's chat" speech-bubble tooltip. Floats to the left of the FAB
+  // with a soft bob to draw the eye. Hidden by default; revealed by the
+  // applyTooltip routine after a 2-second settle delay, unless the
+  // visitor already dismissed it this session.
+  const TIP_DISMISS_KEY = 'ctc:tipDismissed';
+  const tip = document.createElement('button');
+  tip.className = 'ctc-chat-tip';
+  tip.type = 'button';
+  tip.setAttribute('aria-label', 'Open chat');
+  tip.innerHTML = `<span class="ctc-chat-tip-text">Let's chat</span><span class="ctc-chat-tip-x" aria-label="Dismiss">&times;</span>`;
+
+  function tipDismissed() {
+    try { return sessionStorage.getItem(TIP_DISMISS_KEY) === '1'; } catch (e) { return false; }
+  }
+  function dismissTip(persist) {
+    tip.classList.remove('is-show');
+    if (persist) { try { sessionStorage.setItem(TIP_DISMISS_KEY, '1'); } catch (e) {} }
+  }
+  function showTipSoon() {
+    if (tipDismissed()) return;
+    setTimeout(() => {
+      if (panel.classList.contains('is-open')) return; // chat already open
+      if (tipDismissed()) return;
+      tip.classList.add('is-show');
+    }, 2000);
+  }
 
   const panel = document.createElement('div');
   panel.className = 'ctc-chat-panel';
@@ -359,11 +474,26 @@
 
   document.body.appendChild(panel);
   document.body.appendChild(fab);
+  document.body.appendChild(tip);
+
+  // Tooltip: click body opens chat (same as the FAB); the inner ✕ just
+  // dismisses without opening. Both paths persist the dismissal so the
+  // tip doesn't reappear within the session.
+  tip.addEventListener('click', (e) => {
+    if (e.target.closest('.ctc-chat-tip-x')) {
+      e.stopPropagation();
+      dismissTip(true);
+      return;
+    }
+    dismissTip(true);
+    fab.click();
+  });
 
   // Paint cached mascot on initial mount so returning visitors see
   // the bear/name instantly. The refresh fires on first panel open
   // to keep idle pages from making an Apps Script call.
   applyMascot();
+  showTipSoon();
 
   const body   = panel.querySelector('.ctc-chat-body');
   const foot   = panel.querySelector('.ctc-chat-foot');
@@ -624,6 +754,8 @@
     const isOpen = panel.classList.toggle('is-open');
     fab.classList.toggle('is-open', isOpen);
     fab.setAttribute('aria-label', isOpen ? ('Close chat with ' + MASCOT.name) : ('Open chat with ' + MASCOT.name));
+    // First open dismisses the floating tip for the rest of the session.
+    if (isOpen) dismissTip(true);
     if (isOpen) {
       // Refresh mascot from CMS on first open per page-load (deferred
       // here so idle pages don't ping Apps Script).
