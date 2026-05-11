@@ -119,12 +119,81 @@ Your three jobs (in priority order):
 
 Never invent inventory, prices, or policies the knowledge base doesn't confirm. If asked about something not covered, say "I'm not sure — text Sales at 330-406-9682 and Pat or the team can help" rather than guess.
 
-When a visitor sounds ready to book, point them to the relevant page:
-- Rentals → rentals.html
-- Bridge the Gap (rent-to-own) → bridge-the-gap.html
+==== BOOKING FLOW (use the submit_booking_lead tool) ====
+When a visitor signals they want to book a rental — phrases like "I want to rent", "can I book", "do you have bikes Saturday", "how do I reserve", etc. — DON'T just send them to rentals.html. Walk them through a quick intake first, then call the submit_booking_lead tool to capture the lead. The tool delivers it to Pat's sales team.
+
+Intake order (don't ask all at once — one or two at a time, conversational):
+1. **Product fit**: ask about experience level + group, then recommend Trailside (first-timers, families, casual) or Adventures (confident riders who want hills/forest). If they're cost-curious about ownership, mention Bridge the Gap.
+2. **Date + time**: when do they want to ride? Most rentals are 4-hour blocks; they can pick morning or afternoon.
+3. **Group size**: how many bikes? (Fleet has 11 e-bikes — All-Purpose, High-Step, Cruiser, Cargo, E-Trike. Don't promise specific bikes — just collect the count.)
+4. **Contact**: name + best phone OR email. Need at least one.
+
+Once you have name + (email OR phone) + product + date + qty + pickup, CALL THE TOOL. Don't ask 10 questions before submitting — if the customer is brief, submit with what you have and put unanswered things in the "notes" field for Pat to follow up on.
+
+After the tool returns success, confirm back in plain language: "Got it — Pat or the team will text/email within an hour to lock in the time and send a payment link. Anything else?" Don't repeat the booking ID unless asked.
+
+If the customer just wants to self-serve without an intake, point them to rentals.html or the Peek booking link directly without calling the tool.
+
+==== OTHER PAGES (link, don't intake) ====
 - Service → creek-ready.html
 - Apparel → apparel.html
-- Stories / blog → creek-life-blog.html`;
+- Stories / blog → creek-life-blog.html
+- Bridge the Gap (rent-to-own) → bridge-the-gap.html`;
+
+// Tool definition handed to Claude. When the model decides to call this,
+// it returns a tool_use block with the structured fields below; we
+// execute it (POST to Apps Script) and feed the result back as a
+// tool_result message so Claude can compose its final reply.
+const TOOLS = [
+  {
+    name: 'submit_booking_lead',
+    description: 'Submit a rental booking lead to the Cruise the Creek sales team. Call this when the visitor has shared at least their name, a contact (email or phone), product (Trailside / Adventures / Bridge the Gap / Other), date, and quantity. The team gets an email immediately and will follow up to confirm + send a payment link. Do NOT call this for general questions — only when the visitor is actively trying to book.',
+    input_schema: {
+      type: 'object',
+      properties: {
+        name:       { type: 'string', description: "Visitor's name." },
+        email:      { type: 'string', description: 'Email address. Optional if phone provided.' },
+        phone:      { type: 'string', description: 'Phone number. Optional if email provided.' },
+        product:    { type: 'string', enum: ['Trailside', 'Adventures', 'Bridge the Gap', 'Other'],
+                      description: 'Which Cruise the Creek product. Trailside = Kirk Road bikeway pickup. Adventures = Bears Den / Scholl Pavilion pickup in Mill Creek Park. Bridge the Gap = rent-to-own. Other = anything else.' },
+        date:       { type: 'string', description: 'Requested date in plain language as the visitor said it (e.g., "Saturday May 18", "next Friday", "this weekend"). Don\'t reformat.' },
+        time:       { type: 'string', description: 'Time of day or block (e.g., "morning", "1pm", "4-hour afternoon block"). Optional.' },
+        qty:        { type: 'string', description: 'Number of bikes requested (e.g., "2", "4 plus a child seat").' },
+        pickup:     { type: 'string', description: 'Pickup location — usually "Kirk Road Trailhead" for Trailside or "Bears Den / Scholl Pavilion" for Adventures. Use what the visitor said if they specified.' },
+        experience: { type: 'string', enum: ['first-time', 'casual', 'confident', ''],
+                      description: "Visitor's e-bike experience level. Empty string if not discussed." },
+        notes:      { type: 'string', description: 'Anything else worth Pat knowing — special requests, group composition, accessibility, questions the bot couldn\'t answer, etc.' },
+      },
+      required: ['name', 'product', 'date', 'qty'],
+    },
+  },
+];
+
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxjg2ZsPCZNsmJEStYA0bRdsnkm4nNS-m-HNhm_Gin56VIVeYWVRE5j51j30zVHhb4PmQ/exec';
+
+// Server-side execution of the submit_booking_lead tool. Posts to the
+// Apps Script endpoint which appends the row + emails the sales team.
+async function execTool(name, input) {
+  if (name !== 'submit_booking_lead') {
+    return { ok: false, error: 'Unknown tool: ' + name };
+  }
+  try {
+    const params = new URLSearchParams({ action: 'bookingLead' });
+    Object.keys(input || {}).forEach(k => {
+      if (input[k] != null) params.append(k, String(input[k]));
+    });
+    const r = await fetch(APPS_SCRIPT_URL + '?' + params.toString(), {
+      method: 'GET', redirect: 'follow',
+    });
+    const text = await r.text();
+    let data;
+    try { data = JSON.parse(text); } catch (e) { data = { ok: r.ok }; }
+    return data;
+  } catch (err) {
+    console.error('[chat] tool exec failed:', err);
+    return { ok: false, error: String(err) };
+  }
+}
 
 export default async function handler(req, res) {
   // ── CORS ────────────────────────────────────────────────────
@@ -159,51 +228,89 @@ export default async function handler(req, res) {
     const kb = await getKB();
     const kbBlock = renderKB(kb);
 
-    // Anthropic Messages API with prompt caching on the static system
-    // prompt + knowledge base. After the first request, repeat hits
-    // pay the discounted cached-token rate (~10% of normal) for those
-    // tokens. Only the user message + history pay full rate.
-    const body = {
-      model: MODEL,
-      max_tokens: MAX_TOKENS,
-      system: [
-        { type: 'text', text: SYSTEM_PROMPT },
-        { type: 'text', text: 'Knowledge base (current site content):\n\n' + kbBlock,
-          cache_control: { type: 'ephemeral' } },
-      ],
-      messages: [
-        ...safeHistory,
-        { role: 'user', content: message },
-      ],
-    };
+    // Build the running message stack. Tool-use turns get pushed onto
+    // this list inside the loop below — they're invisible to the user
+    // but Claude needs to see them to compose a final reply.
+    const messages = [
+      ...safeHistory,
+      { role: 'user', content: message },
+    ];
 
-    const upstream = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'x-api-key': apiKey,
-        'anthropic-version': '2023-06-01',
-        'content-type': 'application/json',
-      },
-      body: JSON.stringify(body),
-    });
+    // The Anthropic Messages API tool-use loop. Up to 4 iterations:
+    //   1. POST messages → model returns either text (done) or
+    //      tool_use blocks (we have to execute + return results).
+    //   2. If tool_use, append the assistant turn (with tool_use blocks)
+    //      AND a user turn with matching tool_result blocks. POST again.
+    //   3. Stop when stop_reason !== 'tool_use', or after the cap.
+    // 4 iterations is plenty for our single-tool case but bounds runaway.
+    let final = null;
+    let toolUses = []; // for surfacing in response (debug + future tracking)
+    for (let iter = 0; iter < 4; iter++) {
+      const body = {
+        model: MODEL,
+        max_tokens: MAX_TOKENS,
+        tools: TOOLS,
+        system: [
+          { type: 'text', text: SYSTEM_PROMPT },
+          { type: 'text', text: 'Knowledge base (current site content):\n\n' + kbBlock,
+            cache_control: { type: 'ephemeral' } },
+        ],
+        messages: messages,
+      };
 
-    if (!upstream.ok) {
-      const errText = await upstream.text();
-      console.error('[chat] anthropic error', upstream.status, errText);
-      return res.status(502).json({
-        error: "I'm having trouble right now — text Sales at 330-406-9682 and we'll help you out.",
+      const upstream = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: {
+          'x-api-key': apiKey,
+          'anthropic-version': '2023-06-01',
+          'content-type': 'application/json',
+        },
+        body: JSON.stringify(body),
       });
-    }
-    const data = await upstream.json();
 
-    // Extract the text. Anthropic returns content as an array of blocks.
-    const reply = (data.content || [])
+      if (!upstream.ok) {
+        const errText = await upstream.text();
+        console.error('[chat] anthropic error', upstream.status, errText);
+        return res.status(502).json({
+          error: "I'm having trouble right now — text Sales at 330-406-9682 and we'll help you out.",
+        });
+      }
+      const data = await upstream.json();
+      final = data;
+
+      const blocks    = data.content || [];
+      const toolCalls = blocks.filter(b => b.type === 'tool_use');
+
+      if (data.stop_reason !== 'tool_use' || toolCalls.length === 0) {
+        // Final text reply ready.
+        break;
+      }
+
+      // Execute each tool call in parallel and prep the tool_result
+      // user turn that goes back to Claude for synthesis.
+      const results = await Promise.all(toolCalls.map(async tc => {
+        const out = await execTool(tc.name, tc.input || {});
+        toolUses.push({ name: tc.name, input: tc.input, result: out });
+        return {
+          type: 'tool_result',
+          tool_use_id: tc.id,
+          content: JSON.stringify(out),
+        };
+      }));
+
+      messages.push({ role: 'assistant', content: blocks });
+      messages.push({ role: 'user',      content: results });
+    }
+
+    const reply = (final && final.content || [])
       .filter(b => b.type === 'text')
       .map(b => b.text)
       .join('\n')
       .trim() || "I'm not sure I caught that — could you rephrase?";
 
-    // Echo back the updated history so the client can persist it.
+    // Echo back the updated user-visible history so the client can
+    // persist it. Tool-use turns are NOT included — only the original
+    // user message and the assistant's final text reply.
     const updatedHistory = [
       ...safeHistory,
       { role: 'user', content: message },
@@ -213,7 +320,8 @@ export default async function handler(req, res) {
     return res.status(200).json({
       reply,
       history: updatedHistory,
-      usage: data.usage || null,  // surfaces cache-hit token counts in Network tab for tuning
+      usage: (final && final.usage) || null,
+      tools: toolUses.length ? toolUses : undefined, // present only when a tool fired
     });
   } catch (err) {
     console.error('[chat] handler error:', err);
