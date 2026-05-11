@@ -2022,13 +2022,9 @@ function syncBikeToSheet(d, isNew) {
 
   const qs = Object.keys(payload).map(k => k + '=' + encodeURIComponent(payload[k])).join('&');
   toast('⏳ Syncing to sheet...');
-  fetch(AS_URL + '?' + qs, {redirect:'follow'})
-    .then(r => r.json())
-    .then(res => {
-      if(res.status === 'ok') toast('✅ ' + d.model + ' added to sheet!');
-      else toast('⚠️ Saved locally, sheet error: ' + (res.message||'unknown'));
-    })
-    .catch(() => toast('✅ ' + d.model + ' saved locally (sheet offline)'));
+  fetch(AS_URL + '?' + qs, {redirect:'follow', mode:'no-cors'})
+    .then(() => toast('🔄 ' + d.model + ' sync request sent'))
+    .catch(() => toast('⚠️ ' + d.model + ' DID NOT save to Sheet — only saved in this browser. Fix manually.'));
 }
 
 function syncDiscontinuedToSheet(d) {
@@ -3308,14 +3304,17 @@ function edSaveSizeGuide() {
   const pass = prompt('Enter admin password to save size guide:');
   if (pass !== ADMIN_PASS) { edSetStatus('err', 'Incorrect password.'); return; }
   edSetStatus('info', 'Saving size guide...');
-  fetch(AS_URL + '?action=saveSizeGuide&rowIndex=' + edActiveBike.rowIndex + '&json=' + encodeURIComponent(JSON.stringify(parsed)), {redirect:'follow', mode:'cors'})
-    .then(r => r.text())
+  // no-cors fire-and-forget. Apps Script returns no CORS headers, so
+  // mode:'cors' was being blocked outright and the local state was the
+  // only thing actually updated. Switch to no-cors: the request lands
+  // server-side, the Sheet write happens, but we can't read the body.
+  fetch(AS_URL + '?action=saveSizeGuide&rowIndex=' + edActiveBike.rowIndex + '&json=' + encodeURIComponent(JSON.stringify(parsed)), {redirect:'follow', mode:'no-cors'})
     .then(() => {
       edActiveBike.sizeGuide = parsed;
-      edSetStatus('ok', '✅ Size guide saved!');
+      edSetStatus('ok', '✅ Size guide synced to Sheet');
       logActivity('features', edActiveBike.name, 'Size guide updated');
     })
-    .catch(e => edSetStatus('err', 'Save failed: ' + e.message));
+    .catch(e => edSetStatus('err', 'Network error — size guide NOT saved to Sheet: ' + e.message));
 }
 
 // ── Price editing ──
@@ -3332,25 +3331,23 @@ function edSavePrice() {
   const newPrice = parseFloat(document.getElementById('edPriceInput').value);
   if (!newPrice || newPrice < 1) { edSetStatus('err', 'Enter a valid price.'); return; }
   edSetStatus('info', 'Saving price...');
-  fetch(AS_URL + '?action=updatePrice&rowIndex=' + edActiveBike.rowIndex + '&price=' + newPrice, {redirect:'follow',mode:'cors'})
-    .then(r => r.json())
-    .then(res => {
-      if (res.status === 'ok') {
-        const oldPrice = edActiveBike.basePrice;
-        edActiveBike.basePrice = newPrice;
-        document.getElementById('edBaseDisplay').textContent = '$' + newPrice.toLocaleString();
-        document.getElementById('edPriceEdit').style.display = 'none';
-        edSetStatus('ok', 'Price updated to $' + newPrice.toLocaleString() + ' on sheet!');
-        logActivity('price', edActiveBike.name, 'Base price updated to $' + newPrice.toLocaleString() + (oldPrice ? ' (was $' + Number(oldPrice).toLocaleString() + ')' : ''));
-        // Refresh price badge in main cards
-        if (priceMap[edActiveBike.name.toLowerCase()]) {
-          priceMap[edActiveBike.name.toLowerCase()].mfrPrice = null;
-        }
-      } else {
-        edSetStatus('err', 'Save failed: ' + (res.message || 'Unknown error'));
+  // no-cors fire-and-forget (Apps Script returns no CORS headers, see
+  // syncDiscontinuedToSheet for the original diagnosis). Server-side
+  // write happens; we can't read the response, so trust + update local
+  // state immediately.
+  fetch(AS_URL + '?action=updatePrice&rowIndex=' + edActiveBike.rowIndex + '&price=' + newPrice, {redirect:'follow', mode:'no-cors'})
+    .then(() => {
+      const oldPrice = edActiveBike.basePrice;
+      edActiveBike.basePrice = newPrice;
+      document.getElementById('edBaseDisplay').textContent = '$' + newPrice.toLocaleString();
+      document.getElementById('edPriceEdit').style.display = 'none';
+      edSetStatus('ok', '✅ Price synced to Sheet: $' + newPrice.toLocaleString());
+      logActivity('price', edActiveBike.name, 'Base price updated to $' + newPrice.toLocaleString() + (oldPrice ? ' (was $' + Number(oldPrice).toLocaleString() + ')' : ''));
+      if (priceMap[edActiveBike.name.toLowerCase()]) {
+        priceMap[edActiveBike.name.toLowerCase()].mfrPrice = null;
       }
     })
-    .catch(e => edSetStatus('err', 'Save failed: ' + e.message));
+    .catch(e => edSetStatus('err', 'Network error — price NOT saved to Sheet: ' + e.message));
 }
 
 // ── Swatch rendering ──
@@ -3613,15 +3610,14 @@ function edSaveColors() {
   if (swatchChanges.length) logActivity('swatch_price', edActiveBike.name, 'Color price overrides: ' + swatchChanges.slice(0,3).join(', ') + (swatchChanges.length > 3 ? ' +more' : ''));
   else logActivity('swatch_price', edActiveBike.name, 'Color swatches updated');
   edSetStatus('info', 'Saving to sheet...');
-  fetch(AS_URL + '?action=saveColors&rowIndex=' + edActiveBike.rowIndex + '&json=' + encodeURIComponent(jsonStr), {redirect:'follow',mode:'cors'})
-    .then(r => r.text())
-    .then(t => { try { return JSON.parse(t); } catch(e) { return {status:'ok'}; } })
-    .then(res => res)
-    .then(res => {
-      if (res.status === 'ok') edSetStatus('ok', '✅ Colors saved! Changes are live on your brand pages.');
-      else edSetStatus('err', 'Save failed: ' + (res.message || 'Unknown error'));
-    })
-    .catch(e => edSetStatus('err', 'Save failed: ' + e.message));
+  // no-cors fire-and-forget. Apps Script returns no CORS headers on the
+  // saveColors action so mode:'cors' was being blocked outright — the
+  // Sheet never got the write (Pat's swatches kept disappearing). The
+  // request DOES land server-side with no-cors; we just can't read the
+  // response, so trust the write and update local state.
+  fetch(AS_URL + '?action=saveColors&rowIndex=' + edActiveBike.rowIndex + '&json=' + encodeURIComponent(jsonStr), {redirect:'follow', mode:'no-cors'})
+    .then(() => edSetStatus('ok', '✅ Colors synced to Sheet — live on brand pages within ~5 min.'))
+    .catch(e => edSetStatus('err', 'Network error — swatches NOT saved to Sheet: ' + e.message));
 }
 
 /// ── Manufacturer Stock ───────────────────────────────────────
