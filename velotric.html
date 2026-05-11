@@ -183,7 +183,14 @@ const SITE_CONFIG = {
           border-radius:4px;border:1.5px solid var(--accent);cursor:pointer;width:100%;
           font-size:.82rem;text-transform:uppercase;letter-spacing:.06em;
           transition:all .2s ease;margin-top:8px;font-family:inherit}
-        .cart-button:hover{background:var(--accent);color:var(--on-accent)}
+        .cart-button:hover{background:var(--accent);color:var(--on-accent,#fff)}
+        .brand-switch{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px}
+        .brand-pill{padding:8px 18px;border:1.5px solid rgba(0,0,0,.12);border-radius:99px;
+          font-size:.78rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;
+          color:var(--ink-2);background:#fff;transition:all .15s ease;text-decoration:none;font-family:inherit}
+        .brand-pill:hover{border-color:var(--forest);color:var(--forest)}
+        .brand-pill.active{background:var(--forest);border-color:var(--forest);color:#fff;cursor:default}
+        .brand-pill.active:hover{color:#fff;border-color:var(--forest)}
 
         /* FEATURES (jasion only — harmless on others) */
         .features{background:var(--cream-w);padding:48px 24px;border-top:1px solid rgba(0,0,0,.06)}
@@ -403,6 +410,12 @@ const SITE_CONFIG = {
 
     <section id="bikes" class="container">
         <h2 class="section-title">ELECTRIC BIKES</h2>
+        <nav class="brand-switch" aria-label="Switch brand">
+          <a class="brand-pill active" href="velotric.html" aria-current="page">Velotric</a>
+          <a class="brand-pill" href="heybike.html">Heybike</a>
+          <a class="brand-pill" href="jasion.html">Jasion</a>
+          <a class="brand-pill" href="mooncool.html">Mooncool</a>
+        </nav>
         <div class="sort-bar">
           <label for="sortBy">Sort by:</label>
           <select id="sortBy" onchange="buildBikeCards(globalInventory)">
@@ -706,12 +719,15 @@ const SITE_CONFIG = {
          * Add the currently-configured bike (the same selection
          * selectBikeAndScroll captures) into the shared cart drawer.
          * Reuses the swatch / size / style extraction so the cart line
-         * always matches what the customer sees on the card.
+         * always matches what the customer sees on the card. Brand is
+         * read from the card's data-brand attribute so this function
+         * is identical across all four brand pages.
          */
         function addBikeToCart(button) {
             if (!window.ctcCart || !window.ctcCart.add) return;
             const card = button.closest('.bike-card');
             const bikeName = card.getAttribute('data-bike-name') || '';
+            const brand    = card.getAttribute('data-brand') || '';
             const styleBtn = card.querySelector('.style-btn.active');
             const visibleWrapper = card.querySelector('.nested-style-wrapper[style*="display: block"]')
                                 || card.querySelector('.nested-style-wrapper:not([style*="display: none"])');
@@ -720,14 +736,14 @@ const SITE_CONFIG = {
             const activeSwatch = sizeScope.querySelector('.swatch-group[style*="display: block"] .swatch.active')
                                || sizeScope.querySelector('.swatch.active')
                                || card.querySelector('.swatch.active');
-            // Swatch price overrides base price when the variant has one.
             const swatchPrice = activeSwatch && activeSwatch.getAttribute('data-price');
             const basePrice = card.getAttribute('data-bike-price') || '0';
             const price = parseFloat(String(swatchPrice || basePrice).replace(/[^0-9.-]+/g, '')) || 0;
-            const category = (card.querySelector('.bike-style')?.textContent || '').trim();
+            const styleEl = card.querySelector('.bike-style');
+            const category = styleEl ? styleEl.textContent.trim() : '';
             window.ctcCart.add({
                 kind: 'bike',
-                brand: 'Velotric',
+                brand: brand,
                 name: bikeName,
                 category: category,
                 price: price,
