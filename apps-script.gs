@@ -92,6 +92,9 @@ function _doGetInner(e, action) {
   if (action === 'bookingLead') {
     return handleBookingLead(e.parameter || {});
   }
+  if (action === 'bridgeApplication') {
+    return handleBridgeApplication(e.parameter || {});
+  }
   if (action === 'chatLog') {
     return handleChatLog(e.parameter || {});
   }
@@ -778,6 +781,115 @@ function handleBookingLead(p) {
     return json({ ok: true, id: row.id, peek_link: row.peek_link });
   } catch (err) {
     console.error('handleBookingLead failed: ' + err);
+    return json({ ok: false, error: String(err) });
+  }
+}
+
+/**
+ * Bridge the Gap program application. Fired by bridge-the-gap.html's
+ * <form id="application-form"> submit handler. Pattern mirrors
+ * handleBookingLead: write a row to Bridge_Applications, email the
+ * team, and push a Discord notification if the webhook is configured.
+ *
+ * The page form was a placeholder for months (just showed a success
+ * modal locally, never posted anywhere) — every prior application is
+ * lost. From here forward, every submission lands in the sheet and
+ * fires an email; Pat sees them in real time.
+ */
+function handleBridgeApplication(p) {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const json = function(obj) {
+    return ContentService.createTextOutput(JSON.stringify(obj))
+      .setMimeType(ContentService.MimeType.JSON);
+  };
+
+  try {
+    const now = new Date();
+    const id  = 'BTG-' + Utilities.formatDate(now, 'America/New_York', 'yyMMdd-HHmmss');
+    const row = {
+      id:            id,
+      timestamp:     now,
+      first_name:    String(p.first_name    || '').trim(),
+      last_name:     String(p.last_name     || '').trim(),
+      email:         String(p.email         || '').trim(),
+      phone:         String(p.phone         || '').trim(),
+      birthday:      String(p.birthday      || '').trim(),
+      address:       String(p.address       || '').trim(),
+      city:          String(p.city          || '').trim(),
+      zip:           String(p.zip           || '').trim(),
+      primary_need:  String(p.primary_need  || '').trim(),
+      bike_selection:String(p.bike_selection|| '').trim(),
+      status:        'new',
+    };
+
+    let sh = ss.getSheetByName('Bridge_Applications');
+    if (!sh) {
+      sh = ss.insertSheet('Bridge_Applications');
+      sh.appendRow(['id','timestamp','first_name','last_name','email','phone',
+                    'birthday','address','city','zip','primary_need',
+                    'bike_selection','status']);
+      sh.getRange(1, 1, 1, 13).setFontWeight('bold');
+    }
+    sh.appendRow([row.id, row.timestamp, row.first_name, row.last_name,
+                  row.email, row.phone, row.birthday, row.address,
+                  row.city, row.zip, row.primary_need,
+                  row.bike_selection, row.status]);
+
+    // Notify the team. Mail failure logs but doesn't sink the request —
+    // the row in the Sheet is still the source of truth.
+    try {
+      const fullName = (row.first_name + ' ' + row.last_name).trim() || '(no name)';
+      const body = [
+        'New Bridge the Gap application — ' + row.id,
+        '',
+        'Applicant:    ' + fullName,
+        'Email:        ' + (row.email || '(missing)'),
+        'Phone:        ' + (row.phone || '(missing)'),
+        'Birthday:     ' + (row.birthday || '(missing)'),
+        '',
+        'Address:      ' + (row.address || '(missing)'),
+        '              ' + (row.city || '?') + ', OH ' + (row.zip || '?'),
+        '',
+        'Bike pick:    ' + (row.bike_selection || '(none selected)'),
+        '',
+        'Primary need for the e-bike:',
+        (row.primary_need || '(blank)'),
+        '',
+        'Logged at ' + row.timestamp + ' (Bridge_Applications tab, status=new)',
+        'Reply within 24–48 hours per the page promise.',
+      ].join('\n');
+      MailApp.sendEmail({
+        to:      'info@cruisethecreek.com,salesteam@cruisethecreek.com',
+        replyTo: row.email || 'info@cruisethecreek.com',
+        subject: 'Bridge the Gap application ' + row.id + ' — ' + fullName + ' · ' + (row.bike_selection || 'no bike picked'),
+        body:    body,
+      });
+    } catch (mailErr) {
+      console.warn('Bridge application email failed: ' + mailErr);
+    }
+
+    // Phone-push via Discord webhook (same SiteConfig key as the other
+    // handlers). No-op if Pat hasn't set discord_webhook_url.
+    postToDiscord_(
+      '🌉 New Bridge the Gap application — ' + row.id,
+      13413486, // tan 0xC9A96E — visually distinct from booking (forest)
+      [
+        { name: '👤 Applicant', value:
+            ((row.first_name + ' ' + row.last_name).trim() || '(name missing)') +
+            (row.phone ? '\n📞 ' + row.phone : '') +
+            (row.email ? '\n✉️ ' + row.email : ''), inline: false },
+        { name: '🚲 Bike pick',    value: row.bike_selection || '(none)',     inline: true },
+        { name: '🎂 Birthday',     value: row.birthday || '(missing)',         inline: true },
+        { name: '📍 City / Zip',   value: (row.city || '?') + ' · ' + (row.zip || '?'), inline: true },
+        { name: '🏠 Address',      value: row.address || '(missing)',          inline: false },
+        { name: '🎯 Primary need', value: row.primary_need || '(blank)',       inline: false },
+      ],
+      'Reply within 24–48 hours — text the applicant'
+    );
+
+    return json({ ok: true, id: row.id });
+  } catch (err) {
+    console.error('handleBridgeApplication failed: ' + err);
     return json({ ok: false, error: String(err) });
   }
 }
