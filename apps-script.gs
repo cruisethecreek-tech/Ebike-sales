@@ -65,6 +65,21 @@
 function doGet(e) {
   const action = String((e && e.parameter && e.parameter.action) || '').trim();
 
+  // ?refresh=1 forces every readSheet() in this invocation to skip the
+  // tab cache and re-read from the spreadsheet. Useful for previewing
+  // edits without waiting for the TTL or onEdit invalidation. Flag is
+  // cleared in a finally so it doesn't leak between requests.
+  const wantRefresh = String((e && e.parameter && e.parameter.refresh) || '') === '1';
+  if (wantRefresh) _setReadCacheBypass_(true);
+  try {
+    return _doGetInner(e, action);
+  } finally {
+    if (wantRefresh) _setReadCacheBypass_(false);
+  }
+}
+
+function _doGetInner(e, action) {
+
   // Order submission path. Handled BEFORE the CMS read so the response
   // shape stays narrow ({ok, id, error}) instead of dragging the whole
   // CMS payload along.
@@ -254,19 +269,107 @@ function doGet(e) {
     .setMimeType(ContentService.MimeType.JSON);
 }
 
+/**
+ * Per-tab parsed-row cache. Reading a sheet via getDataRange().
+ * getValues() is one of the slowest Apps Script operations — each
+ * call is ~50-200ms. doGet() reads 24+ tabs per request, so the
+ * uncached path is 2-5 seconds before any work begins.
+ *
+ * CacheService.getScriptCache() is process-wide and shared across
+ * all doGet invocations. Caching parsed rows per tab gives near-
+ * instant repeat reads (single CacheService.get + JSON.parse, ~5ms)
+ * for as long as the entry is fresh.
+ *
+ * TTL is intentionally short (60s) so Pat doesn't have to wait long
+ * after an edit. The onEdit trigger below ALSO clears the touched
+ * tab's cache on every edit — so most edits propagate to the next
+ * request, and the TTL is just a safety net.
+ *
+ * If a tab's parsed payload exceeds CacheService's 100KB per-key
+ * limit, the put() throws and we silently fall through to no-cache.
+ * The data still comes back; we just lose the speedup for that tab.
+ */
+var READ_CACHE_TTL_S = 60;
+var READ_CACHE_PREFIX = 'tab:v1:';
+
 function readSheet(ss, name) {
+  // ?refresh=1 on the doGet query bypasses the cache for that request,
+  // for previewing sheet edits that haven't propagated yet. Read flag
+  // off a script property the wrapper sets — see _readCacheBypass_.
+  if (!_readCacheBypass_()) {
+    try {
+      var cached = CacheService.getScriptCache().get(READ_CACHE_PREFIX + name);
+      if (cached) return JSON.parse(cached);
+    } catch (e) { /* fall through to live read */ }
+  }
+
   const sh = ss.getSheetByName(name);
   if (!sh) return [];
   const values = sh.getDataRange().getValues();
   if (values.length < 2) return [];
   const header = values[0].map(h => String(h).trim());
-  return values.slice(1)
+  const rows = values.slice(1)
     .filter(row => row.some(cell => cell !== '' && cell !== null))
     .map(row => {
       const obj = {};
       header.forEach((h, i) => { if (h) obj[h] = row[i]; });
       return obj;
     });
+
+  try {
+    CacheService.getScriptCache().put(
+      READ_CACHE_PREFIX + name,
+      JSON.stringify(rows),
+      READ_CACHE_TTL_S
+    );
+  } catch (e) {
+    // Payload too big (>100KB) or transient cache error. Returning
+    // rows without caching is fine — next request will retry.
+  }
+  return rows;
+}
+
+// Per-request flag for cache bypass. doGet flips it on entry when
+// ?refresh=1 is present and clears it in a finally. Apps Script V8
+// preserves module-level state across doGet invocations within the
+// same instance, so this is fast (no Properties/Cache round-trip).
+// Concurrent requests inside the same instance could theoretically
+// see a stale-true flag for a few readSheet calls — that just costs
+// one extra live read, no broken behavior.
+var _bypassReadCacheThisRun = false;
+function _readCacheBypass_()    { return _bypassReadCacheThisRun; }
+function _setReadCacheBypass_(on){ _bypassReadCacheThisRun = !!on; }
+
+/**
+ * Simple onEdit trigger — fires on every cell edit in any sheet.
+ * Clears that sheet's cache entry so the next doGet rebuilds it from
+ * fresh data. Combined with the short browser TTL (60s in cms-
+ * loader.js), Pat's edits propagate to live visitors within seconds.
+ *
+ * This is a SIMPLE trigger (named exactly `onEdit`), so Apps Script
+ * runs it automatically — no manual installation needed.
+ */
+function onEdit(e) {
+  if (!e || !e.range) return;
+  try {
+    const name = e.range.getSheet().getName();
+    CacheService.getScriptCache().remove(READ_CACHE_PREFIX + name);
+  } catch (err) {
+    // Simple triggers run with limited auth; some operations may fail.
+    // Cache will self-clear after TTL anyway.
+  }
+}
+
+/**
+ * Manual cache flush — run from the Apps Script editor when Pat wants
+ * to force every visitor to see the freshest data immediately (e.g.
+ * after a big batch edit). Clears every tab cache entry.
+ */
+function clearAllTabCache() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const keys = ss.getSheets().map(function(s){ return READ_CACHE_PREFIX + s.getName(); });
+  if (keys.length) CacheService.getScriptCache().removeAll(keys);
+  return 'Cleared ' + keys.length + ' tab cache entries.';
 }
 
 function groupBy(rows, key) {
