@@ -291,7 +291,7 @@ export default async function handler(req, res) {
   if (req.method !== 'POST')    return res.status(405).json({ error: 'Method not allowed' });
 
   try {
-    const { message, history } = req.body || {};
+    const { message, history, visitor } = req.body || {};
     if (!message || typeof message !== 'string') {
       return res.status(400).json({ error: 'Missing message' });
     }
@@ -327,17 +327,35 @@ export default async function handler(req, res) {
     //   3. Stop when stop_reason !== 'tool_use', or after the cap.
     // 4 iterations is plenty for our single-tool case but bounds runaway.
     let final = null;
+    // Build the visitor context block — injected after the cached KB
+    // so it doesn't bust the prompt cache. Per-visitor info changes
+    // every conversation, so it stays uncached on purpose.
+    let visitorBlock = '';
+    if (visitor && typeof visitor === 'object' && visitor.first) {
+      const v = visitor;
+      const contact = [v.email && ('email ' + v.email), v.phone && ('phone ' + v.phone)]
+        .filter(Boolean).join(' / ');
+      visitorBlock = 'You are currently chatting with:\n' +
+        '- Name: ' + (v.first || '') + (v.last ? ' ' + v.last : '') + '\n' +
+        (contact ? '- Contact: ' + contact + '\n' : '') +
+        '- Reason given for chat: ' + (v.reason || '(unspecified)') + '\n\n' +
+        'Greet them by first name on your very first reply. Steer the conversation toward their stated reason, but stay flexible — if they pivot, follow. When you call submit_booking_lead, prefer the contact info above over re-asking; only ask again for fields they didn\'t fill in.';
+    }
+
     let toolUses = []; // for surfacing in response (debug + future tracking)
     for (let iter = 0; iter < 4; iter++) {
+      const systemBlocks = [
+        { type: 'text', text: SYSTEM_PROMPT },
+        { type: 'text', text: 'Knowledge base (current site content):\n\n' + kbBlock,
+          cache_control: { type: 'ephemeral' } },
+      ];
+      if (visitorBlock) systemBlocks.push({ type: 'text', text: visitorBlock });
+
       const body = {
         model: MODEL,
         max_tokens: MAX_TOKENS,
         tools: TOOLS,
-        system: [
-          { type: 'text', text: SYSTEM_PROMPT },
-          { type: 'text', text: 'Knowledge base (current site content):\n\n' + kbBlock,
-            cache_control: { type: 'ephemeral' } },
-        ],
+        system: systemBlocks,
         messages: messages,
       };
 

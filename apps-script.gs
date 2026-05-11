@@ -77,6 +77,9 @@ function doGet(e) {
   if (action === 'chatLog') {
     return handleChatLog(e.parameter || {});
   }
+  if (action === 'chatVisitor') {
+    return handleChatVisitor(e.parameter || {});
+  }
 
   const page = ((e && e.parameter && e.parameter.page) || 'home')
                  .toString().trim().toLowerCase();
@@ -598,6 +601,75 @@ function postToDiscord_(title, color, fields, footer) {
     });
   } catch (err) {
     console.warn('Discord webhook failed: ' + err);
+  }
+}
+
+/**
+ * Pre-chat intake form submission. Visitor fills out a 5-field form
+ * (first / last / email / phone / reason) before their first message.
+ * Each visitor only sees the form once per device — the client gates
+ * subsequent opens via localStorage.
+ *
+ * Lands one row in Chat_Visitors keyed by session_id so Pat can join
+ * this against Chat_Logs to read a full transcript with the visitor's
+ * contact info attached.
+ *
+ * Also fires a Discord push (if configured) so Pat gets a phone ping
+ * the moment a new visitor starts chatting — even before they've sent
+ * a first message.
+ */
+function handleChatVisitor(p) {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const json = function(obj) {
+    return ContentService.createTextOutput(JSON.stringify(obj))
+      .setMimeType(ContentService.MimeType.JSON);
+  };
+
+  try {
+    const now = new Date();
+    const id  = 'CV-' + Utilities.formatDate(now, 'America/New_York', 'yyMMdd-HHmmss');
+    const row = {
+      id:         id,
+      timestamp:  now,
+      session_id: String(p.sessionId || '').trim().slice(0, 64),
+      first:      String(p.first     || '').trim().slice(0, 80),
+      last:       String(p.last      || '').trim().slice(0, 80),
+      email:      String(p.email     || '').trim().slice(0, 120),
+      phone:      String(p.phone     || '').trim().slice(0, 32),
+      reason:     String(p.reason    || '').trim().slice(0, 80),
+      page:       String(p.page      || '').trim().slice(0, 200),
+    };
+
+    let sh = ss.getSheetByName('Chat_Visitors');
+    if (!sh) {
+      sh = ss.insertSheet('Chat_Visitors');
+      sh.appendRow(['id','timestamp','session_id','first','last','email',
+                    'phone','reason','page']);
+      sh.getRange(1, 1, 1, 9).setFontWeight('bold');
+    }
+    sh.appendRow([row.id, row.timestamp, row.session_id, row.first, row.last,
+                  row.email, row.phone, row.reason, row.page]);
+
+    // Discord ping — same webhook as booking leads. Color uses sage
+    // so Pat can visually distinguish "new visitor started chat" from
+    // "booking lead landed" (forest) at a glance.
+    postToDiscord_(
+      '💬 New chat visitor — ' + (row.first || 'no name'),
+      7049073, // sage 0x6B8F71
+      [
+        { name: '👤 Name',   value: ((row.first || '') + ' ' + (row.last || '')).trim() || '(blank)', inline: true },
+        { name: '✉️ Email', value: row.email || '(none)', inline: true },
+        { name: '📞 Phone', value: row.phone || '(none)', inline: true },
+        { name: '❓ Reason', value: row.reason || '(blank)', inline: false },
+        { name: '🌐 Page',  value: row.page   || '(unknown)', inline: false },
+      ],
+      'They just opened the chat — transcript will follow in Chat_Logs'
+    );
+
+    return json({ ok: true, id: row.id });
+  } catch (err) {
+    console.error('handleChatVisitor failed: ' + err);
+    return json({ ok: false, error: String(err) });
   }
 }
 
@@ -2083,6 +2155,22 @@ function getTabDefs() {
       // To review: open this tab, sort by timestamp DESC, scan recent
       // session_ids. Group by session_id to read a single conversation.
       header: ['session_id','timestamp','page','role','content'],
+      rows: [],
+    },
+    'Chat_Visitors': {
+      // Pre-chat intake form. Captured ONCE per visitor (per
+      // browser/device) before their first chat turn. Joins to
+      // Chat_Logs via session_id so Pat can read a full transcript
+      // alongside who was on the other end.
+      //
+      // reason = "Booking a rental" | "Service or repair" | "Looking to
+      //          buy" | "Just a question" | "Other" (driven by the
+      //          dropdown in chatbot.js — see chatbot.js for the
+      //          authoritative list).
+      // Email OR phone required (validated client-side). The other can
+      // be blank.
+      header: ['id','timestamp','session_id','first','last','email',
+               'phone','reason','page'],
       rows: [],
     },
     'BookingLinks': {
