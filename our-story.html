@@ -407,6 +407,22 @@ function rich(s){
 
 const CAL_SVG = '<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>';
 
+/* Date-cell sanitizer.  When Pat types a date into the Sheet's title
+   column, Google serializes the cell as an ISO timestamp ("2022-04-30
+   T00:00:00.000Z") or full JS Date toString. Either renders ugly. If
+   the value parses as a date, reformat to "April 30, 2022". Otherwise
+   pass through untouched so plain text (e.g. "Spring 2022") still works. */
+function fmtDate(s){
+  const raw = String(s || '').trim();
+  if (!raw) return raw;
+  const isISO = /^\d{4}-\d{2}-\d{2}T/.test(raw);
+  const isJSDate = /^[A-Z][a-z]{2} [A-Z][a-z]{2} \d{2} \d{4}/.test(raw);
+  if (!isISO && !isJSDate) return raw;
+  const d = new Date(raw);
+  if (isNaN(d.getTime())) return raw;
+  return d.toLocaleDateString('en-US', { year:'numeric', month:'long', day:'numeric' });
+}
+
 /* Group rows into <section class="section fade-in"> blocks at every divider. */
 function renderSections(rows){
   const root = document.getElementById('cmsArticleContent');
@@ -432,7 +448,7 @@ function renderSections(rows){
     } else if (t === 'h3') {
       html += `<h3>${esc(ti)}</h3>`;
     } else if (t === 'date') {
-      html += `<div class="section-date">${CAL_SVG} ${esc(ti)}</div>`;
+      html += `<div class="section-date">${CAL_SVG} ${esc(fmtDate(ti))}</div>`;
     } else if (t === 'lead') {
       html += `<p class="lead">${rich(bo)}</p>`;
     } else if (t === 'body') {
