@@ -74,6 +74,9 @@ function doGet(e) {
   if (action === 'bookingLead') {
     return handleBookingLead(e.parameter || {});
   }
+  if (action === 'chatLog') {
+    return handleChatLog(e.parameter || {});
+  }
 
   const page = ((e && e.parameter && e.parameter.page) || 'home')
                  .toString().trim().toLowerCase();
@@ -490,6 +493,49 @@ function handleBookingLead(p) {
     return json({ ok: true, id: row.id, peek_link: row.peek_link });
   } catch (err) {
     console.error('handleBookingLead failed: ' + err);
+    return json({ ok: false, error: String(err) });
+  }
+}
+
+/**
+ * Append a chatbot turn (user message + assistant reply) to Chat_Logs.
+ * Called from api/chat.js after every successful response. Fire-and-
+ * forget on the client — we don't wait for the result, so writes
+ * happen eventually-consistent.
+ *
+ * Expected params:
+ *   sessionId  — client UUID, persists across the visitor's session
+ *   page       — the URL the visitor was on
+ *   userMsg    — the visitor's message (truncated to 2000 chars)
+ *   botMsg     — the assistant's reply (truncated to 2000 chars)
+ */
+function handleChatLog(p) {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const json = function(obj) {
+    return ContentService.createTextOutput(JSON.stringify(obj))
+      .setMimeType(ContentService.MimeType.JSON);
+  };
+
+  try {
+    const now = new Date();
+    const sessionId = String(p.sessionId || 'unknown').trim().slice(0, 64);
+    const page      = String(p.page      || '').trim().slice(0, 200);
+    const userMsg   = String(p.userMsg   || '').trim().slice(0, 2000);
+    const botMsg    = String(p.botMsg    || '').trim().slice(0, 2000);
+
+    let sh = ss.getSheetByName('Chat_Logs');
+    if (!sh) {
+      sh = ss.insertSheet('Chat_Logs');
+      sh.appendRow(['session_id','timestamp','page','role','content']);
+      sh.getRange(1, 1, 1, 5).setFontWeight('bold');
+    }
+    // Append two rows so a conversation reads naturally when sorted by
+    // timestamp. The same session_id ties them together.
+    if (userMsg) sh.appendRow([sessionId, now, page, 'user',      userMsg]);
+    if (botMsg)  sh.appendRow([sessionId, now, page, 'assistant', botMsg]);
+    return json({ ok: true });
+  } catch (err) {
+    console.error('handleChatLog failed: ' + err);
     return json({ ok: false, error: String(err) });
   }
 }
@@ -1153,6 +1199,17 @@ function getTabDefs() {
         ['wall_eyebrow',        'The supporters wall'],
         ['wall_title',          'Thank you, Creek Crew'],
         ['wall_sub',            'The names below kept the wheels turning this season.'],
+
+        ['── CHATBOT FACTS (Creek Concierge knowledge base) ──', ''],
+        // The bot reads these from the rendered system prompt. Edit
+        // here when prices shift or arrival policy changes — bot
+        // picks up the change on the next CMS cache flush (~5 min).
+        ['chat_arrival_note',   'Guests should arrive 15 minutes before their booked start time for a quick safety + bike intro.'],
+        ['chat_contact_pref',   'Texting is always faster than email — sales 330-406-9682, info 330-406-9686.'],
+        ['chat_price_jasion',   'Jasion e-bikes: $700–$1,500. Solid value entry tier — folding fat tires, hunter-style, value commuters.'],
+        ['chat_price_heybike',  'Heybike e-bikes: $900–$2,000. Wide range — fat tires, cargo, step-thru, all-purpose.'],
+        ['chat_price_velotric', 'Velotric e-bikes: $1,200–$2,500. Mid-to-premium tier — commuter, fat tire, cargo. Strong components, popular for Bridge the Gap.'],
+        ['chat_price_mooncool', 'Mooncool e-bikes: $700–$2,000. Cruisers, e-trikes, value picks.'],
       ],
     },
     'Photos': {
@@ -1897,6 +1954,23 @@ function getTabDefs() {
       //             if the bot was able to generate one. Empty otherwise.
       header: ['id','timestamp','name','email','phone','product','date',
                'time','qty','pickup','experience','notes','peek_link','status'],
+      rows: [],
+    },
+    'Chat_Logs': {
+      // Every chatbot message gets a row here so Pat can scroll through
+      // what visitors are asking about. Two rows per turn: one for the
+      // user message, one for the assistant reply, sharing the same
+      // session_id so a conversation reads as a thread.
+      //
+      // session_id = client-generated UUID stored in localStorage. New
+      //              session per browser/device, persists across reloads.
+      // page       = the URL the visitor was on when they chatted.
+      // role       = 'user' or 'assistant'.
+      // content    = the message text (truncated to 2000 chars).
+      //
+      // To review: open this tab, sort by timestamp DESC, scan recent
+      // session_ids. Group by session_id to read a single conversation.
+      header: ['session_id','timestamp','page','role','content'],
       rows: [],
     },
     'BookingLinks': {
