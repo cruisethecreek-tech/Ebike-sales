@@ -102,6 +102,20 @@ function renderKB(d) {
     }
   }
 
+  // Peek booking-flow stuck points + answers. The bot pattern-matches
+  // a visitor's "I'm stuck" message against the situation column and
+  // quotes the answer. Edited by Pat in the Booking_Troubleshooting
+  // tab as he sees new friction in the wild.
+  if (Array.isArray(d.bookingTroubleshooting) && d.bookingTroubleshooting.length) {
+    lines.push('\n## Booking-flow troubleshooting (Peek)');
+    lines.push('When a visitor describes one of these symptoms, respond with the matching answer. Adapt the wording to the conversation, but keep the specific instructions intact.');
+    d.bookingTroubleshooting.forEach(t => {
+      if (t.situation && t.answer) {
+        lines.push(`- "${String(t.situation).trim()}" → ${String(t.answer).trim()}`);
+      }
+    });
+  }
+
   // Booking URLs for each product. The bot quotes the matching URL to
   // the customer after submit_booking_lead succeeds so they can self-
   // serve the date/time/payment on Peek.
@@ -152,6 +166,11 @@ Example: "Got it — Pat or the team will text within the hour to confirm. If yo
 Don't repeat the booking ID unless asked. Don't share a Peek URL if the knowledge base doesn't have one for that product (e.g., Bridge the Gap uses an application form on bridge-the-gap.html instead).
 
 If the customer just wants to self-serve without an intake, share the matching Peek URL from the knowledge base directly without calling the tool.
+
+==== BOOKING SUPPORT (stuck on Peek) ====
+If a visitor describes a problem partway through booking on Peek — "the calendar isn't loading", "I can't see any times", "it won't accept my card", "I'm stuck on the guest count step", etc. — check the "Booking-flow troubleshooting (Peek)" section in the knowledge base. If you find a matching situation, give the specific instruction from the answer. Don't paraphrase the exact button names or steps — those are calibrated.
+
+If the visitor's symptom doesn't match any troubleshooting entry, say "I'm not sure what's happening on that screen — text Sales at 330-406-9682 with a quick description (or screenshot) and we'll walk you through it in real time." Don't guess.
 
 ==== OTHER PAGES (link, don't intake) ====
 - Service → creek-ready.html
