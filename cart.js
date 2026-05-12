@@ -169,6 +169,36 @@
   padding:16px 22px 22px;background:#fff;border-top:1px solid rgba(0,0,0,.08);
   display:flex;flex-direction:column;gap:8px;flex-shrink:0;
 }
+.ctc-cart-checkout-toggle{
+  /* Collapsed header doubles as the section's accessible toggle. Looks
+     like a label on first glance, behaves as a button — full-width tap
+     target so it works one-thumb on mobile. */
+  display:flex;align-items:center;justify-content:space-between;gap:8px;
+  background:transparent;border:none;cursor:pointer;padding:0;margin:0;
+  font-family:'Bebas Neue','DM Sans',sans-serif;font-size:1rem;
+  letter-spacing:.06em;text-transform:uppercase;color:#2D4A32;font-weight:700;
+  text-align:left;width:100%;
+}
+.ctc-cart-checkout-toggle:hover{color:#1a2e1c}
+.ctc-cart-checkout-toggle:focus-visible{outline:2px solid #C9A96E;outline-offset:3px;border-radius:3px}
+.ctc-cart-checkout-toggle .chev{
+  width:18px;height:18px;flex-shrink:0;transition:transform .25s ease;
+  color:#5a5a5a;
+}
+.ctc-cart-checkout.is-open .ctc-cart-checkout-toggle .chev{transform:rotate(180deg)}
+.ctc-cart-checkout-body{
+  /* Collapsed by default. max-height collapse plus opacity fade gives a
+     calm, in-place reveal without layout jank. The big max-height upper
+     bound is fine — actual height is governed by content, the cap just
+     needs to exceed any plausible form length. */
+  display:flex;flex-direction:column;gap:8px;
+  max-height:0;overflow:hidden;opacity:0;
+  transition:max-height .28s ease,opacity .2s ease,margin-top .25s ease;
+  margin-top:0;
+}
+.ctc-cart-checkout.is-open .ctc-cart-checkout-body{
+  max-height:760px;opacity:1;margin-top:10px;
+}
 .ctc-cart-checkout h4{
   font-family:'Bebas Neue','DM Sans',sans-serif;font-size:1rem;
   letter-spacing:.06em;text-transform:uppercase;color:#2D4A32;margin:0 0 2px;font-weight:700;
@@ -283,17 +313,26 @@
         <strong class="ctc-cart-subtotal">$0</strong>
       </div>
       <form class="ctc-cart-checkout" novalidate>
-        <h4>Send the order</h4>
-        <p class="ctc-cart-note">We'll follow up to confirm details and send a payment link. Email or phone — one is enough.</p>
-        <div class="ctc-cart-row">
-          <input name="firstName" placeholder="First name" autocomplete="given-name" required>
-          <input name="lastName"  placeholder="Last name"  autocomplete="family-name" required>
+        <button type="button" class="ctc-cart-checkout-toggle" data-act="toggle-checkout"
+                aria-expanded="false" aria-controls="ctc-cart-checkout-body">
+          <span>Send the order</span>
+          <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"
+               stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <polyline points="6 9 12 15 18 9"></polyline>
+          </svg>
+        </button>
+        <div class="ctc-cart-checkout-body" id="ctc-cart-checkout-body">
+          <p class="ctc-cart-note">We'll follow up to confirm details and send a payment link. Email or phone — one is enough.</p>
+          <div class="ctc-cart-row">
+            <input name="firstName" placeholder="First name" autocomplete="given-name" required>
+            <input name="lastName"  placeholder="Last name"  autocomplete="family-name" required>
+          </div>
+          <input name="email" type="email" placeholder="you@example.com" autocomplete="email">
+          <input name="phone" type="tel"   placeholder="330-555-1234"     autocomplete="tel">
+          <textarea name="notes" placeholder="Anything else we should know — pickup preference, customization, questions, etc."></textarea>
+          <div class="ctc-cart-error" hidden></div>
+          <button type="submit" class="ctc-cart-submit">Send Order</button>
         </div>
-        <input name="email" type="email" placeholder="you@example.com" autocomplete="email">
-        <input name="phone" type="tel"   placeholder="330-555-1234"     autocomplete="tel">
-        <textarea name="notes" placeholder="Anything else we should know — pickup preference, customization, questions, etc."></textarea>
-        <div class="ctc-cart-error" hidden></div>
-        <button type="submit" class="ctc-cart-submit">Send Order</button>
       </form>
       <div class="ctc-cart-success" hidden>
         <strong>Order sent.</strong>
@@ -394,22 +433,46 @@
     document.body.style.overflow = '';
   }
   function resetCheckoutSurface() {
-    wrap.querySelector('.ctc-cart-checkout').hidden = false;
+    const form = wrap.querySelector('.ctc-cart-checkout');
+    form.hidden = false;
+    form.classList.remove('is-open');
+    const toggle = wrap.querySelector('.ctc-cart-checkout-toggle');
+    if (toggle) toggle.setAttribute('aria-expanded', 'false');
     wrap.querySelector('.ctc-cart-success').hidden = true;
     wrap.querySelector('.ctc-cart-error').hidden = true;
   }
 
   wrap.addEventListener('click', (e) => {
-    const act = e.target.dataset && e.target.dataset.act;
+    // closest() rather than e.target.dataset so clicks on inner elements
+    // (the chevron SVG inside the toggle, or any inline span) still
+    // resolve to the action on the surrounding button.
+    const actEl = e.target.closest('[data-act]');
+    const act = actEl && actEl.dataset.act;
     if (!act) return;
     if (act === 'close') return closeDrawer();
-    const i = parseInt(e.target.dataset.i, 10);
+    if (act === 'toggle-checkout') return toggleCheckout();
+    const i = parseInt(actEl.dataset.i, 10);
     if (!isFinite(i) || i < 0 || i >= cart.items.length) return;
     if (act === 'inc') cart.items[i].qty = (cart.items[i].qty || 1) + 1;
     else if (act === 'dec') cart.items[i].qty = Math.max(1, (cart.items[i].qty || 1) - 1);
     else if (act === 'rm')  cart.items.splice(i, 1);
     writeCart();
   });
+
+  function toggleCheckout(force) {
+    const form  = wrap.querySelector('.ctc-cart-checkout');
+    const btn   = wrap.querySelector('.ctc-cart-checkout-toggle');
+    const open  = typeof force === 'boolean' ? force : !form.classList.contains('is-open');
+    form.classList.toggle('is-open', open);
+    if (btn) btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+    // When expanding on mobile, scroll the form into view so the inputs
+    // aren't hidden under the keyboard or below the fold.
+    if (open) {
+      requestAnimationFrame(() => {
+        form.scrollIntoView({ behavior: 'smooth', block: 'end' });
+      });
+    }
+  }
 
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape' && wrap.classList.contains('ctc-cart-open')) closeDrawer();
