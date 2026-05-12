@@ -213,6 +213,29 @@
             white-space: nowrap;
         }
 
+        /* Edit link inside each invoice card. stopPropagation in the
+           click handler keeps it from also triggering selectInvoice on
+           the card. */
+        .invoice-card .edit-link {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.62rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            padding: 0.3rem 0.6rem;
+            border-radius: 4px;
+            background: rgba(180, 120, 80, 0.1);
+            color: var(--copper);
+            text-decoration: none;
+            border: 1px solid rgba(180, 120, 80, 0.3);
+            white-space: nowrap;
+            margin-left: 0.5rem;
+            transition: background 0.15s, border-color 0.15s;
+        }
+        .invoice-card .edit-link:hover {
+            background: rgba(180, 120, 80, 0.2);
+            border-color: var(--copper);
+        }
+
         .invoice-card .status-badge.sent {
             background: rgba(74, 139, 106, 0.15);
             color: var(--forest-light);
@@ -576,7 +599,11 @@
                         '<span class="label">Balance</span>' +
                         '$' + inv.balanceDue.toFixed(2) +
                     '</div>' +
-                    statusBadge;
+                    statusBadge +
+                    '<a class="edit-link" href="invoice.html?edit=' +
+                        encodeURIComponent(inv.invoiceNumber) +
+                        '" onclick="event.stopPropagation()" ' +
+                        'title="Open this invoice in the editor">✏️ Edit</a>';
 
                 listEl.appendChild(card);
             });

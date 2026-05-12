@@ -2160,8 +2160,103 @@
             document.head.appendChild(script);
         }
 
+        // ─── EDIT MODE ────────────────────────────────────────────────────
+        // When invoice.html is opened with ?edit=CTR-001 (typically from the
+        // ✏️ link on balance.html), fetch that invoice from the Sheet and
+        // populate the form instead of starting blank. The save flow then
+        // sends back the same invoice number; addOrder() detects the
+        // existing row and overwrites it in place (upsert), so editing
+        // doesn't pollute the Invoices tab with duplicate rows.
+        const editingInvoiceNumber = new URLSearchParams(window.location.search).get('edit');
+
+        function loadInvoiceForEdit(invNum) {
+            showStatus('Loading invoice ' + invNum + '…', 'success');
+            const callbackName = 'getInvCb_' + Date.now();
+            const timeoutMs = 10000;
+            const timeoutId = setTimeout(() => {
+                showStatus('Timed out loading invoice — try refreshing', 'error');
+                cleanup();
+            }, timeoutMs);
+            function cleanup() {
+                if (window[callbackName]) delete window[callbackName];
+                if (script.parentNode) script.parentNode.removeChild(script);
+            }
+            window[callbackName] = function(data) {
+                clearTimeout(timeoutId);
+                if (data && data.status === 'ok' && data.invoice) {
+                    populateFormFromInvoice(data.invoice);
+                    showStatus('Editing ' + invNum + ' — Save updates the saved row', 'success');
+                    const submitBtn = document.querySelector('button[type="submit"]');
+                    if (submitBtn) submitBtn.textContent = 'Update Invoice';
+                } else {
+                    showStatus('Could not load ' + invNum +
+                        (data && data.message ? ' — ' + data.message : ''),
+                        'error');
+                }
+                cleanup();
+            };
+            const script = document.createElement('script');
+            script.src = AS_URL + '?action=getInvoice&callback=' + encodeURIComponent(callbackName) +
+                         '&invoiceNumber=' + encodeURIComponent(invNum);
+            script.onerror = () => {
+                clearTimeout(timeoutId);
+                showStatus('Could not reach the server — invoice not loaded', 'error');
+                cleanup();
+            };
+            document.head.appendChild(script);
+        }
+
+        function populateFormFromInvoice(inv) {
+            // Customer + meta
+            document.getElementById('customerName').value    = inv.customerName    || '';
+            document.getElementById('customerEmail').value   = inv.customerEmail   || '';
+            document.getElementById('customerPhone').value   = inv.customerPhone   || '';
+            document.getElementById('customerAddress').value = inv.customerAddress || '';
+            document.getElementById('invoiceNumber').value   = inv.invoiceNumber   || '';
+            if (inv.invoiceDate) document.getElementById('invoiceDate').value = String(inv.invoiceDate).slice(0, 10);
+            if (inv.dueDate)     document.getElementById('dueDate').value     = String(inv.dueDate).slice(0, 10);
+            // Discount + deposit + notes
+            document.getElementById('discountPercent').value = inv.discountPct || '';
+            document.getElementById('discountFixed').value   = inv.discountAmt || '';
+            document.getElementById('depositAmount').value   = inv.deposit || '';
+            document.getElementById('depositMethod').value   = inv.depositMethod || 'cash';
+            document.getElementById('depositRef').value      = inv.depositRef || '';
+            document.getElementById('notes').value           = inv.paymentNotes || '';
+            // Payment mode — radio. Fires the onchange handler so dependent
+            // UI (deposit visibility, etc) catches up.
+            const mode  = inv.paymentMode || 'full';
+            const radio = document.querySelector('input[name="paymentMode"][value="' + mode + '"]');
+            if (radio) {
+                radio.checked = true;
+                if (typeof onPaymentModeChange === 'function') onPaymentModeChange();
+            }
+            // Line items — stored as JSON string. Wipe whatever placeholder
+            // rows are in the container and re-add each saved item.
+            document.getElementById('lineItemsContainer').innerHTML = '';
+            try {
+                const items = (typeof inv.lineItems === 'string')
+                    ? JSON.parse(inv.lineItems)
+                    : (inv.lineItems || []);
+                items.forEach(it => addLineItem(
+                    it.description,
+                    it.quantity || 1,
+                    parseFloat(it.price) || 0,
+                    it.specs || null
+                ));
+            } catch (e) {
+                console.warn('[edit-mode] could not parse lineItems:', e);
+            }
+            updateInvoicePreview();
+        }
+
         loadCatalog();
-        loadNextInvoiceNumber();
+        // Edit mode: pull the existing invoice and skip the auto-increment.
+        // New mode: ask Apps Script for the next sequential CTR-NNN number.
+        if (editingInvoiceNumber) {
+            loadInvoiceForEdit(editingInvoiceNumber);
+        } else {
+            loadNextInvoiceNumber();
+        }
         updateInvoicePreview();
     </script>
 </body>
