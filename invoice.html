@@ -1020,6 +1020,14 @@
                             <input type="radio" name="paymentMode" value="cashDeposit" onchange="onPaymentModeChange()">
                             <span>Cash/Check Deposit Received</span>
                         </label>
+                        <label class="payment-mode-option">
+                            <input type="radio" name="paymentMode" value="paidInFullCash" onchange="onPaymentModeChange()">
+                            <span>Paid in Full (Cash/Check)</span>
+                        </label>
+                    </div>
+                    <div class="form-group" style="margin-top: 0.85rem; display:flex; align-items:center; gap:0.5rem;">
+                        <input type="checkbox" id="noTaxToggle" onchange="updateInvoicePreview()" style="cursor:pointer; width:auto;">
+                        <label for="noTaxToggle" style="cursor:pointer; margin:0; font-weight:500;">No tax on this invoice (tax-exempt)</label>
                     </div>
                     <div class="form-group" id="depositInputGroup" style="margin-top: 0.85rem; display: none;">
                         <label for="depositAmount" id="depositAmountLabel">Deposit Amount Due Now ($)</label>
@@ -1130,7 +1138,7 @@
                             <span class="total-label">Subtotal after discount</span>
                             <span class="total-amount" id="previewSubtotalAfterDiscount">$0.00</span>
                         </div>
-                        <div class="total-row">
+                        <div class="total-row" id="taxRow">
                             <span class="total-label">Tax (5.75%)</span>
                             <span class="total-amount" id="previewTax">$0.00</span>
                         </div>
@@ -1222,12 +1230,20 @@
             const discountFixed = parseFloat(document.getElementById('discountFixed').value) || 0;
             const discountAmount = (subtotal * (discountPercent / 100)) + discountFixed;
             const subtotalAfterDiscount = subtotal - discountAmount;
-            const tax = subtotalAfterDiscount * TAX_RATE;
+            const noTaxEl = document.getElementById('noTaxToggle');
+            const noTax = !!(noTaxEl && noTaxEl.checked);
+            const tax = noTax ? 0 : subtotalAfterDiscount * TAX_RATE;
             const total = subtotalAfterDiscount + tax;
-            const deposit = parseFloat(document.getElementById('depositAmount').value) || 0;
+            const modeEl = document.querySelector('input[name="paymentMode"]:checked');
+            const paymentMode = modeEl ? modeEl.value : 'full';
+            // For paidInFullCash, the deposit input is hidden — the whole
+            // total has been received in cash/check, so deposit = total and
+            // balance = 0 regardless of what's typed in the (hidden) field.
+            let deposit = parseFloat(document.getElementById('depositAmount').value) || 0;
+            if (paymentMode === 'paidInFullCash') deposit = total;
             const balance = total - deposit;
 
-            return { subtotal, discountPercent, discountFixed, discountAmount, subtotalAfterDiscount, tax, total, deposit, balance };
+            return { subtotal, discountPercent, discountFixed, discountAmount, subtotalAfterDiscount, tax, total, deposit, balance, noTax, paymentMode };
         }
 
         function updateInvoicePreview() {
@@ -1279,24 +1295,40 @@
                 afterDiscountRow.style.display = 'none';
             }
 
+            // Hide tax row entirely when zero (tax-exempt invoice or
+            // zero-rated total) — cleaner than showing "$0.00" and
+            // makes the exempt status obvious on the printed invoice.
+            const taxRow = document.getElementById('taxRow');
+            if (taxRow) taxRow.style.display = tax > 0 ? '' : 'none';
             document.getElementById('previewTax').textContent = '$' + tax.toFixed(2);
             document.getElementById('previewTotal').textContent = '$' + total.toFixed(2);
 
             const depositSection = document.getElementById('depositSection');
+            const previewBalanceRow = document.getElementById('previewBalance').parentElement;
+            const modeEl = document.querySelector('input[name="paymentMode"]:checked');
+            const mode = modeEl ? modeEl.value : 'full';
             if (deposit > 0) {
                 depositSection.classList.add('active');
                 const previewLabel = document.getElementById('previewDepositLabel');
-                const modeEl = document.querySelector('input[name="paymentMode"]:checked');
-                const mode = modeEl ? modeEl.value : 'full';
                 if (previewLabel) {
-                    previewLabel.textContent = mode === 'cashDeposit'
-                        ? 'Cash/Check Deposit Received'
-                        : 'Deposit Due Now';
+                    if (mode === 'paidInFullCash') {
+                        previewLabel.textContent = 'Paid in Full (Cash/Check)';
+                    } else if (mode === 'cashDeposit') {
+                        previewLabel.textContent = 'Cash/Check Deposit Received';
+                    } else {
+                        previewLabel.textContent = 'Deposit Due Now';
+                    }
                 }
                 document.getElementById('previewDeposit').textContent = '$' + deposit.toFixed(2);
                 document.getElementById('previewBalance').textContent = '$' + balance.toFixed(2);
+                // For "paid in full cash", balance is always $0 — hide the
+                // balance row so the invoice clearly reads as settled.
+                if (previewBalanceRow) {
+                    previewBalanceRow.style.display = mode === 'paidInFullCash' ? 'none' : '';
+                }
             } else {
                 depositSection.classList.remove('active');
+                if (previewBalanceRow) previewBalanceRow.style.display = '';
             }
 
             const notes = document.getElementById('notes').value;
@@ -1365,6 +1397,7 @@
             const refGroup      = document.getElementById('depositRefGroup');
             const depositInput  = document.getElementById('depositAmount');
             const depositLabel  = document.getElementById('depositAmountLabel');
+            const submitBtn     = document.getElementById('submitBtn');
 
             if (mode === 'deposit') {
                 // Stripe link will be for the full total (existing behavior);
@@ -1373,6 +1406,7 @@
                 methodGroup.style.display  = 'none';
                 refGroup.style.display     = 'none';
                 if (depositLabel) depositLabel.textContent = 'Deposit Amount Due Now ($)';
+                if (submitBtn) submitBtn.textContent = 'Create Payment Link';
             } else if (mode === 'cashDeposit') {
                 // Customer already handed over cash/check for the deposit
                 // portion. Stripe link will be for the remaining balance
@@ -1381,11 +1415,23 @@
                 methodGroup.style.display  = '';
                 refGroup.style.display     = '';
                 if (depositLabel) depositLabel.textContent = 'Cash/Check Already Received ($)';
+                if (submitBtn) submitBtn.textContent = 'Create Payment Link';
+            } else if (mode === 'paidInFullCash') {
+                // Whole order paid in cash/check — no Stripe link needed.
+                // The deposit input is hidden (we set deposit = total in
+                // calculateTotals so the invoice shows the full amount as
+                // paid). Method + reference are still useful for the record.
+                depositGroup.style.display = 'none';
+                methodGroup.style.display  = '';
+                refGroup.style.display     = '';
+                depositInput.value = '';
+                if (submitBtn) submitBtn.textContent = 'Save Paid Invoice';
             } else {
                 depositGroup.style.display = 'none';
                 methodGroup.style.display  = 'none';
                 refGroup.style.display     = 'none';
                 depositInput.value = '';
+                if (submitBtn) submitBtn.textContent = 'Create Payment Link';
             }
             updateInvoicePreview();
         }
@@ -1430,13 +1476,16 @@
             // received — in that case Stripe only needs to charge the
             // remaining balance.
             const chargeAmount = paymentMode === 'cashDeposit' ? totals.balance : totals.total;
-            const depositMethod = paymentMode === 'cashDeposit'
+            // Method + reference are collected for both modes where cash
+            // was actually received (partial deposit OR full).
+            const cashishMode = paymentMode === 'cashDeposit' || paymentMode === 'paidInFullCash';
+            const depositMethod = cashishMode
                 ? (document.getElementById('depositMethod').value || 'cash') : '';
-            const depositRef = paymentMode === 'cashDeposit'
+            const depositRef = cashishMode
                 ? (document.getElementById('depositRef').value || '') : '';
 
             if (paymentMode === 'cashDeposit' && totals.balance <= 0) {
-                showStatus('Cash deposit covers the full amount — no payment link needed. Mark the order paid manually.', 'error');
+                showStatus('Cash deposit covers the full amount. Switch to "Paid in Full (Cash/Check)" instead — no payment link needed.', 'error');
                 return;
             }
 
@@ -1474,6 +1523,22 @@
                     });
                 }
             });
+
+            // No Stripe call when the customer paid the whole thing in
+            // cash/check — just log the invoice and show a "saved" state.
+            if (paymentMode === 'paidInFullCash') {
+                submitBtn.disabled = true;
+                showStatus('Saving paid invoice…', 'success');
+                try {
+                    logOrderToSheet(invoiceData);
+                    showStatus('Invoice saved as paid (' + (depositMethod || 'cash') + ') for ' + invoiceData.customerName, 'success');
+                    document.getElementById('paymentLinkBox').classList.remove('active');
+                    setTimeout(loadNextInvoiceNumber, 1500);
+                } finally {
+                    submitBtn.disabled = false;
+                }
+                return;
+            }
 
             showStatus('Creating payment link…', 'success');
             submitBtn.disabled = true;
