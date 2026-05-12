@@ -1016,10 +1016,29 @@
                             <input type="radio" name="paymentMode" value="deposit" onchange="onPaymentModeChange()">
                             <span>Deposit + Balance Due Later</span>
                         </label>
+                        <label class="payment-mode-option">
+                            <input type="radio" name="paymentMode" value="cashDeposit" onchange="onPaymentModeChange()">
+                            <span>Cash/Check Deposit Received</span>
+                        </label>
                     </div>
                     <div class="form-group" id="depositInputGroup" style="margin-top: 0.85rem; display: none;">
-                        <label for="depositAmount">Deposit Amount Due Now ($)</label>
+                        <label for="depositAmount" id="depositAmountLabel">Deposit Amount Due Now ($)</label>
                         <input type="number" id="depositAmount" step="0.01" placeholder="0" min="0">
+                    </div>
+                    <div class="form-group" id="depositMethodGroup" style="margin-top: 0.85rem; display: none;">
+                        <label for="depositMethod">How was the deposit paid?</label>
+                        <select id="depositMethod" style="width:100%;padding:0.6rem 0.75rem;border:1px solid var(--op-border);border-radius:6px;font-family:inherit;font-size:0.9rem;background:#fff;">
+                            <option value="cash">Cash</option>
+                            <option value="check">Check</option>
+                            <option value="zelle">Zelle</option>
+                            <option value="venmo">Venmo</option>
+                            <option value="cashapp">Cash App</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group" id="depositRefGroup" style="margin-top: 0.85rem; display: none;">
+                        <label for="depositRef">Reference (check #, last 4 of card, etc.) — optional</label>
+                        <input type="text" id="depositRef" placeholder="e.g., Check #1234">
                     </div>
                 </div>
 
@@ -1124,7 +1143,7 @@
 
                 <div id="depositSection" class="deposit-section">
                     <div class="deposit-row">
-                        <span>Deposit Due Now</span>
+                        <span id="previewDepositLabel">Deposit Due Now</span>
                         <strong id="previewDeposit">$0.00</strong>
                     </div>
                     <div class="deposit-row">
@@ -1266,6 +1285,14 @@
             const depositSection = document.getElementById('depositSection');
             if (deposit > 0) {
                 depositSection.classList.add('active');
+                const previewLabel = document.getElementById('previewDepositLabel');
+                const modeEl = document.querySelector('input[name="paymentMode"]:checked');
+                const mode = modeEl ? modeEl.value : 'full';
+                if (previewLabel) {
+                    previewLabel.textContent = mode === 'cashDeposit'
+                        ? 'Cash/Check Deposit Received'
+                        : 'Deposit Due Now';
+                }
                 document.getElementById('previewDeposit').textContent = '$' + deposit.toFixed(2);
                 document.getElementById('previewBalance').textContent = '$' + balance.toFixed(2);
             } else {
@@ -1333,13 +1360,32 @@
         function onPaymentModeChange() {
             const checked = document.querySelector('input[name="paymentMode"]:checked');
             const mode = checked ? checked.value : 'full';
-            const group = document.getElementById('depositInputGroup');
-            const input = document.getElementById('depositAmount');
+            const depositGroup  = document.getElementById('depositInputGroup');
+            const methodGroup   = document.getElementById('depositMethodGroup');
+            const refGroup      = document.getElementById('depositRefGroup');
+            const depositInput  = document.getElementById('depositAmount');
+            const depositLabel  = document.getElementById('depositAmountLabel');
+
             if (mode === 'deposit') {
-                group.style.display = '';
+                // Stripe link will be for the full total (existing behavior);
+                // the deposit/balance breakdown shows on the printed invoice.
+                depositGroup.style.display = '';
+                methodGroup.style.display  = 'none';
+                refGroup.style.display     = 'none';
+                if (depositLabel) depositLabel.textContent = 'Deposit Amount Due Now ($)';
+            } else if (mode === 'cashDeposit') {
+                // Customer already handed over cash/check for the deposit
+                // portion. Stripe link will be for the remaining balance
+                // only — total - cash received.
+                depositGroup.style.display = '';
+                methodGroup.style.display  = '';
+                refGroup.style.display     = '';
+                if (depositLabel) depositLabel.textContent = 'Cash/Check Already Received ($)';
             } else {
-                group.style.display = 'none';
-                input.value = '';
+                depositGroup.style.display = 'none';
+                methodGroup.style.display  = 'none';
+                refGroup.style.display     = 'none';
+                depositInput.value = '';
             }
             updateInvoicePreview();
         }
@@ -1377,6 +1423,23 @@
                 return;
             }
 
+            const paymentModeEl = document.querySelector('input[name="paymentMode"]:checked');
+            const paymentMode = paymentModeEl ? paymentModeEl.value : 'full';
+            // chargeAmount is what Stripe collects. It only differs from
+            // the order total when a cash/check deposit was already
+            // received — in that case Stripe only needs to charge the
+            // remaining balance.
+            const chargeAmount = paymentMode === 'cashDeposit' ? totals.balance : totals.total;
+            const depositMethod = paymentMode === 'cashDeposit'
+                ? (document.getElementById('depositMethod').value || 'cash') : '';
+            const depositRef = paymentMode === 'cashDeposit'
+                ? (document.getElementById('depositRef').value || '') : '';
+
+            if (paymentMode === 'cashDeposit' && totals.balance <= 0) {
+                showStatus('Cash deposit covers the full amount — no payment link needed. Mark the order paid manually.', 'error');
+                return;
+            }
+
             const invoiceData = {
                 customerName: document.getElementById('customerName').value,
                 customerEmail: document.getElementById('customerEmail').value,
@@ -1393,6 +1456,9 @@
                 total: totals.total,
                 deposit: totals.deposit,
                 balanceDue: totals.balance,
+                paymentMode: paymentMode,
+                depositMethod: depositMethod,
+                depositRef: depositRef,
                 items: []
             };
 
@@ -1413,10 +1479,16 @@
             submitBtn.disabled = true;
 
             try {
+                // Stripe API expects `total` to be the amount to actually
+                // charge. For cashDeposit mode that's the remaining balance,
+                // not the full order total — so override only on the wire.
+                // invoiceData itself keeps total = full order total for the
+                // Sheet log + invoice display.
+                const stripePayload = Object.assign({}, invoiceData, { total: chargeAmount });
                 const response = await fetch('https://ebike-sales-nu.vercel.app/api/create-payment-link', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(invoiceData)
+                    body: JSON.stringify(stripePayload)
                 });
 
                 const data = await response.json();
@@ -1457,6 +1529,9 @@
                 total           : (invoiceData.total || 0).toFixed(2),
                 deposit         : (invoiceData.deposit || 0).toFixed(2),
                 balanceDue      : (invoiceData.balanceDue || 0).toFixed(2),
+                paymentMode     : invoiceData.paymentMode || 'full',
+                depositMethod   : invoiceData.depositMethod || '',
+                depositRef      : invoiceData.depositRef || '',
                 paymentNotes    : invoiceData.paymentNotes || ''
             });
             fetch(AS_URL + '?' + params.toString(), { redirect: 'follow' }).catch(() => {});
