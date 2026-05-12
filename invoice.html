@@ -31,6 +31,13 @@
             --cust-text-dim: #5c6660;
             --cust-border: #e8e2d6;
 
+            /* Tells browsers to render native widgets (select dropdowns,
+               scrollbars, etc) with a dark-theme palette. Without this,
+               Chrome on Windows/Linux falls back to default option
+               colors — black text — that become invisible against the
+               page's dark background once the dropdown opens. */
+            color-scheme: dark;
+
             --success: #4a8b6a;
             --error: #c4564f;
         }
@@ -168,6 +175,16 @@
             outline: none;
             border-color: var(--copper);
             box-shadow: 0 0 0 3px rgba(180, 120, 80, 0.15);
+        }
+
+        /* Belt-and-braces fallback for browsers that ignore the
+           root-level `color-scheme: dark` hint for dropdown options.
+           Without this, the bike/accessory/apparel names render in
+           the browser's default black on the page's dark background
+           and become invisible until hovered. */
+        select option {
+            background: var(--op-bg);
+            color: var(--op-text);
         }
 
         input[readonly] {
