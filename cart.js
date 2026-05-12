@@ -31,6 +31,12 @@
   if (window.ctcCart) return; // idempotent — only one cart per page
 
   const STORAGE_KEY = 'ctc_cart_v1';
+  // Tech debt: site uses 3 Apps Script deployment URLs across different code paths.
+  // This URL (AKfycbyxVMuF...) owns cartOrder/apparelOrder + getBikeInventory used by
+  // brand pages. The CMS read + Bridge application live on AKfycbxjg2Zs...; admin
+  // pages (balance, invoice, migrate-images) live on AKfycbxmz.... To unify, the .gs
+  // source from the other two projects needs to be merged into this repo's
+  // apps-script.gs, then one deployment URL swept everywhere.
   const AS_URL = 'https://script.google.com/macros/s/AKfycbyxVMuFEUeR8_YqM1VVnfPSVPnDhdCs_63dDthZ4jODlTDGQ-7yXSkQeYT-Ux0SM8tw/exec';
 
   // ── Styles ───────────────────────────────────────────────────
@@ -156,9 +162,16 @@
   font-family:'Bebas Neue','DM Sans',sans-serif;text-transform:uppercase;line-height:1.1}
 .ctc-cart-suggest-card span{font-size:.66rem;color:#5a5a5a;line-height:1.3}
 
+/* Sticky footer wraps the subtotal row + the checkout form. The drop
+   shadow above lifts it off the scrolling items, so it always reads as
+   the anchored action area — same pattern as Shopify's drawer cart. */
+.ctc-cart-footer{
+  background:#fff;flex-shrink:0;
+  box-shadow:0 -6px 18px rgba(0,0,0,.06);
+}
 .ctc-cart-totals{
-  padding:14px 22px;background:#fff;border-top:1px solid rgba(0,0,0,.08);
-  display:flex;align-items:baseline;justify-content:space-between;flex-shrink:0;
+  padding:14px 22px 6px;background:#fff;
+  display:flex;align-items:baseline;justify-content:space-between;
 }
 .ctc-cart-totals span{font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;
   color:#5a5a5a;font-weight:700}
@@ -166,24 +179,32 @@
   color:#2D4A32;letter-spacing:.02em}
 
 .ctc-cart-checkout{
-  padding:16px 22px 22px;background:#fff;border-top:1px solid rgba(0,0,0,.08);
-  display:flex;flex-direction:column;gap:8px;flex-shrink:0;
+  padding:10px 22px 22px;background:#fff;
+  display:flex;flex-direction:column;gap:8px;
 }
 .ctc-cart-checkout-toggle{
-  /* Collapsed header doubles as the section's accessible toggle. Looks
-     like a label on first glance, behaves as a button — full-width tap
-     target so it works one-thumb on mobile. */
-  display:flex;align-items:center;justify-content:space-between;gap:8px;
-  background:transparent;border:none;cursor:pointer;padding:0;margin:0;
-  font-family:'Bebas Neue','DM Sans',sans-serif;font-size:1rem;
-  letter-spacing:.06em;text-transform:uppercase;color:#2D4A32;font-weight:700;
-  text-align:left;width:100%;
+  /* Primary CTA — filled green "Checkout — $X" button that also opens
+     the contact form below. Full-width so it works one-thumb on mobile;
+     the embedded price keeps the customer anchored to total spend even
+     while filling in details. */
+  display:flex;align-items:center;justify-content:center;gap:12px;
+  background:#2D4A32;color:#C9A96E;border:none;cursor:pointer;
+  padding:14px 18px;border-radius:6px;margin:0;width:100%;
+  font-family:'Bebas Neue','DM Sans',sans-serif;font-size:1.05rem;
+  letter-spacing:.08em;text-transform:uppercase;font-weight:800;
+  transition:background .15s ease,transform .1s ease;
 }
-.ctc-cart-checkout-toggle:hover{color:#1a2e1c}
-.ctc-cart-checkout-toggle:focus-visible{outline:2px solid #C9A96E;outline-offset:3px;border-radius:3px}
+.ctc-cart-checkout-toggle:hover{background:#1a2e1c}
+.ctc-cart-checkout-toggle:active{transform:scale(.99)}
+.ctc-cart-checkout-toggle:focus-visible{outline:2px solid #C9A96E;outline-offset:3px}
+.ctc-cart-checkout-toggle .ctc-cart-toggle-price{
+  font-family:'Bebas Neue',sans-serif;color:#fff;
+  border-left:1px solid rgba(255,255,255,.28);padding-left:12px;
+  letter-spacing:.02em;
+}
 .ctc-cart-checkout-toggle .chev{
-  width:18px;height:18px;flex-shrink:0;transition:transform .25s ease;
-  color:#5a5a5a;
+  width:16px;height:16px;flex-shrink:0;transition:transform .25s ease;
+  color:rgba(201,169,110,.75);
 }
 .ctc-cart-checkout.is-open .ctc-cart-checkout-toggle .chev{transform:rotate(180deg)}
 .ctc-cart-checkout-body{
@@ -308,19 +329,21 @@
           </a>
         </div>
       </div>
-      <div class="ctc-cart-totals">
-        <span>Subtotal</span>
-        <strong class="ctc-cart-subtotal">$0</strong>
-      </div>
-      <form class="ctc-cart-checkout" novalidate>
-        <button type="button" class="ctc-cart-checkout-toggle" data-act="toggle-checkout"
-                aria-expanded="false" aria-controls="ctc-cart-checkout-body">
-          <span>Send the order</span>
-          <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"
-               stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <polyline points="6 9 12 15 18 9"></polyline>
-          </svg>
-        </button>
+      <div class="ctc-cart-footer">
+        <div class="ctc-cart-totals">
+          <span>Subtotal</span>
+          <strong class="ctc-cart-subtotal">$0</strong>
+        </div>
+        <form class="ctc-cart-checkout" novalidate>
+          <button type="button" class="ctc-cart-checkout-toggle" data-act="toggle-checkout"
+                  aria-expanded="false" aria-controls="ctc-cart-checkout-body">
+            <span>Checkout</span>
+            <span class="ctc-cart-toggle-price">$0</span>
+            <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"
+                 stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <polyline points="6 9 12 15 18 9"></polyline>
+            </svg>
+          </button>
         <div class="ctc-cart-checkout-body" id="ctc-cart-checkout-body">
           <p class="ctc-cart-note">We'll follow up to confirm details and send a payment link. Email or phone — one is enough.</p>
           <div class="ctc-cart-row">
@@ -334,6 +357,7 @@
           <button type="submit" class="ctc-cart-submit">Send Order</button>
         </div>
       </form>
+      </div>
       <div class="ctc-cart-success" hidden>
         <strong>Order sent.</strong>
         <p>Pat or the team will text or email shortly to confirm details and send a payment link.</p>
@@ -386,7 +410,14 @@
       `).join('');
     }
     const subtotal = cart.items.reduce((s, i) => s + (parseFloat(i.price) || 0) * (parseInt(i.qty, 10) || 1), 0);
-    wrap.querySelector('.ctc-cart-subtotal').textContent = '$' + formatPrice(subtotal);
+    const subtotalText = '$' + formatPrice(subtotal);
+    wrap.querySelector('.ctc-cart-subtotal').textContent = subtotalText;
+    const priceEl = wrap.querySelector('.ctc-cart-toggle-price');
+    if (priceEl) priceEl.textContent = subtotalText;
+    // Hide the entire sticky footer (subtotal + Checkout CTA) when the
+    // cart is empty — a $0 Checkout button would be a dead-end action.
+    const footer = wrap.querySelector('.ctc-cart-footer');
+    if (footer) footer.hidden = cart.items.length === 0;
     renderSuggest();
   }
 
@@ -440,6 +471,11 @@
     if (toggle) toggle.setAttribute('aria-expanded', 'false');
     wrap.querySelector('.ctc-cart-success').hidden = true;
     wrap.querySelector('.ctc-cart-error').hidden = true;
+    // renderItems already drives footer visibility from cart state, but
+    // we also need to flip it on after a previous success (when this
+    // function runs from openDrawer with a fresh cart load).
+    const footer = wrap.querySelector('.ctc-cart-footer');
+    if (footer) footer.hidden = cart.items.length === 0;
   }
 
   wrap.addEventListener('click', (e) => {
@@ -528,7 +564,11 @@
       cart = { items: [] };
       writeCart();
       checkoutForm.reset();
-      checkoutForm.hidden = true;
+      // Hide the entire sticky footer post-submit so the success card
+      // sits cleanly at the bottom — leaving an empty $0 subtotal +
+      // Checkout CTA visible alongside "Order sent" reads confused.
+      const footerEl = wrap.querySelector('.ctc-cart-footer');
+      if (footerEl) footerEl.hidden = true;
       const successEl = wrap.querySelector('.ctc-cart-success');
       successEl.hidden = false;
       const idEl = successEl.querySelector('.ctc-cart-success-id');
