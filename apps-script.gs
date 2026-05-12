@@ -3673,3 +3673,205 @@ function updateSheet() {
               stats.addedRows + ' SiteConfig/Pages row(s).');
   console.log('Row-list tabs (TrustStrip, Services, Steps, Sections, *_Tiles, *_Submenus) were left untouched.');
 }
+
+/* ─────────────────────────────────────────────────────────────
+ * _organizeTabs() — one-shot sheet reorganizer.
+ *
+ * Run from the Apps Script editor (Run → _organizeTabs) and it will:
+ *   1. Create or rebuild a Dashboard tab pinned at position 0 with
+ *      "last 7 days" stat tiles + recent-rows previews of every order
+ *      tab + a hyperlinked tab index grouped by category.
+ *   2. Color-code every known tab (red = orders, orange = live CMS,
+ *      yellow = page menus, green = page content, blue = catalogs,
+ *      purple = Bridge config).
+ *   3. Reorder tabs left-to-right by category so the daily-check tabs
+ *      sit closest to the Dashboard.
+ *   4. Log any tabs in the spreadsheet that aren't in the scheme —
+ *      those are orphans to review by hand.
+ *
+ * Safe to re-run. Touches tab colors / position / the Dashboard sheet
+ * only. Never edits data rows on the order or CMS tabs.
+ * ───────────────────────────────────────────────────────────── */
+function _organizeTabs() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+
+  const SCHEME = [
+    { color: '#1a1a1a', label: 'Dashboard',   tabs: ['Dashboard'] },
+    { color: '#d93025', label: 'Orders & leads',
+      tabs: ['Cart_Orders','Apparel_Orders','Booking_Leads','Bridge_Applications','Chat_Visitors','Chat_Logs'] },
+    { color: '#f9ab00', label: 'Live CMS',
+      tabs: ['Pages','Sections','SiteConfig','Blog','Events','Testimonials','TrustStrip','Photos','Galleries'] },
+    { color: '#fbbc04', label: 'Page menus',
+      tabs: ['Home_Tiles','Home_Submenus','Shop_Tiles','Shop_Submenus','Rentals_Tiles','Rentals_Submenus'] },
+    { color: '#34a853', label: 'Page content',
+      tabs: ['Services','Steps','Faqs','Journeys','Venues','Supporters','RentalsVibe','Accessories'] },
+    { color: '#4285f4', label: 'Catalogs',
+      tabs: ['ApparelProducts','ApparelColors','ApparelPlacements','Direct_Inventory','BookingLinks','Booking_Troubleshooting'] },
+    { color: '#a142f4', label: 'Bridge the Gap config',
+      tabs: ['BridgePricing','BridgeGaps','BridgeFeatures','BridgeCompare','BridgeBikeOptions'] },
+  ];
+
+  // Build / rebuild the Dashboard tab first so its gid is stable for
+  // any other links that reference it.
+  let dash = ss.getSheetByName('Dashboard');
+  if (!dash) dash = ss.insertSheet('Dashboard', 0);
+  _buildDashboard_(ss, dash, SCHEME);
+
+  // Apply colors + position in scheme order. ss.moveActiveSheet uses
+  // 1-indexed positions; pos++ steps left-to-right.
+  const known = new Set();
+  let pos = 0;
+  SCHEME.forEach(function(group) {
+    group.tabs.forEach(function(name) {
+      known.add(name);
+      const sh = ss.getSheetByName(name);
+      if (!sh) return;
+      sh.setTabColor(group.color);
+      ss.setActiveSheet(sh);
+      ss.moveActiveSheet(pos + 1);
+      pos++;
+    });
+  });
+
+  const orphans = ss.getSheets()
+    .map(function(sh) { return sh.getName(); })
+    .filter(function(n) { return !known.has(n); });
+
+  ss.setActiveSheet(ss.getSheetByName('Dashboard'));
+
+  console.log('_organizeTabs complete.');
+  console.log('Orphan tabs (not in scheme, left untouched): ' + (orphans.length ? orphans.join(', ') : 'none'));
+  return { orphans: orphans };
+}
+
+/* Builds the Dashboard tab in place. Clears existing content first so
+ * re-runs always produce a clean, current view. Uses live formulas
+ * (QUERY / COUNTIFS / HYPERLINK) rather than pre-computed values so
+ * the dashboard auto-refreshes whenever the underlying tabs change. */
+function _buildDashboard_(ss, dash, SCHEME) {
+  dash.clear();
+  dash.clearFormats();
+  dash.setHiddenGridlines(true);
+  dash.setColumnWidths(1, 8, 130);
+
+  const gid = function(name) {
+    const sh = ss.getSheetByName(name);
+    return sh ? sh.getSheetId() : null;
+  };
+  const tabHyperlink = function(name) {
+    const g = gid(name);
+    return g == null ? name : '=HYPERLINK("#gid=' + g + '","' + name + '")';
+  };
+
+  // Row 1: title banner
+  dash.getRange('A1:H1').merge()
+      .setValue('Cruise the Creek — Ops Dashboard')
+      .setFontSize(20).setFontWeight('bold')
+      .setBackground('#1a1a1a').setFontColor('#C9A96E')
+      .setHorizontalAlignment('center').setVerticalAlignment('middle');
+  dash.setRowHeight(1, 46);
+
+  // Row 2: refresh timestamp + manual-refresh hint
+  dash.getRange('A2:H2').merge()
+      .setValue('Built ' + Utilities.formatDate(new Date(), 'America/New_York', "yyyy-MM-dd 'at' h:mm a") +
+                ' — formulas below stay live. Re-run _organizeTabs() to rebuild this layout.')
+      .setFontSize(10).setFontStyle('italic').setFontColor('#5a5a5a')
+      .setHorizontalAlignment('center');
+
+  // Row 4: stats banner
+  dash.getRange('A4:H4').merge()
+      .setValue('  LAST 7 DAYS').setFontWeight('bold').setFontSize(11)
+      .setFontColor('#fff').setBackground('#2D4A32')
+      .setHorizontalAlignment('left').setVerticalAlignment('middle');
+  dash.setRowHeight(4, 28);
+
+  // Rows 5-6: stat tiles. Label row above, formula row below, styled
+  // like cards. COUNTIFS on the timestamp column (B) — wrapped in
+  // IFERROR so a missing tab renders 0 instead of #REF.
+  const tiles = [
+    { col: 1, label: 'Cart orders',    tab: 'Cart_Orders' },
+    { col: 2, label: 'Apparel orders', tab: 'Apparel_Orders' },
+    { col: 3, label: 'Booking leads',  tab: 'Booking_Leads' },
+    { col: 4, label: 'Bridge apps',    tab: 'Bridge_Applications' },
+    { col: 5, label: 'Chat visitors',  tab: 'Chat_Visitors' },
+  ];
+  tiles.forEach(function(t) {
+    dash.getRange(5, t.col).setValue(t.label)
+        .setFontSize(9).setFontColor('#5a5a5a').setFontWeight('bold')
+        .setHorizontalAlignment('center').setBackground('#f5f0e8');
+    dash.getRange(6, t.col)
+        .setFormula('=IFERROR(COUNTIFS(' + t.tab + '!B:B, ">="&TODAY()-7), 0)')
+        .setFontSize(22).setFontWeight('bold').setFontColor('#2D4A32')
+        .setHorizontalAlignment('center').setBackground('#fff');
+  });
+  dash.setRowHeight(5, 22);
+  dash.setRowHeight(6, 50);
+  dash.getRange(5, 1, 2, 5).setBorder(true, true, true, true, true, true,
+                                       '#e6dfd0', SpreadsheetApp.BorderStyle.SOLID);
+
+  // Recent-rows sections. Each is a banner row + a QUERY pulling the
+  // most recent 10 rows of that tab. SELECT picks the columns most
+  // useful for a glance; LABEL renames headers; LIMIT 10 caps height.
+  let row = 8;
+  const sections = [
+    { tab: 'Cart_Orders',
+      title: 'RECENT CART ORDERS',
+      select: 'A, B, C, D, E, F, H, J',
+      labels: "A 'Order ID', B 'When', C 'First', D 'Last', E 'Email', F 'Phone', H 'Subtotal', J 'Notes'" },
+    { tab: 'Apparel_Orders',
+      title: 'RECENT APPAREL ORDERS',
+      select: 'A, B, C, D, E, F, G, H, I, K, L',
+      labels: "A 'Order ID', B 'When', C 'First', D 'Last', E 'Email', F 'Phone', G 'Product', H 'Color', I 'Size', K 'Qty', L 'Total'" },
+    { tab: 'Booking_Leads',
+      title: 'RECENT BOOKING LEADS',
+      select: 'A, B, C, D, E, F, G, H, I',
+      labels: "A 'Lead ID', B 'When', C 'Name', D 'Email', E 'Phone', F 'Product', G 'Date', H 'Time', I 'Qty'" },
+    { tab: 'Bridge_Applications',
+      title: 'RECENT BRIDGE APPLICATIONS',
+      select: 'A, B, C, D, E, F, I, K, L, M',
+      labels: "A 'App ID', B 'When', C 'First', D 'Last', E 'Email', F 'Phone', I 'City', K 'Primary need', L 'Bike', M 'Status'" },
+  ];
+  sections.forEach(function(s) {
+    dash.getRange(row, 1, 1, 8).merge()
+        .setValue('  ' + s.title).setFontWeight('bold').setFontSize(11)
+        .setFontColor('#fff').setBackground('#2D4A32')
+        .setHorizontalAlignment('left').setVerticalAlignment('middle');
+    dash.setRowHeight(row, 26);
+    row++;
+    // QUERY needs the source range as A1 notation. Use A:Z to cover any
+    // column the section selects. IFERROR wraps the whole thing so an
+    // empty tab renders a friendly note instead of #N/A.
+    const formula = '=IFERROR(QUERY(' + s.tab + '!A:Z, ' +
+                    '"SELECT ' + s.select + ' WHERE B IS NOT NULL ORDER BY B DESC LIMIT 10 ' +
+                    'LABEL ' + s.labels + '", 1), "No rows yet — first ' + s.tab.toLowerCase().replace('_',' ') + ' will appear here.")';
+    dash.getRange(row, 1).setFormula(formula);
+    row += 12; // 1 header + up to 10 data rows + 1 spacer
+  });
+
+  // Tab index — every tab in the scheme, grouped by category, with
+  // hyperlinks. Skip Dashboard (we're on it) and skip groups with no
+  // matching tabs in the spreadsheet.
+  dash.getRange(row, 1, 1, 8).merge()
+      .setValue('  TAB INDEX').setFontWeight('bold').setFontSize(11)
+      .setFontColor('#fff').setBackground('#2D4A32')
+      .setHorizontalAlignment('left').setVerticalAlignment('middle');
+  dash.setRowHeight(row, 26);
+  row++;
+  SCHEME.forEach(function(group) {
+    if (group.label === 'Dashboard') return;
+    const present = group.tabs.filter(function(t) { return ss.getSheetByName(t); });
+    if (!present.length) return;
+    dash.getRange(row, 1).setValue(group.label.toUpperCase())
+        .setFontWeight('bold').setFontSize(10).setFontColor(group.color);
+    row++;
+    // Render 4 tabs per row across cols A-D, wrap to next row as needed.
+    let col = 1;
+    present.forEach(function(name) {
+      dash.getRange(row, col).setFormula(tabHyperlink(name)).setFontSize(10);
+      col++;
+      if (col > 4) { col = 1; row++; }
+    });
+    if (col !== 1) row++; // close any partial row
+    row++; // group spacer
+  });
+}
