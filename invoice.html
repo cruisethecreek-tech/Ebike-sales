@@ -1719,6 +1719,31 @@
         // ─── CATALOG / PICKER ─────────────────────────────────────────────
         var catalogCache = { bikes: [], accessories: [], apparel: [] };
 
+        // When the JSONP catalog fetch fails (Project C handler is offline
+        // or returning a stub instead of bikes/accessories/apparel),
+        // hide the catalog-dependent picker options so the operator can't
+        // tap a dead button. Installation / Delivery / Custom (free text)
+        // stay visible and become the obvious path.
+        function markCatalogOffline(reason) {
+            const statusEl = document.getElementById('pickerStatus');
+            statusEl.textContent = reason + ' — use Custom (free text) to add items.';
+            statusEl.classList.remove('has-data');
+            console.warn('[invoice] catalog offline:', reason);
+
+            const picker = document.getElementById('categoryPicker');
+            ['bike', 'accessory', 'apparel'].forEach(val => {
+                const opt = picker.querySelector('option[value="' + val + '"]');
+                if (opt) opt.style.display = 'none';
+            });
+            // If the user had already picked one of the now-hidden options,
+            // reset back to the prompt so the empty Add button isn't sitting
+            // there blocked.
+            if (['bike', 'accessory', 'apparel'].indexOf(picker.value) !== -1) {
+                picker.value = '';
+                onCategoryChange();
+            }
+        }
+
         function loadCatalog() {
             const statusEl = document.getElementById('pickerStatus');
             statusEl.textContent = 'Loading catalog…';
@@ -1728,7 +1753,7 @@
             const timeoutMs = 10000;
 
             const timeoutId = setTimeout(() => {
-                statusEl.textContent = 'Catalog timed out — use Custom to add items manually.';
+                markCatalogOffline('Inventory catalog timed out');
                 cleanup();
             }, timeoutMs);
 
@@ -1740,7 +1765,10 @@
             window[callbackName] = function(data) {
                 clearTimeout(timeoutId);
                 try {
-                    if (data && data.status === 'ok') {
+                    if (data && data.status === 'ok' &&
+                        ((data.bikes && data.bikes.length) ||
+                         (data.accessories && data.accessories.length) ||
+                         (data.apparel && data.apparel.length))) {
                         catalogCache.bikes = data.bikes || [];
                         catalogCache.accessories = data.accessories || [];
                         catalogCache.apparel = data.apparel || [];
@@ -1749,10 +1777,12 @@
                                                catalogCache.apparel.length + ' apparel';
                         statusEl.classList.add('has-data');
                     } else {
-                        statusEl.textContent = 'Catalog could not load — use Custom to add items manually.';
+                        // Handler responded but with no usable data — same
+                        // user-visible result as offline (no items to pick).
+                        markCatalogOffline('Inventory catalog returned no items');
                     }
                 } catch (err) {
-                    statusEl.textContent = 'Catalog error — use Custom to add items manually.';
+                    markCatalogOffline('Inventory catalog parse error');
                 }
                 cleanup();
             };
@@ -1761,7 +1791,7 @@
             script.src = AS_URL + '?action=getInvoiceCatalog&callback=' + encodeURIComponent(callbackName);
             script.onerror = () => {
                 clearTimeout(timeoutId);
-                statusEl.textContent = 'Catalog offline — use Custom to add items manually.';
+                markCatalogOffline('Inventory catalog unavailable');
                 cleanup();
             };
             document.head.appendChild(script);
