@@ -871,6 +871,43 @@
             .invoice-number-block { text-align: left; }
             .invoice-info { grid-template-columns: 1fr; gap: 1.25rem; }
         }
+
+        /* Print: hide everything except the invoice preview panel.
+           Ctrl/Cmd+P now produces a clean single-page invoice
+           without the operator-facing form/picker/totals/buttons. */
+        @media print {
+            body {
+                padding: 0;
+                background: white;
+            }
+            /* Strip every page-chrome chunk that isn't the printable
+               invoice. Form column, header bar, status messages, and
+               the post-submit payment-link box all hide. */
+            header,
+            .form-wrapper,
+            .status-message,
+            .payment-link-box,
+            .actions {
+                display: none !important;
+            }
+            /* Drop the two-column grid so the invoice fills the page. */
+            .container { display: block; }
+            .invoice-preview {
+                max-height: none !important;
+                box-shadow: none !important;
+                border-radius: 0 !important;
+                margin: 0;
+                padding: 0;
+                overflow: visible;
+            }
+            /* Prevent the invoice body from being chopped in half across
+               two pages — browsers respect this for "Avoid page break". */
+            .invoice-banner,
+            .invoice-body,
+            .invoice-table {
+                page-break-inside: avoid;
+            }
+        }
     </style>
 </head>
 <body>
