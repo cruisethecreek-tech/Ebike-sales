@@ -1547,7 +1547,7 @@
                 submitBtn.disabled = true;
                 showStatus('Saving paid invoice…', 'success');
                 try {
-                    logOrderToSheet(invoiceData);
+                    logOrderToSheet(invoiceData, '');
                     showStatus('Invoice saved as paid (' + (depositMethod || 'cash') + ') for ' + invoiceData.customerName, 'success');
                     document.getElementById('paymentLinkBox').classList.remove('active');
                     setTimeout(loadNextInvoiceNumber, 1500);
@@ -1579,7 +1579,7 @@
                     showStatus('Payment link created for ' + invoiceData.customerName, 'success');
                     document.getElementById('paymentLinkDisplay').textContent = data.paymentLink;
                     document.getElementById('paymentLinkBox').classList.add('active');
-                    logOrderToSheet(invoiceData);
+                    logOrderToSheet(invoiceData, data.paymentLink);
 
                     // Pre-fetch the next invoice number so a new invoice can be started without resetting
                     setTimeout(loadNextInvoiceNumber, 1500);
@@ -1593,9 +1593,22 @@
             }
         }
 
-        function logOrderToSheet(invoiceData) {
+        function logOrderToSheet(invoiceData, paymentLink) {
+            const callbackName = 'addOrderCb_' + Date.now();
+            window[callbackName] = function(resp) {
+                if (resp && resp.ok) {
+                    console.log('[addOrder] saved', resp.invoiceNumber || invoiceData.invoiceNumber);
+                } else {
+                    console.warn('[addOrder] sheet write failed:', resp);
+                    showStatus('Warning: invoice was generated but not saved to the Sheet. ' +
+                               'Check it manually before relying on the Balance Due page.', 'error');
+                }
+                delete window[callbackName];
+                if (script.parentNode) script.parentNode.removeChild(script);
+            };
             const params = new URLSearchParams({
                 action          : 'addOrder',
+                callback        : callbackName,
                 invoiceNumber   : invoiceData.invoiceNumber || '',
                 invoiceDate     : invoiceData.invoiceDate || '',
                 dueDate         : invoiceData.dueDate || '',
@@ -1614,9 +1627,19 @@
                 paymentMode     : invoiceData.paymentMode || 'full',
                 depositMethod   : invoiceData.depositMethod || '',
                 depositRef      : invoiceData.depositRef || '',
-                paymentNotes    : invoiceData.paymentNotes || ''
+                paymentNotes    : invoiceData.paymentNotes || '',
+                paymentLink     : paymentLink || ''
             });
-            fetch(AS_URL + '?' + params.toString(), { redirect: 'follow' }).catch(() => {});
+            const script = document.createElement('script');
+            script.src = AS_URL + '?' + params.toString();
+            script.onerror = () => {
+                console.warn('[addOrder] script load failed — Sheet write probably did not happen');
+                showStatus('Warning: invoice was generated but the sheet save request failed. ' +
+                           'Confirm the row landed in the Invoices tab before relying on it.', 'error');
+                delete window[callbackName];
+                if (script.parentNode) script.parentNode.removeChild(script);
+            };
+            document.head.appendChild(script);
         }
 
         function showStatus(message, type) {
