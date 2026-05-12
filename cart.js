@@ -504,13 +504,16 @@
     if (c.style) parts.push(c.style);
     if (c.size)  parts.push(c.size);
     if (c.color) parts.push(c.color);
+    // Apparel-specific: print placement (chest, back, sleeve, etc.).
+    // Bikes don't pass this, so the slot stays empty there.
+    if (c.placement) parts.push(c.placement);
     let html = parts.map(esc).join(' · ');
     if (it.condition === 'used') html += ' <span class="used-tag">Used</span>';
     return html || '<span style="color:#aaa">—</span>';
   }
   function configSignature(it) {
     const c = it.configuration || {};
-    return [it.kind || '', it.brand || '', it.name || '', c.style || '', c.size || '', c.color || '', it.condition || ''].join('|');
+    return [it.kind || '', it.brand || '', it.name || '', c.style || '', c.size || '', c.color || '', c.placement || '', it.condition || ''].join('|');
   }
 
   // ── Public API ───────────────────────────────────────────────

@@ -168,6 +168,13 @@ main{flex:1;max-width:1080px;width:100%;margin:0 auto;padding:28px 24px 64px}
   text-transform:uppercase;transition:background .2s ease,transform .15s ease}
 .submit-btn:hover:not(:disabled){background:#dbb978;transform:translateY(-1px)}
 .submit-btn:disabled{opacity:.55;cursor:not-allowed}
+.cart-btn{width:100%;margin-top:10px;background:transparent;color:var(--tan);
+  border:1.5px solid var(--tan);padding:13px 22px;border-radius:6px;
+  font-size:.86rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;
+  cursor:pointer;transition:background .2s ease,color .2s ease,transform .15s ease}
+.cart-btn:hover:not(:disabled){background:var(--tan);color:var(--dark);transform:translateY(-1px)}
+.cart-btn:disabled{opacity:.55;cursor:not-allowed}
+.cart-btn.is-added{background:var(--tan);color:var(--dark)}
 .form-note{font-size:.78rem;color:rgba(255,255,255,.6);text-align:center;margin-top:10px;line-height:1.5}
 
 /* SUCCESS MODAL */
@@ -520,7 +527,10 @@ function renderOrderPanel(available){
       <button type="submit" class="submit-btn" id="submit-btn" ${submitDisabled ? 'disabled' : ''}>
         ${available ? 'Submit order' : 'Notify me when this drops'}
       </button>
-      <div class="form-note">No payment now. We'll confirm details and arrange pickup or delivery.</div>
+      ${available ? `<button type="button" class="cart-btn" id="cart-btn">Add to Cart</button>` : ''}
+      <div class="form-note">${available
+        ? 'Submit checks out one item via Stripe. Use Add to Cart to bundle with bikes or other apparel.'
+        : "We'll confirm details and arrange pickup or delivery."}</div>
     </form>
   `;
   bindForm(product, available);
@@ -565,6 +575,56 @@ function bindForm(product, available){
     e.preventDefault();
     submitOrder(product, available);
   });
+
+  // Secondary action: drop this configured item into the shared cart
+  // (cart.js) so visitors can stack multiple prints / bikes / etc.
+  // before checking out via the cart drawer's submit. Only present
+  // when the print is buyable (see the form render branch above).
+  const cartBtn = document.getElementById('cart-btn');
+  if (cartBtn) {
+    cartBtn.addEventListener('click', () => addToCart(product));
+  }
+}
+
+function addToCart(product){
+  if (!window.ctcCart || !window.ctcCart.add) {
+    alert("Cart isn't loaded yet — give the page a second and try again.");
+    return;
+  }
+  if (!SELECTION.color) { alert('Pick a color first.'); return; }
+  if (!SELECTION.size)  { alert('Pick a size first.');  return; }
+  if (!SELECTION.placement) { alert('Pick a print placement first.'); return; }
+
+  const price = parseFloat(product.base_price) || 30;
+  window.ctcCart.add({
+    kind:     'apparel',
+    brand:    'Cruise the Creek',
+    name:     product.name,
+    category: 'Apparel',
+    price:    price,
+    configuration: {
+      color:     SELECTION.color,
+      size:      SELECTION.size,
+      placement: SELECTION.placement,
+    },
+    condition: 'new',
+    qty:       SELECTION.qty,
+  });
+
+  // Brief on-button confirmation. The cart FAB also bumps + un-hides
+  // automatically (cart.js handles that side). Restore the button
+  // label after a beat so a second click on the same product still
+  // reads as an obvious action rather than a stuck state.
+  const btn = document.getElementById('cart-btn');
+  if (btn) {
+    const original = btn.textContent;
+    btn.textContent = 'Added ✓';
+    btn.classList.add('is-added');
+    setTimeout(() => {
+      btn.textContent = original;
+      btn.classList.remove('is-added');
+    }, 1400);
+  }
 }
 
 /* ── submit ─────────────────────────────────────────── */
