@@ -584,6 +584,53 @@ const form = document.getElementById('application-form');
 const formMsg = document.getElementById('form-message');
 const submitBtn = document.getElementById('submit-btn');
 
+// Abandon recovery — application is long (name, address, primary need…),
+// so a refresh or accidental back-button shouldn't cost the visitor
+// 5 minutes of typing. Restore on page load, auto-save on every input,
+// clear on success. 30-day expiry so stale drafts don't linger.
+const DRAFT_KEY = 'ctc_bridge_app_draft_v1';
+const DRAFT_MAX_AGE_MS = 30 * 24 * 60 * 60 * 1000;
+const DRAFT_FIELDS = ['first_name','last_name','email','phone','birthday','address','city','zip','primary_need'];
+function readDraft() {
+  try {
+    const raw = localStorage.getItem(DRAFT_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    if (!parsed || !parsed.ts || (Date.now() - parsed.ts) > DRAFT_MAX_AGE_MS) {
+      localStorage.removeItem(DRAFT_KEY);
+      return null;
+    }
+    return parsed.data || null;
+  } catch (e) { return null; }
+}
+function writeDraft(data) {
+  try { localStorage.setItem(DRAFT_KEY, JSON.stringify({ ts: Date.now(), data })); } catch (e) {}
+}
+function clearDraft() {
+  try { localStorage.removeItem(DRAFT_KEY); } catch (e) {}
+}
+(function hydrateDraft() {
+  const draft = readDraft();
+  if (draft) {
+    DRAFT_FIELDS.forEach(name => {
+      const el = form.querySelector(`[name="${name}"]`);
+      if (el && draft[name] != null && el.value === '') el.value = draft[name];
+    });
+  }
+  form.addEventListener('input', () => {
+    const data = {};
+    let hasAny = false;
+    DRAFT_FIELDS.forEach(name => {
+      const el = form.querySelector(`[name="${name}"]`);
+      if (el) {
+        data[name] = el.value;
+        if (el.value) hasAny = true;
+      }
+    });
+    if (hasAny) writeDraft(data); else clearDraft();
+  });
+})();
+
 // Same /exec deployment as the CMS read above — handleBridgeApplication
 // branches on ?action=bridgeApplication. GET (not POST) avoids the
 // CORS preflight that Apps Script can't respond to without extra setup.
@@ -621,6 +668,7 @@ form.addEventListener('submit', e => {
       document.getElementById('successModal').classList.add('shown');
       form.reset();
       clearBikeSelection();
+      clearDraft();
     })
     .catch(err => {
       console.error('[bridge-application] submit failed:', err);

@@ -1,6 +1,22 @@
 /**
  * Cruise the Creek — Site menu API (multi-page)
  *
+ * DEPLOYMENT NOTE — tech debt:
+ *   The live site currently uses THREE Apps Script web app deployments:
+ *     1. AKfycbxjg2Zs...  ← THIS file's code. CMS reads + customer-facing writes
+ *                           (apparelOrder, cartOrder, bookingLead, bridgeApplication,
+ *                           chatLog, chatVisitor). Used by 30+ pages.
+ *     2. AKfycbyxVMuF...  ← Separate Apps Script project. Owns getBikeInventory
+ *                           (called by heybike/jasion/mooncool/velotric/salespro/quiz
+ *                           brand pages) plus its own cartOrder/apparelOrder handlers.
+ *     3. AKfycbxmz...     ← Separate Apps Script project. Owns admin actions:
+ *                           getOpenBalances, getInvoiceCatalog, getNextInvoiceNumber,
+ *                           saveColors. Used by balance.html, invoice.html,
+ *                           migrate-images.html.
+ *   To consolidate to a single deployment: paste the .gs source from projects 2 + 3
+ *   into this file, merge the dispatchers, then sweep all AS_URL constants in the
+ *   repo to one URL and redeploy once.
+ *
  * One Apps Script web app powers every hub page (home, shop, …).
  * The script picks which sheet tabs to read based on the ?page=
  * query param.  Each page uses two tabs:  <Page>_Tiles  and  <Page>_Submenus.
