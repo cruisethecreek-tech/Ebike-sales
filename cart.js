@@ -33,13 +33,16 @@
   const STORAGE_KEY = 'ctc_cart_v1';
   const DRAFT_KEY = 'ctc_cart_checkout_draft_v1';
   const DRAFT_MAX_AGE_MS = 30 * 24 * 60 * 60 * 1000; // 30 days
-  // Tech debt: site uses 3 Apps Script deployment URLs across different code paths.
-  // This URL (AKfycbyxVMuF...) owns cartOrder/apparelOrder + getBikeInventory used by
-  // brand pages. The CMS read + Bridge application live on AKfycbxjg2Zs...; admin
-  // pages (balance, invoice, migrate-images) live on AKfycbxmz.... To unify, the .gs
-  // source from the other two projects needs to be merged into this repo's
-  // apps-script.gs, then one deployment URL swept everywhere.
-  const AS_URL = 'https://script.google.com/macros/s/AKfycbyxVMuFEUeR8_YqM1VVnfPSVPnDhdCs_63dDthZ4jODlTDGQ-7yXSkQeYT-Ux0SM8tw/exec';
+  // AS_URL is Project A (AKfycbxjg2Zs...), same deployment that serves
+  // every customer-facing write (CMS reads, apparelOrder, cartOrder,
+  // bookingLead, bridgeApplication, chatLog). Cart used to point at
+  // Project B (AKfycbyxVMuF...) for `cartOrder`, but Project B's doGet
+  // got replaced at some point with an HTML-renderer template that
+  // throws "No HTML file named Index" before reaching the action
+  // dispatcher — every cart submit silently bounced. Project B still
+  // owns `getBikeInventory` for the brand pages, but cart.js no longer
+  // touches it. Full multi-deployment cleanup is tracked separately.
+  const AS_URL = 'https://script.google.com/macros/s/AKfycbxjg2ZsPCZNsmJEStYA0bRdsnkm4nNS-m-HNhm_Gin56VIVeYWVRE5j51j30zVHhb4PmQ/exec';
 
   // ── Styles ───────────────────────────────────────────────────
   const STYLES = `
@@ -599,18 +602,41 @@
         page:      (typeof location !== 'undefined' && location.href) ? location.href : '',
       });
       let orderId = '';
+      let succeeded = false;
+      let serverError = '';
       try {
         const r = await fetch(AS_URL + '?' + params.toString(), { redirect: 'follow' });
         const text = await r.text();
         try {
           const j = JSON.parse(text);
-          if (j && j.id) orderId = j.id;
-        } catch (e) {}
+          if (j && (j.ok === true || j.id)) {
+            succeeded = true;
+            if (j.id) orderId = j.id;
+          } else if (j && j.error) {
+            serverError = String(j.error);
+          } else {
+            serverError = 'Unexpected response from the server.';
+          }
+        } catch (parseErr) {
+          // Non-JSON body almost always means the Apps Script doGet
+          // threw and returned an HTML error page (e.g. "No HTML file
+          // named Index"). That's a real server-side failure — surface
+          // it instead of pretending the submit worked, which is how
+          // the previous silent-failure bug went unnoticed.
+          console.error('[cart] submit got non-JSON response:', text.slice(0, 300));
+          serverError = 'The order didn\'t go through on our end.';
+        }
       } catch (netErr) {
-        // Apps Script often redirects in ways that throw a CORS-style error
-        // mid-request even when the server-side write succeeded. Treat as
-        // success — the customer's much better off with a "we got it" than
-        // a scary error on a likely-good submit.
+        // Apps Script's 302 → /macros redirect chain occasionally throws
+        // a CORS-style error even when the server-side write succeeded.
+        // Treat this specific case as tentative success, but log loudly
+        // so we can spot it in browser DevTools if a pattern emerges.
+        console.warn('[cart] submit fetch threw — assuming success per Apps Script redirect quirk:', netErr);
+        succeeded = true;
+      }
+
+      if (!succeeded) {
+        return showError(serverError + ' Please call or text 330-406-9686 — we\'ll take the order by hand.');
       }
       cart = { items: [] };
       writeCart();
