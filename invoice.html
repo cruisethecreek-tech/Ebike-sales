@@ -1862,22 +1862,104 @@
             }
 
             itemPicker.innerHTML = '<option value="">Select an item…</option>';
-            list.forEach((item, idx) => {
-                const opt = document.createElement('option');
-                opt.value = idx;
-                opt.textContent = item.label;
-                if (cat === 'apparel') {
-                    const swatch = apparelColorSwatch(item.label);
-                    if (swatch) {
-                        opt.style.backgroundColor = swatch.bg;
-                        opt.style.color = swatch.fg;
+
+            if (cat === 'apparel') {
+                // Group apparel options by color into <optgroup>s with a
+                // colored unicode square in the label. Even on browsers
+                // that ignore per-option background-color styling (iOS
+                // Safari is the notable holdout), the group headers stay
+                // visible and let the operator scan by color first, then
+                // pick the size.
+                const groups = {};
+                const groupOrder = [];
+                list.forEach((item, idx) => {
+                    const key = apparelColorKey(item.name);
+                    if (!groups[key]) {
+                        groups[key] = [];
+                        groupOrder.push(key);
                     }
-                }
-                itemPicker.appendChild(opt);
-            });
+                    groups[key].push({ item, idx });
+                });
+                groupOrder.forEach(key => {
+                    const og = document.createElement('optgroup');
+                    og.label = (APPAREL_GROUP_EMOJI[key] || '⬛') + '  ' + key;
+                    groups[key].forEach(({ item, idx }) => {
+                        const opt = document.createElement('option');
+                        opt.value = idx;
+                        opt.textContent = item.name;
+                        const swatch = apparelColorSwatch(item.name);
+                        if (swatch) {
+                            opt.style.backgroundColor = swatch.bg;
+                            opt.style.color = swatch.fg;
+                        }
+                        og.appendChild(opt);
+                    });
+                    itemPicker.appendChild(og);
+                });
+            } else {
+                // Bikes / accessories — flat list, prefix bikes with
+                // brand so "Ranger S" and "Ranger 3.0 Pro" aren't
+                // ambiguous when the Heybike + Velotric naming overlaps.
+                list.forEach((item, idx) => {
+                    const opt = document.createElement('option');
+                    opt.value = idx;
+                    opt.textContent = (cat === 'bike' && item.brand)
+                        ? (item.brand + ' — ' + item.name)
+                        : item.name;
+                    itemPicker.appendChild(opt);
+                });
+            }
             itemPicker.disabled = false;
             addBtn.disabled = true;
         }
+
+        // Pull a color-group key out of an apparel label so we can put
+        // every garment of the same color into one <optgroup>. Order
+        // matters: the multi-word "Premium Black" check has to come
+        // before the bare BLACK match, otherwise a Premium Black tee
+        // collapses into the regular Black group.
+        function apparelColorKey(label) {
+            if (!label) return 'Other';
+            const t = String(label).toUpperCase();
+            if (/PREMIUM\s+BLACK/.test(t))            return 'Premium Black';
+            if (/\bBLACK\b/.test(t))                  return 'Black';
+            if (/\bWHITE\b/.test(t))                  return 'White';
+            if (/\b(GREEN|FOREST|OLIVE)\b/.test(t))   return 'Green';
+            if (/\b(SAND|BEIGE|CREAM|TAN)\b/.test(t)) return 'Sand';
+            if (/\b(GREY|GRAY|CHARCOAL)\b/.test(t))   return 'Gray';
+            if (/\b(NAVY|BLUE|ROYAL)\b/.test(t))      return 'Blue';
+            if (/\bRED\b/.test(t))                    return 'Red';
+            if (/\b(MAROON|BURGUNDY)\b/.test(t))      return 'Maroon';
+            if (/\bORANGE\b/.test(t))                 return 'Orange';
+            if (/\bYELLOW\b/.test(t))                 return 'Yellow';
+            if (/\bPINK\b/.test(t))                   return 'Pink';
+            if (/\bPURPLE\b/.test(t))                 return 'Purple';
+            if (/\bBROWN\b/.test(t))                  return 'Brown';
+            return 'Other';
+        }
+
+        // Emoji marker prefixed to each <optgroup> label. The unicode
+        // colored squares (🟩 🟫 ⬛ ⬜ …) are universally renderable —
+        // they survive even where per-option CSS doesn't, which is the
+        // whole point: the operator can scan-by-color from the group
+        // headers alone.
+        const APPAREL_GROUP_EMOJI = {
+            'Premium Black': '🖤',
+            'Black':         '⬛',
+            'White':         '⬜',
+            'Green':         '🟩',
+            'Sand':          '🟫',
+            'Gray':          '◾',
+            'Blue':          '🟦',
+            'Red':           '🟥',
+            'Maroon':        '🟥',
+            'Orange':        '🟧',
+            'Yellow':        '🟨',
+            'Pink':          '🟪',
+            'Purple':        '🟪',
+            'Brown':         '🟫',
+            'Other':         '⬛',
+        };
 
         // Map an apparel label like "Cruise the Creek T-Shirt — GREEN, L"
         // to a background/foreground color so the option is visually
