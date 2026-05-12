@@ -31,6 +31,8 @@
   if (window.ctcCart) return; // idempotent — only one cart per page
 
   const STORAGE_KEY = 'ctc_cart_v1';
+  const DRAFT_KEY = 'ctc_cart_checkout_draft_v1';
+  const DRAFT_MAX_AGE_MS = 30 * 24 * 60 * 60 * 1000; // 30 days
   // Tech debt: site uses 3 Apps Script deployment URLs across different code paths.
   // This URL (AKfycbyxVMuF...) owns cartOrder/apparelOrder + getBikeInventory used by
   // brand pages. The CMS read + Bridge application live on AKfycbxjg2Zs...; admin
@@ -292,6 +294,29 @@
   }
   let cart = readCart();
 
+  // Abandon recovery — store the in-flight contact details so a visitor
+  // who closes the drawer (or the tab) mid-checkout finds the same
+  // fields filled in when they come back. 30-day expiry keeps stale
+  // drafts from lingering. Cleared on successful submit.
+  function readDraft() {
+    try {
+      const raw = localStorage.getItem(DRAFT_KEY);
+      if (!raw) return null;
+      const parsed = JSON.parse(raw);
+      if (!parsed || !parsed.ts || (Date.now() - parsed.ts) > DRAFT_MAX_AGE_MS) {
+        localStorage.removeItem(DRAFT_KEY);
+        return null;
+      }
+      return parsed.data || null;
+    } catch (e) { return null; }
+  }
+  function writeDraft(data) {
+    try { localStorage.setItem(DRAFT_KEY, JSON.stringify({ ts: Date.now(), data })); } catch (e) {}
+  }
+  function clearDraft() {
+    try { localStorage.removeItem(DRAFT_KEY); } catch (e) {}
+  }
+
   // ── DOM ───────────────────────────────────────────────────────
   const fab = document.createElement('button');
   fab.className = 'ctc-cart-fab';
@@ -516,6 +541,32 @@
 
   // ── Checkout submit ──────────────────────────────────────────
   const checkoutForm = wrap.querySelector('.ctc-cart-checkout');
+
+  // Hydrate the form from any saved draft, then auto-save on every input
+  // so progress survives drawer close / tab close / accidental nav.
+  const DRAFT_FIELDS = ['firstName', 'lastName', 'email', 'phone', 'notes'];
+  (function bindCheckoutDraftRecovery() {
+    const draft = readDraft();
+    if (draft) {
+      DRAFT_FIELDS.forEach(name => {
+        const el = checkoutForm.querySelector(`[name="${name}"]`);
+        if (el && draft[name] != null && el.value === '') el.value = draft[name];
+      });
+    }
+    checkoutForm.addEventListener('input', () => {
+      const data = {};
+      let hasAny = false;
+      DRAFT_FIELDS.forEach(name => {
+        const el = checkoutForm.querySelector(`[name="${name}"]`);
+        if (el) {
+          data[name] = el.value;
+          if (el.value) hasAny = true;
+        }
+      });
+      if (hasAny) writeDraft(data); else clearDraft();
+    });
+  })();
+
   checkoutForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     const errEl = wrap.querySelector('.ctc-cart-error');
@@ -564,6 +615,7 @@
       cart = { items: [] };
       writeCart();
       checkoutForm.reset();
+      clearDraft();
       // Hide the entire sticky footer post-submit so the success card
       // sits cleanly at the bottom — leaving an empty $0 subtotal +
       // Checkout CTA visible alongside "Order sent" reads confused.

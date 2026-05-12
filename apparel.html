@@ -332,6 +332,34 @@ const FALLBACK_PLACEMENTS = [
 let DATA = { products: [], colors: [], placements: FALLBACK_PLACEMENTS.slice() };
 let SELECTION = { productId: null, color: null, size: null, placement: null, qty: 1 };
 
+// Abandon recovery — save personal info as the visitor types so a refresh,
+// product swap, or accidental nav doesn't wipe their name/email/phone. The
+// form re-renders when the product changes (innerHTML in bindForm), so
+// hydration runs each time the inputs come back into the DOM. Cleared on
+// successful Stripe submit; "Add to Cart" intentionally does NOT clear,
+// since the visitor may return to single-item buy later.
+const DRAFT_KEY = 'ctc_apparel_order_draft_v1';
+const DRAFT_MAX_AGE_MS = 30 * 24 * 60 * 60 * 1000;
+const DRAFT_FIELD_IDS = ['f-first','f-last','f-email','f-phone','f-comments'];
+function readDraft(){
+  try {
+    const raw = localStorage.getItem(DRAFT_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    if (!parsed || !parsed.ts || (Date.now() - parsed.ts) > DRAFT_MAX_AGE_MS) {
+      localStorage.removeItem(DRAFT_KEY);
+      return null;
+    }
+    return parsed.data || null;
+  } catch (e) { return null; }
+}
+function writeDraft(data){
+  try { localStorage.setItem(DRAFT_KEY, JSON.stringify({ ts: Date.now(), data })); } catch (e) {}
+}
+function clearDraft(){
+  try { localStorage.removeItem(DRAFT_KEY); } catch (e) {}
+}
+
 function esc(s){ return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 function isTrue(v){ return v === true || v === 'TRUE' || v === 'true' || v === 1; }
 function resolveImg(name){
@@ -571,9 +599,33 @@ function bindForm(product, available){
     recalc();
   });
 
-  document.getElementById('order-form').addEventListener('submit', e => {
+  const orderForm = document.getElementById('order-form');
+  orderForm.addEventListener('submit', e => {
     e.preventDefault();
     submitOrder(product, available);
+  });
+
+  // Hydrate personal-info fields from a saved draft (if present + fresh),
+  // then auto-save on every input. Hydration only fills empty inputs so a
+  // visitor mid-typing isn't overwritten.
+  const draft = readDraft();
+  if (draft) {
+    DRAFT_FIELD_IDS.forEach(fid => {
+      const el = document.getElementById(fid);
+      if (el && draft[fid] != null && el.value === '') el.value = draft[fid];
+    });
+  }
+  orderForm.addEventListener('input', () => {
+    const data = {};
+    let hasAny = false;
+    DRAFT_FIELD_IDS.forEach(fid => {
+      const el = document.getElementById(fid);
+      if (el) {
+        data[fid] = el.value;
+        if (el.value) hasAny = true;
+      }
+    });
+    if (hasAny) writeDraft(data); else clearDraft();
   });
 
   // Secondary action: drop this configured item into the shared cart
@@ -699,7 +751,11 @@ async function submitOrder(product, available){
     .then(r => r.ok ? r.json().catch(() => ({ ok: true, id: '' })) : Promise.reject(r.status))
     .then(res => openModal((res && res.id) || '', paymentLink, available))
     .catch(() => openModal('', paymentLink, available))  // Apps Script may redirect — show success anyway
-    .finally(() => { btn.disabled = false; btn.textContent = available ? 'Submit order' : 'Notify me when this drops'; });
+    .finally(() => {
+      clearDraft();
+      btn.disabled = false;
+      btn.textContent = available ? 'Submit order' : 'Notify me when this drops';
+    });
 }
 
 function openModal(id, paymentLink, available){
