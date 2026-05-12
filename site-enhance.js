@@ -6,6 +6,11 @@
  *
  * What it does:
  *
+ *   0. Google Analytics 4 — loads gtag.js and fires the initial
+ *      page_view. Skipped if Do Not Track is set. Salespro and the
+ *      admin pages (invoice, balance, migrate-images) don't load this
+ *      script and so are not tracked here — salespro inlines its own
+ *      GA4 snippet.
  *   1. Custom focus rings — keyboard-only, on-brand tan.
  *   2. Cross-page View Transitions — smooth fade between navigations
  *      in browsers that support the API (no-op elsewhere).
@@ -26,6 +31,36 @@
  * No public API surface is required for typical usage — including the
  * script is enough.
  * ──────────────────────────────────────────────────────────────── */
+
+/* ── 0. Google Analytics 4 ───────────────────────────────────────
+ * Async loader for the public-site GA4 property. Default
+ * Enhanced Measurement (configured in the GA4 admin) covers
+ * page_view, scroll, outbound clicks, file downloads, video plays,
+ * and site search automatically — no custom events needed for the
+ * "who visited, what did they look at, how long did they stay"
+ * questions the dashboard answers. Initialized before any other
+ * site-enhance logic so the page_view timestamp is accurate. */
+(function loadGA4() {
+  var MID = 'G-PJTG01GWRZ';
+  // Honor Do Not Track. DNT signal is fading from modern browsers
+  // (Safari removed it, Chrome never honored it) but it's a cheap
+  // gesture of respect for visitors who explicitly opted out.
+  var dnt = (typeof navigator !== 'undefined') && (
+    navigator.doNotTrack === '1' || navigator.doNotTrack === 'yes' ||
+    navigator.msDoNotTrack === '1' ||
+    (typeof window !== 'undefined' && window.doNotTrack === '1')
+  );
+  if (dnt) return;
+  if (typeof document === 'undefined' || window.gtag) return;
+  var s = document.createElement('script');
+  s.async = true;
+  s.src = 'https://www.googletagmanager.com/gtag/js?id=' + MID;
+  document.head.appendChild(s);
+  window.dataLayer = window.dataLayer || [];
+  window.gtag = function() { window.dataLayer.push(arguments); };
+  window.gtag('js', new Date());
+  window.gtag('config', MID);
+})();
 
 (function (root) {
   'use strict';

@@ -94,6 +94,18 @@ body{font-family:'DM Sans',sans-serif;background:var(--cream);min-height:100vh;p
 }
 #vInvoice iframe{flex:1;border:none;width:100%;height:100%;}
 </style>
+
+<!-- GA4 — page-load count only. Same property as the public site
+     (G-PJTG01GWRZ). Salespro doesn't load site-enhance.js so this
+     snippet is inlined. Default Enhanced Measurement handles the
+     rest; no custom events fired here. -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-PJTG01GWRZ"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-PJTG01GWRZ');
+</script>
 </head>
 <body>
 
