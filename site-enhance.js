@@ -74,7 +74,7 @@
   };
 
   var DEFAULT_CTA = {
-    bookUrl:   'https://www.cruisethecreek.com/book-a-rental',
+    bookUrl:   'https://book.peek.com/s/57e3b62e-4f48-4cc4-8876-7b79f4c11baa/Zd03p',
     bookLabel: 'Book a Ride',
     textUrl:   'sms:3304069686',
     textLabel: 'Text us',
