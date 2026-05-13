@@ -144,15 +144,20 @@
   css.textContent = `
 .ctc-chat-fab{
   position:fixed;right:20px;
-  /* Sits above typical sticky CTA bars (~76px tall on home/rentals) with
-     a comfortable gap. Falls back to safe-area-inset on iOS notch devices. */
-  bottom:calc(96px + env(safe-area-inset-bottom, 0px));
+  /* Default low. Bumped up only when the host page has a sticky CTA bar
+     (body.has-sticky-cta is set by site-enhance.js when it mounts the
+     bottom Book/Text bar) so the FAB doesn't float awkwardly high on
+     pages without one. Falls back to safe-area-inset on iOS notch devices. */
+  bottom:calc(24px + env(safe-area-inset-bottom, 0px));
   z-index:9998;
   width:60px;height:60px;border-radius:50%;
   background:#2D4A32;color:#C9A96E;border:none;cursor:pointer;
   box-shadow:0 12px 32px rgba(45,74,50,.32),0 2px 8px rgba(0,0,0,.18);
   display:flex;align-items:center;justify-content:center;overflow:hidden;
-  transition:transform .2s ease,box-shadow .2s ease;
+  transition:transform .2s ease,box-shadow .2s ease,bottom .2s ease;
+}
+body.has-sticky-cta .ctc-chat-fab{
+  bottom:calc(96px + env(safe-area-inset-bottom, 0px));
 }
 .ctc-chat-fab:hover{transform:translateY(-2px);box-shadow:0 16px 40px rgba(45,74,50,.4)}
 .ctc-chat-fab svg{width:26px;height:26px;stroke:currentColor;fill:none;stroke-width:2}
@@ -195,7 +200,9 @@
 .ctc-chat-tip{
   position:fixed;
   right:calc(88px + env(safe-area-inset-right, 0px));
-  bottom:calc(112px + env(safe-area-inset-bottom, 0px));
+  /* Matches the FAB's low default; bumped up when sticky CTA is present
+     by the body.has-sticky-cta override below. */
+  bottom:calc(40px + env(safe-area-inset-bottom, 0px));
   z-index:9998;
   background:#fff;color:#2D4A32;
   padding:9px 28px 9px 14px;border-radius:18px;
@@ -210,6 +217,7 @@
   animation-play-state:paused;
 }
 .ctc-chat-tip.is-show{opacity:1;transform:translateX(0);pointer-events:auto;animation-play-state:running}
+body.has-sticky-cta .ctc-chat-tip{bottom:calc(112px + env(safe-area-inset-bottom, 0px))}
 .ctc-chat-tip::after{
   content:'';position:absolute;right:-7px;top:50%;transform:translateY(-50%);
   width:0;height:0;border:7px solid transparent;border-left-color:#fff;
@@ -398,6 +406,13 @@
       if (panel.classList.contains('is-open')) return; // chat already open
       if (tipDismissed()) return;
       tip.classList.add('is-show');
+      // Auto-collapse the "Let's chat" speech bubble after 5 seconds so
+      // the FAB icon alone remains — the bubble's job is to catch the
+      // visitor's eye on landing, not to crowd the content for the rest
+      // of the session. Doesn't persist dismissal: a future return visit
+      // still gets one fresh prompt. If the visitor clicks the ✕ first
+      // dismissTip() runs and this is a no-op.
+      setTimeout(() => { tip.classList.remove('is-show'); }, 5000);
     }, 2000);
   }
 
