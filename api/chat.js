@@ -499,11 +499,28 @@ export default async function handler(req, res) {
     }
 
     let toolUses = []; // for surfacing in response (debug + future tracking)
+    // Current date in America/New_York — injected every request so the
+    // model can resolve "today", "tomorrow", "this Saturday", etc. Without
+    // it Claude guesses against its training-cutoff date and tells visitors
+    // their booking date "has already passed."
+    const nowET = new Date().toLocaleDateString('en-CA', {
+      timeZone: 'America/New_York',
+      year: 'numeric', month: '2-digit', day: '2-digit',
+    }); // → YYYY-MM-DD
+    const weekdayET = new Date().toLocaleDateString('en-US', {
+      timeZone: 'America/New_York', weekday: 'long',
+    });
+    const dateBlock = 'Today is ' + weekdayET + ', ' + nowET +
+      ' (America/New_York). Resolve every date phrase the visitor uses ' +
+      '("today", "tomorrow", "this Saturday", "next Friday", "may 16th") ' +
+      'against this. Don\'t rely on your training-cutoff date.';
+
     for (let iter = 0; iter < 4; iter++) {
       const systemBlocks = [
         { type: 'text', text: SYSTEM_PROMPT },
         { type: 'text', text: 'Knowledge base (current site content):\n\n' + kbBlock,
           cache_control: { type: 'ephemeral' } },
+        { type: 'text', text: dateBlock },
       ];
       if (mascotBlock)  systemBlocks.push({ type: 'text', text: mascotBlock });
       if (visitorBlock) systemBlocks.push({ type: 'text', text: visitorBlock });
