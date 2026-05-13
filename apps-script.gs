@@ -1120,6 +1120,7 @@ function handleChatLog(p) {
  *     devices: [{device, sessions}, ...] }
  */
 function handleAnalytics(p) {
+  p = p || {};
   const json = function(obj) {
     return ContentService.createTextOutput(JSON.stringify(obj))
       .setMimeType(ContentService.MimeType.JSON);
