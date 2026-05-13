@@ -372,6 +372,29 @@ function isPastDay(row){
   return d.getTime() < today.getTime();
 }
 
+// Time column from Sheets is supposed to be a free-form string like
+// "4:00 pm – 6:00 pm". If a user types just a time ("7pm") into the cell,
+// Google Sheets re-types the cell as Time, and Apps Script returns it as
+// a Date object that JSON-serializes to "1899-12-30T19:00:00.000Z" — the
+// spreadsheet's time-only epoch. Detect any ISO-shaped timestamp and
+// reformat it as a readable Eastern-time clock value; pass plain strings
+// through unchanged.
+function formatEventTime(value) {
+  if (value == null) return 'TBA';
+  const s = String(value).trim();
+  if (!s) return 'TBA';
+  if (/^\d{4}-\d{2}-\d{2}T/.test(s)) {
+    const d = new Date(s);
+    if (!isNaN(d)) {
+      return d.toLocaleTimeString('en-US', {
+        timeZone: 'America/New_York',
+        hour: 'numeric', minute: '2-digit', hour12: true,
+      });
+    }
+  }
+  return s;
+}
+
 function renderEvents(){
   const root = document.getElementById('eventsList');
   if (!root) return;
@@ -422,7 +445,7 @@ function renderEvents(){
         ? '<a class="event-link" href="' + esc(e.url) + '" target="_blank" rel="noopener">More info →</a>'
         : '';
       html += '<article class="event' + (cat.cls ? ' ' + cat.cls : '') + '">' +
-                '<div class="event-time">' + esc(e.time || 'TBA') + '</div>' +
+                '<div class="event-time">' + esc(formatEventTime(e.time)) + '</div>' +
                 '<div class="event-body">' +
                   '<div class="event-title">' + esc(e.title || '(untitled)') + '</div>' +
                   '<div class="event-meta">' +
