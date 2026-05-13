@@ -249,7 +249,24 @@ Don't show stroller chips outside the rental-booking context (apparel, service, 
 - Service → creek-ready.html
 - Apparel → apparel.html
 - Stories / blog → creek-life-blog.html
-- Bridge the Gap (rent-to-own) → bridge-the-gap.html`;
+- Bridge the Gap (rent-to-own) → bridge-the-gap.html
+
+==== WEATHER FORECAST (use the get_weather_forecast tool) ====
+Riding e-bikes is weather-sensitive. When a visitor commits to a specific date during the booking intake (step 2), call get_weather_forecast with that date BEFORE confirming the booking — but only for dates within the next 14 days. Skip it for vague dates ("sometime next month"), past dates, or anything farther out than ~2 weeks. Skip it entirely outside the booking flow — don't volunteer forecasts during casual chat.
+
+Resolve the visitor's date phrase to an ISO date (YYYY-MM-DD) in America/New_York before calling. "This Saturday" → the next Saturday from today. "Tomorrow" → today + 1 day. If unsure, ask once for clarification instead of guessing.
+
+After the tool returns, weave the forecast into your next reply conversationally — DON'T dump raw numbers. One short sentence is plenty. Examples:
+
+GOOD: "Saturday's looking great — sunny, around 72°. Want to go morning or afternoon?"
+GOOD: "Heads up — Friday's calling for rain (70% chance), but Saturday clears up. Want to push to Saturday?"
+GOOD: "It's going to be a hot one — mid-90s. Morning ride would be more comfortable. Want the 9am or 10am block?"
+BAD:  "The forecast shows a high of 72°F, low of 58°F, 10% precip, 8mph wind." ← too clinical
+BAD:  "Per the National Weather Service…" ← never cite the source
+
+Treat the forecast as advisory, not a hard block. The visitor can ride in rain if they want — just flag it so they're not surprised. If precipitation_chance is ≥ 60% OR conditions mention "thunderstorm", proactively suggest a rain-check or an alternate dry day in the same week.
+
+If the tool fails (network glitch, date out of range), don't apologize at length — just skip the forecast and continue the booking flow normally. The forecast is a nice-to-have, not a blocker.`;
 
 // Tool definition handed to Claude. When the model decides to call this,
 // it returns a tool_use block with the structured fields below; we
@@ -278,32 +295,128 @@ const TOOLS = [
       required: ['name', 'product', 'date', 'qty'],
     },
   },
+  {
+    name: 'get_weather_forecast',
+    description: "Get the weather forecast for a specific date at Cruise the Creek's location in Canfield, OH. Call this during the booking intake AFTER the visitor commits to a specific date within the next 14 days, BEFORE confirming the booking. Skip for vague dates, past dates, or dates farther than ~2 weeks out. Don't volunteer forecasts outside the booking flow. Returns conditions, high/low temp (°F), precipitation chance (%), and wind (mph) — use these to inform the conversation, don't dump them raw on the visitor.",
+    input_schema: {
+      type: 'object',
+      properties: {
+        date: {
+          type: 'string',
+          description: 'Target date in ISO format YYYY-MM-DD, resolved in America/New_York. Must be today through 14 days out. Resolve visitor phrases ("this Saturday", "tomorrow") to ISO before calling.',
+        },
+      },
+      required: ['date'],
+    },
+  },
 ];
 
 const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxjg2ZsPCZNsmJEStYA0bRdsnkm4nNS-m-HNhm_Gin56VIVeYWVRE5j51j30zVHhb4PmQ/exec';
 
-// Server-side execution of the submit_booking_lead tool. Posts to the
-// Apps Script endpoint which appends the row + emails the sales team.
+// Cruise the Creek shop coordinates (6685 Kirk Rd, Canfield, OH 44406).
+// Used by get_weather_forecast — fixed because rentals all pick up within
+// a few miles of this location.
+const SHOP_LAT = 40.9778;
+const SHOP_LON = -80.7656;
+
+// Open-Meteo WMO weather code → short human label. Trimmed to the codes
+// that actually appear in NE Ohio. Anything unmapped falls through as
+// "mixed conditions" so the bot has something sensible to say.
+function describeWeatherCode(code) {
+  const c = Number(code);
+  if (c === 0) return 'clear';
+  if (c === 1) return 'mostly clear';
+  if (c === 2) return 'partly cloudy';
+  if (c === 3) return 'overcast';
+  if (c === 45 || c === 48) return 'foggy';
+  if (c >= 51 && c <= 57) return 'drizzle';
+  if (c >= 61 && c <= 67) return 'rain';
+  if (c >= 71 && c <= 77) return 'snow';
+  if (c >= 80 && c <= 82) return 'rain showers';
+  if (c === 85 || c === 86) return 'snow showers';
+  if (c >= 95) return 'thunderstorms';
+  return 'mixed conditions';
+}
+
+// Fetch a daily forecast from Open-Meteo for the shop's location.
+// Open-Meteo is free + no API key — see https://open-meteo.com/en/docs.
+async function fetchForecast(isoDate) {
+  // Range gate: today through +14 days, EST-anchored.
+  const today = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/New_York' }));
+  today.setHours(0, 0, 0, 0);
+  const target = new Date(isoDate + 'T00:00:00');
+  if (isNaN(target.getTime())) return { ok: false, error: 'Invalid date format. Use YYYY-MM-DD.' };
+  const daysOut = Math.round((target - today) / 86400000);
+  if (daysOut < 0)  return { ok: false, error: 'Date is in the past.' };
+  if (daysOut > 14) return { ok: false, error: 'Date is more than 14 days out — forecast not available yet.' };
+
+  const url = 'https://api.open-meteo.com/v1/forecast'
+    + '?latitude='  + SHOP_LAT
+    + '&longitude=' + SHOP_LON
+    + '&daily=weathercode,temperature_2m_max,temperature_2m_min,precipitation_probability_max,windspeed_10m_max'
+    + '&temperature_unit=fahrenheit'
+    + '&windspeed_unit=mph'
+    + '&timezone=America/New_York'
+    + '&start_date=' + isoDate
+    + '&end_date='   + isoDate;
+
+  const r = await fetch(url);
+  if (!r.ok) throw new Error('Open-Meteo HTTP ' + r.status);
+  const data = await r.json();
+  const d = data.daily || {};
+  if (!Array.isArray(d.time) || !d.time.length) {
+    return { ok: false, error: 'No forecast data returned for ' + isoDate };
+  }
+  const idx = 0;
+  return {
+    ok: true,
+    date:                 d.time[idx],
+    conditions:           describeWeatherCode(d.weathercode[idx]),
+    high_f:               Math.round(d.temperature_2m_max[idx]),
+    low_f:                Math.round(d.temperature_2m_min[idx]),
+    precipitation_chance: d.precipitation_probability_max[idx],
+    wind_mph:             Math.round(d.windspeed_10m_max[idx]),
+    location:             'Canfield, OH',
+  };
+}
+
+// Server-side execution of chat tools. The model calls one of these by
+// name; we run the side effect (Apps Script POST, Open-Meteo GET, etc.)
+// and hand the JSON back to the model for synthesis.
 async function execTool(name, input) {
-  if (name !== 'submit_booking_lead') {
-    return { ok: false, error: 'Unknown tool: ' + name };
+  if (name === 'submit_booking_lead') {
+    try {
+      const params = new URLSearchParams({ action: 'bookingLead' });
+      Object.keys(input || {}).forEach(k => {
+        if (input[k] != null) params.append(k, String(input[k]));
+      });
+      const r = await fetch(APPS_SCRIPT_URL + '?' + params.toString(), {
+        method: 'GET', redirect: 'follow',
+      });
+      const text = await r.text();
+      let data;
+      try { data = JSON.parse(text); } catch (e) { data = { ok: r.ok }; }
+      return data;
+    } catch (err) {
+      console.error('[chat] booking tool exec failed:', err);
+      return { ok: false, error: String(err) };
+    }
   }
-  try {
-    const params = new URLSearchParams({ action: 'bookingLead' });
-    Object.keys(input || {}).forEach(k => {
-      if (input[k] != null) params.append(k, String(input[k]));
-    });
-    const r = await fetch(APPS_SCRIPT_URL + '?' + params.toString(), {
-      method: 'GET', redirect: 'follow',
-    });
-    const text = await r.text();
-    let data;
-    try { data = JSON.parse(text); } catch (e) { data = { ok: r.ok }; }
-    return data;
-  } catch (err) {
-    console.error('[chat] tool exec failed:', err);
-    return { ok: false, error: String(err) };
+
+  if (name === 'get_weather_forecast') {
+    try {
+      const date = String((input && input.date) || '').trim();
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+        return { ok: false, error: 'date must be YYYY-MM-DD format' };
+      }
+      return await fetchForecast(date);
+    } catch (err) {
+      console.error('[chat] weather tool exec failed:', err);
+      return { ok: false, error: String(err) };
+    }
   }
+
+  return { ok: false, error: 'Unknown tool: ' + name };
 }
 
 export default async function handler(req, res) {
