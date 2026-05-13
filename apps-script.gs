@@ -117,6 +117,9 @@ function _doGetInner(e, action) {
   if (action === 'chatVisitor') {
     return handleChatVisitor(e.parameter || {});
   }
+  if (action === 'getAnalytics') {
+    return handleAnalytics(e.parameter || {});
+  }
 
   const page = ((e && e.parameter && e.parameter.page) || 'home')
                  .toString().trim().toLowerCase();
@@ -1090,6 +1093,140 @@ function handleChatLog(p) {
     return json({ ok: true });
   } catch (err) {
     console.error('handleChatLog failed: ' + err);
+    return json({ ok: false, error: String(err) });
+  }
+}
+
+/**
+ * GA4 analytics for the admin dashboard (analytics.html).
+ *
+ * Requires the "Google Analytics Data API" Advanced Service to be enabled
+ * in the Apps Script editor:
+ *   Editor → Services (+) → "Google Analytics Data API" → Add
+ * The identifier must be `AnalyticsData` (the default).
+ *
+ * Property ID is hard-coded to Cruise the Creek's GA4 property (537296414).
+ * Measurement ID (G-PJTG01GWRZ) is a different value — used by gtag.js
+ * on the client to fire hits — and is not used here.
+ *
+ * Expected params:
+ *   range  — '7d' | '30d' | '90d' (defaults to '30d')
+ *
+ * Returns:
+ *   { ok: true, range, days, kpis: {sessions, users, pageviews, engagementRate},
+ *     daily: [{date, sessions, users}, ...],
+ *     topPages: [{path, title, views}, ...],
+ *     sources: [{source, sessions}, ...],
+ *     devices: [{device, sessions}, ...] }
+ */
+function handleAnalytics(p) {
+  const json = function(obj) {
+    return ContentService.createTextOutput(JSON.stringify(obj))
+      .setMimeType(ContentService.MimeType.JSON);
+  };
+
+  try {
+    const PROPERTY = 'properties/537296414';
+    const range    = String(p.range || '30d').toLowerCase();
+    const days     = range === '7d' ? 7 : range === '90d' ? 90 : 30;
+    const startDate = days + 'daysAgo';
+    const dateRanges = [{ startDate: startDate, endDate: 'today' }];
+
+    // 1. Headline KPIs for the selected window.
+    const kpiReport = AnalyticsData.Properties.runReport({
+      dateRanges: dateRanges,
+      metrics: [
+        { name: 'sessions' },
+        { name: 'totalUsers' },
+        { name: 'screenPageViews' },
+        { name: 'engagementRate' },
+      ],
+    }, PROPERTY);
+    const kpiRow = (kpiReport.rows && kpiReport.rows[0]) || { metricValues: [] };
+    const kv = function(i) {
+      return (kpiRow.metricValues[i] && kpiRow.metricValues[i].value) || '0';
+    };
+    const kpis = {
+      sessions:       parseInt(kv(0), 10) || 0,
+      users:          parseInt(kv(1), 10) || 0,
+      pageviews:      parseInt(kv(2), 10) || 0,
+      engagementRate: parseFloat(kv(3))   || 0,
+    };
+
+    // 2. Daily timeseries — sessions + users for the line chart.
+    const dailyReport = AnalyticsData.Properties.runReport({
+      dateRanges: dateRanges,
+      dimensions: [{ name: 'date' }],
+      metrics: [{ name: 'sessions' }, { name: 'totalUsers' }],
+      orderBys: [{ dimension: { dimensionName: 'date' } }],
+      limit: 100,
+    }, PROPERTY);
+    const daily = (dailyReport.rows || []).map(function(r) {
+      const d = r.dimensionValues[0].value; // YYYYMMDD
+      return {
+        date:     d.slice(0, 4) + '-' + d.slice(4, 6) + '-' + d.slice(6, 8),
+        sessions: parseInt(r.metricValues[0].value, 10) || 0,
+        users:    parseInt(r.metricValues[1].value, 10) || 0,
+      };
+    });
+
+    // 3. Top pages by views.
+    const pagesReport = AnalyticsData.Properties.runReport({
+      dateRanges: dateRanges,
+      dimensions: [{ name: 'pagePath' }, { name: 'pageTitle' }],
+      metrics: [{ name: 'screenPageViews' }],
+      orderBys: [{ metric: { metricName: 'screenPageViews' }, desc: true }],
+      limit: 10,
+    }, PROPERTY);
+    const topPages = (pagesReport.rows || []).map(function(r) {
+      return {
+        path:  r.dimensionValues[0].value,
+        title: r.dimensionValues[1].value,
+        views: parseInt(r.metricValues[0].value, 10) || 0,
+      };
+    });
+
+    // 4. Traffic source channels (Organic Search, Direct, Referral, ...).
+    const sourceReport = AnalyticsData.Properties.runReport({
+      dateRanges: dateRanges,
+      dimensions: [{ name: 'sessionDefaultChannelGroup' }],
+      metrics: [{ name: 'sessions' }],
+      orderBys: [{ metric: { metricName: 'sessions' }, desc: true }],
+      limit: 8,
+    }, PROPERTY);
+    const sources = (sourceReport.rows || []).map(function(r) {
+      return {
+        source:   r.dimensionValues[0].value || 'Unknown',
+        sessions: parseInt(r.metricValues[0].value, 10) || 0,
+      };
+    });
+
+    // 5. Device categories (desktop / mobile / tablet).
+    const deviceReport = AnalyticsData.Properties.runReport({
+      dateRanges: dateRanges,
+      dimensions: [{ name: 'deviceCategory' }],
+      metrics: [{ name: 'sessions' }],
+      orderBys: [{ metric: { metricName: 'sessions' }, desc: true }],
+    }, PROPERTY);
+    const devices = (deviceReport.rows || []).map(function(r) {
+      return {
+        device:   r.dimensionValues[0].value || 'Unknown',
+        sessions: parseInt(r.metricValues[0].value, 10) || 0,
+      };
+    });
+
+    return json({
+      ok:       true,
+      range:    range,
+      days:     days,
+      kpis:     kpis,
+      daily:    daily,
+      topPages: topPages,
+      sources:  sources,
+      devices:  devices,
+    });
+  } catch (err) {
+    console.error('handleAnalytics failed: ' + err);
     return json({ ok: false, error: String(err) });
   }
 }
