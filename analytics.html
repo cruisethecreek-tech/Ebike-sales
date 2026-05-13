@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Analytics — Cruise the Creek</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --forest: #28503c;
+      --forest-light: #3a6e54;
+      --forest-dark: #1d3c2c;
+      --copper: #b47850;
+      --copper-light: #c89372;
+      --copper-dark: #8f5e3e;
+      --sage: #6b8f71;
+      --sky: #5b8aa0;
+      --amber: #c89342;
+      --rose: #b06868;
+
+      --op-bg: #1a1f1c;
+      --op-panel: #232a26;
+      --op-input: #1a1f1c;
+      --op-border: #313a35;
+      --op-text: #e8ebe9;
+      --op-text-dim: #8a948e;
+
+      --success: #4a8b6a;
+      --error: #c4564f;
+    }
+
+    body {
+      background: var(--op-bg);
+      color: var(--op-text);
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      line-height: 1.5;
+      padding: 1.5rem;
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .container { max-width: 1200px; margin: 0 auto; }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-bottom: 1.5rem;
+      margin-bottom: 1.5rem;
+      border-bottom: 1px solid var(--op-border);
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .header-brand { display: flex; align-items: center; gap: 1rem; }
+    .header-logo { height: 44px; width: auto; }
+
+    .header-text h1 {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+      font-weight: 500;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--copper);
+      margin-bottom: 0.15rem;
+    }
+
+    .header-text .tagline {
+      font-size: 0.85rem;
+      color: var(--op-text-dim);
+    }
+
+    .nav-link {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.7rem;
+      color: var(--op-text-dim);
+      text-decoration: none;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      border: 1px solid var(--op-border);
+      padding: 0.55rem 0.9rem;
+      border-radius: 6px;
+      transition: all 0.15s ease;
+    }
+    .nav-link:hover { color: var(--copper); border-color: var(--copper); }
+
+    /* Range toggle */
+    .range-toggle {
+      display: inline-flex;
+      gap: 0;
+      border: 1px solid var(--op-border);
+      border-radius: 6px;
+      overflow: hidden;
+    }
+    .range-btn {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.7rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--op-text-dim);
+      background: transparent;
+      border: 0;
+      padding: 0.55rem 1rem;
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s;
+      border-right: 1px solid var(--op-border);
+    }
+    .range-btn:last-child { border-right: 0; }
+    .range-btn:hover { color: var(--op-text); background: rgba(180,120,80,0.04); }
+    .range-btn.active {
+      background: var(--copper);
+      color: #fff;
+    }
+
+    .panel {
+      background: var(--op-panel);
+      border: 1px solid var(--op-border);
+      border-radius: 8px;
+      padding: 1.5rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .section-title {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.7rem;
+      letter-spacing: 0.15em;
+      color: var(--copper);
+      text-transform: uppercase;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      margin-bottom: 1rem;
+    }
+    .section-title::before {
+      content: "";
+      width: 3px;
+      height: 14px;
+      background: var(--forest-light);
+      border-radius: 1px;
+    }
+
+    .status-line {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.7rem;
+      color: var(--op-text-dim);
+      letter-spacing: 0.05em;
+    }
+    .status-line.error { color: var(--error); }
+    .status-line.live  { color: var(--forest-light); }
+
+    /* KPI grid */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0.75rem;
+      margin-bottom: 1.25rem;
+    }
+    @media (max-width: 720px) {
+      .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    .kpi-card {
+      background: var(--op-panel);
+      border: 1px solid var(--op-border);
+      border-radius: 8px;
+      padding: 1.1rem 1.2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+    .kpi-card .label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.62rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--op-text-dim);
+    }
+    .kpi-card .value {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1.85rem;
+      font-weight: 700;
+      color: var(--op-text);
+      letter-spacing: -0.02em;
+    }
+    .kpi-card .sublabel {
+      font-size: 0.7rem;
+      color: var(--op-text-dim);
+    }
+    .kpi-card.accent { border-color: rgba(180,120,80,0.35); }
+    .kpi-card.accent .value { color: var(--copper); }
+
+    /* Chart grid: two-column on wide screens, single column on phones */
+    .chart-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.25rem;
+    }
+    @media (max-width: 900px) { .chart-grid { grid-template-columns: 1fr; } }
+
+    .chart-wrap {
+      position: relative;
+      height: 280px;
+      width: 100%;
+    }
+    .chart-wrap.tall { height: 320px; }
+
+    /* Top pages table */
+    table.pages {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.85rem;
+    }
+    table.pages th, table.pages td {
+      padding: 0.55rem 0.75rem;
+      text-align: left;
+      border-bottom: 1px solid var(--op-border);
+    }
+    table.pages th {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.6rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--op-text-dim);
+      font-weight: 500;
+    }
+    table.pages td.views {
+      font-family: 'JetBrains Mono', monospace;
+      text-align: right;
+      color: var(--copper);
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    table.pages td.path {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.78rem;
+      color: var(--op-text-dim);
+    }
+    table.pages tr:last-child td { border-bottom: 0; }
+
+    .empty-row {
+      padding: 1.5rem;
+      text-align: center;
+      color: var(--op-text-dim);
+      font-style: italic;
+      font-size: 0.85rem;
+    }
+
+    .skeleton {
+      background: linear-gradient(90deg, var(--op-border) 0%, rgba(49,58,53,0.4) 50%, var(--op-border) 100%);
+      background-size: 200% 100%;
+      animation: shimmer 1.4s infinite;
+      border-radius: 4px;
+      color: transparent;
+    }
+    @keyframes shimmer {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+
+    footer {
+      margin-top: 2rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--op-border);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.65rem;
+      letter-spacing: 0.08em;
+      color: var(--op-text-dim);
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="header-brand">
+        <img src="BlackonTransparent.png" alt="Cruise the Creek" class="header-logo">
+        <div class="header-text">
+          <h1>Analytics</h1>
+          <div class="tagline">GA4 visitor activity — internal dashboard</div>
+        </div>
+      </div>
+      <div style="display:flex; gap:0.5rem; align-items:center; flex-wrap:wrap;">
+        <div class="range-toggle" role="tablist" aria-label="Date range">
+          <button class="range-btn" data-range="7d">7 days</button>
+          <button class="range-btn active" data-range="30d">30 days</button>
+          <button class="range-btn" data-range="90d">90 days</button>
+        </div>
+        <a class="nav-link" href="index.html">← Home</a>
+      </div>
+    </header>
+
+    <div id="status" class="status-line">Loading…</div>
+
+    <section style="margin-top:1rem;">
+      <div class="kpi-grid">
+        <div class="kpi-card">
+          <div class="label">Sessions</div>
+          <div class="value" id="kpi-sessions">—</div>
+          <div class="sublabel" id="kpi-sessions-sub"></div>
+        </div>
+        <div class="kpi-card">
+          <div class="label">Users</div>
+          <div class="value" id="kpi-users">—</div>
+          <div class="sublabel" id="kpi-users-sub"></div>
+        </div>
+        <div class="kpi-card">
+          <div class="label">Pageviews</div>
+          <div class="value" id="kpi-views">—</div>
+          <div class="sublabel" id="kpi-views-sub"></div>
+        </div>
+        <div class="kpi-card accent">
+          <div class="label">Engagement Rate</div>
+          <div class="value" id="kpi-engage">—</div>
+          <div class="sublabel">% of engaged sessions</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="section-title">Traffic over time</div>
+      <div class="chart-wrap tall">
+        <canvas id="chartDaily"></canvas>
+      </div>
+    </section>
+
+    <div class="chart-grid">
+      <section class="panel">
+        <div class="section-title">Traffic sources</div>
+        <div class="chart-wrap">
+          <canvas id="chartSources"></canvas>
+        </div>
+      </section>
+      <section class="panel">
+        <div class="section-title">Devices</div>
+        <div class="chart-wrap">
+          <canvas id="chartDevices"></canvas>
+        </div>
+      </section>
+    </div>
+
+    <section class="panel">
+      <div class="section-title">Top pages</div>
+      <table class="pages" id="topPages">
+        <thead>
+          <tr>
+            <th>Path</th>
+            <th>Title</th>
+            <th style="text-align:right">Views</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td colspan="3" class="empty-row">Loading…</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <footer>
+      Data via GA4 Data API · property 537296414 · cached ~5 min by Apps Script
+    </footer>
+  </div>
+
+  <script>
+    // Project A Apps Script — same deployment that serves the CMS, cart,
+    // chatbot, and bridge-the-gap. handleAnalytics() lives in apps-script.gs.
+    const AS_URL = 'https://script.google.com/macros/s/AKfycbxjg2ZsPCZNsmJEStYA0bRdsnkm4nNS-m-HNhm_Gin56VIVeYWVRE5j51j30zVHhb4PmQ/exec';
+
+    const COLORS = {
+      forest: '#3a6e54',
+      copper: '#b47850',
+      sage:   '#6b8f71',
+      sky:    '#5b8aa0',
+      amber:  '#c89342',
+      rose:   '#b06868',
+      dim:    '#8a948e',
+      border: '#313a35',
+      text:   '#e8ebe9',
+    };
+    const PALETTE = [COLORS.copper, COLORS.forest, COLORS.sky, COLORS.amber, COLORS.sage, COLORS.rose, '#a07ba0', '#7a7a7a'];
+
+    Chart.defaults.color = COLORS.dim;
+    Chart.defaults.borderColor = COLORS.border;
+    Chart.defaults.font.family = "'Inter', system-ui, sans-serif";
+
+    const statusEl = document.getElementById('status');
+    let currentRange = '30d';
+    let charts = { daily: null, sources: null, devices: null };
+
+    function fmtInt(n) {
+      return (Number(n) || 0).toLocaleString();
+    }
+    function fmtPct(x) {
+      const v = Number(x) || 0;
+      return (v * 100).toFixed(1) + '%';
+    }
+    function shortDate(iso) {
+      // iso = YYYY-MM-DD → "Apr 14"
+      const d = new Date(iso + 'T00:00:00');
+      return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+    }
+
+    async function load(range) {
+      currentRange = range;
+      document.querySelectorAll('.range-btn').forEach(b => {
+        b.classList.toggle('active', b.dataset.range === range);
+      });
+      statusEl.textContent = 'Fetching GA4 data for ' + range + '…';
+      statusEl.classList.remove('error', 'live');
+
+      try {
+        const res = await fetch(AS_URL + '?action=getAnalytics&range=' + encodeURIComponent(range));
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        const data = await res.json();
+        if (!data.ok) throw new Error(data.error || 'unknown error');
+        render(data);
+        statusEl.textContent = '✓ Updated ' + new Date().toLocaleTimeString() + ' · last ' + data.days + ' days';
+        statusEl.classList.add('live');
+      } catch (err) {
+        console.error(err);
+        statusEl.textContent = 'Failed to load analytics: ' + err.message;
+        statusEl.classList.add('error');
+      }
+    }
+
+    function render(d) {
+      // KPIs
+      document.getElementById('kpi-sessions').textContent = fmtInt(d.kpis.sessions);
+      document.getElementById('kpi-users').textContent    = fmtInt(d.kpis.users);
+      document.getElementById('kpi-views').textContent    = fmtInt(d.kpis.pageviews);
+      document.getElementById('kpi-engage').textContent   = fmtPct(d.kpis.engagementRate);
+
+      const avgPerDay = d.days ? (d.kpis.sessions / d.days) : 0;
+      document.getElementById('kpi-sessions-sub').textContent = '~' + Math.round(avgPerDay) + '/day avg';
+      const usersPerDay = d.days ? (d.kpis.users / d.days) : 0;
+      document.getElementById('kpi-users-sub').textContent = '~' + Math.round(usersPerDay) + '/day avg';
+      const viewsPerSession = d.kpis.sessions ? (d.kpis.pageviews / d.kpis.sessions) : 0;
+      document.getElementById('kpi-views-sub').textContent = viewsPerSession.toFixed(2) + ' / session';
+
+      // Daily line chart
+      const labels   = d.daily.map(r => shortDate(r.date));
+      const sessions = d.daily.map(r => r.sessions);
+      const users    = d.daily.map(r => r.users);
+      drawLine('chartDaily', 'daily', labels, [
+        { label: 'Sessions', data: sessions, color: COLORS.copper },
+        { label: 'Users',    data: users,    color: COLORS.forest },
+      ]);
+
+      // Sources doughnut
+      drawDoughnut('chartSources', 'sources',
+        d.sources.map(s => s.source),
+        d.sources.map(s => s.sessions));
+
+      // Devices doughnut
+      drawDoughnut('chartDevices', 'devices',
+        d.devices.map(s => s.device),
+        d.devices.map(s => s.sessions));
+
+      // Top pages table
+      const tbody = document.querySelector('#topPages tbody');
+      if (!d.topPages.length) {
+        tbody.innerHTML = '<tr><td colspan="3" class="empty-row">No pages in this window.</td></tr>';
+      } else {
+        tbody.innerHTML = d.topPages.map(p => {
+          const path = (p.path || '').replace(/&/g, '&amp;').replace(/</g, '&lt;');
+          const title = (p.title || '').replace(/&/g, '&amp;').replace(/</g, '&lt;');
+          return '<tr>' +
+            '<td class="path">' + path + '</td>' +
+            '<td>' + title + '</td>' +
+            '<td class="views">' + fmtInt(p.views) + '</td>' +
+          '</tr>';
+        }).join('');
+      }
+    }
+
+    function drawLine(canvasId, key, labels, series) {
+      const ctx = document.getElementById(canvasId).getContext('2d');
+      if (charts[key]) charts[key].destroy();
+      charts[key] = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: labels,
+          datasets: series.map(s => ({
+            label: s.label,
+            data: s.data,
+            borderColor: s.color,
+            backgroundColor: s.color + '22',
+            tension: 0.3,
+            fill: true,
+            pointRadius: 2,
+            pointHoverRadius: 5,
+            borderWidth: 2,
+          })),
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          interaction: { mode: 'index', intersect: false },
+          plugins: {
+            legend: {
+              position: 'bottom',
+              labels: { color: COLORS.text, usePointStyle: true, padding: 16 },
+            },
+            tooltip: {
+              backgroundColor: '#1a1f1c',
+              borderColor: COLORS.border,
+              borderWidth: 1,
+              titleColor: COLORS.text,
+              bodyColor: COLORS.text,
+              padding: 10,
+            },
+          },
+          scales: {
+            x: {
+              ticks: { color: COLORS.dim, maxRotation: 0, autoSkipPadding: 14 },
+              grid:  { color: COLORS.border, drawTicks: false },
+            },
+            y: {
+              beginAtZero: true,
+              ticks: { color: COLORS.dim, precision: 0 },
+              grid:  { color: COLORS.border, drawTicks: false },
+            },
+          },
+        },
+      });
+    }
+
+    function drawDoughnut(canvasId, key, labels, data) {
+      const ctx = document.getElementById(canvasId).getContext('2d');
+      if (charts[key]) charts[key].destroy();
+      const total = data.reduce((a, b) => a + b, 0);
+      charts[key] = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+          labels: labels,
+          datasets: [{
+            data: data,
+            backgroundColor: PALETTE.slice(0, data.length),
+            borderColor: '#1a1f1c',
+            borderWidth: 2,
+          }],
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          cutout: '62%',
+          plugins: {
+            legend: {
+              position: 'right',
+              labels: { color: COLORS.text, usePointStyle: true, padding: 12, boxWidth: 8 },
+            },
+            tooltip: {
+              backgroundColor: '#1a1f1c',
+              borderColor: COLORS.border,
+              borderWidth: 1,
+              titleColor: COLORS.text,
+              bodyColor: COLORS.text,
+              padding: 10,
+              callbacks: {
+                label: function(ctx) {
+                  const v = ctx.parsed;
+                  const pct = total ? ((v / total) * 100).toFixed(1) + '%' : '0%';
+                  return ctx.label + ': ' + fmtInt(v) + ' (' + pct + ')';
+                },
+              },
+            },
+          },
+        },
+      });
+    }
+
+    // Range button wiring
+    document.querySelectorAll('.range-btn').forEach(btn => {
+      btn.addEventListener('click', () => load(btn.dataset.range));
+    });
+
+    // Initial load
+    load(currentRange);
+  </script>
+</body>
+</html>
