@@ -41,7 +41,7 @@
  * questions the dashboard answers. Initialized before any other
  * site-enhance logic so the page_view timestamp is accurate. */
 (function loadGA4() {
-  var MID = 'G-PJTG01GWRZ';
+  var MID = 'G-Y201WP8N0S';
   // Honor Do Not Track. DNT signal is fading from modern browsers
   // (Safari removed it, Chrome never honored it) but it's a cheap
   // gesture of respect for visitors who explicitly opted out.

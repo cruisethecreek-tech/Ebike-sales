@@ -1106,7 +1106,7 @@ function handleChatLog(p) {
  * The identifier must be `AnalyticsData` (the default).
  *
  * Property ID is hard-coded to Cruise the Creek's GA4 property (537296414).
- * Measurement ID (G-PJTG01GWRZ) is a different value — used by gtag.js
+ * Measurement ID (G-Y201WP8N0S) is a different value — used by gtag.js
  * on the client to fire hits — and is not used here.
  *
  * Expected params:
