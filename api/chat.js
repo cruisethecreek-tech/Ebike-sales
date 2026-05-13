@@ -432,7 +432,7 @@ export default async function handler(req, res) {
   if (req.method !== 'POST')    return res.status(405).json({ error: 'Method not allowed' });
 
   try {
-    const { message, history, visitor } = req.body || {};
+    const { message, history, visitor, page } = req.body || {};
     if (!message || typeof message !== 'string') {
       return res.status(400).json({ error: 'Missing message' });
     }
@@ -499,10 +499,11 @@ export default async function handler(req, res) {
     }
 
     let toolUses = []; // for surfacing in response (debug + future tracking)
-    // Current date in America/New_York — injected every request so the
-    // model can resolve "today", "tomorrow", "this Saturday", etc. Without
-    // it Claude guesses against its training-cutoff date and tells visitors
-    // their booking date "has already passed."
+    // Current date + time in America/New_York — injected every request so
+    // the model can resolve "today", "tomorrow", "this Saturday", etc.,
+    // and adjust tone for morning vs evening. Without it Claude anchors
+    // to its training-cutoff date and tells visitors their booking date
+    // "has already passed."
     const nowET = new Date().toLocaleDateString('en-CA', {
       timeZone: 'America/New_York',
       year: 'numeric', month: '2-digit', day: '2-digit',
@@ -510,10 +511,74 @@ export default async function handler(req, res) {
     const weekdayET = new Date().toLocaleDateString('en-US', {
       timeZone: 'America/New_York', weekday: 'long',
     });
-    const dateBlock = 'Today is ' + weekdayET + ', ' + nowET +
-      ' (America/New_York). Resolve every date phrase the visitor uses ' +
-      '("today", "tomorrow", "this Saturday", "next Friday", "may 16th") ' +
-      'against this. Don\'t rely on your training-cutoff date.';
+    const timeET = new Date().toLocaleTimeString('en-US', {
+      timeZone: 'America/New_York',
+      hour: 'numeric', minute: '2-digit', hour12: true,
+    });
+    const hourET = Number(new Date().toLocaleString('en-US', {
+      timeZone: 'America/New_York', hour: 'numeric', hour12: false,
+    }));
+    const timeBucket = hourET < 5  ? 'late night'
+                     : hourET < 12 ? 'morning'
+                     : hourET < 17 ? 'afternoon'
+                     : hourET < 21 ? 'evening'
+                                   : 'late night';
+    const dateBlock = 'Right now it is ' + weekdayET + ', ' + nowET + ' at ' +
+      timeET + ' America/New_York (' + timeBucket + '). Resolve every date ' +
+      'phrase the visitor uses ("today", "tomorrow", "this Saturday", ' +
+      '"next Friday", "may 16th") against this. Match greeting tone to ' +
+      'the time bucket when natural (a morning visitor gets "morning!", ' +
+      'an evening one gets "hey, good evening"). Don\'t rely on your ' +
+      'training-cutoff date.';
+
+    // Current-page context. The chatbot widget sends the visitor's URL on
+    // every request — turn it into a short label the model can reason
+    // about. "velotric.html" → the bot knows they're shopping Velotric and
+    // can answer "is this any good?" without asking what "this" refers to.
+    // Without this, the model is blind to the surrounding page.
+    let pageBlock = '';
+    const rawPage = String(page || '').trim();
+    if (rawPage) {
+      let slug = rawPage;
+      try { slug = new URL(rawPage).pathname; } catch (e) { /* not a full URL */ }
+      slug = slug.replace(/^\/+|\/+$/g, '').replace(/\.html?$/i, '').toLowerCase();
+      const PAGE_LABELS = {
+        '':                'the home page (index.html) — the main hub with all the tile menus',
+        'index':           'the home page (index.html) — the main hub with all the tile menus',
+        'rentals':         'the rentals overview page (rentals.html)',
+        'trailside':       'the Trailside rental product page — Kirk Road Trailhead pickup, paved bikeway, beginner-friendly',
+        'adventures':      'the Adventures rental product page — Bears Den / Scholl Pavilion pickup, hills + forest, confident riders',
+        'bridge-the-gap':  'the Bridge the Gap rent-to-own program page — 15 bi-weekly payments then they own the bike',
+        'long-term-rental':'the long-term rental page (currently "Coming Soon")',
+        'shop':            'the shop landing page (shop.html) — overview of all four bike brands',
+        'heybike':         'the Heybike brand page — wide range, fat tires, cargo, step-thru ($900–$2,000)',
+        'velotric':        'the Velotric brand page — mid-to-premium, popular for Bridge the Gap ($1,200–$2,500)',
+        'mooncool':        'the Mooncool brand page — cruisers, e-trikes, value picks ($700–$2,000)',
+        'jasion':          'the Jasion brand page — entry value, folding fat tires ($700–$1,500)',
+        'quiz':            'the e-bike finder quiz — matches visitors to specific in-stock bikes',
+        'test-ride':       'the test ride booking page',
+        'creek-ready':     'the Creek Ready services landing page (tune-ups, assembly, repairs)',
+        'tune-ups':        'the tune-ups service page',
+        'assembly':        'the assembly service page',
+        'safety':          'the safety / riding guide page',
+        'apparel':         'the apparel shop page ($30 flat tees)',
+        'gallery':         'the photo gallery page',
+        'events':          'the events page',
+        'journeys':        'the Trailside Journeys page — destinations reachable from Kirk Road',
+        'donate':          'the donation / supporters page',
+        'faqs':            'the FAQs page',
+        'our-story':       'the Our Story / about page',
+        'creek-life-blog': 'the Creek Life blog index',
+        'blog-post':       'an individual blog post',
+        'bridge-the-gap-application': 'the Bridge the Gap application form',
+      };
+      const label = PAGE_LABELS[slug] || ('the ' + slug.replace(/-/g, ' ') + ' page');
+      pageBlock = 'The visitor is currently on ' + label +
+        '. Tailor your replies to this context: if they say "this", "it", ' +
+        '"is it any good", "how much", etc., assume they\'re referring to ' +
+        'what\'s on this page unless they say otherwise. Don\'t re-pitch ' +
+        'the page they\'re already on — answer the question directly.';
+    }
 
     for (let iter = 0; iter < 4; iter++) {
       const systemBlocks = [
@@ -522,6 +587,7 @@ export default async function handler(req, res) {
           cache_control: { type: 'ephemeral' } },
         { type: 'text', text: dateBlock },
       ];
+      if (pageBlock)    systemBlocks.push({ type: 'text', text: pageBlock });
       if (mascotBlock)  systemBlocks.push({ type: 'text', text: mascotBlock });
       if (visitorBlock) systemBlocks.push({ type: 'text', text: visitorBlock });
 
