@@ -131,11 +131,15 @@ main{flex:1}
 .about{background:var(--cream)}
 .about p{font-size:1.04rem;color:var(--ink-2);line-height:1.8;margin-bottom:16px;max-width:760px}
 .about p:last-of-type{margin-bottom:0}
-.about-cta{display:inline-flex;align-items:center;gap:8px;margin-top:24px;background:var(--forest);color:#fff;
+.about-ctas{display:flex;flex-wrap:wrap;gap:12px;margin-top:24px}
+.about-cta{display:inline-flex;align-items:center;gap:8px;background:var(--forest);color:#fff;
   padding:12px 22px;border-radius:4px;font-weight:800;font-size:.86rem;
-  letter-spacing:.04em;transition:background .2s ease}
+  letter-spacing:.04em;transition:background .2s ease,color .2s ease,border-color .2s ease}
 .about-cta:hover{background:var(--dark)}
 .about-cta svg{width:14px;height:14px}
+.about-cta.ghost{background:transparent;color:var(--forest);
+  border:1.5px solid var(--forest);padding:10.5px 20.5px}
+.about-cta.ghost:hover{background:var(--forest);color:#fff}
 
 /* STEPS */
 .steps{background:var(--cream-w);border-top:1px solid rgba(0,0,0,.06);border-bottom:1px solid rgba(0,0,0,.06)}
@@ -364,10 +368,16 @@ footer a:hover{color:#fff}
     <p>The bikeway winds through wooded areas, open fields, and alongside scenic lakes and ponds — a diverse and enjoyable experience for every rider.</p>
     <p>The trail is well maintained with a smooth surface, suitable for all skill levels and ages. It's a popular destination for families and outdoor enthusiasts. Along the way you'll find benches, picnic areas, and interpretive signage that enhance the experience and give you a chance to rest, snack, or learn about the surrounding environment.</p>
     <p>Whether you're after a leisurely cruise, a longer ride, or a scenic skate, the bikeway has something for everyone.</p>
-    <a class="about-cta" href="https://www.millcreekmetroparks.org/place/mill-creek-bikeway/" target="_blank" rel="noopener">
-      Learn More About #Trailside Journey
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
-    </a>
+    <div class="about-ctas">
+      <a class="about-cta" href="https://www.millcreekmetroparks.org/place/mill-creek-bikeway/" target="_blank" rel="noopener">
+        Learn More About #Trailside Journey
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+      </a>
+      <a class="about-cta ghost" href="https://adventure-map.pages.dev/v2" target="_blank" rel="noopener">
+        See the trail on the map
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+      </a>
+    </div>
   </div>
 </section>
 
