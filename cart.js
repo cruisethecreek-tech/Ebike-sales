@@ -167,6 +167,21 @@
   font-family:'Bebas Neue','DM Sans',sans-serif;text-transform:uppercase;line-height:1.1}
 .ctc-cart-suggest-card span{font-size:.66rem;color:#5a5a5a;line-height:1.3}
 
+/* Featured upsell card — spans both columns and uses the brand forest
+   fill so it reads as the primary "while you're here" path. Used for
+   high-value categories (bikes) that deserve more emphasis than the
+   smaller accessory/apparel cards below. */
+.ctc-cart-suggest-card.featured{
+  grid-column:1 / -1;
+  background:#2D4A32;color:#fff;border-color:#2D4A32;
+  padding:11px 14px;
+}
+.ctc-cart-suggest-card.featured:hover{
+  background:#1a2e1c;border-color:#C9A96E;
+}
+.ctc-cart-suggest-card.featured strong{font-size:.92rem;color:#fff}
+.ctc-cart-suggest-card.featured span{color:rgba(255,255,255,.78);font-size:.7rem}
+
 /* Sticky footer wraps the subtotal row + the checkout form. The drop
    shadow above lifts it off the scrolling items, so it always reads as
    the anchored action area — same pattern as Shopify's drawer cart. */
@@ -347,6 +362,10 @@
       <div class="ctc-cart-suggest" hidden>
         <span class="ctc-cart-suggest-eyebrow">While you're here</span>
         <div class="ctc-cart-suggest-grid">
+          <a class="ctc-cart-suggest-card featured" href="shop.html">
+            <strong>Shop Bikes</strong>
+            <span>Heybike · Velotric · Mooncool · Jasion</span>
+          </a>
           <a class="ctc-cart-suggest-card" href="accessories.html">
             <strong>Accessories</strong>
             <span>Locks, lights, helmets, gear</span>
