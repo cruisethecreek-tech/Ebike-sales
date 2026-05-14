@@ -639,6 +639,28 @@ const SITE_CONFIG = {
                 html += `</ul><button class="buy-button" onclick="selectBikeAndScroll(this)">SUBMIT ORDER REQUEST</button><button class="cart-button" type="button" onclick="addBikeToCart(this)">Add to Cart</button></div></div>`;
             });
             container.innerHTML = html;
+            // Deep-link from shop.html catalog: ?bike=<id> in the URL means
+            // the visitor clicked a specific bike on the catalog grid — scroll
+            // it into view and flash the border so they land in the right spot.
+            // buildBikeCards may run twice (cache + fresh fetch); guard so we
+            // only auto-scroll once per page load.
+            if (!window.__bikeDeepLinked) {
+                try {
+                    const target = new URLSearchParams(location.search).get('bike');
+                    if (target) {
+                        const card = container.querySelector('.bike-card[data-bike="' + (window.CSS && CSS.escape ? CSS.escape(target) : target.replace(/"/g, '\\"')) + '"]');
+                        if (card) {
+                            window.__bikeDeepLinked = true;
+                            requestAnimationFrame(() => {
+                                card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                                card.style.transition = 'box-shadow .8s ease';
+                                card.style.boxShadow  = '0 0 0 3px #C9A96E, 0 8px 24px rgba(45,74,50,.15)';
+                                setTimeout(() => { card.style.boxShadow = ''; }, 2400);
+                            });
+                        }
+                    }
+                } catch(e) {}
+            }
         }
 
         function toggleColorGroup(btn, groupId) {

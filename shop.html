@@ -497,7 +497,14 @@ footer{background:var(--dark);color:rgba(255,255,255,.75);padding:40px 24px 32px
       </div>
       <div class="filter-field">
         <label class="filter-label" for="f-style">Style</label>
-        <select id="f-style"><option value="">All styles</option></select>
+        <select id="f-style">
+          <option value="">All styles</option>
+          <option value="Trike">Trike</option>
+          <option value="Folding">Folding</option>
+          <option value="Mid Drive">Mid Drive</option>
+          <option value="Step Thru">Step Thru</option>
+          <option value="Step Over">Step Over</option>
+        </select>
       </div>
       <div class="filter-field">
         <label class="filter-label" for="f-min">Min $</label>
@@ -785,6 +792,36 @@ function bikeBrandSlug(brand){
   return b.replace(/[^a-z0-9]/g, '');
 }
 
+/* Classify a bike against the five filter buckets the shop dropdown
+   exposes: Trike, Folding, Mid Drive, Step Thru, Step Over. A single
+   bike can match multiple buckets (e.g. a folding step-thru) — we
+   return an array and the filter passes the bike if the selected
+   bucket is anywhere in it. Heuristics fall back on subtitle, name,
+   the styles[] array, and motor spec text. */
+function classifyBike(b){
+  const cats = [];
+  const sub      = String(b.subtitle || '').toLowerCase();
+  const nm       = String(b.name || '').toLowerCase();
+  const text     = sub + ' ' + nm;
+  const styles   = Array.isArray(b.styles) ? b.styles.map(s => String(s).toLowerCase()) : [];
+  const specVals = (b.specs && typeof b.specs === 'object')
+    ? Object.values(b.specs).map(v => String(v).toLowerCase()).join(' ')
+    : '';
+
+  if (/trike|three.?wheel/.test(text))
+    cats.push('Trike');
+  if (/fold/.test(text) || styles.some(s => /fold/.test(s)))
+    cats.push('Folding');
+  if (/mid.?drive/.test(specVals) || /mid.?drive/.test(text))
+    cats.push('Mid Drive');
+  if (styles.some(s => /step.?thru|step.?through/.test(s)) || /step.?thru|step.?through/.test(text))
+    cats.push('Step Thru');
+  if (styles.some(s => /diamond|step.?over/.test(s)) || /step.?over/.test(text))
+    cats.push('Step Over');
+
+  return cats;
+}
+
 function paintCatalog(inventory){
   // Drop discontinued + anything without a price; normalize.
   CATALOG = (inventory || [])
@@ -796,17 +833,8 @@ function paintCatalog(inventory){
       style:    b.subtitle || '',
       price:    Number(b.price) || 0,
       img:      firstBikeImage(b.colors),
+      cats:     classifyBike(b),
     }));
-
-  // Build the style dropdown from real data — preserves whatever
-  // labels the inventory sheet uses (Commuter, Cargo, Fat-Tire, Trike…).
-  const styles = [...new Set(CATALOG.map(b => b.style).filter(Boolean))]
-    .sort((a,b) => a.localeCompare(b));
-  const sel = document.getElementById('f-style');
-  const current = sel.value;
-  sel.innerHTML = '<option value="">All styles</option>' +
-    styles.map(s => `<option value="${esc(s)}">${esc(s)}</option>`).join('');
-  if (current && styles.indexOf(current) > -1) sel.value = current;
 
   // Update header count (total in catalog before filtering).
   document.getElementById('bikeCount').textContent =
@@ -824,10 +852,10 @@ function applyBikeFilters(){
   const max   = isNaN(maxV) ?  Infinity : maxV;
 
   const matches = CATALOG.filter(b => {
-    if (style && b.style !== style) return false;
+    if (style && b.cats.indexOf(style) === -1) return false;
     if (b.price < min || b.price > max) return false;
     if (q) {
-      const hay = (b.name + ' ' + b.brand + ' ' + b.style).toLowerCase();
+      const hay = (b.name + ' ' + b.brand + ' ' + b.style + ' ' + b.cats.join(' ')).toLowerCase();
       if (hay.indexOf(q) === -1) return false;
     }
     return true;
@@ -861,7 +889,9 @@ function applyBikeFilters(){
 
   grid.innerHTML = matches.map(b => {
     const slug = bikeBrandSlug(b.brand);
-    const href = slug ? (slug + '.html') : '#';
+    const href = slug
+      ? (slug + '.html' + (b.id ? '?bike=' + encodeURIComponent(b.id) : ''))
+      : '#';
     const img  = b.img
       ? `<img src="${esc(b.img)}" alt="${esc(b.name)}" loading="lazy" onerror="this.remove()">`
       : '';
