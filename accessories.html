@@ -90,9 +90,25 @@ main{flex:1;max-width:1080px;width:100%;margin:0 auto;padding:24px 24px 64px}
 .direct-card{background:#fff;border:1px solid rgba(0,0,0,.06);border-radius:8px;
   overflow:hidden;display:flex;flex-direction:column;text-align:left;
   box-shadow:0 4px 12px rgba(0,0,0,.04);
-  transition:transform .2s ease,box-shadow .2s ease,border-color .2s ease}
-.direct-card:hover{transform:translateY(-3px);box-shadow:0 14px 32px rgba(45,74,50,.12);border-color:var(--sage)}
+  transition:transform .2s ease,box-shadow .2s ease,border-color .2s ease;
+  position:relative;
+  border-top:4px solid var(--forest)}
+.direct-card:hover{transform:translateY(-3px);box-shadow:0 14px 32px rgba(45,74,50,.12);border-color:var(--sage);border-top-color:var(--forest)}
 .direct-card .direct-body{padding:16px 18px 18px;display:flex;flex-direction:column;gap:6px;flex:1}
+
+/* Source chip — "● IN STORE" / "↗ AMAZON". Triple-redundant signal with
+   the top-stripe color and the button label so a fast-scrolling visitor
+   can tell at a glance whether they're looking at our inventory or an
+   affiliate pick. */
+.source-chip{display:inline-flex;align-items:center;gap:5px;
+  font-size:.6rem;font-weight:800;letter-spacing:.14em;text-transform:uppercase;
+  padding:4px 9px;border-radius:999px;align-self:flex-start;
+  margin-bottom:6px}
+.source-chip.in-store{background:rgba(45,74,50,.1);color:var(--forest);
+  border:1px solid rgba(45,74,50,.25)}
+.source-chip.amazon{background:rgba(169,136,67,.12);color:var(--tan-d,#a98843);
+  border:1px solid rgba(169,136,67,.3)}
+.source-chip .dot{width:6px;height:6px;border-radius:50%;background:var(--forest)}
 .direct-card .direct-name{font-family:'Bebas Neue',sans-serif;font-size:1.25rem;
   color:var(--forest);letter-spacing:.04em;text-transform:uppercase;line-height:1.1}
 .direct-card .direct-cat{font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;
@@ -116,7 +132,8 @@ main{flex:1;max-width:1080px;width:100%;margin:0 auto;padding:24px 24px 64px}
 .product-card{background:#fff;border:1px solid rgba(0,0,0,.06);border-radius:8px;
   overflow:hidden;display:flex;flex-direction:column;text-align:left;color:inherit;
   box-shadow:0 4px 12px rgba(0,0,0,.04);
-  transition:transform .2s ease,box-shadow .2s ease,border-color .2s ease}
+  transition:transform .2s ease,box-shadow .2s ease,border-color .2s ease;
+  border-top:4px solid var(--tan)}
 .product-card:hover{transform:translateY(-3px);box-shadow:0 14px 32px rgba(45,74,50,.12);border-color:var(--sage)}
 .product-photo{position:relative;aspect-ratio:4/3;
   background:linear-gradient(135deg,var(--cream-w),var(--cream));
@@ -349,6 +366,7 @@ function renderDirect(rows){
                     data-condition="${isUsed ? 'used' : 'new'}">
         <div class="product-photo">${otherBadge}${usedBadge}${photoHtml}</div>
         <div class="direct-body">
+          <span class="source-chip in-store"><span class="dot"></span>In Store</span>
           <div class="direct-cat">${esc(r.category || '')}</div>
           <div class="direct-name">${esc(r.name)}</div>
           ${r.description ? `<div class="direct-desc">${esc(r.description)}</div>` : ''}
@@ -451,6 +469,7 @@ function renderCards(rows){
         html += `<a class="product-card" href="${esc(url)}" target="_blank" rel="noopener sponsored">
           <div class="product-photo">${badge}${photoHtml}</div>
           <div class="product-body">
+            <span class="source-chip amazon">↗ Amazon</span>
             <div class="product-name">${esc(r.name)}</div>
             ${r.description ? `<div class="product-desc">${esc(r.description)}</div>` : ''}
             <span class="product-cta">View on Amazon
