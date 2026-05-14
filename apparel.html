@@ -60,6 +60,27 @@ main{flex:1;max-width:1080px;width:100%;margin:0 auto;padding:28px 24px 64px}
 .section-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(1.7rem,4vw,2.4rem);
   letter-spacing:.04em;line-height:1.05;color:var(--forest);margin-bottom:18px;text-transform:uppercase}
 
+/* FILTER BAR */
+.filter-bar{background:#fff;border:1px solid rgba(0,0,0,.06);border-radius:8px;
+  padding:14px;display:grid;gap:10px;margin-bottom:16px;grid-template-columns:1fr}
+@media(min-width:640px){.filter-bar{grid-template-columns:2fr 1fr 1fr auto;align-items:end}}
+.filter-field{display:flex;flex-direction:column;gap:4px;min-width:0}
+.filter-label{font-size:.68rem;letter-spacing:.12em;font-weight:700;text-transform:uppercase;color:var(--sage)}
+.filter-bar input,.filter-bar select{width:100%;padding:9px 12px;border:1px solid rgba(0,0,0,.12);
+  border-radius:4px;font:inherit;font-size:.9rem;color:var(--ink);background:#fbf7ef;min-width:0;
+  transition:border-color .15s ease,background .15s ease}
+.filter-bar input:focus,.filter-bar select:focus{outline:none;border-color:var(--sage);background:#fff}
+.filter-reset{background:transparent;border:1px solid rgba(0,0,0,.12);color:var(--ink-2);
+  padding:9px 14px;border-radius:4px;cursor:pointer;font-size:.85rem;font-weight:600;white-space:nowrap;
+  transition:background .15s ease,border-color .15s ease,color .15s ease}
+.filter-reset:hover{background:var(--cream);border-color:var(--sage);color:var(--forest)}
+.filter-meta{font-size:.74rem;letter-spacing:.1em;text-transform:uppercase;font-weight:700;
+  color:var(--ink-2);padding:0 4px 12px}
+.filter-meta strong{color:var(--forest)}
+.product-empty{grid-column:1/-1;text-align:center;padding:36px 16px;color:var(--ink-2);
+  border:1px dashed rgba(0,0,0,.12);border-radius:8px;background:rgba(255,255,255,.5)}
+.product-empty strong{display:block;color:var(--forest);font-size:1.05rem;margin-bottom:4px;font-weight:700}
+
 /* PRODUCT GRID */
 .product-grid{display:grid;grid-template-columns:1fr;gap:16px;margin-bottom:36px}
 @media(min-width:640px){.product-grid{grid-template-columns:repeat(3,1fr);gap:18px}}
@@ -262,6 +283,24 @@ footer a{color:var(--tan);font-weight:500}footer a:hover{color:#fff}
 
   <span class="section-eyebrow">Step 1</span>
   <h2 class="section-title">Choose your print</h2>
+
+  <div class="filter-bar" role="search" aria-label="Apparel filters">
+    <div class="filter-field" style="grid-column:1/-1">
+      <label class="filter-label" for="ap-search">Search</label>
+      <input id="ap-search" type="search" placeholder="e.g. logo tee, creek" autocomplete="off">
+    </div>
+    <div class="filter-field">
+      <label class="filter-label" for="ap-min">Min $</label>
+      <input id="ap-min" type="number" min="0" step="5" inputmode="numeric" placeholder="0">
+    </div>
+    <div class="filter-field">
+      <label class="filter-label" for="ap-max">Max $</label>
+      <input id="ap-max" type="number" min="0" step="5" inputmode="numeric" placeholder="Any">
+    </div>
+    <button class="filter-reset" type="button" id="ap-reset">Clear</button>
+  </div>
+  <div class="filter-meta"><strong id="ap-count">—</strong> matching</div>
+
   <div class="product-grid" id="product-grid">
     <!-- product cards rendered from Sheet -->
   </div>
@@ -388,10 +427,27 @@ function placementIcon(name){
   return `<svg viewBox="0 0 24 24">${tee}</svg>`;
 }
 
+/* ── product filters ─────────────────────────────────── */
+const AP_FILTER = { q: '', min: -Infinity, max: Infinity };
+
+function filteredApparel(){
+  return DATA.products.filter(p => {
+    const price = parseFloat(p.base_price) || 0;
+    if (price < AP_FILTER.min || price > AP_FILTER.max) return false;
+    if (AP_FILTER.q) {
+      const hay = ((p.name || '') + ' ' + (p.description || '')).toLowerCase();
+      if (hay.indexOf(AP_FILTER.q) === -1) return false;
+    }
+    return true;
+  });
+}
+
 /* ── product grid ────────────────────────────────────── */
 function renderProducts(){
   const grid = document.getElementById('product-grid');
+  const countEl = document.getElementById('ap-count');
   if (!DATA.products.length) {
+    if (countEl) countEl.textContent = '—';
     // Skeleton placeholders that mirror the final card shape — feels faster
     // than a "Loading…" text label and keeps layout from shifting on swap.
     const skeletons = [];
@@ -411,7 +467,13 @@ function renderProducts(){
     grid.innerHTML = skeletons.join('');
     return;
   }
-  grid.innerHTML = DATA.products.map(p => {
+  const visible = filteredApparel();
+  if (countEl) countEl.textContent = visible.length;
+  if (visible.length === 0) {
+    grid.innerHTML = '<div class="product-empty"><strong>No prints match</strong>Try a different search or widen the price range.</div>';
+    return;
+  }
+  grid.innerHTML = visible.map(p => {
     const available = isTrue(p.available);
     const img = resolveImg(p.photo);
     const photo = img
@@ -796,6 +858,32 @@ cmsBoot({
   url: MENU_URL,
   onApply: applyData,
 });
+
+/* ── filter wiring ───────────────────────────────────── */
+(function(){
+  const search = document.getElementById('ap-search');
+  const minIn  = document.getElementById('ap-min');
+  const maxIn  = document.getElementById('ap-max');
+  const reset  = document.getElementById('ap-reset');
+  if (!search) return; // page injected fragment missing — bail safely
+
+  let t;
+  function apply(){
+    AP_FILTER.q   = (search.value || '').toLowerCase().trim();
+    const lo = parseFloat(minIn.value), hi = parseFloat(maxIn.value);
+    AP_FILTER.min = isNaN(lo) ? -Infinity : lo;
+    AP_FILTER.max = isNaN(hi) ?  Infinity : hi;
+    renderProducts();
+  }
+  function debounced(){ clearTimeout(t); t = setTimeout(apply, 120); }
+  search.addEventListener('input', debounced);
+  minIn .addEventListener('input', debounced);
+  maxIn .addEventListener('input', debounced);
+  reset .addEventListener('click', () => {
+    search.value = ''; minIn.value = ''; maxIn.value = '';
+    apply(); search.focus();
+  });
+})();
 </script>
 
 <script src="cart.js" defer></script>

@@ -75,6 +75,28 @@ main{flex:1;max-width:1080px;width:100%;margin:0 auto;padding:24px 24px 64px}
   color:var(--forest);text-transform:uppercase;margin:8px 0 14px}
 .subgroup-head:not(:first-of-type){margin-top:32px}
 
+/* FILTER BAR */
+.filter-bar{background:#fff;border:1px solid rgba(0,0,0,.06);border-radius:8px;
+  padding:14px;display:grid;gap:10px;margin-bottom:12px;grid-template-columns:1fr}
+@media(min-width:640px){.filter-bar{grid-template-columns:2fr 1fr 1fr 1fr auto;align-items:end}}
+.filter-field{display:flex;flex-direction:column;gap:4px;min-width:0}
+.filter-label{font-size:.68rem;letter-spacing:.12em;font-weight:700;text-transform:uppercase;color:var(--sage)}
+.filter-bar input,.filter-bar select{width:100%;padding:9px 12px;border:1px solid rgba(0,0,0,.12);
+  border-radius:4px;font:inherit;font-size:.9rem;color:var(--ink);background:#fbf7ef;min-width:0;
+  transition:border-color .15s ease,background .15s ease}
+.filter-bar input:focus,.filter-bar select:focus{outline:none;border-color:var(--sage);background:#fff}
+.filter-reset{background:transparent;border:1px solid rgba(0,0,0,.12);color:var(--ink-2);
+  padding:9px 14px;border-radius:4px;cursor:pointer;font-size:.85rem;font-weight:600;white-space:nowrap;
+  transition:background .15s ease,border-color .15s ease,color .15s ease}
+.filter-reset:hover{background:var(--cream);border-color:var(--sage);color:var(--forest)}
+.filter-meta{font-size:.74rem;letter-spacing:.1em;text-transform:uppercase;font-weight:700;
+  color:var(--ink-2);padding:0 4px 16px;display:flex;justify-content:space-between;gap:12px}
+.filter-meta strong{color:var(--forest)}
+.filter-note{font-style:italic;font-weight:500;text-transform:none;letter-spacing:.02em;color:var(--ink-2)}
+.acc-empty{text-align:center;padding:36px 16px;color:var(--ink-2);
+  border:1px dashed rgba(0,0,0,.12);border-radius:8px;background:rgba(255,255,255,.5);margin-bottom:24px}
+.acc-empty strong{display:block;color:var(--forest);font-size:1.05rem;margin-bottom:4px;font-weight:700}
+
 /* PRODUCT GRID */
 .product-grid{display:grid;grid-template-columns:1fr;gap:16px}
 @media(min-width:560px){.product-grid{grid-template-columns:repeat(2,1fr)}}
@@ -235,6 +257,30 @@ footer a{color:var(--tan);font-weight:500}footer a:hover{color:#fff}
   <div class="aff-banner">
     <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>
     <div><strong data-cms-text="acc_disclosure_title">Amazon Associate disclosure.</strong> <span data-cms-text="acc_disclosure_body">The links below are affiliate links — if you buy through them, we may earn a small commission at no extra cost to you. We only recommend gear we'd actually use ourselves.</span></div>
+  </div>
+
+  <div class="filter-bar" role="search" aria-label="Accessory filters">
+    <div class="filter-field" style="grid-column:1/-1">
+      <label class="filter-label" for="ac-search">Search</label>
+      <input id="ac-search" type="search" placeholder="e.g. helmet, lock, saddle" autocomplete="off">
+    </div>
+    <div class="filter-field">
+      <label class="filter-label" for="ac-cat">Category</label>
+      <select id="ac-cat"><option value="">All categories</option></select>
+    </div>
+    <div class="filter-field">
+      <label class="filter-label" for="ac-min">Min $</label>
+      <input id="ac-min" type="number" min="0" step="5" inputmode="numeric" placeholder="0">
+    </div>
+    <div class="filter-field">
+      <label class="filter-label" for="ac-max">Max $</label>
+      <input id="ac-max" type="number" min="0" step="5" inputmode="numeric" placeholder="Any">
+    </div>
+    <button class="filter-reset" type="button" id="ac-reset">Clear</button>
+  </div>
+  <div class="filter-meta">
+    <span><strong id="ac-count">—</strong> matching</span>
+    <span class="filter-note" id="ac-pricenote">Price filter applies to in-shop items only — Amazon picks always show</span>
   </div>
 
   <!-- Direct-sale inventory rendered above the affiliate picks. Hidden
@@ -504,6 +550,66 @@ function applyCMS(map){
   });
 }
 
+/* ── FILTERS ────────────────────────────────────────
+   The data is split across two arrays (direct vs affiliate). We
+   keep the raw arrays here and re-filter on every input change so
+   the rendered grids stay in sync with the controls. Categories
+   are unioned across both arrays for the dropdown.
+   ───────────────────────────────────────────────── */
+const ACC_RAW    = { direct: [], affiliate: [] };
+const ACC_FILTER = { q: '', cat: '', min: -Infinity, max: Infinity };
+
+function matchAcc(r){
+  const cat = String(r.category || '').trim();
+  if (ACC_FILTER.cat && cat !== ACC_FILTER.cat) return false;
+  if (ACC_FILTER.q) {
+    const hay = ((r.name || '') + ' ' + (r.description || '') + ' ' +
+                 (r.subgroup || '') + ' ' + cat).toLowerCase();
+    if (hay.indexOf(ACC_FILTER.q) === -1) return false;
+  }
+  return true;
+}
+
+function applyAccFilters(){
+  // Price filter applies to direct items only — affiliate Amazon
+  // picks have no fixed price on our side (Amazon owns pricing).
+  const directOut = ACC_RAW.direct.filter(r => {
+    if (!matchAcc(r)) return false;
+    const p = parseFloat(r.price);
+    if (isFinite(p) && p > 0) {
+      if (p < ACC_FILTER.min || p > ACC_FILTER.max) return false;
+    }
+    return true;
+  });
+  const affOut = ACC_RAW.affiliate.filter(matchAcc);
+
+  renderDirect(directOut);
+  renderCards(affOut);
+
+  const total = directOut.length + affOut.length;
+  const countEl = document.getElementById('ac-count');
+  if (countEl) countEl.textContent = total;
+
+  // Replace the affiliate skeleton entirely when nothing matches in
+  // either grid, so the page doesn't render a blank middle band.
+  if (total === 0) {
+    document.getElementById('acc-grid').innerHTML =
+      '<div class="acc-empty"><strong>No matches</strong>Try clearing the search or widening the price range.</div>';
+  }
+}
+
+function buildAccCategoryOptions(){
+  const all = ACC_RAW.direct.concat(ACC_RAW.affiliate);
+  const cats = [...new Set(all.map(r => String(r.category || '').trim()).filter(Boolean))]
+    .sort((a,b) => a.localeCompare(b));
+  const sel = document.getElementById('ac-cat');
+  if (!sel) return;
+  const current = sel.value;
+  sel.innerHTML = '<option value="">All categories</option>' +
+    cats.map(c => `<option value="${esc(c)}">${esc(c)}</option>`).join('');
+  if (current && cats.indexOf(current) > -1) sel.value = current;
+}
+
 /* ── CMS bootstrap (cache, TTL, loader) ──────────── */
 let _accApplied = false;
 cmsBoot({
@@ -512,10 +618,41 @@ cmsBoot({
   onApply(data) {
     _accApplied = true;
     applyCMS(data.site || {});
-    renderDirect(data.directInventory || []);
-    renderCards(data.accessories || []);
+    ACC_RAW.direct    = Array.isArray(data.directInventory) ? data.directInventory : [];
+    ACC_RAW.affiliate = Array.isArray(data.accessories)     ? data.accessories     : [];
+    buildAccCategoryOptions();
+    applyAccFilters();
   },
 });
+
+/* ── filter wiring ───────────────────────────────────── */
+(function(){
+  const search = document.getElementById('ac-search');
+  const catSel = document.getElementById('ac-cat');
+  const minIn  = document.getElementById('ac-min');
+  const maxIn  = document.getElementById('ac-max');
+  const reset  = document.getElementById('ac-reset');
+  if (!search) return;
+
+  let t;
+  function apply(){
+    ACC_FILTER.q   = (search.value || '').toLowerCase().trim();
+    ACC_FILTER.cat = catSel.value || '';
+    const lo = parseFloat(minIn.value), hi = parseFloat(maxIn.value);
+    ACC_FILTER.min = isNaN(lo) ? -Infinity : lo;
+    ACC_FILTER.max = isNaN(hi) ?  Infinity : hi;
+    applyAccFilters();
+  }
+  function debounced(){ clearTimeout(t); t = setTimeout(apply, 120); }
+  search.addEventListener('input',  debounced);
+  catSel.addEventListener('change', apply);
+  minIn .addEventListener('input',  debounced);
+  maxIn .addEventListener('input',  debounced);
+  reset .addEventListener('click', () => {
+    search.value = ''; catSel.value = ''; minIn.value = ''; maxIn.value = '';
+    apply(); search.focus();
+  });
+})();
 // Show a friendly error if the first-ever fetch fails (no cache to fall back on).
 window.addEventListener('load', () => setTimeout(() => {
   if (!_accApplied) {
