@@ -626,8 +626,24 @@ function handleCartOrder(p) {
     sh.appendRow([id, now, customer.first, customer.last, customer.email, customer.phone,
                   items.length, subtotal, itemsText, customer.notes, customer.page]);
 
+    // Auto-draft an Invoices row using the same column shape that
+    // invoice.html's `addOrder` action writes — so the draft shows up in
+    // balance.html under "Open balances" and can be opened in invoice.html
+    // via ?edit=<cartId>. paymentLink is left blank intentionally so
+    // nothing charges the customer until Pat reviews + clicks Create
+    // Payment Link in the existing flow.
+    let invoiceUrl = '';
+    try {
+      invoiceUrl = _createDraftInvoiceFromCart_(id, now, customer, items, subtotal);
+    } catch (draftErr) {
+      console.warn('Cart draft-invoice failed (cart row still saved): ' + draftErr);
+    }
+
     // Sales-team email — sent to BOTH inboxes Pat configured.
     try {
+      const reviewLine = invoiceUrl
+        ? ['', '👉 Review & send: ' + invoiceUrl, '']
+        : [''];
       const body = [
         'New cart order — ' + id,
         '',
@@ -644,9 +660,9 @@ function handleCartOrder(p) {
         '',
         'From:     ' + (customer.page || '(unknown page)'),
         'Logged:   ' + now,
-        '',
+      ].concat(reviewLine).concat([
         'Follow up to confirm and send a payment link.',
-      ].join('\n');
+      ]).join('\n');
       MailApp.sendEmail({
         to:      'salesteam@cruisethecreek.com,info@cruisethecreek.com',
         replyTo: customer.email || 'salesteam@cruisethecreek.com',
@@ -663,27 +679,135 @@ function handleCartOrder(p) {
     // 1024 field-value cap.
     var itemsForDiscord = itemsText || '(none)';
     if (itemsForDiscord.length > 1020) itemsForDiscord = itemsForDiscord.substring(0, 1017) + '...';
+    const discordFields = [
+      { name: '👤 Customer', value:
+          ((customer.first || '') + ' ' + (customer.last || '')).trim() +
+          (customer.phone ? '\n📞 ' + customer.phone : '') +
+          (customer.email ? '\n✉️ ' + customer.email : ''), inline: false },
+      { name: '🛍️ Items (' + items.length + ')', value: itemsForDiscord, inline: false },
+      { name: '💵 Subtotal', value: '$' + subtotal.toFixed(2), inline: true },
+      { name: '🌐 Page', value: (customer.page || '(unknown)').substring(0, 200), inline: true },
+      { name: '📝 Notes', value: customer.notes || '(none)', inline: false },
+    ];
+    if (invoiceUrl) {
+      discordFields.push({ name: '👉 Review & send', value: invoiceUrl, inline: false });
+    }
     postToDiscord_(
       '🛒 New cart order — ' + id,
       13215086, // tan 0xC9A96E
-      [
-        { name: '👤 Customer', value:
-            ((customer.first || '') + ' ' + (customer.last || '')).trim() +
-            (customer.phone ? '\n📞 ' + customer.phone : '') +
-            (customer.email ? '\n✉️ ' + customer.email : ''), inline: false },
-        { name: '🛍️ Items (' + items.length + ')', value: itemsForDiscord, inline: false },
-        { name: '💵 Subtotal', value: '$' + subtotal.toFixed(2), inline: true },
-        { name: '🌐 Page', value: (customer.page || '(unknown)').substring(0, 200), inline: true },
-        { name: '📝 Notes', value: customer.notes || '(none)', inline: false },
-      ],
-      'Follow up to confirm and send a payment link'
+      discordFields,
+      invoiceUrl
+        ? 'Draft invoice ready — click Review & send to approve and generate the payment link'
+        : 'Follow up to confirm and send a payment link'
     );
 
-    return json({ ok: true, id: id, subtotal: subtotal });
+    return json({ ok: true, id: id, subtotal: subtotal, invoiceUrl: invoiceUrl });
   } catch (err) {
     console.error('handleCartOrder failed: ' + err);
     return json({ ok: false, error: String(err) });
   }
+}
+
+/**
+ * Auto-create a draft Invoices row from a cart submission. Mirrors the
+ * shape of invoice.html's `addOrder` action (Project C) so the row shows
+ * up in balance.html's open-balances list and can be opened in
+ * invoice.html via ?edit=<cartId>. paymentLink is left blank — Pat
+ * reviews / edits then clicks Create Payment Link to generate the
+ * Stripe link via the existing flow.
+ *
+ * Tax rate is pulled from SiteConfig key `default_tax_rate` (decimal,
+ * e.g. 0.0725 for 7.25%). Falls back to Ohio + Mahoning County's
+ * combined retail rate (7.25%) if not set. Discount stays 0 — Pat
+ * adds discounts manually if applicable to the specific order.
+ *
+ * Returns the customer-facing invoice URL for inclusion in the email +
+ * Discord ping. Returns '' if anything failed; the caller logs the
+ * Cart_Orders row regardless so no data is lost on draft failure.
+ */
+function _createDraftInvoiceFromCart_(cartId, now, customer, items, subtotal) {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  let sh = ss.getSheetByName('Invoices');
+  if (!sh) {
+    // Defensive: invoice.html's addOrder creates the tab on first call
+    // with a known header. If Pat never ran an invoice flow before, no
+    // tab exists yet — bail out quietly so cart submissions don't fail.
+    return '';
+  }
+
+  const lastCol = sh.getLastColumn();
+  if (lastCol < 1) return '';
+  const headers = sh.getRange(1, 1, 1, lastCol).getValues()[0]
+                    .map(function(h){ return String(h || '').trim(); });
+
+  // Tax rate from SiteConfig (decimal — 0.0725 = 7.25%). Fallback to OH
+  // + Mahoning County combined rate. Pat can override by setting the key
+  // in the Sheet's SiteConfig tab.
+  let taxRate = 0.0725;
+  try {
+    const v = getSiteConfigValue_('default_tax_rate');
+    const parsed = parseFloat(v);
+    if (!isNaN(parsed) && parsed >= 0 && parsed < 1) taxRate = parsed;
+  } catch (e) { /* SiteConfig key missing — use default */ }
+
+  const taxAmt    = +(subtotal * taxRate).toFixed(2);
+  const total     = +(subtotal + taxAmt).toFixed(2);
+  const balanceDue = total;
+
+  // Line items in the shape invoice.html expects: { description, qty, price }.
+  const lineItemsJson = JSON.stringify(items.map(function(it){
+    const c = (it && it.configuration) || {};
+    const cfg = [c.style, c.size, c.color]
+      .filter(function(v){ return v && String(v).trim(); }).join(' / ');
+    const cond = (it && it.condition === 'used') ? ' [Used]' : '';
+    const description = (it.brand ? it.brand + ' ' : '') +
+                        (it.name || '(unnamed)') +
+                        (cfg ? ' (' + cfg + ')' : '') + cond;
+    return {
+      description: description,
+      qty:         parseInt(it && it.qty, 10) || 1,
+      price:       parseFloat(it && it.price) || 0,
+    };
+  }));
+
+  // Map of column-name → value. Column order is whatever the Invoices
+  // tab uses — we read the header and place values by name so we're
+  // resilient to schema drift between Project A and Project C.
+  const today = Utilities.formatDate(now, 'America/New_York', 'yyyy-MM-dd');
+  const valByCol = {
+    invoiceNumber:   cartId,
+    invoiceDate:     today,
+    dueDate:         today,
+    customerName:    (customer.first + ' ' + customer.last).trim(),
+    customerEmail:   customer.email || '',
+    customerPhone:   customer.phone || '',
+    customerAddress: '',
+    lineItems:       lineItemsJson,
+    subtotal:        subtotal.toFixed(2),
+    discountPct:     '0.00',
+    discountAmt:     '0.00',
+    tax:             taxAmt.toFixed(2),
+    total:           total.toFixed(2),
+    deposit:         '0.00',
+    balanceDue:      balanceDue.toFixed(2),
+    paymentMode:     'full',
+    depositMethod:   '',
+    depositRef:      '',
+    paymentNotes:    customer.notes
+                       ? ('From cart ' + cartId + ' — ' + customer.notes)
+                       : ('Auto-drafted from cart ' + cartId),
+    paymentLink:     '',  // Blank == draft. Filled in when Pat clicks Create Payment Link.
+    timestamp:       now,
+    status:          'draft',
+  };
+
+  // Build the row by header order; unknown headers get blank cells.
+  const row = headers.map(function(h){
+    return Object.prototype.hasOwnProperty.call(valByCol, h) ? valByCol[h] : '';
+  });
+  sh.appendRow(row);
+
+  return 'https://www.cruisethecreek.com/invoice.html?edit=' + encodeURIComponent(cartId);
 }
 
 /**
