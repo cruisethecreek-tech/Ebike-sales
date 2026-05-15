@@ -870,19 +870,30 @@ function paintCatalog(inventory){
   let discNames = [];
   try { discNames = JSON.parse(localStorage.getItem('ctc_discontinued_names') || '[]'); }
   catch(e) {}
+  // Per-bike category overrides written by Sales Pro. Map of
+  // lowercased model name → comma-separated category string. Merged
+  // into classifyBike via the same explicit-override path that reads
+  // the sheet's `categories` column.
+  let catMap = {};
+  try { catMap = JSON.parse(localStorage.getItem('ctc_bike_categories') || '{}') || {}; }
+  catch(e) {}
   CATALOG = (inventory || [])
     .filter(b => b
       && b.discontinued !== 'Yes' && b.discontinued !== true
       && !discNames.includes(String(b.name || '').toLowerCase().trim()))
-    .map(b => ({
-      id:       b.id || '',
-      name:     b.name || '(unnamed)',
-      brand:    b.brand || '',
-      style:    b.subtitle || '',
-      price:    Number(b.price) || 0,
-      img:      firstBikeImage(b.colors),
-      cats:     classifyBike(b),
-    }));
+    .map(b => {
+      const localCats = catMap[String(b.name || '').toLowerCase().trim()] || '';
+      const merged = [b.categories, localCats].filter(Boolean).join(',');
+      return {
+        id:       b.id || '',
+        name:     b.name || '(unnamed)',
+        brand:    b.brand || '',
+        style:    b.subtitle || '',
+        price:    Number(b.price) || 0,
+        img:      firstBikeImage(b.colors),
+        cats:     classifyBike(Object.assign({}, b, { categories: merged })),
+      };
+    });
 
   // Update header count (total in catalog before filtering).
   document.getElementById('bikeCount').textContent =

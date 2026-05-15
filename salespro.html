@@ -1207,7 +1207,7 @@ function saveBikeOverrides() {
       // Always save discontinued regardless of value (including 'No')
       if (b.discontinued !== undefined) fields.discontinued = b.discontinued;
       // Save other override fields only when set
-      ['url','price','score','subtitle','features','img'].forEach(k => {
+      ['url','price','score','subtitle','features','img','categories'].forEach(k => {
         if (b[k] !== undefined && b[k] !== null && b[k] !== '') fields[k] = b[k];
       });
       if (Object.keys(fields).length) overrides[b.id] = fields;
@@ -1218,6 +1218,17 @@ function saveBikeOverrides() {
   // Publish discontinued bike names so brand pages can filter them out
   const discNames = bikes.filter(b => b.discontinued === 'Yes').map(b => (b.model||'').toLowerCase().trim());
   localStorage.setItem('ctc_discontinued_names', JSON.stringify(discNames));
+  // Publish per-bike catalog categories so shop.html can use them to
+  // place bikes in the right style filter (Trike / Folding / Mid Drive
+  // / Step Thru / Step Over). Keyed by lowercased model name to match
+  // BikeInventory.name on the shop side.
+  const catMap = {};
+  bikes.forEach(b => {
+    const key = (b.model || '').toLowerCase().trim();
+    const val = String(b.categories || '').trim();
+    if (key && val) catMap[key] = val;
+  });
+  localStorage.setItem('ctc_bike_categories', JSON.stringify(catMap));
 }
 
 function loadBikeOverrides() {
@@ -1238,6 +1249,14 @@ function loadBikeOverrides() {
     // Refresh the discontinued names list for brand pages
     const discNames = bikes.filter(b => b.discontinued === 'Yes').map(b => (b.model||'').toLowerCase().trim());
     localStorage.setItem('ctc_discontinued_names', JSON.stringify(discNames));
+    // Refresh the categories map for shop.html
+    const catMap = {};
+    bikes.forEach(b => {
+      const key = (b.model || '').toLowerCase().trim();
+      const val = String(b.categories || '').trim();
+      if (key && val) catMap[key] = val;
+    });
+    localStorage.setItem('ctc_bike_categories', JSON.stringify(catMap));
   } catch(e) { console.warn('loadBikeOverrides error:', e); }
 }
 
@@ -1930,6 +1949,7 @@ const FF=[
   {k:'weight',   l:'Weight (lbs)',     t:'number'},
   {k:'payload',  l:'Payload (lbs)',    t:'number'},
   {k:'img',          l:'Bike Image URL',       t:'text'},
+  {k:'categories',   l:'Catalog Categories',   t:'text',   placeholder:'Trike, Folding, Mid Drive, Step Thru, Step Over'},
   {k:'discontinued', l:'Discontinued',          t:'select', o:['No','Yes']},
   {k:'url',          l:'Manufacturer URL',       t:'text'},
 ];
@@ -1937,9 +1957,10 @@ const FF=[
 function buildForm(d){
   document.getElementById('formFields').innerHTML=FF.map(f=>{
     const v=d[f.k]??'';
+    const ph=f.placeholder?` placeholder="${f.placeholder}"`:'';
     return`<div><label class="fl">${f.l}</label>${f.t==='select'
       ?`<select id="ff_${f.k}" class="fi" onchange="updPrev()">${f.o.map(o=>`<option${o==v?' selected':''}>${o}</option>`).join('')}</select>`
-      :`<input type="${f.t}" id="ff_${f.k}" value="${v}" class="fi" oninput="updPrev()">`
+      :`<input type="${f.t}" id="ff_${f.k}" value="${v}" class="fi"${ph} oninput="updPrev()">`
     }</div>`;
   }).join('');
   document.getElementById('fUrl').value=d.url||'';
