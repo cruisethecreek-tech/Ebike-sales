@@ -792,14 +792,51 @@ function bikeBrandSlug(brand){
   return b.replace(/[^a-z0-9]/g, '');
 }
 
+/* Canonical buckets the shop dropdown exposes, in display order. */
+const CANON_CATS = ['Trike', 'Folding', 'Mid Drive', 'Step Thru', 'Step Over'];
+
+/* Map a free-form category string (sheet input) to one of the
+   canonical buckets — tolerant of case, spacing, and hyphens.
+   Returns null if it doesn't match any bucket so typos in the
+   sheet don't silently create phantom filters. */
+function normalizeCat(raw){
+  const n = String(raw || '').toLowerCase().replace(/[^a-z]/g, '');
+  if (!n) return null;
+  if (n === 'trike' || n === 'threewheel' || n === 'threewheeler') return 'Trike';
+  if (n === 'fold' || n === 'folding' || n === 'foldable')          return 'Folding';
+  if (n === 'mid'  || n === 'middrive')                              return 'Mid Drive';
+  if (n === 'stepthru' || n === 'stepthrough')                       return 'Step Thru';
+  if (n === 'stepover' || n === 'diamond' || n === 'crossbar')       return 'Step Over';
+  return null;
+}
+
 /* Classify a bike against the five filter buckets the shop dropdown
    exposes: Trike, Folding, Mid Drive, Step Thru, Step Over. A single
    bike can match multiple buckets (e.g. a folding step-thru) — we
    return an array and the filter passes the bike if the selected
-   bucket is anywhere in it. Heuristics fall back on subtitle, name,
-   the styles[] array, and motor spec text. */
+   bucket is anywhere in it.
+
+   Order of precedence:
+   1. Explicit `categories` column on the bike row (comma-separated
+      or array). Authoritative — if the sheet sets it, those buckets
+      are always included.
+   2. Heuristics over subtitle, name, the styles[] array, and motor
+      spec text. Runs in addition to the explicit column so admins
+      don't have to redeclare buckets the classifier already gets
+      right; they only need to set `categories` for fixes/additions. */
 function classifyBike(b){
   const cats = [];
+
+  // 1. Explicit override from the sheet's `categories` column.
+  const explicit = Array.isArray(b.categories)
+    ? b.categories
+    : String(b.categories || '').split(/[,;|]/);
+  explicit.forEach(raw => {
+    const c = normalizeCat(raw);
+    if (c && cats.indexOf(c) === -1) cats.push(c);
+  });
+
+  // 2. Heuristics (always run, results unioned with explicit).
   const sub      = String(b.subtitle || '').toLowerCase();
   const nm       = String(b.name || '').toLowerCase();
   const text     = sub + ' ' + nm;
@@ -808,33 +845,55 @@ function classifyBike(b){
     ? Object.values(b.specs).map(v => String(v).toLowerCase()).join(' ')
     : '';
 
+  const add = (c) => { if (cats.indexOf(c) === -1) cats.push(c); };
   if (/trike|three.?wheel/.test(text))
-    cats.push('Trike');
+    add('Trike');
   if (/fold/.test(text) || styles.some(s => /fold/.test(s)))
-    cats.push('Folding');
+    add('Folding');
   if (/mid.?drive/.test(specVals) || /mid.?drive/.test(text))
-    cats.push('Mid Drive');
+    add('Mid Drive');
   if (styles.some(s => /step.?thru|step.?through/.test(s)) || /step.?thru|step.?through/.test(text))
-    cats.push('Step Thru');
+    add('Step Thru');
   if (styles.some(s => /diamond|step.?over/.test(s)) || /step.?over/.test(text))
-    cats.push('Step Over');
+    add('Step Over');
 
   return cats;
 }
 
 function paintCatalog(inventory){
-  // Drop discontinued + anything without a price; normalize.
+  // Two-tier discontinue gate, matching the brand pages:
+  //   1. The sheet's `discontinued` column (canonical, server-side).
+  //   2. A local override list at `ctc_discontinued_names` — admins
+  //      can stash a JSON array of lowercased bike names in
+  //      localStorage to hide bikes from the catalog without
+  //      touching the sheet. Same key the brand pages already honor.
+  let discNames = [];
+  try { discNames = JSON.parse(localStorage.getItem('ctc_discontinued_names') || '[]'); }
+  catch(e) {}
+  // Per-bike category overrides written by Sales Pro. Map of
+  // lowercased model name → comma-separated category string. Merged
+  // into classifyBike via the same explicit-override path that reads
+  // the sheet's `categories` column.
+  let catMap = {};
+  try { catMap = JSON.parse(localStorage.getItem('ctc_bike_categories') || '{}') || {}; }
+  catch(e) {}
   CATALOG = (inventory || [])
-    .filter(b => b && b.discontinued !== 'Yes' && b.discontinued !== true)
-    .map(b => ({
-      id:       b.id || '',
-      name:     b.name || '(unnamed)',
-      brand:    b.brand || '',
-      style:    b.subtitle || '',
-      price:    Number(b.price) || 0,
-      img:      firstBikeImage(b.colors),
-      cats:     classifyBike(b),
-    }));
+    .filter(b => b
+      && b.discontinued !== 'Yes' && b.discontinued !== true
+      && !discNames.includes(String(b.name || '').toLowerCase().trim()))
+    .map(b => {
+      const localCats = catMap[String(b.name || '').toLowerCase().trim()] || '';
+      const merged = [b.categories, localCats].filter(Boolean).join(',');
+      return {
+        id:       b.id || '',
+        name:     b.name || '(unnamed)',
+        brand:    b.brand || '',
+        style:    b.subtitle || '',
+        price:    Number(b.price) || 0,
+        img:      firstBikeImage(b.colors),
+        cats:     classifyBike(Object.assign({}, b, { categories: merged })),
+      };
+    });
 
   // Update header count (total in catalog before filtering).
   document.getElementById('bikeCount').textContent =
