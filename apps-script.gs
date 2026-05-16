@@ -111,6 +111,9 @@ function _doGetInner(e, action) {
   if (action === 'bridgeApplication') {
     return handleBridgeApplication(e.parameter || {});
   }
+  if (action === 'invoiceCreated') {
+    return handleInvoiceCreated(e.parameter || {});
+  }
   if (action === 'chatLog') {
     return handleChatLog(e.parameter || {});
   }
@@ -1033,6 +1036,123 @@ function handleBridgeApplication(p) {
     return json({ ok: true, id: row.id });
   } catch (err) {
     console.error('handleBridgeApplication failed: ' + err);
+    return json({ ok: false, error: String(err) });
+  }
+}
+
+/**
+ * Notification handler for invoice.html submissions. The Sheet write
+ * itself happens in a separate Apps Script ("Project C", deployment
+ * AKfycbxmzlQHP4ghYbTzInhTANG7Wv9Cjj4dHTPFv-m8Q7GYPwbtx0yC7ydt8Nd_gFLobsBE
+ * via `?action=addOrder`); that's untouched. This handler exists purely
+ * to fan out a staff email + Discord push so Pat hears about new
+ * invoices on the same channels as cart/booking/Bridge submissions.
+ *
+ * invoice.html calls this in parallel with addOrder. Failure to notify
+ * doesn't roll anything back — the Invoices row is the source of truth.
+ *
+ * Stripe customer receipts (the "you paid $X" email) are a Stripe
+ * dashboard toggle (Settings → Customer emails → Successful payments),
+ * not anything this script controls.
+ */
+function handleInvoiceCreated(p) {
+  const json = function(obj) {
+    return ContentService.createTextOutput(JSON.stringify(obj))
+      .setMimeType(ContentService.MimeType.JSON);
+  };
+
+  try {
+    const num         = String(p.invoiceNumber  || '').trim() || '(no #)';
+    const customer    = String(p.customerName   || '').trim() || '(no name)';
+    const email       = String(p.customerEmail  || '').trim();
+    const phone       = String(p.customerPhone  || '').trim();
+    const total       = parseFloat(p.total)      || 0;
+    const balanceDue  = parseFloat(p.balanceDue) || 0;
+    const deposit     = parseFloat(p.deposit)    || 0;
+    const paymentMode = String(p.paymentMode    || 'full').trim();
+    const paymentLink = String(p.paymentLink    || '').trim();
+    const dMethod     = String(p.depositMethod  || '').trim();
+    const dRef        = String(p.depositRef     || '').trim();
+    const notes       = String(p.paymentNotes   || '').trim();
+    const invDate     = String(p.invoiceDate    || '').trim();
+
+    // Items come over as JSON-stringified array. Best-effort parse —
+    // failures yield an empty list rather than 500-ing the request.
+    let items = [];
+    try { items = JSON.parse(p.lineItems || '[]') || []; }
+    catch (e) { items = []; }
+    if (!Array.isArray(items)) items = [];
+    const itemsText = items.map(function(it){
+      const qty = parseFloat(it.qty) || 0;
+      const price = parseFloat(it.price) || 0;
+      return '  · ' + (it.description || '(no desc)') +
+             '  ×' + qty + ' @ $' + price.toFixed(2);
+    }).join('\n');
+
+    // paymentMode strings come from invoice.html: 'full', 'cashDeposit',
+    // 'paidInFullCash'. Human-readable for the email + Discord.
+    const modeLabel = paymentMode === 'paidInFullCash'
+        ? 'Paid in full (' + (dMethod || 'cash') + ')'
+        : paymentMode === 'cashDeposit'
+        ? 'Cash deposit + Stripe balance'
+        : 'Full charge via Stripe';
+
+    try {
+      const body = [
+        'New invoice — ' + num,
+        '',
+        'Customer: ' + customer,
+        'Email:    ' + (email || '(none)'),
+        'Phone:    ' + (phone || '(none)'),
+        '',
+        'Date:     ' + (invDate || '(unset)'),
+        'Total:    $' + total.toFixed(2),
+        'Deposit:  $' + deposit.toFixed(2) + (dMethod ? '  (' + dMethod + (dRef ? ' / ref ' + dRef : '') + ')' : ''),
+        'Balance:  $' + balanceDue.toFixed(2),
+        'Mode:     ' + modeLabel,
+        '',
+        'Items (' + items.length + '):',
+        itemsText || '(none)',
+        '',
+        'Notes:    ' + (notes || '(none)'),
+        '',
+        paymentLink ? '👉 Payment link: ' + paymentLink : '(no payment link — cash/check flow)',
+      ].join('\n');
+      MailApp.sendEmail({
+        to:      'salesteam@cruisethecreek.com,info@cruisethecreek.com',
+        replyTo: email || 'salesteam@cruisethecreek.com',
+        subject: 'Invoice ' + num + ' — ' + customer + ', $' + total.toFixed(0),
+        body:    body,
+      });
+    } catch (mailErr) {
+      console.warn('Invoice notify email failed: ' + mailErr);
+    }
+
+    // Discord embed. Items truncated to fit the 1024-char field cap.
+    var itemsForDiscord = itemsText || '(none)';
+    if (itemsForDiscord.length > 1020) itemsForDiscord = itemsForDiscord.substring(0, 1017) + '...';
+    const fields = [
+      { name: '👤 Customer', value:
+          customer +
+          (phone ? '\n📞 ' + phone : '') +
+          (email ? '\n✉️ ' + email : ''), inline: false },
+      { name: '💵 Total',   value: '$' + total.toFixed(2), inline: true },
+      { name: '💰 Balance', value: '$' + balanceDue.toFixed(2), inline: true },
+      { name: '🧾 Mode',    value: modeLabel, inline: true },
+      { name: '🛍️ Items (' + items.length + ')', value: itemsForDiscord, inline: false },
+    ];
+    if (notes) fields.push({ name: '📝 Notes', value: notes.substring(0, 1020), inline: false });
+    if (paymentLink) fields.push({ name: '👉 Payment link', value: paymentLink, inline: false });
+    postToDiscord_(
+      '🧾 New invoice — ' + num,
+      3447003, // soft blue 0x3498DB — distinct from cart (tan) / Bridge (tan-2)
+      fields,
+      paymentLink ? 'Customer can pay via the link above' : 'Cash/check flow — no Stripe link'
+    );
+
+    return json({ ok: true, invoiceNumber: num });
+  } catch (err) {
+    console.error('handleInvoiceCreated failed: ' + err);
     return json({ ok: false, error: String(err) });
   }
 }

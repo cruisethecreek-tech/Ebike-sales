@@ -1228,6 +1228,10 @@
     <script>
         const TAX_RATE = 0.0575;
         const AS_URL = 'https://script.google.com/macros/s/AKfycbxmzlQHP4ghYbTzInhTANG7Wv9Cjj4dHTPFv-m8Q7GYPwbtx0yC7ydt8Nd_gFLobsBE/exec';
+        // Sheet writes go to AS_URL (Project C). Staff email + Discord
+        // notification go through the CMS Apps Script — same one apparel /
+        // cart / booking use — so all notification logic lives in one repo.
+        const CMS_URL = 'https://script.google.com/macros/s/AKfycbxjg2ZsPCZNsmJEStYA0bRdsnkm4nNS-m-HNhm_Gin56VIVeYWVRE5j51j30zVHhb4PmQ/exec';
 
         document.getElementById('headerDate').textContent = new Date().toLocaleDateString('en-US', {month: 'short', day: 'numeric', year: 'numeric'});
 
@@ -1585,6 +1589,7 @@
                 showStatus('Saving paid invoice…', 'success');
                 try {
                     logOrderToSheet(invoiceData, '');
+                    notifyInvoiceCreated(invoiceData, '');
                     showStatus('Invoice saved as paid (' + (depositMethod || 'cash') + ') for ' + invoiceData.customerName, 'success');
                     document.getElementById('paymentLinkBox').classList.remove('active');
                     setTimeout(loadNextInvoiceNumber, 1500);
@@ -1617,6 +1622,7 @@
                     document.getElementById('paymentLinkDisplay').textContent = data.paymentLink;
                     document.getElementById('paymentLinkBox').classList.add('active');
                     logOrderToSheet(invoiceData, data.paymentLink);
+                    notifyInvoiceCreated(invoiceData, data.paymentLink);
 
                     // Pre-fetch the next invoice number so a new invoice can be started without resetting
                     setTimeout(loadNextInvoiceNumber, 1500);
@@ -1627,6 +1633,41 @@
                 showStatus('Error: ' + err.message, 'error');
             } finally {
                 submitBtn.disabled = false;
+            }
+        }
+
+        // Fan out a staff email + Discord ping to the CMS Apps Script.
+        // Independent of the Project C sheet write — failure here doesn't
+        // block invoice creation, success here doesn't depend on the
+        // sheet write completing. Uses no-cors so we don't block on the
+        // CORS preflight; we never read the response.
+        function notifyInvoiceCreated(invoiceData, paymentLink) {
+            try {
+                const params = new URLSearchParams({
+                    action          : 'invoiceCreated',
+                    invoiceNumber   : invoiceData.invoiceNumber || '',
+                    invoiceDate     : invoiceData.invoiceDate || '',
+                    customerName    : invoiceData.customerName || '',
+                    customerEmail   : invoiceData.customerEmail || '',
+                    customerPhone   : invoiceData.customerPhone || '',
+                    lineItems       : JSON.stringify(invoiceData.items || []),
+                    subtotal        : (invoiceData.subtotal || 0).toFixed(2),
+                    tax             : (invoiceData.tax || 0).toFixed(2),
+                    total           : (invoiceData.total || 0).toFixed(2),
+                    deposit         : (invoiceData.deposit || 0).toFixed(2),
+                    balanceDue      : (invoiceData.balanceDue || 0).toFixed(2),
+                    paymentMode     : invoiceData.paymentMode || 'full',
+                    depositMethod   : invoiceData.depositMethod || '',
+                    depositRef      : invoiceData.depositRef || '',
+                    paymentNotes    : invoiceData.paymentNotes || '',
+                    paymentLink     : paymentLink || ''
+                });
+                // no-cors keeps this fire-and-forget; we only care that the
+                // request reached Google, not what came back.
+                fetch(CMS_URL + '?' + params.toString(), { method: 'GET', mode: 'no-cors' })
+                    .catch(err => console.warn('[invoiceCreated] notify failed:', err));
+            } catch (err) {
+                console.warn('[invoiceCreated] notify threw:', err);
             }
         }
 
