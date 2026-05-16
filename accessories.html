@@ -250,8 +250,8 @@ footer a{color:var(--tan);font-weight:500}footer a:hover{color:#fff}
 </header>
 
 <section class="hero">
-  <!-- HERO PHOTO SLOT — set src here OR from Pages.acc_hero_photo (filename in /media, /images, or full URL). -->
-  <img class="hero-img" data-cms-src="acc_hero_photo" alt=""
+  <!-- HERO PHOTO SLOT — set src here OR from Pages.hero_photo on the Accessories row (filename in /media, /images, or full URL). -->
+  <img class="hero-img" data-cms-src="hero_photo" alt=""
        onload="this.classList.add('loaded');this.closest('.hero').classList.add('has-photo')"
        onerror="this.remove()">
   <div class="hero-overlay"></div>
@@ -641,7 +641,12 @@ cmsBoot({
   url: MENU_URL,
   onApply(data) {
     _accApplied = true;
-    applyCMS(data.site || {});
+    // Merge site (SiteConfig + Photos tabs) with pageMeta (the row in
+    // the Pages tab whose slug matches this page). pageMeta wins on
+    // collisions so per-page overrides beat site-wide defaults — same
+    // pattern shop.html uses. Lets the hero photo come from the
+    // Accessories row in Pages without having to add a key to Photos.
+    applyCMS(Object.assign({}, data.site || {}, data.pageMeta || {}));
     ACC_RAW.direct    = Array.isArray(data.directInventory) ? data.directInventory : [];
     ACC_RAW.affiliate = Array.isArray(data.accessories)     ? data.accessories     : [];
     buildAccCategoryOptions();
