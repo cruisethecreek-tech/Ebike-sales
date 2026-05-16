@@ -354,7 +354,7 @@ function esc(s){ return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','
 function resolveImg(name){
   const v = String(name || '').trim();
   if (!v) return '';
-  return /^https?:\/\//.test(v) ? v : 'media/' + encodeURI(v.replace(/^(media|images)\//, ''));
+  return /^https?:\/\//.test(v) ? v : 'images/' + encodeURI(v.replace(/^(media|images)\//, ''));
 }
 
 /* Render the direct-sale (Pat-stocked) inventory. Each card has an
