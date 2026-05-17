@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Long Term Rental | Cruise the Creek</title>
-<meta name="description" content="Multi-month e-bike rental plans from Cruise the Creek. Coming soon.">
+<title>Extended Odyssey — Long-Term E-Bike Rentals | Cruise the Creek</title>
+<meta name="description" content="Rent a foldable 500W e-bike from Cruise the Creek for a half day, a full week, or anywhere in between. Take it to Pittsburgh, Cleveland, Lake Erie — wherever the road goes. Pickup in Youngstown, Ohio.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
@@ -12,97 +12,211 @@
 *{margin:0;padding:0;box-sizing:border-box}
 :root{
   --sage:#6B8F71;--forest:#2D4A32;--dark:#1a2e1c;
-  --tan:#C9A96E;--cream:#F5F0E8;--cream-w:#fbf7ef;
-  --ink:#1a1a1a;--ink-2:#4a4a4a;
+  --tan:#C9A96E;--tan-dark:#a88a4f;
+  --cream:#F5F0E8;--cream-w:#fbf7ef;--stone:#E8E4DC;
+  --ink:#1a1a1a;--ink-2:#4a4a4a;--ink-3:#6a6a6a;
 }
 html,body{height:100%}
 html{scroll-behavior:smooth}
 body{font-family:'DM Sans',sans-serif;color:var(--ink);background:var(--cream);
-  min-height:100vh;display:flex;flex-direction:column;line-height:1.75}
+  min-height:100vh;display:flex;flex-direction:column;line-height:1.65}
 a{color:inherit;text-decoration:none;transition:color .2s ease}
-button{font-family:inherit}
+button{font-family:inherit;cursor:pointer}
 
 /* TOP BAR */
 .topbar{background:rgba(255,255,255,.95);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
   color:var(--dark);padding:16px 24px;display:flex;align-items:center;justify-content:space-between;
   position:sticky;top:0;z-index:100;border-bottom:1px solid rgba(0,0,0,.05)}
 .brand-logo{height:38px;width:auto;display:block}
+.nav-back{font-size:.78rem;letter-spacing:.08em;text-transform:uppercase;font-weight:700;color:var(--ink-2)}
+.nav-back:hover{color:var(--forest)}
 
 /* HERO */
-.hero{position:relative;min-height:34vh;padding:64px 24px 48px;
+.hero{position:relative;min-height:42vh;padding:72px 24px 56px;
   display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;
   color:#fff;background:var(--forest);overflow:hidden;isolation:isolate}
 .hero-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
   z-index:-3;opacity:0;transition:opacity .6s ease}
 .hero-img.loaded{opacity:1}
 .hero-overlay{position:absolute;inset:0;z-index:-2;opacity:0;transition:opacity .6s ease;
-  background:linear-gradient(180deg,rgba(26,46,28,.3) 0%,rgba(26,46,28,var(--hero-overlay,.55)) 100%)}
+  background:linear-gradient(180deg,rgba(26,46,28,.3) 0%,rgba(26,46,28,var(--hero-overlay,.65)) 100%)}
 .hero.has-photo .hero-overlay{opacity:1}
 .hero-topo{position:absolute;inset:0;z-index:-1;opacity:.18;pointer-events:none;
   background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 600 400' preserveAspectRatio='none'><g fill='none' stroke='%23F5F0E8' stroke-width='1.2'><path d='M0,80 Q150,60 300,90 T600,80'/><path d='M0,140 Q150,120 300,150 T600,140'/><path d='M0,200 Q150,180 300,210 T600,200'/><path d='M0,260 Q150,240 300,270 T600,260'/></g></svg>");
   background-size:cover}
 .hero-eyebrow{display:inline-block;font-size:.75rem;font-weight:700;letter-spacing:.2em;
-  text-transform:uppercase;color:var(--tan);margin-bottom:16px;
-  padding:6px 14px;border:1px solid rgba(201,169,110,.3);border-radius:4px;
+  text-transform:uppercase;color:var(--tan);margin-bottom:18px;
+  padding:6px 14px;border:1px solid rgba(201,169,110,.35);border-radius:4px;
   background:rgba(26,46,28,.2)}
-.hero h1{font-family:'Bebas Neue',sans-serif;font-size:clamp(2.4rem,7vw,4rem);
-  letter-spacing:.02em;line-height:1;margin-bottom:14px}
-.hero p{font-size:clamp(1rem,2.4vw,1.1rem);color:rgba(255,255,255,.9);
-  max-width:480px;line-height:1.6}
+.hero h1{font-family:'Bebas Neue',sans-serif;font-size:clamp(2.6rem,8vw,4.6rem);
+  letter-spacing:.02em;line-height:.95;margin-bottom:8px}
+.hero h1 em{font-style:normal;display:block;color:var(--tan);font-size:.55em;letter-spacing:.1em;margin-top:6px}
+.hero p{font-size:clamp(1rem,2.4vw,1.15rem);color:rgba(255,255,255,.9);
+  max-width:560px;line-height:1.6;margin-top:12px}
+.hero-cta{display:inline-flex;align-items:center;gap:10px;margin-top:26px;
+  background:var(--tan);color:var(--dark);padding:14px 28px;border-radius:4px;
+  font-weight:700;font-size:.95rem;letter-spacing:.04em;text-transform:uppercase;
+  transition:background .2s ease,transform .15s ease}
+.hero-cta:hover{background:#e3c389;transform:translateY(-1px)}
+.hero-cta svg{width:16px;height:16px}
 
 /* BREADCRUMB */
-.crumb{max-width:880px;margin:0 auto;padding:24px 24px 0;
-  font-size:.75rem;letter-spacing:.1em;text-transform:uppercase;font-weight:700;color:var(--sage)}
+.crumb{max-width:1100px;margin:0 auto;padding:20px 24px 0;
+  font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;font-weight:700;color:var(--sage);width:100%}
 .crumb a{color:var(--ink-2)}
 .crumb a:hover{color:var(--forest)}
 .crumb .sep{color:rgba(0,0,0,.2);margin:0 8px}
 
-/* PLACEHOLDER */
-main{flex:1;max-width:780px;margin:0 auto;padding:32px 24px 48px;width:100%}
-.placeholder{background:#fff;border:1px dashed rgba(201,169,110,.5);border-radius:8px;
-  padding:36px 30px;text-align:center;color:var(--ink-2);
-  box-shadow:0 4px 12px rgba(0,0,0,.03)}
-.ph-eyebrow{font-size:.7rem;letter-spacing:.15em;font-weight:700;
-  text-transform:uppercase;color:var(--sage);margin-bottom:8px}
-.ph-title{font-family:'Bebas Neue',sans-serif;font-size:1.75rem;
-  letter-spacing:.02em;color:var(--forest);margin-bottom:10px;line-height:1.1}
-.ph-note{font-size:1rem;line-height:1.6;max-width:520px;margin:0 auto}
-.back-cta{display:inline-flex;align-items:center;gap:8px;margin-top:24px;
-  background:var(--forest);color:#fff;padding:12px 24px;border-radius:4px;
-  font-weight:700;font-size:.9rem;letter-spacing:.04em;
+main{flex:1;width:100%}
+
+/* SECTION SHELL */
+section.block{padding:60px 24px;max-width:1100px;margin:0 auto;width:100%}
+section.block.tight{padding:44px 24px}
+.section-eyebrow{display:inline-block;font-size:.72rem;font-weight:700;letter-spacing:.18em;
+  text-transform:uppercase;color:var(--sage);margin-bottom:10px}
+.section-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(1.9rem,4.5vw,2.8rem);
+  letter-spacing:.02em;line-height:1;color:var(--forest);margin-bottom:14px}
+.section-intro{max-width:680px;color:var(--ink-2);font-size:1.02rem;line-height:1.7}
+
+/* INTRO BLOCK */
+.intro-block{background:var(--cream-w);border:1px solid rgba(45,74,50,.08);
+  border-radius:10px;padding:36px 32px;display:grid;gap:14px}
+
+/* PRICING — TWO BIKE CARDS */
+.bikes-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:24px;margin-top:28px}
+@media(max-width:760px){.bikes-grid{grid-template-columns:1fr}}
+.bike-card{background:#fff;border:1px solid rgba(45,74,50,.1);border-radius:12px;
+  overflow:hidden;display:flex;flex-direction:column;
+  box-shadow:0 4px 16px rgba(45,74,50,.06)}
+.bike-photo{aspect-ratio:4/3;background:var(--stone);position:relative;overflow:hidden}
+.bike-photo img{width:100%;height:100%;object-fit:cover;display:block}
+.bike-photo:empty::after,.bike-photo.no-img::after{
+  content:'photo';position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  color:var(--ink-3);font-size:.7rem;letter-spacing:.18em;text-transform:uppercase}
+.bike-head{padding:22px 22px 8px}
+.bike-badge{display:inline-block;font-family:'Bebas Neue',sans-serif;font-size:1.4rem;
+  letter-spacing:.08em;color:var(--forest);
+  border-bottom:3px solid var(--tan);padding-bottom:4px;margin-bottom:8px}
+.bike-sub{font-size:.88rem;color:var(--ink-3);font-weight:500}
+.bike-table{padding:6px 22px 22px}
+.bike-table table{width:100%;border-collapse:collapse}
+.bike-table th{font-size:.65rem;letter-spacing:.14em;text-transform:uppercase;
+  font-weight:700;color:var(--ink-3);text-align:left;padding:10px 0 8px;
+  border-bottom:1px solid rgba(0,0,0,.08)}
+.bike-table th:last-child{text-align:right}
+.bike-table td{padding:11px 0;border-bottom:1px solid rgba(0,0,0,.05);font-size:.95rem}
+.bike-table td:last-child{text-align:right;font-weight:700;color:var(--forest);
+  font-feature-settings:'tnum' 1}
+.bike-table tr:last-child td{border-bottom:none}
+.bike-table .dur-sub{font-size:.72rem;color:var(--ink-3);font-weight:400;display:block;margin-top:2px}
+.bike-foot{padding:0 22px 22px;margin-top:auto}
+.bike-cta{display:flex;justify-content:center;align-items:center;gap:8px;
+  background:var(--forest);color:#fff;padding:12px 18px;border-radius:6px;
+  font-weight:700;font-size:.85rem;letter-spacing:.06em;text-transform:uppercase;
   transition:background .2s ease}
-.back-cta:hover{background:var(--dark)}
-.back-cta svg{width:14px;height:14px}
+.bike-cta:hover{background:var(--dark)}
+.bike-cta svg{width:14px;height:14px}
+
+/* INCLUDED LIST */
+.included-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:18px;margin-top:24px}
+.incl{background:#fff;border:1px solid rgba(45,74,50,.08);border-radius:8px;padding:18px 20px}
+.incl-icon{font-size:1.4rem;margin-bottom:8px}
+.incl-title{font-weight:700;color:var(--forest);font-size:.95rem;margin-bottom:4px}
+.incl-body{font-size:.85rem;color:var(--ink-2);line-height:1.5}
+
+/* TRIP INSPIRATION CARDS */
+.trips-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px;margin-top:24px}
+.trip{background:#fff;border-radius:10px;overflow:hidden;
+  border:1px solid rgba(45,74,50,.08);box-shadow:0 2px 8px rgba(45,74,50,.04);
+  display:flex;flex-direction:column}
+.trip-img{aspect-ratio:5/3;background:var(--stone);position:relative;overflow:hidden}
+.trip-img img{width:100%;height:100%;object-fit:cover;display:block}
+.trip-img:empty::after,.trip-img.no-img::after{content:'photo';position:absolute;inset:0;
+  display:flex;align-items:center;justify-content:center;color:var(--ink-3);
+  font-size:.7rem;letter-spacing:.18em;text-transform:uppercase}
+.trip-body{padding:18px 20px 20px}
+.trip-tag{font-size:.66rem;letter-spacing:.16em;text-transform:uppercase;
+  font-weight:700;color:var(--sage);margin-bottom:6px}
+.trip-name{font-family:'Bebas Neue',sans-serif;font-size:1.5rem;letter-spacing:.02em;
+  color:var(--forest);margin-bottom:6px}
+.trip-meta{font-size:.78rem;color:var(--ink-3);margin-bottom:10px;font-weight:500}
+.trip-desc{font-size:.92rem;color:var(--ink-2);line-height:1.55}
+
+/* FAQ */
+.faq-list{margin-top:20px;display:grid;gap:10px}
+.faq{background:#fff;border:1px solid rgba(45,74,50,.1);border-radius:8px;overflow:hidden}
+.faq summary{padding:18px 22px;cursor:pointer;font-weight:700;color:var(--forest);
+  font-size:1rem;list-style:none;display:flex;align-items:center;justify-content:space-between;gap:14px}
+.faq summary::-webkit-details-marker{display:none}
+.faq summary::after{content:'+';font-size:1.4rem;color:var(--tan-dark);
+  transition:transform .2s ease;line-height:1}
+.faq[open] summary::after{content:'−'}
+.faq-a{padding:0 22px 20px;color:var(--ink-2);font-size:.95rem;line-height:1.65}
+
+/* FORM */
+.form-wrap{background:var(--cream-w);border:1px solid rgba(45,74,50,.1);
+  border-radius:12px;padding:32px 28px;margin-top:24px}
+.form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+@media(max-width:560px){.form-grid{grid-template-columns:1fr}}
+.field{display:flex;flex-direction:column;gap:6px}
+.field.wide{grid-column:1/-1}
+.field label{font-size:.78rem;font-weight:700;letter-spacing:.06em;
+  text-transform:uppercase;color:var(--ink-2)}
+.field label .req{color:#c44}
+.field input,.field select,.field textarea{font-family:inherit;font-size:.95rem;
+  padding:11px 13px;border:1px solid rgba(45,74,50,.18);border-radius:6px;
+  background:#fff;color:var(--ink);transition:border-color .15s ease}
+.field input:focus,.field select:focus,.field textarea:focus{
+  outline:none;border-color:var(--sage);box-shadow:0 0 0 3px rgba(107,143,113,.18)}
+.field textarea{resize:vertical;min-height:90px}
+.radio-row{display:flex;gap:14px;flex-wrap:wrap;margin-top:4px}
+.radio-row label{display:flex;align-items:center;gap:6px;text-transform:none;letter-spacing:0;
+  font-weight:500;font-size:.92rem;color:var(--ink);cursor:pointer}
+.radio-row input{width:auto}
+.form-submit{margin-top:18px;width:100%;background:var(--forest);color:#fff;border:none;
+  padding:14px 18px;border-radius:6px;font-weight:700;font-size:.95rem;
+  letter-spacing:.08em;text-transform:uppercase;transition:background .2s ease}
+.form-submit:hover:not(:disabled){background:var(--dark)}
+.form-submit:disabled{opacity:.6;cursor:not-allowed}
+.form-status{margin-top:14px;padding:12px 14px;border-radius:6px;font-size:.9rem;display:none}
+.form-status.active{display:block}
+.form-status.success{background:rgba(107,143,113,.18);color:var(--forest);border:1px solid rgba(107,143,113,.4)}
+.form-status.error{background:rgba(196,68,68,.12);color:#a13b3b;border:1px solid rgba(196,68,68,.3)}
 
 /* FOOTER */
 footer{background:var(--dark);color:rgba(255,255,255,.65);padding:32px 24px;
-  text-align:center;font-size:.85rem;letter-spacing:.02em}
+  text-align:center;font-size:.85rem;letter-spacing:.02em;margin-top:48px}
 footer a{color:var(--tan);font-weight:500}
 footer a:hover{color:#fff}
 
 @media(max-width:380px){
   .topbar{padding:12px 16px}.brand-logo{height:32px}
-  .hero{padding:48px 16px 36px}main{padding:24px 16px 36px}
-  .placeholder{padding:26px 18px}
+  .hero{padding:56px 16px 40px}
+  section.block{padding:44px 16px}
+  .bike-head,.bike-table,.bike-foot{padding-left:18px;padding-right:18px}
+  .form-wrap{padding:24px 18px}
 }
 </style>
 <script src="site-enhance.js"></script>
-<meta property="og:title" content="Long Term Rental">
-<meta property="og:description" content="Multi-month e-bike rental plans from Cruise the Creek. Coming soon.">
-<meta property="og:image" content="https://www.cruisethecreek.com/cityrunblackblack.jpg">
+<meta property="og:title" content="Extended Odyssey — Long-Term E-Bike Rentals">
+<meta property="og:description" content="Rent a foldable 500W e-bike for a half day or a full week from Cruise the Creek in Youngstown, Ohio. Take it on the road — Pittsburgh, Cleveland, Lake Erie, wherever.">
+<meta property="og:image" content="https://www.cruisethecreek.com/media/odyssey-stepover.jpg">
 <meta property="og:url" content="https://www.cruisethecreek.com/long-term-rental.html">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Cruise the Creek">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Long Term Rental">
-<meta name="twitter:description" content="Multi-month e-bike rental plans from Cruise the Creek. Coming soon.">
-<meta name="twitter:image" content="https://www.cruisethecreek.com/cityrunblackblack.jpg">
+<meta name="twitter:title" content="Extended Odyssey — Long-Term E-Bike Rentals">
+<meta name="twitter:description" content="Rent a foldable 500W e-bike for a half day or a full week from Cruise the Creek in Youngstown, Ohio.">
+<meta name="twitter:image" content="https://www.cruisethecreek.com/media/odyssey-stepover.jpg">
 <link rel="canonical" href="https://www.cruisethecreek.com/long-term-rental.html">
 </head>
 <body>
 
 <header class="topbar">
-  <a href="index.html" aria-label="Cruise the Creek home"><img class="brand-logo" src="BlackonTransparent.png" alt="Cruise the Creek"></a>
+  <a href="index.html" aria-label="Cruise the Creek home" data-cms-href="logo_url" data-cms-target="logo_external">
+    <img class="brand-logo" src="BlackonTransparent.png" alt="Cruise the Creek">
+  </a>
+  <a class="nav-back" href="rentals.html">← All Rentals</a>
 </header>
 
 <section class="hero">
@@ -111,23 +225,307 @@ footer a:hover{color:#fff}
        onerror="this.remove()">
   <div class="hero-overlay"></div>
   <div class="hero-topo"></div>
-  <span class="hero-eyebrow" data-cms-text="hero_eyebrow">Coming Soon</span>
-  <h1 data-cms-text="hero_h1">Long Term Rental</h1>
-  <p data-cms-text="hero_tagline">Half days to Multi-month plans for riders who need their bike longer than a day — and aren't ready to own.</p>
+  <span class="hero-eyebrow" data-cms-text="hero_eyebrow">Long-Term E-Bike Rentals</span>
+  <h1>
+    <span data-cms-text="hero_h1">Extended Odyssey</span>
+    <em data-cms-text="hero_h1_em">Take the ride on the road.</em>
+  </h1>
+  <p data-cms-text="hero_tagline">Foldable 500W e-bikes you can take across town, across the state line, or anywhere a trail calls. Pickup in Youngstown, return when you're done.</p>
+  <a class="hero-cta" href="#reserve" data-cms-href="hero_cta_url">
+    <span data-cms-text="hero_cta_label">Reserve your odyssey</span>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+  </a>
 </section>
 
-<nav class="crumb"><a href="index.html">Home</a><span class="sep">/</span><a href="rentals.html">Rentals</a> <span class="sep">/</span> Long Term</nav>
+<nav class="crumb">
+  <a href="index.html">Home</a><span class="sep">/</span>
+  <a href="rentals.html">Rentals</a><span class="sep">/</span>
+  Extended Odyssey
+</nav>
 
 <main>
-  <div class="placeholder">
-    <div class="ph-eyebrow">In progress</div>
-    <div class="ph-title">Long-term rental plans land here</div>
-    <div class="ph-note">Monthly pricing tiers, eligibility, deposit details, and the reservation form will live on this page. Send us a text if you're interested in early access.</div>
-    <a class="back-cta" href="rentals.html">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
-      Back to Rentals
-    </a>
-  </div>
+
+  <!-- INTRO ────────────────────────────────────────────────── -->
+  <section class="block tight">
+    <span class="section-eyebrow" data-cms-text="ltr_intro_eyebrow">What it is</span>
+    <h2 class="section-title" data-cms-text="ltr_intro_title">Bring the bike with you.</h2>
+    <div class="intro-block">
+      <p data-cms-text="ltr_intro_body_1">Most rentals tether you to a single trailhead. Extended Odyssey doesn't. We pack the bike into its folded case at our Youngstown shop, you drive off with it, and you ride wherever your weekend takes you — Pittsburgh side streets, the Lake Erie shoreline, a tucked-away path in West Virginia, your kid's college town.</p>
+      <p data-cms-text="ltr_intro_body_2">Two foldable 500W models to pick from. Both are road-legal Class-2 e-bikes that hit 20 mph on throttle or pedal-assist. Battery range is 30–45 miles depending on terrain, weight, and assist level. They charge from any standard outlet in 4–6 hours.</p>
+    </div>
+  </section>
+
+  <!-- PRICING ────────────────────────────────────────────── -->
+  <section class="block" id="pricing">
+    <span class="section-eyebrow" data-cms-text="ltr_pricing_eyebrow">Pricing</span>
+    <h2 class="section-title" data-cms-text="ltr_pricing_title">Pick your tier.</h2>
+    <p class="section-intro" data-cms-text="ltr_pricing_intro">Half-day to one-week pricing for two bike styles. The longer you go, the better the per-day rate. Need more than a week? Text us — multi-week and monthly plans are available off-menu.</p>
+
+    <div class="bikes-grid">
+
+      <!-- STEP-OVER -->
+      <article class="bike-card">
+        <div class="bike-photo no-img">
+          <img src="media/odyssey-stepover.jpg" data-cms-src="ltr_stepover_photo" alt="Step-Over foldable e-bike" loading="lazy" onload="this.parentNode.classList.remove('no-img')" onerror="this.remove()">
+        </div>
+        <div class="bike-head">
+          <span class="bike-badge" data-cms-text="ltr_stepover_badge">STEP-OVER</span>
+          <div class="bike-sub" data-cms-text="ltr_stepover_sub">Best for 1–12 mi one way</div>
+        </div>
+        <div class="bike-table">
+          <table>
+            <thead>
+              <tr><th>Duration</th><th>Price</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>8 Hour Odyssey<span class="dur-sub">Half day</span></td><td>$40</td></tr>
+              <tr><td>24 Hour Odyssey<span class="dur-sub">Full day</span></td><td>$75</td></tr>
+              <tr><td>2 Day Odyssey</td><td>$140</td></tr>
+              <tr><td>3 Day Odyssey</td><td>$195</td></tr>
+              <tr><td>4 Day Odyssey</td><td>$245</td></tr>
+              <tr><td>5 Day Odyssey</td><td>$290</td></tr>
+              <tr><td>6 Day Odyssey</td><td>$365</td></tr>
+              <tr><td>1 Week Odyssey</td><td>$415</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="bike-foot">
+          <a class="bike-cta" href="#reserve" data-bike="step-over">
+            Reserve a Step-Over
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+          </a>
+        </div>
+      </article>
+
+      <!-- STEP-THRU -->
+      <article class="bike-card">
+        <div class="bike-photo no-img">
+          <img src="media/odyssey-stepthru.jpg" data-cms-src="ltr_stepthru_photo" alt="Step-Thru foldable e-bike" loading="lazy" onload="this.parentNode.classList.remove('no-img')" onerror="this.remove()">
+        </div>
+        <div class="bike-head">
+          <span class="bike-badge" data-cms-text="ltr_stepthru_badge">STEP-THRU</span>
+          <div class="bike-sub" data-cms-text="ltr_stepthru_sub">Best for 1–20 mi one way</div>
+        </div>
+        <div class="bike-table">
+          <table>
+            <thead>
+              <tr><th>Duration</th><th>Price</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>8 Hour Odyssey<span class="dur-sub">Half day</span></td><td>$45</td></tr>
+              <tr><td>24 Hour Odyssey<span class="dur-sub">Full day</span></td><td>$80</td></tr>
+              <tr><td>2 Day Odyssey</td><td>$150</td></tr>
+              <tr><td>3 Day Odyssey</td><td>$210</td></tr>
+              <tr><td>4 Day Odyssey</td><td>$265</td></tr>
+              <tr><td>5 Day Odyssey</td><td>$360</td></tr>
+              <tr><td>6 Day Odyssey</td><td>$395</td></tr>
+              <tr><td>1 Week Odyssey</td><td>$450</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="bike-foot">
+          <a class="bike-cta" href="#reserve" data-bike="step-thru">
+            Reserve a Step-Thru
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+          </a>
+        </div>
+      </article>
+
+    </div>
+  </section>
+
+  <!-- WHAT'S INCLUDED ────────────────────────────────────── -->
+  <section class="block tight">
+    <span class="section-eyebrow" data-cms-text="ltr_incl_eyebrow">What you get</span>
+    <h2 class="section-title" data-cms-text="ltr_incl_title">Everything you need to roll out.</h2>
+    <div class="included-list">
+      <div class="incl">
+        <div class="incl-icon">🔋</div>
+        <div class="incl-title" data-cms-text="ltr_incl_1_title">500W foldable e-bike</div>
+        <div class="incl-body" data-cms-text="ltr_incl_1_body">Class-2 throttle + pedal-assist. Folds into a hatchback or SUV in under a minute.</div>
+      </div>
+      <div class="incl">
+        <div class="incl-icon">🔌</div>
+        <div class="incl-title" data-cms-text="ltr_incl_2_title">Charger included</div>
+        <div class="incl-body" data-cms-text="ltr_incl_2_body">Standard wall outlet. 4–6 hours for a full charge. 30–45 mile range per battery.</div>
+      </div>
+      <div class="incl">
+        <div class="incl-icon">🛡️</div>
+        <div class="incl-title" data-cms-text="ltr_incl_3_title">Helmet + lock</div>
+        <div class="incl-body" data-cms-text="ltr_incl_3_body">Sized helmet and a heavy-duty U-lock. Tell us your size when you book.</div>
+      </div>
+      <div class="incl">
+        <div class="incl-icon">📞</div>
+        <div class="incl-title" data-cms-text="ltr_incl_4_title">24/7 phone support</div>
+        <div class="incl-body" data-cms-text="ltr_incl_4_body">If something acts up on the road, Pat picks up. We've walked riders through fixes from three states away.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TRIP INSPIRATION ──────────────────────────────────── -->
+  <section class="block">
+    <span class="section-eyebrow" data-cms-text="ltr_trips_eyebrow">Where Creek riders go</span>
+    <h2 class="section-title" data-cms-text="ltr_trips_title">Bring it anywhere.</h2>
+    <p class="section-intro" data-cms-text="ltr_trips_intro">A few favorites from past renters — but don't let this be the whole list. Anywhere you're going for the weekend, the bike rides shotgun.</p>
+    <div class="trips-grid">
+
+      <div class="trip">
+        <div class="trip-img no-img">
+          <img src="media/odyssey-trip-pittsburgh.jpg" data-cms-src="ltr_trip_1_photo" alt="" loading="lazy" onload="this.parentNode.classList.remove('no-img')" onerror="this.remove()">
+        </div>
+        <div class="trip-body">
+          <div class="trip-tag" data-cms-text="ltr_trip_1_tag">Weekend trip</div>
+          <div class="trip-name" data-cms-text="ltr_trip_1_name">Pittsburgh, PA</div>
+          <div class="trip-meta" data-cms-text="ltr_trip_1_meta">~70 mi drive · Strip District, Three Rivers Trail, Mt Washington</div>
+          <p class="trip-desc" data-cms-text="ltr_trip_1_desc">Park downtown, ride the Great Allegheny Passage trailhead, hit the Strip District for pierogi, scoot up Grandview for the view. The bike makes a one-day-as-two-day weekend.</p>
+        </div>
+      </div>
+
+      <div class="trip">
+        <div class="trip-img no-img">
+          <img src="media/odyssey-trip-cleveland.jpg" data-cms-src="ltr_trip_2_photo" alt="" loading="lazy" onload="this.parentNode.classList.remove('no-img')" onerror="this.remove()">
+        </div>
+        <div class="trip-body">
+          <div class="trip-tag" data-cms-text="ltr_trip_2_tag">Day trip</div>
+          <div class="trip-name" data-cms-text="ltr_trip_2_name">Lake Erie shoreline</div>
+          <div class="trip-meta" data-cms-text="ltr_trip_2_meta">~75 mi drive · Edgewater Park, Cleveland Metroparks, Headlands Beach</div>
+          <p class="trip-desc" data-cms-text="ltr_trip_2_desc">Drive up, unfold, ride the Cleveland Lakefront Bikeway end to end. Pack a swimsuit — the lake is doing the heavy lifting on a hot day.</p>
+        </div>
+      </div>
+
+      <div class="trip">
+        <div class="trip-img no-img">
+          <img src="media/odyssey-trip-hockinghills.jpg" data-cms-src="ltr_trip_3_photo" alt="" loading="lazy" onload="this.parentNode.classList.remove('no-img')" onerror="this.remove()">
+        </div>
+        <div class="trip-body">
+          <div class="trip-tag" data-cms-text="ltr_trip_3_tag">Multi-day</div>
+          <div class="trip-name" data-cms-text="ltr_trip_3_name">Hocking Hills, OH</div>
+          <div class="trip-meta" data-cms-text="ltr_trip_3_meta">~3 hr drive · Old Man's Cave, Conkle's Hollow, state park roads</div>
+          <p class="trip-desc" data-cms-text="ltr_trip_3_desc">Rent the cabin, bring the bike. The state park roads connect every trailhead — no shuttling, no parking circles. A 3-Day Odyssey covers a long weekend with room to wander.</p>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- FAQ ────────────────────────────────────────────────── -->
+  <section class="block">
+    <span class="section-eyebrow" data-cms-text="ltr_faq_eyebrow">Common questions</span>
+    <h2 class="section-title" data-cms-text="ltr_faq_title">Taking it out of town?</h2>
+    <p class="section-intro" data-cms-text="ltr_faq_intro">Everything riders ask before driving off with the bike. Still stuck? Text Pat at 330-406-9682.</p>
+    <div class="faq-list">
+
+      <details class="faq">
+        <summary data-cms-text="ltr_faq_1_q">Can I take the bike across state lines?</summary>
+        <div class="faq-a" data-cms-text="ltr_faq_1_a">Yes. Class-2 e-bikes are road-legal in every state Cruise the Creek renters typically visit — Ohio, Pennsylvania, West Virginia, Michigan, New York. A few state and federal parks have their own e-bike rules; check the park's website before you ride. We're happy to look it up with you.</div>
+      </details>
+
+      <details class="faq">
+        <summary data-cms-text="ltr_faq_2_q">What if it breaks down out of town?</summary>
+        <div class="faq-a" data-cms-text="ltr_faq_2_a">Call or text 330-406-9682. Most field issues — a loose connector, a tripped controller — we can talk you through in five minutes. For anything mechanical we can't fix remotely, you'll either swap a part we ship overnight or we'll meet you partway. We've never left a rider stranded.</div>
+      </details>
+
+      <details class="faq">
+        <summary data-cms-text="ltr_faq_3_q">How do I charge the battery on the road?</summary>
+        <div class="faq-a" data-cms-text="ltr_faq_3_a">Standard 110V outlet — any hotel room, campground hookup, or coffee shop wall. The included charger is light and packs flat. Full charge is 4–6 hours; topping off for an hour adds roughly 8–10 miles.</div>
+      </details>
+
+      <details class="faq">
+        <summary data-cms-text="ltr_faq_4_q">Do I need to bring it back to Youngstown each night?</summary>
+        <div class="faq-a" data-cms-text="ltr_faq_4_a">No. That's the whole point of Extended Odyssey. The bike is yours for the duration of the rental. Keep it in your hotel room (it folds), strap it in the truck, or lock it to a fixed object overnight.</div>
+      </details>
+
+      <details class="faq">
+        <summary data-cms-text="ltr_faq_5_q">What's the deposit and damage policy?</summary>
+        <div class="faq-a" data-cms-text="ltr_faq_5_a">A $200 refundable hold goes on the card at pickup, released on return assuming the bike comes back in roughly the same shape it left. Normal wear is on us — scratches, a flat tire, a dirty drivetrain. Serious damage or theft is on the renter. We carry rental-specific coverage and can walk you through the details before you sign.</div>
+      </details>
+
+      <details class="faq">
+        <summary data-cms-text="ltr_faq_6_q">Can I extend mid-trip?</summary>
+        <div class="faq-a" data-cms-text="ltr_faq_6_a">Almost always — text us as soon as you know. We'll prorate the extension at the longer-tier rate. If a 3-Day turns into a 5-Day on the road, that's $95 added, not $290 + $195.</div>
+      </details>
+
+      <details class="faq">
+        <summary data-cms-text="ltr_faq_7_q">Can I have it shipped instead of picking up?</summary>
+        <div class="faq-a" data-cms-text="ltr_faq_7_a">Not yet. Right now every Extended Odyssey starts at our Youngstown shop. We do drop-off and pickup within a 25-mile radius of Youngstown for a flat $40 fee — useful if you don't have a car big enough to fit the folded bike.</div>
+      </details>
+
+    </div>
+  </section>
+
+  <!-- LEAD FORM ────────────────────────────────────────────── -->
+  <section class="block" id="reserve">
+    <span class="section-eyebrow" data-cms-text="ltr_form_eyebrow">Reserve</span>
+    <h2 class="section-title" data-cms-text="ltr_form_title">Start your Odyssey.</h2>
+    <p class="section-intro" data-cms-text="ltr_form_intro">Tell us where you're headed and when. We'll text you back within a few hours to confirm the bike, lock in the dates, and run the deposit.</p>
+
+    <form class="form-wrap" id="odysseyForm" novalidate>
+      <div class="form-grid">
+
+        <div class="field">
+          <label for="firstName">First name <span class="req">*</span></label>
+          <input id="firstName" name="firstName" type="text" required autocomplete="given-name">
+        </div>
+        <div class="field">
+          <label for="lastName">Last name <span class="req">*</span></label>
+          <input id="lastName" name="lastName" type="text" required autocomplete="family-name">
+        </div>
+
+        <div class="field">
+          <label for="email">Email <span class="req">*</span></label>
+          <input id="email" name="email" type="email" required autocomplete="email">
+        </div>
+        <div class="field">
+          <label for="phone">Phone <span class="req">*</span></label>
+          <input id="phone" name="phone" type="tel" required autocomplete="tel" placeholder="330-555-0123">
+        </div>
+
+        <div class="field wide">
+          <label>Which bike?</label>
+          <div class="radio-row">
+            <label><input type="radio" name="bikePick" value="step-over"> Step-Over</label>
+            <label><input type="radio" name="bikePick" value="step-thru"> Step-Thru</label>
+            <label><input type="radio" name="bikePick" value="not-sure" checked> Not sure — recommend one</label>
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="duration">Duration</label>
+          <select id="duration" name="duration">
+            <option value="">Choose…</option>
+            <option value="8-hour">8 Hour (Half Day)</option>
+            <option value="24-hour">24 Hour (Full Day)</option>
+            <option value="2-day">2 Day Odyssey</option>
+            <option value="3-day">3 Day Odyssey</option>
+            <option value="4-day">4 Day Odyssey</option>
+            <option value="5-day">5 Day Odyssey</option>
+            <option value="6-day">6 Day Odyssey</option>
+            <option value="1-week">1 Week Odyssey</option>
+            <option value="longer">Longer than a week</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="pickupDate">Pickup date</label>
+          <input id="pickupDate" name="pickupDate" type="date">
+        </div>
+
+        <div class="field wide">
+          <label for="destination">Where are you taking it?</label>
+          <input id="destination" name="destination" type="text" placeholder="Pittsburgh, Lake Erie, road trip to Asheville — anywhere">
+        </div>
+
+        <div class="field wide">
+          <label for="notes">Anything else?</label>
+          <textarea id="notes" name="notes" placeholder="Group size, height for fitting, questions about the bike — whatever helps us match you up."></textarea>
+        </div>
+
+      </div>
+
+      <button type="submit" class="form-submit" id="odysseySubmit" data-cms-text="ltr_form_submit_label">Send my Odyssey request</button>
+      <div class="form-status" id="odysseyStatus" role="status" aria-live="polite"></div>
+    </form>
+  </section>
+
 </main>
 
 <footer>
@@ -136,28 +534,121 @@ footer a:hover{color:#fff}
 </footer>
 
 <script>
-const MENU_URL = 'https://script.google.com/macros/s/AKfycbxjg2ZsPCZNsmJEStYA0bRdsnkm4nNS-m-HNhm_Gin56VIVeYWVRE5j51j30zVHhb4PmQ/exec?page=long-term-rental';
+const CMS_URL = 'https://script.google.com/macros/s/AKfycbxjg2ZsPCZNsmJEStYA0bRdsnkm4nNS-m-HNhm_Gin56VIVeYWVRE5j51j30zVHhb4PmQ/exec';
+const MENU_URL = CMS_URL + '?page=long-term-rental';
+
+function isTrue(v){return v === true || v === 'TRUE' || v === 'true' || v === 1 || v === '1';}
+
 function applyCMS(remote){
   const map = Object.assign({}, remote.site || {}, remote.pageMeta || {});
   document.querySelectorAll('[data-cms-text]').forEach(el => {
     const v = map[el.dataset.cmsText];
     if (v != null && String(v).trim() !== '') el.textContent = v;
   });
+  document.querySelectorAll('[data-cms-href]').forEach(el => {
+    const v = map[el.dataset.cmsHref];
+    if (v) el.href = v;
+  });
   document.querySelectorAll('[data-cms-src]').forEach(el => {
     const v = map[el.dataset.cmsSrc];
     if (!v) return;
-    const url = /^https?:\/\//.test(v) ? v : 'media/' + encodeURI(String(v).replace(/^(media|images)\//, '').trim());
+    const t = String(v).trim();
+    let url;
+    if (/^https?:\/\//.test(t))           url = t;
+    else if (/^(media|images)\//.test(t)) url = encodeURI(t);
+    else                                   url = 'media/' + encodeURI(t);
     el.addEventListener('error', () => el.remove(), { once: true });
     el.src = url;
+  });
+  document.querySelectorAll('[data-cms-target]').forEach(el => {
+    const v = map[el.dataset.cmsTarget];
+    if (isTrue(v)) { el.target = '_blank'; el.rel = 'noopener'; }
+    else { el.removeAttribute('target'); el.removeAttribute('rel'); }
   });
   if (map.hero_overlay_opacity != null && map.hero_overlay_opacity !== '') {
     document.documentElement.style.setProperty('--hero-overlay', String(map.hero_overlay_opacity));
   }
 }
+
 fetch(MENU_URL, {cache:'no-store'})
   .then(r => r.ok ? r.json() : Promise.reject(r.status))
   .then(remote => { if (remote && typeof remote === 'object') applyCMS(remote); })
   .catch(err => console.warn('[long-term-rental] config fetch failed, using static content:', err));
+
+// Reserve buttons on each bike card pre-select the bike radio + scroll
+document.querySelectorAll('[data-bike]').forEach(btn => {
+  btn.addEventListener('click', e => {
+    const pick = btn.dataset.bike;
+    const radio = document.querySelector('input[name="bikePick"][value="' + pick + '"]');
+    if (radio) radio.checked = true;
+  });
+});
+
+// Default the pickup date input to tomorrow.
+(function(){
+  const d = new Date(); d.setDate(d.getDate() + 1);
+  const iso = d.toISOString().slice(0, 10);
+  const el = document.getElementById('pickupDate');
+  if (el) { el.min = new Date().toISOString().slice(0, 10); el.value = iso; }
+})();
+
+// ── FORM SUBMIT ──────────────────────────────────────────────
+const form = document.getElementById('odysseyForm');
+const submitBtn = document.getElementById('odysseySubmit');
+const status = document.getElementById('odysseyStatus');
+
+function setStatus(msg, kind){
+  status.textContent = msg;
+  status.className = 'form-status active ' + (kind || 'success');
+}
+
+form.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const fd = new FormData(form);
+  const data = {
+    firstName:   (fd.get('firstName')   || '').toString().trim(),
+    lastName:    (fd.get('lastName')    || '').toString().trim(),
+    email:       (fd.get('email')       || '').toString().trim(),
+    phone:       (fd.get('phone')       || '').toString().trim(),
+    bikePick:    (fd.get('bikePick')    || 'not-sure').toString(),
+    duration:    (fd.get('duration')    || '').toString(),
+    pickupDate:  (fd.get('pickupDate')  || '').toString(),
+    destination: (fd.get('destination') || '').toString().trim(),
+    notes:       (fd.get('notes')       || '').toString().trim(),
+    page:        location.pathname,
+  };
+
+  if (!data.firstName || !data.lastName || !data.email || !data.phone) {
+    setStatus('Please fill in your name, email, and phone.', 'error');
+    return;
+  }
+  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(data.email)) {
+    setStatus('That email address looks off — give it another shot.', 'error');
+    return;
+  }
+
+  submitBtn.disabled = true;
+  setStatus('Sending — give us a sec…', 'success');
+
+  try {
+    const params = new URLSearchParams(Object.assign({ action: 'odysseyLead' }, data));
+    const res = await fetch(CMS_URL + '?' + params.toString(), { redirect: 'follow' });
+    const json = await res.json().catch(() => ({}));
+    if (json && json.ok) {
+      setStatus('Got it. Pat will text you back shortly to lock in the bike and the dates.', 'success');
+      form.reset();
+      // Re-default pickup date after reset.
+      const d = new Date(); d.setDate(d.getDate() + 1);
+      document.getElementById('pickupDate').value = d.toISOString().slice(0, 10);
+    } else {
+      setStatus((json && json.error) || 'Submission failed — try texting 330-406-9682 instead.', 'error');
+    }
+  } catch (err) {
+    setStatus('Network hiccup. Text 330-406-9682 and we’ll get you booked.', 'error');
+  } finally {
+    submitBtn.disabled = false;
+  }
+});
 </script>
 
 <script src="chatbot.js" defer></script>

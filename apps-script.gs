@@ -111,6 +111,9 @@ function _doGetInner(e, action) {
   if (action === 'bridgeApplication') {
     return handleBridgeApplication(e.parameter || {});
   }
+  if (action === 'odysseyLead') {
+    return handleOdysseyLead(e.parameter || {});
+  }
   if (action === 'invoiceCreated') {
     return handleInvoiceCreated(e.parameter || {});
   }
@@ -1036,6 +1039,109 @@ function handleBridgeApplication(p) {
     return json({ ok: true, id: row.id });
   } catch (err) {
     console.error('handleBridgeApplication failed: ' + err);
+    return json({ ok: false, error: String(err) });
+  }
+}
+
+/**
+ * Extended Odyssey lead form on long-term-rental.html. The page captures
+ * intent (bike pick, duration, destination, pickup date) without taking
+ * payment — Pat texts back to confirm availability and run the deposit.
+ *
+ * Lands one row in Odyssey_Leads, emails sales+info, pings Discord —
+ * mirrors handleBridgeApplication's pattern so all lead surfaces behave
+ * the same way.
+ */
+function handleOdysseyLead(p) {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const json = function(obj) {
+    return ContentService.createTextOutput(JSON.stringify(obj))
+      .setMimeType(ContentService.MimeType.JSON);
+  };
+
+  try {
+    const now = new Date();
+    const id  = 'EO-' + Utilities.formatDate(now, 'America/New_York', 'yyMMdd-HHmmss');
+    const row = {
+      id:           id,
+      timestamp:    now,
+      first_name:   String(p.firstName   || '').trim(),
+      last_name:    String(p.lastName    || '').trim(),
+      email:        String(p.email       || '').trim(),
+      phone:        String(p.phone       || '').trim(),
+      bike_pick:    String(p.bikePick    || '').trim(),
+      duration:     String(p.duration    || '').trim(),
+      pickup_date:  String(p.pickupDate  || '').trim(),
+      destination:  String(p.destination || '').trim(),
+      notes:        String(p.notes       || '').trim(),
+      source_page:  String(p.page        || '').trim(),
+      status:       'new',
+    };
+
+    let sh = ss.getSheetByName('Odyssey_Leads');
+    if (!sh) {
+      sh = ss.insertSheet('Odyssey_Leads');
+      sh.appendRow(['id','timestamp','first_name','last_name','email','phone',
+                    'bike_pick','duration','pickup_date','destination','notes',
+                    'source_page','status']);
+      sh.getRange(1, 1, 1, 13).setFontWeight('bold');
+    }
+    sh.appendRow([row.id, row.timestamp, row.first_name, row.last_name,
+                  row.email, row.phone, row.bike_pick, row.duration,
+                  row.pickup_date, row.destination, row.notes,
+                  row.source_page, row.status]);
+
+    try {
+      const fullName = (row.first_name + ' ' + row.last_name).trim() || '(no name)';
+      const body = [
+        'New Extended Odyssey lead — ' + row.id,
+        '',
+        'Rider:        ' + fullName,
+        'Phone:        ' + (row.phone || '(missing)'),
+        'Email:        ' + (row.email || '(missing)'),
+        '',
+        'Bike pick:    ' + (row.bike_pick || '(not specified)'),
+        'Duration:     ' + (row.duration  || '(not specified)'),
+        'Pickup date:  ' + (row.pickup_date || '(not specified)'),
+        'Destination:  ' + (row.destination || '(blank)'),
+        '',
+        'Notes:        ' + (row.notes || '(none)'),
+        '',
+        'Logged at ' + row.timestamp + ' (Odyssey_Leads tab, status=new)',
+        'Reply within a few hours to confirm bike + lock deposit.',
+      ].join('\n');
+      MailApp.sendEmail({
+        to:      'salesteam@cruisethecreek.com,info@cruisethecreek.com',
+        replyTo: row.email || 'salesteam@cruisethecreek.com',
+        subject: 'Odyssey lead ' + row.id + ' — ' + fullName +
+                 ' · ' + (row.bike_pick || 'no bike') +
+                 ' · ' + (row.duration  || 'no duration'),
+        body:    body,
+      });
+    } catch (mailErr) {
+      console.warn('Odyssey lead email failed: ' + mailErr);
+    }
+
+    postToDiscord_(
+      '🛞 New Extended Odyssey lead — ' + row.id,
+      9498256, // sage 0x90D790-ish, leans green to distinguish from Bridge (tan)
+      [
+        { name: '👤 Rider', value:
+            ((row.first_name + ' ' + row.last_name).trim() || '(name missing)') +
+            (row.phone ? '\n📞 ' + row.phone : '') +
+            (row.email ? '\n✉️ ' + row.email : ''), inline: false },
+        { name: '🚲 Bike',        value: row.bike_pick   || '(not specified)', inline: true },
+        { name: '⏱️ Duration',    value: row.duration    || '(not specified)', inline: true },
+        { name: '📅 Pickup',      value: row.pickup_date || '(not specified)', inline: true },
+        { name: '🗺️ Destination', value: row.destination || '(blank)',         inline: false },
+        { name: '📝 Notes',       value: row.notes       || '(none)',          inline: false },
+      ],
+      'Reply within a few hours — text the rider to confirm'
+    );
+
+    return json({ ok: true, id: row.id });
+  } catch (err) {
+    console.error('handleOdysseyLead failed: ' + err);
     return json({ ok: false, error: String(err) });
   }
 }
