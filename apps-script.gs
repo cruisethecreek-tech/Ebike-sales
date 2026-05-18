@@ -1195,12 +1195,14 @@ function handleInvoiceCreated(p) {
              '  ×' + qty + ' @ $' + price.toFixed(2);
     }).join('\n');
 
-    // paymentMode strings come from invoice.html: 'full', 'cashDeposit',
-    // 'paidInFullCash'. Human-readable for the email + Discord.
+    // paymentMode strings come from invoice.html: 'full', 'deposit',
+    // 'cashDeposit', 'paidInFullCash'. Human-readable for email + Discord.
     const modeLabel = paymentMode === 'paidInFullCash'
         ? 'Paid in full (' + (dMethod || 'cash') + ')'
         : paymentMode === 'cashDeposit'
-        ? 'Cash deposit + Stripe balance'
+        ? 'Deposit received (' + (dMethod || 'off-Stripe') + ') + Stripe balance'
+        : paymentMode === 'deposit'
+        ? 'Stripe deposit, balance due later'
         : 'Full charge via Stripe';
 
     try {

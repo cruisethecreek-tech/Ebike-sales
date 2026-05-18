@@ -1072,7 +1072,7 @@
                         </label>
                         <label class="payment-mode-option">
                             <input type="radio" name="paymentMode" value="cashDeposit" onchange="onPaymentModeChange()">
-                            <span>Cash/Check Deposit Received</span>
+                            <span>Deposit Already Received</span>
                         </label>
                         <label class="payment-mode-option">
                             <input type="radio" name="paymentMode" value="paidInFullCash" onchange="onPaymentModeChange()">
@@ -1092,6 +1092,7 @@
                         <select id="depositMethod" style="width:100%;padding:0.6rem 0.75rem;border:1px solid var(--op-border);border-radius:6px;font-family:inherit;font-size:0.9rem;background:#fff;">
                             <option value="cash">Cash</option>
                             <option value="check">Check</option>
+                            <option value="credit_card">Credit Card</option>
                             <option value="zelle">Zelle</option>
                             <option value="venmo">Venmo</option>
                             <option value="cashapp">Cash App</option>
@@ -1372,7 +1373,7 @@
                     if (mode === 'paidInFullCash') {
                         previewLabel.textContent = 'Paid in Full (Cash/Check)';
                     } else if (mode === 'cashDeposit') {
-                        previewLabel.textContent = 'Cash/Check Deposit Received';
+                        previewLabel.textContent = 'Deposit Already Received';
                     } else {
                         previewLabel.textContent = 'Deposit Due Now';
                     }
@@ -1458,21 +1459,22 @@
             const submitBtn     = document.getElementById('submitBtn');
 
             if (mode === 'deposit') {
-                // Stripe link will be for the full total (existing behavior);
-                // the deposit/balance breakdown shows on the printed invoice.
+                // Stripe link charges the DEPOSIT only. Customer pays the
+                // remaining balance later through some other channel.
                 depositGroup.style.display = '';
                 methodGroup.style.display  = 'none';
                 refGroup.style.display     = 'none';
                 if (depositLabel) depositLabel.textContent = 'Deposit Amount Due Now ($)';
                 if (submitBtn) submitBtn.textContent = 'Create Payment Link';
             } else if (mode === 'cashDeposit') {
-                // Customer already handed over cash/check for the deposit
-                // portion. Stripe link will be for the remaining balance
-                // only — total - cash received.
+                // Customer ALREADY paid the deposit through some other
+                // channel (cash, check, credit card on a separate reader,
+                // Zelle, Venmo, etc.). Stripe link is for the remaining
+                // balance only — total minus deposit already received.
                 depositGroup.style.display = '';
                 methodGroup.style.display  = '';
                 refGroup.style.display     = '';
-                if (depositLabel) depositLabel.textContent = 'Cash/Check Already Received ($)';
+                if (depositLabel) depositLabel.textContent = 'Deposit Already Received ($)';
                 if (submitBtn) submitBtn.textContent = 'Create Payment Link';
             } else if (mode === 'paidInFullCash') {
                 // Whole order paid in cash/check — no Stripe link needed.
@@ -1529,13 +1531,19 @@
 
             const paymentModeEl = document.querySelector('input[name="paymentMode"]:checked');
             const paymentMode = paymentModeEl ? paymentModeEl.value : 'full';
-            // chargeAmount is what Stripe collects. It only differs from
-            // the order total when a cash/check deposit was already
-            // received — in that case Stripe only needs to charge the
-            // remaining balance.
-            const chargeAmount = paymentMode === 'cashDeposit' ? totals.balance : totals.total;
-            // Method + reference are collected for both modes where cash
-            // was actually received (partial deposit OR full).
+            // chargeAmount is what Stripe collects.
+            //   'deposit'      → charge the deposit only; balance is owed
+            //                    later through some other channel.
+            //   'cashDeposit'  → deposit was ALREADY received off-Stripe
+            //                    (cash/check/card/Zelle/etc.); charge only
+            //                    the remaining balance.
+            //   else           → charge the full total.
+            const chargeAmount =
+                paymentMode === 'deposit'     ? totals.deposit :
+                paymentMode === 'cashDeposit' ? totals.balance :
+                totals.total;
+            // Method + reference are collected when a non-Stripe payment
+            // was actually received (off-Stripe deposit OR fully paid cash).
             const cashishMode = paymentMode === 'cashDeposit' || paymentMode === 'paidInFullCash';
             const depositMethod = cashishMode
                 ? (document.getElementById('depositMethod').value || 'cash') : '';
@@ -1543,7 +1551,15 @@
                 ? (document.getElementById('depositRef').value || '') : '';
 
             if (paymentMode === 'cashDeposit' && totals.balance <= 0) {
-                showStatus('Cash deposit covers the full amount. Switch to "Paid in Full (Cash/Check)" instead — no payment link needed.', 'error');
+                showStatus('The deposit already received covers the full amount. Switch to "Paid in Full (Cash/Check)" instead — no payment link needed.', 'error');
+                return;
+            }
+            if (paymentMode === 'deposit' && totals.deposit <= 0) {
+                showStatus('Enter a deposit amount greater than $0 for "Deposit + Balance Due Later" mode.', 'error');
+                return;
+            }
+            if (paymentMode === 'deposit' && totals.deposit >= totals.total) {
+                showStatus('Deposit covers the full order. Switch to "Pay in Full" instead.', 'error');
                 return;
             }
 
