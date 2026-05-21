@@ -1793,6 +1793,14 @@ function getTabDefs() {
         ['Donations',  'Supporters',      'Names on the donations page wall.',
                                           'Add/remove supporters who chipped in.'],
 
+        ['── SPONSORSHIPS ──', '', '', ''],
+        ['Sponsors',   'Sponsors',        'Current sponsor cards on sponsors.html (logo, role, bike, description, links).',
+                                          'Add/remove a sponsor, update copy or social links, swap their logo/photo. Set active=FALSE to hide a row without deleting.'],
+        ['Sponsors',   'SponsorPackages', 'The two sponsorship tiers on sponsors.html (price, benefits, perks).',
+                                          'Edit the dollar amounts, benefits list (newline-separated cell), or membership perks. featured=TRUE adds the gold ribbon.'],
+        ['Sponsors',   'Sponsor_Inquiries','Submitted sponsorship inquiries log (read-only — written by the form).',
+                                          'Browse to follow up with prospects. Auto-created on the first submission.'],
+
         ['── APPAREL ──', '', '', ''],
         ['Apparel',    'ApparelProducts', 'One row per print/design (Trail Map Tee, Neon Watercolor, etc).',
                                           'Add a new design, change pricing, restrict colors per product.'],
@@ -2762,6 +2770,90 @@ function getTabDefs() {
         //   [1, 'Jane Smith',          'gold',   'Jul 2025', 'Founding supporter'],
         //   [2, 'Anonymous',           '',       '',         ''],
         //   [3, 'Smith Family',        'silver', 'Aug 2025', ''],
+      ],
+    },
+    'Sponsors': {
+      // Current sponsors grid on sponsors.html. Each row renders as a
+      // card. `active=FALSE` hides a row without deleting it.
+      //
+      //   bike / location  show as a small tan tag under the sponsor head
+      //                    (e.g. "Ranger S E-Bike · Trailside Journey").
+      //   tagline          italic accent line under the description.
+      //   logo             small circular avatar (filename in /media/ or URL).
+      //   photo            optional wide hero photo above the card.
+      //   websiteUrl       primary CTA button.
+      //   websiteLabel     button text (defaults to "Visit website").
+      //   phone            renders a tel: button alongside the website CTA.
+      //   *Url columns     facebookUrl, instagramUrl, twitterUrl, tiktokUrl —
+      //                    only the ones with values render as icons.
+      header: ['order','name','role','bike','location','description','tagline',
+               'logo','photo','websiteUrl','websiteLabel','phone',
+               'facebookUrl','instagramUrl','twitterUrl','tiktokUrl','active'],
+      rows: [
+        [10, 'The YoGo', 'CEO — Ronnell Elkins',
+         'Ranger S E-Bike', 'Trailside Journey',
+         "YoGo BikeShare is a family-owned and operated micro-mobility business in the heart of Youngstown, OH. Their mission is to foster healthy community interaction while providing an environmentally friendly, cost-effective transportation alternative.",
+         "Unlock · Ride · Return — \"You're Bike Awaits\"",
+         '', '', 'https://yogobikeshare.com', 'Visit YoGo BikeShare', '',
+         '', '', '', '', true],
+        [20, 'The Blasko', 'Realtor for Howard Hanna',
+         'CityRun E-Bike', 'Trailside Journey',
+         "Kim Blasko is a Licensed Real Estate Agent and Million Dollar Producer — Residential Relocation Specialist. Member of the National, Ohio, and Youngstown–Columbiana Associations of Realtors.",
+         "★ Experience you can trust ★",
+         '', '', '', "Visit Kim's website", '330-951-5510',
+         '', '', '', '', true],
+        [30, 'The MLO', 'Powered by The MLO Bros',
+         'Ranger S E-Bike', 'Trailside Journey',
+         "Isaac and Luke Schuster are experienced realtors and loan officers — the ultimate one-stop shop for homebuyers and sellers. Their combined knowledge of real estate and mortgage lending ensures a seamless experience from offer to closing.",
+         "Buy · Sell · Finance — all under one roof",
+         '', '', '', 'Visit The MLO Bros', '330-651-7081',
+         '', '', '', '', true],
+      ],
+    },
+    'SponsorPackages': {
+      // Tiered sponsorship offers on sponsors.html.
+      //
+      //   benefits / perks  Newline-separated lists (Alt+Enter inside Sheets
+      //                     to add a line break in a single cell). Each line
+      //                     renders as a checked bullet. Bold callouts in
+      //                     `benefits` survive the renderer's escaping.
+      //   featured=TRUE     Adds the gold border + "Most popular" ribbon.
+      //   tier              Slug consumed by the sponsors.html form to
+      //                     preselect the right option in the tier dropdown.
+      //                     Must match: trailside-champion |
+      //                                 mill-creek-explorer | custom
+      //   ctaLabel          Button text (defaults to "Become a sponsor →").
+      header: ['order','eyebrow','title','price','priceLabel','featured',
+               'benefits','perksTitle','perks','ctaLabel','tier'],
+      rows: [
+        [10, 'Package 1', 'Trailside Journey Champion', '$1,400', 'investment', false,
+         [
+           'Prominent logo placement on one e-bike at our Trailside Journey location',
+           'Dedicated social media campaign featuring the sponsored bike',
+           'Exclusive invitation to our "Thank You" sponsor event',
+           'Complimentary Bronze Memberships for all your employees',
+         ].join('\n'),
+         'Bronze Membership perks',
+         [
+           '65% off the first hour of any ride',
+           '25% off each additional hour',
+           '25% off accessories and add-ons',
+         ].join('\n'),
+         'Become a Trailside Champion →', 'trailside-champion'],
+        [20, 'Package 2', 'Mill Creek Explorer', '$2,700', 'investment', true,
+         [
+           'Logo placement on two e-bikes — one at Trailside Journey and one at our Unleash Your Adventure location',
+           'Quarterly social media features highlighting the partnership',
+           'Media coverage at Bike Belmont, Panerathon, and other external biking events',
+           'Complimentary Gold Memberships for all your employees',
+         ].join('\n'),
+         'Gold Membership perks',
+         [
+           '75% off the first hour of any ride',
+           '40% off each additional hour',
+           '40% off accessories and add-ons',
+         ].join('\n'),
+         'Become a Mill Creek Explorer →', 'mill-creek-explorer'],
       ],
     },
     'Events': {
@@ -4304,13 +4396,13 @@ function _organizeTabs() {
   const SCHEME = [
     { color: '#1a1a1a', label: 'Dashboard',   tabs: ['Dashboard'] },
     { color: '#d93025', label: 'Orders & leads',
-      tabs: ['Cart_Orders','Apparel_Orders','Booking_Leads','Bridge_Applications','Chat_Visitors','Chat_Logs'] },
+      tabs: ['Cart_Orders','Apparel_Orders','Booking_Leads','Bridge_Applications','Sponsor_Inquiries','Chat_Visitors','Chat_Logs'] },
     { color: '#f9ab00', label: 'Live CMS',
       tabs: ['Pages','Sections','SiteConfig','Blog','Events','Testimonials','TrustStrip','Photos','Galleries'] },
     { color: '#fbbc04', label: 'Page menus',
       tabs: ['Home_Tiles','Home_Submenus','Shop_Tiles','Shop_Submenus','Rentals_Tiles','Rentals_Submenus'] },
     { color: '#34a853', label: 'Page content',
-      tabs: ['Services','Steps','Faqs','Journeys','Venues','Supporters','RentalsVibe','Accessories'] },
+      tabs: ['Services','Steps','Faqs','Journeys','Venues','Supporters','Sponsors','SponsorPackages','RentalsVibe','Accessories'] },
     { color: '#4285f4', label: 'Catalogs',
       tabs: ['ApparelProducts','ApparelColors','ApparelPlacements','Direct_Inventory','BookingLinks','Booking_Troubleshooting'] },
     { color: '#a142f4', label: 'Bridge the Gap config',
