@@ -24,7 +24,7 @@ const ALLOWED_ORIGINS = [
   'https://cruisethecreek.com',
 ];
 
-const CMS_URL    = 'https://script.google.com/macros/s/AKfycbxjg2ZsPCZNsmJEStYA0bRdsnkm4nNS-m-HNhm_Gin56VIVeYWVRE5j51j30zVHhb4PmQ/exec';
+const CMS_URL    = 'https://script.google.com/macros/s/AKfycbwXv6r6Me-mdp9WFjCHQYDHcgEKbny-9_K8TX-yGgW40yTONhz6kAs3H96xM0tEDAhcJA/exec';
 const CMS_TTL_MS = 5 * 60 * 1000;  // 5 min — matches Apps Script CDN cache
 const MODEL      = 'claude-haiku-4-5-20251001';
 const MAX_TOKENS = 600;            // cap response length — keeps cost predictable
@@ -311,7 +311,7 @@ const TOOLS = [
   },
 ];
 
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxjg2ZsPCZNsmJEStYA0bRdsnkm4nNS-m-HNhm_Gin56VIVeYWVRE5j51j30zVHhb4PmQ/exec';
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwXv6r6Me-mdp9WFjCHQYDHcgEKbny-9_K8TX-yGgW40yTONhz6kAs3H96xM0tEDAhcJA/exec';
 
 // Cruise the Creek shop coordinates (6685 Kirk Rd, Canfield, OH 44406).
 // Used by get_weather_forecast — fixed because rentals all pick up within

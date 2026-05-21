@@ -630,7 +630,7 @@ function clearDraft() {
 // Same /exec deployment as the CMS read above — handleBridgeApplication
 // branches on ?action=bridgeApplication. GET (not POST) avoids the
 // CORS preflight that Apps Script can't respond to without extra setup.
-const APPLICATION_URL = 'https://script.google.com/macros/s/AKfycbxjg2ZsPCZNsmJEStYA0bRdsnkm4nNS-m-HNhm_Gin56VIVeYWVRE5j51j30zVHhb4PmQ/exec';
+const APPLICATION_URL = 'https://script.google.com/macros/s/AKfycbwXv6r6Me-mdp9WFjCHQYDHcgEKbny-9_K8TX-yGgW40yTONhz6kAs3H96xM0tEDAhcJA/exec';
 
 form.addEventListener('submit', e => {
   e.preventDefault();
@@ -688,7 +688,7 @@ document.getElementById('successModal').addEventListener('click', e => {
 /* ====== CMS apply: hero / CTA / section labels via data-cms-*,
          and four content blocks (pricing, gaps, features, compare)
          from dedicated tabs. Static markup remains as fallback. ====== */
-const MENU_URL = 'https://script.google.com/macros/s/AKfycbxjg2ZsPCZNsmJEStYA0bRdsnkm4nNS-m-HNhm_Gin56VIVeYWVRE5j51j30zVHhb4PmQ/exec?page=bridge-the-gap';
+const MENU_URL = 'https://script.google.com/macros/s/AKfycbwXv6r6Me-mdp9WFjCHQYDHcgEKbny-9_K8TX-yGgW40yTONhz6kAs3H96xM0tEDAhcJA/exec?page=bridge-the-gap';
 
 function isTrue(v){ return v===true||v==='TRUE'||v==='true'||v===1; }
 function esc(s){ return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }

@@ -42,7 +42,7 @@
   // dispatcher — every cart submit silently bounced. Project B still
   // owns `getBikeInventory` for the brand pages, but cart.js no longer
   // touches it. Full multi-deployment cleanup is tracked separately.
-  const AS_URL = 'https://script.google.com/macros/s/AKfycbxjg2ZsPCZNsmJEStYA0bRdsnkm4nNS-m-HNhm_Gin56VIVeYWVRE5j51j30zVHhb4PmQ/exec';
+  const AS_URL = 'https://script.google.com/macros/s/AKfycbwXv6r6Me-mdp9WFjCHQYDHcgEKbny-9_K8TX-yGgW40yTONhz6kAs3H96xM0tEDAhcJA/exec';
 
   // ── Styles ───────────────────────────────────────────────────
   const STYLES = `

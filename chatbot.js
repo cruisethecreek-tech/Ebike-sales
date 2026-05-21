@@ -17,7 +17,7 @@
   window.__ctcChatLoaded = true;
 
   const API_URL     = 'https://ebike-sales-nu.vercel.app/api/chat';
-  const VISITOR_URL = 'https://script.google.com/macros/s/AKfycbxjg2ZsPCZNsmJEStYA0bRdsnkm4nNS-m-HNhm_Gin56VIVeYWVRE5j51j30zVHhb4PmQ/exec';
+  const VISITOR_URL = 'https://script.google.com/macros/s/AKfycbwXv6r6Me-mdp9WFjCHQYDHcgEKbny-9_K8TX-yGgW40yTONhz6kAs3H96xM0tEDAhcJA/exec';
   const CMS_URL     = VISITOR_URL + '?page=chat'; // for mascot config
   const STORE_KEY   = 'ctc:chat:history:v1';
   const SESSION_KEY = 'ctc:chat:session:v1';
