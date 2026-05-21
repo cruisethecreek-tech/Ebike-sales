@@ -636,10 +636,10 @@ form.addEventListener('submit', async (e) => {
       setStatus("Got it. Pat will follow up within a day to walk through the details. Thanks for considering sponsoring the fleet.", 'success');
       form.reset();
     } else {
-      setStatus((json && json.error) || 'Submission failed — try texting 330-406-9681 instead.', 'error');
+      setStatus((json && json.error) || 'Submission failed — try texting the info desk at 330-406-9686 instead.', 'error');
     }
   } catch (err) {
-    setStatus('Network hiccup. Text 330-406-9681 and we will get you sorted.', 'error');
+    setStatus('Network hiccup. Text the info desk at 330-406-9686 and we will get you sorted.', 'error');
   } finally {
     submitBtn.disabled = false;
   }
