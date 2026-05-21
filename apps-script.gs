@@ -114,6 +114,9 @@ function _doGetInner(e, action) {
   if (action === 'odysseyLead') {
     return handleOdysseyLead(e.parameter || {});
   }
+  if (action === 'sponsorInquiry') {
+    return handleSponsorInquiry(e.parameter || {});
+  }
   if (action === 'invoiceCreated') {
     return handleInvoiceCreated(e.parameter || {});
   }
@@ -199,6 +202,14 @@ function _doGetInner(e, action) {
   const supporters = readSheet(ss, 'Supporters')
     .sort(function(a, b){ return (a.order || 0) - (b.order || 0); });
 
+  // Sponsors page: current sponsors (Sponsors tab) and the two
+  // sponsorship tiers (SponsorPackages tab). Both are optional —
+  // sponsors.html ships static fallback content for each.
+  const sponsors = readSheet(ss, 'Sponsors')
+    .sort(function(a, b){ return (a.order || 0) - (b.order || 0); });
+  const sponsorPackages = readSheet(ss, 'SponsorPackages')
+    .sort(function(a, b){ return (a.order || 0) - (b.order || 0); });
+
   // Rentals page: side-by-side "vibe check" cards (Kirk Road vs Bears Den).
   const rentalsVibe = readSheet(ss, 'RentalsVibe')
     .sort(function(a, b){ return (a.order || 0) - (b.order || 0); });
@@ -263,6 +274,8 @@ function _doGetInner(e, action) {
     bridgeBikeOptions: bridgeBikeOptions,
     journeys:          journeys,
     supporters:        supporters,
+    sponsors:          sponsors,
+    sponsorPackages:   sponsorPackages,
     rentalsVibe:       rentalsVibe,
     events:            events,
     galleries:         galleries,
@@ -1142,6 +1155,109 @@ function handleOdysseyLead(p) {
     return json({ ok: true, id: row.id });
   } catch (err) {
     console.error('handleOdysseyLead failed: ' + err);
+    return json({ ok: false, error: String(err) });
+  }
+}
+
+/**
+ * sponsors.html inquiry handler. Each tier on the sponsors page has a
+ * "Become this sponsor" button that scrolls to the form and prefills
+ * the tier dropdown; the form posts here via ?action=sponsorInquiry.
+ *
+ * Logs to a Sponsor_Inquiries tab (created on first hit), then fans
+ * out a staff email + Discord push so Pat hears about each lead on
+ * the same channels as cart/booking/Odyssey leads.
+ */
+function handleSponsorInquiry(p) {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const json = function(obj) {
+    return ContentService.createTextOutput(JSON.stringify(obj))
+      .setMimeType(ContentService.MimeType.JSON);
+  };
+
+  // Map the form's tier slug to a human-readable label for emails,
+  // Discord, and the Sheet (so Pat never has to translate slugs).
+  const TIER_LABELS = {
+    'trailside-champion':  'Trailside Journey Champion ($1,400)',
+    'mill-creek-explorer': 'Mill Creek Explorer ($2,700)',
+    'custom':              'Custom / Title sponsor',
+  };
+
+  try {
+    const now = new Date();
+    const id  = 'SP-' + Utilities.formatDate(now, 'America/New_York', 'yyMMdd-HHmmss');
+    const tierKey   = String(p.tier || '').trim();
+    const tierLabel = TIER_LABELS[tierKey] || tierKey || '(undecided)';
+
+    const row = {
+      id:            id,
+      timestamp:     now,
+      contact_name:  String(p.contactName  || '').trim(),
+      business_name: String(p.businessName || '').trim(),
+      email:         String(p.email        || '').trim(),
+      phone:         String(p.phone        || '').trim(),
+      tier:          tierLabel,
+      message:       String(p.message      || '').trim(),
+      source_page:   String(p.page         || '').trim(),
+      status:        'new',
+    };
+
+    let sh = ss.getSheetByName('Sponsor_Inquiries');
+    if (!sh) {
+      sh = ss.insertSheet('Sponsor_Inquiries');
+      sh.appendRow(['id','timestamp','contact_name','business_name','email','phone',
+                    'tier','message','source_page','status']);
+      sh.getRange(1, 1, 1, 10).setFontWeight('bold');
+    }
+    sh.appendRow([row.id, row.timestamp, row.contact_name, row.business_name,
+                  row.email, row.phone, row.tier, row.message,
+                  row.source_page, row.status]);
+
+    try {
+      const body = [
+        'New sponsorship inquiry — ' + row.id,
+        '',
+        'Contact:    ' + (row.contact_name  || '(missing)'),
+        'Business:   ' + (row.business_name || '(missing)'),
+        'Phone:      ' + (row.phone         || '(missing)'),
+        'Email:      ' + (row.email         || '(missing)'),
+        '',
+        'Tier:       ' + row.tier,
+        '',
+        'Message:    ' + (row.message || '(none)'),
+        '',
+        'Logged at ' + row.timestamp + ' (Sponsor_Inquiries tab, status=new)',
+        'Follow up within a day — sponsorship sales close on a personal call.',
+      ].join('\n');
+      MailApp.sendEmail({
+        to:      'salesteam@cruisethecreek.com,info@cruisethecreek.com',
+        replyTo: row.email || 'salesteam@cruisethecreek.com',
+        subject: 'Sponsor inquiry ' + row.id + ' — ' +
+                 (row.business_name || '(no business)') + ' · ' + row.tier,
+        body:    body,
+      });
+    } catch (mailErr) {
+      console.warn('Sponsor inquiry email failed: ' + mailErr);
+    }
+
+    postToDiscord_(
+      '🤝 New sponsorship inquiry — ' + row.id,
+      13219930, // tan-ish (0xc9a99a) to distinguish from green leads
+      [
+        { name: '🏢 Business', value:
+            (row.business_name || '(missing)') +
+            (row.contact_name ? '\n👤 ' + row.contact_name : '') +
+            (row.phone ? '\n📞 ' + row.phone : '') +
+            (row.email ? '\n✉️ ' + row.email : ''), inline: false },
+        { name: '🎯 Tier',     value: row.tier,                inline: false },
+        { name: '📝 Message',  value: row.message || '(none)', inline: false },
+      ],
+      'Follow up within a day — close the sale on a personal call'
+    );
+
+    return json({ ok: true, id: row.id });
+  } catch (err) {
+    console.error('handleSponsorInquiry failed: ' + err);
     return json({ ok: false, error: String(err) });
   }
 }
