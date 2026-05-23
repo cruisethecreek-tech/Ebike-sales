@@ -732,21 +732,35 @@ def main() -> int:
         if live:
             print("[ok] fetched live (not used in v1 — snapshot is the source of truth)", file=sys.stderr)
 
-    out_html = build_html(SNAPSHOT)
-    out_path = Path(__file__).resolve().parent.parent / "goodcall-knowledge-base.pdf"
+    out_html_str = build_html(SNAPSHOT)
+    project_root = Path(__file__).resolve().parent.parent
+    pdf_path  = project_root / "goodcall-knowledge-base.pdf"
+    # HTML mirror for AI agents that ingest via Website URL instead of
+    # PDF upload (Goodcall's PDF parser is flaky; URL ingestion is more
+    # reliable + auto-refreshes whenever this file is redeployed).
+    html_path = project_root / "goodcall-knowledge.html"
+
+    # Inject a <meta name="robots" content="noindex,nofollow"> tag into
+    # the HTML mirror so the page stays off Google (it's an internal
+    # agent-training doc, not customer-facing). Goodcall's crawler
+    # honors noindex on a per-page basis — it'll still ingest the URL
+    # because Pat pasted it manually into the dashboard.
+    html_with_robots = out_html_str.replace(
+        '<meta charset="utf-8">',
+        '<meta charset="utf-8">\n<meta name="robots" content="noindex,nofollow">',
+        1,
+    )
+    html_path.write_text(html_with_robots, encoding="utf-8")
+    print(f"[ok] wrote {html_path.name} ({html_path.stat().st_size // 1024} KB)")
 
     try:
         import weasyprint
     except ImportError:
-        # Fallback: write HTML so user can print to PDF from a browser
-        html_path = out_path.with_suffix(".html")
-        html_path.write_text(out_html, encoding="utf-8")
-        print(f"[warn] weasyprint not installed — wrote {html_path}", file=sys.stderr)
-        print("       Open in browser → File → Print → Save as PDF.", file=sys.stderr)
+        print(f"[warn] weasyprint not installed — skipping PDF (HTML mirror written)", file=sys.stderr)
         return 0
 
-    weasyprint.HTML(string=out_html).write_pdf(str(out_path))
-    print(f"[ok] wrote {out_path} ({out_path.stat().st_size // 1024} KB)")
+    weasyprint.HTML(string=out_html_str).write_pdf(str(pdf_path))
+    print(f"[ok] wrote {pdf_path.name} ({pdf_path.stat().st_size // 1024} KB)")
     return 0
 
 
