@@ -1604,8 +1604,8 @@
                 submitBtn.disabled = true;
                 showStatus('Saving paid invoice…', 'success');
                 try {
-                    logOrderToSheet(invoiceData, '');
-                    notifyInvoiceCreated(invoiceData, '');
+                    logOrderToSheet(invoiceData, '', '');
+                    notifyInvoiceCreated(invoiceData, '', '');
                     showStatus('Invoice saved as paid (' + (depositMethod || 'cash') + ') for ' + invoiceData.customerName, 'success');
                     document.getElementById('paymentLinkBox').classList.remove('active');
                     setTimeout(loadNextInvoiceNumber, 1500);
@@ -1615,35 +1615,43 @@
                 return;
             }
 
-            showStatus('Creating payment link…', 'success');
+            showStatus('Creating Stripe invoice…', 'success');
             submitBtn.disabled = true;
 
             try {
-                // Stripe API expects `total` to be the amount to actually
-                // charge. For cashDeposit mode that's the remaining balance,
-                // not the full order total — so override only on the wire.
-                // invoiceData itself keeps total = full order total for the
-                // Sheet log + invoice display.
-                const stripePayload = Object.assign({}, invoiceData, { total: chargeAmount });
-                const response = await fetch('https://ebike-sales-nu.vercel.app/api/create-payment-link', {
+                // Stripe Invoices charge the full invoice amount. For
+                // `cashDeposit` mode that's the remaining balance (deposit
+                // was already collected off-Stripe); for `deposit` mode
+                // that's the deposit only. The Sheet log keeps total = full
+                // order total — only the Stripe wire gets the override.
+                //
+                // The `source: 'invoice.html'` tag lets the webhook
+                // distinguish invoice.html rows (which can be auto-marked
+                // paid) from apparel orders (which can't).
+                const stripePayload = Object.assign({}, invoiceData, {
+                    total: chargeAmount,
+                    source: 'invoice.html',
+                });
+                const response = await fetch('https://ebike-sales-nu.vercel.app/api/create-stripe-invoice', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(stripePayload)
                 });
 
                 const data = await response.json();
+                const hostedUrl = data && (data.hostedInvoiceUrl || data.paymentLink);
 
-                if (response.ok && data.paymentLink) {
-                    showStatus('Payment link created for ' + invoiceData.customerName, 'success');
-                    document.getElementById('paymentLinkDisplay').textContent = data.paymentLink;
+                if (response.ok && hostedUrl) {
+                    showStatus('Invoice ready for ' + invoiceData.customerName, 'success');
+                    document.getElementById('paymentLinkDisplay').textContent = hostedUrl;
                     document.getElementById('paymentLinkBox').classList.add('active');
-                    logOrderToSheet(invoiceData, data.paymentLink);
-                    notifyInvoiceCreated(invoiceData, data.paymentLink);
+                    logOrderToSheet(invoiceData, hostedUrl, data.stripeInvoiceId || '');
+                    notifyInvoiceCreated(invoiceData, hostedUrl, data.stripeInvoiceId || '');
 
                     // Pre-fetch the next invoice number so a new invoice can be started without resetting
                     setTimeout(loadNextInvoiceNumber, 1500);
                 } else {
-                    showStatus(data.error || 'Failed to create payment link', 'error');
+                    showStatus(data.error || 'Failed to create Stripe invoice', 'error');
                 }
             } catch (err) {
                 showStatus('Error: ' + err.message, 'error');
@@ -1657,7 +1665,7 @@
         // block invoice creation, success here doesn't depend on the
         // sheet write completing. Uses no-cors so we don't block on the
         // CORS preflight; we never read the response.
-        function notifyInvoiceCreated(invoiceData, paymentLink) {
+        function notifyInvoiceCreated(invoiceData, paymentLink, stripeInvoiceId) {
             try {
                 const params = new URLSearchParams({
                     action          : 'invoiceCreated',
@@ -1676,7 +1684,8 @@
                     depositMethod   : invoiceData.depositMethod || '',
                     depositRef      : invoiceData.depositRef || '',
                     paymentNotes    : invoiceData.paymentNotes || '',
-                    paymentLink     : paymentLink || ''
+                    paymentLink     : paymentLink || '',
+                    stripeInvoiceId : stripeInvoiceId || ''
                 });
                 // no-cors keeps this fire-and-forget; we only care that the
                 // request reached Google, not what came back.
@@ -1687,7 +1696,7 @@
             }
         }
 
-        function logOrderToSheet(invoiceData, paymentLink) {
+        function logOrderToSheet(invoiceData, paymentLink, stripeInvoiceId) {
             const callbackName = 'addOrderCb_' + Date.now();
             window[callbackName] = function(resp) {
                 if (resp && resp.ok) {
@@ -1722,7 +1731,8 @@
                 depositMethod   : invoiceData.depositMethod || '',
                 depositRef      : invoiceData.depositRef || '',
                 paymentNotes    : invoiceData.paymentNotes || '',
-                paymentLink     : paymentLink || ''
+                paymentLink     : paymentLink || '',
+                stripeInvoiceId : stripeInvoiceId || ''
             });
             const script = document.createElement('script');
             script.src = AS_URL + '?' + params.toString();
