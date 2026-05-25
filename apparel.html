@@ -359,7 +359,7 @@ footer a{color:var(--tan);font-weight:500}footer a:hover{color:#fff}
 <script>
 const MENU_URL    = 'https://script.google.com/macros/s/AKfycbwXv6r6Me-mdp9WFjCHQYDHcgEKbny-9_K8TX-yGgW40yTONhz6kAs3H96xM0tEDAhcJA/exec?page=apparel';
 const SUBMIT_URL  = 'https://script.google.com/macros/s/AKfycbwXv6r6Me-mdp9WFjCHQYDHcgEKbny-9_K8TX-yGgW40yTONhz6kAs3H96xM0tEDAhcJA/exec';
-const STRIPE_URL  = 'https://ebike-sales-nu.vercel.app/api/create-payment-link';
+const STRIPE_URL  = 'https://ebike-sales-nu.vercel.app/api/create-stripe-invoice';
 const SIZES = ['S','M','L','XL','XXL'];
 // Fallback placements if the ApparelPlacements Sheet is empty / hasn't been
 // seeded yet. Once the tab has rows, those win.
@@ -767,7 +767,7 @@ async function submitOrder(product, available){
   // log the order and fall back to manual follow-up — same UX as before.
   let paymentLink = '';
   if (available) {
-    btn.textContent = 'Generating payment link…';
+    btn.textContent = 'Generating invoice…';
     try {
       const stripeRes = await fetch(STRIPE_URL, {
         method:  'POST',
@@ -779,14 +779,18 @@ async function submitOrder(product, available){
           productName:   lineName,
           description:   'Cruise the Creek apparel — ' + product.name + ' (qty ' + SELECTION.qty + ')',
           total:         total,
+          source:        'apparel.html',
         }),
       });
       if (stripeRes.ok) {
         const data = await stripeRes.json().catch(() => null);
-        if (data && data.paymentLink) paymentLink = data.paymentLink;
+        // create-stripe-invoice returns both hostedInvoiceUrl + paymentLink
+        // (alias). Prefer hostedInvoiceUrl; fall back to paymentLink so the
+        // old create-payment-link endpoint also works during rollback.
+        if (data) paymentLink = data.hostedInvoiceUrl || data.paymentLink || '';
       }
     } catch (err) {
-      console.warn('[apparel] payment link generation failed:', err);
+      console.warn('[apparel] invoice generation failed:', err);
     }
   }
 
