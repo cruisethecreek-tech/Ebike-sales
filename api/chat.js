@@ -25,6 +25,7 @@ const ALLOWED_ORIGINS = [
 ];
 
 const CMS_URL    = 'https://script.google.com/macros/s/AKfycbwXv6r6Me-mdp9WFjCHQYDHcgEKbny-9_K8TX-yGgW40yTONhz6kAs3H96xM0tEDAhcJA/exec';
+const INV_URL    = 'https://script.google.com/macros/s/AKfycbyxVMuFEUeR8_YqM1VVnfPSVPnDhdCs_63dDthZ4jODlTDGQ-7yXSkQeYT-Ux0SM8tw/exec';
 const CMS_TTL_MS = 5 * 60 * 1000;  // 5 min — matches Apps Script CDN cache
 const MODEL      = 'claude-haiku-4-5-20251001';
 const MAX_TOKENS = 600;            // cap response length — keeps cost predictable
@@ -48,6 +49,78 @@ async function getKB() {
     // Fall back to last good copy if we have one — better stale than blind.
     return cachedKB || {};
   }
+}
+
+// Live bike inventory — separate Apps Script deployment that owns the bike
+// catalog (used by every brand page + the quiz). The chatbot consults this
+// before making any product-existence claim ("does Velotric have a trike?")
+// so its answer reflects whatever Pat has in the Sheet today, not whatever
+// was hardcoded in the system prompt months ago.
+let cachedInv = null;
+let cachedInvAt = 0;
+
+async function getInventory() {
+  if (cachedInv && Date.now() - cachedInvAt < CMS_TTL_MS) return cachedInv;
+  try {
+    const r = await fetch(INV_URL + '?action=getBikeInventory', {
+      cache: 'no-store',
+      redirect: 'follow',
+    });
+    if (!r.ok) throw new Error('inventory responded ' + r.status);
+    const data = await r.json();
+    // The endpoint returns a bare array of bike objects. Defensive in case
+    // the shape ever shifts to { bikes: [...] }.
+    cachedInv = Array.isArray(data) ? data
+              : (data && Array.isArray(data.bikes) ? data.bikes : []);
+    cachedInvAt = Date.now();
+    return cachedInv;
+  } catch (err) {
+    console.error('[chat] inventory fetch failed:', err);
+    return cachedInv || [];
+  }
+}
+
+// Compact one-line-per-bike summary, grouped by brand. Goal: enough signal
+// for the model to answer "does <brand> sell <product type>?" without
+// blowing the prompt budget. Frame styles come from the colors-object keys
+// (Step-Through / High-Step / Trike / etc.) since that's the schema the
+// brand pages render from.
+function renderInventory(inv) {
+  if (!Array.isArray(inv) || !inv.length) return '';
+  const live = inv.filter(b => b && b.discontinued !== 'Yes' && b.discontinued !== true);
+  if (!live.length) return '';
+
+  const byBrand = {};
+  live.forEach(b => {
+    const brand = String(b.brand || 'Unknown').trim();
+    (byBrand[brand] = byBrand[brand] || []).push(b);
+  });
+
+  const lines = [];
+  lines.push(
+    'Each line below is a bike currently for sale: brand · model · price · ' +
+    'frame style(s) · short description. This list is AUTHORITATIVE for ' +
+    'product existence — if a model or frame style is not in this list, we ' +
+    'do not currently sell it. Use it to answer "does <brand> have <X>?" ' +
+    'questions before claiming we don\'t carry something.'
+  );
+
+  Object.keys(byBrand).sort().forEach(brand => {
+    lines.push('\n**' + brand + '**');
+    byBrand[brand].forEach(b => {
+      const name  = String(b.name || '').trim() || '(unnamed)';
+      const price = b.price ? '$' + b.price : 'see page';
+      let styles = '';
+      if (b.colors && typeof b.colors === 'object') {
+        const keys = Object.keys(b.colors).filter(k => k && k.toLowerCase() !== 'default');
+        if (keys.length) styles = ' · ' + keys.join(', ');
+      }
+      const desc = b.description ? ' — ' + String(b.description).replace(/\s+/g, ' ').slice(0, 140) : '';
+      lines.push('- ' + name + ' · ' + price + styles + desc);
+    });
+  });
+
+  return lines.join('\n');
 }
 
 // Render the CMS payload as compact markdown for Claude's system prompt.
@@ -142,17 +215,24 @@ Your three jobs (in priority order):
 2. Concierge: recommend the right ride for a visitor's experience level — Trailside (Kirk Road, flat paved bikeway) for first-timers; Adventures (Bears Den / Scholl Pavilion) for confident riders who want hills and forest.
 3. Support: deflect repetitive questions (hours, location, policies) using the FAQ knowledge below.
 
-Never invent inventory, prices, or policies the knowledge base doesn't confirm. If asked about something not covered, say "I'm not sure — text Sales at 330-406-9682 and Pat or the team can help" rather than guess.
+Never invent inventory, prices, or policies the knowledge base doesn't confirm. AND never definitively DENY a product based on what you "remember" — the brands carry frames and categories that change over time (a trike, a cargo, a folder, a fat-tire variant can appear or disappear). The "Live inventory snapshot" block below is the only authoritative source for what we actually sell today. If asked about something not covered, say "I'm not sure — text Sales at 330-406-9682 and Pat or the team can help" rather than guess.
 
 ==== HARDLINE FACTS (always state these as fact) ====
 - Texting is always faster than email. Sales / repairs / test rides: 330-406-9682. Info / rentals / tours: 330-406-9686. When the visitor needs a human, give them a text number — don't push email.
 - Booked rentals: guests should arrive 15 minutes before their booked start time for a quick safety + bike intro.
-- E-bike pricing by brand (typical retail ranges):
-    • Jasion: $700–$1,500 — entry value, folding fat tires, value commuters.
-    • Heybike: $900–$2,000 — wide range, fat tires, cargo, step-thru, all-purpose.
-    • Velotric: $1,200–$2,500 — mid-to-premium, popular for Bridge the Gap.
-    • Mooncool: $700–$2,000 — cruisers, e-trikes, value picks.
-  If someone asks "how much is an e-bike", quote the brand they asked about (or all four if they're shopping broadly). Don't invent specific bike prices — for an exact quote, point them to the brand's page or text Sales.
+- E-bike pricing by brand (typical retail ranges — for an exact quote, consult the Live inventory snapshot below or point them to the brand page):
+    • Jasion: $700–$1,500
+    • Heybike: $900–$2,000
+    • Velotric: $1,200–$2,500
+    • Mooncool: $700–$2,000
+  Each brand carries multiple frame styles and categories — the live inventory below is the ground truth for which specific models, frame styles, and prices are in stock today. Don't summarize a brand as "the trike brand" or "the step-thru brand" without checking; the lineup shifts.
+
+==== PRODUCT EXISTENCE QUESTIONS (use the inventory) ====
+When a visitor asks whether a brand carries a specific category — trike, cargo, fat-tire, folding, step-through, high-step, off-road, commuter, etc. — search the Live inventory snapshot below BEFORE answering:
+  1. If a matching model exists under that brand, name it specifically with the price: "Yes — Velotric has the <model> at $X. velotric.html has the configurator."
+  2. If no match under the asked brand but another brand has one, say so: "Velotric doesn't currently list a trike, but Mooncool does — the <model> at $X (mooncool.html)."
+  3. If no match anywhere AND the inventory list is present, you can say "We don't have one listed right now — text Sales at 330-406-9682 to ask about special orders."
+  4. If the inventory block is MISSING from this prompt (Sheet outage), say "I don't have today's inventory in front of me — velotric.html (or the relevant brand page) has the live lineup. Text Sales at 330-406-9682 if you want me to confirm a specific model." Do NOT guess yes-or-no in this case.
 
 ==== PURCHASE INTENT (direct to brand pages) ====
 When a visitor signals they want to BUY a bike (not rent — "I want to buy an e-bike", "looking for a bike for my wife", "shopping for myself", etc.), route them to the right brand page based on the conversation:
@@ -449,8 +529,9 @@ export default async function handler(req, res) {
                .slice(-MAX_HISTORY)
       : [];
 
-    const kb = await getKB();
-    const kbBlock = renderKB(kb);
+    const [kb, inv] = await Promise.all([getKB(), getInventory()]);
+    const kbBlock  = renderKB(kb);
+    const invBlock = renderInventory(inv);
 
     // Build the running message stack. Tool-use turns get pushed onto
     // this list inside the loop below — they're invisible to the user
@@ -585,8 +666,19 @@ export default async function handler(req, res) {
         { type: 'text', text: SYSTEM_PROMPT },
         { type: 'text', text: 'Knowledge base (current site content):\n\n' + kbBlock,
           cache_control: { type: 'ephemeral' } },
-        { type: 'text', text: dateBlock },
       ];
+      // Live inventory snapshot — separate cached block so a KB edit doesn't
+      // bust the (larger) inventory cache and vice-versa. Skipped entirely
+      // if the upstream fetch failed, so the bot falls back to the system
+      // prompt's "I don't have today's inventory in front of me" guidance.
+      if (invBlock) {
+        systemBlocks.push({
+          type: 'text',
+          text: 'Live inventory snapshot (authoritative for product existence):\n\n' + invBlock,
+          cache_control: { type: 'ephemeral' },
+        });
+      }
+      systemBlocks.push({ type: 'text', text: dateBlock });
       if (pageBlock)    systemBlocks.push({ type: 'text', text: pageBlock });
       if (mascotBlock)  systemBlocks.push({ type: 'text', text: mascotBlock });
       if (visitorBlock) systemBlocks.push({ type: 'text', text: visitorBlock });
