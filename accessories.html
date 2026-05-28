@@ -82,6 +82,14 @@ main{flex:1;max-width:1080px;width:100%;margin:0 auto;padding:24px 24px 64px}
 .subgroup-head:not(:first-of-type){margin-top:32px}
 
 /* FILTER BAR */
+.shop-mode{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.mode-pill{flex:1 1 auto;min-width:72px;padding:10px 16px;border:1px solid rgba(0,0,0,.12);
+  background:#fff;border-radius:999px;font:inherit;font-size:.9rem;font-weight:700;
+  color:var(--ink-2);cursor:pointer;white-space:nowrap;
+  transition:background .15s ease,border-color .15s ease,color .15s ease}
+.mode-pill:hover{border-color:var(--sage);color:var(--forest)}
+.mode-pill.is-active{background:var(--forest);border-color:var(--forest);color:#fff}
+@media(min-width:640px){.mode-pill{flex:0 0 auto}}
 .filter-bar{background:#fff;border:1px solid rgba(0,0,0,.06);border-radius:8px;
   padding:14px;display:grid;gap:10px;margin-bottom:12px;grid-template-columns:1fr}
 @media(min-width:640px){.filter-bar{grid-template-columns:2fr 1fr 1fr 1fr auto;align-items:end}}
@@ -265,6 +273,13 @@ footer a{color:var(--tan);font-weight:500}footer a:hover{color:#fff}
 
 <main>
 
+  <div class="shop-mode" role="tablist" aria-label="Choose how to shop">
+    <button class="mode-pill is-active" data-mode="all"    type="button" role="tab" aria-selected="true">All</button>
+    <button class="mode-pill"           data-mode="new"    type="button" role="tab" aria-selected="false">New</button>
+    <button class="mode-pill"           data-mode="used"   type="button" role="tab" aria-selected="false">Used</button>
+    <button class="mode-pill"           data-mode="amazon" type="button" role="tab" aria-selected="false">Amazon</button>
+  </div>
+
   <div class="aff-banner">
     <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>
     <div><strong data-cms-text="acc_disclosure_title">Amazon Associate disclosure.</strong> <span data-cms-text="acc_disclosure_body">The links below are affiliate links — if you buy through them, we may earn a small commission at no extra cost to you. We only recommend gear we'd actually use ourselves.</span></div>
@@ -370,7 +385,7 @@ function resolveImg(name){
    get an amber badge in the corner so they're scannable at a glance.
    Section is hidden when no live rows so the affiliate grid stays at
    the top of the page. */
-function renderDirect(rows){
+function renderDirect(rows, mode){
   const grid = document.getElementById('direct-grid');
   const live = (Array.isArray(rows) ? rows : []).filter(r => isTrue(r.available !== '' && r.available != null ? r.available : true));
   if (!live.length) { grid.hidden = true; grid.innerHTML = ''; return; }
@@ -385,10 +400,13 @@ function renderDirect(rows){
     cats[idx[c]].rows.push(r);
   });
 
+  const head = mode === 'new'  ? 'New Inventory'
+             : mode === 'used' ? 'Used Inventory'
+             : 'New &amp; Used Inventory';
   let html = '<section class="cat-section direct-section">';
   html += '<div class="cat-head"><div class="cat-head-text">';
   html += '<span class="section-eyebrow">In stock at the shop</span>';
-  html += '<h2 class="section-title">New &amp; Used Inventory</h2>';
+  html += '<h2 class="section-title">' + head + '</h2>';
   html += '</div></div>';
   html += '<p class="section-intro">Pulled from our shop floor — ready to pick up or ship locally. Add to cart and we\'ll follow up to confirm and send a payment link.</p>';
 
@@ -578,7 +596,35 @@ function applyCMS(map){
    are unioned across both arrays for the dropdown.
    ───────────────────────────────────────────────── */
 const ACC_RAW    = { direct: [], affiliate: [] };
-const ACC_FILTER = { q: '', cat: '', min: -Infinity, max: Infinity };
+const ACC_FILTER = { q: '', cat: '', min: -Infinity, max: Infinity, mode: 'all' };
+
+// Per-mode empty-state copy. "used" reads as a placeholder because there's
+// no used inventory yet — the lane is built so it lights up the moment Pat
+// flags a Direct_Inventory row condition=used.
+const ACC_EMPTY = {
+  all:    { title: 'No matches',                 body: 'Try clearing the search or widening the price range.' },
+  new:    { title: 'No new inventory matches',   body: 'Try clearing the search or price filter.' },
+  used:   { title: 'No used inventory yet',      body: 'We list reconditioned bikes and gear here as they come in — check back soon.' },
+  amazon: { title: 'Picks coming soon',          body: 'Check back shortly for our Amazon recommendations.' },
+};
+
+// Amazon disclosure + fine print only make sense when affiliate cards are
+// actually on screen. Hide them in the New/Used lanes.
+function toggleAffChrome(show){
+  const banner = document.querySelector('.aff-banner');
+  if (banner) banner.style.display = show ? '' : 'none';
+  const fine = document.querySelector('.fine-print');
+  if (fine) fine.style.display = show ? '' : 'none';
+}
+
+function updatePriceNote(mode){
+  const el = document.getElementById('ac-pricenote');
+  if (!el) return;
+  el.textContent =
+      mode === 'amazon' ? 'Amazon sets pricing — use search & category to narrow.'
+    : mode === 'all'    ? 'Price filter applies to in-shop items only — Amazon picks always show'
+    :                     'Showing in-shop inventory — price filter applies.';
+}
 
 function matchAcc(r){
   const cat = String(r.category || '').trim();
@@ -592,30 +638,49 @@ function matchAcc(r){
 }
 
 function applyAccFilters(){
-  // Price filter applies to direct items only — affiliate Amazon
-  // picks have no fixed price on our side (Amazon owns pricing).
-  const directOut = ACC_RAW.direct.filter(r => {
-    if (!matchAcc(r)) return false;
-    const p = parseFloat(r.price);
-    if (isFinite(p) && p > 0) {
-      if (p < ACC_FILTER.min || p > ACC_FILTER.max) return false;
-    }
-    return true;
-  });
-  const affOut = ACC_RAW.affiliate.filter(matchAcc);
+  const mode = ACC_FILTER.mode || 'all';
+  const showDirect = mode !== 'amazon';            // New / Used / All show in-shop items
+  const showAff    = mode === 'all' || mode === 'amazon';
 
-  renderDirect(directOut);
-  renderCards(affOut);
+  // In-shop items, narrowed by condition for the New/Used lanes. Price
+  // filter applies to direct items only — affiliate Amazon picks have no
+  // fixed price on our side (Amazon owns pricing).
+  let directOut = [];
+  if (showDirect) {
+    directOut = ACC_RAW.direct.filter(r => {
+      if (!matchAcc(r)) return false;
+      const isUsed = String(r.condition || '').trim().toLowerCase() === 'used';
+      if (mode === 'new'  &&  isUsed) return false;
+      if (mode === 'used' && !isUsed) return false;
+      const p = parseFloat(r.price);
+      if (isFinite(p) && p > 0) {
+        if (p < ACC_FILTER.min || p > ACC_FILTER.max) return false;
+      }
+      return true;
+    });
+  }
+  const affOut = showAff ? ACC_RAW.affiliate.filter(matchAcc) : [];
+
+  renderDirect(directOut, mode);
+  if (showAff) {
+    renderCards(affOut);
+  } else {
+    document.getElementById('acc-grid').innerHTML = '';
+  }
+
+  toggleAffChrome(showAff);
+  updatePriceNote(mode);
 
   const total = directOut.length + affOut.length;
   const countEl = document.getElementById('ac-count');
   if (countEl) countEl.textContent = total;
 
-  // Replace the affiliate skeleton entirely when nothing matches in
-  // either grid, so the page doesn't render a blank middle band.
+  // When the active lane has nothing to show, replace the lower grid with
+  // a mode-specific message so the page never renders a blank band.
   if (total === 0) {
+    const msg = ACC_EMPTY[mode] || ACC_EMPTY.all;
     document.getElementById('acc-grid').innerHTML =
-      '<div class="acc-empty"><strong>No matches</strong>Try clearing the search or widening the price range.</div>';
+      '<div class="acc-empty"><strong>' + esc(msg.title) + '</strong>' + esc(msg.body) + '</div>';
   }
 }
 
@@ -674,8 +739,24 @@ cmsBoot({
   catSel.addEventListener('change', apply);
   minIn .addEventListener('input',  debounced);
   maxIn .addEventListener('input',  debounced);
+
+  const pills = Array.prototype.slice.call(document.querySelectorAll('.mode-pill'));
+  function setMode(mode){
+    ACC_FILTER.mode = mode;
+    pills.forEach(p => {
+      const on = p.dataset.mode === mode;
+      p.classList.toggle('is-active', on);
+      p.setAttribute('aria-selected', on ? 'true' : 'false');
+    });
+  }
+  pills.forEach(p => p.addEventListener('click', () => {
+    setMode(p.dataset.mode || 'all');
+    applyAccFilters();
+  }));
+
   reset .addEventListener('click', () => {
     search.value = ''; catSel.value = ''; minIn.value = ''; maxIn.value = '';
+    setMode('all');
     apply(); search.focus();
   });
 })();
