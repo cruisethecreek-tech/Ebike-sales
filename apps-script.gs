@@ -3451,7 +3451,53 @@ function getTabDefs() {
       // tags      = comma-separated, e.g. "trails, e-bikes"
       // published = TRUE shows in /blog. FALSE hides without deleting.
       header: ['slug','title','date','author','hero','excerpt','body_html','tags','wix_slug','published'],
-      rows: [],
+      rows: [
+        ['the-real-hazard-on-our-roads',
+         "The Real Hazard on Our Roads (And It's Not E-Bikes)",
+         '2026-05-29',
+         'Pat',
+         'media/Bikeonroad.jpg',
+         "The neighborhood Facebook pile-on blames e-bikes. The real problem is streets built for the cars of 1955 — and here's why protected infrastructure makes every road safer for riders, drivers, and walkers alike.",
+         `<p>If you've scrolled a neighborhood Facebook group lately, you've seen it: the slow pile-on against e-bikes. "Safety hazards." "Dangerous toys." One bad experience, one viral video, or one reckless rider, and suddenly the whole category ends up on trial.</p>
+<p>Let's drop the outrage and look at what's actually going on.</p>
+<p>The conversation shouldn't stop at e-bikes. It should be about whether our streets have kept up with how people actually get around in 2026.</p>
+<p>We're trying to run a 21st-century mix of bikes, e-bikes, scooters, walkers, and cars on roads drawn up for the cars of 1955. Some towns have started adapting. Plenty haven't. And the friction you feel out there? That's the bill coming due for sixty years of building for one machine and one machine only.</p>
+<h2>The Real Friction Points</h2>
+<p>When something goes wrong involving an e-bike, the problem usually isn't that a bicycle has a battery on it.</p>
+<p>It's that the rider got handed two bad options and told to pick one:</p>
+<ol>
+<li>Ride out in traffic next to vehicles doing 45.</li>
+<li>Ride on the sidewalk and thread around walkers, strollers, dogs, and kids.</li>
+</ol>
+<p>Neither one is safe. Neither one is predictable. And when you don't give people a real place to go, conflict isn't a surprise — it's the design working exactly the way it was built to.</p>
+<p>The answer isn't banning compliant, speed-capped e-bikes — the same bikes that keep seniors moving, get folks to work without a car payment, and put transportation back in reach for people who'd otherwise be stuck.</p>
+<p><strong>The answer is separation.</strong></p>
+<p>Nobody's asking for special treatment. We're asking for the obvious thing: a street where walkers can walk, drivers can drive, and riders can ride — each in their own lane, nobody guessing what the other guy's about to do.</p>
+<h2>Why Protected Infrastructure Works (For Everybody)</h2>
+<p>Build the right kind of street and the wins spill way past the bike crowd.</p>
+<h3>Safer Streets for Everyone</h3>
+<p>Here's the part the "ban the bikes" crowd never mentions: protected lanes don't just protect riders. They protect everybody. A 13-year study across 12 American cities found that the ones with protected bike lanes had <strong>44% fewer deaths and 50% fewer serious injuries</strong> — drivers and walkers included, not just cyclists.</p>
+<p>And the kicker? Researchers figured the safety would come from having more riders out there. It didn't. It came from the infrastructure. Build the lane, and the whole street gets calmer. When New York put a protected lane on 9th Avenue, injuries to everyone on that street dropped <strong>58%</strong>. That's not a cyclist win. That's a neighborhood win.</p>
+<h3>Stronger Local Businesses</h3>
+<p>The fear is always the same — "you'll take my parking and kill my business." Except that's not what happens. A review of 15 separate studies found that adding bike infrastructure had a positive or neutral effect on nearby shops and restaurants, even when parking got pulled.</p>
+<p>That 9th Avenue lane in NYC? Retail sales jumped <strong>up to 49%</strong> while the rest of Manhattan crawled along at 3%. People moving slow stop and spend. Traffic doing 45 just blows past your front door.</p>
+<h3>Real Independence</h3>
+<p>This is the human part. An e-bike isn't a toy for the people who depend on one. It's how an older neighbor keeps her freedom after she stops driving. It's how a guy gets to a second-shift job without a $400 car payment. It's how somebody who can't pedal a regular bike anymore gets back outside. Take that away in the name of "safety" and you haven't made anybody safer — you've just made life smaller for the people who had the fewest options to begin with.</p>
+<h2>This One's Close to Home</h2>
+<p>We don't have to imagine this. Right here in the Mahoning Valley, the Great Ohio Lake-to-River Greenway is supposed to be a continuous, protected route — a real spine for getting around on two wheels or two feet. But there's still a gap in Green Township, a stretch where the safe path just... stops, and people get funneled back into exactly the bad-choice situation we're talking about.</p>
+<p>That gap isn't a bike problem. It's an unfinished-street problem. And closing it is the kind of thing that makes the whole region safer and more connected — not just for riders, but for every family that wants to walk, roll, or ride somewhere without taking their life in their hands.</p>
+<p>We're lucky to have an anchor like Mill Creek MetroParks and the trail network already here. The work now is connecting the dots between the good stretches we've got.</p>
+<h2>Stop Blaming Tomorrow's Technology for Yesterday's Streets</h2>
+<p>The way people move is changing whether we're ready for it or not.</p>
+<p>So we've got a choice. We can keep arguing about whether e-bikes "belong" here — or we can start building a Valley designed for how people actually get around.</p>
+<p>Complete streets protect the people walking. They respect the people driving. They give riders a real place to be. And they leave us with neighborhoods that just plain work better for everybody who lives in them.</p>
+<p>So — are you ready to see safe, connected infrastructure become part of the conversation around here? Drop a comment and let us know. This is a fight worth having together.</p>
+<hr>
+<p><em>Sources: 12-city, 13-year safety study — University of Colorado Denver &amp; University of New Mexico, Journal of Transport &amp; Health. NYC 9th Avenue figures — NYC Department of Transportation. Economic review — "Economic impacts on local businesses of investments in bicycle and pedestrian infrastructure," Transport Reviews (2021).</em></p>`,
+         'e-bikes, safety, infrastructure, advocacy',
+         '',
+         true],
+      ],
     },
     'TrustStrip': {
       // Same four cards render on every brand page (heybike, velotric,
