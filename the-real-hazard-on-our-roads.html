@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Real Hazard on Our Roads (And It's Not E-Bikes) | Cruise the Creek</title>
+<meta name="description" content="The neighborhood Facebook pile-on blames e-bikes. The real problem is streets built for the cars of 1955 — and here's why protected infrastructure makes every road safer for riders, drivers, and walkers alike.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --sage:#6B8F71;--forest:#2D4A32;--forest-l:#3a5d40;--dark:#1a2e1c;
+  --tan:#C9A96E;--tan-d:#a98843;--cream:#F5F0E8;--cream-w:#fbf7ef;
+  --ink:#1a1a1a;--ink-2:#4a4a4a;--ink-3:#7a7a7a;
+}
+html,body{height:100%}
+html{scroll-behavior:smooth}
+body{font-family:'DM Sans',sans-serif;color:var(--ink);background:var(--cream);
+  min-height:100vh;display:flex;flex-direction:column;line-height:1.6}
+a{color:inherit;text-decoration:none;transition:color .2s ease}
+button{font-family:inherit;cursor:pointer;border:none;background:none}
+
+.topbar{background:rgba(255,255,255,.95);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+  color:var(--dark);padding:16px 24px;display:flex;align-items:center;justify-content:space-between;
+  position:sticky;top:0;z-index:100;border-bottom:1px solid rgba(0,0,0,.05)}
+.brand-logo{height:38px;width:auto;display:block}
+
+/* HERO */
+.post-hero{position:relative;min-height:42vh;padding:80px 24px 60px;
+  display:flex;flex-direction:column;align-items:center;justify-content:flex-end;text-align:center;
+  color:#fff;background:var(--forest);overflow:hidden;isolation:isolate}
+.post-hero-bg{position:absolute;inset:0;z-index:-2;background-size:cover;background-position:center;filter:brightness(.55);
+  background-image:url('media/Bikeonroad.jpg')}
+.post-hero-overlay{position:absolute;inset:0;z-index:-1;
+  background:linear-gradient(180deg,rgba(26,46,28,.4) 0%,rgba(26,46,28,.85) 100%)}
+.post-hero-meta{font-size:.72rem;letter-spacing:.18em;text-transform:uppercase;font-weight:700;
+  color:var(--tan);margin-bottom:12px;display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap}
+.post-hero-meta .dot{opacity:.5}
+.post-hero h1{font-family:'Bebas Neue',sans-serif;font-size:clamp(2.2rem,6vw,3.6rem);
+  letter-spacing:.02em;line-height:1.05;max-width:780px;margin:0 auto 14px}
+.post-hero-author{font-size:.86rem;color:rgba(255,255,255,.78);letter-spacing:.04em}
+.post-hero-author strong{color:var(--tan);font-weight:700}
+
+.crumb{max-width:780px;margin:0 auto;padding:18px 24px 0;
+  font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;font-weight:700;color:var(--sage)}
+.crumb a{color:var(--ink-2)}.crumb a:hover{color:var(--forest)}
+.crumb .sep{color:rgba(0,0,0,.2);margin:0 8px}
+
+main{flex:1;width:100%;max-width:780px;margin:0 auto;padding:32px 24px 64px}
+
+/* POST BODY TYPOGRAPHY */
+.post-body{font-size:1.05rem;line-height:1.75;color:var(--ink-2)}
+.post-body > *:first-child{margin-top:0}
+.post-body p{margin:0 0 1.1em}
+.post-body h1,.post-body h2,.post-body h3,.post-body h4{
+  font-family:'DM Sans',sans-serif;color:var(--forest);
+  font-weight:800;letter-spacing:-.01em;line-height:1.2;
+  margin:1.8em 0 .6em}
+.post-body h2{font-size:clamp(1.4rem,3.5vw,1.7rem)}
+.post-body h3{font-size:clamp(1.2rem,3vw,1.4rem);color:var(--forest-l)}
+.post-body h4{font-size:1.05rem}
+.post-body strong,.post-body b{color:var(--ink);font-weight:800}
+.post-body em,.post-body i{color:var(--ink)}
+.post-body a{color:var(--tan-d);font-weight:700;border-bottom:1px solid rgba(169,136,67,.3);
+  transition:border-color .15s ease}
+.post-body a:hover{border-bottom-color:var(--tan-d)}
+.post-body ul,.post-body ol{margin:0 0 1.1em 1.4em;padding:0}
+.post-body li{margin-bottom:.4em}
+.post-body blockquote{margin:1.4em 0;padding:14px 22px;
+  border-left:3px solid var(--tan);background:#fff;border-radius:0 6px 6px 0;
+  color:var(--ink);font-style:italic;font-size:1.05em;line-height:1.6}
+.post-body hr{border:0;height:1px;background:rgba(0,0,0,.1);margin:2em 0}
+
+/* TAGS */
+.post-tags{margin-top:2.5em;padding-top:1.6em;border-top:1px solid rgba(0,0,0,.08);
+  display:flex;flex-wrap:wrap;gap:8px}
+.post-tag{padding:6px 12px;background:#fff;border:1px solid rgba(45,74,50,.12);
+  border-radius:99px;font-size:.78rem;font-weight:700;letter-spacing:.04em;
+  color:var(--forest);text-transform:lowercase}
+
+.back-blog{display:inline-flex;align-items:center;gap:8px;margin-top:1.6em;
+  padding:11px 20px;background:var(--forest);color:#fff;border-radius:5px;
+  font-weight:700;font-size:.84rem;letter-spacing:.04em;text-transform:uppercase;transition:background .2s ease}
+.back-blog:hover{background:var(--dark)}
+.back-blog svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2.5}
+
+footer{background:var(--dark);color:rgba(255,255,255,.7);padding:32px 24px;
+  text-align:center;font-size:.85rem;letter-spacing:.02em;border-top:2px solid var(--tan)}
+footer a{color:var(--tan);font-weight:500}footer a:hover{color:#fff}
+
+@media(max-width:480px){
+  .topbar{padding:12px 16px}.brand-logo{height:32px}
+  .post-hero{padding:62px 18px 44px}
+  .crumb{padding:14px 16px 0}
+  main{padding:24px 16px 48px}
+  .post-body{font-size:1rem;line-height:1.7}
+}
+</style>
+<script src="site-enhance.js"></script>
+<meta property="og:title" content="The Real Hazard on Our Roads (And It's Not E-Bikes)">
+<meta property="og:description" content="The neighborhood Facebook pile-on blames e-bikes. The real problem is streets built for the cars of 1955.">
+<meta property="og:image" content="https://www.cruisethecreek.com/media/Bikeonroad.jpg">
+<meta property="og:url" content="https://www.cruisethecreek.com/the-real-hazard-on-our-roads.html">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Cruise the Creek">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="The Real Hazard on Our Roads (And It's Not E-Bikes)">
+<meta name="twitter:description" content="The neighborhood Facebook pile-on blames e-bikes. The real problem is streets built for the cars of 1955.">
+<meta name="twitter:image" content="https://www.cruisethecreek.com/media/Bikeonroad.jpg">
+<link rel="canonical" href="https://www.cruisethecreek.com/the-real-hazard-on-our-roads.html">
+</head>
+<body>
+
+<header class="topbar">
+  <a href="index.html" aria-label="Cruise the Creek home"><img class="brand-logo" src="BlackonTransparent.png" alt="Cruise the Creek"></a>
+</header>
+
+<section class="post-hero">
+  <div class="post-hero-bg"></div>
+  <div class="post-hero-overlay"></div>
+  <div class="post-hero-meta">
+    <span>May 29, 2026</span>
+    <span class="dot">&middot;</span>
+    <span>5 min read</span>
+  </div>
+  <h1>The Real Hazard on Our Roads (And It's Not E-Bikes)</h1>
+  <div class="post-hero-author">By <strong>Pat</strong></div>
+</section>
+
+<nav class="crumb"><a href="index.html">Home</a><span class="sep">/</span> Creek Life <span class="sep">/</span><a href="creek-life-blog.html">Blog</a><span class="sep">/</span> The Real Hazard on Our Roads</nav>
+
+<main>
+  <article class="post-body">
+<p>If you've scrolled a neighborhood Facebook group lately, you've seen it: the slow pile-on against e-bikes. "Safety hazards." "Dangerous toys." One bad experience, one viral video, or one reckless rider, and suddenly the whole category ends up on trial.</p>
+<p>Let's drop the outrage and look at what's actually going on.</p>
+<p>The conversation shouldn't stop at e-bikes. It should be about whether our streets have kept up with how people actually get around in 2026.</p>
+<p>We're trying to run a 21st-century mix of bikes, e-bikes, scooters, walkers, and cars on roads drawn up for the cars of 1955. Some towns have started adapting. Plenty haven't. And the friction you feel out there? That's the bill coming due for sixty years of building for one machine and one machine only.</p>
+<h2>The Real Friction Points</h2>
+<p>When something goes wrong involving an e-bike, the problem usually isn't that a bicycle has a battery on it.</p>
+<p>It's that the rider got handed two bad options and told to pick one:</p>
+<ol>
+<li>Ride out in traffic next to vehicles doing 45.</li>
+<li>Ride on the sidewalk and thread around walkers, strollers, dogs, and kids.</li>
+</ol>
+<p>Neither one is safe. Neither one is predictable. And when you don't give people a real place to go, conflict isn't a surprise — it's the design working exactly the way it was built to.</p>
+<p>The answer isn't banning compliant, speed-capped e-bikes — the same bikes that keep seniors moving, get folks to work without a car payment, and put transportation back in reach for people who'd otherwise be stuck.</p>
+<p><strong>The answer is separation.</strong></p>
+<p>Nobody's asking for special treatment. We're asking for the obvious thing: a street where walkers can walk, drivers can drive, and riders can ride — each in their own lane, nobody guessing what the other guy's about to do.</p>
+<h2>Why Protected Infrastructure Works (For Everybody)</h2>
+<p>Build the right kind of street and the wins spill way past the bike crowd.</p>
+<h3>Safer Streets for Everyone</h3>
+<p>Here's the part the "ban the bikes" crowd never mentions: protected lanes don't just protect riders. They protect everybody. A 13-year study across 12 American cities found that the ones with protected bike lanes had <strong>44% fewer deaths and 50% fewer serious injuries</strong> — drivers and walkers included, not just cyclists.</p>
+<p>And the kicker? Researchers figured the safety would come from having more riders out there. It didn't. It came from the infrastructure. Build the lane, and the whole street gets calmer. When New York put a protected lane on 9th Avenue, injuries to everyone on that street dropped <strong>58%</strong>. That's not a cyclist win. That's a neighborhood win.</p>
+<h3>Stronger Local Businesses</h3>
+<p>The fear is always the same — "you'll take my parking and kill my business." Except that's not what happens. A review of 23 separate studies found that adding bike infrastructure had a positive or neutral effect on nearby shops and restaurants, even when parking got pulled.</p>
+<p>That 9th Avenue lane in NYC? Retail sales jumped <strong>up to 49%</strong> while the rest of Manhattan crawled along at 3%. People moving slow stop and spend. Traffic doing 45 just blows past your front door.</p>
+<h3>Real Independence</h3>
+<p>This is the human part. An e-bike isn't a toy for the people who depend on one. It's how an older neighbor keeps her freedom after she stops driving. It's how a guy gets to a second-shift job without a $400 car payment. It's how somebody who can't pedal a regular bike anymore gets back outside. Take that away in the name of "safety" and you haven't made anybody safer — you've just made life smaller for the people who had the fewest options to begin with.</p>
+<h2>This One's Close to Home</h2>
+<p>We don't have to imagine this. Right here in the Mahoning Valley, the Great Ohio Lake-to-River Greenway is supposed to be a continuous, protected route — a real spine for getting around on two wheels or two feet. But there's still a gap in Green Township, a stretch where the safe path just... stops, and people get funneled back into exactly the bad-choice situation we're talking about.</p>
+<p>That gap isn't a bike problem. It's an unfinished-street problem. And closing it is the kind of thing that makes the whole region safer and more connected — not just for riders, but for every family that wants to walk, roll, or ride somewhere without taking their life in their hands.</p>
+<p>We're lucky to have an anchor like Mill Creek MetroParks and the trail network already here. The work now is connecting the dots between the good stretches we've got.</p>
+<h2>Stop Blaming Tomorrow's Technology for Yesterday's Streets</h2>
+<p>The way people move is changing whether we're ready for it or not.</p>
+<p>So we've got a choice. We can keep arguing about whether e-bikes "belong" here — or we can start building a Valley designed for how people actually get around.</p>
+<p>Complete streets protect the people walking. They respect the people driving. They give riders a real place to be. And they leave us with neighborhoods that just plain work better for everybody who lives in them.</p>
+<p>So — are you ready to see safe, connected infrastructure become part of the conversation around here? Drop a comment and let us know. This is a fight worth having together.</p>
+<hr>
+<p><em>Sources: 12-city, 13-year safety study — University of Colorado Denver &amp; University of New Mexico, Journal of Transport &amp; Health. NYC 9th Avenue figures — NYC Department of Transportation. Economic review — "Economic impacts on local businesses of investments in bicycle and pedestrian infrastructure," Transport Reviews (2021).</em></p>
+  </article>
+
+  <div class="post-tags">
+    <span class="post-tag">e-bikes</span>
+    <span class="post-tag">safety</span>
+    <span class="post-tag">infrastructure</span>
+    <span class="post-tag">advocacy</span>
+  </div>
+
+  <a class="back-blog" href="creek-life-blog.html"><svg viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg> All posts</a>
+</main>
+
+<footer>
+  &copy; 2026 <a href="index.html">Cruise the Creek</a> &middot; <a href="creek-life-blog.html">All posts</a>
+</footer>
+
+<script src="chatbot.js" defer></script>
+</body>
+</html>
