@@ -148,7 +148,25 @@ footer a{color:var(--tan);font-weight:500}footer a:hover{color:#fff}
 const MENU_URL = 'https://script.google.com/macros/s/AKfycbwXv6r6Me-mdp9WFjCHQYDHcgEKbny-9_K8TX-yGgW40yTONhz6kAs3H96xM0tEDAhcJA/exec?page=blog';
 const CACHE_KEY = 'cms:blog:v1';
 
-let POSTS = [];
+// Statically-published posts that live as their own .html files (not in the
+// Blog sheet). Surfaced in the index alongside CMS posts. De-duped by slug:
+// if the same slug later gets added to the Blog sheet, the CMS row wins and
+// this entry drops out automatically. `url` points the card at the static page.
+const STATIC_POSTS = [
+  {
+    slug: 'the-real-hazard-on-our-roads',
+    title: "The Real Hazard on Our Roads (And It's Not E-Bikes)",
+    date: '2026-05-29',
+    author: 'Pat',
+    hero: 'media/Bikeonroad.jpg',
+    excerpt: "The neighborhood Facebook pile-on blames e-bikes. The real problem is streets built for the cars of 1955 — and why protected infrastructure makes every road safer.",
+    tags: 'e-bikes, safety, infrastructure, advocacy',
+    readtime: '5 min read',
+    url: 'the-real-hazard-on-our-roads.html',
+  },
+];
+
+let POSTS = STATIC_POSTS.slice();
 let ACTIVE_TAG = '';
 
 function esc(s){ return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
@@ -203,8 +221,9 @@ function renderPosts(){
   grid.innerHTML = list.map(p => {
     const hero = resolveImg(p.hero);
     const excerpt = p.excerpt || stripTags(p.body_html || '').slice(0, 200) + '…';
+    const href = p.url ? esc(p.url) : ('blog-post.html?slug=' + encodeURIComponent(p.slug));
     return `
-      <a class="post-card" href="blog-post.html?slug=${encodeURIComponent(p.slug)}">
+      <a class="post-card" href="${href}">
         <div class="post-thumb">
           ${hero ? `<img src="${esc(hero)}" alt="${esc(p.title)}" loading="lazy" onerror="this.remove()">` : ''}
           ${hero ? '' : '<div class="post-thumb-empty">Cruise the Creek</div>'}
@@ -213,7 +232,7 @@ function renderPosts(){
           <div class="post-meta">
             <span>${esc(fmtDate(p.date))}</span>
             <span class="dot">·</span>
-            <span>${esc(readTime(p.body_html))}</span>
+            <span>${esc(p.readtime || readTime(p.body_html))}</span>
           </div>
           <h2 class="post-title">${esc(p.title)}</h2>
           <p class="post-excerpt">${esc(excerpt)}</p>
@@ -223,11 +242,30 @@ function renderPosts(){
   }).join('');
 }
 
+function mergePosts(cms){
+  // CMS rows win on slug collisions; static-only posts fill in the rest.
+  const cmsList = Array.isArray(cms) ? cms : [];
+  const cmsSlugs = new Set(cmsList.map(p => p.slug));
+  const merged = cmsList.concat(STATIC_POSTS.filter(p => !cmsSlugs.has(p.slug)));
+  // Newest first. Undated rows sink to the bottom.
+  merged.sort((a, b) => {
+    const da = a.date ? new Date(a.date).getTime() : -Infinity;
+    const db = b.date ? new Date(b.date).getTime() : -Infinity;
+    return db - da;
+  });
+  return merged;
+}
+
 function applyData(d){
-  POSTS = Array.isArray(d.blog) ? d.blog : [];
+  POSTS = mergePosts(d && d.blog);
   renderTags();
   renderPosts();
 }
+
+// Render the static posts immediately so the index isn't blank while the CMS
+// loads — and so it still shows something useful if the CMS never responds.
+renderTags();
+renderPosts();
 
 /* ── CMS bootstrap (cache, TTL, loader) ──────────── */
 let _blogApplied = false;
@@ -237,7 +275,8 @@ cmsBoot({
   onApply(data) { _blogApplied = true; applyData(data); },
 });
 window.addEventListener('load', () => setTimeout(() => {
-  if (!_blogApplied) {
+  // Only surface an error if we have nothing at all to show.
+  if (!_blogApplied && POSTS.length === 0) {
     document.getElementById('posts').innerHTML = '<div class="empty" style="grid-column:1/-1">Couldn\'t load posts right now. Refresh in a moment.</div>';
   }
 }, 8000));
