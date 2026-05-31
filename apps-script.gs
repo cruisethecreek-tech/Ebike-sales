@@ -3178,12 +3178,12 @@ function getTabDefs() {
         ['kirk', 1, 'Mist Fan',           '$3.00',  ''],
         ['kirk', 2, 'Power Bank Charger', '$5.00',  ''],
         ['kirk', 3, 'Bluetooth Speaker',  '$7.00',  ''],
-        ['kirk', 4, 'V-Seat',             'Ask at pickup', 'Gooch protection — Ranger model e-bikes'],
+        ['kirk', 4, 'V-Seat',             '$3.00', 'Gooch protection — Ranger model e-bikes'],
         ['kirk', 5, 'Insulated Cooler',   '$10.00', '1 available'],
         // ── Bears Den · Unleash Your Adventure ──
         ['bears', 1, 'Insta360 Camera',   '$39.99', '1 available'],
         ['bears', 2, 'Bluetooth Speaker', '$9.99',  '2 available'],
-        ['bears', 3, 'Insulated Cooler',  '$9.99',  '1 available'],
+        ['bears', 3, 'Insulated Cooler',  '$10.00', '1 available'],
       ],
     },
     'PricingRiders': {
