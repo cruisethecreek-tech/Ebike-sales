@@ -127,22 +127,14 @@ main{flex:1;max-width:1080px;width:100%;margin:0 auto;padding:36px 24px 64px}
 .extra-price.is-tbd{font-family:'DM Sans',sans-serif;font-size:.8rem;font-weight:700;
   text-transform:uppercase;letter-spacing:.04em;color:var(--ink-3)}
 
-/* ── RIDER / STROLLER TIERS ── */
-.riders-wrap{margin-top:54px}
-.riders-note{text-align:center;font-size:.84rem;color:var(--ink-3);margin:-22px auto 26px;max-width:520px;line-height:1.5}
-.riders-note strong{color:var(--forest);font-weight:800}
-.riders-grid{display:grid;grid-template-columns:1fr;gap:22px}
-@media(min-width:620px){.riders-grid{grid-template-columns:repeat(2,1fr);gap:26px}}
-.riders-card{background:var(--cream-w);border:1px solid rgba(45,74,50,.12);border-radius:14px;
-  padding:24px 24px 20px}
-.riders-head{font-family:'Bebas Neue',sans-serif;font-size:1.35rem;color:var(--forest);
-  letter-spacing:.02em;text-transform:uppercase;text-align:center;
-  padding-bottom:12px;margin-bottom:6px;border-bottom:1px solid rgba(45,74,50,.12)}
-.riders-tier{display:flex;align-items:center;justify-content:space-between;gap:14px;
-  padding:10px 2px;border-bottom:1px dashed rgba(0,0,0,.1)}
-.riders-tier:last-child{border-bottom:none}
-.riders-dur{font-size:.94rem;font-weight:700;color:var(--ink)}
-.riders-price{font-family:'Bebas Neue',sans-serif;font-size:1.3rem;color:var(--forest);letter-spacing:.03em}
+/* ── RIDER / STROLLER PILL (grouped lists inside the accordion) ── */
+.riders-pill-note{font-size:.78rem;color:var(--ink-3);line-height:1.45;margin:2px 0 10px}
+.riders-pill-note strong{color:var(--forest);font-weight:800}
+.riders-group + .riders-group{margin-top:12px}
+.riders-group-head{font-size:.72rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--forest);padding:8px 0 2px;border-top:1px solid rgba(45,74,50,.1)}
+.riders-group:first-child .riders-group-head{border-top:none;padding-top:0}
+.price-card.is-featured .riders-group-head{color:var(--tan-d)}
 
 .foot-cta{margin-top:54px;text-align:center;background:var(--forest);color:#fff;
   border-radius:14px;padding:40px 26px;overflow:hidden;position:relative}
@@ -202,13 +194,6 @@ footer a{color:var(--tan);font-weight:500}footer a:hover{color:#fff}
   <h2 class="section-title" data-cms-text="section_title">Pick Your Location</h2>
 
   <div class="price-grid" id="priceGrid"></div>
-
-  <section class="riders-wrap" id="ridersWrap" hidden>
-    <div class="section-eyebrow">Bring the whole crew</div>
-    <h2 class="section-title">Extra Riders &amp; Strollers</h2>
-    <p class="riders-note">Available at both locations. Add these during the <strong>"Who's riding?"</strong> guest step when you book on Peek — just set the rider counts and they're added to your reservation.</p>
-    <div class="riders-grid" id="ridersGrid"></div>
-  </section>
 
   <section class="foot-cta">
     <div class="fc-eyebrow" data-cms-text="cta_eyebrow">Ready to roll?</div>
@@ -311,7 +296,47 @@ function groupExtras(extras, cardIds){
   return byLoc;
 }
 
-function renderPricing(cards, tiers, extras){
+// Build the collapsible "Extra Riders & Strollers" pill. These rates apply
+// at both locations, so the same pill renders inside every card. `riders`
+// rows are grouped (Child / Toddler Stroller) and shown as a labelled list.
+function ridersAccordionHtml(riders){
+  const list = (Array.isArray(riders) && riders.length ? riders : DEFAULT_RIDERS);
+  const groups = [];
+  const seen = {};
+  list.slice()
+    .sort((a,b)=>((a.group_order||0)-(b.group_order||0))||((a.order||0)-(b.order||0)))
+    .forEach(r => {
+      const g = String(r.group || '').trim();
+      if (!g) return;
+      if (!seen[g]) { seen[g] = []; groups.push(g); }
+      seen[g].push(r);
+    });
+  if (!groups.length) return '';
+  const body = groups.map(g => {
+    const tiers = seen[g].map(r => `
+      <li class="extra-row">
+        <span class="extra-name">${esc(r.duration)}</span>
+        <span class="extra-price">${esc(r.price)}</span>
+      </li>`).join('');
+    return `<div class="riders-group"><div class="riders-group-head">${esc(g)}</div><ul class="extras-list">${tiers}</ul></div>`;
+  }).join('');
+  const total = groups.reduce((n,g)=>n+seen[g].length,0);
+  const chev = '<svg class="chev" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>';
+  return `
+    <details class="extras-acc">
+      <summary class="extras-summary">
+        <span>Extra Riders &amp; Strollers</span>
+        <span class="count">${total} option${total===1?'':'s'}</span>
+        ${chev}
+      </summary>
+      <div class="extras-body">
+        <p class="riders-pill-note">Add during the <strong>"Who's riding?"</strong> guest step when you book on Peek.</p>
+        ${body}
+      </div>
+    </details>`;
+}
+
+function renderPricing(cards, tiers, extras, riders){
   const grid = document.getElementById('priceGrid');
   if (!grid) return;
   const list = (Array.isArray(cards) && cards.length ? cards : DEFAULT_PRICING)
@@ -326,6 +351,8 @@ function renderPricing(cards, tiers, extras){
 
   const cardIds = list.map(c => String(c.id || '').toLowerCase().trim());
   const extrasByLoc = groupExtras(extras, cardIds);
+  // Rider/stroller tiers apply at both locations — same pill in every card.
+  const ridersPill = ridersAccordionHtml(riders);
 
   grid.innerHTML = list.map(c => {
     const id = String(c.id || '').toLowerCase().trim();
@@ -347,40 +374,10 @@ function renderPricing(cards, tiers, extras){
         <ul class="tier-list">${tierHtml}</ul>
         ${c.rate_note ? `<p class="price-note">${esc(c.rate_note)}</p>` : ''}
         ${extrasAccordionHtml(extrasByLoc[id])}
+        ${ridersPill}
         ${c.cta_url ? `<a class="price-cta" href="${esc(c.cta_url)}">${esc(c.cta_label || 'Book now')}</a>` : ''}
       </div>`;
   }).join('');
-}
-
-function renderRiders(riders){
-  const wrap = document.getElementById('ridersWrap');
-  const grid = document.getElementById('ridersGrid');
-  if (!wrap || !grid) return;
-  const list = (Array.isArray(riders) && riders.length ? riders : DEFAULT_RIDERS);
-  const groups = [];
-  const seen = {};
-  list.slice()
-    .sort((a,b)=>((a.group_order||0)-(b.group_order||0))||((a.order||0)-(b.order||0)))
-    .forEach(r => {
-      const g = String(r.group || '').trim();
-      if (!g) return;
-      if (!seen[g]) { seen[g] = []; groups.push(g); }
-      seen[g].push(r);
-    });
-  if (!groups.length) { wrap.hidden = true; return; }
-  grid.innerHTML = groups.map(g => {
-    const tiers = seen[g].map(r => `
-      <div class="riders-tier">
-        <span class="riders-dur">${esc(r.duration)}</span>
-        <span class="riders-price">${esc(r.price)}</span>
-      </div>`).join('');
-    return `
-      <div class="riders-card">
-        <h3 class="riders-head">${esc(g)}</h3>
-        ${tiers}
-      </div>`;
-  }).join('');
-  wrap.hidden = false;
 }
 
 // Apply editable hero / section / CTA copy from the Pages tab.
@@ -398,15 +395,13 @@ function applyCMS(remote){
 
 /* ── CMS bootstrap (cache, TTL, loader) ──────────── */
 // Instant paint from baked-in defaults.
-renderPricing(DEFAULT_PRICING, DEFAULT_TIERS, DEFAULT_EXTRAS);
-renderRiders(DEFAULT_RIDERS);
+renderPricing(DEFAULT_PRICING, DEFAULT_TIERS, DEFAULT_EXTRAS, DEFAULT_RIDERS);
 if (window.cmsBoot) cmsBoot({
   key: 'cms:pricing:v1',
   url: MENU_URL,
   onApply(data){
     applyCMS(data);
-    renderPricing(data.pricing, data.pricingTiers, data.pricingExtras);
-    renderRiders(data.pricingRiders);
+    renderPricing(data.pricing, data.pricingTiers, data.pricingExtras, data.pricingRiders);
   },
 });
 </script>
