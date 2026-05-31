@@ -129,7 +129,8 @@ main{flex:1;max-width:1080px;width:100%;margin:0 auto;padding:36px 24px 64px}
 
 /* ── RIDER / STROLLER TIERS ── */
 .riders-wrap{margin-top:54px}
-.riders-note{text-align:center;font-size:.84rem;color:var(--ink-3);margin:-22px auto 26px;max-width:480px}
+.riders-note{text-align:center;font-size:.84rem;color:var(--ink-3);margin:-22px auto 26px;max-width:520px;line-height:1.5}
+.riders-note strong{color:var(--forest);font-weight:800}
 .riders-grid{display:grid;grid-template-columns:1fr;gap:22px}
 @media(min-width:620px){.riders-grid{grid-template-columns:repeat(2,1fr);gap:26px}}
 .riders-card{background:var(--cream-w);border:1px solid rgba(45,74,50,.12);border-radius:14px;
@@ -205,7 +206,7 @@ footer a{color:var(--tan);font-weight:500}footer a:hover{color:#fff}
   <section class="riders-wrap" id="ridersWrap" hidden>
     <div class="section-eyebrow">Bring the whole crew</div>
     <h2 class="section-title">Extra Riders &amp; Strollers</h2>
-    <p class="riders-note">Available at both locations. Add to any rental at pickup.</p>
+    <p class="riders-note">Available at both locations. Add these during the <strong>"Who's riding?"</strong> guest step when you book on Peek — just set the rider counts and they're added to your reservation.</p>
     <div class="riders-grid" id="ridersGrid"></div>
   </section>
 
