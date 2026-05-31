@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rental Pricing | Cruise the Creek</title>
+<meta name="description" content="Cruise the Creek e-bike rental pricing. Kirk Road (15 mph, casual trail riding) and Bears Den Road (up to 25 mph). Hourly rates from $25.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --sage:#6B8F71;--forest:#2D4A32;--forest-l:#3a5d40;--dark:#1a2e1c;
+  --tan:#C9A96E;--tan-d:#a98843;--cream:#F5F0E8;--cream-w:#fbf7ef;
+  --ink:#1a1a1a;--ink-2:#4a4a4a;--ink-3:#7a7a7a;
+}
+html,body{height:100%}
+html{scroll-behavior:smooth}
+body{font-family:'DM Sans',sans-serif;color:var(--ink);background:var(--cream);
+  min-height:100vh;display:flex;flex-direction:column;line-height:1.6}
+a{color:inherit;text-decoration:none;transition:color .2s ease}
+button{font-family:inherit;cursor:pointer;border:none;background:none}
+
+.topbar{background:rgba(255,255,255,.95);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+  color:var(--dark);padding:16px 24px;display:flex;align-items:center;justify-content:space-between;
+  position:sticky;top:0;z-index:100;border-bottom:1px solid rgba(0,0,0,.05)}
+.brand-logo{height:38px;width:auto;display:block}
+.top-nav{display:flex;gap:6px;align-items:center}
+.top-nav a{padding:8px 14px;border-radius:4px;font-size:.82rem;font-weight:700;
+  letter-spacing:.04em;text-transform:uppercase;color:var(--ink-2)}
+.top-nav a:hover{background:rgba(0,0,0,.05);color:var(--forest)}
+.top-nav .book{background:var(--forest);color:#fff}
+.top-nav .book:hover{background:var(--dark);color:#fff}
+
+.hero{position:relative;min-height:30vh;padding:62px 24px 48px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;
+  color:#fff;background:var(--forest);overflow:hidden;isolation:isolate}
+.hero-topo{position:absolute;inset:0;z-index:-1;opacity:.18;pointer-events:none;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 600 400' preserveAspectRatio='none'><g fill='none' stroke='%23F5F0E8' stroke-width='1.2'><path d='M0,80 Q150,60 300,90 T600,80'/><path d='M0,140 Q150,120 300,150 T600,140'/><path d='M0,200 Q150,180 300,210 T600,200'/><path d='M0,260 Q150,240 300,270 T600,260'/></g></svg>");background-size:cover}
+.hero-eyebrow{display:inline-block;font-size:.72rem;font-weight:700;letter-spacing:.2em;
+  text-transform:uppercase;color:var(--tan);margin-bottom:14px;
+  padding:6px 14px;border:1px solid rgba(201,169,110,.35);border-radius:4px;background:rgba(26,46,28,.2)}
+.hero h1{font-family:'Bebas Neue',sans-serif;font-size:clamp(2.6rem,7vw,4rem);
+  letter-spacing:.02em;line-height:1;margin-bottom:12px}
+.hero h1 em{font-style:normal;color:var(--tan)}
+.hero p{font-size:clamp(1rem,2.4vw,1.1rem);color:rgba(255,255,255,.88);max-width:560px;line-height:1.6}
+
+.crumb{max-width:1080px;margin:0 auto;padding:18px 24px 0;
+  font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;font-weight:700;color:var(--sage)}
+.crumb a{color:var(--ink-2)}.crumb a:hover{color:var(--forest)}
+.crumb .sep{color:rgba(0,0,0,.2);margin:0 8px}
+
+main{flex:1;max-width:1080px;width:100%;margin:0 auto;padding:36px 24px 64px}
+.section-eyebrow{text-align:center;font-size:.72rem;font-weight:700;letter-spacing:.2em;
+  text-transform:uppercase;color:var(--tan-d);margin-bottom:6px}
+.section-title{text-align:center;font-family:'Bebas Neue',sans-serif;font-size:clamp(1.8rem,5vw,2.6rem);
+  color:var(--forest);letter-spacing:.02em;margin-bottom:30px}
+
+.price-grid{display:grid;grid-template-columns:1fr;gap:22px;align-items:start}
+@media(min-width:760px){.price-grid{grid-template-columns:repeat(2,1fr);gap:26px}}
+
+.price-card{position:relative;background:#fff;border:1px solid rgba(0,0,0,.07);border-radius:14px;
+  padding:30px 26px 28px;display:flex;flex-direction:column;
+  box-shadow:0 6px 20px rgba(45,74,50,.06);transition:transform .2s ease,box-shadow .2s ease,border-color .2s ease}
+.price-card:hover{transform:translateY(-4px);box-shadow:0 18px 40px rgba(45,74,50,.12);border-color:var(--sage)}
+.price-card.is-featured{border-color:var(--tan);box-shadow:0 14px 36px rgba(201,169,110,.22)}
+.price-card.is-featured::before{content:"";position:absolute;inset:0;border-radius:14px;
+  border:2px solid var(--tan);pointer-events:none}
+.price-flag{position:absolute;top:-13px;left:50%;transform:translateX(-50%);
+  background:var(--tan);color:var(--dark);font-size:.66rem;font-weight:800;letter-spacing:.12em;
+  text-transform:uppercase;padding:6px 16px;border-radius:999px;white-space:nowrap;
+  box-shadow:0 4px 12px rgba(201,169,110,.4)}
+
+.price-head{text-align:center;padding-bottom:18px;margin-bottom:6px;border-bottom:1px solid rgba(0,0,0,.07)}
+.price-loc{font-family:'Bebas Neue',sans-serif;font-size:clamp(1.6rem,4vw,2rem);color:var(--forest);
+  letter-spacing:.02em;text-transform:uppercase;line-height:1.05;margin-bottom:10px}
+.price-speed{display:inline-block;font-size:.7rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--forest);background:var(--cream);border:1px solid rgba(45,74,50,.15);
+  padding:5px 12px;border-radius:999px}
+.price-card.is-featured .price-speed{color:var(--tan-d);background:#fff8ec;border-color:rgba(201,169,110,.4)}
+.price-sub{margin-top:12px;font-size:.92rem;color:var(--ink-2);line-height:1.5}
+
+.tier-list{list-style:none;margin:18px 0 0;padding:0;flex:1}
+.tier{display:flex;align-items:center;justify-content:space-between;gap:14px;
+  padding:13px 4px;border-bottom:1px dashed rgba(0,0,0,.1)}
+.tier:last-child{border-bottom:none}
+.tier-dur{font-size:.98rem;font-weight:700;color:var(--ink);display:flex;align-items:center;gap:8px}
+.tier-badge{font-size:.6rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--sage);background:rgba(107,143,113,.12);padding:3px 8px;border-radius:999px}
+.tier-price{font-family:'Bebas Neue',sans-serif;font-size:1.5rem;color:var(--forest);letter-spacing:.03em}
+.price-card.is-featured .tier-price{color:var(--tan-d)}
+
+.price-note{margin-top:16px;font-size:.78rem;color:var(--ink-3);line-height:1.5;text-align:center}
+.price-cta{margin-top:18px;display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  padding:13px 20px;background:var(--forest);color:#fff;border-radius:6px;
+  font-weight:800;font-size:.82rem;letter-spacing:.06em;text-transform:uppercase;transition:background .2s ease}
+.price-cta:hover{background:var(--dark)}
+.price-card.is-featured .price-cta{background:var(--tan-d)}
+.price-card.is-featured .price-cta:hover{background:#8a6e34}
+
+.foot-cta{margin-top:46px;text-align:center;background:var(--forest);color:#fff;
+  border-radius:14px;padding:40px 26px;overflow:hidden;position:relative}
+.foot-cta .fc-eyebrow{font-size:.72rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--tan);margin-bottom:8px}
+.foot-cta h2{font-family:'Bebas Neue',sans-serif;font-size:clamp(1.8rem,5vw,2.6rem);letter-spacing:.02em;margin-bottom:8px}
+.foot-cta p{color:rgba(255,255,255,.85);max-width:480px;margin:0 auto 20px;font-size:.98rem}
+.foot-cta .fc-btns{display:flex;flex-wrap:wrap;gap:12px;justify-content:center}
+.foot-cta a{padding:13px 24px;border-radius:6px;font-weight:800;font-size:.82rem;letter-spacing:.06em;text-transform:uppercase}
+.foot-cta .fc-primary{background:var(--tan);color:var(--dark)}
+.foot-cta .fc-primary:hover{background:#fff}
+.foot-cta .fc-secondary{background:rgba(255,255,255,.12);color:#fff;border:1px solid rgba(255,255,255,.3)}
+.foot-cta .fc-secondary:hover{background:rgba(255,255,255,.2)}
+
+footer{background:var(--dark);color:rgba(255,255,255,.7);padding:32px 24px;
+  text-align:center;font-size:.85rem;letter-spacing:.02em;border-top:2px solid var(--tan)}
+footer a{color:var(--tan);font-weight:500}footer a:hover{color:#fff}
+
+@media(max-width:480px){
+  .topbar{padding:12px 16px}.brand-logo{height:32px}.top-nav a{padding:7px 10px;font-size:.74rem}
+  .hero{padding:48px 16px 36px}
+  .crumb{padding:14px 16px 0}
+  main{padding:26px 16px 48px}
+  .price-card{padding:26px 20px 24px}
+}
+</style>
+<script src="site-enhance.js"></script>
+<script src="cms-loader.js"></script>
+<meta property="og:title" content="Rental Pricing | Cruise the Creek">
+<meta property="og:description" content="E-bike rental pricing — Kirk Road (15 mph) and Bears Den Road (up to 25 mph). Hourly rates from $25.">
+<meta property="og:image" content="https://www.cruisethecreek.com/media/Bikeway.jpg">
+<meta property="og:url" content="https://www.cruisethecreek.com/pricing.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Cruise the Creek">
+<link rel="canonical" href="https://www.cruisethecreek.com/pricing.html">
+</head>
+<body>
+
+<header class="topbar">
+  <a href="index.html" aria-label="Cruise the Creek home"><img class="brand-logo" src="BlackonTransparent.png" alt="Cruise the Creek"></a>
+  <nav class="top-nav">
+    <a href="rentals.html">Rentals</a>
+    <a href="rentals.html" class="book">Book a Ride</a>
+  </nav>
+</header>
+
+<section class="hero">
+  <div class="hero-topo"></div>
+  <span class="hero-eyebrow" data-cms-text="hero_eyebrow">Transparent rates</span>
+  <h1><span data-cms-text="hero_h1">Rental</span> <em data-cms-text="hero_h1_em">Pricing.</em></h1>
+  <p data-cms-text="hero_tagline">Two locations, two speeds — pick the pace that fits your ride.</p>
+</section>
+
+<nav class="crumb"><a href="index.html">Home</a><span class="sep">/</span><a href="rentals.html">Rentals</a><span class="sep">/</span> Pricing</nav>
+
+<main>
+  <div class="section-eyebrow" data-cms-text="section_eyebrow">Hourly rates</div>
+  <h2 class="section-title" data-cms-text="section_title">Pick Your Location</h2>
+
+  <div class="price-grid" id="priceGrid"></div>
+
+  <section class="foot-cta">
+    <div class="fc-eyebrow" data-cms-text="cta_eyebrow">Ready to roll?</div>
+    <h2 data-cms-text="cta_title">Reserve your e-bikes</h2>
+    <p data-cms-text="cta_subtitle">Lock in your time slot and meet us at the trailhead.</p>
+    <div class="fc-btns">
+      <a class="fc-primary" data-cms-text="cta_btn_primary_label" data-cms-href="cta_btn_primary_url" href="rentals.html">Book Now</a>
+      <a class="fc-secondary" data-cms-text="cta_btn_secondary_label" data-cms-href="cta_btn_secondary_url" href="rentals.html">Browse Rentals</a>
+    </div>
+  </section>
+</main>
+
+<footer>
+  &copy; 2026 <a href="index.html">Cruise the Creek</a> &middot; <a href="rentals.html">Rentals</a> &middot; <a href="faqs.html">FAQs</a>
+</footer>
+
+<script>
+const MENU_URL = 'https://script.google.com/macros/s/AKfycbwXv6r6Me-mdp9WFjCHQYDHcgEKbny-9_K8TX-yGgW40yTONhz6kAs3H96xM0tEDAhcJA/exec?page=pricing';
+
+function esc(s){ return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function isTrue(v){ return v === true || v === 'TRUE' || v === 'true' || v === 1; }
+
+// Baked-in defaults — mirror the Pricing / PricingTiers sheet tabs so the
+// page renders instantly and still works if the CMS is unreachable. Edit
+// prices in the Sheet (Pricing + PricingTiers tabs); these are the fallback.
+const DEFAULT_PRICING = [
+  { id:'kirk',  order:1, location:'Kirk Road Location',      subtitle:'Cruising pace — perfect for casual trail riders.', speed:'Limited to 15 mph', rate_note:'$25 for the first hour, plus $10 for each additional hour.', featured:false, cta_label:'Book Kirk Road', cta_url:'rentals.html' },
+  { id:'bears', order:2, location:'Bears Den Road Location', subtitle:'Unlocking the full experience.',                  speed:'Speeds up to 25 mph', rate_note:'$35 for the first hour, plus $10 for each additional hour.', featured:true,  cta_label:'Book Bears Den', cta_url:'rentals.html' },
+];
+const DEFAULT_TIERS = [
+  { location:'kirk',  order:1, duration:'1 Hour',  price:'$25', note:'' },
+  { location:'kirk',  order:2, duration:'2 Hours', price:'$35', note:'' },
+  { location:'kirk',  order:3, duration:'3 Hours', price:'$45', note:'' },
+  { location:'kirk',  order:4, duration:'4 Hours', price:'$55', note:'Half Day' },
+  { location:'bears', order:1, duration:'1 Hour',  price:'$35', note:'' },
+  { location:'bears', order:2, duration:'2 Hours', price:'$45', note:'' },
+  { location:'bears', order:3, duration:'3 Hours', price:'$55', note:'' },
+  { location:'bears', order:4, duration:'4 Hours', price:'$65', note:'Half Day' },
+];
+
+function renderPricing(cards, tiers){
+  const grid = document.getElementById('priceGrid');
+  if (!grid) return;
+  const list = (Array.isArray(cards) && cards.length ? cards : DEFAULT_PRICING)
+    .slice().sort((a,b)=>(a.order||0)-(b.order||0));
+  const allTiers = (Array.isArray(tiers) && tiers.length ? tiers : DEFAULT_TIERS);
+  const byLoc = {};
+  allTiers.forEach(t => {
+    const k = String(t.location || '').toLowerCase().trim();
+    (byLoc[k] = byLoc[k] || []).push(t);
+  });
+  Object.keys(byLoc).forEach(k => byLoc[k].sort((a,b)=>(a.order||0)-(b.order||0)));
+
+  grid.innerHTML = list.map(c => {
+    const id = String(c.id || '').toLowerCase().trim();
+    const rows = byLoc[id] || [];
+    const featured = isTrue(c.featured);
+    const tierHtml = rows.map(t => `
+      <li class="tier">
+        <span class="tier-dur">${esc(t.duration)}${t.note ? ` <span class="tier-badge">${esc(t.note)}</span>` : ''}</span>
+        <span class="tier-price">${esc(t.price)}</span>
+      </li>`).join('');
+    return `
+      <div class="price-card${featured ? ' is-featured' : ''}">
+        ${featured ? '<span class="price-flag">Most Popular</span>' : ''}
+        <div class="price-head">
+          <h3 class="price-loc">${esc(c.location)}</h3>
+          ${c.speed ? `<span class="price-speed">${esc(c.speed)}</span>` : ''}
+          ${c.subtitle ? `<p class="price-sub">${esc(c.subtitle)}</p>` : ''}
+        </div>
+        <ul class="tier-list">${tierHtml}</ul>
+        ${c.rate_note ? `<p class="price-note">${esc(c.rate_note)}</p>` : ''}
+        ${c.cta_url ? `<a class="price-cta" href="${esc(c.cta_url)}">${esc(c.cta_label || 'Book now')}</a>` : ''}
+      </div>`;
+  }).join('');
+}
+
+// Apply editable hero / section / CTA copy from the Pages tab.
+function applyCMS(remote){
+  const map = Object.assign({}, remote.site || {}, remote.pageMeta || {});
+  document.querySelectorAll('[data-cms-text]').forEach(el => {
+    const v = map[el.dataset.cmsText];
+    if (v != null && String(v).trim() !== '') el.textContent = v;
+  });
+  document.querySelectorAll('[data-cms-href]').forEach(el => {
+    const v = map[el.dataset.cmsHref];
+    if (v) el.href = v;
+  });
+}
+
+/* ── CMS bootstrap (cache, TTL, loader) ──────────── */
+renderPricing(DEFAULT_PRICING, DEFAULT_TIERS); // instant paint
+if (window.cmsBoot) cmsBoot({
+  key: 'cms:pricing:v1',
+  url: MENU_URL,
+  onApply(data){
+    applyCMS(data);
+    renderPricing(data.pricing, data.pricingTiers);
+  },
+});
+</script>
+
+<script src="chatbot.js" defer></script>
+</body>
+</html>
