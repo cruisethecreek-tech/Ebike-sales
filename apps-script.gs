@@ -3221,7 +3221,7 @@ function getTabDefs() {
       header: ['bike','order','duration','sub','price'],
       rows: [
         // ── Step-Over ──
-        ['step-over', 1, '8 Hour Odyssey',  'Half day', '$40'],
+        ['step-over', 1, '8 Hour Odyssey',  'Half day', '$65'],
         ['step-over', 2, '24 Hour Odyssey', 'Full day', '$75'],
         ['step-over', 3, '2 Day Odyssey',   '', '$140'],
         ['step-over', 4, '3 Day Odyssey',   '', '$195'],
@@ -3230,7 +3230,7 @@ function getTabDefs() {
         ['step-over', 7, '6 Day Odyssey',   '', '$330'],
         ['step-over', 8, '1 Week Odyssey',  '', '$365'],
         // ── Step-Thru ──
-        ['step-thru', 1, '8 Hour Odyssey',  'Half day', '$45'],
+        ['step-thru', 1, '8 Hour Odyssey',  'Half day', '$70'],
         ['step-thru', 2, '24 Hour Odyssey', 'Full day', '$80'],
         ['step-thru', 3, '2 Day Odyssey',   '', '$150'],
         ['step-thru', 4, '3 Day Odyssey',   '', '$210'],
