@@ -288,6 +288,8 @@ function _doGetInner(e, action) {
                            const g = (a.group_order || 0) - (b.group_order || 0);
                            return g !== 0 ? g : (a.order || 0) - (b.order || 0);
                          }),
+    odysseyPricing:    readSheet(ss, 'OdysseyPricing')
+                         .sort(function(a, b){ return (a.order || 0) - (b.order || 0); }),
     events:            events,
     galleries:         galleries,
     apparelProducts:   readSheet(ss, 'ApparelProducts')
@@ -3207,6 +3209,37 @@ function getTabDefs() {
         ['Toddler Stroller', 2, 4, '4 Hours', '$25.00'],
       ],
     },
+    'OdysseyPricing': {
+      // Extended Odyssey (long-term-rental.html) price tables. One row per
+      // duration tier, per bike style. The page renders two tables from
+      // this tab; baked-in defaults in the HTML cover a CMS outage.
+      //   bike:     'step-over' or 'step-thru' (matches the card).
+      //   order:    top-to-bottom order within that bike's table.
+      //   duration: label (e.g. "8 Hour Odyssey", "1 Week Odyssey").
+      //   sub:      small grey sub-label under the duration (e.g. "Half day").
+      //   price:    display price (e.g. "$40").
+      header: ['bike','order','duration','sub','price'],
+      rows: [
+        // ── Step-Over ──
+        ['step-over', 1, '8 Hour Odyssey',  'Half day', '$40'],
+        ['step-over', 2, '24 Hour Odyssey', 'Full day', '$75'],
+        ['step-over', 3, '2 Day Odyssey',   '', '$140'],
+        ['step-over', 4, '3 Day Odyssey',   '', '$195'],
+        ['step-over', 5, '4 Day Odyssey',   '', '$245'],
+        ['step-over', 6, '5 Day Odyssey',   '', '$290'],
+        ['step-over', 7, '6 Day Odyssey',   '', '$365'],
+        ['step-over', 8, '1 Week Odyssey',  '', '$415'],
+        // ── Step-Thru ──
+        ['step-thru', 1, '8 Hour Odyssey',  'Half day', '$45'],
+        ['step-thru', 2, '24 Hour Odyssey', 'Full day', '$80'],
+        ['step-thru', 3, '2 Day Odyssey',   '', '$150'],
+        ['step-thru', 4, '3 Day Odyssey',   '', '$210'],
+        ['step-thru', 5, '4 Day Odyssey',   '', '$265'],
+        ['step-thru', 6, '5 Day Odyssey',   '', '$360'],
+        ['step-thru', 7, '6 Day Odyssey',   '', '$395'],
+        ['step-thru', 8, '1 Week Odyssey',  '', '$450'],
+      ],
+    },
     'Admin': {
       // Internal admin tools — not customer-facing, never rendered on the
       // live site. This tab is here just so the URLs you need are always
@@ -4580,7 +4613,7 @@ function _organizeTabs() {
     { color: '#fbbc04', label: 'Page menus',
       tabs: ['Home_Tiles','Home_Submenus','Shop_Tiles','Shop_Submenus','Rentals_Tiles','Rentals_Submenus'] },
     { color: '#34a853', label: 'Page content',
-      tabs: ['Services','Steps','Faqs','Journeys','Venues','Supporters','Sponsors','SponsorPackages','RentalsVibe','Pricing','PricingTiers','PricingExtras','PricingRiders','Accessories'] },
+      tabs: ['Services','Steps','Faqs','Journeys','Venues','Supporters','Sponsors','SponsorPackages','RentalsVibe','Pricing','PricingTiers','PricingExtras','PricingRiders','OdysseyPricing','Accessories'] },
     { color: '#4285f4', label: 'Catalogs',
       tabs: ['ApparelProducts','ApparelColors','ApparelPlacements','Direct_Inventory','BookingLinks','Booking_Troubleshooting'] },
     { color: '#a142f4', label: 'Bridge the Gap config',

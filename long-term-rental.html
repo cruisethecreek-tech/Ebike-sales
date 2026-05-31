@@ -277,7 +277,7 @@ footer a:hover{color:#fff}
             <thead>
               <tr><th>Duration</th><th>Price</th></tr>
             </thead>
-            <tbody>
+            <tbody id="odyssey-step-over">
               <tr><td>8 Hour Odyssey<span class="dur-sub">Half day</span></td><td>$40</td></tr>
               <tr><td>24 Hour Odyssey<span class="dur-sub">Full day</span></td><td>$75</td></tr>
               <tr><td>2 Day Odyssey</td><td>$140</td></tr>
@@ -311,7 +311,7 @@ footer a:hover{color:#fff}
             <thead>
               <tr><th>Duration</th><th>Price</th></tr>
             </thead>
-            <tbody>
+            <tbody id="odyssey-step-thru">
               <tr><td>8 Hour Odyssey<span class="dur-sub">Half day</span></td><td>$45</td></tr>
               <tr><td>24 Hour Odyssey<span class="dur-sub">Full day</span></td><td>$80</td></tr>
               <tr><td>2 Day Odyssey</td><td>$150</td></tr>
@@ -538,6 +538,30 @@ const CMS_URL = 'https://script.google.com/macros/s/AKfycbwXv6r6Me-mdp9WFjCHQYDH
 const MENU_URL = CMS_URL + '?page=long-term-rental';
 
 function isTrue(v){return v === true || v === 'TRUE' || v === 'true' || v === 1 || v === '1';}
+function esc(s){ return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+// Render the Extended Odyssey price tables from the OdysseyPricing sheet
+// tab. Each row: { bike:'step-over'|'step-thru', order, duration, sub, price }.
+// The HTML ships baked-in rows, so this only repaints if the sheet has data.
+function renderOdysseyPricing(rows){
+  if (!Array.isArray(rows) || !rows.length) return;
+  const byBike = {};
+  rows.forEach(r => {
+    const k = String(r.bike || '').toLowerCase().trim();
+    if (!k) return;
+    (byBike[k] = byBike[k] || []).push(r);
+  });
+  Object.keys(byBike).forEach(k => {
+    const tbody = document.getElementById('odyssey-' + k);
+    if (!tbody) return;
+    const list = byBike[k].slice().sort((a,b)=>(a.order||0)-(b.order||0));
+    tbody.innerHTML = list.map(r =>
+      '<tr><td>' + esc(r.duration) +
+      (r.sub ? '<span class="dur-sub">' + esc(r.sub) + '</span>' : '') +
+      '</td><td>' + esc(r.price) + '</td></tr>'
+    ).join('');
+  });
+}
 
 function applyCMS(remote){
   const map = Object.assign({}, remote.site || {}, remote.pageMeta || {});
@@ -572,7 +596,7 @@ function applyCMS(remote){
 
 fetch(MENU_URL, {cache:'no-store'})
   .then(r => r.ok ? r.json() : Promise.reject(r.status))
-  .then(remote => { if (remote && typeof remote === 'object') applyCMS(remote); })
+  .then(remote => { if (remote && typeof remote === 'object') { applyCMS(remote); renderOdysseyPricing(remote.odysseyPricing); } })
   .catch(err => console.warn('[long-term-rental] config fetch failed, using static content:', err));
 
 // Reserve buttons on each bike card pre-select the bike radio + scroll
