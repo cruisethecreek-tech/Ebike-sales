@@ -277,6 +277,10 @@ function _doGetInner(e, action) {
     sponsors:          sponsors,
     sponsorPackages:   sponsorPackages,
     rentalsVibe:       rentalsVibe,
+    pricing:           readSheet(ss, 'Pricing')
+                         .sort(function(a, b){ return (a.order || 0) - (b.order || 0); }),
+    pricingTiers:      readSheet(ss, 'PricingTiers')
+                         .sort(function(a, b){ return (a.order || 0) - (b.order || 0); }),
     events:            events,
     galleries:         galleries,
     apparelProducts:   readSheet(ss, 'ApparelProducts')
@@ -1948,6 +1952,27 @@ function getTabDefs() {
           'home.html',
           false,
         ],
+        ['pricing',
+          'Transparent rates',
+          'Rental',
+          'Pricing.',
+          'Two locations, two speeds — pick the pace that fits your ride.',
+          '',
+          'Book a Ride',
+          'rentals.html',
+          false,
+          'Hourly rates',
+          'Pick Your Location',
+          'Ready to roll?',
+          'Reserve your e-bikes',
+          'Lock in your time slot and meet us at the trailhead.',
+          'Book Now',
+          'rentals.html',
+          false,
+          'Browse Rentals',
+          'rentals.html',
+          false,
+        ],
         ['gallery',
           'Gallery · Cruise the Creek',
           'Mill Creek',
@@ -3073,6 +3098,52 @@ function getTabDefs() {
           "Straight into Mill Creek Park's hidden corners — Lily Pond loops, Lanterman's Mill, the covered bridge. Wooded, hilly, scenic. The bike does the climbs so you can take in the view.",
           'Hills|Wooded trails|Scenic loops|Park interior',
           'adventures.html', 'See Adventures', ''],
+      ],
+    },
+    'Pricing': {
+      // Hourly rental pricing cards on pricing.html. One row per LOCATION
+      // card. The per-hour price tiers live in the PricingTiers tab, joined
+      // to this tab by `id`.
+      //   id:        short key joining to PricingTiers.location (e.g. "kirk").
+      //   order:     left-to-right card order.
+      //   location:  card heading (e.g. "Kirk Road Location").
+      //   subtitle:  one-line description under the heading.
+      //   speed:     small badge text (e.g. "Limited to 15 mph").
+      //   rate_note: fine-print line under the tiers (the "$X first hour…").
+      //   featured:  TRUE highlights the card + shows a "Most Popular" flag.
+      //   cta_label / cta_url: the button at the bottom of the card.
+      header: ['id','order','location','subtitle','speed','rate_note','featured','cta_label','cta_url'],
+      rows: [
+        ['kirk', 1, 'Kirk Road Location',
+          'Cruising pace — perfect for casual trail riders.',
+          'Limited to 15 mph',
+          '$25 for the first hour, plus $10 for each additional hour.',
+          false, 'Book Kirk Road', 'rentals.html'],
+        ['bears', 2, 'Bears Den Road Location',
+          'Unlocking the full experience.',
+          'Speeds up to 25 mph',
+          '$35 for the first hour, plus $10 for each additional hour.',
+          true, 'Book Bears Den', 'rentals.html'],
+      ],
+    },
+    'PricingTiers': {
+      // Per-hour price tiers for each pricing.html location card. One row
+      // per duration. `location` must match a Pricing tab `id`.
+      //   location: joins to Pricing.id (e.g. "kirk", "bears").
+      //   order:    top-to-bottom order within the card.
+      //   duration: label (e.g. "1 Hour", "4 Hours").
+      //   price:    display price (e.g. "$25").
+      //   note:     optional small badge next to the duration (e.g. "Half Day").
+      header: ['location','order','duration','price','note'],
+      rows: [
+        ['kirk',  1, '1 Hour',  '$25', ''],
+        ['kirk',  2, '2 Hours', '$35', ''],
+        ['kirk',  3, '3 Hours', '$45', ''],
+        ['kirk',  4, '4 Hours', '$55', 'Half Day'],
+        ['bears', 1, '1 Hour',  '$35', ''],
+        ['bears', 2, '2 Hours', '$45', ''],
+        ['bears', 3, '3 Hours', '$55', ''],
+        ['bears', 4, '4 Hours', '$65', 'Half Day'],
       ],
     },
     'Admin': {
@@ -4448,7 +4519,7 @@ function _organizeTabs() {
     { color: '#fbbc04', label: 'Page menus',
       tabs: ['Home_Tiles','Home_Submenus','Shop_Tiles','Shop_Submenus','Rentals_Tiles','Rentals_Submenus'] },
     { color: '#34a853', label: 'Page content',
-      tabs: ['Services','Steps','Faqs','Journeys','Venues','Supporters','Sponsors','SponsorPackages','RentalsVibe','Accessories'] },
+      tabs: ['Services','Steps','Faqs','Journeys','Venues','Supporters','Sponsors','SponsorPackages','RentalsVibe','Pricing','PricingTiers','Accessories'] },
     { color: '#4285f4', label: 'Catalogs',
       tabs: ['ApparelProducts','ApparelColors','ApparelPlacements','Direct_Inventory','BookingLinks','Booking_Troubleshooting'] },
     { color: '#a142f4', label: 'Bridge the Gap config',
