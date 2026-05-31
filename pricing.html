@@ -99,7 +99,43 @@ main{flex:1;max-width:1080px;width:100%;margin:0 auto;padding:36px 24px 64px}
 .price-card.is-featured .price-cta{background:var(--tan-d)}
 .price-card.is-featured .price-cta:hover{background:#8a6e34}
 
-.foot-cta{margin-top:46px;text-align:center;background:var(--forest);color:#fff;
+/* ── ADD-ONS & EXTRAS ── */
+.extras-wrap{margin-top:54px}
+.extras-grid{display:grid;grid-template-columns:1fr;gap:22px}
+@media(min-width:760px){.extras-grid{grid-template-columns:repeat(2,1fr);gap:26px}}
+.extras-card{background:#fff;border:1px solid rgba(0,0,0,.07);border-radius:14px;
+  padding:26px 26px 22px;box-shadow:0 6px 20px rgba(45,74,50,.06)}
+.extras-loc{font-family:'Bebas Neue',sans-serif;font-size:1.4rem;color:var(--forest);
+  letter-spacing:.02em;text-transform:uppercase;margin-bottom:4px}
+.extras-sub{font-size:.82rem;color:var(--ink-3);margin-bottom:14px}
+.extras-list{list-style:none;margin:0;padding:0}
+.extra-row{display:flex;align-items:baseline;justify-content:space-between;gap:14px;
+  padding:11px 2px;border-bottom:1px dashed rgba(0,0,0,.1)}
+.extra-row:last-child{border-bottom:none}
+.extra-name{font-size:.96rem;font-weight:700;color:var(--ink)}
+.extra-note{display:block;font-size:.74rem;font-weight:400;color:var(--ink-3);margin-top:1px}
+.extra-price{font-family:'Bebas Neue',sans-serif;font-size:1.25rem;color:var(--tan-d);
+  letter-spacing:.03em;white-space:nowrap}
+.extra-price.is-tbd{font-family:'DM Sans',sans-serif;font-size:.8rem;font-weight:700;
+  text-transform:uppercase;letter-spacing:.04em;color:var(--ink-3)}
+
+/* ── RIDER / STROLLER TIERS ── */
+.riders-wrap{margin-top:54px}
+.riders-note{text-align:center;font-size:.84rem;color:var(--ink-3);margin:-22px auto 26px;max-width:480px}
+.riders-grid{display:grid;grid-template-columns:1fr;gap:22px}
+@media(min-width:620px){.riders-grid{grid-template-columns:repeat(2,1fr);gap:26px}}
+.riders-card{background:var(--cream-w);border:1px solid rgba(45,74,50,.12);border-radius:14px;
+  padding:24px 24px 20px}
+.riders-head{font-family:'Bebas Neue',sans-serif;font-size:1.35rem;color:var(--forest);
+  letter-spacing:.02em;text-transform:uppercase;text-align:center;
+  padding-bottom:12px;margin-bottom:6px;border-bottom:1px solid rgba(45,74,50,.12)}
+.riders-tier{display:flex;align-items:center;justify-content:space-between;gap:14px;
+  padding:10px 2px;border-bottom:1px dashed rgba(0,0,0,.1)}
+.riders-tier:last-child{border-bottom:none}
+.riders-dur{font-size:.94rem;font-weight:700;color:var(--ink)}
+.riders-price{font-family:'Bebas Neue',sans-serif;font-size:1.3rem;color:var(--forest);letter-spacing:.03em}
+
+.foot-cta{margin-top:54px;text-align:center;background:var(--forest);color:#fff;
   border-radius:14px;padding:40px 26px;overflow:hidden;position:relative}
 .foot-cta .fc-eyebrow{font-size:.72rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--tan);margin-bottom:8px}
 .foot-cta h2{font-family:'Bebas Neue',sans-serif;font-size:clamp(1.8rem,5vw,2.6rem);letter-spacing:.02em;margin-bottom:8px}
@@ -158,6 +194,19 @@ footer a{color:var(--tan);font-weight:500}footer a:hover{color:#fff}
 
   <div class="price-grid" id="priceGrid"></div>
 
+  <section class="extras-wrap" id="extrasWrap" hidden>
+    <div class="section-eyebrow">Make it yours</div>
+    <h2 class="section-title">Add-Ons &amp; Extras</h2>
+    <div class="extras-grid" id="extrasGrid"></div>
+  </section>
+
+  <section class="riders-wrap" id="ridersWrap" hidden>
+    <div class="section-eyebrow">Bring the whole crew</div>
+    <h2 class="section-title">Extra Riders &amp; Strollers</h2>
+    <p class="riders-note">Available at both locations. Add to any rental at pickup.</p>
+    <div class="riders-grid" id="ridersGrid"></div>
+  </section>
+
   <section class="foot-cta">
     <div class="fc-eyebrow" data-cms-text="cta_eyebrow">Ready to roll?</div>
     <h2 data-cms-text="cta_title">Reserve your e-bikes</h2>
@@ -196,6 +245,34 @@ const DEFAULT_TIERS = [
   { location:'bears', order:3, duration:'3 Hours', price:'$55', note:'' },
   { location:'bears', order:4, duration:'4 Hours', price:'$65', note:'Half Day' },
 ];
+const DEFAULT_EXTRAS = [
+  { location:'kirk',  order:1, item:'Mist Fan',           price:'$3.00',  note:'' },
+  { location:'kirk',  order:2, item:'Power Bank Charger', price:'$5.00',  note:'' },
+  { location:'kirk',  order:3, item:'Bluetooth Speaker',  price:'$7.00',  note:'' },
+  { location:'kirk',  order:4, item:'V-Seat',             price:'$3.00', note:'Gooch protection — Ranger model e-bikes' },
+  { location:'kirk',  order:5, item:'Insulated Cooler',   price:'$10.00', note:'1 available' },
+  { location:'bears', order:1, item:'Insta360 Camera',    price:'$39.99', note:'1 available' },
+  { location:'bears', order:2, item:'Bluetooth Speaker',  price:'$9.99',  note:'2 available' },
+  { location:'bears', order:3, item:'Insulated Cooler',   price:'$10.00', note:'1 available' },
+];
+const DEFAULT_RIDERS = [
+  { group:'Child (5–12 yrs)', group_order:1, order:1, duration:'1 Hour',  price:'$7.00' },
+  { group:'Child (5–12 yrs)', group_order:1, order:2, duration:'2 Hours', price:'$10.00' },
+  { group:'Child (5–12 yrs)', group_order:1, order:3, duration:'3 Hours', price:'$13.00' },
+  { group:'Child (5–12 yrs)', group_order:1, order:4, duration:'4 Hours', price:'$16.00' },
+  { group:'Toddler Stroller', group_order:2, order:1, duration:'1 Hour',  price:'$10.00' },
+  { group:'Toddler Stroller', group_order:2, order:2, duration:'2 Hours', price:'$15.00' },
+  { group:'Toddler Stroller', group_order:2, order:3, duration:'3 Hours', price:'$20.00' },
+  { group:'Toddler Stroller', group_order:2, order:4, duration:'4 Hours', price:'$25.00' },
+];
+
+// Card heading lookup so an extras row tagged "both"/"all" can still show a
+// sensible location label. Falls back to the raw key for unknown locations.
+function locLabel(key, cards){
+  const k = String(key || '').toLowerCase().trim();
+  const card = (cards || []).find(c => String(c.id || '').toLowerCase().trim() === k);
+  return card ? card.location : (k.charAt(0).toUpperCase() + k.slice(1));
+}
 
 function renderPricing(cards, tiers){
   const grid = document.getElementById('priceGrid');
@@ -234,6 +311,80 @@ function renderPricing(cards, tiers){
   }).join('');
 }
 
+function renderExtras(extras, cards){
+  const wrap = document.getElementById('extrasWrap');
+  const grid = document.getElementById('extrasGrid');
+  if (!wrap || !grid) return;
+  const list = (Array.isArray(extras) && extras.length ? extras : DEFAULT_EXTRAS);
+  const cardList = (Array.isArray(cards) && cards.length ? cards : DEFAULT_PRICING)
+    .slice().sort((a,b)=>(a.order||0)-(b.order||0));
+  // Group by location. A "both"/"all" row is shown under every card.
+  const order = cardList.map(c => String(c.id || '').toLowerCase().trim());
+  const byLoc = {};
+  order.forEach(k => byLoc[k] = []);
+  list.forEach(e => {
+    const k = String(e.location || '').toLowerCase().trim();
+    if (k === 'both' || k === 'all' || k === '') {
+      order.forEach(o => byLoc[o].push(e));
+    } else {
+      (byLoc[k] = byLoc[k] || []).push(e);
+      if (order.indexOf(k) === -1) order.push(k);
+    }
+  });
+  const cols = order.filter(k => (byLoc[k] || []).length);
+  if (!cols.length) { wrap.hidden = true; return; }
+  grid.innerHTML = cols.map(k => {
+    const rows = byLoc[k].slice().sort((a,b)=>(a.order||0)-(b.order||0));
+    const items = rows.map(e => {
+      const price = String(e.price || '').trim();
+      const isTbd = !price || !/\d/.test(price);
+      return `
+        <li class="extra-row">
+          <span class="extra-name">${esc(e.item)}${e.note ? `<span class="extra-note">${esc(e.note)}</span>` : ''}</span>
+          <span class="extra-price${isTbd ? ' is-tbd' : ''}">${esc(price || 'Ask at pickup')}</span>
+        </li>`;
+    }).join('');
+    return `
+      <div class="extras-card">
+        <h3 class="extras-loc">${esc(locLabel(k, cardList))}</h3>
+        <div class="extras-sub">Add at pickup</div>
+        <ul class="extras-list">${items}</ul>
+      </div>`;
+  }).join('');
+  wrap.hidden = false;
+}
+
+function renderRiders(riders){
+  const wrap = document.getElementById('ridersWrap');
+  const grid = document.getElementById('ridersGrid');
+  if (!wrap || !grid) return;
+  const list = (Array.isArray(riders) && riders.length ? riders : DEFAULT_RIDERS);
+  const groups = [];
+  const seen = {};
+  list.slice()
+    .sort((a,b)=>((a.group_order||0)-(b.group_order||0))||((a.order||0)-(b.order||0)))
+    .forEach(r => {
+      const g = String(r.group || '').trim();
+      if (!g) return;
+      if (!seen[g]) { seen[g] = []; groups.push(g); }
+      seen[g].push(r);
+    });
+  if (!groups.length) { wrap.hidden = true; return; }
+  grid.innerHTML = groups.map(g => {
+    const tiers = seen[g].map(r => `
+      <div class="riders-tier">
+        <span class="riders-dur">${esc(r.duration)}</span>
+        <span class="riders-price">${esc(r.price)}</span>
+      </div>`).join('');
+    return `
+      <div class="riders-card">
+        <h3 class="riders-head">${esc(g)}</h3>
+        ${tiers}
+      </div>`;
+  }).join('');
+  wrap.hidden = false;
+}
+
 // Apply editable hero / section / CTA copy from the Pages tab.
 function applyCMS(remote){
   const map = Object.assign({}, remote.site || {}, remote.pageMeta || {});
@@ -248,13 +399,18 @@ function applyCMS(remote){
 }
 
 /* ── CMS bootstrap (cache, TTL, loader) ──────────── */
-renderPricing(DEFAULT_PRICING, DEFAULT_TIERS); // instant paint
+// Instant paint from baked-in defaults.
+renderPricing(DEFAULT_PRICING, DEFAULT_TIERS);
+renderExtras(DEFAULT_EXTRAS, DEFAULT_PRICING);
+renderRiders(DEFAULT_RIDERS);
 if (window.cmsBoot) cmsBoot({
   key: 'cms:pricing:v1',
   url: MENU_URL,
   onApply(data){
     applyCMS(data);
     renderPricing(data.pricing, data.pricingTiers);
+    renderExtras(data.pricingExtras, data.pricing);
+    renderRiders(data.pricingRiders);
   },
 });
 </script>

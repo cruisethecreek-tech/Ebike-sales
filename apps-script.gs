@@ -281,6 +281,13 @@ function _doGetInner(e, action) {
                          .sort(function(a, b){ return (a.order || 0) - (b.order || 0); }),
     pricingTiers:      readSheet(ss, 'PricingTiers')
                          .sort(function(a, b){ return (a.order || 0) - (b.order || 0); }),
+    pricingExtras:     readSheet(ss, 'PricingExtras')
+                         .sort(function(a, b){ return (a.order || 0) - (b.order || 0); }),
+    pricingRiders:     readSheet(ss, 'PricingRiders')
+                         .sort(function(a, b){
+                           const g = (a.group_order || 0) - (b.group_order || 0);
+                           return g !== 0 ? g : (a.order || 0) - (b.order || 0);
+                         }),
     events:            events,
     galleries:         galleries,
     apparelProducts:   readSheet(ss, 'ApparelProducts')
@@ -3154,6 +3161,52 @@ function getTabDefs() {
         ['bears', 4, '4 Hours', '$65', 'Half Day'],
       ],
     },
+    'PricingExtras': {
+      // "Add-Ons & Extras" rows on pricing.html — the equipment you can
+      // tack onto a rental at pickup. One row per item.
+      //   location: which card it sits under. Use a Pricing id ("kirk" /
+      //             "bears"), or "both" to show it in both columns.
+      //   order:    top-to-bottom order within the location's list.
+      //   item:     add-on name (e.g. "Bluetooth Speaker").
+      //   price:    display price (e.g. "$7.00"). Leave blank / "Ask at
+      //             pickup" if the price isn't set yet.
+      //   note:     optional small print (e.g. "1 available",
+      //             "Ranger models only").
+      header: ['location','order','item','price','note'],
+      rows: [
+        // ── Kirk Road · Trailside Journey ──
+        ['kirk', 1, 'Mist Fan',           '$3.00',  ''],
+        ['kirk', 2, 'Power Bank Charger', '$5.00',  ''],
+        ['kirk', 3, 'Bluetooth Speaker',  '$7.00',  ''],
+        ['kirk', 4, 'V-Seat',             '$3.00', 'Gooch protection — Ranger model e-bikes'],
+        ['kirk', 5, 'Insulated Cooler',   '$10.00', '1 available'],
+        // ── Bears Den · Unleash Your Adventure ──
+        ['bears', 1, 'Insta360 Camera',   '$39.99', '1 available'],
+        ['bears', 2, 'Bluetooth Speaker', '$9.99',  '2 available'],
+        ['bears', 3, 'Insulated Cooler',  '$10.00', '1 available'],
+      ],
+    },
+    'PricingRiders': {
+      // Extra-rider / stroller hourly pricing on pricing.html. These tiers
+      // apply at BOTH locations. One row per (group × duration).
+      //   group:    rider category heading (e.g. "Child (5–12 yrs)",
+      //             "Toddler Stroller").
+      //   group_order: orders the groups (lower = first).
+      //   order:    orders the durations within a group.
+      //   duration: label (e.g. "1 Hour").
+      //   price:    display price (e.g. "$7.00").
+      header: ['group','group_order','order','duration','price'],
+      rows: [
+        ['Child (5–12 yrs)', 1, 1, '1 Hour',  '$7.00'],
+        ['Child (5–12 yrs)', 1, 2, '2 Hours', '$10.00'],
+        ['Child (5–12 yrs)', 1, 3, '3 Hours', '$13.00'],
+        ['Child (5–12 yrs)', 1, 4, '4 Hours', '$16.00'],
+        ['Toddler Stroller', 2, 1, '1 Hour',  '$10.00'],
+        ['Toddler Stroller', 2, 2, '2 Hours', '$15.00'],
+        ['Toddler Stroller', 2, 3, '3 Hours', '$20.00'],
+        ['Toddler Stroller', 2, 4, '4 Hours', '$25.00'],
+      ],
+    },
     'Admin': {
       // Internal admin tools — not customer-facing, never rendered on the
       // live site. This tab is here just so the URLs you need are always
@@ -4527,7 +4580,7 @@ function _organizeTabs() {
     { color: '#fbbc04', label: 'Page menus',
       tabs: ['Home_Tiles','Home_Submenus','Shop_Tiles','Shop_Submenus','Rentals_Tiles','Rentals_Submenus'] },
     { color: '#34a853', label: 'Page content',
-      tabs: ['Services','Steps','Faqs','Journeys','Venues','Supporters','Sponsors','SponsorPackages','RentalsVibe','Pricing','PricingTiers','Accessories'] },
+      tabs: ['Services','Steps','Faqs','Journeys','Venues','Supporters','Sponsors','SponsorPackages','RentalsVibe','Pricing','PricingTiers','PricingExtras','PricingRiders','Accessories'] },
     { color: '#4285f4', label: 'Catalogs',
       tabs: ['ApparelProducts','ApparelColors','ApparelPlacements','Direct_Inventory','BookingLinks','Booking_Troubleshooting'] },
     { color: '#a142f4', label: 'Bridge the Gap config',
