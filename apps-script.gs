@@ -3086,18 +3086,26 @@ function getTabDefs() {
       //          URL. A dark overlay is layered on top so the white
       //          text stays readable. Leave blank to fall back to the
       //          green gradient.
-      header: ['order','slug','icon','recommendation','label','subtitle','tagline','descriptor','traits','url','cta_label','image'],
+      //   pricing_label / pricing_url: the "View Pricing" button.
+      //   book_label / book_url: the PeekPro "Book" button (opens in a
+      //          new tab). Leave blank to use the per-location default
+      //          baked into rentals.html (Trailside vs Adventure links).
+      header: ['order','slug','icon','recommendation','label','subtitle','tagline','descriptor','traits','url','cta_label','image','pricing_label','pricing_url','book_label','book_url'],
       rows: [
         [1, 'kirk',  '🌿', '⛅ First-time riders',
           'Kirk Road', 'Trailside Journey', 'Flat. Fast. Pure Focus.',
           "Paved bikeway. No cars, no climbs, no surprises — just smooth riding through the Mill Creek MetroParks corridor. Perfect first time on an e-bike.",
           'Flat|Paved|Family-friendly|Easy on every level',
-          'trailside.html', 'See Trailside', ''],
+          'trailside.html', 'See Trailside', '',
+          'View Pricing', 'pricing.html',
+          'Book Trailside', 'https://book.peek.com/s/57e3b62e-4f48-4cc4-8876-7b79f4c11baa/XRP8N'],
         [2, 'bears', '🏞️', '⛰ Confident riders',
           'Bears Den', 'Unleash Your Adventure', 'Hills. Thrills. High Energy.',
           "Straight into Mill Creek Park's hidden corners — Lily Pond loops, Lanterman's Mill, the covered bridge. Wooded, hilly, scenic. The bike does the climbs so you can take in the view.",
           'Hills|Wooded trails|Scenic loops|Park interior',
-          'adventures.html', 'See Adventures', ''],
+          'adventures.html', 'See Adventures', '',
+          'View Pricing', 'pricing.html',
+          'Book Adventure', 'https://book.peek.com/s/57e3b62e-4f48-4cc4-8876-7b79f4c11baa/V1ORX'],
       ],
     },
     'Pricing': {

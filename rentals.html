@@ -279,6 +279,17 @@ footer{background:var(--dark);color:rgba(255,255,255,.75);padding:40px 24px 32px
   transition:background .2s ease,transform .2s ease}
 .vibe-cta:hover{background:var(--dark,#1a2e1c);transform:translateX(2px)}
 .vibe-cta svg{width:14px;height:14px}
+.vibe-actions{margin-top:auto;display:flex;flex-wrap:wrap;gap:10px;align-self:stretch}
+.vibe-actions .vibe-cta{margin-top:0;align-self:auto;flex:1 1 140px;justify-content:center}
+.vibe-cta.pricing{background:transparent;color:var(--forest);border:2px solid var(--forest);padding:10px 20px}
+.vibe-cta.pricing:hover{background:var(--forest);color:#fff;transform:none}
+.vibe-card.bears .vibe-cta.pricing{background:transparent;color:#2d4a32;border-color:#2d4a32}
+.vibe-card.bears .vibe-cta.pricing:hover{background:#2d4a32;color:#fff}
+.vibe-learn{margin-top:14px;align-self:flex-start;display:inline-flex;align-items:center;gap:6px;
+  font-size:.84rem;font-weight:700;letter-spacing:.02em;color:var(--forest-l,#3a5d40)}
+.vibe-learn svg{width:13px;height:13px;transition:transform .2s ease}
+.vibe-learn:hover{color:var(--forest)}
+.vibe-learn:hover svg{transform:translateX(3px)}
 
 /* ── RESPONSIVE ── */
 @media(min-width:640px){
@@ -500,6 +511,14 @@ function isTrue(v){ return v === true || v === 'TRUE' || v === 'true' || v === 1
      order, slug (kirk|bears = card color), icon, recommendation, label,
      subtitle, tagline, descriptor, traits (pipe-separated), url, cta_label,
      image (filename in /media/ or full URL — replaces the green gradient) */
+// Per-location PeekPro booking links. Used as the fallback for the Book
+// button when the RentalsVibe sheet's book_url column is blank. Trailside
+// = Kirk Road; Adventure = Bears Den.
+const VIBE_DEFAULTS = {
+  kirk:  { book_url:'https://book.peek.com/s/57e3b62e-4f48-4cc4-8876-7b79f4c11baa/XRP8N', book_label:'Book Trailside' },
+  bears: { book_url:'https://book.peek.com/s/57e3b62e-4f48-4cc4-8876-7b79f4c11baa/V1ORX', book_label:'Book Adventure' },
+};
+
 function renderRentalsVibe(rows){
   const grid = document.getElementById('vibeGrid');
   if (!grid || !Array.isArray(rows) || !rows.length) return;
@@ -514,11 +533,18 @@ function renderRentalsVibe(rows){
     const slug   = String(r.slug || '').toLowerCase().trim() || 'kirk';
     const traits = String(r.traits || '').split('|').map(s => s.trim()).filter(Boolean);
     const image  = resolveMedia(r.image);
+    // Per-location PeekPro defaults so the Book button works even before the
+    // sheet's book_url column is filled. Sheet values override these.
+    const d = VIBE_DEFAULTS[slug] || {};
+    const bookUrl      = String(r.book_url || d.book_url || '').trim();
+    const bookLabel    = r.book_label || d.book_label || 'Book Now';
+    const pricingUrl   = String(r.pricing_url || 'pricing.html').trim();
+    const pricingLabel = r.pricing_label || 'View Pricing';
     const bannerAttrs = image
       ? ' class="vibe-card-banner has-image" style="background-image:url(\'' + image.replace(/'/g, '%27') + '\')"'
       : ' class="vibe-card-banner"';
     return (
-      '<a class="vibe-card ' + esc(slug) + '" href="' + esc(r.url || '#') + '">' +
+      '<div class="vibe-card ' + esc(slug) + '">' +
         '<div' + bannerAttrs + '>' +
           (r.recommendation ? '<span class="vibe-rec">' + esc(r.recommendation) + '</span>' : '') +
           (r.icon ? '<div class="vibe-icon">' + esc(r.icon) + '</div>' : '') +
@@ -531,9 +557,13 @@ function renderRentalsVibe(rows){
           (traits.length
             ? '<div class="vibe-traits">' + traits.map(t => '<span class="vibe-trait">' + esc(t) + '</span>').join('') + '</div>'
             : '') +
-          '<span class="vibe-cta">' + esc(r.cta_label || 'Learn more') + ' ' + arrow + '</span>' +
+          '<div class="vibe-actions">' +
+            (bookUrl ? '<a class="vibe-cta book" href="' + esc(bookUrl) + '" target="_blank" rel="noopener">' + esc(bookLabel) + ' ' + arrow + '</a>' : '') +
+            '<a class="vibe-cta pricing" href="' + esc(pricingUrl) + '">' + esc(pricingLabel) + '</a>' +
+          '</div>' +
+          (r.url ? '<a class="vibe-learn" href="' + esc(r.url) + '">' + esc(r.cta_label || 'Learn more') + ' ' + arrow + '</a>' : '') +
         '</div>' +
-      '</a>'
+      '</div>'
     );
   }).join('');
 }
