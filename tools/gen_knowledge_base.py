@@ -36,7 +36,7 @@ SNAPSHOT: dict = {
         "info_email":          "info@cruisethecreek.com",
         "sales_email":         "salesteam@cruisethecreek.com",
         "trailside_address":   "6685 Kirk Rd, Canfield, OH 44406",
-        "adventures_address":  "Bears Den / Scholl Recreational Pavilion, Mill Creek Park",
+        "adventures_address":  "Scholl Recreation Pavilion, Bears Den Rd, Youngstown, OH 44511",
         "authorized_brands":   ["Heybike", "Velotric", "Jasion", "Mooncool"],
         "fleet_size":          11,
         "fleet_mix":           "4 all-purpose, 1 high-step, 2 cruisers, 2 cargo, 2 e-trikes",
@@ -70,20 +70,80 @@ SNAPSHOT: dict = {
         {
             "name": "Kirk Road Trailhead (Trailside Journey)",
             "address": "6685 Kirk Rd, Canfield, OH 44406",
+            "speed": "Cruising pace — limited to 15 mph",
             "vibe": "Flat, paved, car-free. 11+ miles of Mill Creek MetroParks Bikeway.",
             "best_for": "First-time riders, families, casual cruises",
+            "reservations": ("Reservations are required, but walk-ups CAN be accommodated under the "
+                             "right circumstances — tell callers to text first to check availability."),
+            "parking": "Park on the LOWER level, then walk up the hill or take the steps to our location.",
+            "arrival": "Arrive 15 minutes early for a required safety tutorial before the ride.",
             "what_to_expect": ("50-car parking lot, restrooms, water fountains, picnic pavilion. "
                               "Trail extends north toward Austintown and south toward Canfield."),
         },
         {
             "name": "Bears Den / Scholl Pavilion (Unleash Your Adventure)",
-            "address": "Inside Mill Creek Park",
+            "address": "Scholl Recreation Pavilion, Bears Den Rd, Youngstown, OH 44511",
+            "speed": "Full experience — speeds up to 25 mph",
             "vibe": "Hilly, wooded, scenic. Goes through the heart of Mill Creek Park.",
             "best_for": "Confident riders, scenic adventures, exploring park interior",
+            "reservations": ("STRICTLY a pickup & drop-off location — reservations are REQUIRED, "
+                             "no walk-ups."),
+            "parking": ("Park in front of the Scholl Recreation Pavilion. The e-bikes are delivered "
+                        "right to the pavilion."),
+            "arrival": "Arrive 15 minutes early for a required safety tutorial before the ride.",
             "what_to_expect": ("Loops past Lanterman's Mill, Suspension Bridge, "
                               "Lily Pond, Rose Garden."),
         },
     ],
+    # ── Hourly rental rates (pricing.html) ───────────────────────────
+    "hourly_pricing": {
+        "rate_rule": ("Kirk Road starts at $25 for the first hour; Bears Den starts at $35 for the "
+                      "first hour. Both add $10 for each additional hour."),
+        "locations": [
+            {"name": "Kirk Road (Trailside Journey)", "speed": "Limited to 15 mph",
+             "tiers": [("1 Hour", "$25"), ("2 Hours", "$35"), ("3 Hours", "$45"),
+                       ("4 Hours (Half Day)", "$55")]},
+            {"name": "Bears Den (Unleash Your Adventure)", "speed": "Speeds up to 25 mph",
+             "tiers": [("1 Hour", "$35"), ("2 Hours", "$45"), ("3 Hours", "$55"),
+                       ("4 Hours (Half Day)", "$65")]},
+        ],
+        "extras": [
+            {"location": "Kirk Road", "items": [
+                ("Mist Fan", "$3.00", ""),
+                ("Power Bank Charger", "$5.00", ""),
+                ("Bluetooth Speaker", "$7.00", ""),
+                ("V-Seat", "$3.00", "Gooch protection — Ranger model e-bikes"),
+                ("Insulated Cooler", "$10.00", "1 available")]},
+            {"location": "Bears Den", "items": [
+                ("Insta360 Camera", "$39.99", "1 available"),
+                ("Bluetooth Speaker", "$9.99", "2 available"),
+                ("Insulated Cooler", "$10.00", "1 available")]},
+        ],
+        "riders": [
+            {"group": "Child (5–12 yrs)", "note": "Both locations — added in the Peek 'Who's riding?' guest step",
+             "tiers": [("1 Hour", "$7"), ("2 Hours", "$10"), ("3 Hours", "$13"), ("4 Hours", "$16")]},
+            {"group": "Toddler Stroller", "note": "Both locations — added in the Peek 'Who's riding?' guest step",
+             "tiers": [("1 Hour", "$10"), ("2 Hours", "$15"), ("3 Hours", "$20"), ("4 Hours", "$25")]},
+        ],
+    },
+    # ── Extended Odyssey long-term rentals (long-term-rental.html) ───
+    "odyssey": {
+        "what": ("Take a foldable 500W e-bike on the road for a half-day up to a full week. Pick up at "
+                 "the Youngstown shop, drive it anywhere (Pittsburgh, Lake Erie, Hocking Hills), return "
+                 "when done. Class-2, road-legal, 20 mph, 30–45 mi range, charges from any outlet."),
+        "deposit": "$200 refundable hold at pickup. Local drop-off/pickup within 25 mi for a flat $40.",
+        "bikes": [
+            {"name": "Step-Over", "best_for": "1–12 mi one way",
+             "tiers": [("8 Hour (Half day)", "$65"), ("24 Hour (Full day)", "$75"),
+                       ("2 Day", "$140"), ("3 Day", "$195"), ("4 Day", "$240"),
+                       ("5 Day", "$285"), ("6 Day", "$330"), ("1 Week", "$365")]},
+            {"name": "Step-Thru", "best_for": "1–20 mi one way",
+             "tiers": [("8 Hour (Half day)", "$70"), ("24 Hour (Full day)", "$80"),
+                       ("2 Day", "$150"), ("3 Day", "$210"), ("4 Day", "$265"),
+                       ("5 Day", "$315"), ("6 Day", "$360"), ("1 Week", "$400")]},
+        ],
+        "book": "long-term-rental.html reservation form, or text the info desk at 330-406-9686.",
+    },
     "brands": [
         {"brand": "Heybike",  "range": "$900–$2,000",
          "positioning": "Original fleet since 2022. Wide lineup — fat tires, cargo, step-thru, all-purpose. ~75% of rentals."},
@@ -533,17 +593,19 @@ caller questions accurately and route the rest to the right human.
 <div class="toc">
   <div><span class="num">1.</span> Quick Reference</div>
   <div><span class="num">2.</span> Contact Routing</div>
-  <div><span class="num">3.</span> Locations</div>
-  <div><span class="num">4.</span> E-Bike Brands We Sell</div>
-  <div><span class="num">5.</span> Services & Pricing</div>
-  <div><span class="num">6.</span> Rentals</div>
-  <div><span class="num">7.</span> Bridge the Gap (Rent-to-Own)</div>
-  <div><span class="num">8.</span> Sponsorship Packages</div>
-  <div><span class="num">9.</span> Current Sponsors</div>
-  <div><span class="num">10.</span> Trailside Journey Destinations</div>
-  <div><span class="num">11.</span> Frequently Asked Questions</div>
-  <div><span class="num">12.</span> Booking Troubleshooting</div>
-  <div><span class="num">13.</span> Recommended Accessories</div>
+  <div><span class="num">3.</span> Locations &amp; What to Expect on Arrival</div>
+  <div><span class="num">4.</span> Hourly Rental Pricing &amp; Add-Ons</div>
+  <div><span class="num">5.</span> Extended Odyssey (Long-Term Rentals)</div>
+  <div><span class="num">6.</span> E-Bike Brands We Sell</div>
+  <div><span class="num">7.</span> Services &amp; Pricing</div>
+  <div><span class="num">8.</span> Rentals (What's Included)</div>
+  <div><span class="num">9.</span> Bridge the Gap (Rent-to-Own)</div>
+  <div><span class="num">10.</span> Sponsorship Packages</div>
+  <div><span class="num">11.</span> Current Sponsors</div>
+  <div><span class="num">12.</span> Trailside Journey Destinations</div>
+  <div><span class="num">13.</span> Frequently Asked Questions</div>
+  <div><span class="num">14.</span> Booking Troubleshooting</div>
+  <div><span class="num">15.</span> Recommended Accessories</div>
 </div>""")
 
     # ── 1. QUICK REFERENCE ──────────────────────────────────────────
@@ -581,16 +643,61 @@ caller questions accurately and route the rest to the right human.
                  'Encourage callers to text for faster response if they don\'t need to speak immediately.</div>')
 
     # ── 3. LOCATIONS ────────────────────────────────────────────────
-    parts.append('<h2>3. Locations</h2>')
+    parts.append('<h2>3. Locations &amp; What to Expect on Arrival</h2>')
     for loc in data["locations"]:
         parts.append(f'<h3>{esc(loc["name"])}</h3>')
         parts.append(f'<p><strong>Address:</strong> {esc(loc["address"])}</p>')
+        parts.append(f'<p><strong>Speed:</strong> {esc(loc["speed"])}</p>')
         parts.append(f'<p><strong>Vibe:</strong> {esc(loc["vibe"])}</p>')
         parts.append(f'<p><strong>Best for:</strong> {esc(loc["best_for"])}</p>')
-        parts.append(f'<p>{esc(loc["what_to_expect"])}</p>')
+        parts.append(f'<p><strong>Reservations:</strong> {esc(loc["reservations"])}</p>')
+        parts.append(f'<p><strong>Parking:</strong> {esc(loc["parking"])}</p>')
+        parts.append(f'<p><strong>On arrival:</strong> {esc(loc["arrival"])}</p>')
+        parts.append(f'<p class="small">{esc(loc["what_to_expect"])}</p>')
+    parts.append('<div class="callout"><strong>Both locations:</strong> riders must arrive '
+                 '15 minutes early for a required safety tutorial before heading out.</div>')
 
-    # ── 4. BRANDS ────────────────────────────────────────────────────
-    parts.append('<div class="page-break"></div><h2>4. E-Bike Brands We Sell</h2>')
+    # ── 4. HOURLY RENTAL PRICING & ADD-ONS ──────────────────────────
+    hp = data["hourly_pricing"]
+    parts.append('<div class="page-break"></div><h2>4. Hourly Rental Pricing &amp; Add-Ons</h2>')
+    parts.append(f'<p>{esc(hp["rate_rule"])}</p>')
+    for loc in hp["locations"]:
+        parts.append(f'<h3>{esc(loc["name"])} <span class="small">({esc(loc["speed"])})</span></h3>')
+        parts.append('<table><tr><th>Duration</th><th>Price</th></tr>')
+        for dur, price in loc["tiers"]:
+            parts.append(f'<tr><td>{esc(dur)}</td><td>{esc(price)}</td></tr>')
+        parts.append('</table>')
+    parts.append('<h3>Add-Ons &amp; Extras (added at pickup)</h3>')
+    for ex in hp["extras"]:
+        parts.append(f'<h4>{esc(ex["location"])}</h4>')
+        parts.append('<table><tr><th>Item</th><th>Price</th><th>Note</th></tr>')
+        for item, price, note in ex["items"]:
+            parts.append(f'<tr><td>{esc(item)}</td><td>{esc(price)}</td><td>{esc(note)}</td></tr>')
+        parts.append('</table>')
+    parts.append('<h3>Extra Riders &amp; Strollers</h3>')
+    for rg in hp["riders"]:
+        parts.append(f'<h4>{esc(rg["group"])}</h4>')
+        parts.append(f'<p class="small">{esc(rg["note"])}</p>')
+        parts.append('<table><tr><th>Duration</th><th>Price</th></tr>')
+        for dur, price in rg["tiers"]:
+            parts.append(f'<tr><td>{esc(dur)}</td><td>{esc(price)}</td></tr>')
+        parts.append('</table>')
+
+    # ── 5. EXTENDED ODYSSEY (LONG-TERM) ─────────────────────────────
+    od = data["odyssey"]
+    parts.append('<div class="page-break"></div><h2>5. Extended Odyssey (Long-Term Rentals)</h2>')
+    parts.append(f'<p>{esc(od["what"])}</p>')
+    parts.append(f'<p><strong>Deposit:</strong> {esc(od["deposit"])}</p>')
+    for bike in od["bikes"]:
+        parts.append(f'<h3>{esc(bike["name"])} <span class="small">(best for {esc(bike["best_for"])})</span></h3>')
+        parts.append('<table><tr><th>Duration</th><th>Price</th></tr>')
+        for dur, price in bike["tiers"]:
+            parts.append(f'<tr><td>{esc(dur)}</td><td>{esc(price)}</td></tr>')
+        parts.append('</table>')
+    parts.append(f'<p><strong>Book:</strong> {esc(od["book"])}</p>')
+
+    # ── 6. BRANDS ────────────────────────────────────────────────────
+    parts.append('<div class="page-break"></div><h2>6. E-Bike Brands We Sell</h2>')
     parts.append('<table><tr><th>Brand</th><th>Price Range</th><th>Positioning</th></tr>')
     for b in data["brands"]:
         parts.append(f'<tr><td><strong>{esc(b["brand"])}</strong></td>'
@@ -599,7 +706,7 @@ caller questions accurately and route the rest to the right human.
     parts.append('<p class="small">Most riders land $900–$1,500 depending on motor power, range, and frame style.</p>')
 
     # ── 5. SERVICES ──────────────────────────────────────────────────
-    parts.append('<h2>5. Services & Pricing</h2>')
+    parts.append('<h2>7. Services & Pricing</h2>')
     for s in data["services"]:
         parts.append(f'<h3>{esc(s["name"])} — {esc(s["price"])}</h3>')
         parts.append(f'<p><strong>For:</strong> {esc(s["for"])}</p>')
@@ -610,7 +717,7 @@ caller questions accurately and route the rest to the right human.
         parts.append(f'<p class="small"><strong>Turnaround:</strong> {esc(s["turnaround"])}</p>')
 
     # ── 6. RENTALS ───────────────────────────────────────────────────
-    parts.append('<h2>6. Rentals</h2>')
+    parts.append('<h2>8. Rentals (What\'s Included)</h2>')
     r = data["rentals"]
     parts.append(f'<p><strong>Fleet:</strong> {esc(r["fleet"])}</p>')
     parts.append('<h4>Included per rental</h4><ul>')
@@ -626,7 +733,7 @@ caller questions accurately and route the rest to the right human.
     parts.append('</table>')
 
     # ── 7. BRIDGE THE GAP ────────────────────────────────────────────
-    parts.append('<h2>7. Bridge the Gap (Rent-to-Own)</h2>')
+    parts.append('<h2>9. Bridge the Gap (Rent-to-Own)</h2>')
     btg = data["bridge_the_gap"]
     parts.append(f'<p>{esc(btg["what"])}</p>')
     parts.append('<h4>Terms</h4><ul>')
@@ -644,7 +751,7 @@ caller questions accurately and route the rest to the right human.
     parts.append(f'<p><strong>Early termination:</strong> {esc(btg["early_termination"])}</p>')
 
     # ── 8. SPONSORSHIP PACKAGES ──────────────────────────────────────
-    parts.append('<div class="page-break"></div><h2>8. Sponsorship Packages</h2>')
+    parts.append('<div class="page-break"></div><h2>10. Sponsorship Packages</h2>')
     for p in data["sponsorship_packages"]:
         feat = ' <span class="section-tag featured-tag">Featured</span>' if p.get("featured") else ''
         parts.append(f'<h3>{esc(p["name"])} — {esc(p["price"])}{feat}</h3>')
@@ -658,7 +765,7 @@ caller questions accurately and route the rest to the right human.
         parts.append('</ul>')
 
     # ── 9. CURRENT SPONSORS ──────────────────────────────────────────
-    parts.append('<h2>9. Current Sponsors</h2>')
+    parts.append('<h2>11. Current Sponsors</h2>')
     parts.append('<p class="small">If a caller asks "who sponsors you" or wants to talk to one of your sponsors:</p>')
     parts.append('<table><tr><th>Sponsor</th><th>Contact</th><th>Bike</th><th>About</th></tr>')
     for sp in data["current_sponsors"]:
@@ -672,7 +779,7 @@ caller questions accurately and route the rest to the right human.
     parts.append('</table>')
 
     # ── 10. TRAILSIDE JOURNEYS ───────────────────────────────────────
-    parts.append('<h2>10. Trailside Journey Destinations</h2>')
+    parts.append('<h2>12. Trailside Journey Destinations</h2>')
     parts.append('<p class="small">From the Kirk Road trailhead, callers can ride these out-and-back routes:</p>')
     for direction in ("south", "north"):
         parts.append(f'<h3>Head {direction.title()}</h3>')
@@ -688,7 +795,7 @@ caller questions accurately and route the rest to the right human.
         parts.append('</table>')
 
     # ── 11. FAQS ─────────────────────────────────────────────────────
-    parts.append('<div class="page-break"></div><h2>11. Frequently Asked Questions</h2>')
+    parts.append('<div class="page-break"></div><h2>13. Frequently Asked Questions</h2>')
     parts.append('<p class="small">Organized by topic. Each is a verbatim answer the agent can use.</p>')
     current_section = None
     for section, q, a in data["faqs"]:
@@ -699,7 +806,7 @@ caller questions accurately and route the rest to the right human.
                      f'<div class="a">A. {esc(a)}</div></div>')
 
     # ── 12. BOOKING TROUBLESHOOTING ──────────────────────────────────
-    parts.append('<h2>12. Booking Troubleshooting</h2>')
+    parts.append('<h2>14. Booking Troubleshooting</h2>')
     parts.append('<p class="small">When a caller is stuck on the online booking flow, these are the '
                  'common issues and the verbatim fixes.</p>')
     for issue, fix in data["booking_troubleshooting"]:
@@ -707,7 +814,7 @@ caller questions accurately and route the rest to the right human.
                      f'<div class="a">{esc(fix)}</div></div>')
 
     # ── 13. ACCESSORIES ──────────────────────────────────────────────
-    parts.append('<h2>13. Recommended Accessories</h2>')
+    parts.append('<h2>15. Recommended Accessories</h2>')
     parts.append('<p class="small">These are the Amazon affiliate picks we point customers toward. '
                  'If a caller asks "what saddle do you recommend" the agent can name these.</p>')
     parts.append('<table><tr><th>Product</th><th>Category</th><th>Why</th></tr>')
