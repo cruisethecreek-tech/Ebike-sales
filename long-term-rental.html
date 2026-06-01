@@ -367,7 +367,7 @@ footer a:hover{color:#fff}
     <span class="section-eyebrow" data-cms-text="ltr_trips_eyebrow">Where Creek riders go</span>
     <h2 class="section-title" data-cms-text="ltr_trips_title">Bring it anywhere.</h2>
     <p class="section-intro" data-cms-text="ltr_trips_intro">A few favorites from past renters — but don't let this be the whole list. Anywhere you're going for the weekend, the bike rides shotgun.</p>
-    <div class="trips-grid">
+    <div class="trips-grid" id="trips-grid">
 
       <div class="trip">
         <div class="trip-img no-img">
@@ -555,19 +555,19 @@ function renderOdysseyTrips(trips){
   };
   grid.innerHTML = trips.slice().sort((a,b)=>(a.order||0)-(b.order||0)).map(t => {
     const img = resolveMedia(t.photo);
-    const photo = img
-      ? `<div class="trip-photo"><img src="${esc(img)}" alt="" loading="lazy" onerror="this.parentNode.classList.add('no-img');this.remove()"></div>`
-      : '<div class="trip-photo no-img"></div>';
+    const imgTag = img
+      ? `<img src="${esc(img)}" alt="" loading="lazy" onload="this.parentNode.classList.remove('no-img')" onerror="this.remove()">`
+      : '';
     return `
-      <article class="trip-card">
-        ${photo}
+      <div class="trip">
+        <div class="trip-img no-img">${imgTag}</div>
         <div class="trip-body">
           ${t.tag ? `<div class="trip-tag">${esc(t.tag)}</div>` : ''}
           <div class="trip-name">${esc(t.name)}</div>
           ${t.meta ? `<div class="trip-meta">${esc(t.meta)}</div>` : ''}
           ${t.desc ? `<p class="trip-desc">${esc(t.desc)}</p>` : ''}
         </div>
-      </article>`;
+      </div>`;
   }).join('');
 }
 
