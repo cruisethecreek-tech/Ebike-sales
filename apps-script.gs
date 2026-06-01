@@ -2466,6 +2466,15 @@ function getTabDefs() {
         ['mascot_greeting',     ''],
         ['mascot_bio',          ''],
 
+        ['── PRICING PAGE · "NEED IT LONGER?" ODYSSEY BAND ──', ''],
+        // Band linking hourly renters to the Extended Odyssey (long-term)
+        // page. Leave a value blank to fall back to the built-in default.
+        ['pricing_longer_eyebrow',   'Need it longer?'],
+        ['pricing_longer_title',     'Take it for a day, a week, or the whole road trip.'],
+        ['pricing_longer_sub',       "Hourly's great for a quick spin — but our Extended Odyssey rentals let you keep a foldable e-bike for a half-day, a full week, or anywhere in between. Drive it anywhere and ride wherever the weekend takes you."],
+        ['pricing_longer_btn_label', 'See Extended Odyssey'],
+        ['pricing_longer_btn_url',   'long-term-rental.html'],
+
         ['── PRICING PAGE · "RATHER OWN ONE?" BUY BAND ──', ''],
         // Bottom-of-pricing.html band linking renters to buying / financing.
         // Leave a value blank to fall back to the built-in default text/link.
