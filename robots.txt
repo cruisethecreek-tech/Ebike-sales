@@ -4,5 +4,6 @@ Disallow: /invoice.html
 Disallow: /salespro.html
 Disallow: /balance.html
 Disallow: /migrate-images.html
+Disallow: /goodcall-knowledge.html
 
 Sitemap: https://www.cruisethecreek.com/sitemap.xml
