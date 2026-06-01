@@ -52,6 +52,12 @@ button{font-family:inherit}
 }
 .brand{display:flex;align-items:center;gap:10px}
 .brand-logo{height:38px;width:auto;display:block;}
+.top-nav{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.top-nav a{padding:8px 13px;border-radius:4px;font-size:.8rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--ink-2,#3a3a3a);transition:all .2s}
+.top-nav a:hover{background:rgba(0,0,0,.05);color:var(--forest)}
+.top-nav .book{background:var(--forest);color:#fff}
+.top-nav .book:hover{background:var(--dark,#1a2e1c);color:#fff}
+@media(max-width:560px){.top-nav a{padding:7px 9px;font-size:.7rem}}
 .top-actions{display:flex;align-items:center;gap:8px}
 .icon-btn{
   width:40px;height:40px;border-radius:4px;
@@ -466,9 +472,15 @@ footer{background:var(--dark);color:rgba(255,255,255,.75);padding:40px 24px 32px
 
 <!-- ── TOP BAR ── -->
 <header class="topbar">
-  <a class="brand" href="home.html" aria-label="Cruise the Creek home">
+  <a class="brand" href="index.html" aria-label="Cruise the Creek home">
     <img class="brand-logo" src="BlackonTransparent.png" alt="Cruise the Creek">
   </a>
+  <nav class="top-nav">
+    <a href="rentals.html">Rentals</a>
+    <a href="shop.html">Shop</a>
+    <a href="pricing.html">Pricing</a>
+    <a href="rentals.html" class="book">Book a Ride</a>
+  </nav>
 </header>
 
 <!-- ── HERO ── -->
@@ -577,7 +589,7 @@ footer{background:var(--dark);color:rgba(255,255,255,.75);padding:40px 24px 32px
     </div>
     <div class="foot-bot">
       <span data-cms-text="footer_copyright">&copy; 2026 Cruise the Creek. All rights reserved.</span>
-      <span><a href="adventures.html">Book an Adventure</a> &middot; <a href="https://www.cruisethecreek.com/shop-fix" target="_blank" rel="noopener">Shop</a> &middot; <a href="sponsors.html">Sponsors</a> &middot; <a href="donate.html">Support</a></span>
+      <span><a href="adventures.html">Book an Adventure</a> &middot; <a href="shop.html">Shop</a> &middot; <a href="sponsors.html">Sponsors</a> &middot; <a href="donate.html">Support</a></span>
     </div>
   </div>
 </footer>

@@ -28,6 +28,12 @@ button{font-family:inherit;cursor:pointer}
   color:var(--dark);padding:16px 24px;display:flex;align-items:center;justify-content:space-between;
   position:sticky;top:0;z-index:100;border-bottom:1px solid rgba(0,0,0,.05)}
 .brand-logo{height:38px;width:auto;display:block}
+.top-nav{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.top-nav a{padding:8px 13px;border-radius:4px;font-size:.8rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--ink-2,#3a3a3a);transition:all .2s}
+.top-nav a:hover{background:rgba(0,0,0,.05);color:var(--forest)}
+.top-nav .book{background:var(--forest);color:#fff}
+.top-nav .book:hover{background:var(--dark,#1a2e1c);color:#fff}
+@media(max-width:560px){.top-nav a{padding:7px 9px;font-size:.7rem}}
 .nav-back{font-size:.78rem;letter-spacing:.08em;text-transform:uppercase;font-weight:700;color:var(--ink-2)}
 .nav-back:hover{color:var(--forest)}
 
@@ -216,7 +222,12 @@ footer a:hover{color:#fff}
   <a href="index.html" aria-label="Cruise the Creek home" data-cms-href="logo_url" data-cms-target="logo_external">
     <img class="brand-logo" src="BlackonTransparent.png" alt="Cruise the Creek">
   </a>
-  <a class="nav-back" href="rentals.html">← All Rentals</a>
+  <nav class="top-nav">
+    <a href="rentals.html">Rentals</a>
+    <a href="shop.html">Shop</a>
+    <a href="pricing.html">Pricing</a>
+    <a href="rentals.html" class="book">Book a Ride</a>
+  </nav>
 </header>
 
 <section class="hero">
@@ -412,7 +423,7 @@ footer a:hover{color:#fff}
   <section class="block">
     <span class="section-eyebrow" data-cms-text="ltr_faq_eyebrow">Common questions</span>
     <h2 class="section-title" data-cms-text="ltr_faq_title">Taking it out of town?</h2>
-    <p class="section-intro" data-cms-text="ltr_faq_intro">Everything riders ask before driving off with the bike. Still stuck? Text Pat at 330-406-9682.</p>
+    <p class="section-intro" data-cms-text="ltr_faq_intro">Everything riders ask before driving off with the bike. Still stuck? Text Pat at 330-406-9686.</p>
     <div class="faq-list">
 
       <details class="faq">
@@ -422,7 +433,7 @@ footer a:hover{color:#fff}
 
       <details class="faq">
         <summary data-cms-text="ltr_faq_2_q">What if it breaks down out of town?</summary>
-        <div class="faq-a" data-cms-text="ltr_faq_2_a">Call or text 330-406-9682. Most field issues — a loose connector, a tripped controller — we can talk you through in five minutes. For anything mechanical we can't fix remotely, you'll either swap a part we ship overnight or we'll meet you partway. We've never left a rider stranded.</div>
+        <div class="faq-a" data-cms-text="ltr_faq_2_a">Call or text 330-406-9686. Most field issues — a loose connector, a tripped controller — we can talk you through in five minutes. For anything mechanical we can't fix remotely, you'll either swap a part we ship overnight or we'll meet you partway. We've never left a rider stranded.</div>
       </details>
 
       <details class="faq">
@@ -696,10 +707,10 @@ form.addEventListener('submit', async (e) => {
       const d = new Date(); d.setDate(d.getDate() + 1);
       document.getElementById('pickupDate').value = d.toISOString().slice(0, 10);
     } else {
-      setStatus((json && json.error) || 'Submission failed — try texting 330-406-9682 instead.', 'error');
+      setStatus((json && json.error) || 'Submission failed — try texting 330-406-9686 instead.', 'error');
     }
   } catch (err) {
-    setStatus('Network hiccup. Text 330-406-9682 and we’ll get you booked.', 'error');
+    setStatus('Network hiccup. Text 330-406-9686 and we’ll get you booked.', 'error');
   } finally {
     submitBtn.disabled = false;
   }
