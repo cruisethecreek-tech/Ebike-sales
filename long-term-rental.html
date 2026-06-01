@@ -367,7 +367,7 @@ footer a:hover{color:#fff}
     <span class="section-eyebrow" data-cms-text="ltr_trips_eyebrow">Where Creek riders go</span>
     <h2 class="section-title" data-cms-text="ltr_trips_title">Bring it anywhere.</h2>
     <p class="section-intro" data-cms-text="ltr_trips_intro">A few favorites from past renters — but don't let this be the whole list. Anywhere you're going for the weekend, the bike rides shotgun.</p>
-    <div class="trips-grid">
+    <div class="trips-grid" id="trips-grid">
 
       <div class="trip">
         <div class="trip-img no-img">
@@ -540,6 +540,37 @@ const MENU_URL = CMS_URL + '?page=long-term-rental';
 function isTrue(v){return v === true || v === 'TRUE' || v === 'true' || v === 1 || v === '1';}
 function esc(s){ return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 
+// Render the "Bring it anywhere" trip cards from the OdysseyTrips sheet
+// tab. Each row: { order, tag, name, meta, desc, photo }. The HTML ships
+// three baked-in cards, so this only repaints when the sheet has data.
+function renderOdysseyTrips(trips){
+  const grid = document.getElementById('trips-grid');
+  if (!grid || !Array.isArray(trips) || !trips.length) return;
+  const resolveMedia = v => {
+    const s = String(v || '').trim();
+    if (!s) return '';
+    if (/^https?:\/\//i.test(s)) return s;
+    if (/^(media|images)\//.test(s)) return encodeURI(s);
+    return 'media/' + encodeURI(s);
+  };
+  grid.innerHTML = trips.slice().sort((a,b)=>(a.order||0)-(b.order||0)).map(t => {
+    const img = resolveMedia(t.photo);
+    const imgTag = img
+      ? `<img src="${esc(img)}" alt="" loading="lazy" onload="this.parentNode.classList.remove('no-img')" onerror="this.remove()">`
+      : '';
+    return `
+      <div class="trip">
+        <div class="trip-img no-img">${imgTag}</div>
+        <div class="trip-body">
+          ${t.tag ? `<div class="trip-tag">${esc(t.tag)}</div>` : ''}
+          <div class="trip-name">${esc(t.name)}</div>
+          ${t.meta ? `<div class="trip-meta">${esc(t.meta)}</div>` : ''}
+          ${t.desc ? `<p class="trip-desc">${esc(t.desc)}</p>` : ''}
+        </div>
+      </div>`;
+  }).join('');
+}
+
 // Render the Extended Odyssey price tables from the OdysseyPricing sheet
 // tab. Each row: { bike:'step-over'|'step-thru', order, duration, sub, price }.
 // The HTML ships baked-in rows, so this only repaints if the sheet has data.
@@ -596,7 +627,7 @@ function applyCMS(remote){
 
 fetch(MENU_URL, {cache:'no-store'})
   .then(r => r.ok ? r.json() : Promise.reject(r.status))
-  .then(remote => { if (remote && typeof remote === 'object') { applyCMS(remote); renderOdysseyPricing(remote.odysseyPricing); } })
+  .then(remote => { if (remote && typeof remote === 'object') { applyCMS(remote); renderOdysseyPricing(remote.odysseyPricing); renderOdysseyTrips(remote.odysseyTrips); } })
   .catch(err => console.warn('[long-term-rental] config fetch failed, using static content:', err));
 
 // Reserve buttons on each bike card pre-select the bike radio + scroll
