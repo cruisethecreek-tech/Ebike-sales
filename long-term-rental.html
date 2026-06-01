@@ -423,7 +423,7 @@ footer a:hover{color:#fff}
   <section class="block">
     <span class="section-eyebrow" data-cms-text="ltr_faq_eyebrow">Common questions</span>
     <h2 class="section-title" data-cms-text="ltr_faq_title">Taking it out of town?</h2>
-    <p class="section-intro" data-cms-text="ltr_faq_intro">Everything riders ask before driving off with the bike. Still stuck? Text Pat at 330-406-9682.</p>
+    <p class="section-intro" data-cms-text="ltr_faq_intro">Everything riders ask before driving off with the bike. Still stuck? Text Pat at 330-406-9686.</p>
     <div class="faq-list">
 
       <details class="faq">
@@ -433,7 +433,7 @@ footer a:hover{color:#fff}
 
       <details class="faq">
         <summary data-cms-text="ltr_faq_2_q">What if it breaks down out of town?</summary>
-        <div class="faq-a" data-cms-text="ltr_faq_2_a">Call or text 330-406-9682. Most field issues — a loose connector, a tripped controller — we can talk you through in five minutes. For anything mechanical we can't fix remotely, you'll either swap a part we ship overnight or we'll meet you partway. We've never left a rider stranded.</div>
+        <div class="faq-a" data-cms-text="ltr_faq_2_a">Call or text 330-406-9686. Most field issues — a loose connector, a tripped controller — we can talk you through in five minutes. For anything mechanical we can't fix remotely, you'll either swap a part we ship overnight or we'll meet you partway. We've never left a rider stranded.</div>
       </details>
 
       <details class="faq">
@@ -707,10 +707,10 @@ form.addEventListener('submit', async (e) => {
       const d = new Date(); d.setDate(d.getDate() + 1);
       document.getElementById('pickupDate').value = d.toISOString().slice(0, 10);
     } else {
-      setStatus((json && json.error) || 'Submission failed — try texting 330-406-9682 instead.', 'error');
+      setStatus((json && json.error) || 'Submission failed — try texting 330-406-9686 instead.', 'error');
     }
   } catch (err) {
-    setStatus('Network hiccup. Text 330-406-9682 and we’ll get you booked.', 'error');
+    setStatus('Network hiccup. Text 330-406-9686 and we’ll get you booked.', 'error');
   } finally {
     submitBtn.disabled = false;
   }
