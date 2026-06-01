@@ -2465,6 +2465,17 @@ function getTabDefs() {
         ['mascot_avatar_url',   ''],
         ['mascot_greeting',     ''],
         ['mascot_bio',          ''],
+
+        ['── PRICING PAGE · "RATHER OWN ONE?" BUY BAND ──', ''],
+        // Bottom-of-pricing.html band linking renters to buying / financing.
+        // Leave a value blank to fall back to the built-in default text/link.
+        ['pricing_buy_eyebrow',   'Rather own one?'],
+        ['pricing_buy_title',     'Skip the clock — take one home.'],
+        ['pricing_buy_sub',       "Love the ride? Every bike in our rental fleet is one you can buy. Shop the lineup, or own it over time with Bridge the Gap — no credit check, no license needed."],
+        ['pricing_buy_btn_label', 'Shop E-Bikes'],
+        ['pricing_buy_btn_url',   'shop.html'],
+        ['pricing_buy_btn2_label','Own it over time'],
+        ['pricing_buy_btn2_url',  'bridge-the-gap.html'],
       ],
     },
     'Photos': {

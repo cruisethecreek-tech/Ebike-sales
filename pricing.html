@@ -136,6 +136,23 @@ main{flex:1;max-width:1080px;width:100%;margin:0 auto;padding:36px 24px 64px}
 .riders-group:first-child .riders-group-head{border-top:none;padding-top:0}
 .price-card.is-featured .riders-group-head{color:var(--tan-d)}
 
+/* ── BUY / OWN BAND ── */
+.buy-band{margin-top:40px;background:var(--cream-w);border:1px solid rgba(45,74,50,.14);
+  border-radius:16px;padding:30px 28px;box-shadow:0 6px 20px rgba(45,74,50,.05)}
+.buy-inner{display:flex;flex-direction:column;gap:20px;align-items:flex-start}
+@media(min-width:740px){.buy-inner{flex-direction:row;align-items:center;justify-content:space-between;gap:32px}}
+.buy-eyebrow{font-size:.72rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--tan-d);margin-bottom:6px}
+.buy-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(1.6rem,4vw,2.1rem);color:var(--forest);letter-spacing:.02em;line-height:1.05;margin-bottom:8px}
+.buy-sub{font-size:.94rem;color:var(--ink-2);line-height:1.55;max-width:560px}
+.buy-btns{display:flex;flex-wrap:wrap;gap:12px;flex:none}
+.buy-primary,.buy-secondary{display:inline-flex;align-items:center;justify-content:center;
+  padding:13px 22px;border-radius:6px;font-weight:800;font-size:.82rem;letter-spacing:.06em;
+  text-transform:uppercase;white-space:nowrap;transition:background .2s ease,color .2s ease}
+.buy-primary{background:var(--forest);color:#fff}
+.buy-primary:hover{background:var(--dark)}
+.buy-secondary{background:transparent;color:var(--forest);border:2px solid var(--forest)}
+.buy-secondary:hover{background:var(--forest);color:#fff}
+
 .foot-cta{margin-top:54px;text-align:center;background:var(--forest);color:#fff;
   border-radius:14px;padding:40px 26px;overflow:hidden;position:relative}
 .foot-cta .fc-eyebrow{font-size:.72rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--tan);margin-bottom:8px}
@@ -194,6 +211,20 @@ footer a{color:var(--tan);font-weight:500}footer a:hover{color:#fff}
   <h2 class="section-title" data-cms-text="section_title">Pick Your Location</h2>
 
   <div class="price-grid" id="priceGrid"></div>
+
+  <section class="buy-band">
+    <div class="buy-inner">
+      <div class="buy-copy">
+        <div class="buy-eyebrow" data-cms-text="pricing_buy_eyebrow">Rather own one?</div>
+        <h2 class="buy-title" data-cms-text="pricing_buy_title">Skip the clock — take one home.</h2>
+        <p class="buy-sub" data-cms-text="pricing_buy_sub">Love the ride? Every bike in our rental fleet is one you can buy. Shop the lineup, or own it over time with Bridge the Gap — no credit check, no license needed.</p>
+      </div>
+      <div class="buy-btns">
+        <a class="buy-primary" data-cms-text="pricing_buy_btn_label" data-cms-href="pricing_buy_btn_url" href="shop.html">Shop E-Bikes</a>
+        <a class="buy-secondary" data-cms-text="pricing_buy_btn2_label" data-cms-href="pricing_buy_btn2_url" href="bridge-the-gap.html">Own it over time</a>
+      </div>
+    </div>
+  </section>
 
   <section class="foot-cta">
     <div class="fc-eyebrow" data-cms-text="cta_eyebrow">Ready to roll?</div>
