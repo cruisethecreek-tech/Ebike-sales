@@ -277,6 +277,8 @@ function _doGetInner(e, action) {
     sponsors:          sponsors,
     sponsorPackages:   sponsorPackages,
     rentalsVibe:       rentalsVibe,
+    rentalsArrival:    readSheet(ss, 'RentalsArrival')
+                         .sort(function(a, b){ return (a.order || 0) - (b.order || 0); }),
     pricing:           readSheet(ss, 'Pricing')
                          .sort(function(a, b){ return (a.order || 0) - (b.order || 0); }),
     pricingTiers:      readSheet(ss, 'PricingTiers')
@@ -3139,6 +3141,28 @@ function getTabDefs() {
           'Book Adventure', 'https://book.peek.com/s/57e3b62e-4f48-4cc4-8876-7b79f4c11baa/V1ORX'],
       ],
     },
+    'RentalsArrival': {
+      // "What to expect when you arrive" cards on rentals.html. One row per
+      // pickup location.
+      //   order:    left-to-right card order.
+      //   slug:     'kirk' or 'bears' — picks the accent color.
+      //   icon:     emoji shown next to the location name.
+      //   location: card heading (e.g. "Kirk Road").
+      //   badge:    small pill, top-right (e.g. "Reservations required").
+      //   points:   the instruction lines — ONE PER bullet, separated by a
+      //             pipe "|". Keep each line a full sentence.
+      header: ['order','slug','icon','location','badge','points'],
+      rows: [
+        [1, 'kirk', '📍', 'Kirk Road', 'Reservations recommended',
+          'Reservations are required, but walk-ups can be accommodated under the right circumstances — text us first to check availability.' +
+          '|Parking is available on the lower level. From there, walk up the hill or take the steps to our location.' +
+          '|Please arrive 15 minutes early for a quick safety tutorial before your ride.'],
+        [2, 'bears', '🚐', 'Bears Den', 'Reservations required',
+          'Strictly a pickup & drop-off location, so reservations are required — no walk-ups.' +
+          '|Park in front of the Schöll Recreational Pavilion. Your e-bikes will be delivered right to the pavilion.' +
+          '|Please arrive 15 minutes early for a quick safety tutorial before your ride.'],
+      ],
+    },
     'Pricing': {
       // Hourly rental pricing cards on pricing.html. One row per LOCATION
       // card. The per-hour price tiers live in the PricingTiers tab, joined
@@ -4661,7 +4685,7 @@ function _organizeTabs() {
     { color: '#fbbc04', label: 'Page menus',
       tabs: ['Home_Tiles','Home_Submenus','Shop_Tiles','Shop_Submenus','Rentals_Tiles','Rentals_Submenus'] },
     { color: '#34a853', label: 'Page content',
-      tabs: ['Services','Steps','Faqs','Journeys','Venues','Supporters','Sponsors','SponsorPackages','RentalsVibe','Pricing','PricingTiers','PricingExtras','PricingRiders','OdysseyPricing','OdysseyTrips','Accessories'] },
+      tabs: ['Services','Steps','Faqs','Journeys','Venues','Supporters','Sponsors','SponsorPackages','RentalsVibe','RentalsArrival','Pricing','PricingTiers','PricingExtras','PricingRiders','OdysseyPricing','OdysseyTrips','Accessories'] },
     { color: '#4285f4', label: 'Catalogs',
       tabs: ['ApparelProducts','ApparelColors','ApparelPlacements','Direct_Inventory','BookingLinks','Booking_Troubleshooting'] },
     { color: '#a142f4', label: 'Bridge the Gap config',
