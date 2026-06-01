@@ -257,6 +257,11 @@ footer{background:var(--dark);color:rgba(255,255,255,.75);padding:40px 24px 32px
   text-transform:uppercase;color:var(--tan-d);background:#fff8ec;
   border:1px solid rgba(201,169,110,.4);padding:5px 11px;border-radius:999px;white-space:nowrap}
 .arrive-card.bears .arrive-badge{color:var(--forest);background:var(--cream);border-color:rgba(45,74,50,.18)}
+.arrive-addr{display:inline-flex;align-items:flex-start;gap:7px;margin-bottom:16px;
+  font-size:.86rem;font-weight:700;color:var(--forest);line-height:1.4;
+  border-bottom:1px solid transparent;transition:border-color .15s ease,color .15s ease}
+.arrive-addr svg{width:15px;height:15px;flex:none;margin-top:2px;color:var(--tan-d)}
+.arrive-addr:hover{color:var(--dark);border-bottom-color:rgba(45,74,50,.3)}
 .arrive-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:12px}
 .arrive-list li{position:relative;padding-left:26px;font-size:.94rem;line-height:1.55;color:var(--ink-2)}
 .arrive-list li::before{content:'';position:absolute;left:0;top:7px;width:14px;height:14px;
@@ -480,6 +485,10 @@ footer{background:var(--dark);color:rgba(255,255,255,.75);padding:40px 24px 32px
           <h3 class="arrive-loc">Kirk Road</h3>
           <span class="arrive-badge">Reservations recommended</span>
         </div>
+        <a class="arrive-addr" href="https://maps.google.com/?q=6685+Kirk+Road+Canfield+OH+44406" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          6685 Kirk Road, Canfield, OH 44406
+        </a>
         <ul class="arrive-list">
           <li>Reservations are required, but walk-ups can be accommodated under the right circumstances — text us first to check availability.</li>
           <li>Parking is available on the lower level. From there, walk up the hill or take the steps to our location.</li>
@@ -492,9 +501,13 @@ footer{background:var(--dark);color:rgba(255,255,255,.75);padding:40px 24px 32px
           <h3 class="arrive-loc">Bears Den</h3>
           <span class="arrive-badge">Reservations required</span>
         </div>
+        <a class="arrive-addr" href="https://maps.google.com/?q=Scholl+Recreation+Pavilion+Bears+Den+Road+Youngstown+OH+44511" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          Scholl Recreation Pavilion, Bears Den Road, Youngstown, OH 44511
+        </a>
         <ul class="arrive-list">
           <li>Strictly a pickup &amp; drop-off location, so reservations are required — no walk-ups.</li>
-          <li>Park in front of the Schöll Recreational Pavilion. Your e-bikes will be delivered right to the pavilion.</li>
+          <li>Park in front of the Scholl Recreation Pavilion. Your e-bikes will be delivered right to the pavilion.</li>
           <li>Please arrive 15 minutes early for a quick safety tutorial before your ride.</li>
         </ul>
       </div>
@@ -636,14 +649,22 @@ function renderRentalsVibe(rows){
 /* Render the "What to expect when you arrive" cards.
    Columns supported on the RentalsArrival tab:
      order, slug (kirk|bears = accent color), icon, location, badge,
+     address (shown as a Google Maps link; map_url optional override),
      points (one instruction per line, separated by | ) */
 function renderArrival(rows){
   const grid = document.getElementById('arriveGrid');
   if (!grid || !Array.isArray(rows) || !rows.length) return;
+  const pin = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>';
   grid.innerHTML = rows.map(r => {
     const slug   = String(r.slug || '').toLowerCase().trim() || 'kirk';
     const points = String(r.points || '').split('|').map(s => s.trim()).filter(Boolean);
     const items  = points.map(p => '<li>' + esc(p) + '</li>').join('');
+    const addr   = String(r.address || '').trim();
+    const mapUrl = String(r.map_url || '').trim() ||
+      (addr ? 'https://maps.google.com/?q=' + encodeURIComponent(addr) : '');
+    const addrHtml = addr
+      ? '<a class="arrive-addr" href="' + esc(mapUrl) + '" target="_blank" rel="noopener">' + pin + esc(addr) + '</a>'
+      : '';
     return (
       '<div class="arrive-card ' + esc(slug) + '">' +
         '<div class="arrive-card-head">' +
@@ -651,6 +672,7 @@ function renderArrival(rows){
           '<h3 class="arrive-loc">' + esc(r.location || '') + '</h3>' +
           (r.badge ? '<span class="arrive-badge">' + esc(r.badge) + '</span>' : '') +
         '</div>' +
+        addrHtml +
         '<ul class="arrive-list">' + items + '</ul>' +
       '</div>'
     );
