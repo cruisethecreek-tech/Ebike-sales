@@ -27,6 +27,12 @@ img{max-width:100%;display:block}
   color:var(--dark);padding:16px 24px;display:flex;align-items:center;justify-content:space-between;
   position:sticky;top:0;z-index:100;border-bottom:1px solid rgba(0,0,0,.05)}
 .brand-logo{height:32px}
+.top-nav{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.top-nav a{padding:8px 13px;border-radius:4px;font-size:.8rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--ink-2,#3a3a3a);transition:all .2s}
+.top-nav a:hover{background:rgba(0,0,0,.05);color:var(--forest)}
+.top-nav .book{background:var(--forest);color:#fff}
+.top-nav .book:hover{background:var(--dark,#1a2e1c);color:#fff}
+@media(max-width:560px){.top-nav a{padding:7px 9px;font-size:.7rem}}
 
 /* ── HERO ── */
 .hero{position:relative;min-height:60vh;display:flex;align-items:flex-end;justify-content:center;
@@ -191,6 +197,12 @@ footer a:hover{color:#fff}
 <!-- ── TOP BAR ── -->
 <header class="topbar">
   <a href="index.html" aria-label="Cruise the Creek home"><img class="brand-logo" src="BlackonTransparent.png" alt="Cruise the Creek"></a>
+  <nav class="top-nav">
+    <a href="rentals.html">Rentals</a>
+    <a href="shop.html">Shop</a>
+    <a href="pricing.html">Pricing</a>
+    <a href="rentals.html" class="book">Book a Ride</a>
+  </nav>
 </header>
 
 <!-- ── HERO ──
