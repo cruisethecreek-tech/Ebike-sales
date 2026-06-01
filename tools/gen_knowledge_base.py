@@ -847,17 +847,14 @@ def main() -> int:
     # reliable + auto-refreshes whenever this file is redeployed).
     html_path = project_root / "goodcall-knowledge.html"
 
-    # Inject a <meta name="robots" content="noindex,nofollow"> tag into
-    # the HTML mirror so the page stays off Google (it's an internal
-    # agent-training doc, not customer-facing). Goodcall's crawler
-    # honors noindex on a per-page basis — it'll still ingest the URL
-    # because Pat pasted it manually into the dashboard.
-    html_with_robots = out_html_str.replace(
-        '<meta charset="utf-8">',
-        '<meta charset="utf-8">\n<meta name="robots" content="noindex,nofollow">',
-        1,
-    )
-    html_path.write_text(html_with_robots, encoding="utf-8")
+    # NOTE: we deliberately do NOT add a <meta name="robots" content="noindex">
+    # tag here. An earlier version did (to keep this internal doc off Google),
+    # but GoodCall's URL crawler HONORS noindex and refuses to ingest the page
+    # ("Cannot extract information from website"). Keeping the page crawlable is
+    # required for the Website-URL ingestion path to work. To keep it out of
+    # Google instead, exclude the path in robots.txt (Disallow) — that blocks
+    # search engines without tripping GoodCall's per-page extractor.
+    html_path.write_text(out_html_str, encoding="utf-8")
     print(f"[ok] wrote {html_path.name} ({html_path.stat().st_size // 1024} KB)")
 
     try:
