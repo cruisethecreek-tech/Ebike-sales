@@ -152,6 +152,9 @@ main{flex:1;max-width:1080px;width:100%;margin:0 auto;padding:36px 24px 64px}
 .buy-primary:hover{background:var(--dark)}
 .buy-secondary{background:transparent;color:var(--forest);border:2px solid var(--forest)}
 .buy-secondary:hover{background:var(--forest);color:#fff}
+/* "Need it longer?" band — tan accent so the two bands read distinctly */
+.longer-band{margin-top:54px;background:#fff;border-color:rgba(201,169,110,.4)}
+.longer-band + .buy-band{margin-top:16px}
 
 .foot-cta{margin-top:54px;text-align:center;background:var(--forest);color:#fff;
   border-radius:14px;padding:40px 26px;overflow:hidden;position:relative}
@@ -211,6 +214,19 @@ footer a{color:var(--tan);font-weight:500}footer a:hover{color:#fff}
   <h2 class="section-title" data-cms-text="section_title">Pick Your Location</h2>
 
   <div class="price-grid" id="priceGrid"></div>
+
+  <section class="buy-band longer-band">
+    <div class="buy-inner">
+      <div class="buy-copy">
+        <div class="buy-eyebrow" data-cms-text="pricing_longer_eyebrow">Need it longer?</div>
+        <h2 class="buy-title" data-cms-text="pricing_longer_title">Take it for a day, a week, or the whole road trip.</h2>
+        <p class="buy-sub" data-cms-text="pricing_longer_sub">Hourly's great for a quick spin — but our Extended Odyssey rentals let you keep a foldable e-bike for a half-day, a full week, or anywhere in between. Drive it anywhere and ride wherever the weekend takes you.</p>
+      </div>
+      <div class="buy-btns">
+        <a class="buy-primary" data-cms-text="pricing_longer_btn_label" data-cms-href="pricing_longer_btn_url" href="long-term-rental.html">See Extended Odyssey</a>
+      </div>
+    </div>
+  </section>
 
   <section class="buy-band">
     <div class="buy-inner">
