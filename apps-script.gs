@@ -3149,17 +3149,21 @@ function getTabDefs() {
       //   icon:     emoji shown next to the location name.
       //   location: card heading (e.g. "Kirk Road").
       //   badge:    small pill, top-right (e.g. "Reservations required").
+      //   address:  street address, shown as a tappable Google Maps link.
+      //   map_url:  optional — override the auto-generated maps link.
       //   points:   the instruction lines — ONE PER bullet, separated by a
       //             pipe "|". Keep each line a full sentence.
-      header: ['order','slug','icon','location','badge','points'],
+      header: ['order','slug','icon','location','badge','address','map_url','points'],
       rows: [
         [1, 'kirk', '📍', 'Kirk Road', 'Reservations recommended',
+          '6685 Kirk Road, Canfield, OH 44406', '',
           'Reservations are required, but walk-ups can be accommodated under the right circumstances — text us first to check availability.' +
           '|Parking is available on the lower level. From there, walk up the hill or take the steps to our location.' +
           '|Please arrive 15 minutes early for a quick safety tutorial before your ride.'],
         [2, 'bears', '🚐', 'Bears Den', 'Reservations required',
+          'Scholl Recreation Pavilion, Bears Den Road, Youngstown, OH 44511', '',
           'Strictly a pickup & drop-off location, so reservations are required — no walk-ups.' +
-          '|Park in front of the Schöll Recreational Pavilion. Your e-bikes will be delivered right to the pavilion.' +
+          '|Park in front of the Scholl Recreation Pavilion. Your e-bikes will be delivered right to the pavilion.' +
           '|Please arrive 15 minutes early for a quick safety tutorial before your ride.'],
       ],
     },
