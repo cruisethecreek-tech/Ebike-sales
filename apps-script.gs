@@ -290,6 +290,8 @@ function _doGetInner(e, action) {
                          }),
     odysseyPricing:    readSheet(ss, 'OdysseyPricing')
                          .sort(function(a, b){ return (a.order || 0) - (b.order || 0); }),
+    odysseyTrips:      readSheet(ss, 'OdysseyTrips')
+                         .sort(function(a, b){ return (a.order || 0) - (b.order || 0); }),
     events:            events,
     galleries:         galleries,
     apparelProducts:   readSheet(ss, 'ApparelProducts')
@@ -3240,6 +3242,32 @@ function getTabDefs() {
         ['step-thru', 8, '1 Week Odyssey',  '', '$400'],
       ],
     },
+    'OdysseyTrips': {
+      // "Bring it anywhere" trip cards on long-term-rental.html. One row per
+      // destination card. Add/remove rows freely.
+      //   order: left-to-right card order.
+      //   tag:   small green eyebrow (e.g. "Weekend trip").
+      //   name:  destination heading (e.g. "Pittsburgh, PA").
+      //   meta:  drive-distance + highlights line.
+      //   desc:  the paragraph under the meta line.
+      //   photo: filename in /media/ (e.g. "odyssey-trip-pittsburgh.jpg")
+      //          or a full https URL. Leave blank for the grey placeholder.
+      header: ['order','tag','name','meta','desc','photo'],
+      rows: [
+        [1, 'Weekend trip', 'Pittsburgh, PA',
+          '~70 mi drive · Strip District, Three Rivers Trail, Mt Washington',
+          "Park downtown, ride the Great Allegheny Passage trailhead, hit the Strip District for pierogi, scoot up Grandview for the view. The bike makes a one-day-as-two-day.",
+          'odyssey-trip-pittsburgh.jpg'],
+        [2, 'Day trip', 'Lake Erie shoreline',
+          '~75 mi drive · Edgewater Park, Cleveland Metroparks, Headlands Beach',
+          "Drive up, unfold, ride the Cleveland Lakefront Bikeway end to end. Pack a swimsuit — the lake is doing the heavy lifting on a hot day.",
+          'odyssey-trip-cleveland.jpg'],
+        [3, 'Multi-day', 'Hocking Hills, OH',
+          "~3 hr drive · Old Man's Cave, Conkle's Hollow, state park roads",
+          "Rent the cabin, bring the bike. The state park roads connect every trailhead — no shuttling, no parking circles. A 3-Day Odyssey covers a long weekend with room to wander.",
+          'odyssey-trip-hockinghills.jpg'],
+      ],
+    },
     'Admin': {
       // Internal admin tools — not customer-facing, never rendered on the
       // live site. This tab is here just so the URLs you need are always
@@ -4613,7 +4641,7 @@ function _organizeTabs() {
     { color: '#fbbc04', label: 'Page menus',
       tabs: ['Home_Tiles','Home_Submenus','Shop_Tiles','Shop_Submenus','Rentals_Tiles','Rentals_Submenus'] },
     { color: '#34a853', label: 'Page content',
-      tabs: ['Services','Steps','Faqs','Journeys','Venues','Supporters','Sponsors','SponsorPackages','RentalsVibe','Pricing','PricingTiers','PricingExtras','PricingRiders','OdysseyPricing','Accessories'] },
+      tabs: ['Services','Steps','Faqs','Journeys','Venues','Supporters','Sponsors','SponsorPackages','RentalsVibe','Pricing','PricingTiers','PricingExtras','PricingRiders','OdysseyPricing','OdysseyTrips','Accessories'] },
     { color: '#4285f4', label: 'Catalogs',
       tabs: ['ApparelProducts','ApparelColors','ApparelPlacements','Direct_Inventory','BookingLinks','Booking_Troubleshooting'] },
     { color: '#a142f4', label: 'Bridge the Gap config',
