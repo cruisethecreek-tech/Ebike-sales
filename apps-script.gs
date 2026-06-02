@@ -1369,7 +1369,55 @@ function handleInvoiceCreated(p) {
       console.warn('Invoice notify email failed: ' + mailErr);
     }
 
-    // Discord embed. Items truncated to fit the 1024-char field cap.
+    // ── Customer auto-receipt ──────────────────────────────────────
+    // Send the customer a clean copy of their invoice details + the
+    // payment link (if any). Skipped silently when no email was entered
+    // (cash/walk-up invoices). Best-effort: a failure here never blocks
+    // invoice creation or the staff notification above.
+    if (email) {
+      try {
+        const balanceLine = (paymentMode === 'paidInFullCash')
+          ? 'Paid in full — thank you!'
+          : (balanceDue > 0 ? 'Balance due: $' + balanceDue.toFixed(2) : 'Amount due: $' + total.toFixed(2));
+        const payLine = (paymentLink && paymentMode !== 'paidInFullCash')
+          ? ['', 'Pay online securely here:', paymentLink].join('\n')
+          : '';
+        const depositLine = (deposit > 0)
+          ? 'Deposit received: $' + deposit.toFixed(2) + (dMethod ? ' (' + dMethod + ')' : '')
+          : '';
+        const custBody = [
+          'Hi ' + customer + ',',
+          '',
+          'Thanks for your business with Cruise the Creek! Here are your invoice details:',
+          '',
+          'Invoice #: ' + num,
+          invDate ? 'Date:      ' + invDate : '',
+          '',
+          'Items:',
+          itemsText || '  · (see staff for itemized details)',
+          '',
+          'Total:     $' + total.toFixed(2),
+          depositLine,
+          balanceLine,
+          payLine,
+          '',
+          'Questions about this invoice? Reply to this email or call/text our sales desk at ' +
+            (getSiteConfigValue_('sales_phone_display') || '330-406-9682') + '.',
+          '',
+          'Cruise the Creek',
+          'cruisethecreek.com',
+        ].filter(function(l){ return l !== ''; }).join('\n');
+        MailApp.sendEmail({
+          to:      email,
+          replyTo: 'salesteam@cruisethecreek.com',
+          subject: 'Your Cruise the Creek invoice — ' + num,
+          name:    'Cruise the Creek',
+          body:    custBody,
+        });
+      } catch (custMailErr) {
+        console.warn('Customer receipt email failed: ' + custMailErr);
+      }
+    }
     var itemsForDiscord = itemsText || '(none)';
     if (itemsForDiscord.length > 1020) itemsForDiscord = itemsForDiscord.substring(0, 1017) + '...';
     const fields = [
