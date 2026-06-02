@@ -953,22 +953,22 @@
                 <div class="form-section">
                     <div class="section-title">Bill To</div>
                     <div class="form-group" style="margin-bottom: 0.85rem;">
-                        <label for="customerName">Customer Name *</label>
-                        <input type="text" id="customerName" required>
+                        <label for="customerName">Customer Name</label>
+                        <input type="text" id="customerName">
                     </div>
                     <div class="form-grid">
                         <div class="form-group">
-                            <label for="customerEmail">Email *</label>
-                            <input type="email" id="customerEmail" required>
+                            <label for="customerEmail">Email</label>
+                            <input type="email" id="customerEmail">
                         </div>
                         <div class="form-group">
-                            <label for="customerPhone">Phone *</label>
-                            <input type="tel" id="customerPhone" required>
+                            <label for="customerPhone">Phone</label>
+                            <input type="tel" id="customerPhone">
                         </div>
                     </div>
                     <div class="form-group" style="margin-top: 0.85rem;">
-                        <label for="customerAddress">Address *</label>
-                        <input type="text" id="customerAddress" placeholder="Street, city, state, zip" required>
+                        <label for="customerAddress">Address</label>
+                        <input type="text" id="customerAddress" placeholder="Street, city, state, zip">
                     </div>
                 </div>
 
@@ -976,18 +976,18 @@
                     <div class="section-title">Invoice Details</div>
                     <div class="form-grid">
                         <div class="form-group">
-                            <label for="invoiceNumber">Invoice Number *</label>
-                            <input type="text" id="invoiceNumber" value="CTR-001" required>
+                            <label for="invoiceNumber">Invoice Number</label>
+                            <input type="text" id="invoiceNumber" value="CTR-001">
                         </div>
                         <div class="form-group">
-                            <label for="invoiceDate">Invoice Date *</label>
-                            <input type="date" id="invoiceDate" required>
+                            <label for="invoiceDate">Invoice Date</label>
+                            <input type="date" id="invoiceDate">
                         </div>
                     </div>
                     <div class="form-grid" style="margin-top: 0.85rem;">
                         <div class="form-group">
-                            <label for="dueDate">Due Date *</label>
-                            <input type="date" id="dueDate" required>
+                            <label for="dueDate">Due Date</label>
+                            <input type="date" id="dueDate">
                         </div>
                         <div class="form-group">
                             <label for="notes">Payment Notes</label>
@@ -1262,9 +1262,9 @@
                 } catch (e) { /* ignore unparseable specs */ }
             }
             newItem.innerHTML = `
-                <input type="text" class="description" placeholder="Description" value="${safeDesc}" required>
-                <input type="number" class="quantity" value="${safeQty}" min="1" required>
-                <input type="number" class="price" step="0.01" placeholder="0.00" value="${safePrice}" required>
+                <input type="text" class="description" placeholder="Description" value="${safeDesc}">
+                <input type="number" class="quantity" value="${safeQty}" min="1">
+                <input type="number" class="price" step="0.01" placeholder="0.00" value="${safePrice}">
                 <button type="button" class="remove-btn" onclick="removeLineItem(this)" title="Remove">&times;</button>
             `;
             container.appendChild(newItem);
@@ -1612,6 +1612,14 @@
                 } finally {
                     submitBtn.disabled = false;
                 }
+                return;
+            }
+
+            // Stripe requires a customer email to create + send the invoice
+            // (and it's where the auto-receipt goes). All other fields are
+            // optional, but this one path can't proceed without it.
+            if (!invoiceData.customerEmail || !invoiceData.customerEmail.trim()) {
+                showStatus('A customer email is required to create a Stripe invoice (that\'s where the receipt and payment link are sent). Add an email, or choose "Paid in Full (Cash/Check)" if no online payment is needed.', 'error');
                 return;
             }
 
