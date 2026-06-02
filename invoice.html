@@ -585,6 +585,29 @@
         .copy-btn.outline:hover { background: var(--copper); color: var(--op-bg); }
         .copy-btn.copied { background: var(--success); border-color: var(--success); }
 
+        .in-person-note {
+            margin-top: 1rem;
+            padding: 0.85rem 0.9rem;
+            background: rgba(74, 139, 106, 0.08);
+            border: 1px solid rgba(74, 139, 106, 0.3);
+            border-left: 3px solid var(--success);
+            border-radius: 4px;
+            font-size: 0.78rem;
+            line-height: 1.5;
+            color: var(--copper-light);
+        }
+
+        .in-person-note-label {
+            display: block;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.7rem;
+            color: var(--success);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            font-weight: 600;
+            margin-bottom: 0.4rem;
+        }
+
         /* CUSTOMER SIDE */
         .invoice-preview {
             background: var(--cust-panel);
@@ -1117,6 +1140,13 @@
                     <div class="payment-link-display" id="paymentLinkDisplay"></div>
                     <button type="button" class="copy-btn" onclick="copyPaymentLink()">Copy Link</button>
                     <button type="button" class="copy-btn outline" onclick="openPaymentLink()">Open in Browser</button>
+                    <div class="in-person-note">
+                        <span class="in-person-note-label">Taking the card in person?</span>
+                        You don't need this link. Open the <strong>Stripe Dashboard app</strong> &rarr;
+                        <strong>Invoices</strong>, find this invoice, tap <strong>Collect payment</strong>,
+                        choose your <strong>Stripe Reader</strong>, and have the customer tap / insert their card.
+                        The invoice marks itself paid and the receipt sends automatically.
+                    </div>
                 </div>
             </form>
         </div>

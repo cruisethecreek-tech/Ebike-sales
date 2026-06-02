@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>How to Take a Card Payment &mdash; Cruise the Creek</title>
+<style>
+    :root {
+        --forest: #28503c;
+        --forest-dark: #1d3c2c;
+        --copper: #b47850;
+        --copper-dark: #8f5e3e;
+        --success: #4a8b6a;
+        --ink: #1a1f1c;
+        --dim: #5c6660;
+        --line: #e8e2d6;
+        --paper: #ffffff;
+        --wash: #faf7f2;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+        background: var(--wash);
+        color: var(--ink);
+        line-height: 1.45;
+        padding: 1.5rem;
+    }
+
+    .sheet {
+        max-width: 720px;
+        margin: 0 auto;
+        background: var(--paper);
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 2rem 2.25rem;
+    }
+
+    header {
+        border-bottom: 3px solid var(--forest);
+        padding-bottom: 0.9rem;
+        margin-bottom: 1.25rem;
+    }
+
+    .kicker {
+        font-size: 0.7rem;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        color: var(--copper);
+        font-weight: 700;
+    }
+
+    h1 {
+        font-size: 1.55rem;
+        color: var(--forest-dark);
+        margin-top: 0.2rem;
+    }
+
+    h2 {
+        font-size: 0.78rem;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--copper-dark);
+        margin: 1.5rem 0 0.6rem;
+        border-bottom: 1px solid var(--line);
+        padding-bottom: 0.3rem;
+    }
+
+    ol.steps {
+        list-style: none;
+        counter-reset: step;
+    }
+
+    ol.steps > li {
+        counter-increment: step;
+        position: relative;
+        padding: 0.55rem 0 0.55rem 2.6rem;
+        border-bottom: 1px dashed var(--line);
+    }
+
+    ol.steps > li:last-child { border-bottom: none; }
+
+    ol.steps > li::before {
+        content: counter(step);
+        position: absolute;
+        left: 0;
+        top: 0.5rem;
+        width: 1.8rem;
+        height: 1.8rem;
+        background: var(--forest);
+        color: #fff;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 0.95rem;
+    }
+
+    .step-title { font-weight: 700; }
+    .step-sub { color: var(--dim); font-size: 0.9rem; }
+
+    strong.hi { color: var(--forest-dark); }
+
+    .callout {
+        background: rgba(74, 139, 106, 0.08);
+        border: 1px solid rgba(74, 139, 106, 0.3);
+        border-left: 4px solid var(--success);
+        border-radius: 4px;
+        padding: 0.85rem 1rem;
+        margin-top: 1.25rem;
+        font-size: 0.9rem;
+    }
+
+    .callout .lbl {
+        display: block;
+        font-size: 0.68rem;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--success);
+        font-weight: 700;
+        margin-bottom: 0.3rem;
+    }
+
+    .two-col {
+        display: flex;
+        gap: 1.5rem;
+        flex-wrap: wrap;
+    }
+    .two-col > div { flex: 1; min-width: 240px; }
+
+    ul.tidy { list-style: none; }
+    ul.tidy li {
+        padding: 0.3rem 0 0.3rem 1.2rem;
+        position: relative;
+        font-size: 0.9rem;
+    }
+    ul.tidy li::before {
+        content: "\2713";
+        position: absolute;
+        left: 0;
+        color: var(--success);
+        font-weight: 700;
+    }
+
+    .trouble dt { font-weight: 700; font-size: 0.9rem; margin-top: 0.6rem; }
+    .trouble dd { color: var(--dim); font-size: 0.88rem; margin-left: 0; }
+
+    footer {
+        margin-top: 1.5rem;
+        padding-top: 0.9rem;
+        border-top: 1px solid var(--line);
+        font-size: 0.78rem;
+        color: var(--dim);
+        display: flex;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+
+    .print-hint {
+        max-width: 720px;
+        margin: 0 auto 1rem;
+        text-align: right;
+    }
+    .print-hint button {
+        background: var(--forest);
+        color: #fff;
+        border: none;
+        padding: 0.5rem 1.1rem;
+        border-radius: 6px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        cursor: pointer;
+    }
+
+    @media print {
+        body { background: #fff; padding: 0; font-size: 11.5px; }
+        .sheet { border: none; border-radius: 0; padding: 0.5in; max-width: none; }
+        .print-hint { display: none; }
+        h2 { margin-top: 1rem; }
+    }
+</style>
+</head>
+<body>
+
+<div class="print-hint">
+    <button onclick="window.print()">Print this sheet</button>
+</div>
+
+<div class="sheet">
+    <header>
+        <div class="kicker">Cruise the Creek &mdash; Shop Reference</div>
+        <h1>How to Take a Card Payment in Person</h1>
+    </header>
+
+    <p>Every invoice you create works two ways &mdash; the customer can pay the
+    online link, <em>or</em> you can run their card right here at the shop with the
+    <strong class="hi">Stripe Reader</strong>. It's the same invoice either way; you
+    just pick how to collect.</p>
+
+    <h2>Take a card in 5 steps</h2>
+    <ol class="steps">
+        <li>
+            <div class="step-title">Create the invoice</div>
+            <div class="step-sub">Use the invoice tool as usual. It creates a real Stripe invoice for the customer.</div>
+        </li>
+        <li>
+            <div class="step-title">Open the Stripe Dashboard app</div>
+            <div class="step-sub">On your phone or tablet &rarr; tap <strong class="hi">Invoices</strong> &rarr; find the invoice you just made.</div>
+        </li>
+        <li>
+            <div class="step-title">Tap &ldquo;Collect payment&rdquo;</div>
+            <div class="step-sub">Then choose your paired <strong class="hi">Stripe Reader</strong> from the list.</div>
+        </li>
+        <li>
+            <div class="step-title">Customer taps, inserts, or swipes</div>
+            <div class="step-sub">The reader handles the card. Wait for the green checkmark.</div>
+        </li>
+        <li>
+            <div class="step-title">Done &mdash; it's automatic</div>
+            <div class="step-sub">The invoice flips to <strong class="hi">Paid</strong>, the sale is logged, and the customer's receipt emails itself.</div>
+        </li>
+    </ol>
+
+    <div class="callout">
+        <span class="lbl">Remember</span>
+        You do <strong>not</strong> need the payment link to take a card in person.
+        The link is only for customers paying online later. In person = Dashboard &rarr;
+        Collect payment &rarr; Reader.
+    </div>
+
+    <div class="two-col">
+        <div>
+            <h2>First time each day</h2>
+            <ul class="tidy">
+                <li>Power on the reader (hold the button until lights come on).</li>
+                <li>Open the Stripe Dashboard app &rarr; Terminal.</li>
+                <li>Confirm the reader shows as <strong>connected</strong>.</li>
+                <li>If not, tap <strong>Connect a reader</strong> and pick it from Bluetooth.</li>
+            </ul>
+        </div>
+        <div>
+            <h2>If something goes wrong</h2>
+            <dl class="trouble">
+                <dt>Reader won't connect</dt>
+                <dd>Make sure Bluetooth is on and the reader is charged. Power it off and back on.</dd>
+                <dt>Card declined</dt>
+                <dd>Ask for another card, or send the customer the online payment link instead.</dd>
+                <dt>Receipt didn't arrive</dt>
+                <dd>Check the email on the invoice was correct. You can resend from the Dashboard.</dd>
+            </dl>
+        </div>
+    </div>
+
+    <footer>
+        <span>Cruise the Creek &middot; cruisethecreek.com</span>
+        <span>Keep this by the register</span>
+    </footer>
+</div>
+
+</body>
+</html>
