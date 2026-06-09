@@ -1042,29 +1042,47 @@ function handleBridgeApplication(p) {
     // the row in the Sheet is still the source of truth.
     try {
       const fullName = (row.first_name + ' ' + row.last_name).trim() || '(no name)';
+      const usd = function(v) {
+        const n = parseFloat(String(v).replace(/[^0-9.\-]/g, ''));
+        return isFinite(n) ? '$' + n.toFixed(2) : '(tbd)';
+      };
+      const bikeName = row.bike_name || row.bike_selection || '(none selected)';
+      const planLines = (row.total_value || row.biweekly_rate)
+        ? [
+            'Total value:  ' + usd(row.total_value),
+            'Payments:     ' + (row.num_payments || '15') + ' bi-weekly × ' + usd(row.biweekly_rate),
+          ]
+        : ['Pricing:      (none submitted — applicant didn\'t use the calculator)'];
       const body = [
         'New Bridge the Gap application — ' + row.id,
         '',
-        'Applicant:    ' + fullName,
+        '— APPLICANT —',
+        'Name:         ' + fullName,
         'Email:        ' + (row.email || '(missing)'),
         'Phone:        ' + (row.phone || '(missing)'),
         'Birthday:     ' + (row.birthday || '(missing)'),
-        '',
         'Address:      ' + (row.address || '(missing)'),
         '              ' + (row.city || '?') + ', OH ' + (row.zip || '?'),
         '',
-        'Bike pick:    ' + (row.bike_selection || '(none selected)'),
+        '— RENT-TO-OWN PLAN —',
+        'Bike:         ' + bikeName,
+        'Add-ons:      ' + (row.accessories || '(none)'),
+      ].concat(planLines).concat([
         '',
-        'Primary need for the e-bike:',
+        'Agreement:    ' + (agreementUrl ||
+          '(not generated — set btg_agreement_template_id in SiteConfig)'),
+        '',
+        '— WHY THEY NEED IT —',
         (row.primary_need || '(blank)'),
         '',
         'Logged at ' + row.timestamp + ' (Bridge_Applications tab, status=new)',
         'Reply within 24–48 hours per the page promise.',
-      ].join('\n');
+      ]).join('\n');
       MailApp.sendEmail({
         to:      'info@cruisethecreek.com,salesteam@cruisethecreek.com',
         replyTo: row.email || 'info@cruisethecreek.com',
-        subject: 'Bridge the Gap application ' + row.id + ' — ' + fullName + ' · ' + (row.bike_selection || 'no bike picked'),
+        subject: 'Bridge the Gap — ' + fullName + ' · ' + bikeName +
+                 (row.total_value ? ' · ' + usd(row.total_value) : '') + ' (' + row.id + ')',
         body:    body,
       });
     } catch (mailErr) {
@@ -1081,11 +1099,17 @@ function handleBridgeApplication(p) {
             ((row.first_name + ' ' + row.last_name).trim() || '(name missing)') +
             (row.phone ? '\n📞 ' + row.phone : '') +
             (row.email ? '\n✉️ ' + row.email : ''), inline: false },
-        { name: '🚲 Bike pick',    value: row.bike_selection || '(none)',     inline: true },
+        { name: '🚲 Bike',         value: row.bike_name || row.bike_selection || '(none)', inline: true },
         { name: '🎂 Birthday',     value: row.birthday || '(missing)',         inline: true },
         { name: '📍 City / Zip',   value: (row.city || '?') + ' · ' + (row.zip || '?'), inline: true },
+        { name: '🧰 Add-ons',      value: row.accessories || '(none)',         inline: false },
+        { name: '💵 Plan',         value: (row.total_value
+            ? '$' + (parseFloat(row.total_value) || 0).toFixed(2) + ' · ' +
+              (row.num_payments || '15') + ' bi-weekly × $' + (parseFloat(row.biweekly_rate) || 0).toFixed(2)
+            : '(no pricing submitted)'), inline: false },
         { name: '🏠 Address',      value: row.address || '(missing)',          inline: false },
         { name: '🎯 Primary need', value: row.primary_need || '(blank)',       inline: false },
+        { name: '📄 Agreement',    value: agreementUrl || '(not generated yet)', inline: false },
       ],
       'Reply within 24–48 hours — text the applicant'
     );
