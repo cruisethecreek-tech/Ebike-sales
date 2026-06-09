@@ -272,6 +272,8 @@ function _doGetInner(e, action) {
     bridgeFeatures:    bridgeFeatures,
     bridgeCompare:     bridgeCompare,
     bridgeBikeOptions: bridgeBikeOptions,
+    bridgeAccessories: readSheet(ss, 'Bridge_Accessories')
+                         .sort(function(a, b){ return (a.order || 0) - (b.order || 0); }),
     journeys:          journeys,
     supporters:        supporters,
     sponsors:          sponsors,
@@ -1001,6 +1003,16 @@ function handleBridgeApplication(p) {
       status:        'new',
     };
 
+    // Curated rent-to-own pricing computed on bridge-the-gap.html from the
+    // sheet-driven bike base price + chosen Bridge_Accessories. Stored as-is
+    // and fed into the agreement Doc. (Phase 2 will re-validate these against
+    // the sheet server-side before any Stripe charge is created.)
+    row.bike_name      = String(p.bike_name      || row.bike_selection).trim();
+    row.accessories    = String(p.accessories    || '').trim();   // comma-separated names
+    row.total_value    = String(p.total_value    || '').trim();   // e.g. "825.00"
+    row.biweekly_rate  = String(p.biweekly_rate  || '').trim();   // e.g. "55.00"
+    row.num_payments   = String(p.num_payments   || '').trim();   // e.g. "15"
+
     // Auto-draft the Rent-to-Own Agreement Google Doc from the applicant's
     // info. No-op (returns '') until the template + folder IDs are set in
     // SiteConfig, so this never blocks an application from landing.
@@ -1016,13 +1028,15 @@ function handleBridgeApplication(p) {
       sh = ss.insertSheet('Bridge_Applications');
       sh.appendRow(['id','timestamp','first_name','last_name','email','phone',
                     'birthday','address','city','zip','primary_need',
-                    'bike_selection','status','agreement_doc_url']);
-      sh.getRange(1, 1, 1, 14).setFontWeight('bold');
+                    'bike_selection','status','agreement_doc_url',
+                    'accessories','total_value','biweekly_rate','num_payments']);
+      sh.getRange(1, 1, 1, 18).setFontWeight('bold');
     }
     sh.appendRow([row.id, row.timestamp, row.first_name, row.last_name,
                   row.email, row.phone, row.birthday, row.address,
                   row.city, row.zip, row.primary_need,
-                  row.bike_selection, row.status, agreementUrl]);
+                  row.bike_selection, row.status, agreementUrl,
+                  row.accessories, row.total_value, row.biweekly_rate, row.num_payments]);
 
     // Notify the team. Mail failure logs but doesn't sink the request —
     // the row in the Sheet is still the source of truth.
@@ -1117,6 +1131,15 @@ function generateBridgeAgreement_(row) {
     ? tmpl.makeCopy(copyName, DriveApp.getFolderById(folderId))
     : tmpl.makeCopy(copyName);
 
+  // Curated rent-to-own pricing → contract deal terms. Money values render as
+  // "$xxx.xx"; blanks stay blank so the placeholder is obvious if unset.
+  const usd = function(v) {
+    const n = parseFloat(String(v).replace(/[^0-9.\-]/g, ''));
+    return isFinite(n) ? '$' + n.toFixed(2) : '';
+  };
+  const bikeName = (row.bike_name || row.bike_selection || '').trim();
+  const item = bikeName + (row.accessories ? ' with ' + row.accessories : '');
+
   const doc  = DocumentApp.openById(copy.getId());
   const body = doc.getBody();
   const map = {
@@ -1130,7 +1153,13 @@ function generateBridgeAgreement_(row) {
     state:          'OH',
     zip:            row.zip,
     dob:            row.birthday,
-    bike_selection: row.bike_selection,
+    bike_selection: bikeName,
+    accessories:    row.accessories,
+    item:           item,
+    total_value:    usd(row.total_value),
+    total_cost:     usd(row.total_value),   // rent-to-own cost = total value (no markup)
+    biweekly_rate:  usd(row.biweekly_rate),
+    num_payments:   row.num_payments,
     id:             row.id,
     date:           Utilities.formatDate(new Date(), 'America/New_York', 'MM/dd/yyyy'),
   };
@@ -1182,7 +1211,10 @@ function testAgreementDoc() {
     first_name: 'Sample', last_name: 'Applicant',
     email: 'sample@example.com', phone: '330-555-0100',
     birthday: '01/01/1990', address: '123 Test St', city: 'Youngstown', zip: '44512',
-    primary_need: 'Test run', bike_selection: 'City-Cruiser',
+    primary_need: 'Test run', bike_selection: 'step-thru',
+    bike_name: 'Step-Thru Style (1–20 mi)',
+    accessories: 'Carrying Bag, Bike Lock, Mirror, Comfy Seat, Charger',
+    total_value: '900', biweekly_rate: '60', num_payments: '15',
   };
   const url = generateBridgeAgreement_(sampleRow);
   console.log('✅ Generated test agreement: ' + url);
@@ -2664,6 +2696,10 @@ function getTabDefs() {
         //                 Blank = saved to My Drive root.
         ['btg_agreement_template_id', ''],
         ['btg_agreement_folder_id',   ''],
+        // Number of bi-weekly payments in the rent-to-own term. The bike +
+        // accessories total is split across this many payments (the page
+        // markets "own your e-bike after 15 bi-weekly payments").
+        ['btg_num_payments',          '15'],
       ],
     },
     'Photos': {
@@ -2917,24 +2953,47 @@ function getTabDefs() {
       //   id              — slug submitted as bike_selection (e.g. "step-over")
       //   image           — full URL to the bike photo
       //   name            — short heading on the card (e.g. "Step-Over")
-      //   range           — secondary line (e.g. "Best for 1–12 mi (one way)")
-      //   price + period  — large price on the card (e.g. "$50" + " /biweekly")
-      //   selection_label — label shown after the rider picks (e.g. "Step-Over Style (1–12 mi)")
-      //   selection_price — price shown next to it (e.g. "$50/Biweekly")
-      header: ['order','id','image','name','range','price','period','selection_label','selection_price'],
+      //   range           — secondary line (e.g. "Best for 1–15 mi (one way)")
+      //   price + period  — large price on the card (e.g. "$55" + " /biweekly")
+      //   selection_label — label shown after the rider picks (e.g. "Step-Over Style (1–15 mi)")
+      //   selection_price — price shown next to it (e.g. "$55/Biweekly")
+      //   base_price      — NUMBER (no $). The bike's rent-to-own value before
+      //                     accessories. Drives the live total + agreement math
+      //                     (bi-weekly = (base + chosen accessories) ÷ btg_num_payments).
+      //                     LEAVE BLANK to hide a bike from rent-to-own until priced.
+      //                     To add a future bike: append a row, set base_price.
+      header: ['order','id','image','name','range','price','period','selection_label','selection_price','base_price'],
       rows: [
         [1, 'step-over',
           'https://static.wixstatic.com/media/7e576d_893b4902c6f14884b09276918eec5a83~mv2.jpg',
-          'Step-Over',    'Best for 1–12 mi (one way)', '$50', ' /biweekly',
-          'Step-Over Style (1–12 mi)',  '$50/Biweekly'],
+          'Step-Over',    'Best for 1–15 mi (one way)', '$55', ' /biweekly',
+          'Step-Over Style (1–15 mi)',  '$55/Biweekly', 660],
         [2, 'step-thru',
           'https://static.wixstatic.com/media/56427e_9a3de1eb837841cb9ab23814a95642b6~mv2.jpg',
-          'Step-Thru',    'Best for 1–20 mi (one way)', '$55', ' /biweekly',
-          'Step-Thru Style (1–20 mi)',  '$55/Biweekly'],
+          'Step-Thru',    'Best for 1–20 mi (one way)', '$60', ' /biweekly',
+          'Step-Thru Style (1–20 mi)',  '$60/Biweekly', 735],
         [3, 'city-cruiser',
           'https://static.wixstatic.com/media/56427e_589102c83d184885b095fc64688ef4b0~mv2.jpg',
-          'City Cruiser', 'Best for 1–25 mi (one way)', '$60', ' /biweekly',
-          'City Cruiser (1–25 mi)',     '$60/Biweekly'],
+          'City Cruiser', 'Best for 1–25 mi (one way)', '', ' /biweekly',
+          'City Cruiser (1–25 mi)',     '', ''],
+      ],
+    },
+    'Bridge_Accessories': {
+      // Bridge the Gap: optional add-ons shown as checkboxes under the bike
+      // picker. Each toggles the live Total Value + bi-weekly figure.
+      //   order      — top-to-bottom order in the list.
+      //   id         — stable slug submitted with the application.
+      //   name       — label on the checkbox (e.g. "Carrying Bag").
+      //   price      — NUMBER (no $). Added to the bike base when checked.
+      //   default_on — TRUE = checkbox starts checked (the standard bundle).
+      //   available  — FALSE hides the row without deleting it.
+      header: ['order','id','name','price','default_on','available'],
+      rows: [
+        [1, 'bag',     'Carrying Bag', 40, 'TRUE', 'TRUE'],
+        [2, 'lock',    'Bike Lock',    20, 'TRUE', 'TRUE'],
+        [3, 'mirror',  'Mirror',       25, 'TRUE', 'TRUE'],
+        [4, 'seat',    'Comfy Seat',   40, 'TRUE', 'TRUE'],
+        [5, 'charger', 'Charger',      40, 'TRUE', 'TRUE'],
       ],
     },
     'Journeys': {
@@ -3729,7 +3788,8 @@ function getTabDefs() {
       // SiteConfig). status is "new" on insert; Pat works it from there.
       header: ['id','timestamp','first_name','last_name','email','phone',
                'birthday','address','city','zip','primary_need',
-               'bike_selection','status','agreement_doc_url'],
+               'bike_selection','status','agreement_doc_url',
+               'accessories','total_value','biweekly_rate','num_payments'],
       rows: [],
     },
     'Booking_Leads': {
@@ -4882,7 +4942,7 @@ function _organizeTabs() {
     { color: '#4285f4', label: 'Catalogs',
       tabs: ['ApparelProducts','ApparelColors','ApparelPlacements','Direct_Inventory','BookingLinks','Booking_Troubleshooting'] },
     { color: '#a142f4', label: 'Bridge the Gap config',
-      tabs: ['BridgePricing','BridgeGaps','BridgeFeatures','BridgeCompare','BridgeBikeOptions'] },
+      tabs: ['BridgePricing','BridgeGaps','BridgeFeatures','BridgeCompare','BridgeBikeOptions','Bridge_Accessories'] },
   ];
 
   // Build / rebuild the Dashboard tab first so its gid is stable for
