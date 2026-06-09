@@ -2603,6 +2603,19 @@ function getTabDefs() {
         ['pricing_buy_btn_url',   'shop.html'],
         ['pricing_buy_btn2_label','Own it over time'],
         ['pricing_buy_btn2_url',  'bridge-the-gap.html'],
+
+        ['── BRIDGE THE GAP · AGREEMENT DOC AUTOMATION ──', ''],
+        // Drives generateBridgeAgreement_(): when a Bridge the Gap
+        // application lands, the handler copies the template Doc, fills
+        // {{placeholders}} with the applicant's info, and logs the new
+        // Doc's URL in the Bridge_Applications.agreement_doc_url column.
+        //   template_id = file ID of the Rent-to-Own Agreement template
+        //                 Google Doc (from its URL). Leave blank to keep
+        //                 doc generation OFF — applications still log.
+        //   folder_id   = (optional) Drive folder ID for filled docs.
+        //                 Blank = saved to My Drive root.
+        ['btg_agreement_template_id', ''],
+        ['btg_agreement_folder_id',   ''],
       ],
     },
     'Photos': {
@@ -3657,6 +3670,18 @@ function getTabDefs() {
       // or the print is a "Coming Soon" notify-me row).
       header: ['id','timestamp','first','last','email','phone',
                'product','color','size','placement','qty','total','comments','paymentLink'],
+      rows: [],
+    },
+    'Bridge_Applications': {
+      // Bridge the Gap rent-to-own applications. Header only — rows are
+      // appended at submission time by handleBridgeApplication(). The id
+      // column is generated server-side (BTG-yyMMdd-HHmmss).
+      // agreement_doc_url holds the auto-drafted Rent-to-Own Agreement
+      // Google Doc link (blank until btg_agreement_template_id is set in
+      // SiteConfig). status is "new" on insert; Pat works it from there.
+      header: ['id','timestamp','first_name','last_name','email','phone',
+               'birthday','address','city','zip','primary_need',
+               'bike_selection','status','agreement_doc_url'],
       rows: [],
     },
     'Booking_Leads': {
