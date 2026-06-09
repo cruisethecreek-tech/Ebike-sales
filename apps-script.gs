@@ -1001,18 +1001,28 @@ function handleBridgeApplication(p) {
       status:        'new',
     };
 
+    // Auto-draft the Rent-to-Own Agreement Google Doc from the applicant's
+    // info. No-op (returns '') until the template + folder IDs are set in
+    // SiteConfig, so this never blocks an application from landing.
+    let agreementUrl = '';
+    try {
+      agreementUrl = generateBridgeAgreement_(row);
+    } catch (docErr) {
+      console.warn('Bridge agreement doc generation failed: ' + docErr);
+    }
+
     let sh = ss.getSheetByName('Bridge_Applications');
     if (!sh) {
       sh = ss.insertSheet('Bridge_Applications');
       sh.appendRow(['id','timestamp','first_name','last_name','email','phone',
                     'birthday','address','city','zip','primary_need',
-                    'bike_selection','status']);
-      sh.getRange(1, 1, 1, 13).setFontWeight('bold');
+                    'bike_selection','status','agreement_doc_url']);
+      sh.getRange(1, 1, 1, 14).setFontWeight('bold');
     }
     sh.appendRow([row.id, row.timestamp, row.first_name, row.last_name,
                   row.email, row.phone, row.birthday, row.address,
                   row.city, row.zip, row.primary_need,
-                  row.bike_selection, row.status]);
+                  row.bike_selection, row.status, agreementUrl]);
 
     // Notify the team. Mail failure logs but doesn't sink the request —
     // the row in the Sheet is still the source of truth.
@@ -1071,6 +1081,64 @@ function handleBridgeApplication(p) {
     console.error('handleBridgeApplication failed: ' + err);
     return json({ ok: false, error: String(err) });
   }
+}
+
+/**
+ * Bridge the Gap — auto-draft a Rent-to-Own Agreement Google Doc from a
+ * Bridge_Applications row. Copies a template Doc, swaps {{placeholders}}
+ * for the applicant's info, drops the filled copy in a Drive folder, and
+ * returns its URL (logged into the row's agreement_doc_url column).
+ *
+ * ONE-TIME SETUP (in the Sheet's SiteConfig tab, key | value):
+ *   btg_agreement_template_id  →  file ID of the template Google Doc
+ *   btg_agreement_folder_id    →  (optional) Drive folder for filled docs
+ *
+ * Until btg_agreement_template_id is set this returns '' — applications
+ * still log normally, they just don't generate a doc yet.
+ *
+ * Template placeholders (type these verbatim into the template Doc):
+ *   {{full_name}} {{first_name}} {{last_name}} {{phone}} {{email}}
+ *   {{address}} {{city}} {{state}} {{zip}} {{dob}} {{bike_selection}}
+ *   {{id}} {{date}}
+ * Deal-specific fields (total value, bi-weekly rate, # of payments) are
+ * NOT captured at application time, so leave those as their own
+ * {{placeholders}} in the template for the owner to fill in by hand.
+ */
+function generateBridgeAgreement_(row) {
+  const templateId = getSiteConfigValue_('btg_agreement_template_id');
+  if (!templateId) return ''; // dormant until configured
+
+  const folderId = getSiteConfigValue_('btg_agreement_folder_id');
+  const fullName = ((row.first_name || '') + ' ' + (row.last_name || '')).trim() || 'Applicant';
+
+  const tmpl = DriveApp.getFileById(templateId);
+  const copyName = 'Bridge Agreement — ' + fullName + ' (' + row.id + ')';
+  const copy = folderId
+    ? tmpl.makeCopy(copyName, DriveApp.getFolderById(folderId))
+    : tmpl.makeCopy(copyName);
+
+  const doc  = DocumentApp.openById(copy.getId());
+  const body = doc.getBody();
+  const map = {
+    full_name:      fullName,
+    first_name:     row.first_name,
+    last_name:      row.last_name,
+    phone:          row.phone,
+    email:          row.email,
+    address:        row.address,
+    city:           row.city,
+    state:          'OH',
+    zip:            row.zip,
+    dob:            row.birthday,
+    bike_selection: row.bike_selection,
+    id:             row.id,
+    date:           Utilities.formatDate(new Date(), 'America/New_York', 'MM/dd/yyyy'),
+  };
+  Object.keys(map).forEach(function(k) {
+    body.replaceText('\\{\\{' + k + '\\}\\}', String(map[k] || ''));
+  });
+  doc.saveAndClose();
+  return copy.getUrl();
 }
 
 /**
@@ -2535,6 +2603,19 @@ function getTabDefs() {
         ['pricing_buy_btn_url',   'shop.html'],
         ['pricing_buy_btn2_label','Own it over time'],
         ['pricing_buy_btn2_url',  'bridge-the-gap.html'],
+
+        ['── BRIDGE THE GAP · AGREEMENT DOC AUTOMATION ──', ''],
+        // Drives generateBridgeAgreement_(): when a Bridge the Gap
+        // application lands, the handler copies the template Doc, fills
+        // {{placeholders}} with the applicant's info, and logs the new
+        // Doc's URL in the Bridge_Applications.agreement_doc_url column.
+        //   template_id = file ID of the Rent-to-Own Agreement template
+        //                 Google Doc (from its URL). Leave blank to keep
+        //                 doc generation OFF — applications still log.
+        //   folder_id   = (optional) Drive folder ID for filled docs.
+        //                 Blank = saved to My Drive root.
+        ['btg_agreement_template_id', ''],
+        ['btg_agreement_folder_id',   ''],
       ],
     },
     'Photos': {
@@ -3589,6 +3670,18 @@ function getTabDefs() {
       // or the print is a "Coming Soon" notify-me row).
       header: ['id','timestamp','first','last','email','phone',
                'product','color','size','placement','qty','total','comments','paymentLink'],
+      rows: [],
+    },
+    'Bridge_Applications': {
+      // Bridge the Gap rent-to-own applications. Header only — rows are
+      // appended at submission time by handleBridgeApplication(). The id
+      // column is generated server-side (BTG-yyMMdd-HHmmss).
+      // agreement_doc_url holds the auto-drafted Rent-to-Own Agreement
+      // Google Doc link (blank until btg_agreement_template_id is set in
+      // SiteConfig). status is "new" on insert; Pat works it from there.
+      header: ['id','timestamp','first_name','last_name','email','phone',
+               'birthday','address','city','zip','primary_need',
+               'bike_selection','status','agreement_doc_url'],
       rows: [],
     },
     'Booking_Leads': {
