@@ -450,23 +450,23 @@ footer a:hover{color:#fff}
     <p class="application-subtitle" data-cms-text="bridge_application_subtitle">Pick a bike style, fill out the form, and we'll be in touch within 24–48 hours.</p>
 
     <div class="bike-options" id="bikeOptionsGrid">
-      <div class="bike-option" data-bike-id="step-over" data-bike-name="Step-Over Style (1–12 mi)" data-bike-price="$50/Biweekly">
+      <div class="bike-option" data-bike-id="step-over" data-bike-name="Step-Over Style (1–15 mi)" data-bike-price="$55/Biweekly" data-bike-base="660">
         <div class="bike-img-wrap"><img src="https://static.wixstatic.com/media/7e576d_893b4902c6f14884b09276918eec5a83~mv2.jpg" alt="Step-Over E-Bike" loading="lazy"></div>
         <div class="bike-info">
           <div class="bike-name">Step-Over</div>
-          <div class="bike-range">Best for 1–12 mi (one way)</div>
-          <div class="bike-price">$50<span class="period"> /biweekly</span></div>
+          <div class="bike-range">Best for 1–15 mi (one way)</div>
+          <div class="bike-price">$55<span class="period"> /biweekly</span></div>
         </div>
       </div>
-      <div class="bike-option" data-bike-id="step-thru" data-bike-name="Step-Thru Style (1–20 mi)" data-bike-price="$55/Biweekly">
+      <div class="bike-option" data-bike-id="step-thru" data-bike-name="Step-Thru Style (1–20 mi)" data-bike-price="$60/Biweekly" data-bike-base="735">
         <div class="bike-img-wrap"><img src="https://static.wixstatic.com/media/56427e_9a3de1eb837841cb9ab23814a95642b6~mv2.jpg" alt="Step-Thru E-Bike" loading="lazy"></div>
         <div class="bike-info">
           <div class="bike-name">Step-Thru</div>
           <div class="bike-range">Best for 1–20 mi (one way)</div>
-          <div class="bike-price">$55<span class="period"> /biweekly</span></div>
+          <div class="bike-price">$60<span class="period"> /biweekly</span></div>
         </div>
       </div>
-      <div class="bike-option" data-bike-id="city-cruiser" data-bike-name="City Cruiser (1–25 mi)" data-bike-price="$60/Biweekly">
+      <div class="bike-option" data-bike-id="city-cruiser" data-bike-name="City Cruiser (1–25 mi)" data-bike-price="$60/Biweekly" data-bike-base="">
         <div class="bike-img-wrap"><img src="https://static.wixstatic.com/media/56427e_589102c83d184885b095fc64688ef4b0~mv2.jpg" alt="City Cruiser E-Bike" loading="lazy"></div>
         <div class="bike-info">
           <div class="bike-name">City Cruiser</div>
@@ -515,6 +515,24 @@ footer a:hover{color:#fff}
         <input type="hidden" id="bike-selection" name="bike_selection" required>
       </div>
 
+      <div class="form-group accessories-group" id="accessoriesGroup" hidden>
+        <span class="bike-selection-label">Add-ons <span class="acc-optional">(optional — included by default)</span></span>
+        <div id="accessoriesList" class="accessories-list"></div>
+      </div>
+
+      <div class="plan-summary" id="planSummary" hidden>
+        <div class="plan-row plan-total"><span>Total value</span><b id="plan-total-value">$0.00</b></div>
+        <div class="plan-row plan-biweekly"><span id="plan-biweekly-label">Bi-weekly payment</span><b id="plan-biweekly">$0.00</b></div>
+        <div class="plan-note" id="plan-note"></div>
+      </div>
+
+      <!-- Curated pricing carried to handleBridgeApplication + the agreement Doc -->
+      <input type="hidden" name="bike_name"     id="f-bike-name">
+      <input type="hidden" name="accessories"   id="f-accessories">
+      <input type="hidden" name="total_value"   id="f-total-value">
+      <input type="hidden" name="biweekly_rate" id="f-biweekly-rate">
+      <input type="hidden" name="num_payments"  id="f-num-payments">
+
       <button type="submit" id="submit-btn" class="submit-btn">Submit Application</button>
       <p class="form-note">We'll review your application and reach out within 24–48 hours from <strong data-cms-text="info_phone_display">330-406-9686</strong> to schedule pickup and orientation.</p>
     </form>
@@ -541,6 +559,25 @@ footer a:hover{color:#fff}
   </div>
 </div>
 
+<style>
+.acc-optional{font-weight:400;color:var(--ink-3,#7a7a7a);font-size:.85em}
+.accessories-list{display:grid;gap:8px;margin-top:8px}
+.acc-row{display:flex;align-items:center;gap:12px;padding:11px 14px;
+  border:1px solid rgba(0,0,0,.12);border-radius:8px;background:#fff;cursor:pointer;
+  transition:border-color .15s ease,background .15s ease}
+.acc-row:hover{border-color:var(--sage,#6B8F71)}
+.acc-row input[type=checkbox]{width:18px;height:18px;accent-color:var(--forest,#2D4A32);cursor:pointer;flex:none}
+.acc-row .acc-name{flex:1;font-weight:600}
+.acc-row .acc-price{color:var(--forest,#2D4A32);font-weight:700}
+.plan-summary{margin-top:18px;padding:16px 18px;border:2px solid var(--forest,#2D4A32);
+  border-radius:10px;background:var(--cream-w,#fbf7ef)}
+.plan-summary .plan-row{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px}
+.plan-summary .plan-total b{font-size:1.25rem;color:var(--forest,#2D4A32)}
+.plan-summary .plan-biweekly{margin-bottom:0}
+.plan-summary .plan-biweekly b{font-size:1.6rem;color:var(--forest,#2D4A32);
+  font-family:'Bebas Neue',sans-serif;letter-spacing:.02em}
+.plan-summary .plan-note{font-size:.8rem;color:var(--ink-3,#7a7a7a);margin-top:8px;line-height:1.5}
+</style>
 <script>
 /* ====== Bike picker (event-delegated so dynamically rendered cards work) ====== */
 const bikeContainer   = document.getElementById('bikeOptionsGrid');
@@ -550,11 +587,114 @@ const selectedPrice   = document.getElementById('selected-bike-price');
 const selectionPrompt = document.getElementById('bike-selection-prompt');
 const hiddenInput     = document.getElementById('bike-selection');
 
+/* ====== Rent-to-own pricing calculator ======
+   Bike base price (from BridgeBikeOptions.base_price, served as the card's
+   data-bike-base) + the checked Bridge_Accessories make the Total Value.
+   Bi-weekly = total ÷ NUM_PAYMENTS, with the final payment absorbing any
+   rounding so the payments sum exactly to the total. All sheet-driven:
+   add a bike row or accessory row and it appears here automatically. */
+let NUM_PAYMENTS = 15; // overridden by SiteConfig btg_num_payments on CMS load
+// Used only if the CMS Bridge_Accessories tab is empty (first-run / offline).
+const ACCESSORIES_FALLBACK = [
+  { id:'bag',     name:'Carrying Bag', price:40, default_on:true },
+  { id:'lock',    name:'Bike Lock',    price:20, default_on:true },
+  { id:'mirror',  name:'Mirror',       price:25, default_on:true },
+  { id:'seat',    name:'Comfy Seat',   price:40, default_on:true },
+  { id:'charger', name:'Charger',      price:40, default_on:true },
+];
+// Used if a card has no data-bike-base yet (e.g. the sheet column is still blank).
+const BASE_PRICE_FALLBACK = { 'step-over':660, 'step-thru':735 };
+let ACCESSORIES = ACCESSORIES_FALLBACK.slice();
+
+const accGroup   = document.getElementById('accessoriesGroup');
+const accListEl  = document.getElementById('accessoriesList');
+const planBox    = document.getElementById('planSummary');
+const fBikeName  = document.getElementById('f-bike-name');
+const fAcc       = document.getElementById('f-accessories');
+const fTotal     = document.getElementById('f-total-value');
+const fBiweekly  = document.getElementById('f-biweekly-rate');
+const fNumPay    = document.getElementById('f-num-payments');
+
+function money(n){ return '$' + (Math.round(n * 100) / 100).toFixed(2); }
+function isTruthy(v){ return v === true || /^(true|yes|1)$/i.test(String(v).trim()); }
+
+function renderAccessories(){
+  accListEl.innerHTML = ACCESSORIES.map(a =>
+    '<label class="acc-row">' +
+      '<input type="checkbox" data-acc-id="' + a.id + '" data-acc-price="' + a.price +
+        '" data-acc-name="' + String(a.name).replace(/"/g,'&quot;') + '"' +
+        (a.default_on ? ' checked' : '') + '>' +
+      '<span class="acc-name">' + a.name + '</span>' +
+      '<span class="acc-price">+' + money(a.price) + '</span>' +
+    '</label>'
+  ).join('');
+  accListEl.querySelectorAll('input[type=checkbox]').forEach(cb =>
+    cb.addEventListener('change', recalcPlan));
+}
+
+function activeBikeBase(){
+  const card = bikeContainer.querySelector('.bike-option.active');
+  if (!card) return 0;
+  const raw = parseFloat(card.dataset.bikeBase);
+  if (isFinite(raw) && raw > 0) return raw;
+  return BASE_PRICE_FALLBACK[card.dataset.bikeId] || 0;
+}
+
+function recalcPlan(){
+  const card = bikeContainer.querySelector('.bike-option.active');
+  if (!card){ planBox.hidden = true; accGroup.hidden = true; return; }
+
+  const base = activeBikeBase();
+  const picked = Array.prototype.slice.call(
+    accListEl.querySelectorAll('input[type=checkbox]:checked'));
+  const accTotal = picked.reduce((s, cb) => s + (parseFloat(cb.dataset.accPrice) || 0), 0);
+  const accNames = picked.map(cb => cb.dataset.accName);
+  const total = base + accTotal;
+
+  // Carry selections to the hidden fields submitted to Apps Script.
+  fBikeName.value = card.dataset.bikeName || '';
+  fAcc.value      = accNames.join(', ');
+  fNumPay.value   = NUM_PAYMENTS;
+
+  if (base <= 0){
+    // Bike not priced for rent-to-own yet (no base_price in the sheet).
+    planBox.hidden = false;
+    document.getElementById('plan-total-value').textContent = '—';
+    document.getElementById('plan-biweekly').textContent = '—';
+    document.getElementById('plan-note').textContent =
+      "We'll confirm pricing for this style when we reach out.";
+    fTotal.value = ''; fBiweekly.value = '';
+    return;
+  }
+
+  // Even bi-weekly amount; the final payment takes any rounding remainder so
+  // the N payments sum exactly to the total.
+  const biweekly = Math.round((total / NUM_PAYMENTS) * 100) / 100;
+  const last = Math.round((total - biweekly * (NUM_PAYMENTS - 1)) * 100) / 100;
+
+  fTotal.value    = total.toFixed(2);
+  fBiweekly.value = biweekly.toFixed(2);
+
+  planBox.hidden = false;
+  document.getElementById('plan-total-value').textContent = money(total);
+  document.getElementById('plan-biweekly-label').textContent =
+    'Bi-weekly payment × ' + NUM_PAYMENTS;
+  document.getElementById('plan-biweekly').textContent = money(biweekly);
+  document.getElementById('plan-note').textContent =
+    last === biweekly
+      ? 'Own it after ' + NUM_PAYMENTS + ' bi-weekly payments. No credit check.'
+      : NUM_PAYMENTS + ' payments: ' + (NUM_PAYMENTS - 1) + ' of ' + money(biweekly) +
+        ' and a final payment of ' + money(last) + '. Own it at the end — no credit check.';
+}
+
 function clearBikeSelection(){
   bikeContainer.querySelectorAll('.bike-option').forEach(c => c.classList.remove('active'));
   selectedDisplay.classList.remove('shown');
   selectionPrompt.classList.remove('hidden');
   hiddenInput.value = '';
+  accGroup.hidden = true;
+  planBox.hidden = true;
+  fBikeName.value = ''; fAcc.value = ''; fTotal.value = ''; fBiweekly.value = '';
 }
 
 bikeContainer.addEventListener('click', e => {
@@ -567,7 +707,12 @@ bikeContainer.addEventListener('click', e => {
   selectedDisplay.classList.add('shown');
   selectionPrompt.classList.add('hidden');
   hiddenInput.value = card.dataset.bikeId || '';
+  accGroup.hidden = false;   // reveal add-ons + live plan once a bike is picked
+  recalcPlan();
 });
+
+// Initial accessory render (CMS may replace the list on load).
+renderAccessories();
 
 /* ====== Form submit — sends to Apps Script handleBridgeApplication ======
    The page form sat as a TODO placeholder for months: it just popped
@@ -820,7 +965,8 @@ function renderBridgeBikeOptions(rows){
       '<div class="bike-option"' +
         ' data-bike-id="'    + esc(r.id || '')              + '"' +
         ' data-bike-name="'  + esc(r.selection_label || '') + '"' +
-        ' data-bike-price="' + esc(r.selection_price || '') + '">' +
+        ' data-bike-price="' + esc(r.selection_price || '') + '"' +
+        ' data-bike-base="'  + esc(r.base_price || '')      + '">' +
         '<div class="bike-img-wrap">' +
           '<img src="' + esc(r.image || '') + '" alt="' + esc(r.name || '') + ' E-Bike" loading="lazy" onerror="this.style.display=\'none\'">' +
         '</div>' +
@@ -839,6 +985,16 @@ function renderBridgeBikeOptions(rows){
 /* ── CMS bootstrap (cache, TTL, loader) ──────────── */
 function hydrateBridge(d){
   applyCMS(d);
+  // Rent-to-own term + accessory list are sheet-driven.
+  const np = parseInt((d.site && d.site.btg_num_payments) || '', 10);
+  if (np > 0) NUM_PAYMENTS = np;
+  if (Array.isArray(d.bridgeAccessories) && d.bridgeAccessories.length){
+    ACCESSORIES = d.bridgeAccessories
+      .filter(a => a && a.id && isTruthy(a.available !== '' && a.available != null ? a.available : true))
+      .map(a => ({ id:String(a.id), name:String(a.name || a.id),
+                   price:parseFloat(a.price) || 0, default_on:isTruthy(a.default_on) }));
+    renderAccessories();
+  }
   if (Array.isArray(d.bridgePricing))     renderBridgePricing(d.bridgePricing);
   if (Array.isArray(d.bridgeGaps))        renderBridgeGaps(d.bridgeGaps);
   if (Array.isArray(d.bridgeFeatures))    renderBridgeFeatures(d.bridgeFeatures);
