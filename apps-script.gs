@@ -1142,6 +1142,54 @@ function generateBridgeAgreement_(row) {
 }
 
 /**
+ * RUN THIS ONCE from the Apps Script editor (Run ▸ testAgreementDoc) after
+ * pasting the code and setting btg_agreement_template_id in SiteConfig.
+ *
+ * Why: the Drive + Docs permissions are only used by generateBridgeAgreement_,
+ * which normally runs inside the web app — so Google never shows the consent
+ * screen during a redeploy. Running this in the editor exercises those scopes
+ * directly, which (1) triggers the one-time "Authorize" / permission prompt
+ * and (2) actually generates a sample agreement so you can confirm the
+ * template ID + folder ID are correct. Approve the prompt, then check the
+ * execution log for the new Doc's URL. Delete the sample doc when done.
+ *
+ * Throws a clear error (instead of failing silently) if the template ID is
+ * missing or the ID/folder can't be opened — so misconfig is obvious here
+ * rather than swallowed at submission time.
+ */
+function testAgreementDoc() {
+  const templateId = getSiteConfigValue_('btg_agreement_template_id');
+  const folderId   = getSiteConfigValue_('btg_agreement_folder_id');
+  console.log('btg_agreement_template_id = ' + (templateId || '(EMPTY)'));
+  console.log('btg_agreement_folder_id   = ' + (folderId   || '(empty — will save to My Drive root)'));
+  if (!templateId) {
+    throw new Error('btg_agreement_template_id is blank in SiteConfig. Paste the ' +
+      'template Doc file ID (the part between /d/ and /edit in its URL) into ' +
+      'the value column, then run this again.');
+  }
+  // Surface bad IDs with a readable message before we try to fill anything.
+  try { DriveApp.getFileById(templateId); }
+  catch (e) { throw new Error('Could not open the template by ID "' + templateId +
+    '". Double-check btg_agreement_template_id. Underlying error: ' + e); }
+  if (folderId) {
+    try { DriveApp.getFolderById(folderId); }
+    catch (e) { throw new Error('Could not open the folder by ID "' + folderId +
+      '". Double-check btg_agreement_folder_id (or leave it blank). Error: ' + e); }
+  }
+
+  const sampleRow = {
+    id: 'BTG-TEST-' + Utilities.formatDate(new Date(), 'America/New_York', 'yyMMdd-HHmmss'),
+    first_name: 'Sample', last_name: 'Applicant',
+    email: 'sample@example.com', phone: '330-555-0100',
+    birthday: '01/01/1990', address: '123 Test St', city: 'Youngstown', zip: '44512',
+    primary_need: 'Test run', bike_selection: 'City-Cruiser',
+  };
+  const url = generateBridgeAgreement_(sampleRow);
+  console.log('✅ Generated test agreement: ' + url);
+  return url;
+}
+
+/**
  * Extended Odyssey lead form on long-term-rental.html. The page captures
  * intent (bike pick, duration, destination, pickup date) without taking
  * payment — Pat texts back to confirm availability and run the deposit.
