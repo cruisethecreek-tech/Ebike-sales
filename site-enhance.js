@@ -62,6 +62,44 @@
   window.gtag('config', MID);
 })();
 
+/* ─────────────────────────────────────────────────────────────────
+ * Discontinued-bike safety net.
+ *
+ * The storefront pages (shop, heybike, velotric, mooncool, jasion,
+ * quiz) hide a bike when its name is in localStorage's
+ * `ctc_discontinued_names`. That list is published by the Sales Pro
+ * admin — but localStorage is per-origin and per-browser, so an
+ * admin's discontinue never reaches customers (or even the same
+ * person on the live cruisethecreek.com domain). The sheet's
+ * `discontinued` column is the only other signal, and that write is a
+ * best-effort no-cors call that can silently fail. Result: a bike you
+ * discontinued can keep showing for everyone.
+ *
+ * This baseline is committed in code, so it ships to every visitor on
+ * every domain and is merged into the very list the filters already
+ * read — guaranteeing these models stay hidden store-wide regardless
+ * of localStorage or the sheet. It runs before any catalog render
+ * (this file loads ahead of the inline page scripts).
+ *
+ * Entries must match the storefront bike `name`, lowercased. To bring
+ * a bike back, delete it from this list. ──────────────────────────── */
+(function discontinuedBaseline() {
+  var BASELINE = [
+    'cityrun'   // Heybike Cityrun — discontinued
+  ];
+  try {
+    var key = 'ctc_discontinued_names';
+    var current = JSON.parse(localStorage.getItem(key) || '[]');
+    if (!Array.isArray(current)) current = [];
+    var merged = current.slice();
+    for (var i = 0; i < BASELINE.length; i++) {
+      var n = String(BASELINE[i] || '').toLowerCase().trim();
+      if (n && merged.indexOf(n) === -1) merged.push(n);
+    }
+    localStorage.setItem(key, JSON.stringify(merged));
+  } catch (e) { /* localStorage blocked — the sheet flag still applies */ }
+})();
+
 (function (root) {
   'use strict';
 
