@@ -268,17 +268,17 @@ function isTrue(v){ return v === true || v === 'TRUE' || v === 'true' || v === 1
 // prices in the Sheet (Pricing + PricingTiers tabs); these are the fallback.
 const DEFAULT_PRICING = [
   { id:'kirk',  order:1, location:'Kirk Road Location',      subtitle:'Cruising pace — perfect for casual trail riders.', speed:'Limited to 15 mph', rate_note:'$25 for the first hour, plus $10 for each additional hour.', featured:false, cta_label:'Book Kirk Road', cta_url:'rentals.html' },
-  { id:'bears', order:2, location:'Bears Den Road Location', subtitle:'Unlocking the full experience.',                  speed:'Speeds up to 25 mph', rate_note:'$35 for the first hour, plus $10 for each additional hour.', featured:true,  cta_label:'Book Bears Den', cta_url:'rentals.html' },
+  { id:'bears', order:2, location:'Bears Den Road Location', subtitle:'Unlocking the full experience.',                  speed:'Speeds up to 25 mph', rate_note:'$25 for the first hour, plus $10 for each additional hour.', featured:true,  cta_label:'Book Bears Den', cta_url:'rentals.html' },
 ];
 const DEFAULT_TIERS = [
   { location:'kirk',  order:1, duration:'1 Hour',  price:'$25', note:'' },
   { location:'kirk',  order:2, duration:'2 Hours', price:'$35', note:'' },
   { location:'kirk',  order:3, duration:'3 Hours', price:'$45', note:'' },
   { location:'kirk',  order:4, duration:'4 Hours', price:'$55', note:'Half Day' },
-  { location:'bears', order:1, duration:'1 Hour',  price:'$35', note:'' },
-  { location:'bears', order:2, duration:'2 Hours', price:'$45', note:'' },
-  { location:'bears', order:3, duration:'3 Hours', price:'$55', note:'' },
-  { location:'bears', order:4, duration:'4 Hours', price:'$65', note:'Half Day' },
+  { location:'bears', order:1, duration:'1 Hour',  price:'$25', note:'' },
+  { location:'bears', order:2, duration:'2 Hours', price:'$35', note:'' },
+  { location:'bears', order:3, duration:'3 Hours', price:'$45', note:'' },
+  { location:'bears', order:4, duration:'4 Hours', price:'$55', note:'Half Day' },
 ];
 const DEFAULT_EXTRAS = [
   { location:'kirk',  order:1, item:'Mist Fan',           price:'$3.00',  note:'' },
