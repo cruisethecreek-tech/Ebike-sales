@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Keeping It Safe: Why the 15 MPH Trail Limit is a Win for Everyone | Cruise the Creek</title>
+<meta name="description" content="A temporary radar speed sign is up on the Mill Creek MetroParks Bikeway. Here's why the 15 mph trail limit isn't a restriction — it's the secret ingredient to great trail hospitality for families, runners, cyclists, and e-bike riders alike.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --sage:#6B8F71;--forest:#2D4A32;--forest-l:#3a5d40;--dark:#1a2e1c;
+  --tan:#C9A96E;--tan-d:#a98843;--cream:#F5F0E8;--cream-w:#fbf7ef;
+  --ink:#1a1a1a;--ink-2:#4a4a4a;--ink-3:#7a7a7a;
+}
+html,body{height:100%}
+html{scroll-behavior:smooth}
+body{font-family:'DM Sans',sans-serif;color:var(--ink);background:var(--cream);
+  min-height:100vh;display:flex;flex-direction:column;line-height:1.6}
+a{color:inherit;text-decoration:none;transition:color .2s ease}
+button{font-family:inherit;cursor:pointer;border:none;background:none}
+
+.topbar{background:rgba(255,255,255,.95);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+  color:var(--dark);padding:16px 24px;display:flex;align-items:center;justify-content:space-between;
+  position:sticky;top:0;z-index:100;border-bottom:1px solid rgba(0,0,0,.05)}
+.brand-logo{height:38px;width:auto;display:block}
+
+/* HERO */
+.post-hero{position:relative;min-height:42vh;padding:80px 24px 60px;
+  display:flex;flex-direction:column;align-items:center;justify-content:flex-end;text-align:center;
+  color:#fff;background:var(--forest);overflow:hidden;isolation:isolate}
+.post-hero-bg{position:absolute;inset:0;z-index:-2;background-size:cover;background-position:center 30%;filter:brightness(.55);
+  background-image:url('media/radar-speed-sign.jpg')}
+.post-hero-overlay{position:absolute;inset:0;z-index:-1;
+  background:linear-gradient(180deg,rgba(26,46,28,.4) 0%,rgba(26,46,28,.85) 100%)}
+.post-hero-meta{font-size:.72rem;letter-spacing:.18em;text-transform:uppercase;font-weight:700;
+  color:var(--tan);margin-bottom:12px;display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap}
+.post-hero-meta .dot{opacity:.5}
+.post-hero h1{font-family:'Bebas Neue',sans-serif;font-size:clamp(2.2rem,6vw,3.6rem);
+  letter-spacing:.02em;line-height:1.05;max-width:780px;margin:0 auto 14px}
+.post-hero-author{font-size:.86rem;color:rgba(255,255,255,.78);letter-spacing:.04em}
+.post-hero-author strong{color:var(--tan);font-weight:700}
+
+.crumb{max-width:780px;margin:0 auto;padding:18px 24px 0;
+  font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;font-weight:700;color:var(--sage)}
+.crumb a{color:var(--ink-2)}.crumb a:hover{color:var(--forest)}
+.crumb .sep{color:rgba(0,0,0,.2);margin:0 8px}
+
+main{flex:1;width:100%;max-width:780px;margin:0 auto;padding:32px 24px 64px}
+
+/* POST BODY TYPOGRAPHY */
+.post-body{font-size:1.05rem;line-height:1.75;color:var(--ink-2)}
+.post-body > *:first-child{margin-top:0}
+.post-body p{margin:0 0 1.1em}
+.post-body h1,.post-body h2,.post-body h3,.post-body h4{
+  font-family:'DM Sans',sans-serif;color:var(--forest);
+  font-weight:800;letter-spacing:-.01em;line-height:1.2;
+  margin:1.8em 0 .6em}
+.post-body h2{font-size:clamp(1.4rem,3.5vw,1.7rem)}
+.post-body h3{font-size:clamp(1.2rem,3vw,1.4rem);color:var(--forest-l)}
+.post-body h4{font-size:1.05rem}
+.post-body strong,.post-body b{color:var(--ink);font-weight:800}
+.post-body em,.post-body i{color:var(--ink)}
+.post-body a{color:var(--tan-d);font-weight:700;border-bottom:1px solid rgba(169,136,67,.3);
+  transition:border-color .15s ease}
+.post-body a:hover{border-bottom-color:var(--tan-d)}
+.post-body ul,.post-body ol{margin:0 0 1.1em 1.4em;padding:0}
+.post-body li{margin-bottom:.4em}
+.post-body blockquote{margin:1.4em 0;padding:14px 22px;
+  border-left:3px solid var(--tan);background:#fff;border-radius:0 6px 6px 0;
+  color:var(--ink);font-style:italic;font-size:1.05em;line-height:1.6}
+.post-body hr{border:0;height:1px;background:rgba(0,0,0,.1);margin:2em 0}
+
+/* TAGS */
+.post-tags{margin-top:2.5em;padding-top:1.6em;border-top:1px solid rgba(0,0,0,.08);
+  display:flex;flex-wrap:wrap;gap:8px}
+.post-tag{padding:6px 12px;background:#fff;border:1px solid rgba(45,74,50,.12);
+  border-radius:99px;font-size:.78rem;font-weight:700;letter-spacing:.04em;
+  color:var(--forest);text-transform:lowercase}
+
+.back-blog{display:inline-flex;align-items:center;gap:8px;margin-top:1.6em;
+  padding:11px 20px;background:var(--forest);color:#fff;border-radius:5px;
+  font-weight:700;font-size:.84rem;letter-spacing:.04em;text-transform:uppercase;transition:background .2s ease}
+.back-blog:hover{background:var(--dark)}
+.back-blog svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2.5}
+
+footer{background:var(--dark);color:rgba(255,255,255,.7);padding:32px 24px;
+  text-align:center;font-size:.85rem;letter-spacing:.02em;border-top:2px solid var(--tan)}
+footer a{color:var(--tan);font-weight:500}footer a:hover{color:#fff}
+
+@media(max-width:480px){
+  .topbar{padding:12px 16px}.brand-logo{height:32px}
+  .post-hero{padding:62px 18px 44px}
+  .crumb{padding:14px 16px 0}
+  main{padding:24px 16px 48px}
+  .post-body{font-size:1rem;line-height:1.7}
+}
+</style>
+<script src="site-enhance.js"></script>
+<meta property="og:title" content="Keeping It Safe: Why the 15 MPH Trail Limit is a Win for Everyone">
+<meta property="og:description" content="A temporary radar speed sign is up on the Mill Creek MetroParks Bikeway. Why the 15 mph trail limit isn't a restriction — it's the secret ingredient to great trail hospitality.">
+<meta property="og:image" content="https://www.cruisethecreek.com/media/radar-speed-sign.jpg">
+<meta property="og:url" content="https://www.cruisethecreek.com/15-mph-trail-limit.html">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Cruise the Creek">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Keeping It Safe: Why the 15 MPH Trail Limit is a Win for Everyone">
+<meta name="twitter:description" content="A temporary radar speed sign is up on the Mill Creek MetroParks Bikeway. Why the 15 mph trail limit isn't a restriction — it's the secret ingredient to great trail hospitality.">
+<meta name="twitter:image" content="https://www.cruisethecreek.com/media/radar-speed-sign.jpg">
+<link rel="canonical" href="https://www.cruisethecreek.com/15-mph-trail-limit.html">
+</head>
+<body>
+
+<header class="topbar">
+  <a href="index.html" aria-label="Cruise the Creek home"><img class="brand-logo" src="BlackonTransparent.png" alt="Cruise the Creek"></a>
+</header>
+
+<section class="post-hero">
+  <div class="post-hero-bg"></div>
+  <div class="post-hero-overlay"></div>
+  <div class="post-hero-meta">
+    <span>June 17, 2026</span>
+    <span class="dot">&middot;</span>
+    <span>3 min read</span>
+  </div>
+  <h1>Keeping It Safe: Why the 15 MPH Trail Limit is a Win for Everyone</h1>
+  <div class="post-hero-author">By <strong>Pat</strong></div>
+</section>
+
+<nav class="crumb"><a href="index.html">Home</a><span class="sep">/</span> Creek Life <span class="sep">/</span><a href="creek-life-blog.html">Blog</a><span class="sep">/</span> The 15 MPH Trail Limit</nav>
+
+<main>
+  <article class="post-body">
+<p>If you've been out on the Mill Creek MetroParks Bikeway recently, you might have spotted a fresh reminder from the MetroParks Police: a temporary radar speed sign tracking your pace.</p>
+<p>When local news outlets cover trail speed limits and e-bike rules, it can easily spark a massive debate in the comments. But a 15 mph speed limit shouldn't be viewed as a restriction — it's actually the secret ingredient to great trail hospitality.</p>
+<h2>Why 15 MPH is the Sweet Spot</h2>
+<p>The MetroParks Bikeway is a beautiful, shared multi-use space. On any given afternoon, you're sharing the asphalt with families pushing strollers, runners tracking miles, traditional pedal cyclists, and riders enjoying electric assist.</p>
+<ul>
+<li><strong>Safety &amp; Reaction Time:</strong> At 15 mph, you have plenty of time to anticipate sudden stops, wildlife, or a group walking side-by-side.</li>
+<li><strong>Building Community Trust:</strong> When e-bike riders proactively pace themselves, it builds immense goodwill with traditional trail users. It proves that electric assist is here to make the outdoors more accessible, not more chaotic.</li>
+<li><strong>Class 1 &amp; 2 Belong Here:</strong> Local guidelines are clear — Class 1 and Class 2 e-bikes are perfect for these paths, provided everyone rides with common courtesy.</li>
+</ul>
+<h2>Built-In Responsibility</h2>
+<p>True accessibility means making sure everyone feels confident and safe out there. That's why keeping an eye on your speed — whether you are using a throttle, pedal assist, or pure leg power — keeps the trail welcoming for every generation of rider.</p>
+<p>Next time you see the radar sign, check your display, give the passing riders a nod, and enjoy the cruise. Let's keep setting the standard for what responsible, community-first riding looks like!</p>
+  </article>
+
+  <div class="post-tags">
+    <span class="post-tag">trail safety</span>
+    <span class="post-tag">e-bikes</span>
+    <span class="post-tag">mill creek metroparks</span>
+    <span class="post-tag">community</span>
+  </div>
+
+  <a class="back-blog" href="creek-life-blog.html"><svg viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg> All posts</a>
+</main>
+
+<footer>
+  &copy; 2026 <a href="index.html">Cruise the Creek</a> &middot; <a href="creek-life-blog.html">All posts</a>
+</footer>
+
+<script src="chatbot.js" defer></script>
+</body>
+</html>
