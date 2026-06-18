@@ -368,7 +368,34 @@ const FALLBACK_PLACEMENTS = [
   { order: 2, name: 'Back',  sublabel: 'Shoulders', available: true },
 ];
 
-let DATA = { products: [], colors: [], placements: FALLBACK_PLACEMENTS.slice() };
+// Statically-published prints that live in the repo (not the ApparelProducts
+// Sheet). Surfaced alongside CMS products and de-duped by id: if the same id
+// later gets added to the Sheet, the CMS row wins and this entry drops out
+// automatically. Mirrors the STATIC_POSTS pattern on creek-life-blog.html.
+const STATIC_PRODUCTS = [
+  {
+    id: 'tee-usa',
+    order: 3,
+    name: 'Tour USA Tee',
+    base_price: 30,
+    photo: 'tee-tour-usa.jpg',
+    description: "Americana trail print — stars-and-stripes backdrop, the Cruise the Creek bike, twin eagles, and pine ridgeline. \"Unleash Your Adventure · Tour USA\" lockup on heavyweight cotton.",
+    colors: 'Black',
+    available: true,
+  },
+];
+
+// CMS rows win on id collisions; static-only prints fill in the rest. Sorted
+// by the `order` column so the catalog stays in its intended sequence.
+function mergeProducts(cms){
+  const cmsList = Array.isArray(cms) ? cms : [];
+  const cmsIds  = new Set(cmsList.map(p => String(p.id).trim()));
+  const merged  = cmsList.concat(STATIC_PRODUCTS.filter(p => !cmsIds.has(String(p.id).trim())));
+  merged.sort((a, b) => (parseFloat(a.order) || 0) - (parseFloat(b.order) || 0));
+  return merged;
+}
+
+let DATA = { products: mergeProducts([]), colors: [], placements: FALLBACK_PLACEMENTS.slice() };
 let SELECTION = { productId: null, color: null, size: null, placement: null, qty: 1 };
 
 // Abandon recovery — save personal info as the visitor types so a refresh,
@@ -847,7 +874,7 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal()
 
 /* ── load CMS ───────────────────────────────────────── */
 function applyData(d){
-  DATA.products   = Array.isArray(d.apparelProducts)   ? d.apparelProducts   : [];
+  DATA.products   = mergeProducts(d.apparelProducts);
   DATA.colors     = Array.isArray(d.apparelColors)     ? d.apparelColors     : [];
   // If the Sheet has rows for placements, use them. Otherwise keep the
   // hardcoded fallback so a missing/empty tab doesn't strand the page.
