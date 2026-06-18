@@ -399,6 +399,12 @@
           </div>
           <input name="email" type="email" placeholder="you@example.com" autocomplete="email">
           <input name="phone" type="tel"   placeholder="330-555-1234"     autocomplete="tel">
+          <input name="address" placeholder="Street address (only if delivering)" autocomplete="street-address">
+          <div class="ctc-cart-row">
+            <input name="city"  placeholder="City"  autocomplete="address-level2">
+            <input name="state" placeholder="State" autocomplete="address-level1">
+          </div>
+          <input name="zip" placeholder="ZIP code" autocomplete="postal-code" inputmode="numeric">
           <textarea name="notes" placeholder="Anything else we should know — pickup preference, customization, questions, etc."></textarea>
           <div class="ctc-cart-error" hidden></div>
           <button type="submit" class="ctc-cart-submit">Send Order</button>
@@ -566,7 +572,7 @@
 
   // Hydrate the form from any saved draft, then auto-save on every input
   // so progress survives drawer close / tab close / accidental nav.
-  const DRAFT_FIELDS = ['firstName', 'lastName', 'email', 'phone', 'notes'];
+  const DRAFT_FIELDS = ['firstName', 'lastName', 'email', 'phone', 'address', 'city', 'state', 'zip', 'notes'];
   (function bindCheckoutDraftRecovery() {
     const draft = readDraft();
     if (draft) {
@@ -616,6 +622,10 @@
         lastName:  String(data.lastName  || ''),
         email:     String(data.email     || ''),
         phone:     String(data.phone     || ''),
+        address:   String(data.address   || ''),
+        city:      String(data.city      || ''),
+        state:     String(data.state     || ''),
+        zip:       String(data.zip       || ''),
         notes:     String(data.notes     || ''),
         cart:      JSON.stringify(cart.items),
         page:      (typeof location !== 'undefined' && location.href) ? location.href : '',

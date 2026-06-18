@@ -481,19 +481,32 @@ function handleApparelOrder(p) {
       qty:         parseInt(p.qty, 10) || 1,
       total:       parseFloat(p.total) || 0,
       comments:    String(p.comments    || '').trim(),
+      address:     String(p.address     || '').trim(),
+      city:        String(p.city        || '').trim(),
+      state:       String(p.state       || '').trim(),
+      zip:         String(p.zip         || '').trim(),
       paymentLink: String(p.paymentLink || '').trim(),
     };
+
+    // One-line shipping summary for the email + Discord. Blank when the
+    // customer left the (optional) delivery fields empty — they're picking up.
+    const shipTo = [
+      row.address,
+      [row.city, row.state].filter(function(v){ return v; }).join(', '),
+      row.zip,
+    ].filter(function(v){ return v; }).join(' · ');
 
     let sh = ss.getSheetByName('Apparel_Orders');
     if (!sh) {
       sh = ss.insertSheet('Apparel_Orders');
       sh.appendRow(['id','timestamp','first','last','email','phone',
-                    'product','color','size','placement','qty','total','comments','paymentLink']);
-      sh.getRange(1, 1, 1, 14).setFontWeight('bold');
+                    'product','color','size','placement','qty','total','comments',
+                    'address','city','state','zip','paymentLink']);
+      sh.getRange(1, 1, 1, 18).setFontWeight('bold');
     }
     sh.appendRow([row.id, row.timestamp, row.first, row.last, row.email, row.phone,
                   row.product, row.color, row.size, row.placement, row.qty, row.total,
-                  row.comments, row.paymentLink]);
+                  row.comments, row.address, row.city, row.state, row.zip, row.paymentLink]);
 
     // Notify the sales team. Wrapped so a mail failure doesn't sink the
     // whole request — the order still landed in the Sheet.
@@ -514,12 +527,14 @@ function handleApparelOrder(p) {
         '',
         'Payment link: ' + (row.paymentLink || '(Stripe link generation failed — send manually)'),
         '',
+        'Deliver to: ' + (shipTo || '(no address — pickup / confirm with customer)'),
+        '',
         'Comments:  ' + (row.comments || '(none)'),
         '',
         'Logged at ' + row.timestamp,
       ].join('\n');
       MailApp.sendEmail({
-        to:      'salesteam@cruisethecreek.com',
+        to:      'salesteam@cruisethecreek.com,info@cruisethecreek.com',
         replyTo: row.email || 'salesteam@cruisethecreek.com',
         subject: 'Apparel order ' + row.id + ' — ' + row.product + ' (' + row.color + ', ' + row.size + ')',
         body:    body,
@@ -544,6 +559,7 @@ function handleApparelOrder(p) {
         { name: '🔢 Qty',       value: String(row.qty || '?'),         inline: true },
         { name: '💵 Total',     value: '$' + (row.total || 0).toFixed(2), inline: true },
         { name: '💳 Pay link',  value: row.paymentLink ? row.paymentLink : '(Stripe failed — send manually)', inline: false },
+        { name: '🚚 Deliver to', value: shipTo || '(pickup / no address)', inline: false },
         { name: '📝 Comments',  value: row.comments || '(none)', inline: false },
       ],
       'Customer also emailed the pay link — follow up if not paid in 24h'
@@ -565,6 +581,7 @@ function handleApparelOrder(p) {
           '  Placement: ' + row.placement,
           '  Qty:       ' + row.qty,
           '  Total:     $' + row.total.toFixed(2),
+          (shipTo ? '  Ship to:   ' + shipTo : '  Pickup:    we\'ll confirm a pickup time'),
           '',
           'Pay securely here:',
           row.paymentLink,
@@ -633,9 +650,20 @@ function handleCartOrder(p) {
       last:  String(p.lastName  || '').trim(),
       email: String(p.email     || '').trim(),
       phone: String(p.phone     || '').trim(),
+      address: String(p.address || '').trim(),
+      city:  String(p.city      || '').trim(),
+      state: String(p.state     || '').trim(),
+      zip:   String(p.zip       || '').trim(),
       notes: String(p.notes     || '').trim(),
       page:  String(p.page      || '').trim(),
     };
+
+    // One-line shipping summary; blank means pickup / no address given.
+    const shipTo = [
+      customer.address,
+      [customer.city, customer.state].filter(function(v){ return v; }).join(', '),
+      customer.zip,
+    ].filter(function(v){ return v; }).join(' · ');
 
     // Format one item per line for both the Sheet cell and the email.
     function itemLine(it) {
@@ -658,11 +686,13 @@ function handleCartOrder(p) {
     if (!sh) {
       sh = ss.insertSheet('Cart_Orders');
       sh.appendRow(['id','timestamp','first','last','email','phone',
-                    'itemCount','subtotal','items','notes','page']);
-      sh.getRange(1, 1, 1, 11).setFontWeight('bold');
+                    'itemCount','subtotal','items','address','city','state','zip','notes','page']);
+      sh.getRange(1, 1, 1, 15).setFontWeight('bold');
     }
     sh.appendRow([id, now, customer.first, customer.last, customer.email, customer.phone,
-                  items.length, subtotal, itemsText, customer.notes, customer.page]);
+                  items.length, subtotal, itemsText,
+                  customer.address, customer.city, customer.state, customer.zip,
+                  customer.notes, customer.page]);
 
     // Auto-draft an Invoices row using the same column shape that
     // invoice.html's `addOrder` action writes — so the draft shows up in
@@ -693,6 +723,8 @@ function handleCartOrder(p) {
         itemsText || '(empty cart — log only)',
         '',
         'Subtotal: $' + subtotal.toFixed(2),
+        '',
+        'Deliver to: ' + (shipTo || '(no address — pickup / confirm with customer)'),
         '',
         'Notes:    ' + (customer.notes || '(none)'),
         '',
@@ -725,6 +757,7 @@ function handleCartOrder(p) {
       { name: '🛍️ Items (' + items.length + ')', value: itemsForDiscord, inline: false },
       { name: '💵 Subtotal', value: '$' + subtotal.toFixed(2), inline: true },
       { name: '🌐 Page', value: (customer.page || '(unknown)').substring(0, 200), inline: true },
+      { name: '🚚 Deliver to', value: shipTo || '(pickup / no address)', inline: false },
       { name: '📝 Notes', value: customer.notes || '(none)', inline: false },
     ];
     if (invoiceUrl) {
