@@ -3644,9 +3644,9 @@ function getTabDefs() {
         ['tee-neon',  2, 'Neon Watercolor Tee', 30, 'tee-neon-black.jpg',
           "Vivid neon-watercolor design with chains, trees, and the Youngstown OH stamp. Heavyweight cotton.",
           'Black', true],
-        ['tee-three', 3, 'Print 3 (TBA)',       30, '',
-          "Third design lands soon. Drop your name on the order form and we'll let you know when it ships.",
-          '', false],
+        ['tee-usa',   3, 'Tour USA Tee',         30, 'tee-tour-usa.jpg',
+          "Americana trail print — stars-and-stripes backdrop, the Cruise the Creek bike, twin eagles, and pine ridgeline. \"Unleash Your Adventure · Tour USA\" lockup on heavyweight cotton.",
+          'Black', true],
       ],
     },
     'ApparelColors': {
