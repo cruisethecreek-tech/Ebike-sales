@@ -129,6 +129,7 @@ main{flex:1;max-width:1080px;width:100%;margin:0 auto;padding:28px 24px 64px}
 .form-section:last-child{margin-bottom:0}
 .form-label{display:block;font-size:.66rem;letter-spacing:.18em;text-transform:uppercase;font-weight:800;
   color:var(--tan);margin-bottom:8px}
+.form-hint{font-weight:600;letter-spacing:.02em;text-transform:none;color:rgba(255,255,255,.5);font-size:.62rem;margin-left:8px}
 .form-row{display:grid;grid-template-columns:1fr;gap:12px}
 @media(min-width:640px){.form-row.two{grid-template-columns:1fr 1fr}}
 .form-input,.form-textarea{width:100%;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18);
@@ -406,7 +407,7 @@ let SELECTION = { productId: null, color: null, size: null, placement: null, qty
 // since the visitor may return to single-item buy later.
 const DRAFT_KEY = 'ctc_apparel_order_draft_v1';
 const DRAFT_MAX_AGE_MS = 30 * 24 * 60 * 60 * 1000;
-const DRAFT_FIELD_IDS = ['f-first','f-last','f-email','f-phone','f-comments'];
+const DRAFT_FIELD_IDS = ['f-first','f-last','f-email','f-phone','f-address','f-city','f-state','f-zip','f-comments'];
 function readDraft(){
   try {
     const raw = localStorage.getItem(DRAFT_KEY);
@@ -634,6 +635,17 @@ function renderOrderPanel(available){
         </div>
       </div>
       <div class="form-section">
+        <label class="form-label">Delivery address <span class="form-hint">optional — only if it needs to ship</span></label>
+        <input type="text" class="form-input" id="f-address" placeholder="Street address" autocomplete="street-address">
+        <div class="form-row two" style="margin-top:12px">
+          <input type="text" class="form-input" id="f-city"  placeholder="City"  autocomplete="address-level2">
+          <input type="text" class="form-input" id="f-state" placeholder="State" autocomplete="address-level1">
+        </div>
+        <div class="form-row" style="margin-top:12px">
+          <input type="text" class="form-input" id="f-zip" placeholder="ZIP code" autocomplete="postal-code" inputmode="numeric">
+        </div>
+      </div>
+      <div class="form-section">
         <textarea class="form-textarea" id="f-comments" placeholder="Notes — gift wrap? rush? specific shade?"></textarea>
       </div>
 
@@ -773,6 +785,7 @@ async function submitOrder(product, available){
   const btn = document.getElementById('submit-btn');
   const v = id => (document.getElementById(id).value || '').trim();
   const first = v('f-first'), last = v('f-last'), email = v('f-email'), phone = v('f-phone');
+  const address = v('f-address'), city = v('f-city'), state = v('f-state'), zip = v('f-zip');
   if (!first || !last || !email || !phone) {
     alert('Please fill in your name, email, and phone so we can reach you.');
     return;
@@ -837,6 +850,10 @@ async function submitOrder(product, available){
     qty:         String(SELECTION.qty),
     total:       total.toFixed(2),
     comments:    v('f-comments'),
+    address:     address,
+    city:        city,
+    state:       state,
+    zip:         zip,
     paymentLink: paymentLink,
   });
 
