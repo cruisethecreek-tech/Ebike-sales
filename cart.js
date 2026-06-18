@@ -33,6 +33,10 @@
   const STORAGE_KEY = 'ctc_cart_v1';
   const DRAFT_KEY = 'ctc_cart_checkout_draft_v1';
   const DRAFT_MAX_AGE_MS = 30 * 24 * 60 * 60 * 1000; // 30 days
+  // Flat shipping when the customer chooses delivery; local pickup is free.
+  // Pat reviews every cart as a draft invoice, so he can adjust this on
+  // larger orders (e.g. a bike) before sending the payment link.
+  const SHIP_FLAT = 5;
   // AS_URL is Project A (AKfycbxjg2Zs...), same deployment that serves
   // every customer-facing write (CMS reads, apparelOrder, cartOrder,
   // bookingLead, bridgeApplication, chatLog). Cart used to point at
@@ -197,6 +201,16 @@
   color:#5a5a5a;font-weight:700}
 .ctc-cart-totals strong{font-family:'Bebas Neue',sans-serif;font-size:1.8rem;
   color:#2D4A32;letter-spacing:.02em}
+.ctc-cart-ship-line{padding:0 22px 6px;background:#fff;display:flex;align-items:center;
+  justify-content:space-between}
+.ctc-cart-ship-line span{font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;
+  color:#5a5a5a;font-weight:700}
+.ctc-cart-delivery{display:flex;gap:14px;flex-wrap:wrap;padding:2px 0}
+.ctc-cart-delivery label{display:flex;align-items:center;gap:6px;font-size:.82rem;
+  color:#2D4A32;font-weight:600;cursor:pointer}
+.ctc-cart-delivery input{width:auto;margin:0}
+.ctc-cart-ship-fields{display:flex;flex-direction:column;gap:8px}
+.ctc-cart-ship-fields[hidden]{display:none}
 
 .ctc-cart-checkout{
   padding:10px 22px 22px;background:#fff;
@@ -381,6 +395,10 @@
           <span>Subtotal</span>
           <strong class="ctc-cart-subtotal">$0</strong>
         </div>
+        <div class="ctc-cart-ship-line" hidden>
+          <span>Shipping</span>
+          <span class="ctc-cart-ship-amt">$0</span>
+        </div>
         <form class="ctc-cart-checkout" novalidate>
           <button type="button" class="ctc-cart-checkout-toggle" data-act="toggle-checkout"
                   aria-expanded="false" aria-controls="ctc-cart-checkout-body">
@@ -399,12 +417,18 @@
           </div>
           <input name="email" type="email" placeholder="you@example.com" autocomplete="email">
           <input name="phone" type="tel"   placeholder="330-555-1234"     autocomplete="tel">
-          <input name="address" placeholder="Street address (only if delivering)" autocomplete="street-address">
-          <div class="ctc-cart-row">
-            <input name="city"  placeholder="City"  autocomplete="address-level2">
-            <input name="state" placeholder="State" autocomplete="address-level1">
+          <div class="ctc-cart-delivery">
+            <label><input type="radio" name="delivery" value="pickup" checked> Local pickup — Free</label>
+            <label><input type="radio" name="delivery" value="ship"> Ship · +$${SHIP_FLAT}</label>
           </div>
-          <input name="zip" placeholder="ZIP code" autocomplete="postal-code" inputmode="numeric">
+          <div class="ctc-cart-ship-fields" hidden>
+            <input name="address" placeholder="Street address" autocomplete="street-address">
+            <div class="ctc-cart-row">
+              <input name="city"  placeholder="City"  autocomplete="address-level2">
+              <input name="state" placeholder="State" autocomplete="address-level1">
+            </div>
+            <input name="zip" placeholder="ZIP code" autocomplete="postal-code" inputmode="numeric">
+          </div>
           <textarea name="notes" placeholder="Anything else we should know — pickup preference, customization, questions, etc."></textarea>
           <div class="ctc-cart-error" hidden></div>
           <button type="submit" class="ctc-cart-submit">Send Order</button>
@@ -430,6 +454,14 @@
     const badge = fab.querySelector('.ctc-cart-badge');
     badge.textContent = n;
     fab.classList.toggle('empty', n === 0);
+  }
+
+  // Flat shipping when "Ship" is selected and the cart isn't empty; 0 for
+  // local pickup. Reads the live radio so totals update on toggle.
+  function currentShipping() {
+    if (cart.items.length === 0) return 0;
+    const sel = wrap.querySelector('input[name="delivery"]:checked');
+    return (sel && sel.value === 'ship') ? SHIP_FLAT : 0;
   }
 
   function renderItems() {
@@ -463,10 +495,18 @@
       `).join('');
     }
     const subtotal = cart.items.reduce((s, i) => s + (parseFloat(i.price) || 0) * (parseInt(i.qty, 10) || 1), 0);
-    const subtotalText = '$' + formatPrice(subtotal);
-    wrap.querySelector('.ctc-cart-subtotal').textContent = subtotalText;
+    wrap.querySelector('.ctc-cart-subtotal').textContent = '$' + formatPrice(subtotal);
+    // Shipping line tracks the delivery radio; the Checkout CTA shows the
+    // grand total (merchandise + shipping) so the customer sees true spend.
+    const ship = currentShipping();
+    const shipLine = wrap.querySelector('.ctc-cart-ship-line');
+    if (shipLine) {
+      shipLine.hidden = ship <= 0;
+      const amtEl = shipLine.querySelector('.ctc-cart-ship-amt');
+      if (amtEl) amtEl.textContent = '$' + formatPrice(ship);
+    }
     const priceEl = wrap.querySelector('.ctc-cart-toggle-price');
-    if (priceEl) priceEl.textContent = subtotalText;
+    if (priceEl) priceEl.textContent = '$' + formatPrice(subtotal + ship);
     // Hide the entire sticky footer (subtotal + Checkout CTA) when the
     // cart is empty — a $0 Checkout button would be a dead-end action.
     const footer = wrap.querySelector('.ctc-cart-footer');
@@ -581,6 +621,14 @@
         if (el && draft[name] != null && el.value === '') el.value = draft[name];
       });
     }
+    // Delivery toggle: reveal the address block + refresh totals on change.
+    const shipFields = checkoutForm.querySelector('.ctc-cart-ship-fields');
+    checkoutForm.querySelectorAll('input[name="delivery"]').forEach(radio => {
+      radio.addEventListener('change', () => {
+        if (shipFields) shipFields.hidden = !(radio.value === 'ship' && radio.checked);
+        renderItems();
+      });
+    });
     checkoutForm.addEventListener('input', () => {
       const data = {};
       let hasAny = false;
@@ -610,6 +658,11 @@
     if (!data.email && !data.phone) {
       return showError('Add an email or phone so we can reach you to confirm.');
     }
+    const wantsShip = data.delivery === 'ship';
+    if (wantsShip && (!data.address || !data.city || !data.state || !data.zip)) {
+      return showError('Add your shipping address (street, city, state, ZIP), or choose local pickup.');
+    }
+    const shipping = wantsShip ? SHIP_FLAT : 0;
 
     const btn = checkoutForm.querySelector('.ctc-cart-submit');
     btn.disabled = true;
@@ -626,6 +679,8 @@
         city:      String(data.city      || ''),
         state:     String(data.state     || ''),
         zip:       String(data.zip       || ''),
+        deliveryMethod: wantsShip ? 'Ship' : 'Pickup',
+        shipping:  shipping.toFixed(2),
         notes:     String(data.notes     || ''),
         cart:      JSON.stringify(cart.items),
         page:      (typeof location !== 'undefined' && location.href) ? location.href : '',

@@ -479,6 +479,9 @@ function handleApparelOrder(p) {
       size:        String(p.size        || '').trim(),
       placement:   String(p.placement   || '').trim(),
       qty:         parseInt(p.qty, 10) || 1,
+      subtotal:    parseFloat(p.subtotal) || 0,
+      shipping:    parseFloat(p.shipping) || 0,
+      method:      String(p.deliveryMethod || 'Pickup').trim(),
       total:       parseFloat(p.total) || 0,
       comments:    String(p.comments    || '').trim(),
       address:     String(p.address     || '').trim(),
@@ -487,6 +490,8 @@ function handleApparelOrder(p) {
       zip:         String(p.zip         || '').trim(),
       paymentLink: String(p.paymentLink || '').trim(),
     };
+    // Back-fill subtotal for older clients that only send `total`.
+    if (!row.subtotal) row.subtotal = +(row.total - row.shipping).toFixed(2);
 
     // One-line shipping summary for the email + Discord. Blank when the
     // customer left the (optional) delivery fields empty — they're picking up.
@@ -496,17 +501,22 @@ function handleApparelOrder(p) {
       row.zip,
     ].filter(function(v){ return v; }).join(' · ');
 
+    // Column order is ADDITIVE — original columns 1–14 are untouched and new
+    // fields are appended at the end, so appendRow stays aligned with sheets
+    // that predate these fields (appendRow writes by position, not header).
     let sh = ss.getSheetByName('Apparel_Orders');
     if (!sh) {
       sh = ss.insertSheet('Apparel_Orders');
       sh.appendRow(['id','timestamp','first','last','email','phone',
-                    'product','color','size','placement','qty','total','comments',
-                    'address','city','state','zip','paymentLink']);
-      sh.getRange(1, 1, 1, 18).setFontWeight('bold');
+                    'product','color','size','placement','qty','total','comments','paymentLink',
+                    'address','city','state','zip','subtotal','shipping','method']);
+      sh.getRange(1, 1, 1, 21).setFontWeight('bold');
     }
     sh.appendRow([row.id, row.timestamp, row.first, row.last, row.email, row.phone,
                   row.product, row.color, row.size, row.placement, row.qty, row.total,
-                  row.comments, row.address, row.city, row.state, row.zip, row.paymentLink]);
+                  row.comments, row.paymentLink,
+                  row.address, row.city, row.state, row.zip,
+                  row.subtotal, row.shipping, row.method]);
 
     // Notify the sales team. Wrapped so a mail failure doesn't sink the
     // whole request — the order still landed in the Sheet.
@@ -523,6 +533,9 @@ function handleApparelOrder(p) {
         'Size:      ' + row.size,
         'Placement: ' + row.placement,
         'Qty:       ' + row.qty,
+        '',
+        'Subtotal:  $' + row.subtotal.toFixed(2),
+        'Shipping:  $' + row.shipping.toFixed(2) + '  (' + row.method + ')',
         'Total:     $' + row.total.toFixed(2),
         '',
         'Payment link: ' + (row.paymentLink || '(Stripe link generation failed — send manually)'),
@@ -557,6 +570,7 @@ function handleApparelOrder(p) {
         { name: '📏 Size',      value: row.size   || '?', inline: true },
         { name: '📍 Placement', value: row.placement || '?', inline: true },
         { name: '🔢 Qty',       value: String(row.qty || '?'),         inline: true },
+        { name: '🚚 Method',    value: row.method + (row.shipping ? ' (+$' + row.shipping.toFixed(2) + ')' : ''), inline: true },
         { name: '💵 Total',     value: '$' + (row.total || 0).toFixed(2), inline: true },
         { name: '💳 Pay link',  value: row.paymentLink ? row.paymentLink : '(Stripe failed — send manually)', inline: false },
         { name: '🚚 Deliver to', value: shipTo || '(pickup / no address)', inline: false },
@@ -580,6 +594,8 @@ function handleApparelOrder(p) {
           '  Size:      ' + row.size,
           '  Placement: ' + row.placement,
           '  Qty:       ' + row.qty,
+          '  Subtotal:  $' + row.subtotal.toFixed(2),
+          '  Shipping:  $' + row.shipping.toFixed(2) + (row.shipping ? '' : ' (free local pickup)'),
           '  Total:     $' + row.total.toFixed(2),
           (shipTo ? '  Ship to:   ' + shipTo : '  Pickup:    we\'ll confirm a pickup time'),
           '',
@@ -654,6 +670,8 @@ function handleCartOrder(p) {
       city:  String(p.city      || '').trim(),
       state: String(p.state     || '').trim(),
       zip:   String(p.zip       || '').trim(),
+      method: String(p.deliveryMethod || 'Pickup').trim(),
+      shipping: parseFloat(p.shipping) || 0,
       notes: String(p.notes     || '').trim(),
       page:  String(p.page      || '').trim(),
     };
@@ -681,18 +699,22 @@ function handleCartOrder(p) {
     items.forEach(function(it){
       subtotal += (parseFloat(it.price) || 0) * (parseInt(it.qty, 10) || 1);
     });
+    const grandTotal = +(subtotal + customer.shipping).toFixed(2);
 
+    // Additive column order — original columns 1–11 untouched, new fields
+    // appended at the end so appendRow stays aligned with pre-existing sheets.
     let sh = ss.getSheetByName('Cart_Orders');
     if (!sh) {
       sh = ss.insertSheet('Cart_Orders');
       sh.appendRow(['id','timestamp','first','last','email','phone',
-                    'itemCount','subtotal','items','address','city','state','zip','notes','page']);
-      sh.getRange(1, 1, 1, 15).setFontWeight('bold');
+                    'itemCount','subtotal','items','notes','page',
+                    'address','city','state','zip','shipping','total','method']);
+      sh.getRange(1, 1, 1, 18).setFontWeight('bold');
     }
     sh.appendRow([id, now, customer.first, customer.last, customer.email, customer.phone,
-                  items.length, subtotal, itemsText,
+                  items.length, subtotal, itemsText, customer.notes, customer.page,
                   customer.address, customer.city, customer.state, customer.zip,
-                  customer.notes, customer.page]);
+                  customer.shipping, grandTotal, customer.method]);
 
     // Auto-draft an Invoices row using the same column shape that
     // invoice.html's `addOrder` action writes — so the draft shows up in
@@ -723,6 +745,8 @@ function handleCartOrder(p) {
         itemsText || '(empty cart — log only)',
         '',
         'Subtotal: $' + subtotal.toFixed(2),
+        'Shipping: $' + customer.shipping.toFixed(2) + '  (' + customer.method + ')',
+        'Total:    $' + grandTotal.toFixed(2),
         '',
         'Deliver to: ' + (shipTo || '(no address — pickup / confirm with customer)'),
         '',
@@ -756,8 +780,10 @@ function handleCartOrder(p) {
           (customer.email ? '\n✉️ ' + customer.email : ''), inline: false },
       { name: '🛍️ Items (' + items.length + ')', value: itemsForDiscord, inline: false },
       { name: '💵 Subtotal', value: '$' + subtotal.toFixed(2), inline: true },
+      { name: '🚚 Shipping', value: '$' + customer.shipping.toFixed(2) + ' (' + customer.method + ')', inline: true },
+      { name: '💰 Total', value: '$' + grandTotal.toFixed(2), inline: true },
       { name: '🌐 Page', value: (customer.page || '(unknown)').substring(0, 200), inline: true },
-      { name: '🚚 Deliver to', value: shipTo || '(pickup / no address)', inline: false },
+      { name: '📦 Deliver to', value: shipTo || '(pickup / no address)', inline: false },
       { name: '📝 Notes', value: customer.notes || '(none)', inline: false },
     ];
     if (invoiceUrl) {
@@ -772,7 +798,7 @@ function handleCartOrder(p) {
         : 'Follow up to confirm and send a payment link'
     );
 
-    return json({ ok: true, id: id, subtotal: subtotal, invoiceUrl: invoiceUrl });
+    return json({ ok: true, id: id, subtotal: subtotal, shipping: customer.shipping, total: grandTotal, invoiceUrl: invoiceUrl });
   } catch (err) {
     console.error('handleCartOrder failed: ' + err);
     return json({ ok: false, error: String(err) });
@@ -821,12 +847,18 @@ function _createDraftInvoiceFromCart_(cartId, now, customer, items, subtotal) {
     if (!isNaN(parsed) && parsed >= 0 && parsed < 1) taxRate = parsed;
   } catch (e) { /* SiteConfig key missing — use default */ }
 
-  const taxAmt    = +(subtotal * taxRate).toFixed(2);
-  const total     = +(subtotal + taxAmt).toFixed(2);
+  // Shipping (flat, chosen at checkout) rides along as a line item so the
+  // invoice math stays self-consistent. Ohio taxes shipping on taxable
+  // goods, so it's folded into the taxable subtotal — Pat can edit the
+  // draft before sending if a given order shouldn't be charged shipping.
+  const shipping = parseFloat(customer.shipping) || 0;
+  const taxableSubtotal = +(subtotal + shipping).toFixed(2);
+  const taxAmt    = +(taxableSubtotal * taxRate).toFixed(2);
+  const total     = +(taxableSubtotal + taxAmt).toFixed(2);
   const balanceDue = total;
 
   // Line items in the shape invoice.html expects: { description, qty, price }.
-  const lineItemsJson = JSON.stringify(items.map(function(it){
+  const lineItems = items.map(function(it){
     const c = (it && it.configuration) || {};
     const cfg = [c.style, c.size, c.color]
       .filter(function(v){ return v && String(v).trim(); }).join(' / ');
@@ -839,7 +871,18 @@ function _createDraftInvoiceFromCart_(cartId, now, customer, items, subtotal) {
       qty:         parseInt(it && it.qty, 10) || 1,
       price:       parseFloat(it && it.price) || 0,
     };
-  }));
+  });
+  if (shipping > 0) {
+    lineItems.push({ description: 'Shipping (' + (customer.method || 'Ship') + ')', qty: 1, price: shipping });
+  }
+  const lineItemsJson = JSON.stringify(lineItems);
+
+  // Ship-to address for the invoice header (blank for pickup).
+  const shipToAddr = [
+    customer.address,
+    [customer.city, customer.state].filter(function(v){ return v; }).join(', '),
+    customer.zip,
+  ].filter(function(v){ return v; }).join(', ');
 
   // Map of column-name → value. Column order is whatever the Invoices
   // tab uses — we read the header and place values by name so we're
@@ -852,9 +895,9 @@ function _createDraftInvoiceFromCart_(cartId, now, customer, items, subtotal) {
     customerName:    (customer.first + ' ' + customer.last).trim(),
     customerEmail:   customer.email || '',
     customerPhone:   customer.phone || '',
-    customerAddress: '',
+    customerAddress: shipToAddr,
     lineItems:       lineItemsJson,
-    subtotal:        subtotal.toFixed(2),
+    subtotal:        taxableSubtotal.toFixed(2),
     discountPct:     '0.00',
     discountAmt:     '0.00',
     tax:             taxAmt.toFixed(2),
@@ -4875,6 +4918,32 @@ function setupSheet() {
  *
  * Safe to re-run as often as you like.
  */
+
+/**
+ * One-time: label the columns that were appended for delivery address +
+ * flat shipping on the order sheets. Only rewrites the header row (row 1);
+ * existing order data is positionally aligned and left untouched. Run once
+ * from the Apps Script editor after deploying. Safe to re-run.
+ */
+function migrateOrderSheetHeaders() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const defs = {
+    'Apparel_Orders': ['id','timestamp','first','last','email','phone',
+      'product','color','size','placement','qty','total','comments','paymentLink',
+      'address','city','state','zip','subtotal','shipping','method'],
+    'Cart_Orders': ['id','timestamp','first','last','email','phone',
+      'itemCount','subtotal','items','notes','page',
+      'address','city','state','zip','shipping','total','method'],
+  };
+  Object.keys(defs).forEach(function(name){
+    const sh = ss.getSheetByName(name);
+    if (!sh) { console.log('skip ' + name + ' (no tab yet — created on next order)'); return; }
+    const hdr = defs[name];
+    sh.getRange(1, 1, 1, hdr.length).setValues([hdr]).setFontWeight('bold');
+    console.log('Updated header: ' + name + ' (' + hdr.length + ' cols)');
+  });
+}
+
 function updateSheet() {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
   const tabs = getTabDefs();

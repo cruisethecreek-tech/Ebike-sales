@@ -185,6 +185,8 @@ main{flex:1;max-width:1080px;width:100%;margin:0 auto;padding:28px 24px 64px}
   display:flex;align-items:baseline;justify-content:space-between;gap:12px}
 .totals-label{font-size:.7rem;letter-spacing:.18em;text-transform:uppercase;font-weight:700;color:var(--tan)}
 .totals-value{font-family:'Bebas Neue',sans-serif;font-size:2.1rem;letter-spacing:.02em;color:#fff;line-height:1}
+.ship-fields.is-hidden{display:none}
+.ship-summary{margin-top:6px;font-size:.72rem;color:rgba(255,255,255,.55);letter-spacing:.02em;text-align:right}
 .submit-btn{width:100%;margin-top:16px;background:var(--tan);color:var(--dark);
   padding:15px 22px;border-radius:6px;font-size:.92rem;font-weight:800;letter-spacing:.06em;
   text-transform:uppercase;transition:background .2s ease,transform .15s ease}
@@ -362,6 +364,9 @@ const MENU_URL    = 'https://script.google.com/macros/s/AKfycbwXv6r6Me-mdp9WFjCH
 const SUBMIT_URL  = 'https://script.google.com/macros/s/AKfycbwXv6r6Me-mdp9WFjCHQYDHcgEKbny-9_K8TX-yGgW40yTONhz6kAs3H96xM0tEDAhcJA/exec';
 const STRIPE_URL  = 'https://ebike-sales-nu.vercel.app/api/create-stripe-invoice';
 const SIZES = ['S','M','L','XL','XXL'];
+// Flat shipping for apparel (USPS Ground Advantage covers a tee for ~$4–6).
+// Local pickup is free. Change this one number to reprice shipping.
+const SHIP_FLAT = 5;
 // Fallback placements if the ApparelPlacements Sheet is empty / hasn't been
 // seeded yet. Once the tab has rows, those win.
 const FALLBACK_PLACEMENTS = [
@@ -397,7 +402,7 @@ function mergeProducts(cms){
 }
 
 let DATA = { products: mergeProducts([]), colors: [], placements: FALLBACK_PLACEMENTS.slice() };
-let SELECTION = { productId: null, color: null, size: null, placement: null, qty: 1 };
+let SELECTION = { productId: null, color: null, size: null, placement: null, qty: 1, ship: false };
 
 // Abandon recovery — save personal info as the visitor types so a refresh,
 // product swap, or accidental nav doesn't wipe their name/email/phone. The
@@ -635,14 +640,26 @@ function renderOrderPanel(available){
         </div>
       </div>
       <div class="form-section">
-        <label class="form-label">Delivery address <span class="form-hint">optional — only if it needs to ship</span></label>
-        <input type="text" class="form-input" id="f-address" placeholder="Street address" autocomplete="street-address">
-        <div class="form-row two" style="margin-top:12px">
-          <input type="text" class="form-input" id="f-city"  placeholder="City"  autocomplete="address-level2">
-          <input type="text" class="form-input" id="f-state" placeholder="State" autocomplete="address-level1">
+        <label class="form-label">Delivery</label>
+        <div class="placement-row" id="ship-toggle">
+          <button type="button" class="placement-btn is-active" data-ship="0">
+            <span>Local pickup</span>
+            <span class="pb-sub">Free</span>
+          </button>
+          <button type="button" class="placement-btn" data-ship="1">
+            <span>Ship to me</span>
+            <span class="pb-sub">+$${SHIP_FLAT}</span>
+          </button>
         </div>
-        <div class="form-row" style="margin-top:12px">
-          <input type="text" class="form-input" id="f-zip" placeholder="ZIP code" autocomplete="postal-code" inputmode="numeric">
+        <div class="ship-fields is-hidden" id="ship-fields" style="margin-top:12px">
+          <input type="text" class="form-input" id="f-address" placeholder="Street address" autocomplete="street-address">
+          <div class="form-row two" style="margin-top:12px">
+            <input type="text" class="form-input" id="f-city"  placeholder="City"  autocomplete="address-level2">
+            <input type="text" class="form-input" id="f-state" placeholder="State" autocomplete="address-level1">
+          </div>
+          <div class="form-row" style="margin-top:12px">
+            <input type="text" class="form-input" id="f-zip" placeholder="ZIP code" autocomplete="postal-code" inputmode="numeric">
+          </div>
         </div>
       </div>
       <div class="form-section">
@@ -653,6 +670,7 @@ function renderOrderPanel(available){
         <span class="totals-label">Total</span>
         <span class="totals-value" id="total-value">$${((parseFloat(product.base_price) || 30) * SELECTION.qty).toFixed(0)}</span>
       </div>
+      <div class="ship-summary" id="ship-summary">Free local pickup in Youngstown</div>
       <button type="submit" class="submit-btn" id="submit-btn" ${submitDisabled ? 'disabled' : ''}>
         ${available ? 'Submit order' : 'Notify me when this drops'}
       </button>
@@ -668,10 +686,29 @@ function renderOrderPanel(available){
 function bindForm(product, available){
   const body = document.getElementById('order-body');
   const totalEl = document.getElementById('total-value');
+  const shipSummary = document.getElementById('ship-summary');
+  const shipFields = document.getElementById('ship-fields');
+  const shipInputs = ['f-address','f-city','f-state','f-zip'].map(id => document.getElementById(id));
   const recalc = () => {
     const price = parseFloat(product.base_price) || 30;
-    totalEl.textContent = '$' + (price * SELECTION.qty).toFixed(0);
+    const ship = SELECTION.ship ? SHIP_FLAT : 0;
+    totalEl.textContent = '$' + (price * SELECTION.qty + ship).toFixed(0);
+    if (shipSummary) shipSummary.textContent = SELECTION.ship
+      ? ('Includes $' + SHIP_FLAT + ' flat-rate shipping')
+      : 'Free local pickup in Youngstown';
   };
+  const applyShipUI = () => {
+    if (shipFields) shipFields.classList.toggle('is-hidden', !SELECTION.ship);
+    shipInputs.forEach(el => { if (el) el.required = !!SELECTION.ship; });
+    body.querySelectorAll('#ship-toggle .placement-btn').forEach(b =>
+      b.classList.toggle('is-active', (b.dataset.ship === '1') === SELECTION.ship));
+    recalc();
+  };
+  body.querySelectorAll('#ship-toggle .placement-btn').forEach(b => b.addEventListener('click', () => {
+    SELECTION.ship = b.dataset.ship === '1';
+    applyShipUI();
+  }));
+  applyShipUI();
 
   body.querySelectorAll('.swatch').forEach(b => b.addEventListener('click', () => {
     if (b.classList.contains('is-disabled')) return;
@@ -683,9 +720,11 @@ function bindForm(product, available){
     SELECTION.size = b.dataset.size;
     body.querySelectorAll('.pill').forEach(s => s.classList.toggle('is-active', s.dataset.size === SELECTION.size));
   }));
-  body.querySelectorAll('.placement-btn').forEach(b => b.addEventListener('click', () => {
+  // Scope to print-placement buttons only — the delivery toggle reuses the
+  // .placement-btn styling but lives under #ship-toggle and is bound above.
+  body.querySelectorAll('.placement-row:not(#ship-toggle) .placement-btn').forEach(b => b.addEventListener('click', () => {
     SELECTION.placement = b.dataset.placement;
-    body.querySelectorAll('.placement-btn').forEach(s => s.classList.toggle('is-active', s.dataset.placement === SELECTION.placement));
+    body.querySelectorAll('.placement-row:not(#ship-toggle) .placement-btn').forEach(s => s.classList.toggle('is-active', s.dataset.placement === SELECTION.placement));
   }));
   const qtyInput = document.getElementById('qty-input');
   body.querySelectorAll('.qty-btn').forEach(b => b.addEventListener('click', () => {
@@ -794,13 +833,21 @@ async function submitOrder(product, available){
     alert('Pick a color before submitting.');
     return;
   }
+  if (available && SELECTION.ship && (!address || !city || !state || !zip)) {
+    alert('Add your shipping address (street, city, state, ZIP), or switch to free local pickup.');
+    return;
+  }
   btn.disabled = true;
 
-  const total = (parseFloat(product.base_price) || 30) * SELECTION.qty;
+  const shipping = SELECTION.ship ? SHIP_FLAT : 0;
+  const subtotal = (parseFloat(product.base_price) || 30) * SELECTION.qty;
+  const total = subtotal + shipping;
+  const deliveryMethod = SELECTION.ship ? 'Ship' : 'Pickup';
   const lineName = product.name + ' · ' + (SELECTION.color || '—')
                  + ' · ' + (SELECTION.size || '—')
                  + ' · ' + (SELECTION.placement || '—')
-                 + (SELECTION.qty > 1 ? ' · ×' + SELECTION.qty : '');
+                 + (SELECTION.qty > 1 ? ' · ×' + SELECTION.qty : '')
+                 + (shipping ? ' · +$' + shipping + ' shipping' : '');
 
   // Step 1: ask Stripe for a payment link (only if the print is buyable).
   // If Stripe is down or the page is on a non-allowlisted origin, we still
@@ -854,6 +901,9 @@ async function submitOrder(product, available){
     city:        city,
     state:       state,
     zip:         zip,
+    deliveryMethod: deliveryMethod,
+    shipping:    shipping.toFixed(2),
+    subtotal:    subtotal.toFixed(2),
     paymentLink: paymentLink,
   });
 
