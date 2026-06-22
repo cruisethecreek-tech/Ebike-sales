@@ -1089,6 +1089,22 @@ function handleBridgeApplication(p) {
     row.biweekly_rate  = String(p.biweekly_rate  || '').trim();   // e.g. "55.00"
     row.num_payments   = String(p.num_payments   || '').trim();   // e.g. "15"
 
+    // Deal terms are ALWAYS "N bi-weekly payments, each = total / N". Recompute
+    // them server-side as a fallback so the Sheet, email, and agreement Doc are
+    // complete even if the front-end calculator didn't post them (older cached
+    // page, JS disabled, etc.). N defaults to 15 (SiteConfig btg_num_payments
+    // can override). This is what makes the agreement need zero manual entry.
+    var nPay = parseInt(row.num_payments, 10);
+    if (!nPay || nPay < 1) {
+      var cfgN = parseInt(getSiteConfigValue_('btg_num_payments'), 10);
+      nPay = (cfgN && cfgN > 0) ? cfgN : 15;
+      row.num_payments = String(nPay);
+    }
+    var totalNum = parseFloat(String(row.total_value).replace(/[^0-9.\-]/g, ''));
+    if ((!row.biweekly_rate || parseFloat(row.biweekly_rate) <= 0) && isFinite(totalNum) && totalNum > 0) {
+      row.biweekly_rate = (Math.round((totalNum / nPay) * 100) / 100).toFixed(2);
+    }
+
     // Auto-draft the Rent-to-Own Agreement Google Doc from the applicant's
     // info. No-op (returns '') until the template + folder IDs are set in
     // SiteConfig, so this never blocks an application from landing.
@@ -1210,13 +1226,23 @@ function handleBridgeApplication(p) {
  * Until btg_agreement_template_id is set this returns '' — applications
  * still log normally, they just don't generate a doc yet.
  *
- * Template placeholders (type these verbatim into the template Doc):
- *   {{full_name}} {{first_name}} {{last_name}} {{phone}} {{email}}
- *   {{address}} {{city}} {{state}} {{zip}} {{dob}} {{bike_selection}}
- *   {{id}} {{date}}
- * Deal-specific fields (total value, bi-weekly rate, # of payments) are
- * NOT captured at application time, so leave those as their own
- * {{placeholders}} in the template for the owner to fill in by hand.
+ * Template placeholders (type these verbatim into the template Doc — every
+ * one is filled automatically, so the agreement needs NO manual entry):
+ *   Applicant:  {{full_name}} {{first_name}} {{last_name}} {{phone}} {{email}}
+ *               {{address}} {{city}} {{state}} {{zip}} {{dob}}
+ *   The bike:   {{bike_selection}}  (style name only)
+ *   Add-ons:    {{accessories}}     (comma-separated list the applicant chose)
+ *   Full item:  {{item}}            (bike + " with " + accessories, one line)
+ *   Deal terms: {{total_value}}     (e.g. "$825.00")
+ *               {{total_cost}}      (same as total_value — no markup)
+ *               {{biweekly_rate}}   (e.g. "$55.00" — total ÷ # of payments)
+ *               {{num_payments}}    (e.g. "15")
+ *   Meta:       {{id}} {{date}}
+ *
+ * The deal terms are captured at application time (and recomputed server-side
+ * as a fallback), so put {{total_value}}, {{biweekly_rate}} and
+ * {{num_payments}} directly in the template — do NOT leave them blank to fill
+ * in by hand.
  */
 function generateBridgeAgreement_(row) {
   const templateId = getSiteConfigValue_('btg_agreement_template_id');
