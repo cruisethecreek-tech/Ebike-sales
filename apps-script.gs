@@ -1292,6 +1292,10 @@ function generateBridgeAgreement_(row) {
   Object.keys(map).forEach(function(k) {
     body.replaceText('\\{\\{' + k + '\\}\\}', String(map[k] || ''));
   });
+  // Money tokens already include "$". If the template kept its own "$" right
+  // before a money token (e.g. "$ {{total_value}}"), collapse the resulting
+  // "$$" so the owner can't accidentally double it up.
+  body.replaceText('\\$\\s*\\$', '$');
   doc.saveAndClose();
   return copy.getUrl();
 }
