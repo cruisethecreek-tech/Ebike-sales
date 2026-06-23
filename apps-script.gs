@@ -3742,17 +3742,22 @@ function getTabDefs() {
       // `colors` narrows which ApparelColors rows show for this product.
       // Comma-separated list of color names, e.g. "Black, Forest Green".
       // Leave blank to allow every color in ApparelColors.
+      //
+      // `placements` narrows which ApparelPlacements options show for this
+      // product. Comma-separated list of placement names, e.g. "Front".
+      // Leave blank to allow every placement (Front + Back). Use this for a
+      // print that only exists on one side.
       // Sheet-managed prints only. Repo-published prints (e.g. the Tour USA
       // Tee) live in STATIC_PRODUCTS on apparel.html — keep them OUT of this
       // seed so a Sheet rebuild can't reintroduce a duplicate row.
-      header: ['id','order','name','base_price','photo','description','colors','available'],
+      header: ['id','order','name','base_price','photo','description','colors','placements','available'],
       rows: [
         ['tee-trail', 1, 'Trail Map Tee',       30, 'tee-trail-green.jpg',
           "Cream-and-tan trail mark with the Cruise the Creek bike, trees, and dotted-line park trails. Soft cotton blend.",
-          '', true],
+          '', '', true],
         ['tee-neon',  2, 'Neon Watercolor Tee', 30, 'tee-neon-black.jpg',
           "Vivid neon-watercolor design with chains, trees, and the Youngstown OH stamp. Heavyweight cotton.",
-          'Black', true],
+          'Black', '', true],
       ],
     },
     'ApparelColors': {

@@ -387,6 +387,7 @@ const STATIC_PRODUCTS = [
     photo: 'tee-tour-usa.jpg',
     description: "Americana trail print — stars-and-stripes backdrop, the Cruise the Creek bike, twin eagles, and pine ridgeline. \"Unleash Your Adventure · Tour USA\" lockup on heavyweight cotton.",
     colors: 'Black',
+    placements: 'Front',
     available: true,
   },
 ];
@@ -593,7 +594,21 @@ function renderOrderPanel(available){
 
   const sizeBtns = SIZES.map(s => `<button type="button" class="pill${SELECTION.size === s ? ' is-active' : ''}" data-size="${s}">${s}</button>`).join('');
 
-  const placements = (DATA.placements || []).filter(p => isTrue(p.available));
+  // Per-product placement narrowing — mirrors color narrowing above.
+  // product.placements is a comma-separated list of placement names (e.g.
+  // "Front"); blank means "all placements". A print that only exists on the
+  // front (like the Tour USA tee) sets this to "Front" so Back never shows.
+  const placeAllow = String(product.placements || '')
+    .split(',').map(s => s.trim().toLowerCase()).filter(Boolean);
+  const placements = (DATA.placements || []).filter(p => isTrue(p.available)
+    && (placeAllow.length === 0 || placeAllow.indexOf(String(p.name || '').toLowerCase()) !== -1));
+
+  // Drop a previously-picked placement that isn't valid for this product and
+  // fall back to the first one available for it.
+  if (!SELECTION.placement || !placements.some(p => p.name === SELECTION.placement)) {
+    SELECTION.placement = (placements[0] || {}).name || null;
+  }
+
   const placementBtns = placements.map(pl => {
     const name = String(pl.name || '').trim();
     const sub  = String(pl.sublabel || '').trim();
