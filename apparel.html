@@ -408,6 +408,15 @@ const STATIC_PRODUCTS = [
   },
 ];
 
+// Repo-side photo overrides for CMS-managed prints, keyed by product id. Lets
+// us add a photo carousel to a Sheet-driven product (like the Trail Map Tee)
+// without a Sheet edit + redeploy. Only applied when the product hasn't set
+// its own `photos` in the Sheet — so the Sheet always wins once you fill that
+// column. Each value is a list of filenames in /media (first = primary).
+const PHOTO_OVERRIDES = {
+  'tee-trail': ['tee-trail-photo-charcoal.jpg', 'tee-trail-photo-green.jpg'],
+};
+
 // CMS rows win on id collisions; static-only prints fill in the rest. Sorted
 // by the `order` column so the catalog stays in its intended sequence.
 function mergeProducts(cms){
@@ -415,6 +424,13 @@ function mergeProducts(cms){
   const cmsIds  = new Set(cmsList.map(p => String(p.id).trim()));
   const merged  = cmsList.concat(STATIC_PRODUCTS.filter(p => !cmsIds.has(String(p.id).trim())));
   merged.sort((a, b) => (parseFloat(a.order) || 0) - (parseFloat(b.order) || 0));
+  // Apply repo photo overrides — but only where the product didn't bring its
+  // own photos, so a Sheet `photos` value always takes precedence.
+  merged.forEach(p => {
+    if (!p.photos && PHOTO_OVERRIDES[String(p.id).trim()]) {
+      p.photos = PHOTO_OVERRIDES[String(p.id).trim()].slice();
+    }
+  });
   return merged;
 }
 

@@ -3756,7 +3756,7 @@ function getTabDefs() {
       // seed so a Sheet rebuild can't reintroduce a duplicate row.
       header: ['id','order','name','base_price','photo','photos','description','colors','placements','available'],
       rows: [
-        ['tee-trail', 1, 'Trail Map Tee',       30, 'tee-trail-green.jpg', '',
+        ['tee-trail', 1, 'Trail Map Tee',       30, 'tee-trail-green.jpg', 'tee-trail-photo-charcoal.jpg, tee-trail-photo-green.jpg',
           "Cream-and-tan trail mark with the Cruise the Creek bike, trees, and dotted-line park trails. Soft cotton blend.",
           '', '', true],
         ['tee-neon',  2, 'Neon Watercolor Tee', 30, 'tee-neon-black.jpg', '',
