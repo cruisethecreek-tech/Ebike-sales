@@ -94,6 +94,21 @@ main{flex:1;max-width:1080px;width:100%;margin:0 auto;padding:28px 24px 64px}
 .product-photo{position:relative;aspect-ratio:4/5;background:linear-gradient(135deg,var(--cream-w),var(--cream));
   display:flex;align-items:center;justify-content:center;overflow:hidden}
 .product-photo img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+/* Multi-photo carousel (shown when a product has 2+ photos) */
+.carousel{position:absolute;inset:0}
+.carousel-img{opacity:0;transition:opacity .35s ease;z-index:1}
+.carousel-img.is-active{opacity:1;z-index:2}
+.carousel-arrow{position:absolute;top:50%;transform:translateY(-50%);z-index:4;
+  width:30px;height:30px;display:flex;align-items:center;justify-content:center;
+  background:rgba(0,0,0,.45);color:#fff;border-radius:50%;font-size:1.3rem;line-height:1;
+  cursor:pointer;user-select:none;transition:background .15s ease}
+.carousel-arrow:hover{background:rgba(0,0,0,.72)}
+.carousel-arrow.prev{left:8px}.carousel-arrow.next{right:8px}
+.carousel-dots{position:absolute;bottom:9px;left:0;right:0;z-index:4;
+  display:flex;gap:6px;justify-content:center}
+.cdot{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.55);
+  cursor:pointer;transition:background .15s ease}
+.cdot.is-active{background:#fff}
 .product-photo .ph-empty{font-family:'Bebas Neue',sans-serif;font-size:1.2rem;letter-spacing:.04em;
   color:var(--ink-3);text-transform:uppercase;text-align:center;padding:24px}
 .product-badge{position:absolute;top:10px;left:10px;background:var(--tan);color:var(--dark);
@@ -384,7 +399,8 @@ const STATIC_PRODUCTS = [
     order: 3,
     name: 'Tour USA Tee',
     base_price: 30,
-    photo: 'tee-tour-usa.jpg',
+    photo: 'tee-tour-usa-front.jpg',
+    photos: ['tee-tour-usa-front.jpg', 'tee-tour-usa-detail.jpg'],
     description: "Americana trail print — stars-and-stripes backdrop, the Cruise the Creek bike, twin eagles, and pine ridgeline. \"Unleash Your Adventure · Tour USA\" lockup on heavyweight cotton.",
     colors: 'Black',
     placements: 'Front',
@@ -439,6 +455,16 @@ function resolveImg(name){
   const v = String(name || '').trim();
   if (!v) return '';
   return /^https?:\/\//.test(v) ? v : 'media/' + encodeURI(v.replace(/^(media|images)\//, ''));
+}
+// A product's photo list. `photos` may be an array (STATIC_PRODUCTS) or a
+// comma-separated string (CMS column); falls back to the single `photo`.
+// 2+ entries render as a carousel on the card.
+function productPhotos(p){
+  let list = [];
+  if (Array.isArray(p.photos)) list = p.photos.slice();
+  else if (p.photos) list = String(p.photos).split(',');
+  if (!list.length && p.photo) list = [p.photo];
+  return list.map(resolveImg).filter(Boolean);
 }
 function isLightSwatch(hex){
   const m = String(hex || '').match(/^#?([0-9a-f]{6})$/i);
@@ -509,10 +535,20 @@ function renderProducts(){
   }
   grid.innerHTML = visible.map(p => {
     const available = isTrue(p.available);
-    const img = resolveImg(p.photo);
-    const photo = img
-      ? `<img src="${esc(img)}" alt="${esc(p.name)}" loading="lazy" onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'ph-empty',textContent:'Photo coming soon'}))">`
-      : `<div class="ph-empty">Photo coming soon</div>`;
+    const pics = productPhotos(p);
+    let photo;
+    if (pics.length > 1) {
+      photo = `<div class="carousel" data-idx="0">`
+        + pics.map((src, i) => `<img class="carousel-img${i === 0 ? ' is-active' : ''}" src="${esc(src)}" alt="${esc(p.name)}" loading="lazy" onerror="this.remove()">`).join('')
+        + `<span class="carousel-arrow prev" data-dir="-1" role="button" aria-label="Previous photo">&#8249;</span>`
+        + `<span class="carousel-arrow next" data-dir="1" role="button" aria-label="Next photo">&#8250;</span>`
+        + `<span class="carousel-dots">` + pics.map((_, i) => `<span class="cdot${i === 0 ? ' is-active' : ''}" data-i="${i}"></span>`).join('') + `</span>`
+        + `</div>`;
+    } else if (pics.length === 1) {
+      photo = `<img src="${esc(pics[0])}" alt="${esc(p.name)}" loading="lazy" onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'ph-empty',textContent:'Photo coming soon'}))">`;
+    } else {
+      photo = `<div class="ph-empty">Photo coming soon</div>`;
+    }
     const badge = available
       ? (p.badge ? `<span class="product-badge">${esc(p.badge)}</span>` : '')
       : '<span class="product-badge soldout">Coming Soon</span>';
@@ -533,6 +569,28 @@ function renderProducts(){
       if (!p) return;
       selectProduct(p.id, isTrue(p.available));
     });
+  });
+
+  // Carousel controls. stopPropagation keeps an arrow/dot tap from also
+  // selecting the product (the whole card is a button).
+  grid.querySelectorAll('.carousel').forEach(car => {
+    const imgs = car.querySelectorAll('.carousel-img');
+    const dots = car.querySelectorAll('.cdot');
+    const show = n => {
+      const total = imgs.length;
+      const idx = ((n % total) + total) % total;
+      car.dataset.idx = idx;
+      imgs.forEach((im, i) => im.classList.toggle('is-active', i === idx));
+      dots.forEach((d, i) => d.classList.toggle('is-active', i === idx));
+    };
+    car.querySelectorAll('.carousel-arrow').forEach(a => a.addEventListener('click', e => {
+      e.stopPropagation();
+      show(parseInt(car.dataset.idx, 10) + parseInt(a.dataset.dir, 10));
+    }));
+    dots.forEach(d => d.addEventListener('click', e => {
+      e.stopPropagation();
+      show(parseInt(d.dataset.i, 10));
+    }));
   });
 }
 
