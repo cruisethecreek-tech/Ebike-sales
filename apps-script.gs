@@ -124,11 +124,32 @@ function doPost(e) {
 }
 
 /**
+ * Where repair-intake photos land in Drive. Uses SiteConfig
+ * repair_photos_folder_id if set; otherwise finds-or-creates a folder named
+ * "Cruise the Creek — Repair Intake Photos" so photos are auto-organized with
+ * zero setup. Returns null only if Drive is unreachable (caller falls back to
+ * My Drive root).
+ */
+function _repairPhotosFolder_() {
+  var configured = getSiteConfigValue_('repair_photos_folder_id');
+  if (configured) {
+    try { return DriveApp.getFolderById(configured); } catch (e) { /* fall through */ }
+  }
+  var name = 'Cruise the Creek — Repair Intake Photos';
+  try {
+    var it = DriveApp.getFoldersByName(name);
+    return it.hasNext() ? it.next() : DriveApp.createFolder(name);
+  } catch (e) {
+    return null;
+  }
+}
+
+/**
  * Repair / service intake. Lands one row in Repair_Intake, saves any uploaded
- * photos to Drive (folder from SiteConfig repair_photos_folder_id, else My
- * Drive root), and notifies salesteam@ + info@ plus Discord. Mirrors the other
- * handle* functions; the only extra is the photo save. Reuses the Drive scope
- * the agreement generator already authorized — no new permissions.
+ * photos to Drive (see _repairPhotosFolder_), and notifies salesteam@ + info@
+ * plus Discord. Mirrors the other handle* functions; the only extra is the
+ * photo save. Reuses the Drive scope the agreement generator already
+ * authorized — no new permissions.
  */
 function handleRepairIntake(p) {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
@@ -160,9 +181,7 @@ function handleRepairIntake(p) {
 
     // Save uploaded photos to Drive. Capped at 5; each is already compressed
     // client-side. A single bad file is skipped, never sinks the submission.
-    var folder = null;
-    var folderId = getSiteConfigValue_('repair_photos_folder_id');
-    if (folderId) { try { folder = DriveApp.getFolderById(folderId); } catch (fErr) { folder = null; } }
+    var folder = _repairPhotosFolder_();
     var files = Array.isArray(p.files) ? p.files.slice(0, 5) : [];
     var links = [];
     files.forEach(function(f, i) {
@@ -2924,6 +2943,13 @@ function getTabDefs() {
         // → Webhooks → New Webhook → pick a channel → Copy Webhook URL.
         // Leave blank to disable Discord notifications (emails still send).
         ['discord_webhook_url', ''],
+
+        ['── REPAIR INTAKE ──', ''],
+        // OPTIONAL. Leave blank and repair-intake photos auto-save to a Drive
+        // folder named "Cruise the Creek — Repair Intake Photos" (created on
+        // first submission). To use your own folder instead, paste its ID
+        // here (the part of the folder URL after /folders/).
+        ['repair_photos_folder_id', ''],
 
         ['── CHATBOT FACTS (Creek Concierge knowledge base) ──', ''],
         // The bot reads these from the rendered system prompt. Edit
