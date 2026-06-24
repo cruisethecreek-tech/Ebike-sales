@@ -50,14 +50,15 @@ button{font-family:inherit}
   position:sticky;top:0;z-index:100;
   border-bottom:1px solid rgba(0,0,0,.05);
 }
-.brand{display:flex;align-items:center;gap:10px}
+.brand{display:flex;align-items:center;gap:10px;flex-shrink:1;min-width:0}
 .brand-logo{height:38px;width:auto;display:block;}
-.top-nav{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
-.top-nav a{padding:8px 13px;border-radius:4px;font-size:.8rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--ink-2,#3a3a3a);transition:all .2s}
+.top-nav{display:flex;gap:6px;align-items:center;flex-wrap:nowrap;flex-shrink:0}
+.top-nav a{padding:8px 13px;border-radius:4px;font-size:.8rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;white-space:nowrap;color:var(--ink-2,#3a3a3a);transition:all .2s}
 .top-nav a:hover{background:rgba(0,0,0,.05);color:var(--forest)}
 .top-nav .book{background:var(--forest);color:#fff}
 .top-nav .book:hover{background:var(--dark,#1a2e1c);color:#fff}
-@media(max-width:560px){.top-nav a{padding:7px 9px;font-size:.7rem}}
+@media(max-width:560px){.topbar{gap:8px}.top-nav{gap:3px}.top-nav a{padding:7px 8px;font-size:.66rem;letter-spacing:.02em}}
+@media(max-width:400px){.brand-logo{height:26px}.top-nav a{padding:6px 6px;font-size:.6rem}}
 .top-actions{display:flex;align-items:center;gap:8px}
 .icon-btn{
   width:40px;height:40px;border-radius:4px;
