@@ -349,6 +349,7 @@ form.addEventListener('submit', async e => {
     ebikeClass: ebikeClass, issues: issues, description: v('f-desc'),
     waiverAgreed: true, waiverSignature: waiverSignature,
     waiverVersion: WAIVER_VERSION, waiverDate: WAIVER_DATE,
+    waiverText: (document.getElementById('waiver-box').innerText || '').trim(),
     files: files,
   };
 
@@ -366,7 +367,7 @@ form.addEventListener('submit', async e => {
     PICKED = []; renderThumbs();
     document.querySelectorAll('.choice.is-checked').forEach(c => c.classList.remove('is-checked'));
     showMsg('ok', 'Thanks! Your repair request is in' + (id ? ' (ref ' + id + ')' : '') +
-      '. We\'ll reach out within 24–48 hours to schedule.');
+      '. We\'ve emailed you a copy of your signed waiver, and we\'ll reach out within 24–48 hours to schedule.');
   } catch (err) {
     showMsg('error', 'Something went wrong sending that. Please try again, or text us and we\'ll sort it out.');
   } finally {

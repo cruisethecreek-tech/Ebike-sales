@@ -124,24 +124,84 @@ function doPost(e) {
 }
 
 /**
- * Where repair-intake photos land in Drive. Uses SiteConfig
- * repair_photos_folder_id if set; otherwise finds-or-creates a folder named
- * "Cruise the Creek — Repair Intake Photos" so photos are auto-organized with
- * zero setup. Returns null only if Drive is unreachable (caller falls back to
- * My Drive root).
+ * Find-or-create a Drive folder by name, with an optional SiteConfig override
+ * key holding a specific folder ID. Returns null only if Drive is unreachable.
  */
-function _repairPhotosFolder_() {
-  var configured = getSiteConfigValue_('repair_photos_folder_id');
-  if (configured) {
-    try { return DriveApp.getFolderById(configured); } catch (e) { /* fall through */ }
+function _findOrCreateFolder_(name, configKey) {
+  if (configKey) {
+    var configured = getSiteConfigValue_(configKey);
+    if (configured) { try { return DriveApp.getFolderById(configured); } catch (e) { /* fall through */ } }
   }
-  var name = 'Cruise the Creek — Repair Intake Photos';
   try {
     var it = DriveApp.getFoldersByName(name);
     return it.hasNext() ? it.next() : DriveApp.createFolder(name);
   } catch (e) {
     return null;
   }
+}
+
+/** Where repair-intake photos land (auto-organized; override via SiteConfig). */
+function _repairPhotosFolder_() {
+  return _findOrCreateFolder_('Cruise the Creek — Repair Intake Photos', 'repair_photos_folder_id');
+}
+
+/**
+ * Build a filled, signed liability-waiver PDF for a repair intake. Generates a
+ * Google Doc from the waiver text the customer actually saw (sent in the
+ * payload, so the PDF can't drift from the page), fills the customer/bike
+ * details + signature block, saves the Doc + PDF to a "Repair Waivers" Drive
+ * folder, and returns { docUrl, pdfUrl, pdfBlob }. Throws on failure — the
+ * caller wraps it so a waiver hiccup never sinks the intake.
+ */
+function generateRepairWaiverDoc_(row) {
+  var H = DocumentApp.ParagraphHeading;
+  var fullName = (row.first + ' ' + row.last).trim() || 'Customer';
+  var dateStr  = row.waiver_date || Utilities.formatDate(new Date(), 'America/New_York', 'MMMM d, yyyy');
+
+  var doc  = DocumentApp.create('Repair Waiver — ' + fullName + ' (' + row.id + ')');
+  var body = doc.getBody();
+  body.appendParagraph('Cruise the Creek').setHeading(H.TITLE);
+  body.appendParagraph('Service Authorization & Liability Waiver').setHeading(H.HEADING1);
+  body.appendParagraph('Reference ' + row.id + '  ·  ' + dateStr);
+
+  body.appendParagraph('Customer & Bike').setHeading(H.HEADING2);
+  body.appendParagraph('Name: ' + fullName);
+  body.appendParagraph('Phone: ' + (row.phone || '—') + '     Email: ' + (row.email || '—'));
+  body.appendParagraph('Bike: ' + ((row.brand || '') + ' ' + (row.model || '')).trim() +
+                       (row.ebike_class ? '  (' + row.ebike_class + ')' : ''));
+  if (row.issues) body.appendParagraph('Service requested: ' + row.issues);
+
+  body.appendParagraph('Terms').setHeading(H.HEADING2);
+  var txt = String(row.waiver_text || '').trim();
+  if (txt) {
+    txt.split(/\n+/).forEach(function(line) {
+      var t = line.trim();
+      if (t) body.appendParagraph(t);
+    });
+  } else {
+    body.appendParagraph('(Waiver text was not captured with this submission.)');
+  }
+
+  body.appendParagraph('Acknowledgment & Signature').setHeading(H.HEADING2);
+  body.appendParagraph('Agreed to terms: ' + (row.waiver_agreed || 'No'));
+  body.appendParagraph('Electronically signed by: ' + (row.waiver_signature || '(no name provided)'));
+  body.appendParagraph('Date: ' + dateStr);
+  body.appendParagraph('Waiver version: ' + (row.waiver_version || '—'));
+  body.appendParagraph('Submitted online at ' + row.timestamp +
+    '. This electronic signature has the same legal effect as a handwritten one.');
+  doc.saveAndClose();
+
+  var folder = _findOrCreateFolder_('Cruise the Creek — Repair Waivers', 'repair_waivers_folder_id');
+  var docFile = DriveApp.getFileById(doc.getId());
+  if (folder) {
+    try { folder.addFile(docFile); DriveApp.getRootFolder().removeFile(docFile); } catch (e) {}
+  }
+  var pdfBlob = docFile.getAs('application/pdf')
+                  .setName('Repair Waiver — ' + fullName + ' (' + row.id + ').pdf');
+  var pdfFile = folder ? folder.createFile(pdfBlob) : DriveApp.createFile(pdfBlob);
+  try { pdfFile.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW); } catch (e) {}
+
+  return { docUrl: doc.getUrl(), pdfUrl: pdfFile.getUrl(), pdfBlob: pdfBlob };
 }
 
 /**
@@ -183,6 +243,8 @@ function handleRepairIntake(p) {
     row.waiver_agreed    = (p.waiverAgreed === true || String(p.waiverAgreed).toLowerCase() === 'true') ? 'Yes' : 'No';
     row.waiver_signature = String(p.waiverSignature || '').trim();
     row.waiver_version   = String(p.waiverVersion || '').trim();
+    row.waiver_date      = String(p.waiverDate || '').trim();
+    row.waiver_text      = String(p.waiverText || '').trim();
 
     // Save uploaded photos to Drive. Capped at 5; each is already compressed
     // client-side. A single bad file is skipped, never sinks the submission.
@@ -207,18 +269,28 @@ function handleRepairIntake(p) {
     row.photo_count = links.length;
     row.photo_links = links.join('\n');
 
+    // Generate the filled, signed waiver PDF. Wrapped so a failure here never
+    // blocks the intake from landing.
+    var waiver = null;
+    if (row.waiver_agreed === 'Yes') {
+      try { waiver = generateRepairWaiverDoc_(row); }
+      catch (wErr) { console.warn('Repair waiver doc failed: ' + wErr); }
+    }
+    row.waiver_doc_url = waiver ? waiver.pdfUrl : '';
+
     var sh = ss.getSheetByName('Repair_Intake');
     if (!sh) {
       sh = ss.insertSheet('Repair_Intake');
       sh.appendRow(['id','timestamp','first','last','email','phone','brand','model',
                     'ebike_class','issues','description','photo_count','photo_links',
-                    'waiver_agreed','waiver_signature','waiver_version','status']);
-      sh.getRange(1, 1, 1, 17).setFontWeight('bold');
+                    'waiver_agreed','waiver_signature','waiver_version','waiver_doc_url','status']);
+      sh.getRange(1, 1, 1, 18).setFontWeight('bold');
     }
     sh.appendRow([row.id, row.timestamp, row.first, row.last, row.email, row.phone,
                   row.brand, row.model, row.ebike_class, row.issues, row.description,
                   row.photo_count, row.photo_links,
-                  row.waiver_agreed, row.waiver_signature, row.waiver_version, 'new']);
+                  row.waiver_agreed, row.waiver_signature, row.waiver_version,
+                  row.waiver_doc_url, 'new']);
 
     // Notify the shop. Mail failure logs but doesn't sink the request.
     try {
@@ -253,6 +325,7 @@ function handleRepairIntake(p) {
           ? 'AGREED — signed "' + (row.waiver_signature || '(no name)') + '"' +
             (row.waiver_version ? ' (v' + row.waiver_version + ')' : '') + ' at ' + row.timestamp
           : 'NOT AGREED — follow up before starting work'),
+        'Signed waiver PDF: ' + (row.waiver_doc_url || '(not generated)'),
         '',
         'Logged at ' + row.timestamp + ' (Repair_Intake tab, status=new)',
       ].join('\n');
@@ -262,9 +335,35 @@ function handleRepairIntake(p) {
         subject: 'Repair intake — ' + fullName +
                  (row.brand ? ' · ' + row.brand : '') + ' (' + row.id + ')',
         body:    body,
+        attachments: (waiver && waiver.pdfBlob) ? [waiver.pdfBlob] : [],
       });
     } catch (mailErr) {
       console.warn('Repair intake email failed: ' + mailErr);
+    }
+
+    // Send the customer their signed waiver copy (PDF attached).
+    if (row.email && waiver && waiver.pdfBlob) {
+      try {
+        MailApp.sendEmail({
+          to:      row.email,
+          replyTo: 'salesteam@cruisethecreek.com',
+          subject: 'Your Cruise the Creek service waiver — ' + row.id,
+          body: [
+            'Hi ' + (row.first || 'there') + ',',
+            '',
+            "Thanks for sending your bike to Cruise the Creek. Attached is a copy of the service",
+            'authorization & liability waiver you signed (reference ' + row.id + ').',
+            '',
+            "We'll reach out within 24–48 hours to confirm and schedule the work.",
+            '',
+            '— Cruise the Creek',
+            '   Youngstown, OH',
+          ].join('\n'),
+          attachments: [waiver.pdfBlob],
+        });
+      } catch (custErr) {
+        console.warn('Repair waiver customer email failed: ' + custErr);
+      }
     }
 
     // Discord push (no-op if webhook unset).
@@ -2958,11 +3057,12 @@ function getTabDefs() {
         ['discord_webhook_url', ''],
 
         ['── REPAIR INTAKE ──', ''],
-        // OPTIONAL. Leave blank and repair-intake photos auto-save to a Drive
-        // folder named "Cruise the Creek — Repair Intake Photos" (created on
-        // first submission). To use your own folder instead, paste its ID
-        // here (the part of the folder URL after /folders/).
+        // OPTIONAL. Leave blank and repair-intake photos / signed waiver PDFs
+        // auto-save to Drive folders ("Cruise the Creek — Repair Intake Photos"
+        // and "… — Repair Waivers"), created on first submission. To use your
+        // own folders, paste their IDs (the part of the URL after /folders/).
         ['repair_photos_folder_id', ''],
+        ['repair_waivers_folder_id', ''],
 
         ['── CHATBOT FACTS (Creek Concierge knowledge base) ──', ''],
         // The bot reads these from the rendered system prompt. Edit
