@@ -179,6 +179,11 @@ function handleRepairIntake(p) {
       description: String(p.description || '').trim(),
     };
 
+    // Liability waiver acknowledgment (signed electronically on the form).
+    row.waiver_agreed    = (p.waiverAgreed === true || String(p.waiverAgreed).toLowerCase() === 'true') ? 'Yes' : 'No';
+    row.waiver_signature = String(p.waiverSignature || '').trim();
+    row.waiver_version   = String(p.waiverVersion || '').trim();
+
     // Save uploaded photos to Drive. Capped at 5; each is already compressed
     // client-side. A single bad file is skipped, never sinks the submission.
     var folder = _repairPhotosFolder_();
@@ -206,12 +211,14 @@ function handleRepairIntake(p) {
     if (!sh) {
       sh = ss.insertSheet('Repair_Intake');
       sh.appendRow(['id','timestamp','first','last','email','phone','brand','model',
-                    'ebike_class','issues','description','photo_count','photo_links','status']);
-      sh.getRange(1, 1, 1, 14).setFontWeight('bold');
+                    'ebike_class','issues','description','photo_count','photo_links',
+                    'waiver_agreed','waiver_signature','waiver_version','status']);
+      sh.getRange(1, 1, 1, 17).setFontWeight('bold');
     }
     sh.appendRow([row.id, row.timestamp, row.first, row.last, row.email, row.phone,
                   row.brand, row.model, row.ebike_class, row.issues, row.description,
-                  row.photo_count, row.photo_links, 'new']);
+                  row.photo_count, row.photo_links,
+                  row.waiver_agreed, row.waiver_signature, row.waiver_version, 'new']);
 
     // Notify the shop. Mail failure logs but doesn't sink the request.
     try {
@@ -240,6 +247,12 @@ function handleRepairIntake(p) {
         '',
         '— PHOTOS (' + links.length + ') —',
         photoBlock,
+        '',
+        '— LIABILITY WAIVER —',
+        (row.waiver_agreed === 'Yes'
+          ? 'AGREED — signed "' + (row.waiver_signature || '(no name)') + '"' +
+            (row.waiver_version ? ' (v' + row.waiver_version + ')' : '') + ' at ' + row.timestamp
+          : 'NOT AGREED — follow up before starting work'),
         '',
         'Logged at ' + row.timestamp + ' (Repair_Intake tab, status=new)',
       ].join('\n');
