@@ -118,6 +118,67 @@
     textLabel: 'Text us',
   };
 
+  /* ── Section-aware menu config ────────────────────────
+   * One menu system for the whole site. The menu shown is chosen by the
+   * current page's section (PAGE_SECTION); unknown pages fall back to the
+   * top-level "home" menu. To change a menu, edit here only. */
+  var NAV_SECTIONS = {
+    home: { label: 'Menu', items: [
+      { label: 'Rentals',    url: 'rentals.html' },
+      { label: 'Shop',       url: 'shop.html' },
+      { label: 'Services',   url: 'creek-ready.html' },
+      { label: 'Test Ride',  url: 'test-ride.html' },
+      { label: 'Creek Life', url: 'creek-life-blog.html' },
+    ]},
+    rentals: { label: 'Rentals', items: [
+      { label: 'Home',                 url: 'index.html' },
+      { label: 'Book Bears Den',       url: 'adventures.html' },
+      { label: 'Book Trail Side',      url: 'trailside.html' },
+      { label: 'Book Long Term',       url: 'long-term-rental.html' },
+      { label: 'Apply for Rent-to-Own',url: 'bridge-the-gap.html' },
+    ]},
+    services: { label: 'Services', items: [
+      { label: 'Home',                 url: 'index.html' },
+      { label: 'Creek Ready Package',  url: 'creek-ready.html' },
+      { label: 'Creek Ready Tune-Ups', url: 'tune-ups.html' },
+      { label: 'Video Diagnostic',     url: 'video-diagnostics.html' },
+      { label: 'Repair Intake',        url: 'repair-intake.html' },
+    ]},
+    shop: { label: 'Shop', items: [
+      { label: 'Shop E-Bikes',     url: 'shop.html' },
+      { label: 'Shop Accessories', url: 'accessories.html' },
+      { label: 'Shop Apparel',     url: 'apparel.html' },
+    ]},
+    creeklife: { label: 'Creek Life', items: [
+      { label: 'Home',            url: 'index.html' },
+      { label: 'Creek Life Blog', url: 'creek-life-blog.html' },
+      { label: 'Our Story',       url: 'our-story.html' },
+      { label: 'Events',          url: 'events.html' },
+      { label: 'Donate',          url: 'donate.html' },
+      { label: 'FAQs',            url: 'faqs.html' },
+    ]},
+  };
+
+  var PAGE_SECTION = {
+    'rentals.html': 'rentals', 'adventures.html': 'rentals', 'trailside.html': 'rentals',
+    'long-term-rental.html': 'rentals', 'bridge-the-gap.html': 'rentals', 'journeys.html': 'rentals',
+    'creek-ready.html': 'services', 'tune-ups.html': 'services', 'video-diagnostics.html': 'services',
+    'assembly.html': 'services', 'repair-intake.html': 'services', 'safety.html': 'services',
+    'shop.html': 'shop', 'accessories.html': 'shop', 'apparel.html': 'shop',
+    'heybike.html': 'shop', 'velotric.html': 'shop', 'mooncool.html': 'shop',
+    'jasion.html': 'shop', 'gift-cards.html': 'shop',
+    'creek-life-blog.html': 'creeklife', 'our-story.html': 'creeklife', 'events.html': 'creeklife',
+    'donate.html': 'creeklife', 'faqs.html': 'creeklife', 'gallery.html': 'creeklife',
+    'sponsors.html': 'creeklife', 'blog-post.html': 'creeklife',
+    '15-mph-trail-limit.html': 'creeklife', 'ebike-sensors-explained.html': 'creeklife',
+    'real-ebikes-vs-emotos.html': 'creeklife', 'the-real-hazard-on-our-roads.html': 'creeklife',
+  };
+
+  function currentPageFile() {
+    var p = (location.pathname || '').split('/').pop();
+    return (p && p.indexOf('.') !== -1) ? p.toLowerCase() : 'index.html';
+  }
+
   /* ── 1-5: shared CSS injected into <head> ─────────── */
 
   var CSS = [
@@ -179,6 +240,22 @@
       '.fade-in{opacity:1;transform:none;transition:none}' +
       '.sticky-cta{transition:none}' +
     '}',
+
+    /* ── Shared section-aware menu (one nav system site-wide) ── */
+    '.ctc-menu-btn{position:fixed;top:13px;right:16px;z-index:1200;width:42px;height:42px;display:flex;align-items:center;justify-content:center;border-radius:8px;background:rgba(255,255,255,.92);border:1px solid rgba(0,0,0,.08);box-shadow:0 2px 10px rgba(0,0,0,.12);cursor:pointer;color:' + BRAND.forest + ';-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}',
+    '.ctc-menu-btn svg{width:24px;height:24px;stroke:currentColor;fill:none;stroke-width:2.4;stroke-linecap:round}',
+    '.ctc-menu-overlay{position:fixed;inset:0;z-index:1190;background:rgba(26,46,28,.4);opacity:0;pointer-events:none;transition:opacity .25s ease}',
+    '.ctc-menu-overlay.is-open{opacity:1;pointer-events:auto}',
+    ".ctc-menu-panel{position:fixed;top:0;right:0;z-index:1210;height:100%;width:min(84vw,320px);background:#fff;box-shadow:-12px 0 34px rgba(0,0,0,.22);transform:translateX(100%);transition:transform .3s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column;padding:16px;overflow-y:auto;font-family:'DM Sans',system-ui,sans-serif}",
+    '.ctc-menu-panel.is-open{transform:translateX(0)}',
+    '.ctc-menu-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding:2px 6px}',
+    ".ctc-menu-title{font-family:'Bebas Neue',sans-serif;font-size:1.45rem;letter-spacing:.03em;color:" + BRAND.forest + "}",
+    '.ctc-menu-close{background:none;border:0;font-size:1.7rem;line-height:1;color:#4a4a4a;cursor:pointer;padding:2px 8px}',
+    '.ctc-menu-panel a{display:block;padding:13px 12px;border-radius:7px;color:#1a1a1a;text-decoration:none;font-weight:700;font-size:.92rem;letter-spacing:.02em;transition:background .15s ease,color .15s ease}',
+    '.ctc-menu-panel a:hover{background:rgba(45,74,50,.07);color:' + BRAND.forest + '}',
+    '.ctc-menu-panel a.is-active{background:' + BRAND.forest + ';color:#fff}',
+    /* Retire the legacy per-page navs — one shared menu drives navigation now. */
+    '.top-nav,.ctc-top-nav,.nav-links,#navToggle,.nav-toggle,.ctc-nav-toggle,.mobile-toggle{display:none!important}',
   ].join('');
 
   function injectCSS() {
@@ -220,6 +297,56 @@
     document.body.classList.add('has-sticky-cta');
     // Reveal after a tick so the bar slides in instead of popping in.
     setTimeout(function () { bar.classList.add('is-show'); }, 280);
+  }
+
+  /* ── Section-aware menu injector ──────────────────── */
+
+  function injectNavMenu() {
+    if (!document.body) return;
+    if (document.body.hasAttribute('data-no-site-menu')) return;
+    if (document.getElementById('ctc-menu-btn')) return;
+
+    var cur     = currentPageFile();
+    var key     = PAGE_SECTION[cur] || 'home';
+    var section = NAV_SECTIONS[key] || NAV_SECTIONS.home;
+
+    function esc(s){ return String(s).replace(/[&<>"]/g, function(c){ return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'})[c]; }); }
+
+    var links = section.items.map(function (it) {
+      var active = String(it.url).toLowerCase() === cur ? ' class="is-active"' : '';
+      var ext    = /^https?:/.test(it.url) ? ' target="_blank" rel="noopener"' : '';
+      return '<a href="' + esc(it.url) + '"' + active + ext + '>' + esc(it.label) + '</a>';
+    }).join('');
+
+    var btn = document.createElement('button');
+    btn.className = 'ctc-menu-btn';
+    btn.id = 'ctc-menu-btn';
+    btn.type = 'button';
+    btn.setAttribute('aria-label', 'Open menu');
+    btn.setAttribute('aria-expanded', 'false');
+    btn.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18M3 12h18M3 18h18"/></svg>';
+
+    var overlay = document.createElement('div');
+    overlay.className = 'ctc-menu-overlay';
+
+    var panel = document.createElement('nav');
+    panel.className = 'ctc-menu-panel';
+    panel.setAttribute('aria-label', 'Site menu');
+    panel.innerHTML =
+      '<div class="ctc-menu-head"><span class="ctc-menu-title">' + esc(section.label) + '</span>' +
+      '<button class="ctc-menu-close" type="button" aria-label="Close menu">&times;</button></div>' +
+      links;
+
+    document.body.appendChild(overlay);
+    document.body.appendChild(panel);
+    document.body.appendChild(btn);
+
+    function open()  { panel.classList.add('is-open'); overlay.classList.add('is-open'); btn.setAttribute('aria-expanded', 'true'); }
+    function close() { panel.classList.remove('is-open'); overlay.classList.remove('is-open'); btn.setAttribute('aria-expanded', 'false'); }
+    btn.addEventListener('click', open);
+    overlay.addEventListener('click', close);
+    panel.querySelector('.ctc-menu-close').addEventListener('click', close);
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape') close(); });
   }
 
   /* ── 5: Scroll fade-in observer ───────────────────── */
@@ -287,6 +414,7 @@
 
   function boot() {
     injectCSS();
+    injectNavMenu();
     ensureStickyCTA();
     setupFadeIns();
     upgradeAllImages(document);
