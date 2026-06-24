@@ -124,24 +124,84 @@ function doPost(e) {
 }
 
 /**
- * Where repair-intake photos land in Drive. Uses SiteConfig
- * repair_photos_folder_id if set; otherwise finds-or-creates a folder named
- * "Cruise the Creek — Repair Intake Photos" so photos are auto-organized with
- * zero setup. Returns null only if Drive is unreachable (caller falls back to
- * My Drive root).
+ * Find-or-create a Drive folder by name, with an optional SiteConfig override
+ * key holding a specific folder ID. Returns null only if Drive is unreachable.
  */
-function _repairPhotosFolder_() {
-  var configured = getSiteConfigValue_('repair_photos_folder_id');
-  if (configured) {
-    try { return DriveApp.getFolderById(configured); } catch (e) { /* fall through */ }
+function _findOrCreateFolder_(name, configKey) {
+  if (configKey) {
+    var configured = getSiteConfigValue_(configKey);
+    if (configured) { try { return DriveApp.getFolderById(configured); } catch (e) { /* fall through */ } }
   }
-  var name = 'Cruise the Creek — Repair Intake Photos';
   try {
     var it = DriveApp.getFoldersByName(name);
     return it.hasNext() ? it.next() : DriveApp.createFolder(name);
   } catch (e) {
     return null;
   }
+}
+
+/** Where repair-intake photos land (auto-organized; override via SiteConfig). */
+function _repairPhotosFolder_() {
+  return _findOrCreateFolder_('Cruise the Creek — Repair Intake Photos', 'repair_photos_folder_id');
+}
+
+/**
+ * Build a filled, signed liability-waiver PDF for a repair intake. Generates a
+ * Google Doc from the waiver text the customer actually saw (sent in the
+ * payload, so the PDF can't drift from the page), fills the customer/bike
+ * details + signature block, saves the Doc + PDF to a "Repair Waivers" Drive
+ * folder, and returns { docUrl, pdfUrl, pdfBlob }. Throws on failure — the
+ * caller wraps it so a waiver hiccup never sinks the intake.
+ */
+function generateRepairWaiverDoc_(row) {
+  var H = DocumentApp.ParagraphHeading;
+  var fullName = (row.first + ' ' + row.last).trim() || 'Customer';
+  var dateStr  = row.waiver_date || Utilities.formatDate(new Date(), 'America/New_York', 'MMMM d, yyyy');
+
+  var doc  = DocumentApp.create('Repair Waiver — ' + fullName + ' (' + row.id + ')');
+  var body = doc.getBody();
+  body.appendParagraph('Cruise the Creek').setHeading(H.TITLE);
+  body.appendParagraph('Service Authorization & Liability Waiver').setHeading(H.HEADING1);
+  body.appendParagraph('Reference ' + row.id + '  ·  ' + dateStr);
+
+  body.appendParagraph('Customer & Bike').setHeading(H.HEADING2);
+  body.appendParagraph('Name: ' + fullName);
+  body.appendParagraph('Phone: ' + (row.phone || '—') + '     Email: ' + (row.email || '—'));
+  body.appendParagraph('Bike: ' + ((row.brand || '') + ' ' + (row.model || '')).trim() +
+                       (row.ebike_class ? '  (' + row.ebike_class + ')' : ''));
+  if (row.issues) body.appendParagraph('Service requested: ' + row.issues);
+
+  body.appendParagraph('Terms').setHeading(H.HEADING2);
+  var txt = String(row.waiver_text || '').trim();
+  if (txt) {
+    txt.split(/\n+/).forEach(function(line) {
+      var t = line.trim();
+      if (t) body.appendParagraph(t);
+    });
+  } else {
+    body.appendParagraph('(Waiver text was not captured with this submission.)');
+  }
+
+  body.appendParagraph('Acknowledgment & Signature').setHeading(H.HEADING2);
+  body.appendParagraph('Agreed to terms: ' + (row.waiver_agreed || 'No'));
+  body.appendParagraph('Electronically signed by: ' + (row.waiver_signature || '(no name provided)'));
+  body.appendParagraph('Date: ' + dateStr);
+  body.appendParagraph('Waiver version: ' + (row.waiver_version || '—'));
+  body.appendParagraph('Submitted online at ' + row.timestamp +
+    '. This electronic signature has the same legal effect as a handwritten one.');
+  doc.saveAndClose();
+
+  var folder = _findOrCreateFolder_('Cruise the Creek — Repair Waivers', 'repair_waivers_folder_id');
+  var docFile = DriveApp.getFileById(doc.getId());
+  if (folder) {
+    try { folder.addFile(docFile); DriveApp.getRootFolder().removeFile(docFile); } catch (e) {}
+  }
+  var pdfBlob = docFile.getAs('application/pdf')
+                  .setName('Repair Waiver — ' + fullName + ' (' + row.id + ').pdf');
+  var pdfFile = folder ? folder.createFile(pdfBlob) : DriveApp.createFile(pdfBlob);
+  try { pdfFile.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW); } catch (e) {}
+
+  return { docUrl: doc.getUrl(), pdfUrl: pdfFile.getUrl(), pdfBlob: pdfBlob };
 }
 
 /**
@@ -179,6 +239,13 @@ function handleRepairIntake(p) {
       description: String(p.description || '').trim(),
     };
 
+    // Liability waiver acknowledgment (signed electronically on the form).
+    row.waiver_agreed    = (p.waiverAgreed === true || String(p.waiverAgreed).toLowerCase() === 'true') ? 'Yes' : 'No';
+    row.waiver_signature = String(p.waiverSignature || '').trim();
+    row.waiver_version   = String(p.waiverVersion || '').trim();
+    row.waiver_date      = String(p.waiverDate || '').trim();
+    row.waiver_text      = String(p.waiverText || '').trim();
+
     // Save uploaded photos to Drive. Capped at 5; each is already compressed
     // client-side. A single bad file is skipped, never sinks the submission.
     var folder = _repairPhotosFolder_();
@@ -202,16 +269,28 @@ function handleRepairIntake(p) {
     row.photo_count = links.length;
     row.photo_links = links.join('\n');
 
+    // Generate the filled, signed waiver PDF. Wrapped so a failure here never
+    // blocks the intake from landing.
+    var waiver = null;
+    if (row.waiver_agreed === 'Yes') {
+      try { waiver = generateRepairWaiverDoc_(row); }
+      catch (wErr) { console.warn('Repair waiver doc failed: ' + wErr); }
+    }
+    row.waiver_doc_url = waiver ? waiver.pdfUrl : '';
+
     var sh = ss.getSheetByName('Repair_Intake');
     if (!sh) {
       sh = ss.insertSheet('Repair_Intake');
       sh.appendRow(['id','timestamp','first','last','email','phone','brand','model',
-                    'ebike_class','issues','description','photo_count','photo_links','status']);
-      sh.getRange(1, 1, 1, 14).setFontWeight('bold');
+                    'ebike_class','issues','description','photo_count','photo_links',
+                    'waiver_agreed','waiver_signature','waiver_version','waiver_doc_url','status']);
+      sh.getRange(1, 1, 1, 18).setFontWeight('bold');
     }
     sh.appendRow([row.id, row.timestamp, row.first, row.last, row.email, row.phone,
                   row.brand, row.model, row.ebike_class, row.issues, row.description,
-                  row.photo_count, row.photo_links, 'new']);
+                  row.photo_count, row.photo_links,
+                  row.waiver_agreed, row.waiver_signature, row.waiver_version,
+                  row.waiver_doc_url, 'new']);
 
     // Notify the shop. Mail failure logs but doesn't sink the request.
     try {
@@ -241,6 +320,13 @@ function handleRepairIntake(p) {
         '— PHOTOS (' + links.length + ') —',
         photoBlock,
         '',
+        '— LIABILITY WAIVER —',
+        (row.waiver_agreed === 'Yes'
+          ? 'AGREED — signed "' + (row.waiver_signature || '(no name)') + '"' +
+            (row.waiver_version ? ' (v' + row.waiver_version + ')' : '') + ' at ' + row.timestamp
+          : 'NOT AGREED — follow up before starting work'),
+        'Signed waiver PDF: ' + (row.waiver_doc_url || '(not generated)'),
+        '',
         'Logged at ' + row.timestamp + ' (Repair_Intake tab, status=new)',
       ].join('\n');
       MailApp.sendEmail({
@@ -249,9 +335,35 @@ function handleRepairIntake(p) {
         subject: 'Repair intake — ' + fullName +
                  (row.brand ? ' · ' + row.brand : '') + ' (' + row.id + ')',
         body:    body,
+        attachments: (waiver && waiver.pdfBlob) ? [waiver.pdfBlob] : [],
       });
     } catch (mailErr) {
       console.warn('Repair intake email failed: ' + mailErr);
+    }
+
+    // Send the customer their signed waiver copy (PDF attached).
+    if (row.email && waiver && waiver.pdfBlob) {
+      try {
+        MailApp.sendEmail({
+          to:      row.email,
+          replyTo: 'salesteam@cruisethecreek.com',
+          subject: 'Your Cruise the Creek service waiver — ' + row.id,
+          body: [
+            'Hi ' + (row.first || 'there') + ',',
+            '',
+            "Thanks for sending your bike to Cruise the Creek. Attached is a copy of the service",
+            'authorization & liability waiver you signed (reference ' + row.id + ').',
+            '',
+            "We'll reach out within 24–48 hours to confirm and schedule the work.",
+            '',
+            '— Cruise the Creek',
+            '   Youngstown, OH',
+          ].join('\n'),
+          attachments: [waiver.pdfBlob],
+        });
+      } catch (custErr) {
+        console.warn('Repair waiver customer email failed: ' + custErr);
+      }
     }
 
     // Discord push (no-op if webhook unset).
@@ -1293,14 +1405,15 @@ function handleBridgeApplication(p) {
     }
 
     // Auto-draft the Rent-to-Own Agreement Google Doc from the applicant's
-    // info. No-op (returns '') until the template + folder IDs are set in
-    // SiteConfig, so this never blocks an application from landing.
-    let agreementUrl = '';
+    // Generates a filled PDF (from your template if configured, else built in
+    // code). Wrapped so a doc hiccup never blocks an application from landing.
+    let agreement = null;
     try {
-      agreementUrl = generateBridgeAgreement_(row);
+      agreement = generateBridgeAgreement_(row);
     } catch (docErr) {
       console.warn('Bridge agreement doc generation failed: ' + docErr);
     }
+    const agreementUrl = agreement ? agreement.pdfUrl : '';
 
     let sh = ss.getSheetByName('Bridge_Applications');
     if (!sh) {
@@ -1348,8 +1461,8 @@ function handleBridgeApplication(p) {
         'Add-ons:      ' + (row.accessories || '(none)'),
       ].concat(planLines).concat([
         '',
-        'Agreement:    ' + (agreementUrl ||
-          '(not generated — set btg_agreement_template_id in SiteConfig)'),
+        'Agreement:    ' + (agreementUrl || '(generation failed — see logs)') +
+          ' (signed PDF also attached)',
         '',
         '— WHY THEY NEED IT —',
         (row.primary_need || '(blank)'),
@@ -1363,9 +1476,35 @@ function handleBridgeApplication(p) {
         subject: 'Bridge the Gap — ' + fullName + ' · ' + bikeName +
                  (row.total_value ? ' · ' + usd(row.total_value) : '') + ' (' + row.id + ')',
         body:    body,
+        attachments: (agreement && agreement.pdfBlob) ? [agreement.pdfBlob] : [],
       });
     } catch (mailErr) {
       console.warn('Bridge application email failed: ' + mailErr);
+    }
+
+    // Send the applicant their agreement copy (PDF attached).
+    if (row.email && agreement && agreement.pdfBlob) {
+      try {
+        MailApp.sendEmail({
+          to:      row.email,
+          replyTo: 'salesteam@cruisethecreek.com',
+          subject: 'Your Cruise the Creek Bridge the Gap agreement — ' + row.id,
+          body: [
+            'Hi ' + (row.first_name || 'there') + ',',
+            '',
+            "Thanks for applying to Bridge the Gap. Attached is your rent-to-own agreement",
+            '(reference ' + row.id + ') with your bike and payment plan filled in.',
+            '',
+            "We'll reach out within 24–48 hours to confirm the details and next steps.",
+            '',
+            '— Cruise the Creek',
+            '   Youngstown, OH',
+          ].join('\n'),
+          attachments: [agreement.pdfBlob],
+        });
+      } catch (custErr) {
+        console.warn('Bridge applicant email failed: ' + custErr);
+      }
     }
 
     // Phone-push via Discord webhook (same SiteConfig key as the other
@@ -1401,90 +1540,134 @@ function handleBridgeApplication(p) {
 }
 
 /**
- * Bridge the Gap — auto-draft a Rent-to-Own Agreement Google Doc from a
- * Bridge_Applications row. Copies a template Doc, swaps {{placeholders}}
- * for the applicant's info, drops the filled copy in a Drive folder, and
- * returns its URL (logged into the row's agreement_doc_url column).
+ * Bridge the Gap — generate a filled Rent-to-Own Agreement for a
+ * Bridge_Applications row, export it to PDF, and return
+ * { docUrl, pdfUrl, pdfBlob }. The caller logs pdfUrl in the sheet, attaches
+ * the PDF to the team email, and emails the applicant a copy.
  *
- * ONE-TIME SETUP (in the Sheet's SiteConfig tab, key | value):
- *   btg_agreement_template_id  →  file ID of the template Google Doc
- *   btg_agreement_folder_id    →  (optional) Drive folder for filled docs
+ * Two modes, zero setup required:
+ *   • If SiteConfig btg_agreement_template_id is set → fill THAT template Doc
+ *     (your reviewed wording) by swapping {{placeholders}}, then PDF it.
+ *   • If it's blank → build the agreement from code (_buildBridgeAgreementBody_)
+ *     so it works with no template at all.
+ * Output folder: SiteConfig btg_agreement_folder_id, else an auto folder
+ * "Cruise the Creek — Bridge Agreements".
  *
- * Until btg_agreement_template_id is set this returns '' — applications
- * still log normally, they just don't generate a doc yet.
- *
- * Template placeholders (type these verbatim into the template Doc — every
- * one is filled automatically, so the agreement needs NO manual entry):
+ * Template placeholders (filled automatically — no manual entry):
  *   Applicant:  {{full_name}} {{first_name}} {{last_name}} {{phone}} {{email}}
  *               {{address}} {{city}} {{state}} {{zip}} {{dob}}
- *   The bike:   {{bike_selection}}  (style name only)
- *   Add-ons:    {{accessories}}     (comma-separated list the applicant chose)
- *   Full item:  {{item}}            (bike + " with " + accessories, one line)
- *   Deal terms: {{total_value}}     (e.g. "$825.00")
- *               {{total_cost}}      (same as total_value — no markup)
- *               {{biweekly_rate}}   (e.g. "$55.00" — total ÷ # of payments)
- *               {{num_payments}}    (e.g. "15")
+ *   The bike:   {{bike_selection}}   Add-ons: {{accessories}}   Full: {{item}}
+ *   Deal terms: {{total_value}} {{total_cost}} {{biweekly_rate}} {{num_payments}}
  *   Meta:       {{id}} {{date}}
- *
- * The deal terms are captured at application time (and recomputed server-side
- * as a fallback), so put {{total_value}}, {{biweekly_rate}} and
- * {{num_payments}} directly in the template — do NOT leave them blank to fill
- * in by hand.
+ * Put the deal-term tokens directly in the template — they're captured at
+ * application time (and recomputed server-side), never filled by hand.
  */
 function generateBridgeAgreement_(row) {
-  const templateId = getSiteConfigValue_('btg_agreement_template_id');
-  if (!templateId) return ''; // dormant until configured
-
-  const folderId = getSiteConfigValue_('btg_agreement_folder_id');
   const fullName = ((row.first_name || '') + ' ' + (row.last_name || '')).trim() || 'Applicant';
-
-  const tmpl = DriveApp.getFileById(templateId);
   const copyName = 'Bridge Agreement — ' + fullName + ' (' + row.id + ')';
-  const copy = folderId
-    ? tmpl.makeCopy(copyName, DriveApp.getFolderById(folderId))
-    : tmpl.makeCopy(copyName);
-
-  // Curated rent-to-own pricing → contract deal terms. Money values render as
-  // "$xxx.xx"; blanks stay blank so the placeholder is obvious if unset.
   const usd = function(v) {
     const n = parseFloat(String(v).replace(/[^0-9.\-]/g, ''));
     return isFinite(n) ? '$' + n.toFixed(2) : '';
   };
   const bikeName = (row.bike_name || row.bike_selection || '').trim();
-  const item = bikeName + (row.accessories ? ' with ' + row.accessories : '');
+  const item     = bikeName + (row.accessories ? ' with ' + row.accessories : '');
+  const dateStr  = Utilities.formatDate(new Date(), 'America/New_York', 'MM/dd/yyyy');
 
-  const doc  = DocumentApp.openById(copy.getId());
-  const body = doc.getBody();
-  const map = {
-    full_name:      fullName,
-    first_name:     row.first_name,
-    last_name:      row.last_name,
-    phone:          row.phone,
-    email:          row.email,
-    address:        row.address,
-    city:           row.city,
-    state:          'OH',
-    zip:            row.zip,
-    dob:            row.birthday,
-    bike_selection: bikeName,
-    accessories:    row.accessories,
-    item:           item,
-    total_value:    usd(row.total_value),
-    total_cost:     usd(row.total_value),   // rent-to-own cost = total value (no markup)
-    biweekly_rate:  usd(row.biweekly_rate),
-    num_payments:   row.num_payments,
-    id:             row.id,
-    date:           Utilities.formatDate(new Date(), 'America/New_York', 'MM/dd/yyyy'),
-  };
-  Object.keys(map).forEach(function(k) {
-    body.replaceText('\\{\\{' + k + '\\}\\}', String(map[k] || ''));
-  });
-  // Money tokens already include "$". If the template kept its own "$" right
-  // before a money token (e.g. "$ {{total_value}}"), collapse the resulting
-  // "$$" so the owner can't accidentally double it up.
-  body.replaceText('\\$\\s*\\$', '$');
-  doc.saveAndClose();
-  return copy.getUrl();
+  // Output folder: explicit SiteConfig id, else an auto folder.
+  const folderId = getSiteConfigValue_('btg_agreement_folder_id');
+  const folder = folderId
+    ? (function(){ try { return DriveApp.getFolderById(folderId); } catch (e) { return null; } })()
+    : _findOrCreateFolder_('Cruise the Creek — Bridge Agreements', '');
+
+  const templateId = getSiteConfigValue_('btg_agreement_template_id');
+  let doc;
+  if (templateId) {
+    // Preferred: fill the owner's template Doc (keeps their reviewed wording).
+    const tmpl = DriveApp.getFileById(templateId);
+    const copy = folder ? tmpl.makeCopy(copyName, folder) : tmpl.makeCopy(copyName);
+    doc = DocumentApp.openById(copy.getId());
+    const body = doc.getBody();
+    const map = {
+      full_name: fullName, first_name: row.first_name, last_name: row.last_name,
+      phone: row.phone, email: row.email, address: row.address, city: row.city,
+      state: 'OH', zip: row.zip, dob: row.birthday, bike_selection: bikeName,
+      accessories: row.accessories, item: item,
+      total_value: usd(row.total_value), total_cost: usd(row.total_value),
+      biweekly_rate: usd(row.biweekly_rate), num_payments: row.num_payments,
+      id: row.id, date: dateStr,
+    };
+    Object.keys(map).forEach(function(k) {
+      body.replaceText('\\{\\{' + k + '\\}\\}', String(map[k] || ''));
+    });
+    body.replaceText('\\$\\s*\\$', '$'); // collapse any accidental "$$"
+    doc.saveAndClose();
+  } else {
+    // Zero-setup fallback: build the agreement from code (no template needed).
+    doc = DocumentApp.create(copyName);
+    _buildBridgeAgreementBody_(doc.getBody(), { fullName: fullName, row: row, item: item, usd: usd, dateStr: dateStr });
+    doc.saveAndClose();
+    if (folder) {
+      try { const f = DriveApp.getFileById(doc.getId()); folder.addFile(f); DriveApp.getRootFolder().removeFile(f); } catch (e) {}
+    }
+  }
+
+  // Export a PDF alongside the Doc and return both (PDF used for email + sheet).
+  const docFile = DriveApp.getFileById(doc.getId());
+  const pdfBlob = docFile.getAs('application/pdf').setName(copyName + '.pdf');
+  const pdfFile = folder ? folder.createFile(pdfBlob) : DriveApp.createFile(pdfBlob);
+  try { pdfFile.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW); } catch (e) {}
+  return { docUrl: doc.getUrl(), pdfUrl: pdfFile.getUrl(), pdfBlob: pdfBlob };
+}
+
+/**
+ * Code-generated rent-to-own agreement body (used when no template Doc is
+ * configured). TEMPLATE LANGUAGE — review/approve with your attorney; set
+ * btg_agreement_template_id in SiteConfig to use your own wording instead.
+ */
+function _buildBridgeAgreementBody_(body, ctx) {
+  const H = DocumentApp.ParagraphHeading;
+  const row = ctx.row, usd = ctx.usd;
+  const nPay = row.num_payments || '15';
+  const cityLine = ((row.city || '') + (row.zip ? ', OH ' + row.zip : '')).trim();
+
+  body.appendParagraph('Cruise the Creek').setHeading(H.TITLE);
+  body.appendParagraph('Bridge the Gap — Rent-to-Own Agreement').setHeading(H.HEADING1);
+  body.appendParagraph('Reference ' + row.id + '  ·  ' + ctx.dateStr);
+
+  body.appendParagraph('Renter').setHeading(H.HEADING2);
+  body.appendParagraph('Name: ' + ctx.fullName);
+  body.appendParagraph('Phone: ' + (row.phone || '—') + '     Email: ' + (row.email || '—'));
+  if (row.address || cityLine) body.appendParagraph('Address: ' + [row.address, cityLine].filter(function(v){return v;}).join(', '));
+
+  body.appendParagraph('1. Description of Property & Valuation').setHeading(H.HEADING2);
+  body.appendParagraph('Item & Accessories: ' + (ctx.item || '(to be confirmed)'));
+  body.appendParagraph('Total Agreed Value: ' + (usd(row.total_value) || '(to be confirmed)'));
+
+  body.appendParagraph('2. Rental Term & Bi-Weekly Payments').setHeading(H.HEADING2);
+  body.appendParagraph('The Renter agrees to a rental term of ' + nPay + ' bi-weekly payments.');
+  body.appendParagraph('Bi-Weekly Rental Rate: ' + (usd(row.biweekly_rate) || '(to be confirmed)'));
+  body.appendParagraph('Payment Cycle: every two (2) weeks.');
+  body.appendParagraph('Total Number of Payments: ' + nPay);
+  body.appendParagraph('Total Rent-to-Own Cost: ' + (usd(row.total_value) || '(to be confirmed)'));
+
+  body.appendParagraph('3. Ownership').setHeading(H.HEADING2);
+  body.appendParagraph('Ownership of the property transfers to the Renter upon completion of all ' + nPay +
+    ' bi-weekly payments. No credit check is required, and the Renter may use the property throughout the term.');
+
+  body.appendParagraph('4. Care, Risk & Responsibility').setHeading(H.HEADING2);
+  body.appendParagraph('The Renter is responsible for the reasonable care of the property during the term, ' +
+    'including safe operation and routine charging. Cruise the Creek is not liable for injury or loss arising ' +
+    'from the Renter’s use of the property except to the extent caused by its gross negligence or willful misconduct.');
+
+  body.appendParagraph('5. Default & Return').setHeading(H.HEADING2);
+  body.appendParagraph('If scheduled payments are not made, Cruise the Creek may suspend the plan and arrange ' +
+    'return of the property. Specific late/return terms will be confirmed with the Renter before the plan begins.');
+
+  body.appendParagraph('Acknowledgment').setHeading(H.HEADING2);
+  body.appendParagraph('This summary reflects the plan submitted online on ' + ctx.dateStr +
+    ' (reference ' + row.id + '). Final terms are confirmed with Cruise the Creek before the first payment.');
+  body.appendParagraph('Applicant: ' + ctx.fullName + '     Date: ' + ctx.dateStr);
+  body.appendParagraph('Cruise the Creek — Youngstown, OH');
 }
 
 /**
@@ -1506,17 +1689,17 @@ function generateBridgeAgreement_(row) {
 function testAgreementDoc() {
   const templateId = getSiteConfigValue_('btg_agreement_template_id');
   const folderId   = getSiteConfigValue_('btg_agreement_folder_id');
-  console.log('btg_agreement_template_id = ' + (templateId || '(EMPTY)'));
-  console.log('btg_agreement_folder_id   = ' + (folderId   || '(empty — will save to My Drive root)'));
-  if (!templateId) {
-    throw new Error('btg_agreement_template_id is blank in SiteConfig. Paste the ' +
-      'template Doc file ID (the part between /d/ and /edit in its URL) into ' +
-      'the value column, then run this again.');
-  }
+  console.log('btg_agreement_template_id = ' + (templateId ||
+    '(empty — using the built-in code-generated agreement)'));
+  console.log('btg_agreement_folder_id   = ' + (folderId   ||
+    '(empty — auto folder "Cruise the Creek — Bridge Agreements")'));
   // Surface bad IDs with a readable message before we try to fill anything.
-  try { DriveApp.getFileById(templateId); }
-  catch (e) { throw new Error('Could not open the template by ID "' + templateId +
-    '". Double-check btg_agreement_template_id. Underlying error: ' + e); }
+  if (templateId) {
+    try { DriveApp.getFileById(templateId); }
+    catch (e) { throw new Error('Could not open the template by ID "' + templateId +
+      '". Double-check btg_agreement_template_id (or leave it blank to use the ' +
+      'built-in agreement). Underlying error: ' + e); }
+  }
   if (folderId) {
     try { DriveApp.getFolderById(folderId); }
     catch (e) { throw new Error('Could not open the folder by ID "' + folderId +
@@ -1533,9 +1716,10 @@ function testAgreementDoc() {
     accessories: 'Carrying Bag, Bike Lock, Mirror, Comfy Seat, Charger',
     total_value: '900', biweekly_rate: '60', num_payments: '15',
   };
-  const url = generateBridgeAgreement_(sampleRow);
-  console.log('✅ Generated test agreement: ' + url);
-  return url;
+  const res = generateBridgeAgreement_(sampleRow);
+  console.log('✅ Generated test agreement Doc: ' + res.docUrl);
+  console.log('✅ PDF: ' + res.pdfUrl);
+  return res.pdfUrl;
 }
 
 /**
@@ -2945,11 +3129,12 @@ function getTabDefs() {
         ['discord_webhook_url', ''],
 
         ['── REPAIR INTAKE ──', ''],
-        // OPTIONAL. Leave blank and repair-intake photos auto-save to a Drive
-        // folder named "Cruise the Creek — Repair Intake Photos" (created on
-        // first submission). To use your own folder instead, paste its ID
-        // here (the part of the folder URL after /folders/).
+        // OPTIONAL. Leave blank and repair-intake photos / signed waiver PDFs
+        // auto-save to Drive folders ("Cruise the Creek — Repair Intake Photos"
+        // and "… — Repair Waivers"), created on first submission. To use your
+        // own folders, paste their IDs (the part of the URL after /folders/).
         ['repair_photos_folder_id', ''],
+        ['repair_waivers_folder_id', ''],
 
         ['── CHATBOT FACTS (Creek Concierge knowledge base) ──', ''],
         // The bot reads these from the rendered system prompt. Edit

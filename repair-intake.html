@@ -89,6 +89,15 @@ textarea{min-height:96px;line-height:1.5;resize:vertical}
 .thumb button{position:absolute;top:2px;right:2px;width:20px;height:20px;border-radius:50%;
   background:rgba(0,0,0,.6);color:#fff;font-size:.9rem;line-height:1;display:flex;align-items:center;justify-content:center}
 
+.waiver-box{max-height:210px;overflow-y:auto;border:1px solid rgba(45,74,50,.18);border-radius:8px;
+  background:#fbfaf7;padding:14px 16px;font-size:.82rem;line-height:1.55;color:var(--ink-2)}
+.waiver-box h4{font-size:.74rem;color:var(--forest);margin:12px 0 4px;text-transform:uppercase;letter-spacing:.08em}
+.waiver-box h4:first-child{margin-top:0}
+.waiver-box p{margin:0 0 8px}
+.waiver-agree{display:flex;align-items:flex-start;gap:11px;margin-top:14px;font-size:.9rem;color:var(--ink);cursor:pointer}
+.waiver-agree input{margin-top:3px;width:18px;height:18px;accent-color:var(--forest);flex-shrink:0}
+.sign-note{font-size:.78rem;color:var(--ink-3);margin-top:8px}
+
 .submit-btn{width:100%;margin-top:24px;background:var(--tan);color:var(--dark);
   padding:15px 22px;border-radius:7px;font-size:.95rem;font-weight:800;letter-spacing:.05em;
   text-transform:uppercase;transition:background .2s ease,transform .15s ease}
@@ -181,6 +190,35 @@ footer a{color:var(--tan);font-weight:500}
       <div class="thumbs" id="thumbs"></div>
     </fieldset>
 
+    <!-- LIABILITY WAIVER — TEMPLATE TEXT. Review and approve with your own
+         attorney before relying on it; edit freely. Bump WAIVER_VERSION in the
+         script below whenever you change this wording so records show which
+         version each customer agreed to. -->
+    <fieldset class="fieldset">
+      <div class="legend"><span class="num">6</span> Service authorization &amp; liability waiver</div>
+      <div class="waiver-box" id="waiver-box">
+        <h4>Authorization to service</h4>
+        <p>I authorize Cruise the Creek to inspect, diagnose, and perform the requested service or repairs on my e-bike, including any reasonable test rides needed to diagnose or verify the work.</p>
+        <h4>Pre-existing condition</h4>
+        <p>E-bikes brought in for service may have pre-existing wear, damage, or hidden faults. Cruise the Creek is not responsible for pre-existing conditions, or for unrelated issues discovered or developing during diagnosis or repair.</p>
+        <h4>Personal property &amp; accessories</h4>
+        <p>I will remove valuables and removable accessories before drop-off. Cruise the Creek is not responsible for lost, stolen, or damaged accessories, batteries, or personal items left on or with the bike.</p>
+        <h4>Estimates, parts &amp; fees</h4>
+        <p>Diagnostic and parts fees may apply. Cruise the Creek will contact me for approval before performing work beyond the requested service or exceeding any agreed estimate.</p>
+        <h4>Batteries &amp; electrical</h4>
+        <p>I acknowledge that e-bike batteries and electrical systems carry inherent risks, and I represent that the battery and charger provided are the manufacturer's or a compatible, undamaged unit.</p>
+        <h4>Pickup &amp; abandoned property</h4>
+        <p>I will pick up my bike within 30 days of being notified that service is complete. Bikes left beyond 30 days may incur storage fees, and bikes left beyond 60 days may be treated as abandoned and disposed of as permitted by Ohio law.</p>
+        <h4>Release of liability</h4>
+        <p>To the fullest extent permitted by law, I release Cruise the Creek, its owners, and staff from liability for loss or damage arising from this service, except loss or damage caused by their gross negligence or willful misconduct. I confirm I am the owner of this bike, or am authorized by the owner to approve this work and sign this waiver.</p>
+      </div>
+      <label class="waiver-agree"><input type="checkbox" id="f-waiver"> <span>I have read and agree to the Service Authorization &amp; Liability Waiver above, and I'm authorized to approve work on this bike. <span class="req">*</span></span></label>
+      <div class="row" style="margin-top:14px">
+        <div><label class="lbl" for="f-sign">Type your full name to sign <span class="req">*</span></label><input type="text" id="f-sign" name="waiverSignature" autocomplete="name"></div>
+      </div>
+      <p class="sign-note">Signing on <span id="waiver-date"></span>. This electronic signature has the same legal effect as a handwritten one.</p>
+    </fieldset>
+
     <button type="submit" class="submit-btn" id="submit-btn">Submit repair request</button>
     <div class="form-note">We'll text or email you within 24–48 hours to confirm and schedule. Youngstown, Ohio.</div>
   </form>
@@ -192,6 +230,9 @@ footer a{color:var(--tan);font-weight:500}
 
 <script>
 const SUBMIT_URL = 'https://script.google.com/macros/s/AKfycbwXv6r6Me-mdp9WFjCHQYDHcgEKbny-9_K8TX-yGgW40yTONhz6kAs3H96xM0tEDAhcJA/exec';
+// Bump this whenever the waiver wording above changes, so each saved record
+// shows which version of the waiver the customer agreed to.
+const WAIVER_VERSION = '2026-06-24';
 const MAX_FILES = 5;
 const MAX_DIM = 1600;     // px — longest edge after compression
 const JPEG_QUALITY = 0.8;
@@ -214,6 +255,10 @@ document.querySelectorAll('.choice input').forEach(inp => {
   };
   inp.addEventListener('change', sync);
 });
+
+// Show today's date on the signature line.
+const WAIVER_DATE = new Date().toLocaleDateString('en-US', { year:'numeric', month:'long', day:'numeric' });
+document.getElementById('waiver-date').textContent = WAIVER_DATE;
 
 function showMsg(kind, text){
   formMsg.className = kind;
@@ -277,6 +322,10 @@ form.addEventListener('submit', async e => {
   if (!first || !last || !phone || !email) {
     return showMsg('error', 'Please fill in your name, phone, and email so we can reach you.');
   }
+  const waiverSignature = v('f-sign');
+  if (!document.getElementById('f-waiver').checked || !waiverSignature) {
+    return showMsg('error', 'Please read the waiver, check the box to agree, and type your full name to sign.');
+  }
 
   const issues = Array.from(document.querySelectorAll('input[name="issues"]:checked')).map(c => c.value);
   const ebikeClass = (document.querySelector('input[name="ebikeClass"]:checked') || {}).value || '';
@@ -298,6 +347,9 @@ form.addEventListener('submit', async e => {
     firstName: first, lastName: last, phone: phone, email: email,
     brand: v('f-brand'), model: v('f-model'),
     ebikeClass: ebikeClass, issues: issues, description: v('f-desc'),
+    waiverAgreed: true, waiverSignature: waiverSignature,
+    waiverVersion: WAIVER_VERSION, waiverDate: WAIVER_DATE,
+    waiverText: (document.getElementById('waiver-box').innerText || '').trim(),
     files: files,
   };
 
@@ -315,7 +367,7 @@ form.addEventListener('submit', async e => {
     PICKED = []; renderThumbs();
     document.querySelectorAll('.choice.is-checked').forEach(c => c.classList.remove('is-checked'));
     showMsg('ok', 'Thanks! Your repair request is in' + (id ? ' (ref ' + id + ')' : '') +
-      '. We\'ll reach out within 24–48 hours to schedule.');
+      '. We\'ve emailed you a copy of your signed waiver, and we\'ll reach out within 24–48 hours to schedule.');
   } catch (err) {
     showMsg('error', 'Something went wrong sending that. Please try again, or text us and we\'ll sort it out.');
   } finally {
