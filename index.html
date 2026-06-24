@@ -50,15 +50,26 @@ button{font-family:inherit}
   position:sticky;top:0;z-index:100;
   border-bottom:1px solid rgba(0,0,0,.05);
 }
-.brand{display:flex;align-items:center;gap:10px;flex-shrink:1;min-width:0}
+.brand{display:flex;align-items:center;gap:10px}
 .brand-logo{height:38px;width:auto;display:block;}
-.top-nav{display:flex;gap:6px;align-items:center;flex-wrap:nowrap;flex-shrink:0}
+.nav-toggle{display:none;background:none;border:0;cursor:pointer;padding:6px;color:var(--forest)}
+.nav-toggle svg{width:26px;height:26px;display:block;stroke:currentColor;fill:none;stroke-width:2.4;stroke-linecap:round}
+.top-nav{display:flex;gap:6px;align-items:center;flex-wrap:nowrap}
 .top-nav a{padding:8px 13px;border-radius:4px;font-size:.8rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;white-space:nowrap;color:var(--ink-2,#3a3a3a);transition:all .2s}
 .top-nav a:hover{background:rgba(0,0,0,.05);color:var(--forest)}
 .top-nav .book{background:var(--forest);color:#fff}
 .top-nav .book:hover{background:var(--dark,#1a2e1c);color:#fff}
-@media(max-width:560px){.topbar{gap:8px}.top-nav{gap:3px}.top-nav a{padding:7px 8px;font-size:.66rem;letter-spacing:.02em}}
-@media(max-width:400px){.brand-logo{height:26px}.top-nav a{padding:6px 6px;font-size:.6rem}}
+/* Phones: collapse the nav into a tap-to-open menu so it never overlaps the
+   wordmark logo (the four items + wide logo can't fit one line on mobile). */
+@media(max-width:600px){
+  .nav-toggle{display:inline-flex;align-items:center}
+  .top-nav{position:absolute;top:100%;right:8px;left:8px;flex-direction:column;align-items:stretch;
+    background:#fff;border:1px solid rgba(0,0,0,.08);border-radius:8px;box-shadow:0 12px 30px rgba(0,0,0,.14);
+    padding:8px;gap:4px;display:none}
+  .top-nav.open{display:flex}
+  .top-nav a{padding:12px 12px;font-size:.82rem}
+  .top-nav .book{text-align:center}
+}
 .top-actions{display:flex;align-items:center;gap:8px}
 .icon-btn{
   width:40px;height:40px;border-radius:4px;
@@ -476,13 +487,30 @@ footer{background:var(--dark);color:rgba(255,255,255,.75);padding:40px 24px 32px
   <a class="brand" href="index.html" aria-label="Cruise the Creek home">
     <img class="brand-logo" src="BlackonTransparent.png" alt="Cruise the Creek">
   </a>
-  <nav class="top-nav">
+  <button class="nav-toggle" id="navToggle" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="topNav">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+  </button>
+  <nav class="top-nav" id="topNav">
     <a href="rentals.html">Rentals</a>
     <a href="shop.html">Shop</a>
     <a href="pricing.html">Pricing</a>
     <a href="rentals.html" class="book">Book a Ride</a>
   </nav>
 </header>
+<script>
+(function(){
+  var t = document.getElementById('navToggle'), n = document.getElementById('topNav');
+  if (!t || !n) return;
+  t.addEventListener('click', function(){
+    var open = n.classList.toggle('open');
+    t.setAttribute('aria-expanded', open ? 'true' : 'false');
+  });
+  // Close the menu after tapping a link.
+  n.querySelectorAll('a').forEach(function(a){
+    a.addEventListener('click', function(){ n.classList.remove('open'); t.setAttribute('aria-expanded','false'); });
+  });
+})();
+</script>
 
 <!-- ── HERO ── -->
 <section class="hero">
