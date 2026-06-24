@@ -94,6 +94,174 @@ function doGet(e) {
   }
 }
 
+/**
+ * POST entry point — for submissions that carry file uploads. The repair
+ * intake form (repair-intake.html) posts JSON with browser-compressed,
+ * base64-encoded photos. Browsers send the body as text/plain to avoid a
+ * CORS preflight Apps Script can't answer, so we parse postData ourselves.
+ * Returns JSON like the GET handlers.
+ */
+function doPost(e) {
+  var json = function(obj) {
+    return ContentService.createTextOutput(JSON.stringify(obj))
+      .setMimeType(ContentService.MimeType.JSON);
+  };
+  try {
+    var p = {};
+    if (e && e.postData && e.postData.contents) {
+      try { p = JSON.parse(e.postData.contents) || {}; }
+      catch (parseErr) { p = (e && e.parameter) || {}; }
+    } else {
+      p = (e && e.parameter) || {};
+    }
+    var action = String(p.action || (e && e.parameter && e.parameter.action) || '').trim();
+    if (action === 'repairIntake') return handleRepairIntake(p);
+    return json({ ok: false, error: 'Unknown POST action: ' + action });
+  } catch (err) {
+    console.error('doPost failed: ' + err);
+    return json({ ok: false, error: String(err) });
+  }
+}
+
+/**
+ * Repair / service intake. Lands one row in Repair_Intake, saves any uploaded
+ * photos to Drive (folder from SiteConfig repair_photos_folder_id, else My
+ * Drive root), and notifies salesteam@ + info@ plus Discord. Mirrors the other
+ * handle* functions; the only extra is the photo save. Reuses the Drive scope
+ * the agreement generator already authorized — no new permissions.
+ */
+function handleRepairIntake(p) {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var json = function(obj) {
+    return ContentService.createTextOutput(JSON.stringify(obj))
+      .setMimeType(ContentService.MimeType.JSON);
+  };
+  try {
+    var now = new Date();
+    var id  = 'RT-' + Utilities.formatDate(now, 'America/New_York', 'yyMMdd-HHmmss');
+
+    var issues = Array.isArray(p.issues)
+      ? p.issues.join(', ')
+      : String(p.issues || '').trim();
+
+    var row = {
+      id:          id,
+      timestamp:   now,
+      first:       String(p.firstName || '').trim(),
+      last:        String(p.lastName  || '').trim(),
+      email:       String(p.email     || '').trim(),
+      phone:       String(p.phone     || '').trim(),
+      brand:       String(p.brand     || '').trim(),
+      model:       String(p.model     || '').trim(),
+      ebike_class: String(p.ebikeClass|| '').trim(),
+      issues:      issues,
+      description: String(p.description || '').trim(),
+    };
+
+    // Save uploaded photos to Drive. Capped at 5; each is already compressed
+    // client-side. A single bad file is skipped, never sinks the submission.
+    var folder = null;
+    var folderId = getSiteConfigValue_('repair_photos_folder_id');
+    if (folderId) { try { folder = DriveApp.getFolderById(folderId); } catch (fErr) { folder = null; } }
+    var files = Array.isArray(p.files) ? p.files.slice(0, 5) : [];
+    var links = [];
+    files.forEach(function(f, i) {
+      try {
+        var b64 = String((f && (f.b64 || f.dataBase64)) || '');
+        if (b64.indexOf(',') !== -1) b64 = b64.split(',')[1]; // strip data: prefix
+        if (!b64) return;
+        var mime = (f && f.mimeType) || 'image/jpeg';
+        var nm   = (f && f.name) ? String(f.name) : ('photo-' + (i + 1) + '.jpg');
+        var blob = Utilities.newBlob(Utilities.base64Decode(b64), mime, id + '-' + (i + 1) + '-' + nm);
+        var file = folder ? folder.createFile(blob) : DriveApp.createFile(blob);
+        try { file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW); } catch (sErr) {}
+        links.push(file.getUrl());
+      } catch (fileErr) {
+        console.warn('Repair photo save failed: ' + fileErr);
+      }
+    });
+    row.photo_count = links.length;
+    row.photo_links = links.join('\n');
+
+    var sh = ss.getSheetByName('Repair_Intake');
+    if (!sh) {
+      sh = ss.insertSheet('Repair_Intake');
+      sh.appendRow(['id','timestamp','first','last','email','phone','brand','model',
+                    'ebike_class','issues','description','photo_count','photo_links','status']);
+      sh.getRange(1, 1, 1, 14).setFontWeight('bold');
+    }
+    sh.appendRow([row.id, row.timestamp, row.first, row.last, row.email, row.phone,
+                  row.brand, row.model, row.ebike_class, row.issues, row.description,
+                  row.photo_count, row.photo_links, 'new']);
+
+    // Notify the shop. Mail failure logs but doesn't sink the request.
+    try {
+      var fullName = (row.first + ' ' + row.last).trim() || '(no name)';
+      var photoBlock = links.length
+        ? links.map(function(u, i){ return '  Photo ' + (i + 1) + ': ' + u; }).join('\n')
+        : '  (none uploaded)';
+      var body = [
+        'New repair / service intake — ' + row.id,
+        '',
+        '— CUSTOMER —',
+        'Name:    ' + fullName,
+        'Phone:   ' + (row.phone || '(missing)'),
+        'Email:   ' + (row.email || '(missing)'),
+        '',
+        '— BIKE —',
+        'Brand:   ' + (row.brand || '(not given)'),
+        'Model:   ' + (row.model || '(not given)'),
+        'Class:   ' + (row.ebike_class || '(not given)'),
+        '',
+        '— WHAT NEEDS ATTENTION —',
+        (row.issues || '(none selected)'),
+        '',
+        '— DESCRIPTION —',
+        (row.description || '(blank)'),
+        '',
+        '— PHOTOS (' + links.length + ') —',
+        photoBlock,
+        '',
+        'Logged at ' + row.timestamp + ' (Repair_Intake tab, status=new)',
+      ].join('\n');
+      MailApp.sendEmail({
+        to:      'salesteam@cruisethecreek.com,info@cruisethecreek.com',
+        replyTo: row.email || 'salesteam@cruisethecreek.com',
+        subject: 'Repair intake — ' + fullName +
+                 (row.brand ? ' · ' + row.brand : '') + ' (' + row.id + ')',
+        body:    body,
+      });
+    } catch (mailErr) {
+      console.warn('Repair intake email failed: ' + mailErr);
+    }
+
+    // Discord push (no-op if webhook unset).
+    postToDiscord_(
+      '🔧 New repair intake — ' + row.id,
+      3447003, // blue
+      [
+        { name: '👤 Customer', value:
+            ((row.first + ' ' + row.last).trim() || '(name missing)') +
+            (row.phone ? '\n📞 ' + row.phone : '') +
+            (row.email ? '\n✉️ ' + row.email : ''), inline: false },
+        { name: '🚲 Bike',  value: ((row.brand || '?') + ' ' + (row.model || '')).trim() +
+            (row.ebike_class ? '\n' + row.ebike_class : ''), inline: true },
+        { name: '🛠️ Needs', value: row.issues || '(none)', inline: true },
+        { name: '📝 Problem', value: (row.description || '(blank)').substring(0, 1000), inline: false },
+        { name: '📷 Photos', value: links.length
+            ? links.map(function(u, i){ return '[Photo ' + (i + 1) + '](' + u + ')'; }).join(' · ')
+            : '(none)', inline: false },
+      ],
+      'Reach out to schedule the repair.'
+    );
+
+    return json({ ok: true, id: row.id, photoCount: links.length });
+  } catch (err) {
+    console.error('handleRepairIntake failed: ' + err);
+    return json({ ok: false, error: String(err) });
+  }
+}
+
 function _doGetInner(e, action) {
 
   // Order submission path. Handled BEFORE the CMS read so the response

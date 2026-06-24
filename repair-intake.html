@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Repair &amp; Service Intake | Cruise the Creek</title>
+<meta name="description" content="Bring your e-bike repair to Cruise the Creek. Tell us your bike, what's wrong, and upload a few photos — we'll follow up to schedule the fix. Youngstown, Ohio.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --sage:#6B8F71;--forest:#2D4A32;--forest-l:#3a5d40;--dark:#1a2e1c;
+  --tan:#C9A96E;--tan-d:#a98843;--cream:#F5F0E8;--cream-w:#fbf7ef;
+  --ink:#1a1a1a;--ink-2:#4a4a4a;--ink-3:#7a7a7a;
+}
+html{scroll-behavior:smooth}
+body{font-family:'DM Sans',sans-serif;color:var(--ink);background:var(--cream);
+  min-height:100vh;display:flex;flex-direction:column;line-height:1.6}
+a{color:inherit;text-decoration:none}
+button{font-family:inherit;cursor:pointer;border:none;background:none}
+
+.topbar{background:rgba(255,255,255,.95);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+  color:var(--dark);padding:16px 24px;display:flex;align-items:center;justify-content:space-between;
+  position:sticky;top:0;z-index:100;border-bottom:1px solid rgba(0,0,0,.05)}
+.brand-logo{height:38px;width:auto;display:block}
+
+.hero{position:relative;min-height:30vh;padding:64px 24px 48px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;
+  color:#fff;background:var(--forest);overflow:hidden;isolation:isolate}
+.hero-eyebrow{display:inline-block;font-size:.72rem;font-weight:700;letter-spacing:.2em;
+  text-transform:uppercase;color:var(--tan);margin-bottom:14px;
+  padding:6px 14px;border:1px solid rgba(201,169,110,.35);border-radius:4px}
+.hero h1{font-family:'Bebas Neue',sans-serif;font-size:clamp(2.6rem,7vw,4rem);letter-spacing:.02em;line-height:1;margin-bottom:12px}
+.hero p{font-size:clamp(1rem,2.4vw,1.1rem);color:rgba(255,255,255,.88);max-width:560px}
+
+.crumb{max-width:760px;margin:0 auto;padding:18px 24px 0;
+  font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;font-weight:700;color:var(--sage)}
+.crumb a{color:var(--ink-2)}.crumb .sep{color:rgba(0,0,0,.2);margin:0 8px}
+
+main{flex:1;width:100%;max-width:760px;margin:0 auto;padding:28px 24px 64px}
+
+#form-message{padding:12px 14px;border-radius:6px;margin-bottom:18px;font-weight:700;font-size:.92rem;display:none}
+#form-message.error{background:#fbe5e5;color:#9a3636;display:block}
+#form-message.ok{background:#dcefdc;color:#1f5f24;display:block}
+
+.card{background:#fff;border:1px solid rgba(0,0,0,.06);border-radius:10px;
+  box-shadow:0 6px 18px rgba(45,74,50,.05);padding:26px 24px}
+.fieldset{border:0;margin:0 0 26px;padding:0}
+.fieldset:last-of-type{margin-bottom:0}
+.legend{font-family:'Bebas Neue',sans-serif;font-size:1.3rem;letter-spacing:.03em;color:var(--forest);
+  margin-bottom:14px;display:flex;align-items:center;gap:10px}
+.legend .num{width:26px;height:26px;border-radius:50%;background:var(--forest);color:#fff;
+  font-family:'DM Sans',sans-serif;font-size:.85rem;font-weight:800;display:flex;align-items:center;justify-content:center}
+
+label.lbl{display:block;font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;font-weight:800;
+  color:var(--ink-2);margin-bottom:6px}
+.req{color:#b4632f}
+.row{display:grid;grid-template-columns:1fr;gap:14px;margin-bottom:14px}
+@media(min-width:560px){.row.two{grid-template-columns:1fr 1fr}}
+.row:last-child{margin-bottom:0}
+input[type=text],input[type=email],input[type=tel],select,textarea{
+  width:100%;background:#fbfaf7;border:1px solid rgba(45,74,50,.18);border-radius:7px;
+  padding:11px 13px;color:var(--ink);font-size:.95rem;font-family:inherit;transition:border-color .15s ease,background .15s ease}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--sage);background:#fff}
+textarea{min-height:96px;line-height:1.5;resize:vertical}
+
+.choices{display:grid;gap:9px}
+.choice{display:flex;align-items:flex-start;gap:11px;padding:11px 13px;border:1px solid rgba(45,74,50,.16);
+  border-radius:8px;background:#fbfaf7;cursor:pointer;transition:border-color .15s ease,background .15s ease}
+.choice:hover{border-color:var(--sage)}
+.choice input{margin-top:3px;width:17px;height:17px;accent-color:var(--forest);flex-shrink:0}
+.choice-text strong{display:block;font-size:.95rem;color:var(--ink);font-weight:700}
+.choice-text span{font-size:.82rem;color:var(--ink-3)}
+.choice.is-checked{border-color:var(--forest);background:#f1f5f0}
+.checks{display:grid;grid-template-columns:1fr;gap:9px}
+@media(min-width:560px){.checks{grid-template-columns:1fr 1fr}}
+
+.uploader{border:2px dashed rgba(45,74,50,.25);border-radius:9px;padding:22px 16px;text-align:center;
+  background:#fbfaf7;cursor:pointer;transition:border-color .15s ease,background .15s ease}
+.uploader:hover{border-color:var(--sage);background:#f4f7f3}
+.uploader strong{display:block;color:var(--forest);font-weight:800;font-size:.95rem}
+.uploader span{font-size:.82rem;color:var(--ink-3)}
+.uploader input{display:none}
+.thumbs{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px}
+.thumb{position:relative;width:74px;height:74px;border-radius:7px;overflow:hidden;border:1px solid rgba(0,0,0,.1)}
+.thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.thumb button{position:absolute;top:2px;right:2px;width:20px;height:20px;border-radius:50%;
+  background:rgba(0,0,0,.6);color:#fff;font-size:.9rem;line-height:1;display:flex;align-items:center;justify-content:center}
+
+.submit-btn{width:100%;margin-top:24px;background:var(--tan);color:var(--dark);
+  padding:15px 22px;border-radius:7px;font-size:.95rem;font-weight:800;letter-spacing:.05em;
+  text-transform:uppercase;transition:background .2s ease,transform .15s ease}
+.submit-btn:hover:not(:disabled){background:#dbb978;transform:translateY(-1px)}
+.submit-btn:disabled{background:rgba(0,0,0,.15);color:rgba(0,0,0,.4);cursor:not-allowed}
+.form-note{font-size:.8rem;color:var(--ink-3);text-align:center;margin-top:12px;line-height:1.5}
+
+footer{background:var(--dark);color:rgba(255,255,255,.7);padding:32px 24px;
+  text-align:center;font-size:.85rem;border-top:2px solid var(--tan)}
+footer a{color:var(--tan);font-weight:500}
+@media(max-width:480px){.topbar{padding:12px 16px}.hero{padding:48px 16px 36px}main{padding:22px 16px 48px}.card{padding:20px 16px}}
+</style>
+<script src="site-enhance.js"></script>
+<meta property="og:title" content="Repair & Service Intake | Cruise the Creek">
+<meta property="og:description" content="Tell us your e-bike, what's wrong, and upload a few photos. We'll follow up to schedule the fix.">
+<meta property="og:image" content="https://www.cruisethecreek.com/media/BikeCloseup.jpg">
+<meta property="og:url" content="https://www.cruisethecreek.com/repair-intake.html">
+<meta property="og:type" content="website">
+<link rel="canonical" href="https://www.cruisethecreek.com/repair-intake.html">
+</head>
+<body>
+
+<header class="topbar">
+  <a href="index.html" aria-label="Cruise the Creek home"><img class="brand-logo" src="BlackonTransparent.png" alt="Cruise the Creek"></a>
+</header>
+
+<section class="hero">
+  <span class="hero-eyebrow">Service department</span>
+  <h1>Repair &amp; Service Intake</h1>
+  <p>Tell us about your bike and what's going on. Add a few photos of error codes or damage and we'll follow up to schedule the fix.</p>
+</section>
+
+<nav class="crumb"><a href="index.html">Home</a><span class="sep">/</span> Service <span class="sep">/</span> Repair Intake</nav>
+
+<main>
+  <div id="form-message"></div>
+  <form id="repair-form" class="card" novalidate>
+
+    <fieldset class="fieldset">
+      <div class="legend"><span class="num">1</span> Your contact info</div>
+      <div class="row two">
+        <div><label class="lbl" for="f-first">First name <span class="req">*</span></label><input type="text" id="f-first" name="firstName" autocomplete="given-name" required></div>
+        <div><label class="lbl" for="f-last">Last name <span class="req">*</span></label><input type="text" id="f-last" name="lastName" autocomplete="family-name" required></div>
+      </div>
+      <div class="row two">
+        <div><label class="lbl" for="f-phone">Phone <span class="req">*</span></label><input type="tel" id="f-phone" name="phone" autocomplete="tel" required></div>
+        <div><label class="lbl" for="f-email">Email <span class="req">*</span></label><input type="email" id="f-email" name="email" autocomplete="email" required></div>
+      </div>
+    </fieldset>
+
+    <fieldset class="fieldset">
+      <div class="legend"><span class="num">2</span> Your bike</div>
+      <div class="row two">
+        <div><label class="lbl" for="f-brand">Brand</label><input type="text" id="f-brand" name="brand" placeholder="e.g. Heybike, Velotric, Mooncool"></div>
+        <div><label class="lbl" for="f-model">Model <span style="color:var(--ink-3);font-weight:600">(if known)</span></label><input type="text" id="f-model" name="model"></div>
+      </div>
+      <label class="lbl">E-bike class</label>
+      <div class="choices" id="class-choices">
+        <label class="choice"><input type="radio" name="ebikeClass" value="Class 1 — pedal assist only, max 20 mph"><span class="choice-text"><strong>Class 1</strong><span>Pedal assist only, max 20 mph</span></span></label>
+        <label class="choice"><input type="radio" name="ebikeClass" value="Class 2 — throttle assist, max 20 mph"><span class="choice-text"><strong>Class 2</strong><span>Throttle assist, max 20 mph</span></span></label>
+        <label class="choice"><input type="radio" name="ebikeClass" value="Class 3 — pedal assist only, max 28 mph"><span class="choice-text"><strong>Class 3</strong><span>Pedal assist only, max 28 mph</span></span></label>
+        <label class="choice"><input type="radio" name="ebikeClass" value="Not sure / just twist the throttle and go"><span class="choice-text"><strong>I don't know</strong><span>I just twist the throttle and go</span></span></label>
+      </div>
+    </fieldset>
+
+    <fieldset class="fieldset">
+      <div class="legend"><span class="num">3</span> What needs attention?</div>
+      <div class="checks" id="issue-checks">
+        <label class="choice"><input type="checkbox" name="issues" value="Battery / Charging"><span class="choice-text"><strong>Battery / Charging</strong></span></label>
+        <label class="choice"><input type="checkbox" name="issues" value="Motor / Electrical error codes"><span class="choice-text"><strong>Motor / Electrical</strong><span>Error codes</span></span></label>
+        <label class="choice"><input type="checkbox" name="issues" value="Flat tire / Wheels"><span class="choice-text"><strong>Flat tire / Wheels</strong></span></label>
+        <label class="choice"><input type="checkbox" name="issues" value="Brakes"><span class="choice-text"><strong>Brakes</strong></span></label>
+        <label class="choice"><input type="checkbox" name="issues" value="Routine tune-up"><span class="choice-text"><strong>Routine tune-up</strong></span></label>
+        <label class="choice"><input type="checkbox" name="issues" value="Mechanical / Gears"><span class="choice-text"><strong>Mechanical / Gears</strong></span></label>
+      </div>
+    </fieldset>
+
+    <fieldset class="fieldset">
+      <div class="legend"><span class="num">4</span> Describe the problem</div>
+      <textarea id="f-desc" name="description" placeholder="What's happening? When did it start? Any error codes, noises, or recent crashes?"></textarea>
+    </fieldset>
+
+    <fieldset class="fieldset">
+      <div class="legend"><span class="num">5</span> Photos <span style="font-family:'DM Sans';font-size:.8rem;font-weight:600;color:var(--ink-3);letter-spacing:0;text-transform:none">— optional, up to 5</span></div>
+      <label class="uploader" id="uploader">
+        <strong>Tap to add photos</strong>
+        <span>Error codes, damaged parts, or the serial number. No account needed.</span>
+        <input type="file" id="f-photos" accept="image/*" multiple>
+      </label>
+      <div class="thumbs" id="thumbs"></div>
+    </fieldset>
+
+    <button type="submit" class="submit-btn" id="submit-btn">Submit repair request</button>
+    <div class="form-note">We'll text or email you within 24–48 hours to confirm and schedule. Youngstown, Ohio.</div>
+  </form>
+</main>
+
+<footer>
+  &copy; 2026 <a href="index.html">Cruise the Creek</a> &middot; <a href="tune-ups.html">Tune-ups</a> &middot; <a href="shop.html">Shop</a>
+</footer>
+
+<script>
+const SUBMIT_URL = 'https://script.google.com/macros/s/AKfycbwXv6r6Me-mdp9WFjCHQYDHcgEKbny-9_K8TX-yGgW40yTONhz6kAs3H96xM0tEDAhcJA/exec';
+const MAX_FILES = 5;
+const MAX_DIM = 1600;     // px — longest edge after compression
+const JPEG_QUALITY = 0.8;
+
+const form    = document.getElementById('repair-form');
+const formMsg = document.getElementById('form-message');
+const fileInput = document.getElementById('f-photos');
+const thumbs  = document.getElementById('thumbs');
+let PICKED = [];          // File objects, capped at MAX_FILES
+
+// Reflect checked state on the choice cards.
+document.querySelectorAll('.choice input').forEach(inp => {
+  const sync = () => {
+    if (inp.type === 'radio') {
+      document.querySelectorAll('input[name="' + inp.name + '"]').forEach(r =>
+        r.closest('.choice').classList.toggle('is-checked', r.checked));
+    } else {
+      inp.closest('.choice').classList.toggle('is-checked', inp.checked);
+    }
+  };
+  inp.addEventListener('change', sync);
+});
+
+function showMsg(kind, text){
+  formMsg.className = kind;
+  formMsg.textContent = text;
+  formMsg.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+/* ── photo picker + previews ─────────────────────────── */
+fileInput.addEventListener('change', () => {
+  for (const f of fileInput.files) {
+    if (PICKED.length >= MAX_FILES) break;
+    if (/^image\//.test(f.type)) PICKED.push(f);
+  }
+  fileInput.value = '';
+  renderThumbs();
+});
+function renderThumbs(){
+  thumbs.innerHTML = '';
+  PICKED.forEach((f, i) => {
+    const url = URL.createObjectURL(f);
+    const el = document.createElement('div');
+    el.className = 'thumb';
+    el.innerHTML = '<img src="' + url + '" alt=""><button type="button" aria-label="Remove">&times;</button>';
+    el.querySelector('img').onload = () => URL.revokeObjectURL(url);
+    el.querySelector('button').addEventListener('click', () => { PICKED.splice(i, 1); renderThumbs(); });
+    thumbs.appendChild(el);
+  });
+}
+
+/* ── client-side compression (keeps payload small, no sign-in) ── */
+function compressImage(file){
+  return new Promise((resolve, reject) => {
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+    img.onload = () => {
+      URL.revokeObjectURL(url);
+      const scale = Math.min(1, MAX_DIM / Math.max(img.width, img.height));
+      const w = Math.max(1, Math.round(img.width * scale));
+      const h = Math.max(1, Math.round(img.height * scale));
+      const canvas = document.createElement('canvas');
+      canvas.width = w; canvas.height = h;
+      canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+      const dataUrl = canvas.toDataURL('image/jpeg', JPEG_QUALITY);
+      resolve({
+        name: (file.name || 'photo').replace(/\.[^.]+$/, '') + '.jpg',
+        mimeType: 'image/jpeg',
+        b64: dataUrl.split(',')[1],
+      });
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('decode failed')); };
+    img.src = url;
+  });
+}
+
+/* ── submit ──────────────────────────────────────────── */
+form.addEventListener('submit', async e => {
+  e.preventDefault();
+  formMsg.className = '';
+  const v = id => (document.getElementById(id).value || '').trim();
+  const first = v('f-first'), last = v('f-last'), phone = v('f-phone'), email = v('f-email');
+  if (!first || !last || !phone || !email) {
+    return showMsg('error', 'Please fill in your name, phone, and email so we can reach you.');
+  }
+
+  const issues = Array.from(document.querySelectorAll('input[name="issues"]:checked')).map(c => c.value);
+  const ebikeClass = (document.querySelector('input[name="ebikeClass"]:checked') || {}).value || '';
+
+  const btn = document.getElementById('submit-btn');
+  btn.disabled = true;
+
+  // Compress photos. A file that won't decode is skipped, not fatal.
+  let files = [];
+  if (PICKED.length) {
+    btn.textContent = 'Preparing photos…';
+    const results = await Promise.allSettled(PICKED.map(compressImage));
+    files = results.filter(r => r.status === 'fulfilled').map(r => r.value);
+  }
+
+  btn.textContent = 'Submitting…';
+  const payload = {
+    action: 'repairIntake',
+    firstName: first, lastName: last, phone: phone, email: email,
+    brand: v('f-brand'), model: v('f-model'),
+    ebikeClass: ebikeClass, issues: issues, description: v('f-desc'),
+    files: files,
+  };
+
+  try {
+    // text/plain dodges the CORS preflight Apps Script can't answer.
+    const res = await fetch(SUBMIT_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify(payload),
+      redirect: 'follow',
+    });
+    let id = '';
+    try { const j = await res.json(); if (j && j.id) id = j.id; } catch (_) {}
+    form.reset();
+    PICKED = []; renderThumbs();
+    document.querySelectorAll('.choice.is-checked').forEach(c => c.classList.remove('is-checked'));
+    showMsg('ok', 'Thanks! Your repair request is in' + (id ? ' (ref ' + id + ')' : '') +
+      '. We\'ll reach out within 24–48 hours to schedule.');
+  } catch (err) {
+    showMsg('error', 'Something went wrong sending that. Please try again, or text us and we\'ll sort it out.');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Submit repair request';
+  }
+});
+</script>
+<script src="chatbot.js" defer></script>
+</body>
+</html>
