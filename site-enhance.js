@@ -118,61 +118,38 @@
     textLabel: 'Text us',
   };
 
-  /* ── Section-aware menu config ────────────────────────
-   * One menu system for the whole site. The menu shown is chosen by the
-   * current page's section (PAGE_SECTION); unknown pages fall back to the
-   * top-level "home" menu. To change a menu, edit here only. */
-  var NAV_SECTIONS = {
-    home: { label: 'Menu', items: [
-      { label: 'Rentals',    url: 'rentals.html' },
-      { label: 'Shop',       url: 'shop.html' },
-      { label: 'Services',   url: 'creek-ready.html' },
-      { label: 'Test Ride',  url: 'test-ride.html' },
-      { label: 'Creek Life', url: 'creek-life-blog.html' },
+  /* ── Site menu config ─────────────────────────────────
+   * One menu for the whole site. Top-level entries are either a direct link
+   * ({label,url}) or an expandable section ({label, items:[...]}). The section
+   * containing the current page auto-expands. Edit here only. */
+  var NAV_MENU = [
+    { label: 'Home', url: 'index.html' },
+    { label: 'Rentals', items: [
+      { label: 'Book Bears Den',        url: 'adventures.html' },
+      { label: 'Book Trail Side',       url: 'trailside.html' },
+      { label: 'Book Long Term',        url: 'long-term-rental.html' },
+      { label: 'Apply for Rent-to-Own', url: 'bridge-the-gap.html' },
     ]},
-    rentals: { label: 'Rentals', items: [
-      { label: 'Home',                 url: 'index.html' },
-      { label: 'Book Bears Den',       url: 'adventures.html' },
-      { label: 'Book Trail Side',      url: 'trailside.html' },
-      { label: 'Book Long Term',       url: 'long-term-rental.html' },
-      { label: 'Apply for Rent-to-Own',url: 'bridge-the-gap.html' },
+    { label: 'Shop', items: [
+      { label: 'Shop E-Bikes',     url: 'shop.html' },
+      { label: 'Shop Accessories', url: 'accessories.html' },
+      { label: 'Shop Apparel',     url: 'apparel.html' },
     ]},
-    services: { label: 'Services', items: [
-      { label: 'Home',                 url: 'index.html' },
+    { label: 'Services', items: [
       { label: 'Creek Ready Package',  url: 'creek-ready.html' },
       { label: 'Creek Ready Tune-Ups', url: 'tune-ups.html' },
       { label: 'Video Diagnostic',     url: 'video-diagnostics.html' },
       { label: 'Repair Intake',        url: 'repair-intake.html' },
     ]},
-    shop: { label: 'Shop', items: [
-      { label: 'Shop E-Bikes',     url: 'shop.html' },
-      { label: 'Shop Accessories', url: 'accessories.html' },
-      { label: 'Shop Apparel',     url: 'apparel.html' },
-    ]},
-    creeklife: { label: 'Creek Life', items: [
-      { label: 'Home',            url: 'index.html' },
+    { label: 'Test Ride', url: 'test-ride.html' },
+    { label: 'Creek Life', items: [
       { label: 'Creek Life Blog', url: 'creek-life-blog.html' },
       { label: 'Our Story',       url: 'our-story.html' },
       { label: 'Events',          url: 'events.html' },
       { label: 'Donate',          url: 'donate.html' },
       { label: 'FAQs',            url: 'faqs.html' },
     ]},
-  };
-
-  var PAGE_SECTION = {
-    'rentals.html': 'rentals', 'adventures.html': 'rentals', 'trailside.html': 'rentals',
-    'long-term-rental.html': 'rentals', 'bridge-the-gap.html': 'rentals', 'journeys.html': 'rentals',
-    'creek-ready.html': 'services', 'tune-ups.html': 'services', 'video-diagnostics.html': 'services',
-    'assembly.html': 'services', 'repair-intake.html': 'services', 'safety.html': 'services',
-    'shop.html': 'shop', 'accessories.html': 'shop', 'apparel.html': 'shop',
-    'heybike.html': 'shop', 'velotric.html': 'shop', 'mooncool.html': 'shop',
-    'jasion.html': 'shop', 'gift-cards.html': 'shop',
-    'creek-life-blog.html': 'creeklife', 'our-story.html': 'creeklife', 'events.html': 'creeklife',
-    'donate.html': 'creeklife', 'faqs.html': 'creeklife', 'gallery.html': 'creeklife',
-    'sponsors.html': 'creeklife', 'blog-post.html': 'creeklife',
-    '15-mph-trail-limit.html': 'creeklife', 'ebike-sensors-explained.html': 'creeklife',
-    'real-ebikes-vs-emotos.html': 'creeklife', 'the-real-hazard-on-our-roads.html': 'creeklife',
-  };
+  ];
 
   function currentPageFile() {
     var p = (location.pathname || '').split('/').pop();
@@ -251,9 +228,15 @@
     '.ctc-menu-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding:2px 6px}',
     ".ctc-menu-title{font-family:'Bebas Neue',sans-serif;font-size:1.45rem;letter-spacing:.03em;color:" + BRAND.forest + "}",
     '.ctc-menu-close{background:none;border:0;font-size:1.7rem;line-height:1;color:#4a4a4a;cursor:pointer;padding:2px 8px}',
-    '.ctc-menu-panel a{display:block;padding:13px 12px;border-radius:7px;color:#1a1a1a;text-decoration:none;font-weight:700;font-size:.92rem;letter-spacing:.02em;transition:background .15s ease,color .15s ease}',
-    '.ctc-menu-panel a:hover{background:rgba(45,74,50,.07);color:' + BRAND.forest + '}',
-    '.ctc-menu-panel a.is-active{background:' + BRAND.forest + ';color:#fff}',
+    '.ctc-menu-link,.ctc-menu-grouptoggle{display:flex;align-items:center;width:100%;padding:13px 12px;border:0;background:none;border-radius:7px;color:#1a1a1a;text-decoration:none;font-weight:700;font-size:.92rem;letter-spacing:.02em;cursor:pointer;text-align:left;transition:background .15s ease,color .15s ease;font-family:inherit}',
+    '.ctc-menu-grouptoggle{justify-content:space-between;text-transform:uppercase;letter-spacing:.06em;font-size:.82rem;color:' + BRAND.forest + '}',
+    '.ctc-menu-link:hover,.ctc-menu-grouptoggle:hover,.ctc-menu-sub:hover{background:rgba(45,74,50,.07);color:' + BRAND.forest + '}',
+    '.ctc-menu-caret{transition:transform .2s ease;font-size:.7rem;opacity:.7}',
+    '.ctc-menu-group.is-expanded .ctc-menu-caret{transform:rotate(180deg)}',
+    '.ctc-menu-sublist{display:none;padding:2px 0 6px 8px}',
+    '.ctc-menu-group.is-expanded .ctc-menu-sublist{display:block}',
+    '.ctc-menu-sub{display:block;padding:11px 12px;border-radius:7px;color:#1a1a1a;text-decoration:none;font-weight:600;font-size:.9rem;transition:background .15s ease,color .15s ease}',
+    '.ctc-menu-sub.is-active,.ctc-menu-link.is-active{background:' + BRAND.forest + ';color:#fff}',
     /* Retire the legacy per-page navs — one shared menu drives navigation now. */
     '.top-nav,.ctc-top-nav,.nav-links,#navToggle,.nav-toggle,.ctc-nav-toggle,.mobile-toggle{display:none!important}',
   ].join('');
@@ -306,16 +289,25 @@
     if (document.body.hasAttribute('data-no-site-menu')) return;
     if (document.getElementById('ctc-menu-btn')) return;
 
-    var cur     = currentPageFile();
-    var key     = PAGE_SECTION[cur] || 'home';
-    var section = NAV_SECTIONS[key] || NAV_SECTIONS.home;
-
+    var cur = currentPageFile();
     function esc(s){ return String(s).replace(/[&<>"]/g, function(c){ return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'})[c]; }); }
+    function extAttr(url){ return /^https?:/.test(url) ? ' target="_blank" rel="noopener"' : ''; }
 
-    var links = section.items.map(function (it) {
-      var active = String(it.url).toLowerCase() === cur ? ' class="is-active"' : '';
-      var ext    = /^https?:/.test(it.url) ? ' target="_blank" rel="noopener"' : '';
-      return '<a href="' + esc(it.url) + '"' + active + ext + '>' + esc(it.label) + '</a>';
+    var html = NAV_MENU.map(function (entry) {
+      if (entry.url) {
+        var active = String(entry.url).toLowerCase() === cur ? ' is-active' : '';
+        return '<a class="ctc-menu-link' + active + '" href="' + esc(entry.url) + '"' + extAttr(entry.url) + '>' + esc(entry.label) + '</a>';
+      }
+      var items = entry.items || [];
+      var hasActive = items.some(function (it) { return String(it.url).toLowerCase() === cur; });
+      var subs = items.map(function (it) {
+        var a = String(it.url).toLowerCase() === cur ? ' is-active' : '';
+        return '<a class="ctc-menu-sub' + a + '" href="' + esc(it.url) + '"' + extAttr(it.url) + '>' + esc(it.label) + '</a>';
+      }).join('');
+      return '<div class="ctc-menu-group' + (hasActive ? ' is-expanded' : '') + '">' +
+        '<button type="button" class="ctc-menu-grouptoggle" aria-expanded="' + (hasActive ? 'true' : 'false') + '">' +
+        esc(entry.label) + '<span class="ctc-menu-caret" aria-hidden="true">▾</span></button>' +
+        '<div class="ctc-menu-sublist">' + subs + '</div></div>';
     }).join('');
 
     var btn = document.createElement('button');
@@ -333,9 +325,9 @@
     panel.className = 'ctc-menu-panel';
     panel.setAttribute('aria-label', 'Site menu');
     panel.innerHTML =
-      '<div class="ctc-menu-head"><span class="ctc-menu-title">' + esc(section.label) + '</span>' +
+      '<div class="ctc-menu-head"><span class="ctc-menu-title">Menu</span>' +
       '<button class="ctc-menu-close" type="button" aria-label="Close menu">&times;</button></div>' +
-      links;
+      html;
 
     document.body.appendChild(overlay);
     document.body.appendChild(panel);
@@ -347,6 +339,15 @@
     overlay.addEventListener('click', close);
     panel.querySelector('.ctc-menu-close').addEventListener('click', close);
     document.addEventListener('keydown', function (e) { if (e.key === 'Escape') close(); });
+
+    // Expand/collapse sections.
+    panel.querySelectorAll('.ctc-menu-grouptoggle').forEach(function (tg) {
+      tg.addEventListener('click', function () {
+        var group = tg.parentNode;
+        var open = group.classList.toggle('is-expanded');
+        tg.setAttribute('aria-expanded', open ? 'true' : 'false');
+      });
+    });
   }
 
   /* ── 5: Scroll fade-in observer ───────────────────── */
