@@ -151,8 +151,8 @@ footer a{color:var(--tan);font-weight:500}
     <fieldset class="fieldset">
       <div class="legend"><span class="num">2</span> Your bike</div>
       <div class="row two">
-        <div><label class="lbl" for="f-brand">Brand</label><input type="text" id="f-brand" name="brand" placeholder="e.g. Heybike, Velotric, Mooncool"></div>
-        <div><label class="lbl" for="f-model">Model <span style="color:var(--ink-3);font-weight:600">(if known)</span></label><input type="text" id="f-model" name="model"></div>
+        <div><label class="lbl" for="f-brand">Brand</label><input type="text" id="f-brand" name="brand" list="brand-list" autocomplete="off" placeholder="e.g. Heybike, Velotric, Mooncool"><datalist id="brand-list"></datalist></div>
+        <div><label class="lbl" for="f-model">Model <span style="color:var(--ink-3);font-weight:600">(if known)</span></label><input type="text" id="f-model" name="model" list="model-list" autocomplete="off" placeholder="Type or pick — suggestions match your brand"><datalist id="model-list"></datalist></div>
       </div>
       <label class="lbl">E-bike class</label>
       <div class="choices" id="class-choices">
@@ -375,6 +375,65 @@ form.addEventListener('submit', async e => {
     btn.textContent = 'Submit repair request';
   }
 });
+</script>
+<script>
+/* ── Smart brand/model suggestions ───────────────────────────────────
+ * Reuses the live bike inventory (the same getBikeInventory feed that
+ * powers the brand/shop pages) so the Brand field suggests the brands we
+ * carry and the Model field auto-narrows to that brand's models. Native
+ * <datalist> means these are SUGGESTIONS only — customers can still type
+ * any brand/model we don't stock. If the feed is unreachable the fields
+ * silently stay plain text inputs. */
+(function () {
+  var INV_URL = 'https://script.google.com/macros/s/AKfycbyxVMuFEUeR8_YqM1VVnfPSVPnDhdCs_63dDthZ4jODlTDGQ-7yXSkQeYT-Ux0SM8tw/exec';
+  var brandEl = document.getElementById('f-brand');
+  var modelEl = document.getElementById('f-model');
+  var brandList = document.getElementById('brand-list');
+  var modelList = document.getElementById('model-list');
+  if (!brandEl || !modelEl || !brandList || !modelList) return;
+
+  var byBrand = {};      // normalized brand -> { display, models: [] }
+  var allModels = [];
+
+  function norm(s) { return String(s == null ? '' : s).trim().toLowerCase(); }
+  function setOptions(listEl, values) {
+    listEl.innerHTML = values.map(function (v) {
+      return '<option value="' + String(v).replace(/"/g, '&quot;') + '"></option>';
+    }).join('');
+  }
+  function refreshModels() {
+    var rec = byBrand[norm(brandEl.value)];
+    var models = rec && rec.models.length ? rec.models : allModels;
+    setOptions(modelList, models);
+  }
+  brandEl.addEventListener('input', refreshModels);
+  brandEl.addEventListener('change', refreshModels);
+
+  fetch(INV_URL + '?action=getBikeInventory', { redirect: 'follow' })
+    .then(function (r) { return r.json(); })
+    .then(function (data) {
+      var bikes = Array.isArray(data) ? data : (data && (data.bikes || data.inventory || data.data)) || [];
+      var seenModel = {};
+      bikes.forEach(function (b) {
+        if (!b) return;
+        if (b.discontinued === true || norm(b.discontinued) === 'true') return;
+        var brand = (b.brand || '').trim();
+        var name = (b.name || '').trim();
+        if (brand) {
+          var bk = norm(brand);
+          if (!byBrand[bk]) byBrand[bk] = { display: brand, models: [] };
+          if (name && byBrand[bk].models.indexOf(name) === -1) byBrand[bk].models.push(name);
+        }
+        if (name && !seenModel[norm(name)]) { seenModel[norm(name)] = 1; allModels.push(name); }
+      });
+      var brands = Object.keys(byBrand).map(function (k) { return byBrand[k].display; }).sort();
+      Object.keys(byBrand).forEach(function (k) { byBrand[k].models.sort(); });
+      allModels.sort();
+      setOptions(brandList, brands);
+      refreshModels();
+    })
+    .catch(function () { /* feed unreachable — fields remain plain text inputs */ });
+})();
 </script>
 <script src="chatbot.js" defer></script>
 </body>
