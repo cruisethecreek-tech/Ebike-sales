@@ -96,9 +96,13 @@ section.block.tight{padding:44px 24px}
   box-shadow:0 4px 16px rgba(45,74,50,.06)}
 .bike-photo{aspect-ratio:4/3;background:var(--stone);position:relative;overflow:hidden}
 .bike-photo img{width:100%;height:100%;object-fit:cover;display:block}
+.bike-photo.no-img,.bike-photo:empty{
+  background-color:var(--stone);
+  background-image:url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='46'%20height='46'%20viewBox='0%200%2024%2024'%20fill='none'%20stroke='%239b9387'%20stroke-width='1.5'%20stroke-linecap='round'%20stroke-linejoin='round'%3E%3Crect%20x='3'%20y='7'%20width='18'%20height='12'%20rx='2'/%3E%3Cpath%20d='M8%207l1.6-2.4h4.8L16%207'/%3E%3Ccircle%20cx='12'%20cy='13'%20r='3.2'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:center 40%;background-size:46px 46px}
 .bike-photo:empty::after,.bike-photo.no-img::after{
-  content:'photo';position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
-  color:var(--ink-3);font-size:.7rem;letter-spacing:.18em;text-transform:uppercase}
+  content:'Photo coming soon';position:absolute;left:0;right:0;bottom:16%;text-align:center;
+  color:var(--ink-3);font-size:.64rem;letter-spacing:.16em;text-transform:uppercase;font-weight:600;opacity:.8}
 .bike-head{padding:22px 22px 8px}
 .bike-badge{display:inline-block;font-family:'Bebas Neue',sans-serif;font-size:1.4rem;
   letter-spacing:.08em;color:var(--forest);
@@ -137,9 +141,13 @@ section.block.tight{padding:44px 24px}
   display:flex;flex-direction:column}
 .trip-img{aspect-ratio:5/3;background:var(--stone);position:relative;overflow:hidden}
 .trip-img img{width:100%;height:100%;object-fit:cover;display:block}
-.trip-img:empty::after,.trip-img.no-img::after{content:'photo';position:absolute;inset:0;
-  display:flex;align-items:center;justify-content:center;color:var(--ink-3);
-  font-size:.7rem;letter-spacing:.18em;text-transform:uppercase}
+.trip-img.no-img,.trip-img:empty{
+  background-color:var(--stone);
+  background-image:url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='46'%20height='46'%20viewBox='0%200%2024%2024'%20fill='none'%20stroke='%239b9387'%20stroke-width='1.5'%20stroke-linecap='round'%20stroke-linejoin='round'%3E%3Crect%20x='3'%20y='7'%20width='18'%20height='12'%20rx='2'/%3E%3Cpath%20d='M8%207l1.6-2.4h4.8L16%207'/%3E%3Ccircle%20cx='12'%20cy='13'%20r='3.2'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:center 40%;background-size:46px 46px}
+.trip-img:empty::after,.trip-img.no-img::after{
+  content:'Photo coming soon';position:absolute;left:0;right:0;bottom:14%;text-align:center;
+  color:var(--ink-3);font-size:.64rem;letter-spacing:.16em;text-transform:uppercase;font-weight:600;opacity:.8}
 .trip-body{padding:18px 20px 20px}
 .trip-tag{font-size:.66rem;letter-spacing:.16em;text-transform:uppercase;
   font-weight:700;color:var(--sage);margin-bottom:6px}
