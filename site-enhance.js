@@ -125,13 +125,14 @@
   var NAV_MENU = [
     { label: 'Home', url: 'index.html' },
     { label: 'Rentals', items: [
-      { label: 'Book Bears Den',        url: 'adventures.html' },
-      { label: 'Book Trail Side',       url: 'trailside.html' },
-      { label: 'Book Long Term',        url: 'long-term-rental.html' },
-      { label: 'Apply for Rent-to-Own', url: 'bridge-the-gap.html' },
+      { label: 'Book Bears Den (Youngstown)', url: 'adventures.html' },
+      { label: 'Book Kirk Road (Canfield)',   url: 'trailside.html' },
+      { label: 'Book Long Term',              url: 'long-term-rental.html' },
+      { label: 'Apply for Rent-to-Own',       url: 'bridge-the-gap.html' },
     ]},
     { label: 'Shop', items: [
       { label: 'Shop E-Bikes',     url: 'shop.html' },
+      { label: 'E-Bike Quiz',      url: 'quiz.html' },
       { label: 'Shop Accessories', url: 'accessories.html' },
       { label: 'Shop Apparel',     url: 'apparel.html' },
     ]},
@@ -141,7 +142,7 @@
       { label: 'Video Diagnostic',     url: 'video-diagnostics.html' },
       { label: 'Repair Intake',        url: 'repair-intake.html' },
     ]},
-    { label: 'Test Ride', url: 'test-ride.html' },
+    { label: 'Test Ride', url: 'https://book.peek.com/s/57e3b62e-4f48-4cc4-8876-7b79f4c11baa/17Aw9' },
     { label: 'Creek Life', items: [
       { label: 'Creek Life Blog', url: 'creek-life-blog.html' },
       { label: 'Our Story',       url: 'our-story.html' },
