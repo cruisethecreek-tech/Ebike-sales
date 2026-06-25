@@ -151,8 +151,8 @@ footer a{color:var(--tan);font-weight:500}
     <fieldset class="fieldset">
       <div class="legend"><span class="num">2</span> Your bike</div>
       <div class="row two">
-        <div><label class="lbl" for="f-brand">Brand</label><input type="text" id="f-brand" name="brand" placeholder="e.g. Heybike, Velotric, Mooncool"></div>
-        <div><label class="lbl" for="f-model">Model <span style="color:var(--ink-3);font-weight:600">(if known)</span></label><input type="text" id="f-model" name="model"></div>
+        <div><label class="lbl" for="f-brand">Brand</label><input type="text" id="f-brand" name="brand" list="brand-list" autocomplete="off" placeholder="e.g. Heybike, Velotric, Mooncool"><datalist id="brand-list"></datalist></div>
+        <div><label class="lbl" for="f-model">Model <span style="color:var(--ink-3);font-weight:600">(if known)</span></label><input type="text" id="f-model" name="model" list="model-list" autocomplete="off" placeholder="Type or pick — suggestions match your brand"><datalist id="model-list"></datalist></div>
       </div>
       <label class="lbl">E-bike class</label>
       <div class="choices" id="class-choices">
@@ -375,6 +375,104 @@ form.addEventListener('submit', async e => {
     btn.textContent = 'Submit repair request';
   }
 });
+</script>
+<script>
+/* ── Smart brand/model suggestions (brand-agnostic service intake) ────
+ * Repair and Creek Ready Tune-Up are offered for ANY e-bike, not only
+ * the brands we sell — so suggestions draw from two layers:
+ *   1. A curated list of common consumer e-bike brands (COMMON_BRANDS),
+ *      plus popular models for the most-seen ones (BRAND_MODELS).
+ *   2. Our live sales inventory (getBikeInventory), layered on top so
+ *      anything we stock is always covered and stays current.
+ * Native <datalist> keeps these SUGGESTIONS only: a customer can type any
+ * brand/model, listed or not. If the inventory feed is unreachable the
+ * curated list still works; if everything fails the fields are plain text.
+ * To grow coverage, just add to COMMON_BRANDS / BRAND_MODELS below. */
+(function () {
+  var INV_URL = 'https://script.google.com/macros/s/AKfycbyxVMuFEUeR8_YqM1VVnfPSVPnDhdCs_63dDthZ4jODlTDGQ-7yXSkQeYT-Ux0SM8tw/exec';
+
+  // Common consumer e-bike brands seen at the shop (expand freely).
+  var COMMON_BRANDS = ['Aventon', 'Rad Power Bikes', 'Lectric', 'Ride1Up', 'Specialized', 'Trek',
+    'Giant', 'Cannondale', 'Juiced', 'Super73', 'Himiway', 'Pedego', 'Magnum', 'Ariel Rider',
+    'Blix', 'Gazelle', 'Tern', 'Electra', 'Aventura', 'QuietKat', 'Mokwheel', 'Engwe', 'Cyrusher',
+    'KBO', 'Tenways', 'Hovsco', 'Addmotor', 'Sondors', 'Segway / Ninebot', 'Rambo', 'Bakcou',
+    'Velotric', 'Heybike', 'Mooncool', 'Jasion'];
+
+  // Popular models for the most-seen brands (suggestions only — not exhaustive).
+  var BRAND_MODELS = {
+    'aventon': ['Level', 'Level 2', 'Aventure', 'Aventure 2', 'Pace 350', 'Pace 500', 'Soltera', 'Soltera 2', 'Sinch', 'Sinch 2', 'Ramblas', 'Abound'],
+    'rad power bikes': ['RadRunner', 'RadRunner Plus', 'RadRunner 3 Plus', 'RadCity', 'RadCity 5 Plus', 'RadWagon', 'RadRover', 'RadRover 6 Plus', 'RadExpand', 'RadMission', 'RadTrike'],
+    'lectric': ['XP 2.0', 'XP 3.0', 'XP Lite', 'XP Lite 2.0', 'XPremium', 'XPedition', 'ONE', 'XP Trike'],
+    'ride1up': ['Core-5', 'Turris', '700 Series', '500 Series', 'Prodigy', "LMT'D", 'Roadster V2', 'Portola', 'Cafe Cruiser'],
+    'super73': ['S1', 'S2', 'Z1', 'ZX', 'ZG', 'RX', 'R Brooklyn', 'Adventure'],
+    'juiced': ['RipCurrent S', 'CrossCurrent X', 'HyperScorpion', 'Scorpion X', 'Scrambler'],
+    'himiway': ['Cruiser', 'Zebra', 'Cobra', 'Big Dog', 'Escape', 'Rambler'],
+    'specialized': ['Turbo Vado', 'Turbo Como', 'Turbo Tero', 'Turbo Levo', 'Turbo Creo'],
+    'trek': ['Allant+', 'Verve+', 'FX+', 'Powerfly', 'Rail', 'Domane+'],
+    'pedego': ['Interceptor', 'Element', 'City Commuter', 'Boomerang', 'Ridge Rider'],
+    'magnum': ['Cruiser', 'Metro', 'Pathfinder', 'Ranger']
+  };
+
+  var brandEl = document.getElementById('f-brand');
+  var modelEl = document.getElementById('f-model');
+  var brandList = document.getElementById('brand-list');
+  var modelList = document.getElementById('model-list');
+  if (!brandEl || !modelEl || !brandList || !modelList) return;
+
+  var byBrand = {};   // normalized brand -> { display, models: [] }
+
+  function norm(s) { return String(s == null ? '' : s).trim().toLowerCase(); }
+  function addBrand(display) {
+    var k = norm(display);
+    if (!k) return null;
+    if (!byBrand[k]) byBrand[k] = { display: display, models: [] };
+    return byBrand[k];
+  }
+  function addModel(rec, name) {
+    if (rec && name && rec.models.indexOf(name) === -1) rec.models.push(name);
+  }
+  function setOptions(listEl, values) {
+    listEl.innerHTML = values.map(function (v) {
+      return '<option value="' + String(v).replace(/"/g, '&quot;') + '"></option>';
+    }).join('');
+  }
+  function rebuild() {
+    var brands = Object.keys(byBrand).map(function (k) { return byBrand[k].display; }).sort();
+    Object.keys(byBrand).forEach(function (k) { byBrand[k].models.sort(); });
+    setOptions(brandList, brands);
+    refreshModels();
+  }
+  function refreshModels() {
+    var rec = byBrand[norm(brandEl.value)];
+    setOptions(modelList, rec ? rec.models : []);   // models only for a recognized brand; free text otherwise
+  }
+  brandEl.addEventListener('input', refreshModels);
+  brandEl.addEventListener('change', refreshModels);
+
+  // Seed the curated layer first so suggestions work even without the feed.
+  COMMON_BRANDS.forEach(function (b) { addBrand(b); });
+  Object.keys(BRAND_MODELS).forEach(function (k) {
+    var rec = byBrand[k] || addBrand(k);
+    BRAND_MODELS[k].forEach(function (m) { addModel(rec, m); });
+  });
+  rebuild();
+
+  // Layer live sales inventory on top (auto-updating brands + models).
+  fetch(INV_URL + '?action=getBikeInventory', { redirect: 'follow' })
+    .then(function (r) { return r.json(); })
+    .then(function (data) {
+      var bikes = Array.isArray(data) ? data : (data && (data.bikes || data.inventory || data.data)) || [];
+      bikes.forEach(function (b) {
+        if (!b) return;
+        if (b.discontinued === true || norm(b.discontinued) === 'true') return;
+        var brand = (b.brand || '').trim();
+        var name = (b.name || '').trim();
+        if (brand) addModel(addBrand(brand), name);
+      });
+      rebuild();
+    })
+    .catch(function () { /* feed unreachable — curated suggestions remain */ });
+})();
 </script>
 <script src="chatbot.js" defer></script>
 </body>
