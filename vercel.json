@@ -1,0 +1,9 @@
+{
+  "redirects": [
+    {
+      "source": "/shopvelotric",
+      "destination": "https://www.cruisethecreek.com/velotric",
+      "permanent": true
+    }
+  ]
+}
