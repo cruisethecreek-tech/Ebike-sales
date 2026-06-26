@@ -137,7 +137,7 @@ footer a{color:var(--tan);font-weight:500}footer a:hover{color:#fff}
   .post-body{font-size:1rem;line-height:1.7}
 }
 </style>
-<script src="site-enhance.js?v=20260625b"></script>
+<script src="site-enhance.js?v=20260625c"></script>
 </head>
 <body>
 
@@ -279,14 +279,20 @@ function applyData(d){
 
 /* ── CMS bootstrap (cache, TTL, loader) ──────────── */
 let _bpApplied = false;
+function bpFail() {
+  if (!_bpApplied) renderError("Couldn't load this post", 'Refresh the page or check back in a moment.');
+}
 cmsBoot({
   key: CACHE_KEY,
   url: MENU_URL,
   onApply(data) { _bpApplied = true; applyData(data); },
+  // Surface the error only on a genuine fetch failure — not while a slow
+  // (cold-start) request is still in flight. The old blind 8s timer fired
+  // mid-request and flashed this message before the post finished loading.
+  onError() { bpFail(); },
 });
-window.addEventListener('load', () => setTimeout(() => {
-  if (!_bpApplied) renderError("Couldn't load this post", 'Refresh the page or check back in a moment.');
-}, 8000));
+// Last-resort backstop for a request that never resolves or rejects at all.
+window.addEventListener('load', () => setTimeout(bpFail, 25000));
 </script>
 
 <script src="chatbot.js" defer></script>

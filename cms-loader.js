@@ -199,6 +199,9 @@
       })
       .catch(function (err) {
         console.warn('[cms]', opts.key, 'fetch failed:', err);
+        if (typeof opts.onError === 'function') {
+          try { opts.onError(err); } catch (e) { console.warn('[cms] onError failed:', e); }
+        }
       })
       .then(hideCmsLoader, hideCmsLoader);
   }
