@@ -240,6 +240,16 @@
     '.ctc-menu-sub.is-active,.ctc-menu-link.is-active{background:' + BRAND.forest + ';color:#fff}',
     /* Retire the legacy per-page navs — one shared menu drives navigation now. */
     '.top-nav,.ctc-top-nav,.nav-links,#navToggle,.nav-toggle,.ctc-nav-toggle,.mobile-toggle{display:none!important}',
+
+    /* ── Reusable scrolling marquee heading — add data-marquee to any
+          heading and it scrolls. Honors prefers-reduced-motion; pauses on
+          hover. min-width:0 guards flex parents from the nowrap content. */
+    '.ctc-mq{display:block;overflow:hidden;white-space:nowrap;max-width:100%;min-width:0;contain:inline-size}',
+    '.ctc-mq__track{display:inline-flex;will-change:transform;animation:ctc-mq-scroll linear infinite}',
+    '.ctc-mq__half{display:inline-flex;flex:0 0 auto}',
+    '.ctc-mq:hover .ctc-mq__track{animation-play-state:paused}',
+    '@keyframes ctc-mq-scroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}',
+    '@media(prefers-reduced-motion:reduce){.ctc-mq__track{animation:none}}',
   ].join('');
 
   function injectCSS() {
@@ -412,6 +422,63 @@
     mo.observe(document.documentElement, { childList: true, subtree: true });
   }
 
+  /* ── Reusable scrolling marquee ───────────────────────
+   * Any element with [data-marquee] becomes a horizontal scrolling
+   * heading. Works on plain or CMS-hydrated headings: a per-element
+   * MutationObserver rebuilds the marquee whenever the source text is
+   * replaced (e.g. applyCMS sets textContent). The observer is paused
+   * during our own DOM writes so we never loop. aria-label carries the
+   * real text so screen readers don't hear the repeats. */
+  function buildMarquee(el) {
+    var obs = el.__mqObs;
+    if (obs) obs.disconnect();
+    // Source text: the heading's own text, unless it's currently our marquee
+    // (then fall back to the remembered text).
+    var text = el.querySelector('.ctc-mq__track')
+      ? (el.getAttribute('data-mq-text') || '')
+      : (el.textContent || '').trim();
+    if (text) {
+      el.setAttribute('data-mq-text', text);
+      el.setAttribute('aria-label', text);
+      el.classList.add('ctc-mq');
+      el.textContent = '';
+      var track = document.createElement('span');
+      track.className = 'ctc-mq__track';
+      track.setAttribute('aria-hidden', 'true');
+      var half = document.createElement('span');
+      half.className = 'ctc-mq__half';
+      track.appendChild(half);
+      el.appendChild(track);
+      var unit = text + '  •  ';
+      var guard = 0;
+      do {
+        var s = document.createElement('span');
+        s.textContent = unit;
+        half.appendChild(s);
+        guard++;
+      } while (half.scrollWidth < (el.clientWidth + 40) && guard < 60);
+      track.appendChild(half.cloneNode(true)); // 2 identical halves → seamless -50% loop
+      track.style.animationDuration = Math.max(8, Math.round(half.scrollWidth / 55)) + 's';
+    }
+    if (obs) obs.observe(el, { childList: true, characterData: true, subtree: true });
+  }
+
+  function setupMarquees(root) {
+    var els = (root || document).querySelectorAll('[data-marquee]');
+    for (var i = 0; i < els.length; i++) {
+      var el = els[i];
+      if (el.__mqInit) continue;
+      el.__mqInit = true;
+      if (typeof MutationObserver !== 'undefined') {
+        // Rebuild when something external (CMS) replaces the heading text.
+        el.__mqObs = new MutationObserver((function (target) {
+          return function () { buildMarquee(target); };
+        })(el));
+      }
+      buildMarquee(el);
+    }
+  }
+
   /* ── Boot ─────────────────────────────────────────── */
 
   function boot() {
@@ -421,6 +488,7 @@
     setupFadeIns();
     upgradeAllImages(document);
     watchForLateImages();
+    setupMarquees(document);
   }
 
   if (document.readyState === 'loading') {
