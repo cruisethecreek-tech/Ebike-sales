@@ -91,14 +91,22 @@ button{font-family:inherit}
 
 /* MAIN */
 main{flex:1}
-.section{padding:64px 24px}
-.section-inner{max-width:1080px;margin:0 auto}
+.section{padding:64px 24px;min-width:0}
+.section-inner{max-width:1080px;margin:0 auto;min-width:0}
 .section-eyebrow{display:block;font-size:.74rem;letter-spacing:.22em;text-transform:uppercase;
   font-weight:700;color:var(--sage);margin-bottom:10px}
 .section-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(2rem,5vw,3rem);
   letter-spacing:.04em;color:var(--forest);line-height:1.05;margin-bottom:18px;text-transform:uppercase}
 .section-lead{font-size:1.08rem;color:var(--ink-2);max-width:680px;margin-bottom:32px;line-height:1.7}
 .section-lead .valley{color:var(--forest);font-weight:700;background:rgba(201,169,110,.18);padding:2px 8px;border-radius:4px}
+
+/* ── Scrolling marquee section titles (built in JS; survives CMS hydration) ── */
+.mq{display:block;overflow:hidden;white-space:nowrap;max-width:100%}
+.mq__track{display:inline-flex;will-change:transform;animation:mq-scroll linear infinite}
+.mq__half{display:inline-flex;flex:0 0 auto}
+.mq:hover .mq__track{animation-play-state:paused}
+@keyframes mq-scroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+@media(prefers-reduced-motion:reduce){.mq__track{animation:none}}
 
 /* PRICING STRIP */
 .pricing{background:var(--cream-w);border-top:1px solid rgba(0,0,0,.06);border-bottom:1px solid rgba(0,0,0,.06);padding:36px 24px}
@@ -982,8 +990,41 @@ function renderBridgeBikeOptions(rows){
   clearBikeSelection();
 }
 
+/* ── Scrolling marquee section titles ─────────────
+ * Same effect as the rentals page. applyCMS overwrites textContent, so we
+ * de-marquee before hydration and rebuild after — idempotent, source text
+ * always wins. Pure-CSS scroll; reduced-motion disables it (see CSS). */
+const MQ_SELECTORS = ['.section-title'];
+function mqTargets(){ const out = []; MQ_SELECTORS.forEach(s => document.querySelectorAll(s).forEach(el => out.push(el))); return out; }
+function mqDemarquee(){
+  mqTargets().forEach(el => {
+    const src = el.getAttribute('data-mq-text');
+    if (src != null){ el.classList.remove('mq'); el.removeAttribute('aria-label'); el.textContent = src; }
+  });
+}
+function mqBuild(){
+  mqTargets().forEach(el => {
+    const text = (el.textContent || '').trim();
+    if (!text) return;
+    el.setAttribute('data-mq-text', text);
+    el.setAttribute('aria-label', text);   // screen readers read this, not the repeats
+    el.classList.add('mq');
+    el.textContent = '';
+    const track = document.createElement('span'); track.className = 'mq__track'; track.setAttribute('aria-hidden', 'true');
+    const half = document.createElement('span'); half.className = 'mq__half';
+    track.appendChild(half); el.appendChild(track);
+    const unit = text + '  •  ';
+    let guard = 0;
+    do { const s = document.createElement('span'); s.textContent = unit; half.appendChild(s); guard++; }
+    while (half.scrollWidth < (el.clientWidth + 40) && guard < 60);
+    track.appendChild(half.cloneNode(true));        // 2 identical halves → seamless -50% loop
+    track.style.animationDuration = Math.max(8, Math.round(half.scrollWidth / 55)) + 's';
+  });
+}
+
 /* ── CMS bootstrap (cache, TTL, loader) ──────────── */
 function hydrateBridge(d){
+  mqDemarquee();
   applyCMS(d);
   // Rent-to-own term + accessory list are sheet-driven.
   const np = parseInt((d.site && d.site.btg_num_payments) || '', 10);
@@ -1000,9 +1041,11 @@ function hydrateBridge(d){
   if (Array.isArray(d.bridgeFeatures))    renderBridgeFeatures(d.bridgeFeatures);
   if (Array.isArray(d.bridgeCompare))     renderBridgeCompare(d.bridgeCompare);
   if (Array.isArray(d.bridgeBikeOptions)) renderBridgeBikeOptions(d.bridgeBikeOptions);
+  mqBuild();
   // Reveal the page now that real CMS content is rendered.
   window.dispatchEvent(new Event('cms:ready'));
 }
+mqBuild(); // initial paint with static text
 if (MENU_URL) cmsBoot({
   key: 'cms:bridge-the-gap:v1',
   url: MENU_URL,
