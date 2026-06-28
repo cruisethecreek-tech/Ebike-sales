@@ -108,8 +108,10 @@ button{font-family:inherit}
 
 /* ── SECTION HEAD ── */
 .section-head{
-  max-width:1080px;margin:0 auto;padding:48px 24px 24px;
-  display:flex;align-items:flex-end;justify-content:space-between;gap:14px;
+  max-width:1080px;width:100%;min-width:0;margin:0 auto;padding:48px 24px 24px;
+}
+.section-head-top{
+  display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:8px;
 }
 .section-head h2{
   font-family:'Bebas Neue',sans-serif;font-size:2.25rem;
@@ -117,13 +119,23 @@ button{font-family:inherit}
 }
 .section-head .section-sub{
   font-size:.75rem;letter-spacing:.15em;font-weight:700;
-  text-transform:uppercase;color:var(--sage);margin-top:8px;
+  text-transform:uppercase;color:var(--sage);
 }
 .section-count{
   font-size:.75rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
   color:var(--dark);background:#fff;border:1px solid rgba(0,0,0,.1);
-  padding:8px 14px;border-radius:4px;
+  padding:8px 14px;border-radius:4px;flex:0 0 auto;
 }
+
+/* ── Scrolling marquee headings (Pick Your Plan / Vibe / Arrive) ──
+ * Built in JS so it survives CMS textContent hydration. Honors
+ * prefers-reduced-motion and pauses on hover. */
+.mq{display:block;overflow:hidden;white-space:nowrap;max-width:100%}
+.mq__track{display:inline-flex;will-change:transform;animation:mq-scroll linear infinite}
+.mq__half{display:inline-flex;flex:0 0 auto}
+.mq:hover .mq__track{animation-play-state:paused}
+@keyframes mq-scroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+@media(prefers-reduced-motion:reduce){.mq__track{animation:none}}
 
 /* ── TILE GRID ── */
 main{flex:1;width:100%}
@@ -409,11 +421,11 @@ footer{background:var(--dark);color:rgba(255,255,255,.75);padding:40px 24px 32px
 
 <!-- ── SECTION HEAD ── -->
 <div class="section-head">
-  <div>
+  <div class="section-head-top">
     <div class="section-sub" data-cms-text="section_eyebrow">Rental options</div>
-    <h2 data-cms-text="section_title">Pick Your Plan</h2>
+    <span class="section-count" id="rentalCount">4 options</span>
   </div>
-  <span class="section-count" id="rentalCount">4 options</span>
+  <h2 data-cms-text="section_title">Pick Your Plan</h2>
 </div>
 
 <!-- ── TILE GRID ── -->
@@ -757,12 +769,47 @@ function applyCMS(remote){
   }
 }
 
+/* ── Scrolling marquee headings ───────────────────
+ * Pick Your Plan / Which ride is right for you / What to expect when you
+ * arrive scroll horizontally. CMS hydration (applyCMS) overwrites these
+ * headings' textContent, so we de-marquee before hydration and rebuild
+ * after — idempotent, and the source text always wins. */
+const MQ_SELECTORS = ['.section-head h2', '.vibe-title', '.arrive-title'];
+function mqTargets(){ const out = []; MQ_SELECTORS.forEach(s => document.querySelectorAll(s).forEach(el => out.push(el))); return out; }
+function mqDemarquee(){
+  mqTargets().forEach(el => {
+    const src = el.getAttribute('data-mq-text');
+    if (src != null){ el.classList.remove('mq'); el.removeAttribute('aria-label'); el.textContent = src; }
+  });
+}
+function mqBuild(){
+  mqTargets().forEach(el => {
+    const text = (el.textContent || '').trim();
+    if (!text) return;
+    el.setAttribute('data-mq-text', text);
+    el.setAttribute('aria-label', text);   // screen readers read this, not the repeats
+    el.classList.add('mq');
+    el.textContent = '';
+    const track = document.createElement('span'); track.className = 'mq__track'; track.setAttribute('aria-hidden', 'true');
+    const half = document.createElement('span'); half.className = 'mq__half';
+    track.appendChild(half); el.appendChild(track);
+    const unit = text + '  •  ';
+    let guard = 0;
+    do { const s = document.createElement('span'); s.textContent = unit; half.appendChild(s); guard++; }
+    while (half.scrollWidth < (el.clientWidth + 40) && guard < 60);
+    track.appendChild(half.cloneNode(true));        // 2 identical halves → seamless -50% loop
+    track.style.animationDuration = Math.max(8, Math.round(half.scrollWidth / 55)) + 's';
+  });
+}
+
 /* ── CMS bootstrap (cache, TTL, loader) ──────────── */
 renderTiles(); // initial paint with default DATA
+mqBuild();     // marquee the section headings (static text)
 if (MENU_URL) cmsBoot({
   key: 'cms:rentals:v1',
   url: MENU_URL,
   onApply(data) {
+    mqDemarquee();
     applyCMS(data);
     if (Array.isArray(data.tiles) && data.tiles.length) {
       DATA = data;
@@ -770,6 +817,7 @@ if (MENU_URL) cmsBoot({
     }
     if (Array.isArray(data.rentalsVibe) && data.rentalsVibe.length) renderRentalsVibe(data.rentalsVibe);
     if (Array.isArray(data.rentalsArrival) && data.rentalsArrival.length) renderArrival(data.rentalsArrival);
+    mqBuild();
   },
 });
 </script>
