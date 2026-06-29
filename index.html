@@ -164,6 +164,16 @@ button{font-family:inherit}
   color:var(--sage);margin-top:8px;
 }
 
+/* ── Scrolling marquee heading (Pick Your Path) ──
+ * Built in JS so it survives CMS textContent hydration. Honors
+ * prefers-reduced-motion and pauses on hover. */
+.mq{display:block;overflow:hidden;white-space:nowrap;max-width:100%}
+.mq__track{display:inline-flex;will-change:transform;animation:mq-scroll linear infinite}
+.mq__half{display:inline-flex;flex:0 0 auto}
+.mq:hover .mq__track{animation-play-state:paused}
+@keyframes mq-scroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+@media(prefers-reduced-motion:reduce){.mq__track{animation:none}}
+
 /* ── TILE GRID ── */
 main{flex:1;width:100%}
 .grid-wrap{max-width:1080px;margin:0 auto;padding:16px 24px 48px}
@@ -798,8 +808,41 @@ function applyCMS(remote){
 /* Hide social slots by default — they only appear if a URL is in SiteConfig. */
 document.querySelectorAll('[data-cms-display-if]').forEach(el => { el.style.display = 'none'; });
 
+/* ── Scrolling marquee heading ────────────────────
+ * "Pick Your Path" scrolls horizontally. CMS hydration (applyCMS) overwrites
+ * this heading's textContent, so we de-marquee before hydration and rebuild
+ * after — idempotent, and the source text always wins. */
+const MQ_SELECTORS = ['.section-head h2'];
+function mqTargets(){ const out = []; MQ_SELECTORS.forEach(s => document.querySelectorAll(s).forEach(el => out.push(el))); return out; }
+function mqDemarquee(){
+  mqTargets().forEach(el => {
+    const src = el.getAttribute('data-mq-text');
+    if (src != null){ el.classList.remove('mq'); el.removeAttribute('aria-label'); el.textContent = src; }
+  });
+}
+function mqBuild(){
+  mqTargets().forEach(el => {
+    const text = (el.textContent || '').trim();
+    if (!text) return;
+    el.setAttribute('data-mq-text', text);
+    el.setAttribute('aria-label', text);   // screen readers read this, not the repeats
+    el.classList.add('mq');
+    el.textContent = '';
+    const track = document.createElement('span'); track.className = 'mq__track'; track.setAttribute('aria-hidden', 'true');
+    const half = document.createElement('span'); half.className = 'mq__half';
+    track.appendChild(half); el.appendChild(track);
+    const unit = text + '  •  ';
+    let guard = 0;
+    do { const s = document.createElement('span'); s.textContent = unit; half.appendChild(s); guard++; }
+    while (half.scrollWidth < (el.clientWidth + 40) && guard < 60);
+    track.appendChild(half.cloneNode(true));        // 2 identical halves → seamless -50% loop
+    track.style.animationDuration = Math.max(8, Math.round(half.scrollWidth / 55)) + 's';
+  });
+}
+
 /* ── CMS bootstrap (cache, TTL, loader) ──────────── */
 renderTiles(); // initial paint with default DATA
+mqBuild();     // marquee the section heading (static text)
 function escHome(s){ return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 
 function renderTrustStrip(rows){
@@ -858,6 +901,7 @@ if (MENU_URL) cmsBoot({
   key: 'cms:home:v1',
   url: MENU_URL,
   onApply(data) {
+    mqDemarquee();
     applyCMS(data);
     if (Array.isArray(data.tiles) && data.tiles.length) {
       DATA = data;
@@ -865,6 +909,7 @@ if (MENU_URL) cmsBoot({
     }
     renderTrustStrip(data.trustStrip);
     renderTestimonials(data.testimonials);
+    mqBuild();
   },
 });
 </script>
