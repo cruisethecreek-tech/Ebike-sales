@@ -1659,7 +1659,18 @@ function _buildBridgeAgreementBody_(body, ctx) {
     'including safe operation and routine charging. Cruise the Creek is not liable for injury or loss arising ' +
     'from the Renter’s use of the property except to the extent caused by its gross negligence or willful misconduct.');
 
-  body.appendParagraph('5. Default & Return').setHeading(H.HEADING2);
+  body.appendParagraph('5. Loss, Theft & Damage').setHeading(H.HEADING2);
+  body.appendParagraph('Because ownership does not transfer until the final payment, the Renter bears the risk of ' +
+    'loss, theft, or destruction of the property while it is in the Renter’s possession. The Renter agrees to ' +
+    'secure the property with the provided lock and to store it safely when not in use.');
+  body.appendParagraph('If the property is lost or stolen, the Renter must report the theft to local law ' +
+    'enforcement within forty-eight (48) hours, obtain a police report, and provide a copy of that report to ' +
+    'Cruise the Creek. A theft or total loss does not cancel the Renter’s payment obligation: the unpaid balance ' +
+    'of the Total Agreed Value becomes due, and the Renter may either pay that balance or continue the agreed ' +
+    'bi-weekly payments until it is satisfied. Theft or damage resulting from the Renter leaving the property ' +
+    'unlocked, unsecured, or unattended is the sole financial responsibility of the Renter.');
+
+  body.appendParagraph('6. Default & Return').setHeading(H.HEADING2);
   body.appendParagraph('If scheduled payments are not made, Cruise the Creek may suspend the plan and arrange ' +
     'return of the property. Specific late/return terms will be confirmed with the Renter before the plan begins.');
 
