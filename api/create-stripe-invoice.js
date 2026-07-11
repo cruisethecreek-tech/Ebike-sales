@@ -114,12 +114,17 @@ export default async function handler(req, res) {
       }
     } else {
       for (const line of lines) {
+        // Stripe's /v1/invoiceitems does NOT accept a top-level `unit_amount`
+        // (it rejects with "Did you mean unit_amount_decimal?"). Use
+        // `unit_amount_decimal` — a string of cents — so Stripe computes the
+        // line total as unit_amount_decimal × quantity and still shows the
+        // per-unit price on the invoice.
         const createRes = await stripeFetch(stripeSecretKey, '/invoiceitems', {
-          customer:    customer.id,
-          unit_amount: line.unitAmount,
-          quantity:    line.qty,
-          currency:    'usd',
-          description: line.description,
+          customer:            customer.id,
+          unit_amount_decimal: String(line.unitAmount),
+          quantity:            line.qty,
+          currency:            'usd',
+          description:         line.description,
         });
         if (createRes.error) {
           console.error('Stripe invoiceitem error:', createRes);
