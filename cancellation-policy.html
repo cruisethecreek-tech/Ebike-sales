@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cancellation Policy | Cruise the Creek</title>
+<meta name="description" content="Cruise the Creek's cancellation, reschedule, and refund policy for e-bike rentals, guided rides, tune-ups, and purchases — Canfield, Ohio. Honest terms, no surprises.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,400;0,500;0,700;0,800;1,400&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --sage:#6B8F71;--sage-d:#557159;--forest:#2D4A32;--dark:#1a2e1c;
+  --tan:#C9A96E;--tan-d:#a98843;--cream:#F5F0E8;--cream-w:#fbf7ef;
+  --ink:#1a1a1a;--ink-2:#3a3a3a;--ink-3:#5a5a5a;
+}
+html,body{height:100%}
+html{scroll-behavior:smooth;scroll-padding-top:120px}
+body{font-family:'DM Sans',sans-serif;color:var(--ink);background:var(--cream);
+  display:flex;flex-direction:column;min-height:100vh;line-height:1.7}
+a{color:inherit;text-decoration:none;transition:color .2s ease}
+img{max-width:100%;display:block}
+
+/* ── TOP BAR ── */
+.topbar{background:rgba(255,255,255,.95);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+  color:var(--dark);padding:14px 24px;display:flex;align-items:center;justify-content:space-between;
+  position:sticky;top:0;z-index:101;border-bottom:1px solid rgba(0,0,0,.05)}
+.brand-logo{height:34px;width:auto;display:block}
+.top-nav{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.top-nav a{padding:8px 13px;border-radius:4px;font-size:.8rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--ink-2,#3a3a3a);transition:all .2s}
+.top-nav a:hover{background:rgba(0,0,0,.05);color:var(--forest)}
+.top-nav .book{background:var(--forest);color:#fff}
+.top-nav .book:hover{background:var(--dark,#1a2e1c);color:#fff}
+@media(max-width:560px){.top-nav a{padding:7px 9px;font-size:.7rem}}
+
+/* ── HERO ── */
+.hero{position:relative;padding:64px 24px 48px;color:#fff;background:var(--forest);
+  overflow:hidden;isolation:isolate;text-align:center}
+.hero-topo{position:absolute;inset:0;z-index:-1;opacity:.15;pointer-events:none;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 600 400' preserveAspectRatio='none'><g fill='none' stroke='%23F5F0E8' stroke-width='1.2'><path d='M0,80 Q150,60 300,90 T600,80'/><path d='M0,140 Q150,120 300,150 T600,140'/><path d='M0,200 Q150,180 300,210 T600,200'/><path d='M0,260 Q150,240 300,270 T600,260'/></g></svg>");
+  background-size:cover}
+.hero-eyebrow{display:inline-block;font-size:.72rem;font-weight:700;letter-spacing:.2em;
+  text-transform:uppercase;color:var(--tan);margin-bottom:14px;
+  padding:6px 14px;border:1px solid rgba(201,169,110,.4);border-radius:4px;
+  background:rgba(26,46,28,.25)}
+.hero h1{font-family:'Bebas Neue',sans-serif;font-size:clamp(2.4rem,7vw,4rem);
+  letter-spacing:.02em;line-height:1;margin-bottom:14px}
+.hero p{font-size:clamp(.98rem,2.3vw,1.1rem);color:rgba(255,255,255,.9);
+  max-width:600px;margin:0 auto;line-height:1.55}
+.hero .updated{display:block;margin-top:16px;font-size:.76rem;letter-spacing:.08em;
+  text-transform:uppercase;color:rgba(255,255,255,.6)}
+
+/* ── HIGHLIGHT CALLOUT ── */
+.alert{max-width:880px;margin:24px auto 0;padding:0 24px}
+.alert-inner{background:#fff;border:1px solid var(--tan);border-left:5px solid var(--tan);
+  border-radius:8px;padding:16px 22px;display:flex;gap:14px;align-items:flex-start;
+  box-shadow:0 4px 12px rgba(0,0,0,.04)}
+.alert-icon{font-size:1.5rem;line-height:1.3;flex-shrink:0}
+.alert-body strong{color:var(--forest);font-size:1rem;display:block;margin-bottom:2px}
+.alert-body p{font-size:.92rem;color:var(--ink-2);margin:0;line-height:1.55}
+
+/* ── ARTICLE / SECTIONS ── */
+main{flex:1;width:100%}
+.article{max-width:880px;margin:0 auto;padding:32px 24px 32px;width:100%}
+.policy-section{padding:30px 0;border-bottom:1px solid rgba(45,74,50,.08);scroll-margin-top:130px}
+.policy-section:last-of-type{border-bottom:none}
+.section-eyebrow{display:block;font-size:.72rem;letter-spacing:.18em;text-transform:uppercase;
+  font-weight:700;color:var(--sage);margin-bottom:8px}
+.section-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(1.6rem,4vw,2.2rem);
+  letter-spacing:.02em;color:var(--forest);line-height:1.1;margin-bottom:12px}
+.policy-section p{font-size:.98rem;line-height:1.7;color:var(--ink-2);margin-bottom:12px;max-width:680px}
+.policy-section p:last-child{margin-bottom:0}
+.policy-section strong{color:var(--dark);font-weight:700}
+.policy-section a{color:var(--forest);font-weight:600;border-bottom:1px solid rgba(45,74,50,.3)}
+.policy-section a:hover{color:var(--tan-d);border-bottom-color:var(--tan-d)}
+.policy-section ul{margin:6px 0 12px 22px}
+.policy-section li{margin-bottom:6px;font-size:.98rem;color:var(--ink-2)}
+
+/* ── PILL ROW ── */
+.pill-row{display:flex;flex-wrap:wrap;gap:8px;margin:2px 0 14px}
+.pill{display:inline-flex;align-items:center;padding:6px 12px;
+  background:var(--forest);color:#fff;border-radius:999px;
+  font-size:.78rem;font-weight:700;letter-spacing:.04em}
+
+/* ── CTA ── */
+.cta{background:var(--forest);color:#fff;
+  border-radius:10px;padding:36px 28px;margin:32px 0 0;text-align:center;
+  box-shadow:0 8px 24px rgba(45,74,50,.18)}
+.cta-eyebrow{font-size:.7rem;font-weight:700;letter-spacing:.2em;
+  text-transform:uppercase;color:var(--tan);display:block;margin-bottom:6px}
+.cta h2{font-family:'Bebas Neue',sans-serif;font-size:clamp(1.8rem,4.5vw,2.4rem);
+  letter-spacing:.02em;color:#fff;margin-bottom:8px;line-height:1.1}
+.cta p{color:rgba(255,255,255,.85);max-width:480px;margin:0 auto 20px;font-size:.98rem}
+.cta-row{display:flex;flex-wrap:wrap;gap:10px;justify-content:center}
+.cta-btn{display:inline-flex;align-items:center;gap:6px;padding:13px 22px;
+  border-radius:6px;font-weight:700;font-size:.92rem;letter-spacing:.04em;
+  transition:transform .2s ease,background .2s ease}
+.cta-btn.primary{background:var(--tan);color:var(--dark)}
+.cta-btn.primary:hover{background:#fff;transform:translateY(-1px)}
+.cta-btn.secondary{background:transparent;color:#fff;border:1px solid rgba(255,255,255,.5)}
+.cta-btn.secondary:hover{background:rgba(255,255,255,.1)}
+
+/* ── FOOTER ── */
+footer{background:var(--dark);color:rgba(255,255,255,.7);padding:28px 24px;
+  text-align:center;font-size:.88rem;letter-spacing:.02em}
+footer a{color:var(--tan);font-weight:600}
+footer a:hover{color:#fff}
+footer .foot-links{margin-top:8px}
+footer .foot-links a{margin:0 8px}
+
+@media(max-width:480px){
+  .topbar{padding:12px 16px}.brand-logo{height:30px}
+  .hero{padding:48px 16px 36px}
+  .article{padding:24px 16px 24px}
+  .alert{margin-top:18px;padding:0 16px}
+  .alert-inner{padding:14px 16px}
+  .cta{padding:26px 18px}
+}
+</style>
+<script src="site-enhance.js?v=20260625d"></script>
+<meta property="og:title" content="Cancellation Policy">
+<meta property="og:description" content="How cancellations, reschedules, and refunds work at Cruise the Creek — rentals, guided rides, tune-ups, and purchases. Honest terms, no surprises.">
+<meta property="og:image" content="https://www.cruisethecreek.com/cityrunblackblack.jpg">
+<meta property="og:url" content="https://www.cruisethecreek.com/cancellation-policy">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Cruise the Creek">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Cancellation Policy">
+<meta name="twitter:description" content="How cancellations, reschedules, and refunds work at Cruise the Creek — rentals, guided rides, tune-ups, and purchases.">
+<meta name="twitter:image" content="https://www.cruisethecreek.com/cityrunblackblack.jpg">
+<link rel="canonical" href="https://www.cruisethecreek.com/cancellation-policy">
+</head>
+<body>
+
+<header class="topbar">
+  <a href="index.html" aria-label="Cruise the Creek home">
+    <img class="brand-logo" src="BlackonTransparent.png" alt="Cruise the Creek">
+  </a>
+  <nav class="top-nav">
+    <a href="rentals.html">Rentals</a>
+    <a href="shop.html">Shop</a>
+    <a href="faqs.html">FAQs</a>
+    <a href="rentals.html" class="book">Book a Ride</a>
+  </nav>
+</header>
+
+<section class="hero">
+  <div class="hero-topo"></div>
+  <span class="hero-eyebrow">The Fine Print</span>
+  <h1>Cancellation &amp; Refund Policy</h1>
+  <p>Honest terms, no surprises. Here's exactly how cancellations, reschedules, and refunds work across rentals, guided rides, service, and sales.</p>
+  <span class="updated">Last updated July 2026</span>
+</section>
+
+<div class="alert">
+  <div class="alert-inner">
+    <div class="alert-icon">🗓️</div>
+    <div class="alert-body">
+      <strong>The short version</strong>
+      <p>Cancel or reschedule a rental with at least <strong>24 hours' notice</strong> for a full refund. Something come up? Text the rentals desk at <strong>330-406-9686</strong> as soon as you know — we work with people on weather, illness, and genuine emergencies.</p>
+    </div>
+  </div>
+</div>
+
+<main>
+  <div class="article">
+
+    <!-- RENTALS -->
+    <section class="policy-section" id="rentals">
+      <span class="section-eyebrow">E-Bike Rentals</span>
+      <h2 class="section-title">Rental Cancellations &amp; Reschedules</h2>
+      <div class="pill-row">
+        <span class="pill">24+ hrs → full refund</span>
+        <span class="pill">Text 330-406-9686</span>
+      </div>
+      <p>Cancel or reschedule with at least <strong>24 hours' notice</strong> for a full refund. Inside 24 hours we may not be able to refund the full amount, but we'll always work with you on weather, illness, or genuine emergencies. Just text the rentals desk as soon as you know — <strong>330-406-9686</strong>.</p>
+      <p>The sooner you tell us, the more we can do — a same-day cancellation is much easier to work with than a no-show.</p>
+    </section>
+
+    <!-- WEATHER -->
+    <section class="policy-section" id="weather">
+      <span class="section-eyebrow">Rain or Shine</span>
+      <h2 class="section-title">Weather Cancellations</h2>
+      <p>If <strong>we</strong> cancel for weather, you get a <strong>full refund or a free reschedule</strong> — your call.</p>
+      <p>Light rain isn't usually a reason to cancel; lightning, severe storms, ice, or unsafe trail conditions are. We'll reach out the morning of your ride if it looks dicey, so keep an eye on your phone.</p>
+    </section>
+
+    <!-- RIDER READINESS -->
+    <section class="policy-section" id="readiness">
+      <span class="section-eyebrow">Safety First</span>
+      <h2 class="section-title">Rider Readiness</h2>
+      <p>Every rental starts with a full tutorial. If we don't feel confident in your readiness during that tutorial, we'll cancel the rental and offer a <strong>full refund</strong>. Guest safety is non-negotiable — we reserve the right to refuse a rental to anyone we feel is unfit to ride an e-bike. These are 50-pound machines that reach 20–28 mph, and we'd rather send you home safe than send you out unsure.</p>
+    </section>
+
+    <!-- DEPOSITS & DAMAGE -->
+    <section class="policy-section" id="deposits">
+      <span class="section-eyebrow">Holds &amp; Damage</span>
+      <h2 class="section-title">Deposits &amp; Damage</h2>
+      <p>Multi-day and long-term rentals carry a <strong>$200 refundable hold</strong> placed on the card at pickup. It's released on return, assuming the bike comes back in roughly the same shape it left.</p>
+      <p>Normal wear is on us. Rider negligence — collision, drop damage, or missing parts — is on you, per the waiver you signed at booking. We'll assess any damage when you return the bike and let you know if there's a charge <strong>before</strong> billing anything. We don't surprise people with fees.</p>
+    </section>
+
+    <!-- TUNE-UPS & SERVICE -->
+    <section class="policy-section" id="service">
+      <span class="section-eyebrow">Service &amp; Maintenance</span>
+      <h2 class="section-title">Tune-Ups &amp; Service</h2>
+      <p>Once work has begun, <strong>parts and labor are non-refundable</strong>. If we haven't started yet, you can cancel any time at no charge.</p>
+      <p>If you're not happy with the work, talk to us — we stand behind every tune-up and will make it right.</p>
+    </section>
+
+    <!-- SALES / RETURNS -->
+    <section class="policy-section" id="sales">
+      <span class="section-eyebrow">New Bike Purchases</span>
+      <h2 class="section-title">Returns on a New Bike</h2>
+      <p>Reach out before you buy if you're unsure — that's exactly why test rides exist. Once a bike has been ridden outside the shop, we treat it as used, and any return is handled <strong>case-by-case</strong>. We'd much rather you take a longer test ride than end up with a bike you don't love.</p>
+      <p>A warranty issue is separate from a return. If something's wrong with your bike, bring it in (or text photos and a description) and we'll handle the claim with the manufacturer on your behalf — being an authorized dealer means we cut out the back-and-forth.</p>
+    </section>
+
+    <!-- TEST RIDES -->
+    <section class="policy-section" id="test-rides">
+      <span class="section-eyebrow">Try Before You Buy</span>
+      <h2 class="section-title">Test Rides</h2>
+      <p>Test rides are <strong>free</strong> — no deposit, no commitment, nothing to cancel. If your plans change, just let us know so we can free up the bike for someone else.</p>
+    </section>
+
+    <!-- CTA -->
+    <div class="cta">
+      <span class="cta-eyebrow">Need to change a booking?</span>
+      <h2>Just Text Us</h2>
+      <p>The fastest way to cancel, reschedule, or ask about a refund is a quick text. We'll get you sorted.</p>
+      <div class="cta-row">
+        <a class="cta-btn primary" href="sms:+13304069686">Text the Rentals Desk →</a>
+        <a class="cta-btn secondary" href="faqs.html#policies">More FAQs</a>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<footer>
+  <div>&copy; 2026 Cruise the Creek &middot; 6685 Kirk Rd, Canfield, OH 44406</div>
+  <div class="foot-links">
+    <a href="index.html">Home</a> &middot;
+    <a href="creek-ready.html">Service</a> &middot;
+    <a href="safety.html">Safety</a> &middot;
+    <a href="faqs.html">FAQs</a> &middot;
+    <a href="our-story.html">Our Story</a> &middot;
+    <a href="donate.html">Support</a>
+  </div>
+</footer>
+
+</body>
+</html>
