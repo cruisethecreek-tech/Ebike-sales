@@ -3393,6 +3393,8 @@ function getTabDefs() {
           "That's separate from a \"return\" — bring the bike in (or text photos and a description) and we'll handle the warranty claim with the manufacturer on your behalf. Authorized dealer means we cut out the back-and-forth."],
         [85, 'Policies', '', 'What if I damage the rental bike?',
           "Normal wear is on us. Rider negligence — collision, drop damage, missing parts — is on you, per the waiver you signed at booking. We'll assess any damage when you return the bike and let you know if there's a charge before billing anything. We don't surprise people with fees."],
+        [86, 'Policies', '', 'What happens if I miss my rental (no-call/no-show)?',
+          "A no-call/no-show forfeits the **first hour of the rental rate** — that covers the time we set aside for you. For multi-day and long-term rentals, the **$200 refundable hold** still applies. A quick call or text the moment your plans change is all it takes to avoid it — **330-406-9686**."],
 
         // ── Contact ──
         [90, 'Contact', 'contact', 'Which department do I text?',
