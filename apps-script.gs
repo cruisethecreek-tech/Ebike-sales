@@ -3308,7 +3308,7 @@ function getTabDefs() {
         [23, 'Test Rides', '', 'How long is a test ride?',
           "Long enough to make a real decision — typically 20–30 minutes. We're not on a stopwatch. If you want longer, ask."],
         [24, 'Test Rides', '', 'Is there a fee for a test ride?',
-          "Test rides are **free**. No deposit, no commitment."],
+          "Test rides are **free** — there's a **$1 holding fee** to reserve your spot. If it becomes a no-call/no-show, that converts into a 1-hour rental rate. Just call or text if your plans change and there's no charge."],
 
         // ── Tours & Rentals ──
         [30, 'Tours & Rentals', 'tours', 'What rental options are available?',
