@@ -3308,7 +3308,7 @@ function getTabDefs() {
         [23, 'Test Rides', '', 'How long is a test ride?',
           "Long enough to make a real decision — typically 20–30 minutes. We're not on a stopwatch. If you want longer, ask."],
         [24, 'Test Rides', '', 'Is there a fee for a test ride?',
-          "Test rides are **free**. No deposit, no commitment."],
+          "Test rides are **free** — there's a **$1 holding fee** to reserve your spot. If it becomes a no-call/no-show, that converts into a 1-hour rental rate. Just call or text if your plans change and there's no charge."],
 
         // ── Tours & Rentals ──
         [30, 'Tours & Rentals', 'tours', 'What rental options are available?',
@@ -3325,6 +3325,8 @@ function getTabDefs() {
           "Our **Long Term Rental** program (coming soon) covers multi-month plans for riders who need their bike longer than a day but aren't ready to own. In the meantime, look at **Bridge the Gap** below — it might be exactly what you're after."],
         [36, 'Tours & Rentals', '', 'Do you offer guided tours?',
           "The Adventures pickup at Bears Den puts you in the heart of Mill Creek Park, and we'll point you to the loops that match your group's pace and skill level. Custom guided experiences for groups, birthdays, and corporate outings can be arranged — text us to plan."],
+        [37, 'Tours & Rentals', '', 'Do you rent anything besides e-bikes?',
+          "Yes — **Jetti walking poles**, if you'd rather explore the bikeway on foot. **Self-serve, no staff needed:** book online, get a locker code by text, and unlock the Trailside locker at the **Kirk Road Trailhead** (Kirk Road location only). Two sizes: Medium fits 5'4\"-5'6\", Large fits 5'7\"-5'10\". Rates: $8 (1 hr), $12 (2 hr), $15 (3 hr), $18 (4 hr) — same for both sizes. Booking the night before locks in your size, but walk-ups are welcome (book from your phone at the trailhead). A waiver and a card on file are required. Launching August 2026. [Details & booking](trailside.html#jetti)."],
 
         // ── Sales ──
         [40, 'Sales', 'sales', 'What brands do you sell?',
@@ -3393,6 +3395,8 @@ function getTabDefs() {
           "That's separate from a \"return\" — bring the bike in (or text photos and a description) and we'll handle the warranty claim with the manufacturer on your behalf. Authorized dealer means we cut out the back-and-forth."],
         [85, 'Policies', '', 'What if I damage the rental bike?',
           "Normal wear is on us. Rider negligence — collision, drop damage, missing parts — is on you, per the waiver you signed at booking. We'll assess any damage when you return the bike and let you know if there's a charge before billing anything. We don't surprise people with fees."],
+        [86, 'Policies', '', 'What happens if I miss my rental (no-call/no-show)?',
+          "A no-call/no-show forfeits the **first hour of the rental rate** — that covers the time we set aside for you. For multi-day and long-term rentals, the **$200 refundable hold** still applies. A quick call or text the moment your plans change is all it takes to avoid it — **330-406-9686**."],
 
         // ── Contact ──
         [90, 'Contact', 'contact', 'Which department do I text?',
