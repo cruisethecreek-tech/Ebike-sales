@@ -101,7 +101,7 @@ main{flex:1}
 .section-lead .valley{color:var(--forest);font-weight:700;background:rgba(201,169,110,.18);padding:2px 8px;border-radius:4px}
 
 /* ── Scrolling marquee section titles (built in JS; survives CMS hydration) ── */
-.mq{display:block;overflow:hidden;white-space:nowrap;max-width:100%}
+.mq{display:block;overflow:hidden;white-space:nowrap;max-width:100%;min-width:0;contain:inline-size}
 .mq__track{display:inline-flex;will-change:transform;animation:mq-scroll linear infinite}
 .mq__half{display:inline-flex;flex:0 0 auto}
 .mq:hover .mq__track{animation-play-state:paused}
