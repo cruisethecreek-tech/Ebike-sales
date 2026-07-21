@@ -63,6 +63,7 @@ main{flex:1;max-width:1080px;width:100%;margin:0 auto;padding:36px 24px 64px}
    layouts. DOM order is kirk, bears, jetti (desktop 2-col puts jetti at
    row2 col1 — directly under kirk). On mobile we reorder to kirk, jetti, bears. */
 .jetti-card .price-speed{color:var(--forest);border-color:rgba(45,74,50,.2)}
+.jetti-card-photo{width:100%;height:160px;object-fit:cover;border-radius:10px;margin-bottom:18px;display:block}
 @media(max-width:759px){
   #priceGrid>.jetti-card{order:1}
   #priceGrid>.price-card--bears{order:2}
@@ -439,6 +440,7 @@ function renderPricing(cards, tiers, extras, riders){
   // + desktop ordering handled by the .jetti-card rules in the stylesheet).
   const jettiCard = `
       <div class="price-card jetti-card">
+        <img class="jetti-card-photo" src="media/jetti-group-trail.jpg" alt="Walkers on the trail with Jetti poles" loading="lazy" onerror="this.remove()">
         <div class="price-head">
           <h3 class="price-loc">Jetti Walking Poles</h3>
           <span class="price-speed">Kirk Road · Self-serve · Aug</span>
