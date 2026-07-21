@@ -3325,6 +3325,8 @@ function getTabDefs() {
           "Our **Long Term Rental** program (coming soon) covers multi-month plans for riders who need their bike longer than a day but aren't ready to own. In the meantime, look at **Bridge the Gap** below — it might be exactly what you're after."],
         [36, 'Tours & Rentals', '', 'Do you offer guided tours?',
           "The Adventures pickup at Bears Den puts you in the heart of Mill Creek Park, and we'll point you to the loops that match your group's pace and skill level. Custom guided experiences for groups, birthdays, and corporate outings can be arranged — text us to plan."],
+        [37, 'Tours & Rentals', '', 'Do you rent anything besides e-bikes?',
+          "Yes — **Jetti walking poles**, if you'd rather explore the bikeway on foot. It's a **self-service** rental available at the **Kirk Road location only**, in two sizes fitted by height: Medium (5'4\"-5'6\") and Large (5'7\"-5'10\"). Rates: $8 (1 hr), $12 (2 hr), $15 (3 hr), $18 (4 hr). Launching August 2026. [Details & booking](trailside.html#jetti)."],
 
         // ── Sales ──
         [40, 'Sales', 'sales', 'What brands do you sell?',
