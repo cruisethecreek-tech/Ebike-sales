@@ -167,7 +167,11 @@ button{font-family:inherit}
 /* ── Scrolling marquee heading (Pick Your Path) ──
  * Built in JS so it survives CMS textContent hydration. Honors
  * prefers-reduced-motion and pauses on hover. */
-.mq{display:block;overflow:hidden;white-space:nowrap;max-width:100%}
+.mq{display:block;overflow:hidden;white-space:nowrap;max-width:100%;min-width:0;contain:inline-size}
+/* The marquee heading sits inside a flex item; without these guards its
+   nowrap content forces the flex item (and the whole document) wider than
+   the viewport. contain:inline-size + min-width:0 keep the clip working. */
+.section-head>div{min-width:0}
 .mq__track{display:inline-flex;will-change:transform;animation:mq-scroll linear infinite}
 .mq__half{display:inline-flex;flex:0 0 auto}
 .mq:hover .mq__track{animation-play-state:paused}

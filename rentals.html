@@ -130,7 +130,7 @@ button{font-family:inherit}
 /* ── Scrolling marquee headings (Pick Your Plan / Vibe / Arrive) ──
  * Built in JS so it survives CMS textContent hydration. Honors
  * prefers-reduced-motion and pauses on hover. */
-.mq{display:block;overflow:hidden;white-space:nowrap;max-width:100%}
+.mq{display:block;overflow:hidden;white-space:nowrap;max-width:100%;min-width:0;contain:inline-size}
 .mq__track{display:inline-flex;will-change:transform;animation:mq-scroll linear infinite}
 .mq__half{display:inline-flex;flex:0 0 auto}
 .mq:hover .mq__track{animation-play-state:paused}
