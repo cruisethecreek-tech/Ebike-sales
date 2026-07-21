@@ -3198,7 +3198,7 @@ function getTabDefs() {
         // Leave a value blank to fall back to the built-in default text/link.
         ['pricing_buy_eyebrow',   'Rather own one?'],
         ['pricing_buy_title',     'Skip the clock — take one home.'],
-        ['pricing_buy_sub',       "Love the ride? Every bike in our rental fleet is one you can buy. Shop the lineup, or own it over time with Bridge the Gap — no credit check, no license needed."],
+        ['pricing_buy_sub',       "Love the ride? Buy any bike from our lineup outright — or pay over time with Bridge the Gap, our rent-to-own plan for select bikes from our used fleet (quantities are very limited). No credit check, no license needed."],
         ['pricing_buy_btn_label', 'Shop E-Bikes'],
         ['pricing_buy_btn_url',   'shop.html'],
         ['pricing_buy_btn2_label','Own it over time'],
@@ -3344,7 +3344,7 @@ function getTabDefs() {
 
         // ── Bridge the Gap ──
         [50, 'Bridge the Gap', 'bridge-the-gap', 'What is Bridge the Gap?',
-          "Our **rent-to-own program** for the Mahoning Valley. It's designed to make e-bike technology — which is a real investment — accessible to more residents by offering a flexible way to pay over time while you're already using and enjoying the bike."],
+          "Our **rent-to-own program** for the Mahoning Valley. It's designed to make e-bike technology — which is a real investment — accessible to more residents by offering a flexible way to pay over time while you're already using and enjoying the bike. It's offered on **select bikes from our used fleet**, and quantities are **very limited**, so availability changes often."],
         [51, 'Bridge the Gap', '', 'How does the program work?',
           "Simple terms:\n\n- **$25–$30 per week** in bi-weekly payments\n- **15 bi-weekly payments** total — then the bike is yours\n- **No credit checks**\n- **No driver's license required**\n- You're riding the bike the whole time you're paying"],
         [52, 'Bridge the Gap', '', 'Who qualifies?',
