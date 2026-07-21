@@ -59,6 +59,14 @@ main{flex:1;max-width:1080px;width:100%;margin:0 auto;padding:36px 24px 64px}
 
 .price-grid{display:grid;grid-template-columns:1fr;gap:22px;align-items:start}
 @media(min-width:760px){.price-grid{grid-template-columns:repeat(2,1fr);gap:26px}}
+/* Jetti poles card: keep it directly below the Kirk/Trailside card in both
+   layouts. DOM order is kirk, bears, jetti (desktop 2-col puts jetti at
+   row2 col1 — directly under kirk). On mobile we reorder to kirk, jetti, bears. */
+.jetti-card .price-speed{color:var(--forest);border-color:rgba(45,74,50,.2)}
+@media(max-width:759px){
+  #priceGrid>.jetti-card{order:1}
+  #priceGrid>.price-card--bears{order:2}
+}
 
 .price-card{position:relative;background:#fff;border:1px solid rgba(0,0,0,.07);border-radius:14px;
   padding:30px 26px 28px;display:flex;flex-direction:column;
@@ -214,11 +222,6 @@ footer a{color:var(--tan);font-weight:500}footer a:hover{color:#fff}
   <h2 class="section-title" data-cms-text="section_title">Pick Your Location</h2>
 
   <div class="price-grid" id="priceGrid"></div>
-
-  <p style="text-align:center;max-width:640px;margin:20px auto 0;font-size:.95rem;color:#5a5a5a;line-height:1.6">
-    Exploring on foot instead? <strong>Jetti walking poles</strong> are available self-service at the Kirk Road location &mdash; $8&nbsp;(1&nbsp;hr), $12&nbsp;(2&nbsp;hr), $15&nbsp;(3&nbsp;hr), $18&nbsp;(4&nbsp;hr).
-    <a href="trailside.html#jetti" style="color:var(--forest);font-weight:700;border-bottom:1px solid rgba(45,74,50,.3)">See pole rentals &rarr;</a> <em>(launching August)</em>
-  </p>
 
   <section class="buy-band longer-band">
     <div class="buy-inner">
@@ -406,7 +409,7 @@ function renderPricing(cards, tiers, extras, riders){
   // Rider/stroller tiers apply at both locations — same pill in every card.
   const ridersPill = ridersAccordionHtml(riders);
 
-  grid.innerHTML = list.map(c => {
+  const cardsHtml = list.map(c => {
     const id = String(c.id || '').toLowerCase().trim();
     const rows = byLoc[id] || [];
     const featured = isTrue(c.featured);
@@ -416,7 +419,7 @@ function renderPricing(cards, tiers, extras, riders){
         <span class="tier-price">${esc(t.price)}</span>
       </li>`).join('');
     return `
-      <div class="price-card${featured ? ' is-featured' : ''}">
+      <div class="price-card price-card--${esc(id)}${featured ? ' is-featured' : ''}">
         ${featured ? '<span class="price-flag">Most Popular</span>' : ''}
         <div class="price-head">
           <h3 class="price-loc">${esc(c.location)}</h3>
@@ -430,6 +433,28 @@ function renderPricing(cards, tiers, extras, riders){
         ${c.cta_url ? `<a class="price-cta" href="${esc(c.cta_url)}">${esc(c.cta_label || 'Book now')}</a>` : ''}
       </div>`;
   }).join('');
+
+  // Jetti Walking Poles — a Kirk Road-only, self-serve rental. Rendered as its
+  // own bookable card so it sits directly below the Kirk/Trailside card (mobile
+  // + desktop ordering handled by the .jetti-card rules in the stylesheet).
+  const jettiCard = `
+      <div class="price-card jetti-card">
+        <div class="price-head">
+          <h3 class="price-loc">Jetti Walking Poles</h3>
+          <span class="price-speed">Kirk Road · Self-serve · Aug</span>
+          <p class="price-sub">Explore the bikeway on foot. Each rental is a full set — 2 poles.</p>
+        </div>
+        <ul class="tier-list">
+          <li class="tier"><span class="tier-dur">1 Hour</span><span class="tier-price">$8</span></li>
+          <li class="tier"><span class="tier-dur">2 Hours</span><span class="tier-price">$12</span></li>
+          <li class="tier"><span class="tier-dur">3 Hours</span><span class="tier-price">$15</span></li>
+          <li class="tier"><span class="tier-dur">4 Hours <span class="tier-badge">Half Day</span></span><span class="tier-price">$18</span></li>
+        </ul>
+        <p class="price-note">Two sizes — Medium 5'4"&ndash;5'6", Large 5'7"&ndash;5'10". Same price for both. Launching August.</p>
+        <a class="price-cta" href="https://book.peek.com/s/57e3b62e-4f48-4cc4-8876-7b79f4c11baa/rlAkb" target="_blank" rel="noopener">Book Jetti Poles</a>
+      </div>`;
+
+  grid.innerHTML = cardsHtml + jettiCard;
 }
 
 // Apply editable hero / section / CTA copy from the Pages tab.
