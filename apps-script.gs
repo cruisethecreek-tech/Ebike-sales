@@ -3326,7 +3326,7 @@ function getTabDefs() {
         [36, 'Tours & Rentals', '', 'Do you offer guided tours?',
           "The Adventures pickup at Bears Den puts you in the heart of Mill Creek Park, and we'll point you to the loops that match your group's pace and skill level. Custom guided experiences for groups, birthdays, and corporate outings can be arranged — text us to plan."],
         [37, 'Tours & Rentals', '', 'Do you rent anything besides e-bikes?',
-          "Yes — **Jetti walking poles**, if you'd rather explore the bikeway on foot. It's a **self-service** rental available at the **Kirk Road location only**, in two sizes fitted by height: Medium (5'4\"-5'6\") and Large (5'7\"-5'10\"). Rates: $8 (1 hr), $12 (2 hr), $15 (3 hr), $18 (4 hr). Launching August 2026. [Details & booking](trailside.html#jetti)."],
+          "Yes — **Jetti walking poles**, if you'd rather explore the bikeway on foot. **Self-serve, no staff needed:** book online, get a locker code by text, and unlock the Trailside locker at the **Kirk Road Trailhead** (Kirk Road location only). Two sizes: Medium fits 5'4\"-5'6\", Large fits 5'7\"-5'10\". Rates: $8 (1 hr), $12 (2 hr), $15 (3 hr), $18 (4 hr) — same for both sizes. Booking the night before locks in your size, but walk-ups are welcome (book from your phone at the trailhead). A waiver and a card on file are required. Launching August 2026. [Details & booking](trailside.html#jetti)."],
 
         // ── Sales ──
         [40, 'Sales', 'sales', 'What brands do you sell?',
