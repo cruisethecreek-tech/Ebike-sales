@@ -96,6 +96,18 @@ button{font-family:inherit}
   padding:6px 14px;border:1px solid rgba(201,169,110,.3);border-radius:4px;
   background:rgba(26,46,28,.2);
 }
+.hero-announce{
+  display:inline-flex;align-items:center;gap:9px;margin-top:20px;max-width:100%;
+  padding:9px 14px 9px 10px;border-radius:999px;
+  background:rgba(201,169,110,.16);border:1px solid rgba(201,169,110,.55);
+  color:#fff;font-size:.82rem;font-weight:700;letter-spacing:.01em;line-height:1.25;text-align:left;
+  -webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);
+  transition:background .2s ease,transform .2s ease;
+}
+.hero-announce:hover{background:rgba(201,169,110,.3);transform:translateY(-1px)}
+.hero-announce .tag{background:var(--tan);color:#1a2e1c;padding:3px 9px;border-radius:999px;
+  font-size:.66rem;letter-spacing:.12em;text-transform:uppercase;flex:none}
+.hero-announce svg{width:16px;height:16px;flex:none}
 .hero h1{
   font-family:'Bebas Neue',sans-serif;font-size:clamp(2.75rem,7.5vw,4.75rem);
   line-height:1;letter-spacing:.02em;margin-bottom:16px;
@@ -413,6 +425,11 @@ footer{background:var(--dark);color:rgba(255,255,255,.75);padding:40px 24px 32px
     <span class="hero-eyebrow" data-cms-text="hero_eyebrow">Rent an E-Bike</span>
     <h1><span data-cms-text="hero_h1">Pick the ride</span> <em data-cms-text="hero_h1_em">that fits your day.</em></h1>
     <p data-cms-text="hero_tagline">From a single afternoon on the trail to long-term ownership — every Cruise the Creek rental option starts here.</p>
+    <a class="hero-announce" href="trailside.html#jetti">
+      <span class="tag">New</span>
+      <span>🚶 Jetti Walking Poles now at Kirk Road — available August</span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+    </a>
   </div>
 </section>
 
