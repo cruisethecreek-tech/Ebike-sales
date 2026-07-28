@@ -76,5 +76,21 @@ function handlePolesAccessCode(p) {
     name: 'Cruise the Creek',
   });
 
+  // Internal heads-up to the desks so staff know a code went out. Wrapped in
+  // try/catch so an internal-email hiccup never blocks the customer's code.
+  try {
+    MailApp.sendEmail({
+      to: 'info@cruisethecreek.com,salesteam@cruisethecreek.com',
+      subject: 'Poles code issued' + (name ? ' — ' + name : '') + (ref ? ' (' + ref + ')' : ''),
+      body: 'A Jetti pole locker code was issued.\n\n' +
+            'Customer: ' + (name || '(unknown)') + '\n' +
+            'Email: ' + to + '\n' +
+            'Code: ' + pin + '\n' +
+            (when ? 'Valid: ' + when + '\n' : '') +
+            (ref ? 'Booking ref: ' + ref + '\n' : ''),
+      name: 'Cruise the Creek',
+    });
+  } catch (e) { /* internal copy is best-effort */ }
+
   return json({ ok: true, to: to });
 }
