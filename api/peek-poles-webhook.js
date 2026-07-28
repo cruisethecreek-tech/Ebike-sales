@@ -127,17 +127,21 @@ function parseBooking(body) {
   if (!body || typeof body !== 'object') return null;
   const b = body.booking || body.data || body.payload || body;
   const cust = b.customer || b.contact || b.guest || {};
-  const start = b.startDateTime || b.start_time || b.startTime || b.start || b.beginsAt;
-  const end   = b.endDateTime   || b.end_time   || b.endTime   || b.end   || b.endsAt;
+  // Flat top-level keys are checked first so a simple Zapier "Data" mapping
+  // (name/email/phone/start/end/product/status/reference) works directly;
+  // nested shapes are kept as fallbacks for a native Peek webhook.
+  const start = b.start || b.startDateTime || b.start_time || b.startTime || b.beginsAt;
+  const end   = b.end   || b.endDateTime   || b.end_time   || b.endTime   || b.endsAt;
   const productName =
+    (typeof b.product === 'string' ? b.product : '') ||
     b.productName || b.activityName || b.experienceName ||
     (b.product && (b.product.name || b.product.title)) ||
     (b.activity && b.activity.name) || b.title || '';
   return {
     reference: b.reference || b.confirmationCode || b.code || b.id || '',
-    name:      cust.name || `${cust.firstName || ''} ${cust.lastName || ''}`.trim(),
-    email:     cust.email || b.email || '',
-    phone:     normalizePhone(cust.phone || cust.phoneNumber || b.phone || ''),
+    name:      b.name || cust.name || `${cust.firstName || ''} ${cust.lastName || ''}`.trim(),
+    email:     b.email || cust.email || '',
+    phone:     normalizePhone(b.phone || cust.phone || cust.phoneNumber || ''),
     status:    b.status || b.state || (body.event || '').replace(/^booking[_.]?/i, '') || '',
     startISO:  toISO(start),
     endISO:    toISO(end),
