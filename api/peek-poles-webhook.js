@@ -24,7 +24,11 @@
 //                             (see apps-script-poles-email.snippet.gs)
 //   TWILIO_ACCOUNT_SID        Twilio (SMS)
 //   TWILIO_AUTH_TOKEN         "
-//   TWILIO_FROM               your Twilio number, e.g. +13305551234
+//   TWILIO_MESSAGING_SERVICE_SID  MG… — PREFERRED. Routes texts through your
+//                             registered A2P 10DLC campaign. Set this once your
+//                             Twilio Brand + Campaign show "Approved".
+//   TWILIO_FROM               fallback if no messaging service is set: your
+//                             Twilio number, e.g. +13305551234
 //
 // ── VERIFY BEFORE GO-LIVE ──────────────────────────────────────────────────
 // I couldn't reach the live igloohome / Peek docs from the build sandbox, so
@@ -226,13 +230,21 @@ function smsBody(booking, pin) {
 async function sendSms(to, body) {
   const sid = process.env.TWILIO_ACCOUNT_SID;
   const token = process.env.TWILIO_AUTH_TOKEN;
-  const from = process.env.TWILIO_FROM;
-  if (!sid || !token || !from) throw new Error('TWILIO_* not configured');
+  const msgService = process.env.TWILIO_MESSAGING_SERVICE_SID;  // MG… (preferred, A2P 10DLC)
+  const from = process.env.TWILIO_FROM;                          // fallback: a raw Twilio number
+  if (!sid || !token || (!msgService && !from)) {
+    throw new Error('TWILIO_* not configured (need ACCOUNT_SID, AUTH_TOKEN, and MESSAGING_SERVICE_SID or FROM)');
+  }
+  // Prefer the Messaging Service so texts route through your registered 10DLC
+  // campaign; fall back to a raw From number if no service SID is set.
+  const params = { To: to, Body: body };
+  if (msgService) params.MessagingServiceSid = msgService;
+  else params.From = from;
   const auth = Buffer.from(`${sid}:${token}`).toString('base64');
   const r = await fetch(`https://api.twilio.com/2010-04-01/Accounts/${sid}/Messages.json`, {
     method: 'POST',
     headers: { 'Authorization': `Basic ${auth}`, 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: new URLSearchParams({ To: to, From: from, Body: body }),
+    body: new URLSearchParams(params),
   });
   const data = await r.json().catch(() => ({}));
   if (!r.ok) throw new Error(`twilio ${r.status}: ${data.message || JSON.stringify(data)}`);
