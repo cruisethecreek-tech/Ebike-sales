@@ -72,9 +72,13 @@ export default async function handler(req, res) {
 
   const match = (process.env.POLES_PRODUCT_MATCH || 'jetti').toLowerCase();
   const isPoles = String(booking.productName || '').toLowerCase().includes(match);
-  const isConfirmed = ['confirmed', 'booked', 'paid', 'active'].includes(
-    String(booking.status || '').toLowerCase()
-  );
+  // Accept anything that isn't an explicitly bad state (so Peek's "fulfilled",
+  // "confirmed", "booked", etc. all pass, and cancels/refunds/pending don't).
+  const badStatus = ['cancelled','canceled','refunded','declined','failed',
+    'no_show','noshow','voided','abandoned','pending','unpaid','incomplete','draft'];
+  const isConfirmed = booking.status
+    ? !badStatus.includes(String(booking.status).toLowerCase())
+    : true;
   if (!isPoles || !isConfirmed) {
     return res.status(200).json({ ignored: true, isPoles, status: booking.status });
   }
@@ -132,7 +136,11 @@ function parseBooking(body) {
   // Flat top-level keys are checked first so a simple Zapier "Data" mapping
   // (name/email/phone/start/end/product/status/reference) works directly;
   // nested shapes are kept as fallbacks for a native Peek webhook.
-  const start = b.start || b.startDateTime || b.start_time || b.startTime || b.beginsAt;
+  // Peek often splits the start into a date + a time. Combine them if a
+  // separate date is provided; otherwise use whatever single start field exists.
+  const rawStart  = b.start || b.startDateTime || b.start_time || b.startTime || b.beginsAt || '';
+  const startDate = b.startDate || b.activityDate || b.date || '';
+  const start = startDate ? (String(startDate) + ' ' + String(rawStart)).trim() : rawStart;
   const end   = b.end   || b.endDateTime   || b.end_time   || b.endTime   || b.endsAt;
   const productName =
     (typeof b.product === 'string' ? b.product : '') ||
@@ -172,8 +180,25 @@ function computeEndISO(booking) {
 
 function toISO(v) {
   if (!v) return '';
-  const d = new Date(v);
-  return isNaN(d.getTime()) ? '' : d.toISOString();
+  const s = String(v).trim();
+  if (!s) return '';
+  // Already carries timezone info (Z or ±hh:mm)? Trust it.
+  if (/[zZ]$|[+\-]\d{2}:?\d{2}$/.test(s)) {
+    const d = new Date(s);
+    return isNaN(d.getTime()) ? '' : d.toISOString();
+  }
+  // Naive datetime (e.g. "August 1, 2026 4:00pm") → interpret as America/New_York.
+  const naive = new Date(s);
+  if (isNaN(naive.getTime())) return '';
+  const etOffsetMin = easternOffsetMinutes(naive); // -240 (EDT) / -300 (EST)
+  return new Date(naive.getTime() - etOffsetMin * 60000).toISOString();
+}
+
+// UTC offset (minutes) for America/New_York at the given instant.
+function easternOffsetMinutes(date) {
+  const et  = new Date(date.toLocaleString('en-US', { timeZone: 'America/New_York' }));
+  const utc = new Date(date.toLocaleString('en-US', { timeZone: 'UTC' }));
+  return Math.round((et.getTime() - utc.getTime()) / 60000);
 }
 
 // E.164-ish: keep a leading +, strip other non-digits, default US +1 for 10-digit.
