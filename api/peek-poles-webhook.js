@@ -119,11 +119,19 @@ export default async function handler(req, res) {
     }
     // Pad the start earlier so an early arrival — or a lock whose internal clock
     // runs a little behind — still opens it. (The end already gets a grace hour
-    // in computeEndISO.) A hard cap keeps the window from opening absurdly early.
+    // in computeEndISO.)
     const startGraceH = envHours('POLES_START_GRACE_HOURS', 1);
     if (startGraceH > 0) {
       const padded = new Date(booking.startISO).getTime() - startGraceH * 3600000;
       booking.startISO = new Date(padded).toISOString();
+    }
+    // igloohome rejects a startDate before the present moment ("'startDate' must
+    // be now or after"). The grace above — and the now-fallback for a booking
+    // with no mapped date — can push the start into the past, so clamp it: never
+    // send a start earlier than now. Grace therefore only shifts *future*
+    // bookings earlier; a now/walk-up booking simply opens immediately.
+    if (new Date(booking.startISO).getTime() < nowMs) {
+      booking.startISO = new Date(nowMs).toISOString();
     }
 
     // ── 3c. Mint the igloohome time-bound PIN ─────────────────────
