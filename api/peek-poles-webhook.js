@@ -254,14 +254,18 @@ async function lookupExistingCode(ref) {
 
 function toISO(v) {
   if (!v) return '';
-  const s = String(v).trim();
+  let s = String(v).trim();
   if (!s) return '';
+  // Peek sends times like "4:00pm" with no space before am/pm, which Date can't
+  // parse (it needs "4:00 PM"). Insert the space so a mapped Activity Date +
+  // Activity Time ("2026-07-28 4:00pm") parses instead of falling back to "now".
+  s = s.replace(/(\d)\s*([ap])\.?m\.?\b/i, '$1 $2m');
   // Already carries timezone info (Z or ±hh:mm)? Trust it.
   if (/[zZ]$|[+\-]\d{2}:?\d{2}$/.test(s)) {
     const d = new Date(s);
     return isNaN(d.getTime()) ? '' : d.toISOString();
   }
-  // Naive datetime (e.g. "August 1, 2026 4:00pm") → interpret as America/New_York.
+  // Naive datetime (e.g. "August 1, 2026 4:00 pm") → interpret as America/New_York.
   const naive = new Date(s);
   if (isNaN(naive.getTime())) return '';
   const etOffsetMin = easternOffsetMinutes(naive); // -240 (EDT) / -300 (EST)
