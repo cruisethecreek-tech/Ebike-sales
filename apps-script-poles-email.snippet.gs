@@ -40,6 +40,7 @@ function handlePolesAccessCode(p) {
   var name = String(p.name || '').trim();
   var when = String(p.window || '').trim();
   var ref = String(p.reference || '').trim();
+  var pinId = String(p.pinId || '').trim(); // igloohome PIN id, for later revoke/audit
   var greeting = name ? ('Hi ' + name + ',') : 'Hi there,';
 
   var html =
@@ -88,7 +89,8 @@ function handlePolesAccessCode(p) {
             'Email: ' + to + '\n' +
             'Code: ' + pin + '\n' +
             (when ? 'Valid: ' + when + '\n' : '') +
-            (ref ? 'Booking ref: ' + ref + '\n' : ''),
+            (ref ? 'Booking ref: ' + ref + '\n' : '') +
+            (pinId ? 'igloo PIN id: ' + pinId + '\n' : ''),
       name: 'Cruise the Creek',
     });
   } catch (e) { /* internal copy is best-effort */ }
@@ -100,9 +102,9 @@ function handlePolesAccessCode(p) {
     var sh = ss.getSheetByName('PolesCodes');
     if (!sh) {
       sh = ss.insertSheet('PolesCodes');
-      sh.appendRow(['Issued at', 'Customer', 'Email', 'Code', 'Valid window', 'Booking ref']);
+      sh.appendRow(['Issued at', 'Customer', 'Email', 'Code', 'Valid window', 'Booking ref', 'igloo PIN id']);
     }
-    sh.appendRow([new Date(), name || '', to, pin, when || '', ref || '']);
+    sh.appendRow([new Date(), name || '', to, pin, when || '', ref || '', pinId || '']);
   } catch (e) { /* logging is best-effort */ }
 
   return json({ ok: true, to: to });

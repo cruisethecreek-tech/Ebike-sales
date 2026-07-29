@@ -29,6 +29,11 @@
 //                             Twilio Brand + Campaign show "Approved".
 //   TWILIO_FROM               fallback if no messaging service is set: your
 //                             Twilio number, e.g. +13305551234
+//   POLES_START_GRACE_HOURS   open the window this many hours BEFORE the booking
+//                             start, to absorb early arrivals + lock clock drift
+//                             (default 1; set 0 to disable)
+//   POLES_END_GRACE_HOURS     extend the window this many hours AFTER the return
+//                             time (default 1)
 //
 // ── VERIFY BEFORE GO-LIVE ──────────────────────────────────────────────────
 // I couldn't reach the live igloohome / Peek docs from the build sandbox, so
@@ -112,22 +117,32 @@ export default async function handler(req, res) {
       booking.endISO = new Date(nowMs + hrs * 3600000).toISOString();
       if (new Date(booking.startISO).getTime() > nowMs) booking.startISO = new Date(nowMs).toISOString();
     }
+    // Pad the start earlier so an early arrival — or a lock whose internal clock
+    // runs a little behind — still opens it. (The end already gets a grace hour
+    // in computeEndISO.) A hard cap keeps the window from opening absurdly early.
+    const startGraceH = envHours('POLES_START_GRACE_HOURS', 1);
+    if (startGraceH > 0) {
+      const padded = new Date(booking.startISO).getTime() - startGraceH * 3600000;
+      booking.startISO = new Date(padded).toISOString();
+    }
 
     // ── 3c. Mint the igloohome time-bound PIN ─────────────────────
     const token = await getIglooToken();
     const deviceId = process.env.IGLOOHOME_DEVICE_ID;
-    const { pin } = await createHourlyPin(token, deviceId, {
+    const { pin, pinId } = await createHourlyPin(token, deviceId, {
       startISO: booking.startISO,
       endISO:   booking.endISO,
       accessName: `Poles ${booking.reference || booking.name || ''}`.trim().slice(0, 40),
     });
 
     if (!pin) throw new Error('igloohome returned no PIN');
+    // pinId lets you later revoke/audit this specific code via the igloohome API.
+    console.log('[poles] minted PIN', { reference: booking.reference, pinId: pinId || '(none returned)' });
 
     // ── 4. Deliver by SMS + email (independently) ─────────────────
     const results = await Promise.allSettled([
       booking.phone ? sendSms(booking.phone, smsBody(booking, pin)) : Promise.resolve('no phone'),
-      booking.email ? sendEmail(booking, pin)                        : Promise.resolve('no email'),
+      booking.email ? sendEmail(booking, pin, pinId)                 : Promise.resolve('no email'),
     ]);
     const sms   = results[0].status === 'fulfilled' ? 'sent' : String(results[0].reason);
     const email = results[1].status === 'fulfilled' ? 'sent' : String(results[1].reason);
@@ -197,8 +212,15 @@ function computeEndISO(booking, generous) {
       ? (Number(process.env.POLES_FALLBACK_HOURS) || 26)
       : (Number(process.env.POLES_DEFAULT_HOURS) || 8);
   }
-  const graceMs = 60 * 60 * 1000; // +1h grace
+  const graceMs = envHours('POLES_END_GRACE_HOURS', 1) * 3600 * 1000; // grace after the return time
   return new Date(startMs + hours * 3600 * 1000 + graceMs).toISOString();
+}
+
+// Read a non-negative hours value from an env var, falling back to a default.
+// Rejects NaN and negatives so a bad env value can't produce a broken window.
+function envHours(name, fallback) {
+  const v = Number(process.env[name]);
+  return isNaN(v) || v < 0 ? fallback : v;
 }
 
 // Ask Apps Script whether a code was already issued for this booking reference
@@ -319,7 +341,12 @@ async function createHourlyPin(token, deviceId, { startISO, endISO, accessName }
   const data = await r.json().catch(() => ({}));
   if (!r.ok) throw new Error(`igloohome create PIN failed (${r.status}): ${JSON.stringify(data)}`);
   // Response commonly returns { pin: "1234567", pinId: "..." }.
-  return { pin: data.pin || data.pinCode || (data.data && data.data.pin), raw: data };
+  const d = data.data || data;
+  return {
+    pin: data.pin || data.pinCode || d.pin || d.pinCode,
+    pinId: data.pinId || data.id || d.pinId || d.id || '',
+    raw: data,
+  };
 }
 
 // ── Delivery ────────────────────────────────────────────────────────
@@ -364,7 +391,7 @@ async function sendSms(to, body) {
 }
 
 // Emails via your Apps Script MailApp (see apps-script-poles-email.snippet.gs).
-async function sendEmail(booking, pin) {
+async function sendEmail(booking, pin, pinId) {
   const url = process.env.POLES_EMAIL_URL;
   if (!url) throw new Error('POLES_EMAIL_URL not configured');
   const r = await fetch(url, {
@@ -375,6 +402,7 @@ async function sendEmail(booking, pin) {
       to: booking.email,
       name: booking.name,
       pin,
+      pinId: pinId || '',
       window: fmtWindow(booking),
       reference: booking.reference,
     }),
