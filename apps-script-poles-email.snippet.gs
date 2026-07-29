@@ -40,7 +40,9 @@ function handlePolesAccessCode(p) {
   var name = String(p.name || '').trim();
   var when = String(p.window || '').trim();
   var ref = String(p.reference || '').trim();
-  var pinId = String(p.pinId || '').trim(); // igloohome PIN id, for later revoke/audit
+  var pinId = String(p.pinId || '').trim();       // igloohome PIN id, for audit
+  var startISO = String(p.startISO || '').trim(); // code window bounds — used by
+  var endISO = String(p.endISO || '').trim();     // the webhook to detect reschedules
   var greeting = name ? ('Hi ' + name + ',') : 'Hi there,';
 
   var html =
@@ -102,9 +104,9 @@ function handlePolesAccessCode(p) {
     var sh = ss.getSheetByName('PolesCodes');
     if (!sh) {
       sh = ss.insertSheet('PolesCodes');
-      sh.appendRow(['Issued at', 'Customer', 'Email', 'Code', 'Valid window', 'Booking ref', 'igloo PIN id']);
+      sh.appendRow(['Issued at', 'Customer', 'Email', 'Code', 'Valid window', 'Booking ref', 'igloo PIN id', 'Booking start ISO', 'Booking end ISO']);
     }
-    sh.appendRow([new Date(), name || '', to, pin, when || '', ref || '', pinId || '']);
+    sh.appendRow([new Date(), name || '', to, pin, when || '', ref || '', pinId || '', startISO || '', endISO || '']);
   } catch (e) { /* logging is best-effort */ }
 
   return json({ ok: true, to: to });
@@ -138,8 +140,9 @@ function handlePolesCodeLookup(p) {
       var sh = ss.getSheetByName('PolesCodes');
       if (!sh || sh.getLastRow() < 2) return json({ ok: true, found: false });
 
-      // Columns: Issued at | Customer | Email | Code | Valid window | Booking ref
-      var rows = sh.getRange(2, 1, sh.getLastRow() - 1, 6).getValues();
+      // Cols: Issued at | Customer | Email | Code | Valid window | Booking ref |
+      //       igloo PIN id | Booking start ISO | Booking end ISO
+      var rows = sh.getRange(2, 1, sh.getLastRow() - 1, 9).getValues();
       // Scan newest-first so a re-issue returns the most recent code.
       for (var i = rows.length - 1; i >= 0; i--) {
         if (String(rows[i][5] || '').trim() === ref) {
@@ -150,6 +153,9 @@ function handlePolesCodeLookup(p) {
             window: String(rows[i][4] || '').trim(),
             to: String(rows[i][2] || '').trim(),
             name: String(rows[i][1] || '').trim(),
+            pinId: String(rows[i][6] || '').trim(),
+            startISO: String(rows[i][7] || '').trim(),
+            endISO: String(rows[i][8] || '').trim(),
           });
         }
       }

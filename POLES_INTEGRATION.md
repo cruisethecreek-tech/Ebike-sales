@@ -124,12 +124,13 @@ In the CMS Apps Script (the deployment whose `doPost` already dispatches on
 Then **Deploy → Manage deployments → Edit → New version** (the `/exec` URL stays
 the same). Put that `/exec` URL in Vercel's `POLES_EMAIL_URL`.
 
-> **`PolesCodes` tab is required for idempotency.** The first issued code
-> auto-creates the tab with headers: `Issued at | Customer | Email | Code |
-> Valid window | Booking ref | igloo PIN id`. The lookup reads the **Booking
-> ref** column, so
-> idempotency only works once at least one code has been logged. Confirm the tab
-> appears after your first real booking.
+> **`PolesCodes` tab is required for idempotency + reschedule detection.** The
+> first issued code auto-creates the tab with headers: `Issued at | Customer |
+> Email | Code | Valid window | Booking ref | igloo PIN id | Booking start ISO |
+> Booking end ISO`. The lookup matches on the **Booking ref** column and reads
+> the start/end ISO to decide whether a repeat webhook is a duplicate or a
+> reschedule, so idempotency only works once at least one code has been logged.
+> Confirm the tab appears after your first real booking.
 
 ---
 
@@ -200,6 +201,30 @@ killing, that id is what you use to delete the PIN via the igloohome API or app.
    it re-sends the logged code; if you need a *new* code, generate it in the app).
 5. **Battery low?** Replace it, then sync — and expect to re-sync the clock right
    after.
+
+---
+
+## 5b. Reschedules & cancellations (Peek "Booking Changes")
+
+Peek's built-in **Booking Changes** feature lets customers reschedule or cancel
+themselves. Here's how each interacts with the locker code:
+
+- **Reschedule → a new code is issued automatically.** A reschedule re-fires the
+  webhook. If the new booked start still falls inside the already-issued code's
+  window, nothing changes (the existing code still works). If it's moved outside
+  that window, the webhook mints a **fresh** code for the new time and emails it.
+  The old code isn't revoked — it simply expires on its own.
+- **Cancellation → the code is *not* revoked; it expires by time.** igloohome
+  offline algoPINs are computed by the lock with no connectivity, so a code
+  **cannot be killed remotely** — there is no way to reach the offline lock to
+  invalidate it. A cancelled booking's code stays usable until its window ends.
+  The mitigation is the tight window (`POLES_END_GRACE_HOURS`, default 2h after
+  the rental), which bounds the exposure to a few hours. True real-time
+  revocation would require an internet-connected lock, which this trailhead
+  setup isn't.
+
+Practical guidance: enabling **Cancel** is low-risk (honor system + short
+window). **Reschedule** is safe now that a moved booking auto-issues a new code.
 
 ---
 
