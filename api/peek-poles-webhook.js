@@ -204,6 +204,26 @@ function easternOffsetMinutes(date) {
   return Math.round((et.getTime() - utc.getTime()) / 60000);
 }
 
+// Format an ISO instant as igloohome wants: YYYY-MM-DDTHH:00:00±hh:mm, on the
+// hour, in America/New_York (the lock's timezone). mode 'floor' (start) or
+// 'ceil' (end) rounds to the hour. ET offsets are whole hours, so rounding the
+// UTC instant to the hour keeps it on the hour in ET too.
+function fmtIglooHour(iso, mode) {
+  const ms = new Date(iso).getTime();
+  const H = 3600000;
+  const rounded = new Date((mode === 'ceil' ? Math.ceil(ms / H) : Math.floor(ms / H)) * H);
+  const p = new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'America/New_York', hourCycle: 'h23',
+    year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit',
+  }).formatToParts(rounded).reduce((a, x) => (a[x.type] = x.value, a), {});
+  const off = easternOffsetMinutes(rounded);
+  const sign = off <= 0 ? '-' : '+';
+  const abs = Math.abs(off);
+  const oh = String(Math.floor(abs / 60)).padStart(2, '0');
+  const om = String(abs % 60).padStart(2, '0');
+  return `${p.year}-${p.month}-${p.day}T${p.hour}:00:00${sign}${oh}:${om}`;
+}
+
 // E.164-ish: keep a leading +, strip other non-digits, default US +1 for 10-digit.
 function normalizePhone(raw) {
   const s = String(raw || '').trim();
@@ -252,8 +272,10 @@ async function createHourlyPin(token, deviceId, { startISO, endISO, accessName }
     },
     body: JSON.stringify({
       variance: 1,
-      startDate: startISO,
-      endDate: endISO,
+      // igloohome requires on-the-hour times with an explicit offset:
+      // YYYY-MM-DDTHH:00:00±hh:mm (America/New_York, the lock's timezone).
+      startDate: fmtIglooHour(startISO, 'floor'),
+      endDate:   fmtIglooHour(endISO, 'ceil'),
       accessName: accessName || 'Jetti Poles',
     }),
   });
