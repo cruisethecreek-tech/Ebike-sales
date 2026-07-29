@@ -228,6 +228,25 @@ window). **Reschedule** is safe now that a moved booking auto-issues a new code.
 
 ---
 
+## 5c. Creek Concierge chat — code retrieval & troubleshooting
+
+The site chatbot (`chatbot.js` → `api/chat.js`, a Claude agent) can help pole
+renters directly:
+
+- **Troubleshooting** — it knows the self-serve flow, the color-key, and the
+  "code didn't work" steps (check spam, check you're inside the window, text the
+  desk). Pure knowledge, no lookup.
+- **Code retrieval — two-factor gated.** The `get_poles_code` tool returns a
+  customer's code **only** when they supply BOTH their **email** and their
+  **booking reference**, the reference exists in `PolesCodes`, the email matches
+  that booking, and the code is **not expired**. The check is enforced
+  server-side in `execTool` (not just the prompt), so a single factor — or a
+  wrong email — never reveals a code. It reuses the same `polesCodeLookup` Apps
+  Script action the webhook uses, so no extra Apps Script setup is required.
+
+Expired codes are never shown (the bot points to re-booking instead), and a
+mismatch reveals nothing about which field was wrong.
+
 ## 6. Twilio / A2P 10DLC
 
 US application-to-person SMS requires 10DLC registration:

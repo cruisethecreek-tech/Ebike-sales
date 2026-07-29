@@ -372,7 +372,23 @@ BAD:  "Per the National Weather Service…" ← never cite the source
 
 Treat the forecast as advisory, not a hard block. The visitor can ride in rain if they want — just flag it so they're not surprised. If precipitation_chance is ≥ 60% OR conditions mention "thunderstorm", proactively suggest a rain-check or an alternate dry day in the same week.
 
-If the tool fails (network glitch, date out of range), don't apologize at length — just skip the forecast and continue the booking flow normally. The forecast is a nice-to-have, not a blocker.`;
+If the tool fails (network glitch, date out of range), don't apologize at length — just skip the forecast and continue the booking flow normally. The forecast is a nice-to-have, not a blocker.
+
+==== JETTI WALKING POLES (self-serve locker) ====
+Cruise the Creek also rents Jetti weighted walking poles — a self-serve, KIRK-ROAD-ONLY rental for exploring the Mill Creek bikeway on foot. It's fully automated: the customer books on Peek, gets a locker code by email right after booking (from Cruise the Creek, NOT from Peek), unlocks the Trailside padlock at the Kirk Road Trailhead, grabs the color-taped set for their size, walks, then returns and locks up. Sizes are color-coded: Small = blue, Medium = yellow, Large = red, Extra Large = white. Each rental is a full set of two poles. Details + booking: trailside.html#jetti (chooser: choose-your-journey.html).
+
+The locker code is a 7–9 digit code that only opens the lock during the booking's time window — it won't work before the start time or after it expires.
+
+HELPING A POLE CUSTOMER WHO LOST OR CAN'T USE THEIR CODE:
+1. Easy stuff first: the code was emailed by Cruise the Creek right after booking — have them check spam. Remind them it only works during their booking window.
+2. To actually retrieve the code you need TWO things: their EMAIL and their BOOKING REFERENCE (on the Peek confirmation, looks like O-XXXXXXX). Once you have BOTH, call the get_poles_code tool. This is a hard security rule: NEVER reveal a code with only one of the two, and never guess or make up a code.
+3. Act on the tool result:
+   - status "valid" → give them the code and the quick steps: enter it on the Trailside padlock, grab the color-taped set for their size (Small=blue, Medium=yellow, Large=red, XL=white), and lock up when done. If not_yet_active is true, tell them the code is correct but only starts working at their booking time.
+   - status "expired" → the booking window has passed; DON'T reveal the code. Tell them it expired and point them to re-book at trailside.html#jetti.
+   - found:false → the email + reference didn't match a booking. Reveal nothing and don't say which field was wrong; ask them to double-check both, or text the rentals desk at 330-406-9686.
+4. If they're standing at the lock and a valid code just won't open it, have them text the rentals desk at 330-406-9686.
+
+Only ever show a locker code that the get_poles_code tool returned for that exact email + booking reference.`;
 
 // Tool definition handed to Claude. When the model decides to call this,
 // it returns a tool_use block with the structured fields below; we
@@ -413,6 +429,18 @@ const TOOLS = [
         },
       },
       required: ['date'],
+    },
+  },
+  {
+    name: 'get_poles_code',
+    description: "Look up a Jetti walking-pole customer's self-serve locker code. REQUIRES BOTH the customer's email AND their booking reference (from their Peek confirmation, looks like O-XXXXXXX) — this is a mandatory two-factor check. Call this ONLY when a walking-pole customer can't find or use their locker code AND has given you both their email and their booking reference. Returns the code only when the reference exists, the email matches that booking, and the code is still valid. Never reveal a code without both factors.",
+    input_schema: {
+      type: 'object',
+      properties: {
+        email:             { type: 'string', description: "The customer's email on the booking." },
+        booking_reference: { type: 'string', description: 'The booking reference / confirmation code from Peek, e.g. O-5K8NEPD.' },
+      },
+      required: ['email', 'booking_reference'],
     },
   },
 ];
@@ -519,6 +547,47 @@ async function execTool(name, input) {
     } catch (err) {
       console.error('[chat] weather tool exec failed:', err);
       return { ok: false, error: String(err) };
+    }
+  }
+
+  if (name === 'get_poles_code') {
+    try {
+      const email = String((input && input.email) || '').trim().toLowerCase();
+      const ref   = String((input && input.booking_reference) || '').trim();
+      // Two factors are mandatory — never look up on one alone.
+      if (!email || !ref) {
+        return { ok: false, error: 'Both email and booking_reference are required.' };
+      }
+      // Reuse the same PolesCodes lookup the webhook uses (keyed by reference).
+      const r = await fetch(APPS_SCRIPT_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'polesCodeLookup', reference: ref }),
+      });
+      const data = await r.json().catch(() => ({}));
+      if (!data || !data.found) return { ok: true, found: false, reason: 'no_matching_booking' };
+      // Second factor: the supplied email must match the booking's email. If it
+      // doesn't, reveal nothing (and don't say which field was wrong).
+      if (String(data.to || '').trim().toLowerCase() !== email) {
+        return { ok: true, found: false, reason: 'details_do_not_match' };
+      }
+      // Only surface a code that hasn't expired. (startISO/endISO are present
+      // once the reschedule-aware Apps Script is deployed; if absent we skip the
+      // window check and still gate on the two factors.)
+      const now = Date.now();
+      const endMs   = data.endISO   ? new Date(data.endISO).getTime()   : NaN;
+      const startMs = data.startISO ? new Date(data.startISO).getTime() : NaN;
+      if (!isNaN(endMs) && now > endMs) {
+        return { ok: true, found: true, status: 'expired', window: data.window || '' };
+      }
+      return {
+        ok: true, found: true, status: 'valid',
+        code: data.code, window: data.window || '',
+        not_yet_active: !isNaN(startMs) && now < startMs,
+      };
+    } catch (err) {
+      console.error('[chat] poles code tool exec failed:', err);
+      return { ok: false, error: 'lookup failed' };
     }
   }
 
