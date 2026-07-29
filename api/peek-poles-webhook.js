@@ -34,8 +34,11 @@
 //                             nobody opens the shared locker before their slot).
 //                             igloohome starts are on the hour, so any value > 0
 //                             opens a full hour early — leave at 0 unless needed.
-//   POLES_END_GRACE_HOURS     extend the window this many hours AFTER the return
-//                             time (default 1)
+//   POLES_END_GRACE_HOURS     keep the code valid this many hours AFTER the
+//                             rental ends, for a slightly-late return (default 2)
+//   POLES_DEFAULT_HOURS       assumed rental length when the booking's duration
+//                             isn't mapped (default 4 = the longest Jetti rental,
+//                             so no one is locked out; map the duration for exact)
 //
 // ── VERIFY BEFORE GO-LIVE ──────────────────────────────────────────────────
 // I couldn't reach the live igloohome / Peek docs from the build sandbox, so
@@ -226,9 +229,9 @@ function computeEndISO(booking, generous) {
       const m = text.match(/(\d+(?:\.\d+)?)\s*h(ou)?r/i);
       if (m) hours = Number(m[1]);
     }
-    if (!hours || isNaN(hours)) hours = envHours('POLES_DEFAULT_HOURS', 8);
+    if (!hours || isNaN(hours)) hours = envHours('POLES_DEFAULT_HOURS', 4);
   }
-  const graceMs = envHours('POLES_END_GRACE_HOURS', 1) * 3600 * 1000; // grace after the return time
+  const graceMs = envHours('POLES_END_GRACE_HOURS', 2) * 3600 * 1000; // grace after the return time
   return new Date(startMs + hours * 3600 * 1000 + graceMs).toISOString();
 }
 
