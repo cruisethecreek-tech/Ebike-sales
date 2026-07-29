@@ -413,7 +413,7 @@ function smsBody(booking, pin) {
   const when = fmtWindow(booking);
   return `Cruise the Creek — your Jetti walking pole locker code is ${pin}` +
     (when ? ` (valid ${when})` : '') +
-    `. Kirk Road Trailhead: enter the code, grab the color-taped set for your size, and return + lock up when done. Text 330-406-9686 for help.`;
+    `. Kirk Road Trailhead: enter the code, grab the color-taped set for your size (Small=blue, Medium=yellow, Large=red, XL=white; leave the bag in the locker), then lock the padlock back while you're out. When done, wipe the grips and lock up. Text 330-406-9686 for help.`;
 }
 
 async function sendSms(to, body) {

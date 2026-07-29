@@ -45,6 +45,21 @@ function handlePolesAccessCode(p) {
   var endISO = String(p.endISO || '').trim();     // the webhook to detect reschedules
   var greeting = name ? ('Hi ' + name + ',') : 'Hi there,';
 
+  // One row of the size→color key: a filled dot in the real color + the label.
+  // (Colored dots read reliably in email; colored *text* like yellow/white
+  // would be unreadable on a white background.)
+  var swatch = function (color, size, colorName, ring) {
+    return '<tr>' +
+        '<td style="padding:3px 9px 3px 0;vertical-align:middle;line-height:1">' +
+          '<span style="display:inline-block;width:14px;height:14px;border-radius:50%;background:' + color + ';' +
+            (ring ? 'border:1.5px solid #b8b8b8;' : '') + '"></span>' +
+        '</td>' +
+        '<td style="padding:3px 0;vertical-align:middle;color:#3a3a3a;font-size:14px">' +
+          '<strong style="color:#1a2e1c">' + size + '</strong> &mdash; ' + colorName +
+        '</td>' +
+      '</tr>';
+  };
+
   var html =
     '<div style="font-family:Arial,Helvetica,sans-serif;color:#1a1a1a;max-width:520px;margin:0 auto">' +
       '<h2 style="color:#2D4A32;margin:0 0 6px">Your Jetti walking pole code</h2>' +
@@ -58,11 +73,18 @@ function handlePolesAccessCode(p) {
       '<p style="margin:0 0 8px;color:#3a3a3a"><strong>At the locker:</strong></p>' +
       '<ol style="margin:0 0 16px;padding-left:20px;color:#3a3a3a;line-height:1.6">' +
         '<li>Enter this code on the padlock.</li>' +
-        '<li>Grab the color-taped set for your size: ' +
-          '<strong>Small</strong> = blue, <strong>Medium</strong> = yellow, ' +
-          '<strong>Large</strong> = red, <strong>Extra Large</strong> = white.</li>' +
-        '<li>Each rental is a full set (two poles). When you\'re done, return them ' +
-          'to the same color spot and lock up.</li>' +
+        '<li>Grab the color-taped set for your size (each rental is a full set of two poles):' +
+          '<table role="presentation" cellpadding="0" cellspacing="0" style="margin:8px 0 2px">' +
+            swatch('#2B7FE0', 'Small', 'blue') +
+            swatch('#EAB308', 'Medium', 'yellow') +
+            swatch('#E23B3B', 'Large', 'red') +
+            swatch('#FFFFFF', 'Extra Large', 'white', true) +
+          '</table>' +
+        '</li>' +
+        '<li>You can <strong>leave the carry bag in the locker</strong> — no need to lug it around the trail.</li>' +
+        '<li><strong>Close and lock the padlock back up</strong> while you\'re out walking.</li>' +
+        '<li>When you\'re done, give the <strong>grips and other high-touch spots a quick wipe-down</strong> ' +
+          'with the wipes in the locker, then return the poles to their color spot and lock up again.</li>' +
       '</ol>' +
       '<p style="margin:0;color:#5a5a5a;font-size:13px">Questions? Text the rentals desk at 330-406-9686.' +
         (ref ? '<br>Booking ref: ' + ref : '') + '</p>' +
@@ -74,8 +96,11 @@ function handlePolesAccessCode(p) {
     htmlBody: html,
     body: greeting + ' Your Kirk Road locker code is ' + pin +
           (when ? ' (valid ' + when + ')' : '') +
-          '. Grab the color-taped set for your size (Small=blue, Medium=yellow, ' +
-          'Large=red, Extra Large=white), then return them and lock up. ' +
+          '. Enter it on the padlock, then grab the color-taped set for your size ' +
+          '(Small=blue, Medium=yellow, Large=red, Extra Large=white). You can leave ' +
+          'the carry bag in the locker. Close and lock the padlock back up while ' +
+          'you\'re out. When you\'re done, wipe down the grips with the wipes in the ' +
+          'locker, return the poles to their color spot, and lock up again. ' +
           'Questions? Text 330-406-9686.',
     name: 'Cruise the Creek',
   });
