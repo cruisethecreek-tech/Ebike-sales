@@ -92,5 +92,17 @@ function handlePolesAccessCode(p) {
     });
   } catch (e) { /* internal copy is best-effort */ }
 
+  // Permanent audit trail: append every issued code to a "PolesCodes" tab
+  // (created with headers on first run). Best-effort so it never blocks the code.
+  try {
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
+    var sh = ss.getSheetByName('PolesCodes');
+    if (!sh) {
+      sh = ss.insertSheet('PolesCodes');
+      sh.appendRow(['Issued at', 'Customer', 'Email', 'Code', 'Valid window', 'Booking ref']);
+    }
+    sh.appendRow([new Date(), name || '', to, pin, when || '', ref || '']);
+  } catch (e) { /* logging is best-effort */ }
+
   return json({ ok: true, to: to });
 }
