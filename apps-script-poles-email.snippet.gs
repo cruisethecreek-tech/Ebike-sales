@@ -126,30 +126,37 @@ function handlePolesCodeLookup(p) {
   var ref = String(p.reference || '').trim();
   if (!ref) return json({ ok: true, found: false });
 
-  try {
-    var ss = SpreadsheetApp.getActiveSpreadsheet();
-    var sh = ss.getSheetByName('PolesCodes');
-    if (!sh || sh.getLastRow() < 2) return json({ ok: true, found: false });
+  // Apps Script occasionally throws a transient "Sheet 0 not found" on back-to-
+  // back sheet access. Retry with back-off so a one-off glitch can't make the
+  // lookup wrongly report not-found and let a duplicate code get minted.
+  var lastErr = '';
+  for (var attempt = 0; attempt < 3; attempt++) {
+    try {
+      var ss = SpreadsheetApp.getActiveSpreadsheet();
+      var sh = ss.getSheetByName('PolesCodes');
+      if (!sh || sh.getLastRow() < 2) return json({ ok: true, found: false });
 
-    // Columns: Issued at | Customer | Email | Code | Valid window | Booking ref
-    var rows = sh.getRange(2, 1, sh.getLastRow() - 1, 6).getValues();
-    // Scan newest-first so a re-issue returns the most recent code.
-    for (var i = rows.length - 1; i >= 0; i--) {
-      if (String(rows[i][5] || '').trim() === ref) {
-        return json({
-          ok: true,
-          found: true,
-          code: String(rows[i][3] || '').trim(),
-          window: String(rows[i][4] || '').trim(),
-          to: String(rows[i][2] || '').trim(),
-          name: String(rows[i][1] || '').trim(),
-        });
+      // Columns: Issued at | Customer | Email | Code | Valid window | Booking ref
+      var rows = sh.getRange(2, 1, sh.getLastRow() - 1, 6).getValues();
+      // Scan newest-first so a re-issue returns the most recent code.
+      for (var i = rows.length - 1; i >= 0; i--) {
+        if (String(rows[i][5] || '').trim() === ref) {
+          return json({
+            ok: true,
+            found: true,
+            code: String(rows[i][3] || '').trim(),
+            window: String(rows[i][4] || '').trim(),
+            to: String(rows[i][2] || '').trim(),
+            name: String(rows[i][1] || '').trim(),
+          });
+        }
       }
+      return json({ ok: true, found: false });
+    } catch (e) {
+      lastErr = String(e);
+      Utilities.sleep(400 * (attempt + 1)); // back off, then retry
     }
-    return json({ ok: true, found: false });
-  } catch (e) {
-    // Fail-open: if the lookup errors, report not-found so the webhook still
-    // mints a code rather than silently dropping the customer's booking.
-    return json({ ok: true, found: false, error: String(e) });
   }
+  // All retries failed: fail-open so a lookup glitch never blocks issuing a code.
+  return json({ ok: true, found: false, error: lastErr });
 }
