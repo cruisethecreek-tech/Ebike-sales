@@ -202,23 +202,27 @@ function parseBooking(body) {
   };
 }
 
-// If no explicit end time, derive one: from a numeric duration, else from an
-// option/rate name like "2 Hour Jetti Rental", else a safe default window.
-// A grace hour is added so a slightly-late return still opens the locker.
+// Derive the window length. Two cases:
+//  • generous (no mapped booking date → start fell back to "now"): we don't know
+//    WHEN the ride is, so IGNORE the booking's short duration and use a generous
+//    window that covers same-day + overnight. Otherwise a 1-hour booking made
+//    hours ahead would mint a code that expires long before the customer arrives.
+//  • normal: size the window from the real start using the booking's numeric
+//    duration, else an option/rate name like "2 Hour Jetti Rental", else a
+//    safe default. A grace hour is added so a slightly-late return still opens it.
 function computeEndISO(booking, generous) {
   const startMs = new Date(booking.startISO).getTime();
-  let hours = Number(booking.durationHours);
-  if (!hours || isNaN(hours)) {
-    const text = String(booking.durationText || booking.productName || '');
-    const m = text.match(/(\d+(?:\.\d+)?)\s*h(ou)?r/i);
-    if (m) hours = Number(m[1]);
-  }
-  if (!hours || isNaN(hours)) {
-    // No known duration: a generous window when we also had no start (so a
-    // date-less booking still works same-day/overnight), else the normal default.
-    hours = generous
-      ? (Number(process.env.POLES_FALLBACK_HOURS) || 26)
-      : (Number(process.env.POLES_DEFAULT_HOURS) || 8);
+  let hours;
+  if (generous) {
+    hours = envHours('POLES_FALLBACK_HOURS', 26);
+  } else {
+    hours = Number(booking.durationHours);
+    if (!hours || isNaN(hours)) {
+      const text = String(booking.durationText || booking.productName || '');
+      const m = text.match(/(\d+(?:\.\d+)?)\s*h(ou)?r/i);
+      if (m) hours = Number(m[1]);
+    }
+    if (!hours || isNaN(hours)) hours = envHours('POLES_DEFAULT_HOURS', 8);
   }
   const graceMs = envHours('POLES_END_GRACE_HOURS', 1) * 3600 * 1000; // grace after the return time
   return new Date(startMs + hours * 3600 * 1000 + graceMs).toISOString();
