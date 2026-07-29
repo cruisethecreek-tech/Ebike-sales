@@ -61,6 +61,8 @@ live here **only** — never in the repo, never in chat.
 | `TWILIO_FROM` | fallback | A raw Twilio number, e.g. `+13305551234`, used only if no Messaging Service SID is set. |
 | `POLES_DEFAULT_HOURS` | — | Window length when a duration is known-absent but a start exists (default `8`). |
 | `POLES_FALLBACK_HOURS` | — | Generous window when there was **no** start at all (default `26`, covers same-day + overnight). |
+| `POLES_START_GRACE_HOURS` | — | Open the window this many hours *before* the booking start, to absorb early arrivals + lock clock drift (default `1`; set `0` to disable). |
+| `POLES_END_GRACE_HOURS` | — | Extend the window this many hours *after* the return time (default `1`). |
 
 SMS is optional: with no Twilio vars the webhook still mints the code and emails
 it — the SMS leg simply reports "not configured" and is skipped.
@@ -124,7 +126,8 @@ the same). Put that `/exec` URL in Vercel's `POLES_EMAIL_URL`.
 
 > **`PolesCodes` tab is required for idempotency.** The first issued code
 > auto-creates the tab with headers: `Issued at | Customer | Email | Code |
-> Valid window | Booking ref`. The lookup reads the **Booking ref** column, so
+> Valid window | Booking ref | igloo PIN id`. The lookup reads the **Booking
+> ref** column, so
 > idempotency only works once at least one code has been logged. Confirm the tab
 > appears after your first real booking.
 
@@ -146,6 +149,56 @@ the same). Put that `/exec` URL in Vercel's `POLES_EMAIL_URL`.
   internet at the trailhead. You won't see it in the igloohome app unless you're
   in Bluetooth range of the lock — the customer's email/SMS is the source of
   truth for what code was issued (and so is the `PolesCodes` sheet).
+
+### PIN reliability (why this setup is robust, and how to keep it that way)
+
+The nightmare scenario for an unattended locker is a customer standing at the
+trailhead with a code that won't open the lock. Three things guard against it:
+
+1. **We use hourly (time-bound) algoPINs — not one-time PINs.** igloohome
+   *one-time* PINs use a strict sequential counter: generate them out of order
+   and earlier ones get invalidated, which for a booking system that fires
+   webhooks in unpredictable order would be a disaster. Hourly PINs are keyed to
+   absolute time instead, so bookings can be created in any order, any number of
+   times, and each code just works during its window. **Keep using the
+   `/algopin/hourly` endpoint** — don't switch to one-time PINs.
+
+2. **Both-side window grace.** The code the customer gets opens the lock a bit
+   *before* their booking start (`POLES_START_GRACE_HOURS`, default 1) and a bit
+   *after* their return (`POLES_END_GRACE_HOURS`, default 1). That absorbs an
+   early arrival and a lock whose internal clock has drifted slightly behind.
+
+3. **Idempotency (see §4).** A repeat booking webhook re-sends the *same* code
+   rather than minting a new one, so the lock never accumulates a pile of unused
+   codes for one reservation.
+
+**The one thing code can't fix: the lock's clock + battery.** Time-bound codes
+trust the padlock's internal clock. It only re-syncs when the igloohome app is
+near it over Bluetooth. So build this into your routine:
+
+- **Weekly:** walk to the lock, open the igloohome app in Bluetooth range, let
+  it auto-sync (this corrects clock drift and refreshes the lock).
+- **On every battery change:** sync immediately afterward — a battery swap is the
+  most common cause of clock drift.
+- **Watch the battery level** in the igloohome app; replace before it's critical.
+
+**Revocation / audit:** each issued code logs its igloohome **PIN id** to the
+`PolesCodes` sheet (7th column). If a code is ever shared around or needs
+killing, that id is what you use to delete the PIN via the igloohome API or app.
+
+### Recovery runbook — "my code didn't work"
+
+1. **Check the window.** Is the customer inside their booking window (± the grace
+   hours)? Look up their row in `PolesCodes` for the exact valid window.
+2. **Most likely cause: lock clock drift.** Walk to the lock with the igloohome
+   app, sync it over Bluetooth. Re-test the customer's code.
+3. **Still failing?** Read the Vercel function logs for that booking — confirm a
+   PIN was actually minted (`[poles] minted PIN … pinId`) and delivered.
+4. **Immediate customer fix:** you can generate a fresh hourly PIN on the spot
+   from the igloohome app, or re-fire the Zap for that booking (idempotency means
+   it re-sends the logged code; if you need a *new* code, generate it in the app).
+5. **Battery low?** Replace it, then sync — and expect to re-sync the clock right
+   after.
 
 ---
 
@@ -186,6 +239,7 @@ US application-to-person SMS requires 10DLC registration:
 | Same booking issued two codes | `PolesCodes` tab missing or `reference` not mapped in Zapier, so the idempotency lookup can't find the prior row. |
 | `/poles` shows the homepage | `poles.html` not deployed — merge and re-check. |
 | Window doesn't match the ride | `startDate` not mapped in Zapier → handler used the generous fallback from "now". Map `startDate`. |
+| Customer's code rejected at the lock | Almost always lock clock drift — sync the lock via the igloohome app over Bluetooth (see §5 recovery runbook). Check the battery. |
 
 The webhook logs the **raw Peek payload** and a delivery summary to the Vercel
 function logs, so a real booking is the fastest way to confirm field mapping.
