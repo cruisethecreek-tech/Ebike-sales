@@ -61,7 +61,7 @@ live here **only** — never in the repo, never in chat.
 | `TWILIO_FROM` | fallback | A raw Twilio number, e.g. `+13305551234`, used only if no Messaging Service SID is set. |
 | `POLES_DEFAULT_HOURS` | — | Window length when a duration is known-absent but a start exists (default `8`). |
 | `POLES_FALLBACK_HOURS` | — | Generous window when there was **no** start at all (default `26`, covers same-day + overnight). |
-| `POLES_START_GRACE_HOURS` | — | Open the window this many hours *before* the booking start, to absorb early arrivals + lock clock drift (default `1`; set `0` to disable). |
+| `POLES_START_GRACE_HOURS` | — | Open the code this many hours *before* the booking start. Default `0` — the code activates **at** the booking time so nobody can open the shared locker before their slot. igloohome starts are on the hour, so any value > 0 opens a full hour early; leave at `0` unless you have a reason. |
 | `POLES_END_GRACE_HOURS` | — | Extend the window this many hours *after* the return time (default `1`). |
 
 SMS is optional: with no Twilio vars the webhook still mints the code and emails
@@ -163,10 +163,11 @@ trailhead with a code that won't open the lock. Three things guard against it:
    times, and each code just works during its window. **Keep using the
    `/algopin/hourly` endpoint** — don't switch to one-time PINs.
 
-2. **Both-side window grace.** The code the customer gets opens the lock a bit
-   *before* their booking start (`POLES_START_GRACE_HOURS`, default 1) and a bit
-   *after* their return (`POLES_END_GRACE_HOURS`, default 1). That absorbs an
-   early arrival and a lock whose internal clock has drifted slightly behind.
+2. **End-side window grace.** The code stays valid a bit *after* the return time
+   (`POLES_END_GRACE_HOURS`, default 1) so a slightly-late return still opens the
+   lock. The *start* opens exactly at the booking time (`POLES_START_GRACE_HOURS`
+   default 0) so nobody can open the shared locker before their slot and collide
+   with the prior booking.
 
 3. **Idempotency (see §4).** A repeat booking webhook re-sends the *same* code
    rather than minting a new one, so the lock never accumulates a pile of unused

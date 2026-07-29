@@ -29,9 +29,11 @@
 //                             Twilio Brand + Campaign show "Approved".
 //   TWILIO_FROM               fallback if no messaging service is set: your
 //                             Twilio number, e.g. +13305551234
-//   POLES_START_GRACE_HOURS   open the window this many hours BEFORE the booking
-//                             start, to absorb early arrivals + lock clock drift
-//                             (default 1; set 0 to disable)
+//   POLES_START_GRACE_HOURS   open the code this many hours BEFORE the booking
+//                             start (default 0 = activate AT the booking time so
+//                             nobody opens the shared locker before their slot).
+//                             igloohome starts are on the hour, so any value > 0
+//                             opens a full hour early — leave at 0 unless needed.
 //   POLES_END_GRACE_HOURS     extend the window this many hours AFTER the return
 //                             time (default 1)
 //
@@ -117,10 +119,12 @@ export default async function handler(req, res) {
       booking.endISO = new Date(nowMs + hrs * 3600000).toISOString();
       if (new Date(booking.startISO).getTime() > nowMs) booking.startISO = new Date(nowMs).toISOString();
     }
-    // Pad the start earlier so an early arrival — or a lock whose internal clock
-    // runs a little behind — still opens it. (The end already gets a grace hour
-    // in computeEndISO.)
-    const startGraceH = envHours('POLES_START_GRACE_HOURS', 1);
+    // Optionally open the code before the booking start. DEFAULT 0 (off): the
+    // code goes live AT the booking time so nobody can open the shared locker
+    // ahead of their slot and collide with the prior booking. Note that because
+    // igloohome starts must be on the hour, ANY value > 0 rounds an on-the-hour
+    // booking down to the PREVIOUS hour (a full hour early), so use with care.
+    const startGraceH = envHours('POLES_START_GRACE_HOURS', 0);
     if (startGraceH > 0) {
       const padded = new Date(booking.startISO).getTime() - startGraceH * 3600000;
       booking.startISO = new Date(padded).toISOString();
