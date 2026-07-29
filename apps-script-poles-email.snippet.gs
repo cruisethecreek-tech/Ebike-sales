@@ -17,10 +17,11 @@
  */
 
 // ─────────────────────────────────────────────────────────────
-// 1. Add this case to your doPost() dispatcher (next to 'repairIntake'):
+// 1. Add these cases to your doPost() dispatcher (next to 'repairIntake'):
 // ─────────────────────────────────────────────────────────────
 //
 //   if (action === 'polesAccessCode') return handlePolesAccessCode(p);
+//   if (action === 'polesCodeLookup') return handlePolesCodeLookup(p);
 //
 // ─────────────────────────────────────────────────────────────
 // 2. Paste this function at the bottom of the file:
@@ -105,4 +106,50 @@ function handlePolesAccessCode(p) {
   } catch (e) { /* logging is best-effort */ }
 
   return json({ ok: true, to: to });
+}
+
+// ─────────────────────────────────────────────────────────────
+// 3. Paste this function too — it powers webhook idempotency.
+//    api/peek-poles-webhook.js POSTs { action:'polesCodeLookup', reference }
+//    BEFORE minting a new code. If this booking ref already has a code in the
+//    PolesCodes tab, the webhook re-sends that same code instead of minting a
+//    fresh one — so a Zapier retry / duplicate "Booking Updated" fire can never
+//    burn a second igloohome PIN slot for the same reservation.
+// ─────────────────────────────────────────────────────────────
+
+function handlePolesCodeLookup(p) {
+  var json = function (obj) {
+    return ContentService.createTextOutput(JSON.stringify(obj))
+      .setMimeType(ContentService.MimeType.JSON);
+  };
+
+  var ref = String(p.reference || '').trim();
+  if (!ref) return json({ ok: true, found: false });
+
+  try {
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
+    var sh = ss.getSheetByName('PolesCodes');
+    if (!sh || sh.getLastRow() < 2) return json({ ok: true, found: false });
+
+    // Columns: Issued at | Customer | Email | Code | Valid window | Booking ref
+    var rows = sh.getRange(2, 1, sh.getLastRow() - 1, 6).getValues();
+    // Scan newest-first so a re-issue returns the most recent code.
+    for (var i = rows.length - 1; i >= 0; i--) {
+      if (String(rows[i][5] || '').trim() === ref) {
+        return json({
+          ok: true,
+          found: true,
+          code: String(rows[i][3] || '').trim(),
+          window: String(rows[i][4] || '').trim(),
+          to: String(rows[i][2] || '').trim(),
+          name: String(rows[i][1] || '').trim(),
+        });
+      }
+    }
+    return json({ ok: true, found: false });
+  } catch (e) {
+    // Fail-open: if the lookup errors, report not-found so the webhook still
+    // mints a code rather than silently dropping the customer's booking.
+    return json({ ok: true, found: false, error: String(e) });
+  }
 }

@@ -39,7 +39,8 @@
 //   • The Peek webhook field paths in parseBooking() — the raw payload is
 //     logged so you (or I) can map the real field names.
 //   • Peek "booking_update" fires on confirm/update/cancel; we act only on a
-//     confirmed/booked status. See the idempotency note in the handler.
+//     confirmed/booked status, and the idempotency guard (step 3a) means a
+//     repeat fire re-sends the same code rather than minting a new one.
 
 export const config = { api: { bodyParser: true } };
 
@@ -83,24 +84,36 @@ export default async function handler(req, res) {
     return res.status(200).json({ ignored: true, isPoles, status: booking.status });
   }
 
-  // IDEMPOTENCY NOTE: booking_update can fire more than once for the same
-  // booking. This stateless function will mint a fresh PIN each time it fires
-  // for a confirmed poles booking. If Peek re-sends confirmations, add a guard
-  // — e.g. only proceed when the event is the first confirmation, or record
-  // booking.id in a sheet/KV and skip if already processed.
-
-  // If Peek's start time couldn't be parsed, fall back to "now" so a code is
-  // still issued (valid from now) rather than hard-failing. For advance
-  // bookings, map a proper start date so the window matches the booking.
-  if (!booking.startISO) {
-    console.warn('[poles] no parseable start; defaulting window start to now');
-    booking.startISO = new Date().toISOString();
-  }
-  // No explicit end time from Peek? Derive it from the duration/option.
-  if (!booking.endISO) booking.endISO = computeEndISO(booking);
-
   try {
-    // ── 3. Mint the igloohome time-bound PIN ──────────────────────
+    // ── 3a. Idempotency ───────────────────────────────────────────
+    // booking_update fires on edits and can repeat, so only ever issue ONE
+    // code per booking reference. We check the PolesCodes sheet first and skip
+    // if a code was already issued for this booking.
+    if (booking.reference) {
+      const existing = await lookupExistingCode(booking.reference);
+      if (existing) {
+        console.log('[poles] duplicate booking; code already issued for', booking.reference);
+        return res.status(200).json({ duplicate: true, reference: booking.reference });
+      }
+    }
+
+    // ── 3b. Resolve a safe time window ────────────────────────────
+    // If Peek gave no parseable start, fall back to now with a GENEROUS window
+    // (covers same-day + overnight even without a mapped date). Advance bookings
+    // should still map a start date so the window matches the ride.
+    let generous = false;
+    if (!booking.startISO) { booking.startISO = new Date().toISOString(); generous = true; }
+    if (!booking.endISO) booking.endISO = computeEndISO(booking, generous);
+    // Never mint an already-expired code: if the window ends at/before now,
+    // push the end out (and pull a future start back to now).
+    const nowMs = Date.now();
+    if (new Date(booking.endISO).getTime() <= nowMs + 30 * 60000) {
+      const hrs = Number(process.env.POLES_DEFAULT_HOURS) || 8;
+      booking.endISO = new Date(nowMs + hrs * 3600000).toISOString();
+      if (new Date(booking.startISO).getTime() > nowMs) booking.startISO = new Date(nowMs).toISOString();
+    }
+
+    // ── 3c. Mint the igloohome time-bound PIN ─────────────────────
     const token = await getIglooToken();
     const deviceId = process.env.IGLOOHOME_DEVICE_ID;
     const { pin } = await createHourlyPin(token, deviceId, {
@@ -124,7 +137,8 @@ export default async function handler(req, res) {
   } catch (err) {
     console.error('[poles] failed:', err);
     // 500 so Peek retries — a transient igloohome/Twilio hiccup shouldn't drop
-    // the code silently. (If you add idempotency, retries become safe.)
+    // the code silently. Retries are safe: the step-3a idempotency guard
+    // re-sends the existing code instead of minting a second one.
     return res.status(500).json({ error: err.message });
   }
 }
@@ -168,7 +182,7 @@ function parseBooking(body) {
 // If no explicit end time, derive one: from a numeric duration, else from an
 // option/rate name like "2 Hour Jetti Rental", else a safe default window.
 // A grace hour is added so a slightly-late return still opens the locker.
-function computeEndISO(booking) {
+function computeEndISO(booking, generous) {
   const startMs = new Date(booking.startISO).getTime();
   let hours = Number(booking.durationHours);
   if (!hours || isNaN(hours)) {
@@ -176,9 +190,32 @@ function computeEndISO(booking) {
     const m = text.match(/(\d+(?:\.\d+)?)\s*h(ou)?r/i);
     if (m) hours = Number(m[1]);
   }
-  if (!hours || isNaN(hours)) hours = Number(process.env.POLES_DEFAULT_HOURS) || 8;
+  if (!hours || isNaN(hours)) {
+    // No known duration: a generous window when we also had no start (so a
+    // date-less booking still works same-day/overnight), else the normal default.
+    hours = generous
+      ? (Number(process.env.POLES_FALLBACK_HOURS) || 26)
+      : (Number(process.env.POLES_DEFAULT_HOURS) || 8);
+  }
   const graceMs = 60 * 60 * 1000; // +1h grace
   return new Date(startMs + hours * 3600 * 1000 + graceMs).toISOString();
+}
+
+// Ask Apps Script whether a code was already issued for this booking reference
+// (dedup). Fail-open — returns '' on any error so a lookup hiccup never blocks
+// issuing a code.
+async function lookupExistingCode(ref) {
+  const url = process.env.POLES_EMAIL_URL;
+  if (!url) return '';
+  try {
+    const r = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'polesCodeLookup', reference: ref }),
+    });
+    const data = await r.json().catch(() => ({}));
+    return data && data.found && data.code ? String(data.code) : '';
+  } catch (_) { return ''; }
 }
 
 function toISO(v) {
