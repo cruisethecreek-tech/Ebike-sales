@@ -164,19 +164,11 @@ button{font-family:inherit}
   color:var(--sage);margin-top:8px;
 }
 
-/* ── Scrolling marquee heading (Pick Your Path) ──
- * Built in JS so it survives CMS textContent hydration. Honors
- * prefers-reduced-motion and pauses on hover. */
-.mq{display:block;overflow:hidden;white-space:nowrap;max-width:100%;min-width:0;contain:inline-size}
-/* The marquee heading sits inside a flex item; without these guards its
-   nowrap content forces the flex item (and the whole document) wider than
-   the viewport. contain:inline-size + min-width:0 keep the clip working. */
+/* Section headings render as plain static text. (The old "Pick Your Path"
+   scrolling marquee was removed — it caused a horizontal-overflow bug and a
+   static heading reads cleaner and is friendlier to screen readers.) The
+   min-width guard is kept as cheap insurance against flex-child overflow. */
 .section-head>div{min-width:0}
-.mq__track{display:inline-flex;will-change:transform;animation:mq-scroll linear infinite}
-.mq__half{display:inline-flex;flex:0 0 auto}
-.mq:hover .mq__track{animation-play-state:paused}
-@keyframes mq-scroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
-@media(prefers-reduced-motion:reduce){.mq__track{animation:none}}
 
 /* ── TILE GRID ── */
 main{flex:1;width:100%}
@@ -590,10 +582,14 @@ footer{background:var(--dark);color:rgba(255,255,255,.75);padding:40px 24px 32px
         <div class="cta-title" data-cms-text="cta_title">Electric bikes, guided adventures, and creek ready gear — all from two Mahoning County Locations</div>
       </div>
       <div class="cta-row">
+        <!-- Primary "Book Now" routes to the Choose Your Journey chooser (e-bikes
+             vs walking poles) instead of straight to one Peek product. NOTE: this
+             is CMS-overridable — set SiteConfig cta_btn_primary_url =
+             choose-your-journey.html and cta_btn_primary_external = FALSE. -->
         <a class="cta-btn"
            data-cms-href="cta_btn_primary_url"
            data-cms-target="cta_btn_primary_external"
-           href="https://book.peek.com/s/57e3b62e-4f48-4cc4-8876-7b79f4c11baa/Zd03p" target="_blank" rel="noopener">
+           href="choose-your-journey.html">
           <span data-cms-text="cta_btn_primary_label">Book Now</span>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
         </a>
@@ -812,41 +808,8 @@ function applyCMS(remote){
 /* Hide social slots by default — they only appear if a URL is in SiteConfig. */
 document.querySelectorAll('[data-cms-display-if]').forEach(el => { el.style.display = 'none'; });
 
-/* ── Scrolling marquee heading ────────────────────
- * "Pick Your Path" scrolls horizontally. CMS hydration (applyCMS) overwrites
- * this heading's textContent, so we de-marquee before hydration and rebuild
- * after — idempotent, and the source text always wins. */
-const MQ_SELECTORS = ['.section-head h2'];
-function mqTargets(){ const out = []; MQ_SELECTORS.forEach(s => document.querySelectorAll(s).forEach(el => out.push(el))); return out; }
-function mqDemarquee(){
-  mqTargets().forEach(el => {
-    const src = el.getAttribute('data-mq-text');
-    if (src != null){ el.classList.remove('mq'); el.removeAttribute('aria-label'); el.textContent = src; }
-  });
-}
-function mqBuild(){
-  mqTargets().forEach(el => {
-    const text = (el.textContent || '').trim();
-    if (!text) return;
-    el.setAttribute('data-mq-text', text);
-    el.setAttribute('aria-label', text);   // screen readers read this, not the repeats
-    el.classList.add('mq');
-    el.textContent = '';
-    const track = document.createElement('span'); track.className = 'mq__track'; track.setAttribute('aria-hidden', 'true');
-    const half = document.createElement('span'); half.className = 'mq__half';
-    track.appendChild(half); el.appendChild(track);
-    const unit = text + '  •  ';
-    let guard = 0;
-    do { const s = document.createElement('span'); s.textContent = unit; half.appendChild(s); guard++; }
-    while (half.scrollWidth < (el.clientWidth + 40) && guard < 60);
-    track.appendChild(half.cloneNode(true));        // 2 identical halves → seamless -50% loop
-    track.style.animationDuration = Math.max(8, Math.round(half.scrollWidth / 55)) + 's';
-  });
-}
-
 /* ── CMS bootstrap (cache, TTL, loader) ──────────── */
 renderTiles(); // initial paint with default DATA
-mqBuild();     // marquee the section heading (static text)
 function escHome(s){ return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 
 function renderTrustStrip(rows){
@@ -905,7 +868,6 @@ if (MENU_URL) cmsBoot({
   key: 'cms:home:v1',
   url: MENU_URL,
   onApply(data) {
-    mqDemarquee();
     applyCMS(data);
     if (Array.isArray(data.tiles) && data.tiles.length) {
       DATA = data;
@@ -913,7 +875,6 @@ if (MENU_URL) cmsBoot({
     }
     renderTrustStrip(data.trustStrip);
     renderTestimonials(data.testimonials);
-    mqBuild();
   },
 });
 </script>

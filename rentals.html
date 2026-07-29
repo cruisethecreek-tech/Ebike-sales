@@ -139,15 +139,8 @@ button{font-family:inherit}
   padding:8px 14px;border-radius:4px;flex:0 0 auto;
 }
 
-/* ── Scrolling marquee headings (Pick Your Plan / Vibe / Arrive) ──
- * Built in JS so it survives CMS textContent hydration. Honors
- * prefers-reduced-motion and pauses on hover. */
-.mq{display:block;overflow:hidden;white-space:nowrap;max-width:100%;min-width:0;contain:inline-size}
-.mq__track{display:inline-flex;will-change:transform;animation:mq-scroll linear infinite}
-.mq__half{display:inline-flex;flex:0 0 auto}
-.mq:hover .mq__track{animation-play-state:paused}
-@keyframes mq-scroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
-@media(prefers-reduced-motion:reduce){.mq__track{animation:none}}
+/* Section headings render as plain static text — the scrolling marquee was
+   removed (it caused horizontal overflow and hurt screen-reader output). */
 
 /* ── TILE GRID ── */
 main{flex:1;width:100%}
@@ -643,8 +636,14 @@ function isTrue(v){ return v === true || v === 'TRUE' || v === 'true' || v === 1
 // Per-location PeekPro booking links. Used as the fallback for the Book
 // button when the RentalsVibe sheet's book_url column is blank. Trailside
 // = Kirk Road; Adventure = Bears Den.
+// Kirk Road (Trailside) offers BOTH e-bikes and Jetti walking poles, so its
+// Book button routes to the Choose Your Journey chooser rather than one Peek
+// product. Bears Den is e-bike adventures only, so it stays a direct Peek link.
+// NOTE: the RentalsVibe sheet's book_url column overrides these — to make Kirk
+// route to the chooser on production, set RentalsVibe kirk book_url =
+// choose-your-journey.html (or clear it to fall back to this default).
 const VIBE_DEFAULTS = {
-  kirk:  { book_url:'https://book.peek.com/s/57e3b62e-4f48-4cc4-8876-7b79f4c11baa/XRP8N', book_label:'Book Trailside' },
+  kirk:  { book_url:'choose-your-journey.html', book_label:'Book Trailside' },
   bears: { book_url:'https://book.peek.com/s/57e3b62e-4f48-4cc4-8876-7b79f4c11baa/V1ORX', book_label:'Book Adventure' },
 };
 
@@ -666,6 +665,7 @@ function renderRentalsVibe(rows){
     // sheet's book_url column is filled. Sheet values override these.
     const d = VIBE_DEFAULTS[slug] || {};
     const bookUrl      = String(r.book_url || d.book_url || '').trim();
+    const bookExternal = /^https?:\/\//i.test(bookUrl); // internal hub links open same-tab
     const bookLabel    = r.book_label || d.book_label || 'Book Now';
     const pricingUrl   = String(r.pricing_url || 'pricing.html').trim();
     const pricingLabel = r.pricing_label || 'View Pricing';
@@ -687,7 +687,7 @@ function renderRentalsVibe(rows){
             ? '<div class="vibe-traits">' + traits.map(t => '<span class="vibe-trait">' + esc(t) + '</span>').join('') + '</div>'
             : '') +
           '<div class="vibe-actions">' +
-            (bookUrl ? '<a class="vibe-cta book" href="' + esc(bookUrl) + '" target="_blank" rel="noopener">' + esc(bookLabel) + ' ' + arrow + '</a>' : '') +
+            (bookUrl ? '<a class="vibe-cta book" href="' + esc(bookUrl) + '"' + (bookExternal ? ' target="_blank" rel="noopener"' : '') + '>' + esc(bookLabel) + ' ' + arrow + '</a>' : '') +
             '<a class="vibe-cta pricing" href="' + esc(pricingUrl) + '">' + esc(pricingLabel) + '</a>' +
           '</div>' +
           (r.url ? '<a class="vibe-learn" href="' + esc(r.url) + '">' + esc(r.cta_label || 'Learn more') + ' ' + arrow + '</a>' : '') +
@@ -787,47 +787,13 @@ function applyCMS(remote){
   }
 }
 
-/* ── Scrolling marquee headings ───────────────────
- * Pick Your Plan / Which ride is right for you / What to expect when you
- * arrive scroll horizontally. CMS hydration (applyCMS) overwrites these
- * headings' textContent, so we de-marquee before hydration and rebuild
- * after — idempotent, and the source text always wins. */
-const MQ_SELECTORS = ['.section-head h2', '.vibe-title', '.arrive-title'];
-function mqTargets(){ const out = []; MQ_SELECTORS.forEach(s => document.querySelectorAll(s).forEach(el => out.push(el))); return out; }
-function mqDemarquee(){
-  mqTargets().forEach(el => {
-    const src = el.getAttribute('data-mq-text');
-    if (src != null){ el.classList.remove('mq'); el.removeAttribute('aria-label'); el.textContent = src; }
-  });
-}
-function mqBuild(){
-  mqTargets().forEach(el => {
-    const text = (el.textContent || '').trim();
-    if (!text) return;
-    el.setAttribute('data-mq-text', text);
-    el.setAttribute('aria-label', text);   // screen readers read this, not the repeats
-    el.classList.add('mq');
-    el.textContent = '';
-    const track = document.createElement('span'); track.className = 'mq__track'; track.setAttribute('aria-hidden', 'true');
-    const half = document.createElement('span'); half.className = 'mq__half';
-    track.appendChild(half); el.appendChild(track);
-    const unit = text + '  •  ';
-    let guard = 0;
-    do { const s = document.createElement('span'); s.textContent = unit; half.appendChild(s); guard++; }
-    while (half.scrollWidth < (el.clientWidth + 40) && guard < 60);
-    track.appendChild(half.cloneNode(true));        // 2 identical halves → seamless -50% loop
-    track.style.animationDuration = Math.max(8, Math.round(half.scrollWidth / 55)) + 's';
-  });
-}
-
-/* ── CMS bootstrap (cache, TTL, loader) ──────────── */
+/* CMS bootstrap (cache, TTL, loader). The scrolling marquee headings were
+   removed — static headings avoid the overflow bug and read better aloud. */
 renderTiles(); // initial paint with default DATA
-mqBuild();     // marquee the section headings (static text)
 if (MENU_URL) cmsBoot({
   key: 'cms:rentals:v1',
   url: MENU_URL,
   onApply(data) {
-    mqDemarquee();
     applyCMS(data);
     if (Array.isArray(data.tiles) && data.tiles.length) {
       DATA = data;
@@ -835,7 +801,6 @@ if (MENU_URL) cmsBoot({
     }
     if (Array.isArray(data.rentalsVibe) && data.rentalsVibe.length) renderRentalsVibe(data.rentalsVibe);
     if (Array.isArray(data.rentalsArrival) && data.rentalsArrival.length) renderArrival(data.rentalsArrival);
-    mqBuild();
   },
 });
 </script>
