@@ -89,9 +89,12 @@ export default async function handler(req, res) {
   // — e.g. only proceed when the event is the first confirmation, or record
   // booking.id in a sheet/KV and skip if already processed.
 
+  // If Peek's start time couldn't be parsed, fall back to "now" so a code is
+  // still issued (valid from now) rather than hard-failing. For advance
+  // bookings, map a proper start date so the window matches the booking.
   if (!booking.startISO) {
-    console.error('[poles] missing booking start', booking);
-    return res.status(200).json({ error: 'missing booking start' });
+    console.warn('[poles] no parseable start; defaulting window start to now');
+    booking.startISO = new Date().toISOString();
   }
   // No explicit end time from Peek? Derive it from the duration/option.
   if (!booking.endISO) booking.endISO = computeEndISO(booking);
