@@ -59,10 +59,10 @@ live here **only** — never in the repo, never in chat.
 | `TWILIO_AUTH_TOKEN` | for SMS | Twilio auth token. |
 | `TWILIO_MESSAGING_SERVICE_SID` | for SMS | `MG…` — **preferred.** Routes texts through the A2P 10DLC campaign. Set once the Brand + Campaign show **Approved**. |
 | `TWILIO_FROM` | fallback | A raw Twilio number, e.g. `+13305551234`, used only if no Messaging Service SID is set. |
-| `POLES_DEFAULT_HOURS` | — | Window length when a duration is known-absent but a start exists (default `8`). |
+| `POLES_DEFAULT_HOURS` | — | Assumed rental length when the booking's duration isn't mapped, and a start exists (default `4` = the longest Jetti rental, so no one is locked out; map the duration for exact windows). |
 | `POLES_FALLBACK_HOURS` | — | Generous window when there was **no** start at all (default `26`, covers same-day + overnight). |
 | `POLES_START_GRACE_HOURS` | — | Open the code this many hours *before* the booking start. Default `0` — the code activates **at** the booking time so nobody can open the shared locker before their slot. igloohome starts are on the hour, so any value > 0 opens a full hour early; leave at `0` unless you have a reason. |
-| `POLES_END_GRACE_HOURS` | — | Extend the window this many hours *after* the return time (default `1`). |
+| `POLES_END_GRACE_HOURS` | — | Keep the code valid this many hours *after* the rental ends, for a slightly-late return (default `2`). |
 
 SMS is optional: with no Twilio vars the webhook still mints the code and emails
 it — the SMS leg simply reports "not configured" and is skipped.
