@@ -95,19 +95,11 @@ export default async function handler(req, res) {
   }
 
   try {
-    // ── 3a. Idempotency ───────────────────────────────────────────
-    // booking_update fires on edits and can repeat, so only ever issue ONE
-    // code per booking reference. We check the PolesCodes sheet first and skip
-    // if a code was already issued for this booking.
-    if (booking.reference) {
-      const existing = await lookupExistingCode(booking.reference);
-      if (existing) {
-        console.log('[poles] duplicate booking; code already issued for', booking.reference);
-        return res.status(200).json({ duplicate: true, reference: booking.reference });
-      }
-    }
+    // The customer's booked start, captured BEFORE we fill in fallbacks, so we
+    // can tell a genuine reschedule from a repeat webhook fire (below).
+    const bookedStartISO = booking.startISO;
 
-    // ── 3b. Resolve a safe time window ────────────────────────────
+    // ── 3a. Resolve a safe time window ────────────────────────────
     // If Peek gave no parseable start, fall back to now with a GENEROUS window
     // (covers same-day + overnight even without a mapped date). Advance bookings
     // should still map a start date so the window matches the ride.
@@ -118,7 +110,7 @@ export default async function handler(req, res) {
     // push the end out (and pull a future start back to now).
     const nowMs = Date.now();
     if (new Date(booking.endISO).getTime() <= nowMs + 30 * 60000) {
-      const hrs = Number(process.env.POLES_DEFAULT_HOURS) || 8;
+      const hrs = Number(process.env.POLES_DEFAULT_HOURS) || 4;
       booking.endISO = new Date(nowMs + hrs * 3600000).toISOString();
       if (new Date(booking.startISO).getTime() > nowMs) booking.startISO = new Date(nowMs).toISOString();
     }
@@ -139,6 +131,24 @@ export default async function handler(req, res) {
     // bookings earlier; a now/walk-up booking simply opens immediately.
     if (new Date(booking.startISO).getTime() < nowMs) {
       booking.startISO = new Date(nowMs).toISOString();
+    }
+
+    // ── 3b. Idempotency + reschedule ──────────────────────────────
+    // "Booking Added or Updated" fires on every edit. Look up any code already
+    // issued for this booking. If the customer's booked start still falls inside
+    // that code's valid window, it's a repeat/minor edit → keep the existing code
+    // (don't churn igloohome PINs). If the booking was MOVED outside that window
+    // (a reschedule), fall through and issue a fresh code for the new time — the
+    // old offline code simply expires on its own (it can't be revoked remotely).
+    if (booking.reference) {
+      const existing = await lookupExistingCode(booking.reference);
+      if (existing && isCoveredByExisting(bookedStartISO, existing)) {
+        console.log('[poles] existing code still valid for', booking.reference);
+        return res.status(200).json({ duplicate: true, reference: booking.reference });
+      }
+      if (existing) {
+        console.log('[poles] reschedule detected; issuing a new code for', booking.reference);
+      }
     }
 
     // ── 3c. Mint the igloohome time-bound PIN ─────────────────────
@@ -242,12 +252,13 @@ function envHours(name, fallback) {
   return isNaN(v) || v < 0 ? fallback : v;
 }
 
-// Ask Apps Script whether a code was already issued for this booking reference
-// (dedup). Fail-open — returns '' on any error so a lookup hiccup never blocks
-// issuing a code.
+// Ask Apps Script whether a code was already issued for this booking reference.
+// Returns the stored record { code, pinId, startISO, endISO, window, to, name }
+// or null. Fail-open (null on any error) so a lookup hiccup never blocks issuing
+// a code.
 async function lookupExistingCode(ref) {
   const url = process.env.POLES_EMAIL_URL;
-  if (!url) return '';
+  if (!url) return null;
   try {
     const r = await fetch(url, {
       method: 'POST',
@@ -255,8 +266,24 @@ async function lookupExistingCode(ref) {
       body: JSON.stringify({ action: 'polesCodeLookup', reference: ref }),
     });
     const data = await r.json().catch(() => ({}));
-    return data && data.found && data.code ? String(data.code) : '';
-  } catch (_) { return ''; }
+    return data && data.found && data.code ? data : null;
+  } catch (_) { return null; }
+}
+
+// Does the already-issued code still cover the customer's booked start? If so a
+// repeat webhook fire is a duplicate/minor edit and we keep the existing code.
+// If not, the booking was rescheduled outside the code's window → issue a new one.
+function isCoveredByExisting(bookedStartISO, existing) {
+  // Date-less booking (no mapped start): we can't detect a move, so treat repeats
+  // as duplicates to avoid churning PINs.
+  if (!bookedStartISO) return true;
+  const s = existing.startISO ? new Date(existing.startISO).getTime() : NaN;
+  const e = existing.endISO ? new Date(existing.endISO).getTime() : NaN;
+  // Legacy row with no stored window → don't churn; keep the existing code.
+  if (isNaN(s) || isNaN(e)) return true;
+  const t = new Date(bookedStartISO).getTime();
+  if (isNaN(t)) return true;
+  return t >= s && t <= e;
 }
 
 function toISO(v) {
@@ -428,6 +455,8 @@ async function sendEmail(booking, pin, pinId) {
       pinId: pinId || '',
       window: fmtWindow(booking),
       reference: booking.reference,
+      startISO: booking.startISO || '',
+      endISO: booking.endISO || '',
     }),
   });
   if (!r.ok) throw new Error(`apps-script email ${r.status}`);
