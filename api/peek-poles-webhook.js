@@ -85,10 +85,12 @@ export default async function handler(req, res) {
   // — e.g. only proceed when the event is the first confirmation, or record
   // booking.id in a sheet/KV and skip if already processed.
 
-  if (!booking.startISO || !booking.endISO) {
-    console.error('[poles] missing booking window', booking);
-    return res.status(200).json({ error: 'missing booking start/end' });
+  if (!booking.startISO) {
+    console.error('[poles] missing booking start', booking);
+    return res.status(200).json({ error: 'missing booking start' });
   }
+  // No explicit end time from Peek? Derive it from the duration/option.
+  if (!booking.endISO) booking.endISO = computeEndISO(booking);
 
   try {
     // ── 3. Mint the igloohome time-bound PIN ──────────────────────
@@ -146,7 +148,26 @@ function parseBooking(body) {
     startISO:  toISO(start),
     endISO:    toISO(end),
     productName,
+    // Peek often gives a start + a duration/option rather than an explicit end.
+    durationText:  b.durationText || b.optionName || b.option || b.rateName || b.rate || '',
+    durationHours: b.durationHours || b.hours || '',
   };
+}
+
+// If no explicit end time, derive one: from a numeric duration, else from an
+// option/rate name like "2 Hour Jetti Rental", else a safe default window.
+// A grace hour is added so a slightly-late return still opens the locker.
+function computeEndISO(booking) {
+  const startMs = new Date(booking.startISO).getTime();
+  let hours = Number(booking.durationHours);
+  if (!hours || isNaN(hours)) {
+    const text = String(booking.durationText || booking.productName || '');
+    const m = text.match(/(\d+(?:\.\d+)?)\s*h(ou)?r/i);
+    if (m) hours = Number(m[1]);
+  }
+  if (!hours || isNaN(hours)) hours = Number(process.env.POLES_DEFAULT_HOURS) || 8;
+  const graceMs = 60 * 60 * 1000; // +1h grace
+  return new Date(startMs + hours * 3600 * 1000 + graceMs).toISOString();
 }
 
 function toISO(v) {
