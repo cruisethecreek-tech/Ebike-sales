@@ -36,6 +36,25 @@
 //    Recent / Open / Paid browse buttons; setInvoiceStatus the dropdown.)
 // ─────────────────────────────────────────────────────────────
 
+// ─────────────────────────────────────────────────────────────
+// Shared header helper — resolve a column by ANY of several header
+// name aliases, with an optional positional fallback. This is what
+// makes the browse/search rows bulletproof: even if the deployed sheet
+// ever labels the invoice-number column "invoice #" or the name column
+// "customer" / "Customer Name", these still find it instead of coming
+// back blank. `fallbackIdx` is used only when no alias matches at all.
+// ─────────────────────────────────────────────────────────────
+function _invCol(hdr, aliases, fallbackIdx) {
+  // Case-insensitive, whitespace/punctuation-insensitive match.
+  var norm = function (s) { return String(s).toLowerCase().replace(/[^a-z0-9]/g, ''); };
+  var normHdr = hdr.map(norm);
+  for (var a = 0; a < aliases.length; a++) {
+    var idx = normHdr.indexOf(norm(aliases[a]));
+    if (idx >= 0) return idx;
+  }
+  return (fallbackIdx === undefined) ? -1 : fallbackIdx;
+}
+
 // JSONP for invoice.html — search invoices by name / email / phone / number.
 function searchInvoices(e) {
   var cb = (e && e.parameter && e.parameter.callback) || 'callback';
@@ -53,11 +72,16 @@ function searchInvoices(e) {
 
     var rows = sh.getDataRange().getValues();
     var hdr  = rows[0].map(String);
-    function col(n) { return hdr.indexOf(n); }
-    var cNum = col('invoiceNumber'), cName = col('customerName'),
-        cEmail = col('customerEmail'), cPhone = col('customerPhone'),
-        cTotal = col('total'), cStatus = col('status'),
-        cBal = col('balanceDue'), cDate = col('invoiceDate');
+    // invoiceNumber falls back to column 0 (it is always the first column);
+    // customerName tries several common labels before giving up.
+    var cNum   = _invCol(hdr, ['invoiceNumber', 'invoice #', 'invoice number', 'invoiceNo'], 0);
+    var cName  = _invCol(hdr, ['customerName', 'customer name', 'customer', 'name']);
+    var cEmail = _invCol(hdr, ['customerEmail', 'customer email', 'email']);
+    var cPhone = _invCol(hdr, ['customerPhone', 'customer phone', 'phone']);
+    var cTotal = _invCol(hdr, ['total', 'grandTotal', 'amount']);
+    var cStatus = _invCol(hdr, ['status']);
+    var cBal   = _invCol(hdr, ['balanceDue', 'balance due', 'balance']);
+    var cDate  = _invCol(hdr, ['invoiceDate', 'invoice date', 'date']);
 
     var out = [];
     for (var r = rows.length - 1; r >= 1 && out.length < 25; r--) {
@@ -67,9 +91,9 @@ function searchInvoices(e) {
       ].join(' ').toLowerCase();
       if (hay.indexOf(q) === -1) continue;
       out.push({
-        invoiceNumber: cNum >= 0 ? rows[r][cNum] : '',
-        customerName:  cName >= 0 ? rows[r][cName] : '',
-        customerEmail: cEmail >= 0 ? rows[r][cEmail] : '',
+        invoiceNumber: cNum >= 0 ? String(rows[r][cNum] || '') : '',
+        customerName:  cName >= 0 ? String(rows[r][cName] || '') : '',
+        customerEmail: cEmail >= 0 ? String(rows[r][cEmail] || '') : '',
         total:         cTotal >= 0 ? Number(rows[r][cTotal]) || 0 : 0,
         status:        cStatus >= 0 ? (rows[r][cStatus] || 'open') : 'open',
         balanceDue:    cBal >= 0 ? Number(rows[r][cBal]) || 0 : 0,
@@ -101,10 +125,13 @@ function listInvoices(e) {
 
     var rows = sh.getDataRange().getValues();
     var hdr  = rows[0].map(String);
-    function col(n) { return hdr.indexOf(n); }
-    var cNum = col('invoiceNumber'), cName = col('customerName'),
-        cEmail = col('customerEmail'), cTotal = col('total'),
-        cStatus = col('status'), cBal = col('balanceDue'), cDate = col('invoiceDate');
+    var cNum   = _invCol(hdr, ['invoiceNumber', 'invoice #', 'invoice number', 'invoiceNo'], 0);
+    var cName  = _invCol(hdr, ['customerName', 'customer name', 'customer', 'name']);
+    var cEmail = _invCol(hdr, ['customerEmail', 'customer email', 'email']);
+    var cTotal = _invCol(hdr, ['total', 'grandTotal', 'amount']);
+    var cStatus = _invCol(hdr, ['status']);
+    var cBal   = _invCol(hdr, ['balanceDue', 'balance due', 'balance']);
+    var cDate  = _invCol(hdr, ['invoiceDate', 'invoice date', 'date']);
 
     var out = [];
     for (var r = rows.length - 1; r >= 1 && out.length < limit; r--) {
@@ -114,9 +141,9 @@ function listInvoices(e) {
       if (filter === 'paid' && st !== 'paid') continue;
       if (filter === 'open' && (st === 'paid' || st === 'cancelled' || bal <= 0)) continue;
       out.push({
-        invoiceNumber: cNum >= 0 ? rows[r][cNum] : '',
-        customerName:  cName >= 0 ? rows[r][cName] : '',
-        customerEmail: cEmail >= 0 ? rows[r][cEmail] : '',
+        invoiceNumber: cNum >= 0 ? String(rows[r][cNum] || '') : '',
+        customerName:  cName >= 0 ? String(rows[r][cName] || '') : '',
+        customerEmail: cEmail >= 0 ? String(rows[r][cEmail] || '') : '',
         total:         cTotal >= 0 ? Number(rows[r][cTotal]) || 0 : 0,
         status:        cStatus >= 0 ? (rows[r][cStatus] || 'open') : 'open',
         balanceDue:    bal,
@@ -150,8 +177,8 @@ function setInvoiceStatus(e) {
 
     var rows = sh.getDataRange().getValues();
     var hdr  = rows[0].map(String);
-    function col(n) { return hdr.indexOf(n); }
-    var cNum = col('invoiceNumber');
+    function col(n) { return _invCol(hdr, [n]); }
+    var cNum = _invCol(hdr, ['invoiceNumber', 'invoice #', 'invoice number', 'invoiceNo'], 0);
     if (cNum === -1) return jsonp({ status: 'error', message: 'no invoiceNumber column' });
 
     var target = -1;
