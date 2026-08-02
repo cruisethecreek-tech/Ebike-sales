@@ -951,6 +951,40 @@
 
         <div class="form-wrapper">
             <form id="invoiceForm">
+                <!-- Find an existing invoice → load it to re-issue or change status -->
+                <div class="form-section" id="invoiceLookup">
+                    <div class="section-title">Find an Existing Invoice</div>
+                    <div class="form-group">
+                        <label for="invoiceSearch">Search by customer name, email, or invoice #</label>
+                        <div style="display:flex;gap:.5rem;align-items:stretch">
+                            <input type="text" id="invoiceSearch" placeholder="e.g. Richard, LorenziR01@gmail.com, or CTR-033"
+                                   onkeydown="if(event.key==='Enter'){event.preventDefault();runInvoiceSearch();}" style="flex:1">
+                            <button type="button" class="btn-secondary" onclick="runInvoiceSearch()" style="white-space:nowrap">Search</button>
+                        </div>
+                    </div>
+                    <div id="invoiceSearchResults" style="margin-top:.6rem"></div>
+                </div>
+
+                <!-- Status control — only shown when an existing invoice is loaded -->
+                <div class="form-section" id="statusControl" style="display:none">
+                    <div class="section-title">Invoice Status</div>
+                    <div class="form-group">
+                        <label for="invoiceStatusSelect">Set status for <strong id="statusInvoiceNum"></strong>
+                            <span id="statusCurrent" style="color:#666;font-weight:400"></span></label>
+                        <div style="display:flex;gap:.5rem;align-items:center;flex-wrap:wrap">
+                            <select id="invoiceStatusSelect">
+                                <option value="paid">Paid</option>
+                                <option value="unpaid">Unpaid / Open</option>
+                                <option value="deposit">Deposit paid</option>
+                                <option value="refunded">Refunded</option>
+                                <option value="void">Void</option>
+                            </select>
+                            <button type="button" class="btn-primary" onclick="applyInvoiceStatus()">Update Status</button>
+                        </div>
+                        <div style="font-size:.8rem;color:#666;margin-top:.45rem">Updates the saved invoice row in place — no duplicate. Marking <strong>Paid</strong> zeroes the balance and flips the receipt to "Paid in Full".</div>
+                    </div>
+                </div>
+
                 <div class="form-section">
                     <div class="section-title">Business Info</div>
                     <div class="form-group" style="margin-bottom: 0.85rem;">
@@ -1130,6 +1164,7 @@
 
                 <div class="actions">
                     <button type="button" class="btn-secondary" onclick="resetForm()">Reset</button>
+                    <button type="button" class="btn-secondary" onclick="printInvoice()">🖨️ Print / Save PDF</button>
                     <button type="submit" class="btn-primary" id="submitBtn">Create Payment Link</button>
                 </div>
 
@@ -2351,8 +2386,110 @@
             } catch (e) {
                 console.warn('[edit-mode] could not parse lineItems:', e);
             }
+            // Reveal + prime the status control (edit mode only).
+            if (editingInvoiceNumber) {
+                var _sc = document.getElementById('statusControl');
+                if (_sc) _sc.style.display = '';
+                var _sn = document.getElementById('statusInvoiceNum');
+                if (_sn) _sn.textContent = inv.invoiceNumber || editingInvoiceNumber;
+                var _cur = document.getElementById('statusCurrent');
+                if (_cur) _cur.textContent = inv.status ? ' (currently: ' + inv.status + ')' : '';
+                var _sel = document.getElementById('invoiceStatusSelect');
+                if (_sel && inv.status) {
+                    var _v = String(inv.status).toLowerCase();
+                    for (var _i = 0; _i < _sel.options.length; _i++) {
+                        if (_sel.options[_i].value === _v) { _sel.selectedIndex = _i; break; }
+                    }
+                }
+            }
             updateInvoicePreview();
         }
+
+        // ── Existing-invoice search + status change (Project C) ───────────
+        function invEsc(s) {
+            return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+                return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+            });
+        }
+        // Small JSONP caller for Project C (same transport the edit-load uses).
+        function invoiceJsonp(params, onData, onErr, timeoutMs) {
+            var cb = 'invCb_' + Date.now() + '_' + Math.floor(Math.random() * 1e6);
+            var script;
+            var to = setTimeout(function () { cleanup(); if (onErr) onErr('timed out'); }, timeoutMs || 10000);
+            function cleanup() {
+                if (window[cb]) delete window[cb];
+                if (script && script.parentNode) script.parentNode.removeChild(script);
+            }
+            window[cb] = function (data) { clearTimeout(to); cleanup(); onData(data); };
+            var qs = Object.keys(params).map(function (k) {
+                return encodeURIComponent(k) + '=' + encodeURIComponent(params[k]);
+            }).join('&');
+            script = document.createElement('script');
+            script.src = AS_URL + '?' + qs + '&callback=' + encodeURIComponent(cb);
+            script.onerror = function () { clearTimeout(to); cleanup(); if (onErr) onErr('network error'); };
+            document.head.appendChild(script);
+        }
+
+        function runInvoiceSearch() {
+            var q = (document.getElementById('invoiceSearch').value || '').trim();
+            var box = document.getElementById('invoiceSearchResults');
+            if (!q) { box.innerHTML = ''; return; }
+            box.innerHTML = '<div style="color:#666;font-size:.85rem">Searching…</div>';
+            invoiceJsonp({ action: 'searchInvoices', q: q }, function (data) {
+                var list = data && data.invoices;
+                if (!data || data.status !== 'ok' || !Array.isArray(list) || !list.length) {
+                    box.innerHTML = '<div style="color:#666;font-size:.85rem">No matches for "' + invEsc(q) + '".</div>';
+                    return;
+                }
+                box.innerHTML = list.map(function (inv) {
+                    var st = (inv.status || 'open');
+                    var paidish = /paid/i.test(st);
+                    return '<button type="button" onclick="openInvoiceForEdit(\'' + encodeURIComponent(inv.invoiceNumber || '') + '\')" ' +
+                        'style="display:flex;width:100%;gap:.6rem;align-items:center;text-align:left;background:#fff;border:1px solid #ddd;border-radius:8px;padding:.55rem .7rem;margin-bottom:.4rem;cursor:pointer">' +
+                        '<span style="font-weight:700;min-width:82px">' + invEsc(inv.invoiceNumber || '') + '</span>' +
+                        '<span style="flex:1">' + invEsc(inv.customerName || '(no name)') + '</span>' +
+                        '<span style="color:#444">$' + (parseFloat(inv.total) || 0).toFixed(2) + '</span>' +
+                        '<span style="font-size:.72rem;text-transform:uppercase;letter-spacing:.05em;padding:.15rem .45rem;border-radius:999px;' +
+                            (paidish ? 'background:#e3f2e6;color:#1e7d34' : 'background:#fdecea;color:#b23b2e') + '">' + invEsc(st) + '</span>' +
+                    '</button>';
+                }).join('');
+            }, function (err) {
+                box.innerHTML = '<div style="color:#b23b2e;font-size:.85rem">Search failed (' + invEsc(err) + '). Try again.</div>';
+            });
+        }
+
+        // Open a found invoice in edit mode — reuses the existing ?edit= load path.
+        function openInvoiceForEdit(numEnc) {
+            window.location.search = '?edit=' + numEnc;
+        }
+
+        function applyInvoiceStatus() {
+            var num = (document.getElementById('invoiceNumber').value || '').trim();
+            var status = document.getElementById('invoiceStatusSelect').value;
+            if (!num) { showStatus('Load an invoice first (use the search above).', 'error'); return; }
+            showStatus('Updating status for ' + num + '…', 'success');
+            var methodEl = document.getElementById('depositMethod');
+            var method = methodEl ? methodEl.value : '';
+            invoiceJsonp({ action: 'setInvoiceStatus', invoiceNumber: num, status: status, method: method }, function (data) {
+                if (data && data.status === 'ok') {
+                    showStatus('Invoice ' + num + ' set to "' + status + '".', 'success');
+                    var cur = document.getElementById('statusCurrent');
+                    if (cur) cur.textContent = ' (currently: ' + status + ')';
+                    // Flip the on-screen receipt to Paid-in-Full so a print reads as settled.
+                    if (status === 'paid') {
+                        var r = document.querySelector('input[name="paymentMode"][value="paidInFullCash"]');
+                        if (r) { r.checked = true; if (typeof onPaymentModeChange === 'function') onPaymentModeChange(); }
+                        updateInvoicePreview();
+                    }
+                } else {
+                    showStatus('Could not update status' + (data && data.message ? ' — ' + data.message : '') + '.', 'error');
+                }
+            }, function (err) { showStatus('Status update failed (' + err + ').', 'error'); });
+        }
+
+        // Print / save-PDF uses the browser print dialog; the @media print CSS
+        // already hides the form and expands the branded invoice preview.
+        function printInvoice() { window.print(); }
 
         loadCatalog();
         // Edit mode: pull the existing invoice and skip the auto-increment.
