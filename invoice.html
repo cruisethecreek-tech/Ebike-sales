@@ -961,6 +961,12 @@
                                    onkeydown="if(event.key==='Enter'){event.preventDefault();runInvoiceSearch();}" style="flex:1">
                             <button type="button" class="btn-secondary" onclick="runInvoiceSearch()" style="white-space:nowrap">Search</button>
                         </div>
+                        <div style="display:flex;gap:.4rem;flex-wrap:wrap;align-items:center;margin-top:.55rem">
+                            <span style="font-size:.8rem;color:#666">or browse:</span>
+                            <button type="button" class="btn-secondary" onclick="browseInvoices('all')">Recent</button>
+                            <button type="button" class="btn-secondary" onclick="browseInvoices('open')">Open / Unpaid</button>
+                            <button type="button" class="btn-secondary" onclick="browseInvoices('paid')">Paid</button>
+                        </div>
                     </div>
                     <div id="invoiceSearchResults" style="margin-top:.6rem"></div>
                 </div>
@@ -2430,31 +2436,57 @@
             document.head.appendChild(script);
         }
 
+        // Render a list of invoice rows (shared by search + browse).
+        function renderInvoiceRows(list, box, emptyMsg) {
+            if (!Array.isArray(list) || !list.length) {
+                box.innerHTML = '<div style="color:#666;font-size:.85rem">' + (emptyMsg || 'Nothing to show.') + '</div>';
+                return;
+            }
+            box.innerHTML = list.map(function (inv) {
+                var st = (inv.status || 'open');
+                var paidish = /paid/i.test(st);
+                var when = inv.invoiceDate ? String(inv.invoiceDate).slice(0, 10) : '';
+                return '<button type="button" onclick="openInvoiceForEdit(\'' + encodeURIComponent(inv.invoiceNumber || '') + '\')" ' +
+                    'style="display:flex;width:100%;gap:.6rem;align-items:center;text-align:left;background:#fff;border:1px solid #ddd;border-radius:8px;padding:.55rem .7rem;margin-bottom:.4rem;cursor:pointer">' +
+                    '<span style="font-weight:700;min-width:82px">' + invEsc(inv.invoiceNumber || '') + '</span>' +
+                    '<span style="flex:1">' + invEsc(inv.customerName || '(no name)') +
+                        (when ? '<span style="color:#999;font-size:.75rem"> · ' + invEsc(when) + '</span>' : '') + '</span>' +
+                    '<span style="color:#444">$' + (parseFloat(inv.total) || 0).toFixed(2) + '</span>' +
+                    '<span style="font-size:.72rem;text-transform:uppercase;letter-spacing:.05em;padding:.15rem .45rem;border-radius:999px;' +
+                        (paidish ? 'background:#e3f2e6;color:#1e7d34' : 'background:#fdecea;color:#b23b2e') + '">' + invEsc(st) + '</span>' +
+                '</button>';
+            }).join('');
+        }
+
         function runInvoiceSearch() {
             var q = (document.getElementById('invoiceSearch').value || '').trim();
             var box = document.getElementById('invoiceSearchResults');
             if (!q) { box.innerHTML = ''; return; }
             box.innerHTML = '<div style="color:#666;font-size:.85rem">Searching…</div>';
             invoiceJsonp({ action: 'searchInvoices', q: q }, function (data) {
-                var list = data && data.invoices;
-                if (!data || data.status !== 'ok' || !Array.isArray(list) || !list.length) {
-                    box.innerHTML = '<div style="color:#666;font-size:.85rem">No matches for "' + invEsc(q) + '".</div>';
+                if (!data || data.status !== 'ok') {
+                    box.innerHTML = '<div style="color:#b23b2e;font-size:.85rem">Search failed.</div>';
                     return;
                 }
-                box.innerHTML = list.map(function (inv) {
-                    var st = (inv.status || 'open');
-                    var paidish = /paid/i.test(st);
-                    return '<button type="button" onclick="openInvoiceForEdit(\'' + encodeURIComponent(inv.invoiceNumber || '') + '\')" ' +
-                        'style="display:flex;width:100%;gap:.6rem;align-items:center;text-align:left;background:#fff;border:1px solid #ddd;border-radius:8px;padding:.55rem .7rem;margin-bottom:.4rem;cursor:pointer">' +
-                        '<span style="font-weight:700;min-width:82px">' + invEsc(inv.invoiceNumber || '') + '</span>' +
-                        '<span style="flex:1">' + invEsc(inv.customerName || '(no name)') + '</span>' +
-                        '<span style="color:#444">$' + (parseFloat(inv.total) || 0).toFixed(2) + '</span>' +
-                        '<span style="font-size:.72rem;text-transform:uppercase;letter-spacing:.05em;padding:.15rem .45rem;border-radius:999px;' +
-                            (paidish ? 'background:#e3f2e6;color:#1e7d34' : 'background:#fdecea;color:#b23b2e') + '">' + invEsc(st) + '</span>' +
-                    '</button>';
-                }).join('');
+                renderInvoiceRows(data.invoices, box, 'No matches for "' + invEsc(q) + '".');
             }, function (err) {
                 box.innerHTML = '<div style="color:#b23b2e;font-size:.85rem">Search failed (' + invEsc(err) + '). Try again.</div>';
+            });
+        }
+
+        // Browse recent invoices without typing — filter is 'all' | 'open' | 'paid'.
+        function browseInvoices(filter) {
+            var box = document.getElementById('invoiceSearchResults');
+            box.innerHTML = '<div style="color:#666;font-size:.85rem">Loading…</div>';
+            invoiceJsonp({ action: 'listInvoices', filter: filter || 'all', limit: 50 }, function (data) {
+                if (!data || data.status !== 'ok') {
+                    box.innerHTML = '<div style="color:#b23b2e;font-size:.85rem">Could not load invoices.</div>';
+                    return;
+                }
+                var label = filter === 'paid' ? 'paid' : filter === 'open' ? 'open' : '';
+                renderInvoiceRows(data.invoices, box, 'No ' + (label ? label + ' ' : '') + 'invoices yet.');
+            }, function (err) {
+                box.innerHTML = '<div style="color:#b23b2e;font-size:.85rem">Load failed (' + invEsc(err) + '). Try again.</div>';
             });
         }
 

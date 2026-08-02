@@ -23,14 +23,17 @@
  */
 
 // ─────────────────────────────────────────────────────────────
-// 1. Add these two cases to doGet(), next to the getInvoice line:
+// 1. Add these three cases to doGet(), next to the getInvoice line:
 // ─────────────────────────────────────────────────────────────
 //
 //   if (action === 'searchInvoices')       return searchInvoices(e);
 //   if (action === 'setInvoiceStatus')     return setInvoiceStatus(e);
+//   if (action === 'listInvoices')         return listInvoices(e);
 //
 // ─────────────────────────────────────────────────────────────
-// 2. Paste these two functions at the bottom of the file:
+// 2. Paste these three functions at the bottom of the file:
+//    (searchInvoices powers the search box; listInvoices powers the
+//    Recent / Open / Paid browse buttons; setInvoiceStatus the dropdown.)
 // ─────────────────────────────────────────────────────────────
 
 // JSONP for invoice.html — search invoices by name / email / phone / number.
@@ -70,6 +73,53 @@ function searchInvoices(e) {
         total:         cTotal >= 0 ? Number(rows[r][cTotal]) || 0 : 0,
         status:        cStatus >= 0 ? (rows[r][cStatus] || 'open') : 'open',
         balanceDue:    cBal >= 0 ? Number(rows[r][cBal]) || 0 : 0,
+        invoiceDate:   cDate >= 0 ? rows[r][cDate] : ''
+      });
+    }
+    return jsonp({ status: 'ok', invoices: out });
+  } catch (err) {
+    return jsonp({ status: 'error', message: String(err) });
+  }
+}
+
+// JSONP for invoice.html — list recent invoices (newest first) for the
+// browse buttons. filter: 'all' | 'open' | 'paid'. limit: max rows (default 50).
+function listInvoices(e) {
+  var cb = (e && e.parameter && e.parameter.callback) || 'callback';
+  function jsonp(obj) {
+    return ContentService.createTextOutput(cb + '(' + JSON.stringify(obj) + ');')
+      .setMimeType(ContentService.MimeType.JAVASCRIPT);
+  }
+  try {
+    var filter = String((e && e.parameter && e.parameter.filter) || 'all').trim().toLowerCase();
+    var limit  = parseInt((e && e.parameter && e.parameter.limit), 10);
+    if (!limit || limit < 1) limit = 50;
+
+    var ss = SpreadsheetApp.openById(INVOICES_SHEET_ID);
+    var sh = ss.getSheetByName(INVOICES_TAB);
+    if (!sh || sh.getLastRow() < 2) return jsonp({ status: 'ok', invoices: [] });
+
+    var rows = sh.getDataRange().getValues();
+    var hdr  = rows[0].map(String);
+    function col(n) { return hdr.indexOf(n); }
+    var cNum = col('invoiceNumber'), cName = col('customerName'),
+        cEmail = col('customerEmail'), cTotal = col('total'),
+        cStatus = col('status'), cBal = col('balanceDue'), cDate = col('invoiceDate');
+
+    var out = [];
+    for (var r = rows.length - 1; r >= 1 && out.length < limit; r--) {
+      if (!(cNum >= 0 && String(rows[r][cNum]).trim())) continue; // skip blank rows
+      var st  = cStatus >= 0 ? String(rows[r][cStatus] || 'open').toLowerCase() : 'open';
+      var bal = cBal >= 0 ? Number(rows[r][cBal]) || 0 : 0;
+      if (filter === 'paid' && st !== 'paid') continue;
+      if (filter === 'open' && (st === 'paid' || st === 'cancelled' || bal <= 0)) continue;
+      out.push({
+        invoiceNumber: cNum >= 0 ? rows[r][cNum] : '',
+        customerName:  cName >= 0 ? rows[r][cName] : '',
+        customerEmail: cEmail >= 0 ? rows[r][cEmail] : '',
+        total:         cTotal >= 0 ? Number(rows[r][cTotal]) || 0 : 0,
+        status:        cStatus >= 0 ? (rows[r][cStatus] || 'open') : 'open',
+        balanceDue:    bal,
         invoiceDate:   cDate >= 0 ? rows[r][cDate] : ''
       });
     }
