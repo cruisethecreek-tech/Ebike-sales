@@ -125,13 +125,10 @@ function listInvoices(e) {
 
     var rows = sh.getDataRange().getValues();
     var hdr  = rows[0].map(String);
-    var cNum   = _invCol(hdr, ['invoiceNumber', 'invoice #', 'invoice number', 'invoiceNo'], 0);
-    var cName  = _invCol(hdr, ['customerName', 'customer name', 'customer', 'name']);
-    var cEmail = _invCol(hdr, ['customerEmail', 'customer email', 'email']);
-    var cTotal = _invCol(hdr, ['total', 'grandTotal', 'amount']);
-    var cStatus = _invCol(hdr, ['status']);
-    var cBal   = _invCol(hdr, ['balanceDue', 'balance due', 'balance']);
-    var cDate  = _invCol(hdr, ['invoiceDate', 'invoice date', 'date']);
+    function col(n) { return hdr.indexOf(n); }
+    var cNum = col('invoiceNumber'), cName = col('customerName'),
+        cEmail = col('customerEmail'), cTotal = col('total'),
+        cStatus = col('status'), cBal = col('balanceDue'), cDate = col('invoiceDate');
 
     var out = [];
     for (var r = rows.length - 1; r >= 1 && out.length < limit; r--) {
@@ -141,9 +138,9 @@ function listInvoices(e) {
       if (filter === 'paid' && st !== 'paid') continue;
       if (filter === 'open' && (st === 'paid' || st === 'cancelled' || bal <= 0)) continue;
       out.push({
-        invoiceNumber: cNum >= 0 ? String(rows[r][cNum] || '') : '',
-        customerName:  cName >= 0 ? String(rows[r][cName] || '') : '',
-        customerEmail: cEmail >= 0 ? String(rows[r][cEmail] || '') : '',
+        invoiceNumber: cNum >= 0 ? rows[r][cNum] : '',
+        customerName:  cName >= 0 ? rows[r][cName] : '',
+        customerEmail: cEmail >= 0 ? rows[r][cEmail] : '',
         total:         cTotal >= 0 ? Number(rows[r][cTotal]) || 0 : 0,
         status:        cStatus >= 0 ? (rows[r][cStatus] || 'open') : 'open',
         balanceDue:    bal,
