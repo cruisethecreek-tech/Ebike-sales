@@ -2447,9 +2447,9 @@
                 var paidish = /paid/i.test(st);
                 var when = inv.invoiceDate ? String(inv.invoiceDate).slice(0, 10) : '';
                 return '<button type="button" onclick="openInvoiceForEdit(\'' + encodeURIComponent(inv.invoiceNumber || '') + '\')" ' +
-                    'style="display:flex;width:100%;gap:.6rem;align-items:center;text-align:left;background:#fff;border:1px solid #ddd;border-radius:8px;padding:.55rem .7rem;margin-bottom:.4rem;cursor:pointer">' +
-                    '<span style="font-weight:700;min-width:82px">' + invEsc(inv.invoiceNumber || '') + '</span>' +
-                    '<span style="flex:1">' + invEsc(inv.customerName || '(no name)') +
+                    'style="display:flex;width:100%;gap:.6rem;align-items:center;text-align:left;background:#fff;color:#1a2e1c;border:1px solid #ddd;border-radius:8px;padding:.55rem .7rem;margin-bottom:.4rem;cursor:pointer">' +
+                    '<span style="font-weight:700;min-width:82px;color:#1a2e1c">' + invEsc(inv.invoiceNumber || '') + '</span>' +
+                    '<span style="flex:1;color:#1a2e1c">' + invEsc(inv.customerName || inv.customerEmail || '(no name)') +
                         (when ? '<span style="color:#999;font-size:.75rem"> · ' + invEsc(when) + '</span>' : '') + '</span>' +
                     '<span style="color:#444">$' + (parseFloat(inv.total) || 0).toFixed(2) + '</span>' +
                     '<span style="font-size:.72rem;text-transform:uppercase;letter-spacing:.05em;padding:.15rem .45rem;border-radius:999px;' +
