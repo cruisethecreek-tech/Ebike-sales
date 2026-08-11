@@ -297,6 +297,7 @@ function searchInvoices(e) {
     var cStatus = _invCol(hdr, ['status']);
     var cBal   = _invCol(hdr, ['balanceDue', 'balance due', 'balance']);
     var cDate  = _invCol(hdr, ['invoiceDate', 'invoice date', 'date']);
+    var cItems = _invCol(hdr, ['lineItems', 'line items', 'items']);
 
     var out = [];
     for (var r = rows.length - 1; r >= 1 && out.length < 25; r--) {
@@ -305,10 +306,24 @@ function searchInvoices(e) {
         cEmail >= 0 ? rows[r][cEmail] : '', cPhone >= 0 ? rows[r][cPhone] : ''
       ].join(' ').toLowerCase();
       if (hay.indexOf(q) === -1) continue;
+
+      var prodDesc = '';
+      if (cItems >= 0 && rows[r][cItems]) {
+        try {
+          var parsedItems = JSON.parse(rows[r][cItems]);
+          if (Array.isArray(parsedItems) && parsedItems.length > 0) {
+            var first = parsedItems[0];
+            prodDesc = first.name || first.description || first.title || first.model || '';
+            if (parsedItems.length > 1) prodDesc += ' (+ ' + (parsedItems.length - 1) + ' more)';
+          }
+        } catch(e) {}
+      }
+
       out.push({
         invoiceNumber: cNum >= 0 ? String(rows[r][cNum] || '') : '',
         customerName:  cName >= 0 ? String(rows[r][cName] || '') : '',
         customerEmail: cEmail >= 0 ? String(rows[r][cEmail] || '') : '',
+        productDesc:   prodDesc,
         total:         cTotal >= 0 ? Number(rows[r][cTotal]) || 0 : 0,
         status:        cStatus >= 0 ? (rows[r][cStatus] || 'open') : 'open',
         balanceDue:    cBal >= 0 ? Number(rows[r][cBal]) || 0 : 0,
@@ -346,6 +361,8 @@ function listInvoices(e) {
     var cBal   = _invCol(hdr, ['balanceDue', 'balance due', 'balance']);
     var cDate  = _invCol(hdr, ['invoiceDate', 'invoice date', 'date']);
 
+    var cItems = _invCol(hdr, ['lineItems', 'line items', 'items']);
+
     var out = [];
     for (var r = rows.length - 1; r >= 1 && out.length < limit; r--) {
       if (!(cNum >= 0 && String(rows[r][cNum]).trim())) continue;
@@ -353,10 +370,24 @@ function listInvoices(e) {
       var bal = cBal >= 0 ? Number(rows[r][cBal]) || 0 : 0;
       if (filter === 'paid' && st !== 'paid') continue;
       if (filter === 'open' && (st === 'paid' || st === 'cancelled' || bal <= 0)) continue;
+
+      var prodDesc = '';
+      if (cItems >= 0 && rows[r][cItems]) {
+        try {
+          var parsedItems = JSON.parse(rows[r][cItems]);
+          if (Array.isArray(parsedItems) && parsedItems.length > 0) {
+            var first = parsedItems[0];
+            prodDesc = first.name || first.description || first.title || first.model || '';
+            if (parsedItems.length > 1) prodDesc += ' (+ ' + (parsedItems.length - 1) + ' more)';
+          }
+        } catch(e) {}
+      }
+
       out.push({
         invoiceNumber: cNum >= 0 ? String(rows[r][cNum] || '') : '',
         customerName:  cName >= 0 ? String(rows[r][cName] || '') : '',
         customerEmail: cEmail >= 0 ? String(rows[r][cEmail] || '') : '',
+        productDesc:   prodDesc,
         total:         cTotal >= 0 ? Number(rows[r][cTotal]) || 0 : 0,
         status:        cStatus >= 0 ? (rows[r][cStatus] || 'open') : 'open',
         balanceDue:    bal,
