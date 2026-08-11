@@ -255,36 +255,54 @@ function _pmLoadOurInventory_() {
 /**
  * Fetches all products from a Shopify store's /products.json endpoint.
  * Handles pagination automatically (limit=250 per page).
+ * Retries up to 3 times with exponential backoff on HTTP 429 (rate-limit).
  */
 function _pmFetchShopifyProducts_(brand, baseUrl) {
-  var products = [];
-  var page     = 1;
-  var limit    = 250;
+  var products  = [];
+  var page      = 1;
+  var limit     = 250;
+  var maxRetry  = 3;
 
   while (true) {
     var url = baseUrl + '/products.json?limit=' + limit + '&page=' + page;
-    try {
-      var resp = UrlFetchApp.fetch(url, {
-        muteHttpExceptions: true,
-        headers: { 'User-Agent': 'CTC-PriceMonitor/1.0' },
-        followRedirects: true,
-      });
-      var code = resp.getResponseCode();
-      if (code !== 200) {
-        console.warn(brand + ' products.json returned HTTP ' + code + ' on page ' + page);
-        break;
+    var code = 0;
+    var resp;
+
+    // Retry loop for 429
+    for (var attempt = 0; attempt < maxRetry; attempt++) {
+      try {
+        resp = UrlFetchApp.fetch(url, {
+          muteHttpExceptions: true,
+          headers: { 'User-Agent': 'CTC-PriceMonitor/1.0' },
+          followRedirects: true,
+        });
+        code = resp.getResponseCode();
+        if (code !== 429) break; // success or non-rate-limit error — exit retry loop
+        var wait = 5000 * Math.pow(2, attempt); // 5s, 10s, 20s
+        console.warn(brand + ' HTTP 429 rate-limit on page ' + page + ', waiting ' + (wait / 1000) + 's (attempt ' + (attempt + 1) + '/' + maxRetry + ')');
+        Utilities.sleep(wait);
+      } catch (e) {
+        console.error(brand + ' fetch failed on page ' + page + ': ' + e);
+        return products; // network error, return what we have
       }
-      var data = JSON.parse(resp.getContentText());
-      var batch = data.products || [];
-      if (batch.length === 0) break;
-      batch.forEach(function(p) { products.push(p); });
-      if (batch.length < limit) break; // last page
-      page++;
-      Utilities.sleep(300);
-    } catch (e) {
-      console.error(brand + ' fetch failed on page ' + page + ': ' + e);
+    }
+
+    if (code === 429) {
+      console.warn(brand + ' still rate-limited after ' + maxRetry + ' retries — skipping remaining pages.');
       break;
     }
+    if (code !== 200) {
+      console.warn(brand + ' products.json returned HTTP ' + code + ' on page ' + page);
+      break;
+    }
+
+    var data  = JSON.parse(resp.getContentText());
+    var batch = data.products || [];
+    if (batch.length === 0) break;
+    batch.forEach(function(p) { products.push(p); });
+    if (batch.length < limit) break; // last page
+    page++;
+    Utilities.sleep(1000); // 1s between pages to be polite
   }
 
   console.log(brand + ': fetched ' + products.length + ' products.');
