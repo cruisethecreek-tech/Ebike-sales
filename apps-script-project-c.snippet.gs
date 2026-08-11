@@ -29,6 +29,8 @@
 //   if (action === 'searchInvoices')       return searchInvoices(e);
 //   if (action === 'setInvoiceStatus')     return setInvoiceStatus(e);
 //   if (action === 'listInvoices')         return listInvoices(e);
+//   if (action === 'getInvoiceMeta')       return getInvoiceMeta(e);
+//   if (action === 'setInvoiceMeta')       return setInvoiceMeta(e);
 //
 // ─────────────────────────────────────────────────────────────
 // 2. Paste these three functions at the bottom of the file:
@@ -198,6 +200,89 @@ function setInvoiceStatus(e) {
     setIf('paymentNotes', existing ? (existing + ' | ' + note) : note);
 
     return jsonp({ status: 'ok', invoiceNumber: num, newStatus: status, row: target });
+  } catch (err) {
+    return jsonp({ status: 'error', message: String(err) });
+  }
+}
+
+// ─────────────────────────────────────────────────────────────
+// INTERNAL supplier / warranty tracking URL, stored per invoice.
+//
+// invoice.html has a staff-only "Shop.com order / warranty tracking URL"
+// field (hidden from the printed invoice). These two functions read and
+// write that URL onto the invoice's own row WITHOUT touching addOrder or
+// getInvoice — they add a dedicated "supplierUrl" column, creating it on
+// first save if it doesn't exist yet. Reuses the shared _invCol() helper.
+// ─────────────────────────────────────────────────────────────
+
+// JSONP — return the saved supplier/warranty URL for one invoice.
+function getInvoiceMeta(e) {
+  var cb = (e && e.parameter && e.parameter.callback) || 'callback';
+  function jsonp(obj) {
+    return ContentService.createTextOutput(cb + '(' + JSON.stringify(obj) + ');')
+      .setMimeType(ContentService.MimeType.JAVASCRIPT);
+  }
+  try {
+    var num = String((e && e.parameter && e.parameter.invoiceNumber) || '').trim();
+    if (!num) return jsonp({ status: 'error', message: 'invoiceNumber required' });
+
+    var ss = SpreadsheetApp.openById(INVOICES_SHEET_ID);
+    var sh = ss.getSheetByName(INVOICES_TAB);
+    if (!sh || sh.getLastRow() < 2) return jsonp({ status: 'ok', supplierUrl: '' });
+
+    var rows = sh.getDataRange().getValues();
+    var hdr  = rows[0].map(String);
+    var cNum = _invCol(hdr, ['invoiceNumber', 'invoice #', 'invoice number', 'invoiceNo'], 0);
+    var cUrl = _invCol(hdr, ['supplierUrl', 'supplier url', 'trackingUrl', 'tracking url', 'shopUrl']);
+    if (cUrl < 0) return jsonp({ status: 'ok', supplierUrl: '' }); // column not created yet
+
+    for (var r = rows.length - 1; r >= 1; r--) {
+      if (String(rows[r][cNum]).trim() === num) {
+        return jsonp({ status: 'ok', invoiceNumber: num, supplierUrl: String(rows[r][cUrl] || '') });
+      }
+    }
+    return jsonp({ status: 'ok', supplierUrl: '' });
+  } catch (err) {
+    return jsonp({ status: 'error', message: String(err) });
+  }
+}
+
+// JSONP — save (or clear) the supplier/warranty URL for one invoice.
+// Auto-creates the "supplierUrl" column the first time it's used.
+function setInvoiceMeta(e) {
+  var cb = (e && e.parameter && e.parameter.callback) || 'callback';
+  function jsonp(obj) {
+    return ContentService.createTextOutput(cb + '(' + JSON.stringify(obj) + ');')
+      .setMimeType(ContentService.MimeType.JAVASCRIPT);
+  }
+  try {
+    var num = String((e && e.parameter && e.parameter.invoiceNumber) || '').trim();
+    if (!num) return jsonp({ status: 'error', message: 'invoiceNumber required' });
+    var url = String((e && e.parameter && e.parameter.supplierUrl) || '').trim();
+
+    var ss = SpreadsheetApp.openById(INVOICES_SHEET_ID);
+    var sh = ss.getSheetByName(INVOICES_TAB);
+    if (!sh || sh.getLastRow() < 2) return jsonp({ status: 'error', message: 'Invoices tab empty' });
+
+    var rows = sh.getDataRange().getValues();
+    var hdr  = rows[0].map(String);
+    var cNum = _invCol(hdr, ['invoiceNumber', 'invoice #', 'invoice number', 'invoiceNo'], 0);
+    var cUrl = _invCol(hdr, ['supplierUrl', 'supplier url', 'trackingUrl', 'tracking url', 'shopUrl']);
+
+    // Create the column on first use so nobody has to edit the sheet by hand.
+    if (cUrl < 0) {
+      cUrl = hdr.length;
+      sh.getRange(1, cUrl + 1).setValue('supplierUrl');
+    }
+
+    var target = -1;
+    for (var r = rows.length - 1; r >= 1; r--) {
+      if (String(rows[r][cNum]).trim() === num) { target = r + 1; break; }
+    }
+    if (target < 0) return jsonp({ status: 'error', message: 'Invoice ' + num + ' not found' });
+
+    sh.getRange(target, cUrl + 1).setValue(url);
+    return jsonp({ status: 'ok', invoiceNumber: num, supplierUrl: url, row: target });
   } catch (err) {
     return jsonp({ status: 'error', message: String(err) });
   }
