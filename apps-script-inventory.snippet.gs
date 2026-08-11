@@ -59,7 +59,7 @@
 // -- CONFIG -------------------------------------------------
 // Replace with the ID from your bike inventory sheet URL.
 // Find it between /d/ and /edit in the spreadsheet URL.
-var INV_SHEET_ID = '1R3pDFG_sO61bKS6dEAa-k5F-OdD5OAbe4hQ-Oc0_T-E';
+var INV_SHEET_ID = '1R3pDFG_sO81bKS6dEAa-k5F-OdD5OAbe4hQ-Oc0_T-E';
 var INV_TAB_NAME = 'Inventory';
 
 
