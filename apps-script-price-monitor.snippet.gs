@@ -77,10 +77,11 @@ var PM_ACCESSORY_WORDS = [
   'product protection',
   // Subscription / service plans
   '1-year', '2-year', 'year plan', 'monthly plan',
-  // Parts and hardware that don't have a catch-all yet
+  // Parts and hardware
   'motor for', 'motor for mc', '24-inch motor', 'set package',
   'trike seat', 'wide seat', 'adjustable wide', 'seat with backrest',
   'mc adjustable',
+  'handle bar', 'handlebar',  // catches "Nomad 2X Handle Bar" type listings
 ];
 
 // -- KEYWORDS THAT IDENTIFY BUNDLES / COMBOS ---------------
@@ -112,6 +113,14 @@ function runPriceMonitor() {
   // Load OUR inventory for price lookup
   var ourBikes = _pmLoadOurInventory_();
 
+  // bestPerBike[brand|match.id] — deduplicates multiple Shopify SKUs that map
+  // to the same our-bike (e.g. "Ranger 3.0 Pro", "Ranger 3.0 Pro for Spur fans",
+  // "Ranger 3.0 Pro (Special Offer)" are all the same bike at the same or
+  // different promo prices).  We keep the entry with the LOWEST their-price so
+  // the most aggressive discount is what triggers the alert, not just the first
+  // listing processed.
+  var bestPerBike = {};
+
   Object.keys(PM_BRANDS).forEach(function(brand) {
     var baseUrl  = PM_BRANDS[brand];
     var products = _pmFetchShopifyProducts_(brand, baseUrl);
@@ -126,8 +135,7 @@ function runPriceMonitor() {
       // -- Skip free / test / placeholder products ($0 price)
       if (theirPriceNum === null || theirPriceNum === 0) return;
 
-      // -- Skip bundles / combos first
-      // Also treat any title containing "+" as a multi-bike bundle
+      // -- Skip bundles / combos
       if (_pmIsBundle_(title) || title.indexOf('+') !== -1) {
         allRows.push([timestamp, brand, title, theirPriceStr, '—', '—', '📦 Bundle/Combo — skipped', url]);
         return;
@@ -146,30 +154,44 @@ function runPriceMonitor() {
         return;
       }
 
-      var ourPriceNum  = match.price;
-      var ourPriceStr  = '$' + _pmFmt_(ourPriceNum);
-      var diff         = theirPriceNum != null ? theirPriceNum - ourPriceNum : null;
-      var diffStr      = diff != null ? (diff >= 0 ? '+$' + _pmFmt_(Math.abs(diff)) : '-$' + _pmFmt_(Math.abs(diff))) : '—';
-      var status;
-
-      if (diff == null) {
-        status = '❓ Could not compare';
-      } else if (Math.abs(diff) < 1) {
-        status = '✅ Match';
-      } else if (diff < 0) {
-        // Their price is LOWER than ours — alert!
-        status = '🔴 THEIR PRICE LOWER by $' + _pmFmt_(Math.abs(diff));
-        alerts.push({ brand: brand, model: title, theirPrice: theirPriceStr, ourPrice: ourPriceStr, diff: Math.abs(diff), url: url });
-      } else {
-        // Our price is lower — good news
-        status = '🟢 Our price lower by $' + _pmFmt_(diff);
+      // -- Deduplicate: keep only the lowest-price listing per our-bike per brand
+      var dedupeKey = brand + '|' + match.id;
+      var existing  = bestPerBike[dedupeKey];
+      if (!existing || theirPriceNum < existing.theirPriceNum) {
+        bestPerBike[dedupeKey] = {
+          theirPriceNum: theirPriceNum,
+          match:         match,
+          title:         title,
+          theirPriceStr: theirPriceStr,
+          url:           url,
+          brand:         brand,
+        };
       }
-
-      allRows.push([timestamp, brand, title, theirPriceStr, ourPriceStr, diffStr, status, url]);
     });
 
     // Be polite between brands
     Utilities.sleep(500);
+  });
+
+  // Convert the deduplicated best-match map into rows + alerts
+  Object.keys(bestPerBike).forEach(function(key) {
+    var e          = bestPerBike[key];
+    var ourPriceNum = e.match.price;
+    var ourPriceStr = '$' + _pmFmt_(ourPriceNum);
+    var diff        = e.theirPriceNum - ourPriceNum;
+    var diffStr     = diff >= 0 ? '+$' + _pmFmt_(diff) : '-$' + _pmFmt_(Math.abs(diff));
+    var status;
+
+    if (Math.abs(diff) < 1) {
+      status = '✅ Match';
+    } else if (diff < 0) {
+      status = '🔴 THEIR PRICE LOWER by $' + _pmFmt_(Math.abs(diff));
+      alerts.push({ brand: e.brand, model: e.match.name, theirPrice: e.theirPriceStr, ourPrice: ourPriceStr, diff: Math.abs(diff), url: e.url });
+    } else {
+      status = '🟢 Our price lower by $' + _pmFmt_(diff);
+    }
+
+    allRows.push([timestamp, e.brand, e.match.name, e.theirPriceStr, ourPriceStr, diffStr, status, e.url]);
   });
 
   // Write to Price Monitor tab
@@ -425,13 +447,18 @@ function _pmFindOurBike_(shopifyTitle, brand, ourBikes) {
     if (bike.name.toLowerCase() === cleanLower) return bike;
   }
 
-  // Fuzzy: our bike name appears in the cleaned title or vice versa (same brand)
+  // Fuzzy: our bike name appears in the cleaned title or vice versa (same brand).
+  // Guard: only accept "their title inside our bike name" when the cleaned title
+  // is at least 50% of the bike name length — prevents short tokens like "T1"
+  // from incorrectly matching longer names like "T1 ST Plus".
   for (var j = 0; j < ourBikes.length; j++) {
     var b = ourBikes[j];
     if (brand && b.brand && b.brand.toLowerCase() !== brand.toLowerCase()) continue;
     var bLower = b.name.toLowerCase();
-    if (cleanLower.indexOf(bLower) !== -1 || bLower.indexOf(cleanLower) !== -1) {
-      return b;
+    if (cleanLower.indexOf(bLower) !== -1) return b; // our name fully inside their title ✓
+    if (bLower.indexOf(cleanLower) !== -1) {
+      // their title inside our name — require it to be a substantial portion
+      if (cleanLower.length >= bLower.length * 0.5) return b;
     }
   }
 
