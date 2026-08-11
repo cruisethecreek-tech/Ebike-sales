@@ -1057,6 +1057,26 @@
                             <input type="text" id="notes" placeholder="e.g., Balance due at pickup">
                         </div>
                     </div>
+
+                    <!-- INTERNAL ONLY — supplier / warranty tracking. This lives in the
+                         form (which @media print hides) and is never written into the
+                         printable invoice preview, so the customer never sees it. It is
+                         saved per-invoice via setInvoiceMeta so warranty claims can jump
+                         straight to the original Shop.com order. -->
+                    <div class="form-group" style="margin-top:.9rem;border-top:1px dashed rgba(255,255,255,.16);padding-top:.9rem">
+                        <label for="supplierUrl" style="display:flex;align-items:center;gap:.45rem;flex-wrap:wrap">
+                            Shop.com order / warranty tracking URL
+                            <span style="font-size:.64rem;letter-spacing:.05em;text-transform:uppercase;background:#8a5a2b;color:#fff;padding:.1rem .45rem;border-radius:999px">Internal · not on invoice</span>
+                        </label>
+                        <div style="display:flex;gap:.5rem;align-items:stretch">
+                            <input type="url" id="supplierUrl" oninput="syncSupplierOpenBtn()"
+                                   placeholder="Paste the Shop.com order/tracking link for warranty claims" style="flex:1">
+                            <a id="supplierOpenBtn" class="btn-secondary" target="_blank" rel="noopener"
+                               onclick="return openSupplierUrl(event)"
+                               style="white-space:nowrap;display:none;align-items:center">Open&nbsp;↗</a>
+                        </div>
+                        <div style="font-size:.72rem;color:#8a8f88;margin-top:.35rem">Staff-only. Saved with this invoice for warranty lookups — hidden from the printed / PDF receipt.</div>
+                    </div>
                 </div>
 
                 <div class="form-section">
@@ -1575,6 +1595,9 @@
             resetPicker();
             hideDeliveryCalc();
             onPaymentModeChange();
+            // form.reset() clears the supplier URL input but doesn't fire its
+            // oninput, so hide the Open button explicitly.
+            if (typeof syncSupplierOpenBtn === 'function') syncSupplierOpenBtn();
 
             const today = new Date();
             document.getElementById('invoiceDate').valueAsDate = today;
@@ -1653,6 +1676,7 @@
                 paymentMode: paymentMode,
                 depositMethod: depositMethod,
                 depositRef: depositRef,
+                supplierUrl: (document.getElementById('supplierUrl').value || '').trim(),
                 items: []
             };
 
@@ -1780,6 +1804,10 @@
             window[callbackName] = function(resp) {
                 if (resp && resp.ok) {
                     console.log('[addOrder] saved', resp.invoiceNumber || invoiceData.invoiceNumber);
+                    // Persist the internal supplier/warranty URL onto the now-saved
+                    // row (separate call so the customer-facing addOrder schema is
+                    // untouched). Sends even when blank so clearing it also saves.
+                    saveSupplierUrl(resp.invoiceNumber || invoiceData.invoiceNumber, invoiceData.supplierUrl || '');
                 } else {
                     console.warn('[addOrder] sheet write failed:', resp);
                     showStatus('Warning: invoice was generated but not saved to the Sheet. ' +
@@ -2368,6 +2396,11 @@
             document.getElementById('depositMethod').value   = inv.depositMethod || 'cash';
             document.getElementById('depositRef').value      = inv.depositRef || '';
             document.getElementById('notes').value           = inv.paymentNotes || '';
+            // Internal supplier/warranty URL: seed from the invoice if present,
+            // then fetch the authoritative value (getInvoice may not carry it).
+            document.getElementById('supplierUrl').value     = inv.supplierUrl || '';
+            if (typeof syncSupplierOpenBtn === 'function') syncSupplierOpenBtn();
+            if (inv.invoiceNumber) loadSupplierUrl(inv.invoiceNumber);
             // Payment mode — radio. Fires the onchange handler so dependent
             // UI (deposit visibility, etc) catches up.
             const mode  = inv.paymentMode || 'full';
@@ -2434,6 +2467,51 @@
             script.src = AS_URL + '?' + qs + '&callback=' + encodeURIComponent(cb);
             script.onerror = function () { clearTimeout(to); cleanup(); if (onErr) onErr('network error'); };
             document.head.appendChild(script);
+        }
+
+        // ── Internal supplier / warranty tracking URL (per invoice) ───────
+        // Staff-only field. Persisted via Project C's setInvoiceMeta and read
+        // back via getInvoiceMeta — kept entirely off the customer invoice.
+        function normalizeSupplierUrl(u) {
+            u = String(u == null ? '' : u).trim();
+            if (u && !/^https?:\/\//i.test(u)) u = 'https://' + u;
+            return u;
+        }
+        function syncSupplierOpenBtn() {
+            var inp = document.getElementById('supplierUrl');
+            var btn = document.getElementById('supplierOpenBtn');
+            if (!inp || !btn) return;
+            var u = normalizeSupplierUrl(inp.value);
+            if (u) { btn.href = u; btn.style.display = 'inline-flex'; }
+            else   { btn.removeAttribute('href'); btn.style.display = 'none'; }
+        }
+        function openSupplierUrl(e) {
+            var u = normalizeSupplierUrl(document.getElementById('supplierUrl').value);
+            if (!u) { e.preventDefault(); return false; }
+            e.currentTarget.href = u;   // ensure the latest value opens
+            return true;
+        }
+        // Save the URL onto the invoice's row (fire-and-forget). Blank clears it.
+        function saveSupplierUrl(invNum, url) {
+            if (!invNum) return;
+            invoiceJsonp(
+                { action: 'setInvoiceMeta', invoiceNumber: invNum, supplierUrl: normalizeSupplierUrl(url) },
+                function () {}, function () {}
+            );
+        }
+        // Fetch the saved URL for an invoice and drop it into the field.
+        function loadSupplierUrl(invNum) {
+            if (!invNum) return;
+            invoiceJsonp(
+                { action: 'getInvoiceMeta', invoiceNumber: invNum },
+                function (data) {
+                    if (data && data.status === 'ok' && typeof data.supplierUrl === 'string') {
+                        var inp = document.getElementById('supplierUrl');
+                        if (inp) { inp.value = data.supplierUrl; syncSupplierOpenBtn(); }
+                    }
+                },
+                function () {}
+            );
         }
 
         // Render a list of invoice rows (shared by search + browse).
