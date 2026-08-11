@@ -65,7 +65,9 @@ var PM_ACCESSORY_WORDS = [
   'pet cover', 'pet basket', 'mik trunk', 'ore basket',
   'dairyman', 'harvest hosts', 'comfort saddle', 'comfortmax',
   'folding lock', 'battery terminal', 'battery connector',
-  'battery cover', 'battery pack cover', 'battery top',
+  'kit', 'gift box', 'gift pack', 'gift set', 'anniversary gift',
+  'not for sale', 'non-delivery', 'pet carrier', 'protection plan',
+  'product protection',
 ];
 
 // -- KEYWORDS THAT IDENTIFY BUNDLES / COMBOS ---------------
@@ -73,6 +75,8 @@ var PM_ACCESSORY_WORDS = [
 var PM_BUNDLE_WORDS = [
   '*2', 'combo', 'bundle', '2-pack', '(2-pack)', 'refurbished',
   'long range', 'lr combo', 'vip only',
+  // Two models joined by + are always a multi-bike bundle
+  // (detected dynamically in runPriceMonitor below)
 ];
 
 // -- MATCH THRESHOLD ----------------------------------------
@@ -107,7 +111,8 @@ function runPriceMonitor() {
       var theirPriceStr = theirPriceNum != null ? '$' + _pmFmt_(theirPriceNum) : '—';
 
       // -- Skip bundles / combos first
-      if (_pmIsBundle_(title)) {
+      // Also treat any title containing " + " as a multi-bike bundle
+      if (_pmIsBundle_(title) || title.indexOf('+') !== -1) {
         allRows.push([timestamp, brand, title, theirPriceStr, '—', '—', '📦 Bundle/Combo — skipped', url]);
         return;
       }
@@ -199,22 +204,39 @@ function removePriceMonitorTrigger() {
 // ============================================================
 
 /**
- * Loads all active bikes from our Inventory tab.
- * Returns array of { name, brand, price, id }.
+ * Loads all active bikes from the Inventory tab.
+ * Self-contained — does NOT depend on InventoryHandlers.gs.
+ * Falls back gracefully to an empty array and logs the error.
  */
 function _pmLoadOurInventory_() {
   try {
-    var inv = _openInventorySheet_(); // from InventoryHandlers.gs
-    return inv.rows
-      .filter(function(r) { return !_isBlankRow_(r) && !_isDiscontinued_(r); })
-      .map(function(r) {
-        return {
-          id:    String(r.id    || '').trim(),
-          name:  String(r.name  || '').trim(),
-          brand: String(r.brand || '').trim(),
-          price: parseFloat(r.price) || 0,
-        };
+    var ss = SpreadsheetApp.openById(INV_SHEET_ID);
+    var sh = ss.getSheetByName(INV_TAB_NAME);
+    if (!sh) {
+      console.error('_pmLoadOurInventory_: tab "' + INV_TAB_NAME + '" not found.');
+      return [];
+    }
+    var data = sh.getDataRange().getValues();
+    if (data.length < 2) return [];
+    var headers = data[0].map(function(h) { return String(h).trim(); });
+    var bikes = [];
+    for (var i = 1; i < data.length; i++) {
+      var row = {};
+      headers.forEach(function(h, j) { row[h] = data[i][j]; });
+      var id   = String(row.id   || '').trim();
+      var name = String(row.name || '').trim();
+      if (!id && !name) continue; // blank row
+      var disc = String(row.discontinued || '').trim().toLowerCase();
+      if (disc === 'yes' || disc === 'true') continue;
+      bikes.push({
+        id:    id,
+        name:  name,
+        brand: String(row.brand || '').trim(),
+        price: parseFloat(row.price) || 0,
       });
+    }
+    console.log('_pmLoadOurInventory_: loaded ' + bikes.length + ' active bikes.');
+    return bikes;
   } catch (e) {
     console.error('_pmLoadOurInventory_ failed: ' + e);
     return [];
@@ -289,36 +311,61 @@ function _pmIsBundle_(title) {
 
 /**
  * Attempts to find a matching bike in our inventory for a Shopify product title.
- * Strips common brand name prefixes, then uses substring / token matching.
- * Returns the matching bike object or null.
+ *
+ * Cleaning steps applied before matching:
+ *   1. Strip brand prefixes ("Heybike", "Velotric", "JasioBike", etc.)
+ *   2. Strip marketing/deal suffixes ("for Spur fans", "(Special Offer)", "Deal", wattage)
+ *   3. Strip generic product-type suffixes ("Ebike", "Electric Trike", "Electric Bike", etc.)
+ *   4. Exact match (case-insensitive), then substring match (same brand)
  */
 function _pmFindOurBike_(shopifyTitle, brand, ourBikes) {
-  // Strip the brand prefix from the Shopify title if present.
-  // e.g. "Velotric Summit 1" -> "Summit 1"
-  //      "Jasion X-Hunter"   -> "X-Hunter"
   var clean = shopifyTitle;
-  ['Heybike', 'Jasion', 'Velotric', 'Mooncool', 'Jasionbike', 'Jasion®', 'Velotric®'].forEach(function(prefix) {
-    var re = new RegExp('^' + prefix + '\\s*', 'i');
+
+  // 1. Strip known brand prefixes
+  ['Heybike', 'JasioBike', 'Jasionbike', 'Jasion', 'Velotric', 'Mooncool', 'Jasion®', 'Velotric®'].forEach(function(prefix) {
+    var re = new RegExp('^' + prefix.replace(/[®]/g, '\\u00ae') + '[\\s®]*', 'i');
     clean = clean.replace(re, '').trim();
   });
-  // Also strip "Ebike" and "E-Bike" prefix words that sometimes appear
+
+  // 2. Strip marketing / deal suffixes (full-width and ASCII brackets)
+  [
+    /\s+for\s+spur\s+fans\s*$/i,
+    /\s*[（(][^)）]*[)）]\s*$/,              // anything in (parens) or （parens）at end
+    /\s+deal\s*$/i,
+    /\s+special\s+offer\s*$/i,
+    /\s*\d+\s*[Ww]\s*\/\s*\d+\s*[Ww]\s*$/, // 750W/1000W
+    /\s+\d+\s*[Ww]\s*$/,                     // 750W or 1000W alone
+  ].forEach(function(re) { clean = clean.replace(re, '').trim(); });
+
+  // 3. Strip generic product-type suffixes at the END of the title
+  [
+    /\s+electric\s+tricycle\s*$/i,
+    /\s+electric\s+trike\s*$/i,
+    /\s+electric\s+bicycle\s*$/i,
+    /\s+electric\s+bike\s*$/i,
+    /\s+cruiser\s+e[-\s]?bike\s*$/i,
+    /\s+fat\s+tire\s+e[-\s]?bike\s*$/i,
+    /\s+folding\s+e[-\s]?bike\s*$/i,
+    /\s+e[-\s]?bikes?\s*$/i,
+    /\s+ebike\s*$/i,
+  ].forEach(function(re) { clean = clean.replace(re, '').trim(); });
+
+  // 4. Strip "Ebike" / "E-Bike" if it appears at the START
   clean = clean.replace(/^e[-\s]?bike\s+/i, '').trim();
 
-  // Exact match first (case-insensitive)
+  // Exact match (case-insensitive)
   var cleanLower = clean.toLowerCase();
   for (var i = 0; i < ourBikes.length; i++) {
     var bike = ourBikes[i];
     if (bike.name.toLowerCase() === cleanLower) return bike;
   }
 
-  // Fuzzy: check if our bike name appears in the cleaned Shopify title or vice versa
-  // Also only match within the same brand
+  // Fuzzy: our bike name appears in the cleaned title or vice versa (same brand)
   for (var j = 0; j < ourBikes.length; j++) {
     var b = ourBikes[j];
+    if (brand && b.brand && b.brand.toLowerCase() !== brand.toLowerCase()) continue;
     var bLower = b.name.toLowerCase();
     if (cleanLower.indexOf(bLower) !== -1 || bLower.indexOf(cleanLower) !== -1) {
-      // Require brand match if we know the brand
-      if (brand && b.brand && b.brand.toLowerCase() !== brand.toLowerCase()) continue;
       return b;
     }
   }
