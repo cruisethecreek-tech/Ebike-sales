@@ -1,8 +1,9 @@
 /**
- * PASTE TARGET: Apps Script "Project C" — the project that owns the invoice
- * endpoints (getInvoice / addOrder / getNextInvoiceNumber / getOpenBalances /
- * getInvoiceCatalog). It is bound to the Off Trail / listings sheet but reaches
- * the ebike Invoices tab cross-sheet via SpreadsheetApp.openById(INVOICES_SHEET_ID).
+ * [DEPRECATED / CONSOLIDATED]
+ * NOTE: Invoice endpoints have been consolidated into main apps-script.gs.
+ * This file is retained for reference for legacy inventory endpoints.
+ *
+ * PASTE TARGET: Apps Script "Project C" — former owner of invoice endpoints.
  *
  * This file is NOT executed from the repo — Project C's source lives only in the
  * Google Apps Script editor. Add the two dispatcher lines + the two functions

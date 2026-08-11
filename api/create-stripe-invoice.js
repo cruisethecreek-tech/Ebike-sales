@@ -185,17 +185,21 @@ export default async function handler(req, res) {
 }
 
 // ── helpers ───────────────────────────────────────────────────
-async function stripeFetch(secretKey, path, params) {
+async function stripeFetch(secretKey, path, params, idempotencyKey) {
   const body = new URLSearchParams();
   for (const k in params) {
     if (params[k] !== undefined && params[k] !== null) body.append(k, String(params[k]));
   }
+  const headers = {
+    'Authorization': `Bearer ${secretKey}`,
+    'Content-Type':  'application/x-www-form-urlencoded',
+  };
+  if (idempotencyKey) {
+    headers['Idempotency-Key'] = idempotencyKey;
+  }
   const r = await fetch(STRIPE_API + path, {
     method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${secretKey}`,
-      'Content-Type':  'application/x-www-form-urlencoded',
-    },
+    headers,
     body,
   });
   return r.json();
