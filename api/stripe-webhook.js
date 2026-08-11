@@ -23,7 +23,9 @@ export const config = {
   api: { bodyParser: false },
 };
 
-const PROJECT_C_URL = 'https://script.google.com/macros/s/AKfycbxmzlQHP4ghYbTzInhTANG7Wv9Cjj4dHTPFv-m8Q7GYPwbtx0yC7ydt8Nd_gFLobsBE/exec';
+// Invoice endpoints were consolidated into the main CMS Apps Script project,
+// so markInvoicePaid now lives there (not the old "Project C" deployment).
+const PROJECT_C_URL = 'https://script.google.com/macros/s/AKfycbwXv6r6Me-mdp9WFjCHQYDHcgEKbny-9_K8TX-yGgW40yTONhz6kAs3H96xM0tEDAhcJA/exec';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
