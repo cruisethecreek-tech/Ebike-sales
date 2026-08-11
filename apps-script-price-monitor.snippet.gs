@@ -89,6 +89,9 @@ function runPriceMonitor() {
   var allRows   = [];
   var alerts    = []; // bikes where their price < ours
 
+  // Purge rows older than 14 days before writing new data
+  cleanPriceMonitor(14);
+
   // Load OUR inventory for price lookup
   var ourBikes = _pmLoadOurInventory_();
 
@@ -354,15 +357,57 @@ function _pmWriteResults_(rows) {
 }
 
 /**
- * Clears all data rows from the Price Monitor tab (keeps header).
- * Run this from the editor before a fresh full run if you want a clean slate.
+ * Deletes rows from the Price Monitor tab that are older than `days` days.
+ * Defaults to 14 days. Keeps the header row (row 1).
+ * Called automatically at the start of each runPriceMonitor() run.
+ * Safe to call manually from the editor any time.
+ *
+ * @param {number} [days=14] - Rows with a Timestamp older than this are deleted.
  */
-function clearPriceMonitor() {
+function cleanPriceMonitor(days) {
+  var cutoff = new Date();
+  cutoff.setDate(cutoff.getDate() - (days || 14));
+
   var ss = SpreadsheetApp.openById(INV_SHEET_ID);
   var sh = ss.getSheetByName('Price Monitor');
   if (!sh || sh.getLastRow() < 2) return;
-  sh.deleteRows(2, sh.getLastRow() - 1);
-  console.log('Price Monitor tab cleared.');
+
+  // Read all timestamp values in column A (starting from row 2).
+  var lastRow = sh.getLastRow();
+  var tsValues = sh.getRange(2, 1, lastRow - 1, 1).getValues(); // [[ts], [ts], ...]
+
+  // Collect the row numbers to delete (iterate from bottom to top
+  // so deleting one row doesn't shift indices for rows above it).
+  var toDelete = [];
+  for (var i = tsValues.length - 1; i >= 0; i--) {
+    var cell = tsValues[i][0];
+    var rowDate = cell instanceof Date ? cell : new Date(String(cell));
+    if (isNaN(rowDate.getTime()) || rowDate < cutoff) {
+      toDelete.push(i + 2); // +2 because array is 0-indexed and row 1 is the header
+    }
+  }
+
+  // Delete in runs to minimize API calls.
+  if (!toDelete.length) {
+    console.log('Price Monitor: no rows older than ' + (days || 14) + ' days to delete.');
+    return;
+  }
+
+  // Group consecutive rows and delete as batches (bottom-up).
+  var start = toDelete[0], end = toDelete[0], deleted = 0;
+  for (var j = 1; j < toDelete.length; j++) {
+    if (toDelete[j] === start - 1) {
+      start = toDelete[j];
+    } else {
+      sh.deleteRows(start, end - start + 1);
+      deleted += end - start + 1;
+      start = toDelete[j];
+      end   = toDelete[j];
+    }
+  }
+  sh.deleteRows(start, end - start + 1);
+  deleted += end - start + 1;
+  console.log('Price Monitor: deleted ' + deleted + ' rows older than ' + (days || 14) + ' days.');
 }
 
 /**
