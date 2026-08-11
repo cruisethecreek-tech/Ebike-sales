@@ -5692,8 +5692,8 @@ function _buildDashboard_(ss, dash, SCHEME) {
 // ── EBIKE INVOICES / CATALOG — cross-sheet via openById ──────────────
 // Invoices + inventory live in the ebike Inventory Sheet (1R3pDFG…),
 // a different spreadsheet than this CMS project is bound to.
-const INVOICES_SHEET_ID = '1R3pDFG_sO81bKS6dEAa-k5F-OdD5OAbe4hQ-Oc0_T-E';
-const INVOICES_TAB      = 'Invoices';
+var INVOICES_SHEET_ID = '1R3pDFG_sO81bKS6dEAa-k5F-OdD5OAbe4hQ-Oc0_T-E';
+var INVOICES_TAB      = 'Invoices';
 
 function _ensureInvoicesTab(ss) {
   var EXPECTED = [
