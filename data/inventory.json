@@ -1,0 +1,2243 @@
+{
+  "lastUpdated": "2026-08-11T15:59:51.987Z",
+  "bikes": [
+    {
+      "brand": "Heybike",
+      "id": "rangers",
+      "name": "Ranger S",
+      "subtitle": "Folding Fat Tire Step-Thru",
+      "price": 1199,
+      "testRide": "Test Ride Available",
+      "styles": [
+        "750W",
+        "1000W"
+      ],
+      "sizes": [
+        "One Size"
+      ],
+      "specs": {
+        "Range": "55 mi",
+        "Top Speed": "28 mph",
+        "Motor": "750W / 1000W",
+        "Battery": "692Wh"
+      },
+      "colors": {
+        "750W": {
+          "One Size": [
+            {
+              "name": "Merlot Red",
+              "hex": "#8B0000",
+              "img": "images/Ranger S Melot Black.png",
+              "price": 999,
+              "soldOut": true
+            },
+            {
+              "name": "Stone Blue",
+              "hex": "#4A6B8A",
+              "img": "images/Ranger S Blue Black.png",
+              "price": 999,
+              "soldOut": true
+            },
+            {
+              "name": "Shark Grey",
+              "hex": "#5C5C5C",
+              "img": "images/Ranger S Grey Black.png",
+              "price": 999,
+              "soldOut": true
+            }
+          ],
+          "disabled": true
+        },
+        "1000W": {
+          "One Size": [
+            {
+              "name": "Merlot Red",
+              "hex": "#8B0000",
+              "img": "images/Ranger S Melot Black.png",
+              "price": 1199
+            },
+            {
+              "name": "Stone Blue",
+              "hex": "#4A6B8A",
+              "img": "images/Ranger S Blue Black.png",
+              "price": 1199
+            },
+            {
+              "name": "Shark Grey",
+              "hex": "#5C5C5C",
+              "img": "images/Ranger S Grey Black.png",
+              "price": 1199
+            }
+          ],
+          "disabled": true
+        }
+      },
+      "colorsNested": true,
+      "sizeGuide": {}
+    },
+    {
+      "brand": "Heybike",
+      "id": "ranger3pro",
+      "name": "Ranger 3.0 Pro",
+      "subtitle": "Premium Folding Full Suspension",
+      "price": 1499,
+      "testRide": "Test Ride Available",
+      "styles": [
+        "Step-Thru"
+      ],
+      "sizes": [
+        "One Size"
+      ],
+      "specs": {
+        "Range": "90 mi",
+        "Top Speed": "28 mph",
+        "Motor": "750W",
+        "Battery": "720Wh"
+      },
+      "colors": {
+        "Step-Thru": {
+          "One Size": [
+            {
+              "name": "Ruby Red",
+              "hex": "#9B111E",
+              "img": "images/Ranger 3.0 Badge Red Black.png"
+            },
+            {
+              "name": "Sapphire Blue",
+              "hex": "#0E21A0",
+              "img": "images/Ranger 3.0 Blue White.png"
+            },
+            {
+              "name": "Emerald Green",
+              "hex": "#005461",
+              "img": "images/Ranger Green 3.0 White.png"
+            },
+            {
+              "name": "Miami Sunset (Limited)",
+              "hex": "#3D72BA",
+              "img": "images/ranger 3.0 Badge sunset Black.png",
+              "price": 1699
+            }
+          ]
+        }
+      },
+      "colorsNested": true,
+      "sizeGuide": {
+        "title": "Ranger 3.0 Pro Sizing Guide",
+        "sizes": [
+          {
+            "size": "One Size",
+            "height": "4'11\" - 6'2\""
+          }
+        ],
+        "note": "Premium full suspension with air shock rear. Torque sensor. NFC unlock. Folds in 10 seconds. Max payload: 440 lbs."
+      }
+    },
+    {
+      "brand": "Heybike",
+      "id": "mars2",
+      "name": "Mars 2.0",
+      "subtitle": "Folding Fat Tire",
+      "price": 999,
+      "testRide": "Test Ride Available",
+      "styles": [
+        "750W",
+        "1000W"
+      ],
+      "sizes": [
+        "One Size"
+      ],
+      "specs": {
+        "Range": "45 mi",
+        "Top Speed": "28 mph",
+        "Motor": "750W / 1000W",
+        "Battery": "600Wh"
+      },
+      "colors": {
+        "750W": {
+          "One Size": [
+            {
+              "name": "Pumpkin Orange",
+              "hex": "#FF6600",
+              "img": "images/Mars 2.0 Orange Black.png"
+            },
+            {
+              "name": "Dusty Blue",
+              "hex": "#6B8E9F",
+              "img": "images/Mars 2.0 Badge Blue Black.png"
+            },
+            {
+              "name": "Leather Black",
+              "hex": "#2C2C2C",
+              "img": "images/Mars 2.0 Black Black.png"
+            },
+            {
+              "name": "Granite Gray",
+              "hex": "#696969",
+              "img": "images/Mars 2.0 Grey Black.png"
+            }
+          ]
+        },
+        "1000W": {
+          "One Size": [
+            {
+              "name": "Pumpkin Orange",
+              "hex": "#FF6600",
+              "img": "images/Mars 2.0 Orange Black.png",
+              "price": 1099
+            },
+            {
+              "name": "Dusty Blue",
+              "hex": "#6B8E9F",
+              "img": "images/Mars 2.0 Badge Blue Black.png",
+              "price": 1099
+            },
+            {
+              "name": "Leather Black",
+              "hex": "#2C2C2C",
+              "img": "images/Mars 2.0 Black Black.png",
+              "price": 1099
+            },
+            {
+              "name": "Granite Gray",
+              "hex": "#696969",
+              "img": "images/Mars 2.0 Grey Black.png",
+              "price": 1099
+            }
+          ],
+          "disabled": true
+        }
+      },
+      "colorsNested": true,
+      "sizeGuide": {
+        "title": "Mars 2.0 Sizing Guide",
+        "sizes": [
+          {
+            "size": "One Size",
+            "height": "5'3\" - 6'1\""
+          }
+        ],
+        "note": "Step-over folding frame with 65mm front suspension. Folds in 15 seconds. Max payload: 330 lbs."
+      }
+    },
+    {
+      "brand": "Heybike",
+      "id": "mars3",
+      "name": "Mars 3.0",
+      "subtitle": "Full Suspension Folding",
+      "price": 1199,
+      "testRide": "",
+      "styles": [
+        "High-Step"
+      ],
+      "sizes": [
+        "One Size"
+      ],
+      "specs": {
+        "Range": "65 mi",
+        "Top Speed": "28 mph",
+        "Motor": "750W",
+        "Battery": "624Wh"
+      },
+      "colors": {
+        "High-Step": {
+          "One Size": [
+            {
+              "name": "Vivid Orange",
+              "hex": "#FF4500",
+              "img": "images/Mars 3.0 Orange Black.png"
+            },
+            {
+              "name": "Stormy Blue",
+              "hex": "#4A5D6E",
+              "img": "images/Mars 3.0 Blue Black.png"
+            },
+            {
+              "name": "Nightrider Black",
+              "hex": "#1C1C1C",
+              "img": "images/Mars 3.0 Black Black.png"
+            }
+          ]
+        }
+      },
+      "colorsNested": true,
+      "sizeGuide": {
+        "title": "Mars 3.0 Sizing Guide",
+        "sizes": [
+          {
+            "size": "One Size",
+            "height": "4'11\" - 6'2\""
+          }
+        ],
+        "note": "Full suspension with Horst-link rear. TFT color display. Hydraulic disc brakes. Max payload: 440 lbs."
+      }
+    },
+    {
+      "brand": "Heybike",
+      "id": "cityrun",
+      "name": "Cityrun",
+      "subtitle": "Commuter Cruiser",
+      "price": 999,
+      "testRide": "Test Ride Available",
+      "styles": [
+        "Step-Thru"
+      ],
+      "sizes": [
+        "One Size"
+      ],
+      "specs": {
+        "Range": "55 mi",
+        "Top Speed": "21 mph",
+        "Motor": "500W",
+        "Battery": "720Wh"
+      },
+      "colors": {
+        "Step-Thru": {
+          "One Size": [
+            {
+              "name": "Honey Orange",
+              "hex": "#E8A317",
+              "img": "https://ebike-sales.pages.dev/images/cityrunorangeblack.jpg"
+            },
+            {
+              "name": "Ebony Black",
+              "hex": "#1C1C1C",
+              "img": "https://ebike-sales.pages.dev/images/cityrunblackblack.jpg"
+            },
+            {
+              "name": "Emerald Green",
+              "hex": "#2E8B57",
+              "img": "https://ebike-sales.pages.dev/images/cityrungreenblack.jpg"
+            }
+          ]
+        }
+      },
+      "colorsNested": true,
+      "sizeGuide": {
+        "title": "Cityrun Sizing Guide",
+        "sizes": [
+          {
+            "size": "One Size",
+            "height": "5'4\" - 6'5\""
+          }
+        ],
+        "note": "Step-thru commuter frame with hydraulic front suspension. Lightweight at 62 lbs. Max payload: 350 lbs."
+      }
+    },
+    {
+      "brand": "Heybike",
+      "id": "venus",
+      "name": "Venus",
+      "subtitle": "Lightweight Step-Thru",
+      "price": 1499,
+      "testRide": "Test Ride Available",
+      "styles": [
+        "Step-Thru"
+      ],
+      "sizes": [
+        "One Size"
+      ],
+      "specs": {
+        "Range": "85 mi",
+        "Top Speed": "28 mph",
+        "Motor": "750W",
+        "Battery": "720Wh"
+      },
+      "colors": {
+        "Step-Thru": {
+          "One Size": [
+            {
+              "name": "Pink",
+              "hex": "#FFDCDC",
+              "img": "images/Venus Pink Badge Black.png"
+            },
+            {
+              "name": "Blue",
+              "hex": "#9ECAD6",
+              "img": "images/venusblueblack.png"
+            },
+            {
+              "name": "White",
+              "hex": "#F8F8F8",
+              "img": "images/Alpha White Back.png"
+            }
+          ]
+        }
+      },
+      "colorsNested": true,
+      "sizeGuide": {
+        "title": "Venus Sizing Guide",
+        "sizes": [
+          {
+            "size": "Step-Thru",
+            "height": "5'3\" - 6'6\""
+          }
+        ],
+        "note": "Lightweight step-thru design. Hydraulic disc brakes. Integrated rear rack. Max payload: 300 lbs."
+      }
+    },
+    {
+      "brand": "Heybike",
+      "id": "alpha",
+      "name": "Alpha",
+      "subtitle": "Mid-Drive All-Terrain",
+      "price": 1299,
+      "testRide": "Test Ride Available",
+      "styles": [
+        "Step-Thru",
+        "Step-Over"
+      ],
+      "sizes": [
+        "One Size"
+      ],
+      "specs": {
+        "Range": "60 mi",
+        "Top Speed": "28 mph",
+        "Motor": "500W Mid-Drive",
+        "Battery": "680Wh"
+      },
+      "colors": {
+        "Step-Thru": {
+          "One Size": [
+            {
+              "name": "Pearl White",
+              "hex": "#F5F5F5",
+              "img": "images/Alpha White Back.png"
+            }
+          ]
+        },
+        "Step-Over": {
+          "One Size": [
+            {
+              "name": "Galaxy Black",
+              "hex": "#1a1a2e",
+              "img": "images/alpha black.png"
+            }
+          ]
+        }
+      },
+      "colorsNested": true,
+      "sizeGuide": {
+        "title": "Alpha Sizing Guide",
+        "sizes": [
+          {
+            "size": "Step-Over",
+            "height": "5'3\" - 6'3\""
+          },
+          {
+            "size": "Step-Thru",
+            "height": "5'1\" - 6'1\""
+          }
+        ],
+        "note": "Mid-drive motor for superior hill climbing. Torque sensor for natural pedal feel. Max payload: 400 lbs."
+      }
+    },
+    {
+      "brand": "Heybike",
+      "id": "horizon",
+      "name": "Horizon",
+      "subtitle": "24in Full Suspension Step-Thru",
+      "price": 1399,
+      "testRide": "Test Ride Available",
+      "styles": [
+        "Step-Thru"
+      ],
+      "sizes": [
+        "One Size"
+      ],
+      "specs": {
+        "Range": "55 mi",
+        "Top Speed": "28 mph",
+        "Motor": "750W",
+        "Battery": "692Wh"
+      },
+      "colors": {
+        "Step-Thru": {
+          "One Size": [
+            {
+              "name": "Black & Blue",
+              "hex": "#4682B4",
+              "img": "images/Horizon Blue black.png"
+            },
+            {
+              "name": "Cynical Black",
+              "hex": "#1C1C1C",
+              "img": "images/Horizon Black Black.png"
+            },
+            {
+              "name": "Cyan & Pearl",
+              "hex": "#5A7863",
+              "img": "images/Horizon Cyan Badge Black.png"
+            },
+            {
+              "name": "Sunset Horizon",
+              "hex": "#FF6B6B",
+              "img": "images/Horizon orange.png"
+            }
+          ]
+        }
+      },
+      "colorsNested": true,
+      "sizeGuide": {
+        "title": "Horizon Sizing Guide",
+        "sizes": [
+          {
+            "size": "One Size",
+            "height": "4'11\" - 6'3\""
+          }
+        ],
+        "note": "24 in fat tires with full suspension front and rear. Step-thru frame for easy mounting. Max payload: 330 lbs."
+      }
+    },
+    {
+      "brand": "Heybike",
+      "id": "hero",
+      "name": "Hero",
+      "subtitle": "Carbon Fiber Full Suspension",
+      "price": 1899,
+      "testRide": "",
+      "styles": [
+        "1000Wfdrf"
+      ],
+      "sizes": [
+        "One Size"
+      ],
+      "specs": {
+        "Range": "60 mi",
+        "Top Speed": "35 mph",
+        "Motor": "750W / 1000W",
+        "Battery": "864Wh"
+      },
+      "colors": {
+        "1000Wfdrf": {
+          "One Size": [
+            {
+              "name": "Tangerine",
+              "hex": "#D38B05",
+              "img": "images/Hero Tangerine Badge White.png",
+              "price": 1899
+            },
+            {
+              "name": "Lime Yellow",
+              "hex": "#89FE8F",
+              "img": "images/Hero Black.png",
+              "price": 1899
+            },
+            {
+              "name": "Limited Edition",
+              "hex": "#0549EC",
+              "img": "images/Hero Black.png",
+              "price": 1899
+            }
+          ],
+          "disabled": true
+        }
+      },
+      "colorsNested": true,
+      "sizeGuide": {
+        "title": "Hero Sizing Guide",
+        "sizes": [
+          {
+            "size": "Step-Thru",
+            "height": "5'3\" - 6'6\""
+          },
+          {
+            "size": "Trapeze",
+            "height": "5'5\" - 6'6\""
+          }
+        ],
+        "note": "T800 carbon fiber frame at just 6.2 lbs. Full suspension. 26x4 in fat tires. 10-year frame warranty. Max payload: 400 lbs."
+      }
+    },
+    {
+      "brand": "Heybike",
+      "id": "heliof",
+      "name": "Helio F",
+      "subtitle": "Vintage Compact Folding",
+      "price": 1299,
+      "testRide": "",
+      "styles": [
+        "Folding"
+      ],
+      "sizes": [
+        "One Size"
+      ],
+      "specs": {
+        "Range": "50-75 mi",
+        "Top Speed": "20 mph",
+        "Motor": "250W",
+        "Battery": "360Wh"
+      },
+      "colors": {
+        "Folding": {
+          "One Size": [
+            {
+              "name": "Racing Green",
+              "hex": "#36656B",
+              "img": "images/Helio F Green Black.png"
+            },
+            {
+              "name": "Anchor Red",
+              "hex": "#8B0000",
+              "img": "images/Helio F pbp black.png"
+            },
+            {
+              "name": "Mark Edition",
+              "hex": "#E7AC04",
+              "img": "images/Helio Mark Black.png",
+              "price": 1399
+            },
+            {
+              "name": "Hedof Edition",
+              "hex": "#30CAE0",
+              "img": "images/Helio hedof.png",
+              "price": 1399
+            },
+            {
+              "name": "Emi Edition",
+              "hex": "#FAF04D",
+              "img": "images/Helio F Emi Black.png",
+              "price": 1399
+            }
+          ]
+        }
+      },
+      "colorsNested": true,
+      "sizeGuide": {
+        "title": "Helio F Sizing Guide",
+        "sizes": [
+          {
+            "size": "One Size",
+            "height": "5'0\" - 6'2\""
+          }
+        ],
+        "note": "Ultra-lightweight at just 40 lbs. Patented X-Fold system. Vintage-inspired design. Shimano 8-speed."
+      }
+    },
+    {
+      "brand": "Jasion",
+      "id": "Thunder pro",
+      "name": "Thunder pro",
+      "subtitle": "Step-Over",
+      "price": 1299,
+      "testRide": "Class 4 Needs Registration",
+      "styles": [
+        "Power Moped"
+      ],
+      "sizes": [
+        "One Size"
+      ],
+      "specs": {
+        "Range": "90 mi",
+        "Top Speed": "35 mph",
+        "Motor": "1200W",
+        "Battery": "52V 20Ah"
+      },
+      "colors": {
+        "Power Moped": {
+          "One Size": [
+            {
+              "name": "Stealth Black",
+              "hex": "#050505",
+              "img": "https://ebike-sales.pages.dev/images/thunderproblackhigh.png"
+            },
+            {
+              "name": "Artic Blue",
+              "hex": "#848ba9",
+              "img": "https://ebike-sales.pages.dev/images/thunderprobluehigh.png"
+            },
+            {
+              "name": "Camo",
+              "hex": "#f0f0f0",
+              "img": "https://ebike-sales.pages.dev/images/thunderprocamohigh.png"
+            }
+          ],
+          "disabled": true
+        }
+      },
+      "colorsNested": true,
+      "sizeGuide": {}
+    },
+    {
+      "brand": "Jasion",
+      "id": "Thunder prost",
+      "name": "Thunder pro ST",
+      "subtitle": "Step-Thru",
+      "price": 1299,
+      "testRide": "Class 4 Needs Registration",
+      "styles": [
+        "Power Moped"
+      ],
+      "sizes": [
+        "One Size"
+      ],
+      "specs": {
+        "Range": "90 mi",
+        "Top Speed": "35 mph",
+        "Motor": "1200W",
+        "Battery": "52V 20Ah"
+      },
+      "colors": {
+        "Power Moped": {
+          "One Size": [
+            {
+              "name": "Stealth Black",
+              "hex": "#050505",
+              "img": "https://ebike-sales.pages.dev/images/thunderproblacklow.png"
+            },
+            {
+              "name": "Artic Blue",
+              "hex": "#848ba9",
+              "img": "https://ebike-sales.pages.dev/images/thunderprobluelow.png"
+            },
+            {
+              "name": "New ColorCamo",
+              "hex": "#f9f6f6",
+              "img": "https://ebike-sales.pages.dev/images/thunderprocamolow.png"
+            }
+          ],
+          "disabled": true
+        }
+      },
+      "colorsNested": true,
+      "sizeGuide": {}
+    },
+    {
+      "brand": "Jasion",
+      "id": "xhunter",
+      "name": "X-Hunter",
+      "subtitle": "Folding",
+      "price": 859,
+      "testRide": "",
+      "styles": [
+        "Folding"
+      ],
+      "sizes": [
+        "One Size"
+      ],
+      "specs": {
+        "Range": "70 mi",
+        "Top Speed": "30 mph",
+        "Motor": "750W",
+        "Battery": "48V 13Ah"
+      },
+      "colors": {
+        "Folding": {
+          "One Size": [
+            {
+              "name": "Black",
+              "hex": "#0a0a0a",
+              "img": "https://static.wixstatic.com/media/56427e_4d2ca9479632489188ecbe8975f9dc72~mv2.png"
+            },
+            {
+              "name": "White",
+              "hex": "#faf5f5",
+              "img": "https://static.wixstatic.com/media/56427e_c5fe8ddf97194e06be86c1438988548f~mv2.jpg"
+            },
+            {
+              "name": "Blue",
+              "hex": "#5f5c7a",
+              "img": "https://static.wixstatic.com/media/56427e_b1485c147bd7481f945c54df923b43f6~mv2.jpg"
+            },
+            {
+              "name": "Grey",
+              "hex": "#888888",
+              "img": "https://static.wixstatic.com/media/56427e_a81bc5a0e20a46059b9b7aefc0f82ee4~mv2.jpg"
+            }
+          ]
+        }
+      },
+      "colorsNested": true,
+      "sizeGuide": {}
+    },
+    {
+      "brand": "Jasion",
+      "id": "hunterpro",
+      "name": "Hunter Pro",
+      "subtitle": "Popular Folding",
+      "price": 1099,
+      "testRide": "",
+      "styles": [
+        "Step-Thru"
+      ],
+      "sizes": [
+        "One Size"
+      ],
+      "specs": {
+        "Range": "80 mi",
+        "Top Speed": "30 mph",
+        "Motor": "1000W",
+        "Battery": "48V 15Ah"
+      },
+      "colors": {
+        "Step-Thru": {
+          "One Size": [
+            {
+              "name": "Bronze",
+              "hex": "#b08e30",
+              "img": "https://static.wixstatic.com/media/56427e_ec834d34998e42778ea093aa5b632b00~mv2.jpg"
+            },
+            {
+              "name": "Blue",
+              "hex": "#5c5d7f",
+              "img": "https://static.wixstatic.com/media/56427e_4e1217cafe4c4e2397ba661272bc31f5~mv2.jpg"
+            },
+            {
+              "name": "Black",
+              "hex": "#0d0d0d",
+              "img": "images/Hunter Pro Badge Black.jpg"
+            }
+          ]
+        }
+      },
+      "colorsNested": true,
+      "sizeGuide": {}
+    },
+    {
+      "brand": "Jasion",
+      "id": "hunter st",
+      "name": "Hunter ST",
+      "subtitle": "Step-Thru Folding",
+      "price": 899,
+      "testRide": "",
+      "styles": [
+        "hunterst"
+      ],
+      "sizes": [
+        "One Size"
+      ],
+      "specs": {
+        "Range": "70 mi",
+        "Top Speed": "30 mph",
+        "Motor": "750W",
+        "Battery": "48V 13Ah"
+      },
+      "colors": {
+        "hunterst": {
+          "One Size": [
+            {
+              "name": "Blue",
+              "hex": "#4f5a72",
+              "img": "https://static.wixstatic.com/media/56427e_36c1e303d9f741539d2b6a82c8a1513a~mv2.jpg"
+            },
+            {
+              "name": "White",
+              "hex": "#f0f0f0",
+              "img": "https://static.wixstatic.com/media/56427e_0be7a21afdcc43baa26b23294277e046~mv2.png"
+            },
+            {
+              "name": "Green",
+              "hex": "#caf3c9",
+              "img": "https://static.wixstatic.com/media/56427e_39c08f495ba14e819979d08ac9ab437a~mv2.jpg"
+            }
+          ]
+        }
+      },
+      "colorsNested": true,
+      "sizeGuide": {}
+    },
+    {
+      "brand": "Jasion",
+      "id": "retrovolt pro",
+      "name": "RetroVolt Pro",
+      "subtitle": "Power Moped",
+      "price": 899,
+      "testRide": "Class 4 Needs Registration",
+      "styles": [
+        "Power Moped"
+      ],
+      "sizes": [
+        "One Size"
+      ],
+      "specs": {
+        "Range": "90 mi",
+        "Top Speed": "38 mph",
+        "Motor": "1200W",
+        "Battery": "52V 20Ah"
+      },
+      "colors": {
+        "Power Moped": {
+          "One Size": [
+            {
+              "name": "Aqua",
+              "hex": "#6f9f97",
+              "img": "https://static.wixstatic.com/media/56427e_6ecdd1c6aa3d46aa92602df55f8173fe~mv2.jpg"
+            },
+            {
+              "name": "Silver",
+              "hex": "#c3bbbb",
+              "img": "https://static.wixstatic.com/media/56427e_4563cb71bfff46e7b6d934cc2dccaa2d~mv2.jpg"
+            }
+          ],
+          "disabled": true
+        }
+      },
+      "colorsNested": true,
+      "sizeGuide": {}
+    },
+    {
+      "brand": "Jasion",
+      "id": "thunder",
+      "name": "Thunder",
+      "subtitle": "All Terrain",
+      "price": 929,
+      "testRide": "",
+      "styles": [
+        "All Terrain"
+      ],
+      "sizes": [
+        "One Size"
+      ],
+      "specs": {
+        "Range": "80 mi",
+        "Top Speed": "30 mph",
+        "Motor": "1000W",
+        "Battery": "48V 18Ah"
+      },
+      "colors": {
+        "All Terrain": {
+          "One Size": [
+            {
+              "name": "Blue",
+              "hex": "#5a7a91",
+              "img": "images/Thunder Alpine Blue Black.jpg"
+            },
+            {
+              "name": "Black",
+              "hex": "#616575",
+              "img": "images/Thunder Grey Black.jpg"
+            },
+            {
+              "name": "Silver",
+              "hex": "#888888",
+              "img": "images/Thunder Grey Black.jpg"
+            }
+          ]
+        }
+      },
+      "colorsNested": true,
+      "sizeGuide": {}
+    },
+    {
+      "brand": "Jasion",
+      "id": "eb720",
+      "name": "EB7 2.0",
+      "subtitle": "Folding Style",
+      "price": 699,
+      "testRide": "",
+      "styles": [
+        "Folding"
+      ],
+      "sizes": [
+        "One Size"
+      ],
+      "specs": {
+        "Range": "55 mi",
+        "Top Speed": "28 mph",
+        "Motor": "500W",
+        "Battery": "48V 10Ah"
+      },
+      "colors": {
+        "Folding": {
+          "One Size": [
+            {
+              "name": "Black",
+              "hex": "#222222",
+              "img": "images/Mars 2.0 Folding Orange.png"
+            },
+            {
+              "name": "White",
+              "hex": "#ede9e9",
+              "img": "images/Mars 2.0 Folding Orange.png"
+            },
+            {
+              "name": "Green",
+              "hex": "#829558",
+              "img": "images/Mars 2.0 Folding Orange.png"
+            }
+          ]
+        }
+      },
+      "colorsNested": true,
+      "sizeGuide": {}
+    },
+    {
+      "brand": "Jasion",
+      "id": "eb5 roamer",
+      "name": "EB5 Roamer",
+      "subtitle": "Step-Over",
+      "price": 659,
+      "testRide": "",
+      "styles": [
+        "Step-Over"
+      ],
+      "sizes": [
+        "One Size"
+      ],
+      "specs": {
+        "Range": "62 mi",
+        "Top Speed": "28 mph",
+        "Motor": "500W",
+        "Battery": "48V 11Ah"
+      },
+      "colors": {
+        "Step-Over": {
+          "One Size": [
+            {
+              "name": "Black",
+              "hex": "#000000",
+              "img": "images/EB5 Roamer Badge Black.jpg"
+            },
+            {
+              "name": "Blue",
+              "hex": "#57758b",
+              "img": "https://static.wixstatic.com/media/56427e_66a29716f19c40529fac92ae5b78ea0c~mv2.jpg"
+            },
+            {
+              "name": "Green",
+              "hex": "#5a6b4a",
+              "img": "https://static.wixstatic.com/media/56427e_b4df91ea9b174af4a3acaf0d7748d2e6~mv2.jpg"
+            }
+          ]
+        }
+      },
+      "colorsNested": true,
+      "sizeGuide": {}
+    },
+    {
+      "brand": "Jasion",
+      "id": "eb5roamerst",
+      "name": "EB5 Roamer ST",
+      "subtitle": "Step-Thru",
+      "price": 699,
+      "testRide": "",
+      "styles": [
+        "Step-Thru"
+      ],
+      "sizes": [
+        "One Size"
+      ],
+      "specs": {
+        "Range": "62 mi",
+        "Top Speed": "28 mph",
+        "Motor": "500W",
+        "Battery": "48V 11Ah"
+      },
+      "colors": {
+        "Step-Thru": {
+          "One Size": [
+            {
+              "name": "White",
+              "hex": "#e8e8e8",
+              "img": "https://static.wixstatic.com/media/56427e_c0c98a15b1b54fe19fdc016c817a2748~mv2.jpg"
+            },
+            {
+              "name": "Green",
+              "hex": "#c9d7b7",
+              "img": "https://static.wixstatic.com/media/56427e_77aba66e55bc4936a3035ba7635e2b7a~mv2.jpg"
+            }
+          ],
+          "disabled": true
+        }
+      },
+      "colorsNested": true,
+      "sizeGuide": {}
+    },
+    {
+      "brand": "Velotric",
+      "id": "discover3",
+      "name": "Discover 3",
+      "subtitle": "Commuter",
+      "price": 1999,
+      "testRide": "Test Ride Available",
+      "styles": [
+        "Step-Thru"
+      ],
+      "sizes": [
+        "Regular",
+        "Large"
+      ],
+      "specs": {
+        "Range": "75 mi",
+        "Top Speed": "28 mph",
+        "Motor": "750W",
+        "Battery": "730WH"
+      },
+      "colors": {
+        "Step-Thru": {
+          "Regular": [
+            {
+              "name": "Crimson",
+              "hex": "#ba0f13",
+              "img": "images/Discover 3 Red.png"
+            },
+            {
+              "name": "Stone Gray",
+              "hex": "#5d6165",
+              "img": "images/Discover 3 Black.png"
+            },
+            {
+              "name": "Lemans Blue",
+              "hex": "#405e86",
+              "img": "images/Discover 3 Black.png"
+            },
+            {
+              "name": "Mint",
+              "hex": "#a5c7c5",
+              "img": "images/Discover 3 Mint.png"
+            },
+            {
+              "name": "Emerald Green",
+              "hex": "#00524e",
+              "img": "images/Discover 3 Green.png"
+            }
+          ],
+          "Large": [
+            {
+              "name": "Crimson",
+              "hex": "#ba0f13",
+              "img": "images/Discover 3 Red.png"
+            },
+            {
+              "name": "Stone Gray",
+              "hex": "#5d6165",
+              "img": "images/Discover 3 Black.png"
+            },
+            {
+              "name": "Lemans Blue",
+              "hex": "#405e86",
+              "img": "images/Discover 3 Black.png"
+            },
+            {
+              "name": "Mint",
+              "hex": "#a5c7c5",
+              "img": "images/Discover 3 Mint.png"
+            },
+            {
+              "name": "Emerald Green",
+              "hex": "#00524e",
+              "img": "images/Discover 3 Green.png"
+            }
+          ]
+        }
+      },
+      "colorsNested": true,
+      "sizeGuide": {}
+    },
+    {
+      "brand": "Velotric",
+      "id": "discoverM",
+      "name": "Discover M",
+      "subtitle": "Mid Drive",
+      "price": 2499,
+      "testRide": "Test Ride March 30th",
+      "styles": [
+        "Step-Thru"
+      ],
+      "sizes": [
+        "Regular",
+        "Large"
+      ],
+      "specs": {
+        "Range": "75 mi",
+        "Top Speed": "28 mph",
+        "Motor": "500W",
+        "Battery": "801.6WH"
+      },
+      "colors": {
+        "Step-Thru": {
+          "Regular": [
+            {
+              "name": "Platinum Silver",
+              "hex": "#E8E2DB",
+              "img": "images/Discover M White.png"
+            },
+            {
+              "name": "Olivine Green",
+              "hex": "#3e4227",
+              "img": "images/Discover 2 Green.png"
+            }
+          ],
+          "Large": [
+            {
+              "name": "Platinum Silver",
+              "hex": "#E8E2DB",
+              "img": "images/Discover M White.png"
+            },
+            {
+              "name": "Olivine Green",
+              "hex": "#3e4227",
+              "img": "images/Discover 2 Green.png"
+            }
+          ]
+        }
+      },
+      "colorsNested": true,
+      "sizeGuide": {}
+    },
+    {
+      "brand": "Velotric",
+      "id": "nomad2",
+      "name": "Nomad 2 Fat Tire",
+      "subtitle": "All-Terrain Adventure",
+      "price": 1899,
+      "testRide": "",
+      "styles": [
+        "Step-Thru",
+        "High-Step"
+      ],
+      "sizes": [
+        "Regular",
+        "Large"
+      ],
+      "specs": {
+        "Range": "65 mi",
+        "Top Speed": "28 mph",
+        "Motor": "750W",
+        "Battery": "705.6WH"
+      },
+      "colors": {
+        "High-Step": {
+          "Regular": [
+            {
+              "name": "Midnight Blue",
+              "hex": "#1a274d",
+              "img": "images/NoMad Highstep blue.png",
+              "soldOut": true
+            },
+            {
+              "name": "Sage",
+              "hex": "#5c6444",
+              "img": "images/NoMad sage highstep.png",
+              "soldOut": true
+            }
+          ],
+          "Large": [
+            {
+              "name": "Midnight Blue",
+              "hex": "#1a274d",
+              "img": "images/NoMad Highstep blue.png",
+              "price": 1999
+            },
+            {
+              "name": "Sage",
+              "hex": "#5c6444",
+              "img": "images/NoMad sage highstep.png"
+            }
+          ],
+          "Regular__disabled": true
+        },
+        "Step-Thru": {
+          "Regular": [
+            {
+              "name": "Midnight Blue",
+              "hex": "#1a274d",
+              "img": "images/Nomad Blue Stepthru.png"
+            },
+            {
+              "name": "Cranberry",
+              "hex": "#940808",
+              "img": "images/Nomad 2 Red Step Thru.png",
+              "price": 1999
+            },
+            {
+              "name": "Olive",
+              "hex": "#5c6444",
+              "img": "images/Nomad GreenStepthru.png",
+              "price": 1999
+            }
+          ],
+          "Large": [
+            {
+              "name": "Midnight Blue",
+              "hex": "#1a274d",
+              "img": "images/Nomad Blue Stepthru.png"
+            },
+            {
+              "name": "Cranberry",
+              "hex": "#940808",
+              "img": "images/Nomad 2 Red Step Thru.png",
+              "price": 1999
+            },
+            {
+              "name": "Olive",
+              "hex": "#5c6444",
+              "img": "images/Nomad GreenStepthru.png",
+              "price": 1999
+            }
+          ]
+        }
+      },
+      "colorsNested": true,
+      "sizeGuide": {}
+    },
+    {
+      "brand": "Velotric",
+      "id": "nomad2x",
+      "name": "Nomad 2X",
+      "subtitle": "Full Suspension Fat Tire",
+      "price": 2399,
+      "testRide": "",
+      "styles": [
+        "Step-Thru",
+        "High-Step"
+      ],
+      "sizes": [
+        "One Size"
+      ],
+      "specs": {
+        "Range": "75 mi",
+        "Top Speed": "28 mph",
+        "Motor": "750W",
+        "Battery": "801.6WH"
+      },
+      "colors": {
+        "Step-Thru": {
+          "One Size": [
+            {
+              "name": "Sage",
+              "hex": "#3e3c2a",
+              "img": "images/Nomad Sage.png",
+              "price": 2299
+            },
+            {
+              "name": "Multi-Terrain Camo",
+              "hex": "#ddcbb7",
+              "img": "images/Nomad Multi Cam.png"
+            },
+            {
+              "name": "Fig",
+              "hex": "#5b0c09",
+              "img": "images/Nomad 2 Fig.png",
+              "price": 2299
+            }
+          ]
+        },
+        "High-Step": {
+          "One Size": [
+            {
+              "name": "Camo",
+              "hex": "#ddcbb7",
+              "img": "images/NoMad highstep camo.png"
+            },
+            {
+              "name": "Obsidian",
+              "hex": "#5c6444",
+              "img": "https://static.wixstatic.com/media/56427e_26129c4b392448bb8b66387cd85c336e~mv2.jpg",
+              "price": 2299
+            },
+            {
+              "name": "Royal Blue",
+              "hex": "#1a2d81",
+              "img": "images/NoMad Blue highstep.png",
+              "price": 2299
+            }
+          ]
+        }
+      },
+      "colorsNested": true,
+      "sizeGuide": {}
+    },
+    {
+      "brand": "Velotric",
+      "id": "summit2",
+      "name": "Summit 2",
+      "subtitle": "Electric Mountain Bike",
+      "price": 2099,
+      "testRide": "",
+      "styles": [
+        "High-Step"
+      ],
+      "sizes": [
+        "Regular",
+        "Large"
+      ],
+      "specs": {
+        "Range": "70 mi",
+        "Top Speed": "28 mph",
+        "Motor": "750W",
+        "Battery": "705.6WH"
+      },
+      "colors": {
+        "High-Step": {
+          "Regular": [
+            {
+              "name": "Galaxy Purple",
+              "hex": "#420264",
+              "img": "images/Summit 2 Badge Purple.png"
+            },
+            {
+              "name": "Ocean Blue",
+              "hex": "#204666",
+              "img": "images/Summit Blue.png"
+            },
+            {
+              "name": "Glacial Silver",
+              "hex": "#e9eaf0",
+              "img": "images/Summit 2 White.png"
+            }
+          ],
+          "Large": [
+            {
+              "name": "Galaxy Purple",
+              "hex": "#420264",
+              "img": "images/Summit 2 Badge Purple.png"
+            },
+            {
+              "name": "Ocean Blue",
+              "hex": "#204666",
+              "img": "images/Summit Blue.png"
+            },
+            {
+              "name": "Glacial Silver",
+              "hex": "#e9eaf0",
+              "img": "images/Summit 2 White.png"
+            }
+          ]
+        }
+      },
+      "colorsNested": true,
+      "sizeGuide": {}
+    },
+    {
+      "brand": "Velotric",
+      "id": "fold1plus",
+      "name": "Fold 1 Plus",
+      "subtitle": "Popular Folding",
+      "price": 1399,
+      "testRide": "Test Ride Available",
+      "styles": [
+        "Folding"
+      ],
+      "sizes": [
+        "One Size"
+      ],
+      "specs": {
+        "Range": "68 mi",
+        "Top Speed": "28 mph",
+        "Motor": "750W",
+        "Battery": "624WH"
+      },
+      "colors": {
+        "Folding": {
+          "One Size": [
+            {
+              "name": "Mango",
+              "hex": "#f7c626",
+              "img": "images/Fold Plus.png",
+              "price": 1499
+            },
+            {
+              "name": "Electric Blue",
+              "hex": "#1563eb",
+              "img": "images/Fold 1 blue.png",
+              "price": 1499
+            },
+            {
+              "name": "Stone Gray",
+              "hex": "#5c5751",
+              "img": "images/Fold 1 Gray.png",
+              "price": 1499
+            },
+            {
+              "name": "White",
+              "hex": "#ece7e1",
+              "img": "images/Fold 1 White.png",
+              "price": 1499
+            },
+            {
+              "name": "Violet Haze",
+              "hex": "#c6b8e4",
+              "img": "images/Fold 1 violet.png",
+              "price": 1499
+            }
+          ]
+        }
+      },
+      "colorsNested": true,
+      "sizeGuide": {}
+    },
+    {
+      "brand": "Velotric",
+      "id": "fold1",
+      "name": "Fold 1",
+      "subtitle": "Compact Folding",
+      "price": 1299,
+      "testRide": "",
+      "styles": [
+        "Folding"
+      ],
+      "sizes": [
+        "One Size"
+      ],
+      "specs": {
+        "Range": "55 mi",
+        "Top Speed": "28 mph",
+        "Motor": "750W",
+        "Battery": "608WH"
+      },
+      "colors": {
+        "Folding": {
+          "One Size": [
+            {
+              "name": "Stone Gray",
+              "hex": "#696969",
+              "img": "images/Fold 1 Gray.png"
+            },
+            {
+              "name": "Electric Blue",
+              "hex": "#1563eb",
+              "img": "images/Fold 1 blue.png"
+            },
+            {
+              "name": "Pearl White",
+              "hex": "#ebebeb",
+              "img": "images/Fold 1 White.png"
+            }
+          ]
+        }
+      },
+      "colorsNested": true,
+      "sizeGuide": {}
+    },
+    {
+      "brand": "Velotric",
+      "id": "t1stplus",
+      "name": "T1 ST Plus",
+      "subtitle": "Ultra Lightweight City",
+      "price": 1249,
+      "testRide": "",
+      "styles": [
+        "High-Step"
+      ],
+      "sizes": [
+        "Regular",
+        "Large"
+      ],
+      "specs": {
+        "Range": "70 mi",
+        "Top Speed": "28 mph",
+        "Motor": "350W",
+        "Battery": "352.8WH"
+      },
+      "colors": {
+        "High-Step": {
+          "Regular": [
+            {
+              "name": "Sand White",
+              "hex": "#ece7e1",
+              "img": "images/T1ST White.png"
+            },
+            {
+              "name": "Lava Orange",
+              "hex": "#ef7421",
+              "img": "images/T1ST Orange Badge.png"
+            }
+          ],
+          "Large": [
+            {
+              "name": "Sand White",
+              "hex": "#ece7e1",
+              "img": "images/T1ST White.png"
+            },
+            {
+              "name": "Lava Orange",
+              "hex": "#ef7421",
+              "img": "images/T1ST Orange Badge.png"
+            }
+          ]
+        }
+      },
+      "colorsNested": true,
+      "sizeGuide": {}
+    },
+    {
+      "brand": "Velotric",
+      "id": "triker",
+      "name": "Triker",
+      "subtitle": "Electric Tricycle",
+      "price": 2499,
+      "testRide": "Test Ride Available",
+      "styles": [
+        "3-Wheel Trike"
+      ],
+      "sizes": [
+        "One Size"
+      ],
+      "specs": {
+        "Range": "60 mi",
+        "Top Speed": "20 mph",
+        "Motor": "750W",
+        "Battery": "804WH"
+      },
+      "colors": {
+        "3-Wheel Trike": {
+          "One Size": [
+            {
+              "name": "Pearl White",
+              "hex": "#ece7e1",
+              "img": "images/Triker white.png"
+            },
+            {
+              "name": "Electric Blue",
+              "hex": "#1563eb",
+              "img": "images/Triker Blue.png"
+            },
+            {
+              "name": "Cherry Crimson",
+              "hex": "#ba0f13",
+              "img": "images/Triker Red.png"
+            }
+          ]
+        }
+      },
+      "colorsNested": true,
+      "sizeGuide": {}
+    },
+    {
+      "brand": "Velotric",
+      "id": "breeze1",
+      "name": "Breeze 1",
+      "subtitle": "Lightweight Cruiser",
+      "price": 1799,
+      "testRide": "",
+      "styles": [
+        "Lightweight"
+      ],
+      "sizes": [
+        "Regular",
+        "Large"
+      ],
+      "specs": {
+        "Range": "70 mi",
+        "Top Speed": "28 mph",
+        "Motor": "750W",
+        "Battery": "627WH"
+      },
+      "colors": {
+        "Lightweight": {
+          "Regular": [
+            {
+              "name": "Violet Haze",
+              "hex": "#d9c5f2",
+              "img": "images/Breeze 1 Purple.png",
+              "price": 1699
+            },
+            {
+              "name": "Ocean Mist",
+              "hex": "#72e3fe",
+              "img": "images/Breeze 1 blue.png",
+              "price": 1699
+            },
+            {
+              "name": "Classic Scarlet",
+              "hex": "#f60901",
+              "img": "images/Breeze 1 Red.png"
+            },
+            {
+              "name": "Satin White",
+              "hex": "#ece7e1",
+              "img": "images/Breeze 1 white.png"
+            },
+            {
+              "name": "Slate Gray",
+              "hex": "#696969",
+              "img": "images/Breeze 1 Grey.png"
+            }
+          ],
+          "Large": [
+            {
+              "name": "Violet Haze",
+              "hex": "#d9c5f2",
+              "img": "images/Breeze 1 Purple.png",
+              "price": 1699
+            },
+            {
+              "name": "Ocean Mist",
+              "hex": "#72e3fe",
+              "img": "images/Breeze 1 blue.png",
+              "price": 1699
+            },
+            {
+              "name": "Classic Scarlet",
+              "hex": "#f60901",
+              "img": "images/Breeze 1 Red.png"
+            },
+            {
+              "name": "Satin White",
+              "hex": "#ece7e1",
+              "img": "images/Breeze 1 white.png"
+            },
+            {
+              "name": "Slate Gray",
+              "hex": "#696969",
+              "img": "images/Breeze 1 Grey.png"
+            }
+          ]
+        }
+      },
+      "colorsNested": true,
+      "sizeGuide": {}
+    },
+    {
+      "brand": "Velotric",
+      "id": "summit1",
+      "name": "Summit 1",
+      "subtitle": "Electric Mountain Bike",
+      "price": 1999,
+      "testRide": "",
+      "styles": [
+        "High-Step"
+      ],
+      "sizes": [
+        "Regular",
+        "Large"
+      ],
+      "specs": {
+        "Range": "70 mi",
+        "Top Speed": "28 mph",
+        "Motor": "750W",
+        "Battery": "705.6WH"
+      },
+      "colors": {
+        "High-Step": {
+          "Regular": [
+            {
+              "name": "Royal Blue",
+              "hex": "#233b6b",
+              "img": "images/Summit Blue.png"
+            },
+            {
+              "name": "Sunrise Orange",
+              "hex": "#f17022",
+              "img": "images/Summit Orange.png"
+            },
+            {
+              "name": "Space Black",
+              "hex": "#080c0d",
+              "img": "images/Summit Black.png"
+            }
+          ],
+          "Large": [
+            {
+              "name": "Royal Blue",
+              "hex": "#233b6b",
+              "img": "images/Summit Blue.png"
+            },
+            {
+              "name": "Sunrise Orange",
+              "hex": "#f17022",
+              "img": "images/Summit Orange.png"
+            },
+            {
+              "name": "Space Black",
+              "hex": "#080c0d",
+              "img": "images/Summit Black.png"
+            }
+          ]
+        }
+      },
+      "colorsNested": true,
+      "sizeGuide": {}
+    },
+    {
+      "brand": "Heybike",
+      "id": "hybrid",
+      "name": "Hybrid",
+      "subtitle": "Commuter Cruiser",
+      "price": 1699,
+      "testRide": "",
+      "styles": [
+        "Step-Thru"
+      ],
+      "sizes": [
+        "One Size"
+      ],
+      "specs": {
+        "Range": "100 mi",
+        "Motor": "750W",
+        "Battery": "864WH",
+        "Torque": "75 NM",
+        "Weight": "69 lbs"
+      },
+      "colors": {
+        "Step-Thru": {
+          "One Size": [
+            {
+              "name": "Onyx Black",
+              "hex": "#4d4d4d",
+              "img": "https://static.wixstatic.com/media/56427e_9c4d8771079c4d45933e881c9c05fc5a~mv2.png"
+            },
+            {
+              "name": "Ruby Red",
+              "hex": "#c1464e",
+              "img": "https://static.wixstatic.com/media/56427e_d35b6a5833c14c9c9f2e5b83e8b26feb~mv2.png"
+            },
+            {
+              "name": "Emarald Green",
+              "hex": "#52794b",
+              "img": "https://static.wixstatic.com/media/56427e_bd80e5ad3691442e8ce094a0d77f99dc~mv2.png"
+            }
+          ]
+        }
+      },
+      "colorsNested": true,
+      "sizeGuide": {}
+    },
+    {
+      "brand": "Velotric",
+      "id": "tempo",
+      "name": "Tempo",
+      "subtitle": "Ultra Lightweight City",
+      "price": 1499,
+      "testRide": "",
+      "styles": [
+        "Mid-Step",
+        "high-Step"
+      ],
+      "sizes": [
+        "Regular",
+        "Large"
+      ],
+      "specs": {
+        "Range": "60 mi",
+        "Top Speed": "28 mph",
+        "Motor": "350W",
+        "Battery": "374WH",
+        "Torque": "45 NM",
+        "Weight": "39 lbs"
+      },
+      "colors": {
+        "high-Step": {
+          "Regular": [
+            {
+              "name": "Forest Evergreen",
+              "hex": "#7b9e7b",
+              "img": "http://ebike-sales.pages.dev/images/tempogreenhigh.JPG"
+            },
+            {
+              "name": "Lightning Silver",
+              "hex": "#eceaea",
+              "img": "http://ebike-sales.pages.dev/images/tempohighsilver.JPG"
+            }
+          ],
+          "Large": [
+            {
+              "name": "Forest Evergreen",
+              "hex": "#7b9e7b",
+              "img": "http://ebike-sales.pages.dev/images/tempogreenhigh.JPG"
+            },
+            {
+              "name": "Lightning silver",
+              "hex": "#d9d4d4",
+              "img": "http://ebike-sales.pages.dev/images/tempohighsilver.JPG"
+            }
+          ]
+        },
+        "Mid-Step": {
+          "Regular": [
+            {
+              "name": "Forest Evergreen",
+              "hex": "#7da07d",
+              "img": "http://ebike-sales.pages.dev/images/tempogreenmid.JPG"
+            },
+            {
+              "name": "Tangerine Orange",
+              "hex": "#de5a2d",
+              "img": "http://ebike-sales.pages.dev/images/tempomidorange.JPG"
+            }
+          ],
+          "Large": [
+            {
+              "name": "Forest Green",
+              "hex": "#7b9e7b",
+              "img": "http://ebike-sales.pages.dev/images/tempogreenmid.JPG"
+            },
+            {
+              "name": "Tangerine Orange",
+              "hex": "#de5a2d",
+              "img": "http://ebike-sales.pages.dev/images/tempomidorange.JPG"
+            }
+          ]
+        }
+      },
+      "colorsNested": true,
+      "sizeGuide": {
+        "4'10\"–5'5\"": "R",
+        "5'3\"–5'11\"": "L"
+      }
+    },
+    {
+      "brand": "Velotric",
+      "id": "gomad",
+      "name": "GoMad",
+      "subtitle": "Fat Tire utility",
+      "price": 1999,
+      "testRide": "",
+      "styles": [
+        "Step-Thru"
+      ],
+      "sizes": [
+        "One size"
+      ],
+      "specs": {
+        "Range": "75 mi",
+        "Top Speed": "28 mph",
+        "Motor": "750W",
+        "Battery": "801.6WH",
+        "Torque": "85 NM",
+        "Weight": "77 lbs"
+      },
+      "colors": {
+        "Step-Thru": {
+          "One size": [
+            {
+              "name": "Dark Amber",
+              "hex": "#cc2e2e",
+              "img": "images/gomadred.jpg"
+            },
+            {
+              "name": "New ColorObsidian",
+              "hex": "#281c45",
+              "img": "images/gomadblue.jpg"
+            },
+            {
+              "name": "Sage",
+              "hex": "#24422a",
+              "img": "images/gomadsage.jpg"
+            }
+          ]
+        }
+      },
+      "colorsNested": true,
+      "sizeGuide": {}
+    },
+    {
+      "brand": "Mooncool",
+      "id": "tk2electrictrike",
+      "name": "TK2 Electric Trike",
+      "subtitle": "Etrike",
+      "price": 1399,
+      "testRide": "Test Ride Available",
+      "styles": [
+        "3-Wheel Trike"
+      ],
+      "sizes": [
+        "One size"
+      ],
+      "specs": {
+        "Range": "60 mi",
+        "Top Speed": "15 mph",
+        "Motor": "500W",
+        "Battery": "720WH",
+        "Torque": "65 NM",
+        "Weight": "115 lbs"
+      },
+      "colors": {
+        "Default": {
+          "One size": [
+            {
+              "name": "White",
+              "hex": "#fbf9f9",
+              "img": "https://ebike-sales.pages.dev/images/TK2White.jpg"
+            },
+            {
+              "name": "Slate Gray",
+              "hex": "#888888",
+              "img": "https://ebike-sales.pages.dev/images/Tk2grey.jpg"
+            },
+            {
+              "name": "Cyan Green",
+              "hex": "#5dbab5",
+              "img": "https://ebike-sales.pages.dev/images/Tk2aqua.jpg"
+            },
+            {
+              "name": "Vibrant Orange",
+              "hex": "#fa6524",
+              "img": "https://ebike-sales.pages.dev/images/Tk2orange.jpg"
+            },
+            {
+              "name": "Serenity Blue",
+              "hex": "#71a6b7",
+              "img": "https://ebike-sales.pages.dev/images/Tk2blue.jpg"
+            },
+            {
+              "name": "Lavender Purple",
+              "hex": "#5b5c98",
+              "img": "https://ebike-sales.pages.dev/images/TK2purple.jpg"
+            }
+          ]
+        }
+      },
+      "colorsNested": true,
+      "sizeGuide": {}
+    },
+    {
+      "brand": "Mooncool",
+      "id": "tk1",
+      "name": "TK1",
+      "subtitle": "",
+      "price": 1299,
+      "testRide": "",
+      "styles": [
+        "3-Wheel Trike"
+      ],
+      "sizes": [
+        "One size"
+      ],
+      "specs": {
+        "Range": "70 mi",
+        "Top Speed": "16 mph",
+        "Motor": "500W",
+        "Battery": "696WH",
+        "Weight": "89 lbs"
+      },
+      "colors": {
+        "Default": {
+          "One size": [
+            {
+              "name": "Grey",
+              "hex": "#888888",
+              "img": "http://Ebike-sales.pages.dev/images/tk1grey.jpg"
+            },
+            {
+              "name": "White",
+              "hex": "#ffffff",
+              "img": "http://Ebike-sales.pages.dev/images/tk1white.jpg"
+            },
+            {
+              "name": "Orange",
+              "hex": "#b37100",
+              "img": "http://Ebike-sales.pages.dev/images/tk1orange.jpg"
+            },
+            {
+              "name": "Cyan",
+              "hex": "#00bfff",
+              "img": "http://Ebike-sales.pages.dev/images/tk1cyan.jpg"
+            },
+            {
+              "name": "Green",
+              "hex": "#00ffff",
+              "img": "http://Ebike-sales.pages.dev/images/tk1green.jpg"
+            },
+            {
+              "name": "Purple",
+              "hex": "#8e13f2",
+              "img": "http://Ebike-sales.pages.dev/images/tk1purple.jpg"
+            }
+          ]
+        }
+      },
+      "colorsNested": true,
+      "sizeGuide": {}
+    },
+    {
+      "brand": "Mooncool",
+      "id": "tkpro",
+      "name": "Tk Pro",
+      "subtitle": "",
+      "price": 1699,
+      "testRide": "",
+      "styles": [
+        "3-Wheel Trike"
+      ],
+      "sizes": [
+        "One size"
+      ],
+      "specs": {
+        "Range": "75 mi",
+        "Top Speed": "15 mph",
+        "Motor": "750W",
+        "Battery": "960WH",
+        "Torque": "85 NM",
+        "Weight": "90 lbs"
+      },
+      "colors": {
+        "Default": {
+          "One size": [
+            {
+              "name": "Silver",
+              "hex": "#d9d9d9",
+              "img": "https://ebike-sales.pages.dev/images/tkprosilver.jpg"
+            },
+            {
+              "name": "Dark Blue",
+              "hex": "#0f0080",
+              "img": "https://ebike-sales.pages.dev/images/tkprodarkblue.jpg"
+            },
+            {
+              "name": "Purple",
+              "hex": "#ad6eff",
+              "img": "https://ebike-sales.pages.dev/images/tkpropurple.jpg"
+            },
+            {
+              "name": "Red",
+              "hex": "#bd2222",
+              "img": "https://ebike-sales.pages.dev/images/tkprored.jpg"
+            },
+            {
+              "name": "Cyan",
+              "hex": "#00ffff",
+              "img": "https://ebike-sales.pages.dev/images/tkproblue.jpg"
+            },
+            {
+              "name": "New Color",
+              "hex": "#702200",
+              "img": "https://ebike-sales.pages.dev/images/tkproorange.jpg"
+            }
+          ]
+        }
+      },
+      "colorsNested": true,
+      "sizeGuide": {}
+    },
+    {
+      "brand": "Mooncool",
+      "id": "cd1youthtrike",
+      "name": "CD1 Youth Trike",
+      "subtitle": "Recommended age 8-14",
+      "price": 599,
+      "testRide": "",
+      "styles": [
+        "3-Wheel Kids Trike"
+      ],
+      "sizes": [
+        "One size"
+      ],
+      "specs": {
+        "Range": "35 mi",
+        "Top Speed": "12 mph",
+        "Motor": "250W",
+        "Battery": "696WH",
+        "Weight": "55 lbs"
+      },
+      "colors": {
+        "Step-Thru": {
+          "One size": [
+            {
+              "name": "White",
+              "hex": "#ffffff",
+              "img": "http://Ebike-sales.pages.dev/images/cd1white.jpg"
+            },
+            {
+              "name": "Cyan",
+              "hex": "#888888",
+              "img": "http://Ebike-sales.pages.dev/images/cd1cyan.jpg"
+            },
+            {
+              "name": "Pink",
+              "hex": "#888888",
+              "img": "http://Ebike-sales.pages.dev/images/cd1pink.jpg"
+            },
+            {
+              "name": "Blue",
+              "hex": "#888888",
+              "img": "http://Ebike-sales.pages.dev/images/cd1blue.jpg"
+            },
+            {
+              "name": "Green",
+              "hex": "#888888",
+              "img": "http://Ebike-sales.pages.dev/images/cd1green.jpg"
+            },
+            {
+              "name": "Red",
+              "hex": "#888888",
+              "img": "http://Ebike-sales.pages.dev/images/cd1red.jpg"
+            }
+          ]
+        }
+      },
+      "colorsNested": true,
+      "sizeGuide": {}
+    },
+    {
+      "brand": "Mooncool",
+      "id": "tk1fattire",
+      "name": "TK1 fat tire",
+      "subtitle": "",
+      "price": 1299,
+      "testRide": "",
+      "styles": [
+        "3-Wheel Trike"
+      ],
+      "sizes": [
+        "One size"
+      ],
+      "specs": {
+        "Range": "60 mi",
+        "Top Speed": "16 mph",
+        "Motor": "500W",
+        "Battery": "695WH",
+        "Torque": "85 NM",
+        "Weight": "90 lbs"
+      },
+      "colors": {
+        "Default": {
+          "One Size": []
+        }
+      },
+      "colorsNested": true,
+      "sizeGuide": {}
+    },
+    {
+      "brand": "Mooncool",
+      "id": "ft1",
+      "name": "Ft1",
+      "subtitle": "",
+      "price": 1199,
+      "testRide": "",
+      "styles": [
+        "3-Wheel Trike"
+      ],
+      "sizes": [
+        "One size"
+      ],
+      "specs": {
+        "Range": "60 mi",
+        "Top Speed": "15 mph",
+        "Motor": "500W",
+        "Battery": "696WH",
+        "Torque": "45 NM",
+        "Weight": "90 lbs"
+      },
+      "colors": {
+        "Default": {
+          "One size": [
+            {
+              "name": "Red",
+              "hex": "#b81d1d",
+              "img": "http://Ebike-sales.pages.dev/images/ft1red.jpg"
+            },
+            {
+              "name": "Black",
+              "hex": "#000000",
+              "img": "http://Ebike-sales.pages.dev/images/ft1black.jpg"
+            },
+            {
+              "name": "Blue",
+              "hex": "#2e35ff",
+              "img": "http://Ebike-sales.pages.dev/images/ft1blue.jpg"
+            },
+            {
+              "name": "Royal",
+              "hex": "#00277a",
+              "img": "http://Ebike-sales.pages.dev/images/ft1royal.jpg"
+            },
+            {
+              "name": "White",
+              "hex": "#ffffff",
+              "img": "http://Ebike-sales.pages.dev/images/ft1white.jpg"
+            },
+            {
+              "name": "Cyan",
+              "hex": "#00ffff",
+              "img": "http://Ebike-sales.pages.dev/images/ft1cryan.jpg"
+            }
+          ]
+        }
+      },
+      "colorsNested": true,
+      "sizeGuide": {}
+    }
+  ]
+}

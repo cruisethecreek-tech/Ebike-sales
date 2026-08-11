@@ -530,9 +530,10 @@ const SITE_CONFIG = {
                 if (cached_heybike) {
                     try { buildBikeCards(JSON.parse(cached_heybike)); } catch(ex) {}
                 }
-                fetch(AS_URL + '?action=getBikeInventory', {redirect:'follow'})
+                fetch('/data/inventory.json')
                 .then(r => r.json())
-                .then(data => {
+                .then(envelope => {
+                    const data = Array.isArray(envelope) ? envelope : (envelope.bikes || []);
                     localStorage.setItem('ctc_inv_heybike', JSON.stringify(data));
                     buildBikeCards(data);
                 })

@@ -1,0 +1,63 @@
+﻿name: Sync Bike Inventory
+
+# Triggers:
+#   1. repository_dispatch — called by Apps Script when Pat edits the Sheet.
+#      Event type: "sync-inventory"
+#   2. Daily schedule — safety net so stale data is caught within 24 hours.
+#   3. Manual trigger — for testing / forcing a refresh.
+on:
+  repository_dispatch:
+    types: [sync-inventory]
+  schedule:
+    - cron: "0 6 * * *"   # 6 AM UTC daily
+  workflow_dispatch:
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write   # needed to commit data/inventory.json
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Fetch inventory from Apps Script
+        run: |
+          INV_URL="https://script.google.com/macros/s/AKfycbyxVMuFEUeR8_YqM1VVnfPSVPnDhdCs_63dDthZ4jODlTDGQ-7yXSkQeYT-Ux0SM8tw/exec"
+          curl -sL "$INV_URL?action=getBikeInventory" -o /tmp/bikes_raw.json
+          echo "Fetched $(cat /tmp/bikes_raw.json | python3 -c 'import sys,json; d=json.load(sys.stdin); print(len(d))') bikes"
+
+      - name: Wrap in envelope and write to data/inventory.json
+        run: |
+          python3 - <<'PYEOF'
+          import json, datetime, os
+
+          with open('/tmp/bikes_raw.json') as f:
+              bikes = json.load(f)
+
+          payload = {
+              "lastUpdated": datetime.datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%SZ'),
+              "bikes": bikes
+          }
+
+          os.makedirs('data', exist_ok=True)
+          with open('data/inventory.json', 'w') as f:
+              json.dump(payload, f, indent=2)
+
+          print(f"Wrote {len(bikes)} bikes to data/inventory.json")
+          PYEOF
+
+      - name: Commit and push if changed
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/inventory.json
+          if git diff --staged --quiet; then
+            echo "No inventory changes — nothing to commit."
+          else
+            BIKE_COUNT=$(python3 -c "import json; d=json.load(open('data/inventory.json')); print(len(d['bikes']))")
+            git commit -m "chore: sync inventory — $BIKE_COUNT bikes [skip ci]"
+            git push
+            echo "Pushed updated inventory.json"
+          fi

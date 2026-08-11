@@ -537,9 +537,10 @@ const SITE_CONFIG = {
                 if (cached_jasion) {
                     try { buildBikeCards(JSON.parse(cached_jasion)); } catch(ex) {}
                 }
-                fetch(AS_URL + '?action=getBikeInventory', {redirect:'follow'})
+                fetch('/data/inventory.json')
                 .then(r => r.json())
-                .then(data => {
+                .then(envelope => {
+                    const data = Array.isArray(envelope) ? envelope : (envelope.bikes || []);
                     localStorage.setItem('ctc_inv_jasion', JSON.stringify(data));
                     buildBikeCards(data);
                 })

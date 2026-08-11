@@ -458,11 +458,11 @@ form.addEventListener('submit', async e => {
   rebuild();
 
   // Layer live sales inventory on top (auto-updating brands + models).
-  fetch(INV_URL + '?action=getBikeInventory', { redirect: 'follow' })
+  fetch('/data/inventory.json')
     .then(function (r) { return r.json(); })
-    .then(function (data) {
-      var bikes = Array.isArray(data) ? data : (data && (data.bikes || data.inventory || data.data)) || [];
-      bikes.forEach(function (b) {
+    .then(function (envelope) {
+      var data = Array.isArray(envelope) ? envelope : (envelope && (envelope.bikes || envelope.inventory || envelope.data)) || [];
+      data.forEach(function (b) {
         if (!b) return;
         if (b.discontinued === true || norm(b.discontinued) === 'true') return;
         var brand = (b.brand || '').trim();

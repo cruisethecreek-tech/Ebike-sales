@@ -1008,9 +1008,10 @@ try {
   if (cached) paintCatalog(JSON.parse(cached));
 } catch(e) {}
 
-fetch(INV_URL + '?action=getBikeInventory', { redirect: 'follow' })
+fetch('/data/inventory.json')
   .then(r => r.json())
-  .then(data => {
+  .then(envelope => {
+    const data = Array.isArray(envelope) ? envelope : (envelope.bikes || []);
     try { localStorage.setItem(INV_CACHE, JSON.stringify(data)); } catch(e) {}
     paintCatalog(data);
   })

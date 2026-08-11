@@ -298,9 +298,10 @@
                 updateRemainingBikes(1);
             } catch (e) { /* ignore parse errors, wait for fresh fetch */ }
         }
-        fetch(AS_URL + '?action=getBikeInventory', {redirect: 'follow'})
+        fetch('/data/inventory.json')
             .then(r => r.json())
-            .then(data => {
+            .then(envelope => {
+                const data = Array.isArray(envelope) ? envelope : (envelope.bikes || []);
                 localStorage.setItem('ctc_quiz_inventory', JSON.stringify(data));
                 buildFleet(data);
                 updateRemainingBikes(1);

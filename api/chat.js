@@ -62,16 +62,16 @@ let cachedInvAt = 0;
 async function getInventory() {
   if (cachedInv && Date.now() - cachedInvAt < CMS_TTL_MS) return cachedInv;
   try {
-    const r = await fetch(INV_URL + '?action=getBikeInventory', {
+    // Reads from the versioned static file in the repo (served by Cloudflare Pages)
+    // instead of a live Apps Script call. Updated automatically by the
+    // sync-inventory GitHub Action when Pat edits the Google Sheet.
+    const r = await fetch('https://www.cruisethecreek.com/data/inventory.json', {
       cache: 'no-store',
-      redirect: 'follow',
     });
     if (!r.ok) throw new Error('inventory responded ' + r.status);
-    const data = await r.json();
-    // The endpoint returns a bare array of bike objects. Defensive in case
-    // the shape ever shifts to { bikes: [...] }.
-    cachedInv = Array.isArray(data) ? data
-              : (data && Array.isArray(data.bikes) ? data.bikes : []);
+    const envelope = await r.json();
+    cachedInv = Array.isArray(envelope) ? envelope
+              : (envelope && Array.isArray(envelope.bikes) ? envelope.bikes : []);
     cachedInvAt = Date.now();
     return cachedInv;
   } catch (err) {
