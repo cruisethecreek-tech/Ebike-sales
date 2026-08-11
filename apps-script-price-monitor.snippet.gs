@@ -24,6 +24,13 @@
 // ============================================================
 
 
+// -- INVENTORY SHEET COORDINATES ----------------------------
+// These must match your actual Google Sheet ID and tab name.
+// Keep in sync with InventoryHandlers.gs if you have both files.
+var INV_SHEET_ID = '1R3pDFG_sO81bKS6dEAa-k5F-OdD5OAbe4hQ-Oc0_T-E';
+var INV_TAB_NAME = 'Inventory';
+
+
 // -- BRAND SHOPIFY BASE URLS --------------------------------
 var PM_BRANDS = {
   'Heybike':  'https://heybike.com',
