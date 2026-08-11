@@ -68,6 +68,12 @@ var PM_ACCESSORY_WORDS = [
   'kit', 'gift box', 'gift pack', 'gift set', 'anniversary gift',
   'not for sale', 'non-delivery', 'pet carrier', 'protection plan',
   'product protection',
+  // Subscription / service plans
+  '1-year', '2-year', 'year plan', 'monthly plan',
+  // Parts and hardware that don't have a catch-all yet
+  'motor for', 'motor for mc', '24-inch motor', 'set package',
+  'trike seat', 'wide seat', 'adjustable wide', 'seat with backrest',
+  'mc adjustable',
 ];
 
 // -- KEYWORDS THAT IDENTIFY BUNDLES / COMBOS ---------------
@@ -110,8 +116,11 @@ function runPriceMonitor() {
       var theirPriceNum = _pmMinPrice_(p);
       var theirPriceStr = theirPriceNum != null ? '$' + _pmFmt_(theirPriceNum) : '—';
 
+      // -- Skip free / test / placeholder products ($0 price)
+      if (theirPriceNum === null || theirPriceNum === 0) return;
+
       // -- Skip bundles / combos first
-      // Also treat any title containing " + " as a multi-bike bundle
+      // Also treat any title containing "+" as a multi-bike bundle
       if (_pmIsBundle_(title) || title.indexOf('+') !== -1) {
         allRows.push([timestamp, brand, title, theirPriceStr, '—', '—', '📦 Bundle/Combo — skipped', url]);
         return;
