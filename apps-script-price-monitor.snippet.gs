@@ -1,4 +1,4 @@
-﻿// ============================================================
+// ============================================================
 // Cruise the Creek — Price Monitor
 // FILE: PriceMonitor.gs  (new file in the existing project)
 //
@@ -29,7 +29,7 @@ var PM_BRANDS = {
   'Heybike':  'https://heybike.com',
   'Jasion':   'https://www.jasionbike.com',
   'Velotric': 'https://www.velotricbike.com',
-  'Mooncool': 'https://www.mooncoolbike.com',
+  'Mooncool': 'https://www.mooncool.com',
 };
 
 // -- KEYWORDS THAT IDENTIFY ACCESSORIES (not bikes) --------
