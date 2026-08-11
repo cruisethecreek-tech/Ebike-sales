@@ -218,7 +218,7 @@ function _pmLoadOurInventory_() {
     }
     var data = sh.getDataRange().getValues();
     if (data.length < 2) return [];
-    var headers = data[0].map(function(h) { return String(h).trim(); });
+    var headers = data[0].map(function(h) { return String(h).trim().toLowerCase(); });
     var bikes = [];
     for (var i = 1; i < data.length; i++) {
       var row = {};
