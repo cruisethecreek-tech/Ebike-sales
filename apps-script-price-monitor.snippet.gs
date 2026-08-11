@@ -256,12 +256,17 @@ function _pmLoadOurInventory_() {
  * Fetches all products from a Shopify store's /products.json endpoint.
  * Handles pagination automatically (limit=250 per page).
  * Retries up to 3 times with exponential backoff on HTTP 429 (rate-limit).
+ * On a persistent rate-limit the LAST CACHED catalog is used as a fallback,
+ * so Mooncool data is never silently dropped just because they throttled us.
  */
 function _pmFetchShopifyProducts_(brand, baseUrl) {
+  var cacheKey = 'PM_PRODUCTS_' + brand.toUpperCase().replace(/\s+/g, '_');
+  var props     = PropertiesService.getScriptProperties();
   var products  = [];
   var page      = 1;
   var limit     = 250;
   var maxRetry  = 3;
+  var rateLimited = false;
 
   while (true) {
     var url = baseUrl + '/products.json?limit=' + limit + '&page=' + page;
@@ -277,22 +282,24 @@ function _pmFetchShopifyProducts_(brand, baseUrl) {
           followRedirects: true,
         });
         code = resp.getResponseCode();
-        if (code !== 429) break; // success or non-rate-limit error — exit retry loop
+        if (code !== 429) break; // non-rate-limit response — exit retry loop
         var wait = 5000 * Math.pow(2, attempt); // 5s, 10s, 20s
-        console.warn(brand + ' HTTP 429 rate-limit on page ' + page + ', waiting ' + (wait / 1000) + 's (attempt ' + (attempt + 1) + '/' + maxRetry + ')');
+        console.warn(brand + ' HTTP 429 on page ' + page + ', waiting ' + (wait / 1000) + 's (attempt ' + (attempt + 1) + '/' + maxRetry + ')');
         Utilities.sleep(wait);
       } catch (e) {
         console.error(brand + ' fetch failed on page ' + page + ': ' + e);
-        return products; // network error, return what we have
+        rateLimited = true;
+        break;
       }
     }
 
     if (code === 429) {
-      console.warn(brand + ' still rate-limited after ' + maxRetry + ' retries — skipping remaining pages.');
+      console.warn(brand + ' still rate-limited after ' + maxRetry + ' retries.');
+      rateLimited = true;
       break;
     }
-    if (code !== 200) {
-      console.warn(brand + ' products.json returned HTTP ' + code + ' on page ' + page);
+    if (rateLimited || code !== 200) {
+      if (!rateLimited) console.warn(brand + ' products.json returned HTTP ' + code + ' on page ' + page);
       break;
     }
 
@@ -302,10 +309,34 @@ function _pmFetchShopifyProducts_(brand, baseUrl) {
     batch.forEach(function(p) { products.push(p); });
     if (batch.length < limit) break; // last page
     page++;
-    Utilities.sleep(1000); // 1s between pages to be polite
+    Utilities.sleep(1000); // 1s between pages to stay polite
   }
 
-  console.log(brand + ': fetched ' + products.length + ' products.');
+  // If we got a full catalog, update the persistent cache.
+  if (products.length > 0) {
+    try {
+      props.setProperty(cacheKey,          JSON.stringify(products));
+      props.setProperty(cacheKey + '_TS',  String(Date.now()));
+    } catch (e) { /* ScriptProperties full or other write error — non-fatal */ }
+    console.log(brand + ': fetched ' + products.length + ' products (cache updated).');
+  } else {
+    // Use the cached version from the last successful run.
+    var cached = props.getProperty(cacheKey);
+    if (cached) {
+      try {
+        products = JSON.parse(cached);
+        var ts   = parseInt(props.getProperty(cacheKey + '_TS') || '0', 10);
+        var ageH = ts ? Math.round((Date.now() - ts) / 3600000) : '?';
+        console.log(brand + ': using cached catalog (' + products.length + ' products, ' + ageH + 'h old) because live fetch failed.');
+      } catch (e) {
+        console.warn(brand + ': cached catalog corrupt — ' + e);
+        products = [];
+      }
+    } else {
+      console.log(brand + ': fetched 0 products and no cache available.');
+    }
+  }
+
   return products;
 }
 
