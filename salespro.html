@@ -4032,26 +4032,106 @@ function closeBriefing() {
   closeM('mBriefing');
 }
 
+// ── Price Monitor: Approve (match their price) ──────────────────
+function pmApprove(alert) {
+  // Parse their price string, e.g. "$1,399.00" → 1399
+  const newPrice = parseFloat(String(alert.theirPr).replace(/[^0-9.]/g, ''));
+  if (!newPrice || newPrice < 1) {
+    toast('❌ Could not parse their price: ' + alert.theirPr);
+    return;
+  }
+
+  // Find matching bike in our loaded array by model name + brand
+  const bike = bikes.find(b =>
+    b.brand.toLowerCase() === alert.brand.toLowerCase() &&
+    b.model.toLowerCase().trim() === alert.model.toLowerCase().trim()
+  );
+
+  const confirmMsg = bike
+    ? `Match ${alert.brand} "${alert.model}" price to ${alert.theirPr}?\n\nThis will update Row ${bike.rowIndex} in the Inventory sheet.`
+    : `Match ${alert.brand} "${alert.model}" price to ${alert.theirPr}?\n\n⚠️ Bike not found in loaded list — the updatePrice action needs a rowIndex.\nGo to Color & Price editor → select this bike → change price there instead.`;
+
+  if (!confirm(confirmMsg)) return;
+  if (!bike) { toast('⚠️ Use Color & Price Editor to update this bike'); return; }
+
+  const pass = prompt('Enter admin password to confirm price change:');
+  if (pass !== ADMIN_PASS) { toast('❌ Incorrect password'); return; }
+
+  // Fire price update — same no-cors pattern as edSavePrice()
+  fetch(AS_URL + '?action=updatePrice&rowIndex=' + bike.rowIndex + '&price=' + newPrice, {redirect:'follow', mode:'no-cors'})
+    .then(() => {
+      // Update local bike record
+      bike.basePrice = newPrice;
+      bike.price     = newPrice;
+      // Hide the card
+      const cardId = 'pma-' + btoa(alert.dismissKey).replace(/=/g, '');
+      const card   = document.getElementById(cardId);
+      if (card) { card.style.opacity = '0'; card.style.transition = 'opacity .3s'; setTimeout(() => card.remove(), 320); }
+      toast(`✅ ${alert.model} price updated to $${newPrice.toLocaleString()} — live on Sheet`);
+      logActivity('price', alert.model, `Price matched to mfr ${alert.theirPr} (was ${alert.ourPr}) via Price Monitor alert`);
+    })
+    .catch(e => toast('❌ Network error: ' + e.message));
+}
+
+// ── Price Monitor: Skip (dismiss for this session) ──────────────
+function pmSkip(dismissKey, cardId) {
+  let dismissed = [];
+  try { dismissed = JSON.parse(sessionStorage.getItem('ctc_pm_dismissed') || '[]'); } catch(e) {}
+  if (!dismissed.includes(dismissKey)) { dismissed.push(dismissKey); }
+  sessionStorage.setItem('ctc_pm_dismissed', JSON.stringify(dismissed));
+
+  const card = document.getElementById(cardId);
+  if (card) { card.style.opacity = '0'; card.style.transition = 'opacity .3s'; setTimeout(() => card.remove(), 320); }
+  toast('Skipped — alert hidden for this session');
+}
+
 function loadBriefingData() {
-  // Load price alerts from Inventory sheet (columns C=Name, N=Diff, O=Status, A=Brand)
-  const invUrl = 'https://docs.google.com/spreadsheets/d/' + SHEET_ID +
-    '/gviz/tq?tqx=out:json&sheet=Inventory&tq=select%20A%2CC%2CN%2CO';
-  fetch(invUrl)
+  // Load price alerts from Price Monitor tab.
+  // PM columns: A=Timestamp B=Brand C=Model D=Their Price E=Our Price F=Difference G=Status H=URL
+  // We select only the most recent entry per model (sorted desc by timestamp, limit 200).
+  const pmUrl = 'https://docs.google.com/spreadsheets/d/' + SHEET_ID +
+    '/gviz/tq?tqx=out:json&sheet=Price%20Monitor&tq=select%20A%2CB%2CC%2CD%2CE%2CF%2CG%2CH%20order%20by%20A%20desc%20limit%20200';
+  fetch(pmUrl)
     .then(r => r.text())
     .then(text => {
       const json = JSON.parse(text.replace(/^[\s\S]*?({[\s\S]*})\s*\)?;?\s*$/, '$1'));
       const rows = json.table ? json.table.rows : [];
-      const alertsLow  = []; // mfr cheaper — urgent
-      const alertsHigh = []; // we are cheaper — good to know
+
+      // Deduplicate: keep first (most-recent) row per model name
+      const seenModels = new Set();
+      const alertsLow  = []; // 🔴 mfr cheaper
+      const alertsHigh = []; // 🟢 we are cheaper
+
+      // Read dismissed alerts for this session
+      let dismissed = [];
+      try { dismissed = JSON.parse(sessionStorage.getItem('ctc_pm_dismissed') || '[]'); } catch(e) {}
+
       rows.forEach(row => {
-        if (!row.c || !row.c[1] || !row.c[1].v) return;
-        const brand  = row.c[0] ? (row.c[0].v || '') : '';
-        const name   = row.c[1].v.toString();
-        const diff   = row.c[2] ? Number(row.c[2].v) : null;
-        const status = row.c[3] ? (row.c[3].v || '').toString() : '';
-        if (diff === null || Math.abs(diff) < 1) return; // skip matches and unverified
-        if (diff < 0) alertsLow.push({ brand, name, diff, status });
-        else alertsHigh.push({ brand, name, diff, status });
+        if (!row.c || !row.c[2] || !row.c[2].v) return;
+        const brand    = row.c[1] ? String(row.c[1].v || '') : '';
+        const model    = String(row.c[2].v || '');
+        const theirPr  = row.c[3] ? String(row.c[3].v || '—') : '—';
+        const ourPr    = row.c[4] ? String(row.c[4].v || '—') : '—';
+        const diffRaw  = row.c[5] ? String(row.c[5].v || '') : '';
+        const status   = row.c[6] ? String(row.c[6].v || '') : '';
+        const url      = row.c[7] ? String(row.c[7].v || '') : '';
+
+        // Only price discrepancies
+        if (!status.includes('LOWER') && !status.includes('lower')) return;
+        if (seenModels.has(brand + '|' + model)) return;
+        seenModels.add(brand + '|' + model);
+
+        const dismissKey = brand + '|' + model;
+        if (dismissed.includes(dismissKey)) return;
+
+        // Parse numeric difference from the diffRaw string (e.g. "-$100" or "+$150")
+        const diffNum = parseFloat(diffRaw.replace(/[^0-9.\-]/g, '')) || 0;
+        // Determine direction: "THEIR PRICE LOWER" → brand is cheaper
+        const isBrandCheaper = status.includes('THEIR PRICE LOWER') || status.includes('🔴');
+
+        const entry = { brand, model, theirPr, ourPr, diffRaw, diffNum, status, url, dismissKey };
+        if (isBrandCheaper) alertsLow.push(entry);
+        else alertsHigh.push(entry);
       });
 
       const alertEl = document.getElementById('briefAlerts');
@@ -4064,53 +4144,70 @@ function loadBriefingData() {
           '<span style="font-size:1.4rem;">✅</span>' +
           '<div><div style="font-size:12px;font-weight:800;color:#166534;">All prices are aligned</div>' +
           '<div style="font-size:11px;color:#4ade80;margin-top:1px;">No discrepancies detected</div></div></div>';
-      } else {
-        countEl.textContent = totalAlerts + ' DISCREPANC' + (totalAlerts > 1 ? 'IES' : 'Y');
-        let html = '';
-
-        // 🔴 Urgent — mfr is cheaper
-        if (alertsLow.length) {
-          html += '<div style="font-size:9px;font-weight:800;color:#991b1b;letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px;">🔴 Manufacturer Cheaper — Update Needed</div>';
-          html += alertsLow.map(a => {
-            const brandColor = a.brand === 'Velotric' ? '#C9A96E' : a.brand === 'Heybike' ? '#6B8F71' : '#e53935';
-            return '<div style="background:#fff5f5;border:1px solid #fecaca;border-radius:12px;padding:12px 14px;margin-bottom:8px;display:flex;align-items:center;gap:12px;">' +
-              '<div style="background:#fee2e2;border-radius:8px;padding:6px 8px;text-align:center;flex-shrink:0;min-width:44px;">' +
-              '<div style="font-size:11px;font-weight:900;color:#991b1b;">-$' + Math.abs(a.diff).toFixed(0) + '</div>' +
-              '<div style="font-size:8px;color:#ef4444;font-weight:700;">LOWER</div></div>' +
-              '<div style="flex:1;">' +
-              '<div style="font-size:12px;font-weight:800;color:#1e293b;">' + a.name + '</div>' +
-              '<div style="font-size:10px;color:#ef4444;font-weight:700;margin-top:1px;">Mfr is $' + Math.abs(a.diff).toFixed(0) + ' cheaper — price update needed</div>' +
-              '</div>' +
-              '<div style="font-size:10px;font-weight:800;color:' + brandColor + ';letter-spacing:.05em;">' + a.brand.toUpperCase() + '</div>' +
-              '</div>';
-          }).join('');
-        }
-
-        // 🟡 Informational — we are cheaper
-        if (alertsHigh.length) {
-          html += '<div style="font-size:9px;font-weight:800;color:#854d0e;letter-spacing:.1em;text-transform:uppercase;margin:10px 0 6px;">🟡 Our Price Lower — Competitive Advantage</div>';
-          html += alertsHigh.map(a => {
-            const brandColor = a.brand === 'Velotric' ? '#C9A96E' : a.brand === 'Heybike' ? '#6B8F71' : '#e53935';
-            return '<div style="background:#fefce8;border:1px solid #fde68a;border-radius:12px;padding:12px 14px;margin-bottom:8px;display:flex;align-items:center;gap:12px;">' +
-              '<div style="background:#fef9c3;border-radius:8px;padding:6px 8px;text-align:center;flex-shrink:0;min-width:44px;">' +
-              '<div style="font-size:11px;font-weight:900;color:#854d0e;">+$' + Math.abs(a.diff).toFixed(0) + '</div>' +
-              '<div style="font-size:8px;color:#a16207;font-weight:700;">LOWER</div></div>' +
-              '<div style="flex:1;">' +
-              '<div style="font-size:12px;font-weight:800;color:#1e293b;">' + a.name + '</div>' +
-              '<div style="font-size:10px;color:#a16207;font-weight:700;margin-top:1px;">We are $' + Math.abs(a.diff).toFixed(0) + ' cheaper — highlight this to customers</div>' +
-              '</div>' +
-              '<div style="font-size:10px;font-weight:800;color:' + brandColor + ';letter-spacing:.05em;">' + a.brand.toUpperCase() + '</div>' +
-              '</div>';
-          }).join('');
-        }
-
-        alertEl.innerHTML = html;
+        return;
       }
+
+      countEl.textContent = totalAlerts + ' DISCREPANC' + (totalAlerts > 1 ? 'IES' : 'Y');
+      let html = '';
+
+      // 🔴 Urgent — brand is cheaper
+      if (alertsLow.length) {
+        html += '<div style="font-size:9px;font-weight:800;color:#991b1b;letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px;">🔴 Manufacturer Cheaper — Action Required</div>';
+        html += alertsLow.map(a => {
+          const urlAttr = a.url ? ` onclick="window.open('${a.url}','_blank')"` : '';
+          return `<div id="pma-${btoa(a.dismissKey).replace(/=/g,'')}" style="background:#fff5f5;border:1px solid #fecaca;border-radius:12px;padding:12px 14px;margin-bottom:8px;">
+            <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px;">
+              <div style="background:#fee2e2;border-radius:8px;padding:6px 8px;text-align:center;flex-shrink:0;min-width:48px;">
+                <div style="font-size:11px;font-weight:900;color:#991b1b;">${a.diffRaw}</div>
+                <div style="font-size:8px;color:#ef4444;font-weight:700;">LOWER</div>
+              </div>
+              <div style="flex:1;">
+                <div style="font-size:12px;font-weight:800;color:#1e293b;"${urlAttr}>${a.model}</div>
+                <div style="font-size:10px;color:#64748b;margin-top:1px;">
+                  Mfr: <b>${a.theirPr}</b> &nbsp;·&nbsp; Ours: <b>${a.ourPr}</b>
+                  &nbsp;<span style="font-size:9px;font-weight:800;letter-spacing:.05em;color:#ef4444;">${a.brand.toUpperCase()}</span>
+                </div>
+              </div>
+            </div>
+            <div style="display:flex;gap:6px;">
+              <button onclick="pmApprove(${JSON.stringify(a)})" style="flex:1;background:#dcfce7;color:#166534;border:none;border-radius:9px;padding:8px 10px;font-size:11px;font-weight:800;cursor:pointer;font-family:'DM Sans',sans-serif;letter-spacing:.05em;">
+                ✅ MATCH THEIR PRICE
+              </button>
+              <button onclick="pmSkip(${JSON.stringify(a.dismissKey)},'pma-${btoa(a.dismissKey).replace(/=/g,'')}')" style="background:#f1f5f9;color:#64748b;border:none;border-radius:9px;padding:8px 12px;font-size:11px;font-weight:800;cursor:pointer;font-family:'DM Sans',sans-serif;">
+                SKIP
+              </button>
+            </div>
+          </div>`;
+        }).join('');
+      }
+
+      // 🟢 Informational — we are cheaper
+      if (alertsHigh.length) {
+        html += '<div style="font-size:9px;font-weight:800;color:#854d0e;letter-spacing:.1em;text-transform:uppercase;margin:10px 0 6px;">🟢 Our Price Lower — Competitive Advantage</div>';
+        html += alertsHigh.map(a => {
+          return `<div style="background:#fefce8;border:1px solid #fde68a;border-radius:12px;padding:12px 14px;margin-bottom:8px;display:flex;align-items:center;gap:12px;">
+            <div style="background:#fef9c3;border-radius:8px;padding:6px 8px;text-align:center;flex-shrink:0;min-width:48px;">
+              <div style="font-size:11px;font-weight:900;color:#854d0e;">${a.diffRaw}</div>
+              <div style="font-size:8px;color:#a16207;font-weight:700;">ADV</div>
+            </div>
+            <div style="flex:1;">
+              <div style="font-size:12px;font-weight:800;color:#1e293b;">${a.model}</div>
+              <div style="font-size:10px;color:#64748b;margin-top:1px;">
+                Mfr: <b>${a.theirPr}</b> &nbsp;·&nbsp; Ours: <b>${a.ourPr}</b>
+                &nbsp;<span style="font-size:9px;font-weight:800;letter-spacing:.05em;color:#a16207;">${a.brand.toUpperCase()}</span>
+              </div>
+            </div>
+          </div>`;
+        }).join('');
+      }
+
+      alertEl.innerHTML = html;
     })
     .catch(() => {
       document.getElementById('briefAlerts').innerHTML =
-        '<div style="text-align:center;padding:16px;color:#94a3b8;font-size:11px;font-weight:600;">Could not load price data</div>';
+        '<div style="text-align:center;padding:16px;color:#94a3b8;font-size:11px;font-weight:600;">Could not load price data — make sure the sheet is shared publicly (viewer)</div>';
     });
+
 
   // Load recent orders from Orders sheet (cols A=Date, B=First, C=Last, F=Model, I=Color, M=Price)
   const ordUrl = 'https://docs.google.com/spreadsheets/d/' + SHEET_ID +
