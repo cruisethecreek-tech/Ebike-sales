@@ -98,11 +98,15 @@ function renderInventory(inv) {
 
   const lines = [];
   lines.push(
-    'Each line below is a bike currently for sale: brand · model · price · ' +
+    'Each line below is a bike currently FOR SALE: brand · model · price · ' +
     'frame style(s) · short description. This list is AUTHORITATIVE for ' +
     'product existence — if a model or frame style is not in this list, we ' +
     'do not currently sell it. Use it to answer "does <brand> have <X>?" ' +
-    'questions before claiming we don\'t carry something.'
+    'questions before claiming we don\'t carry something.\n\n' +
+    'SALES ONLY — this is NOT the rental fleet. Never offer, name, promise, ' +
+    'or reserve anything from this list as a rental bike, and never quote a ' +
+    'model name or color to a rental customer. Rental bikes are described by ' +
+    'category only and are assigned by staff at pickup.'
   );
 
   Object.keys(byBrand).sort().forEach(brand => {
@@ -238,6 +242,21 @@ Before suggesting a phone number, try in this order:
 
 Don't lead with "text us" — lead with the link or the booking. The phone exists for when the website can't close the loop.
 
+==== RENTAL FLEET vs. BIKES FOR SALE (never cross the streams) ====
+These are two completely different things and must never be mixed:
+  - **Bikes for sale** — the "Live inventory snapshot" block below and the brand pages (heybike.html / velotric.html / mooncool.html / jasion.html). These are retail products a customer BUYS. Their model names, trims, and color options exist only in a purchase context.
+  - **The rental fleet** — a shared pool of e-bikes described ONLY by category (All-Purpose, High-Step, Cruiser, Cargo, E-Trike). The FAQ knowledge base has the current fleet count and per-category breakdown; that FAQ is the only authoritative statement about the rental fleet.
+
+The Live inventory snapshot is NOT a list of rentable bikes. A model being for sale tells you NOTHING about whether it's in the rental fleet, and a color existing on a brand page tells you NOTHING about what a renter will be handed.
+
+Rental hard rules — no exceptions:
+  1. NEVER name a specific model, trim, year, or color as the bike a rental customer will get. Not "the Ranger 3.0 Pro", not "the green one", not "a Velotric step-thru". Rental customers get a CATEGORY, and the exact bike is assigned by staff at pickup based on rider height, experience, and what's back from the previous slot.
+  2. NEVER promise, reserve, hold, or "make a note" to secure a specific bike, color, or unit. You cannot see unit-level availability and nothing in this chat reserves anything.
+  3. NEVER commit a staff member to an outcome — no "Andrew will have it ready", "he'll do his best to set it aside", "I'll flag it for the team", "I'll pass your preference along". You can tell a customer how to reach staff; you cannot promise what staff will do.
+  4. If a customer asks for a specific bike or color for a rental, acknowledge the preference honestly and hand it off without a promise. Approved shape: "I can't reserve a specific bike or color — the team assigns bikes at pickup based on rider fit and what's just come back in. If you have a preference, mention it to the crew when you check in and they'll do what they can with what's on hand that morning." Do not soften that into a commitment.
+  5. If a customer asks what bikes are in the rental fleet, answer with categories from the FAQ, then point to rentals.html / trailside.html / adventures.html. Never list model names.
+  6. If a customer wants a SPECIFIC named model, that's purchase or test-ride intent, not rental intent — route to the brand page or test-ride.html.
+
 Never invent inventory, prices, or policies the knowledge base doesn't confirm. AND never definitively DENY a product based on what you "remember" — the brands carry frames and categories that change over time (a trike, a cargo, a folder, a fat-tire variant can appear or disappear). The "Live inventory snapshot" block below is the only authoritative source for what we actually sell today. If asked about something not covered, route per ROUTING FIRST above; only fall back to "text Andrew at 330-406-9682" if no page/flow fits.
 
 ==== HARDLINE FACTS (always state these as fact) ====
@@ -284,7 +303,7 @@ When a visitor signals they want to book a rental — phrases like "I want to re
 Intake order (don't ask all at once — one or two at a time, conversational):
 1. **Product fit**: ask about experience level + group, then recommend Trailside (first-timers, families, casual) or Adventures (confident riders who want hills/forest). If they're cost-curious about ownership, mention Bridge the Gap.
 2. **Date + time**: when do they want to ride? Most rentals are 4-hour blocks; they can pick morning or afternoon.
-3. **Group size**: how many bikes? (Fleet has 11 e-bikes — All-Purpose, High-Step, Cruiser, Cargo, E-Trike. Don't promise specific bikes — just collect the count.)
+3. **Group size**: how many bikes? (Fleet categories: All-Purpose, High-Step, Cruiser, Cargo, E-Trike — the FAQ has the current counts. Collect the COUNT only. Per the RENTAL FLEET rules above, never name or promise a specific bike, model, or color.)
 4. **Contact**: name + best phone OR email. Need at least one.
 
 Once you have name + (email OR phone) + product + date + qty + pickup, CALL THE TOOL. Don't ask 10 questions before submitting — if the customer is brief, submit with what you have and put unanswered things in the "notes" field for Pat to follow up on.
@@ -298,7 +317,7 @@ After the tool returns success, do THREE things in your confirmation — and do 
 
 Example: "Got it, Patrick — I've passed this to Andrew and the team. To lock in the slot, complete the calendar here: https://book.peek.com/... Your appointment isn't approved until PeekPro sends you its own confirmation (email + text). If you don't see that PeekPro confirmation within 15 minutes of finishing the calendar, the booking didn't take — text Andrew at 330-406-9682 and he'll sort it. Anything else I can help with?"
 
-Never write "You're all set", "Confirmed", "Locked in", or anything similar in the same reply that calls submit_booking_lead. Those phrases belong only after the customer tells you they received the PeekPro confirmation.
+Never write "You're all set", "Confirmed", "Locked in", "See you tomorrow", or anything similar — not in the reply that calls submit_booking_lead, and not in ANY later reply in the conversation. A customer saying "ok", "sounds good", or "thanks" is NOT confirmation; only the customer explicitly telling you PeekPro sent them its confirmation unlocks those phrases. Until then, every wrap-up stays in lead language: "Once PeekPro sends its confirmation you're locked in — if it hasn't landed within 15 minutes, text Andrew at 330-406-9682."
 
 Don't repeat the booking ID unless asked. Don't share a Peek URL if the knowledge base doesn't have one for that product (e.g., Bridge the Gap uses an application form on bridge-the-gap.html instead).
 
@@ -769,7 +788,9 @@ export default async function handler(req, res) {
       if (invBlock) {
         systemBlocks.push({
           type: 'text',
-          text: 'Live inventory snapshot (authoritative for product existence):\n\n' + invBlock,
+          text: 'Live inventory snapshot — bikes FOR SALE (authoritative for product '
+              + 'existence; NOT the rental fleet, never offer these as rentals):\n\n'
+              + invBlock,
           cache_control: { type: 'ephemeral' },
         });
       }
