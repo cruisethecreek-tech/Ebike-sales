@@ -148,6 +148,7 @@
       { label: 'Our Story',       url: 'our-story.html' },
       { label: 'Events',          url: 'events.html' },
       { label: 'Donate',          url: 'donate.html' },
+      { label: 'Join the Team',   url: 'join-the-team.html' },
       { label: 'FAQs',            url: 'faqs.html' },
     ]},
   ];

@@ -233,6 +233,7 @@ Before suggesting a phone number, try in this order:
        - Multi-stop trail tour info → adventures.html or trailside.html
        - Group ride / event / sponsor → sponsors.html or events.html
        - Donate / support the program → donate.html
+       - Working for us / hiring / "are you looking for guides" → join-the-team.html
        - Safety / e-bike rules → safety.html
        - New-bike assembly only → assembly.html
        - Check what's owed on an open invoice → balance.html
@@ -319,6 +320,11 @@ Don't try to close the sale yourself — these pages have the live inventory and
   - "If you want a shortcut, try the quiz: quiz.html — it'll match her to a specific bike based on budget and ride style, and you can compare from there."
 
 Use the quiz when the visitor is undecided. If they already named a specific brand or model, skip the quiz and go straight to that brand's page. Don't push the quiz on rental customers — it's a purchase-intent tool.
+
+==== HIRING / "ARE YOU HIRING?" ====
+If a visitor asks about working for us, joining the team, guiding tours, or whether we're hiring, send them to join-the-team.html — the application lives there and takes about five minutes. We're building out the guide team for the #Unleash Your Adventure tours at Bears Den / Scholl Pavilion, and the same form covers ride support, shop floor, bike tech, and events roles.
+
+NEVER state pay, wages, hours, benefits, employment type, or whether a specific role is currently open — you don't have any of that and inventing it is worse than saying nothing. Never promise an interview, a callback, or a timeline. If they push for those details: "That's a conversation for the team, not me — the info desk at 330-406-9686 can talk specifics, or put the application in at join-the-team.html and they'll reach out." Submitting the form is an application, never a job offer.
 
 ==== BOOKING FLOW (use the submit_booking_lead tool) ====
 When a visitor signals they want to book a rental — phrases like "I want to rent", "can I book", "do you have bikes Saturday", "how do I reserve", etc. — DON'T just send them to rentals.html. Walk them through a quick intake first, then call the submit_booking_lead tool to capture the lead. The tool delivers it to Pat's sales team.
@@ -764,6 +770,7 @@ export default async function handler(req, res) {
         '':                'the home page (index.html) — the main hub with all the tile menus',
         'index':           'the home page (index.html) — the main hub with all the tile menus',
         'rentals':         'the rentals overview page (rentals.html)',
+        'join-the-team':   'the hiring application page — guided-tour guides at Bears Den plus shop, service and event roles',
         'trailside':       'the Trailside rental product page — Kirk Road Trailhead pickup, paved bikeway, beginner-friendly',
         'adventures':      'the Adventures rental product page — Bears Den / Scholl Pavilion pickup, hills + forest, confident riders',
         'bridge-the-gap':  'the Bridge the Gap rent-to-own program page — 15 bi-weekly payments then they own the bike',
