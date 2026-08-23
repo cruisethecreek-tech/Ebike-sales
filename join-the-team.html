@@ -1,0 +1,864 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Join the Team | Cruise the Creek</title>
+<meta name="description" content="Apply to join the Cruise the Creek crew — guided e-bike tours at Bears Den / Scholl Pavilion in Mill Creek Park, plus ride support, shop, and service roles.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --sage:#6B8F71;--sage-d:#557159;--forest:#2D4A32;--dark:#1a2e1c;
+  --tan:#C9A96E;--tan-d:#a98843;--cream:#F5F0E8;--cream-w:#fbf7ef;
+  --ink:#1a1a1a;--ink-2:#3a3a3a;--ink-3:#5a5a5a;
+}
+html{scroll-behavior:smooth}
+body{font-family:'DM Sans',sans-serif;color:var(--ink);background:var(--cream);
+  min-height:100vh;display:flex;flex-direction:column;line-height:1.7;overflow-x:hidden}
+a{color:inherit;text-decoration:none;transition:color .2s ease}
+img{max-width:100%;display:block}
+button{font-family:inherit}
+
+/* TOP BAR */
+.topbar{background:rgba(255,255,255,.95);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+  color:var(--dark);padding:14px 24px;display:flex;align-items:center;justify-content:space-between;gap:14px;
+  position:sticky;top:0;z-index:100;border-bottom:1px solid rgba(0,0,0,.05)}
+.brand-logo{height:38px;width:auto;display:block}
+.top-nav{display:flex;gap:8px;align-items:center}
+.top-nav a{padding:8px 14px;border-radius:4px;font-size:.82rem;font-weight:700;
+  letter-spacing:.04em;text-transform:uppercase;color:var(--ink-2);transition:all .2s}
+.top-nav a:hover{background:rgba(0,0,0,.05);color:var(--forest)}
+.top-nav .apply{background:var(--forest);color:#fff}
+.top-nav .apply:hover{background:var(--dark);color:#fff}
+
+/* BREADCRUMB */
+.crumb{max-width:1080px;margin:0 auto;padding:18px 24px 0;
+  font-size:.74rem;letter-spacing:.1em;text-transform:uppercase;font-weight:700;color:var(--sage)}
+.crumb a{color:var(--ink-2)}
+.crumb a:hover{color:var(--forest)}
+.crumb .sep{color:rgba(0,0,0,.2);margin:0 8px}
+
+/* HERO */
+.hero{position:relative;min-height:50vh;padding:72px 24px 56px;
+  display:flex;align-items:flex-end;justify-content:center;
+  color:#fff;background:var(--forest);overflow:hidden;isolation:isolate}
+.hero-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:-3;opacity:0;transition:opacity .6s ease}
+.hero-img.loaded{opacity:1}
+.hero-overlay{position:absolute;inset:0;z-index:-2;opacity:0;transition:opacity .6s ease;
+  background:linear-gradient(180deg,rgba(26,46,28,.3) 0%,rgba(26,46,28,.6) 100%)}
+.hero.has-photo .hero-overlay{opacity:1}
+.hero-topo{position:absolute;inset:0;z-index:-1;opacity:.16;pointer-events:none;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 600 400' preserveAspectRatio='none'><g fill='none' stroke='%23F5F0E8' stroke-width='1.2'><path d='M0,80 Q150,60 300,90 T600,80'/><path d='M0,140 Q150,120 300,150 T600,140'/><path d='M0,200 Q150,180 300,210 T600,200'/><path d='M0,260 Q150,240 300,270 T600,260'/></g></svg>");
+  background-size:cover}
+.hero-content{position:relative;z-index:1;text-align:center;max-width:780px;margin:0 auto;
+  animation:rise 1s cubic-bezier(0.16,1,0.3,1) both}
+.hero-eyebrow{display:inline-block;font-size:.74rem;font-weight:700;letter-spacing:.22em;
+  text-transform:uppercase;color:var(--tan);margin-bottom:14px;
+  padding:6px 14px;border:1px solid rgba(255,255,255,.25);border-radius:4px;
+  background:rgba(0,0,0,.25)}
+.hero h1{font-family:'Bebas Neue',sans-serif;font-size:clamp(2.6rem,8vw,5rem);
+  line-height:1;letter-spacing:.02em;margin-bottom:14px}
+.hero h1 em{font-style:normal;color:var(--tan);display:block;font-size:.5em;
+  letter-spacing:.04em;margin-top:8px}
+.hero p{font-size:clamp(1rem,2.4vw,1.15rem);color:rgba(255,255,255,.9);
+  max-width:580px;margin:0 auto 28px;line-height:1.6}
+.hero-cta{display:inline-flex;align-items:center;gap:10px;background:var(--tan);color:var(--dark);
+  font-weight:800;font-size:.92rem;letter-spacing:.04em;
+  padding:14px 26px;border-radius:4px;transition:background .2s ease}
+.hero-cta:hover{background:#dbb978}
+.hero-cta svg{width:16px;height:16px}
+
+/* MAIN */
+main{flex:1}
+.section{padding:64px 24px;min-width:0}
+.section-inner{max-width:1080px;margin:0 auto;min-width:0}
+.section-eyebrow{display:block;font-size:.74rem;letter-spacing:.22em;text-transform:uppercase;
+  font-weight:700;color:var(--sage);margin-bottom:10px}
+.section-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(2rem,5vw,3rem);
+  letter-spacing:.04em;color:var(--forest);line-height:1.05;margin-bottom:18px;text-transform:uppercase}
+.section-lead{font-size:1.08rem;color:var(--ink-2);max-width:700px;margin-bottom:32px;line-height:1.7}
+.section-lead .valley{color:var(--forest);font-weight:700;background:rgba(201,169,110,.18);padding:2px 8px;border-radius:4px}
+
+/* FACT STRIP */
+.facts{background:var(--cream-w);border-top:1px solid rgba(0,0,0,.06);border-bottom:1px solid rgba(0,0,0,.06);padding:36px 24px}
+.facts-grid{max-width:1080px;margin:0 auto;display:grid;grid-template-columns:1fr;gap:14px}
+.fact-card{background:#fff;border:1px solid rgba(0,0,0,.06);border-radius:8px;padding:22px 24px;text-align:center;
+  box-shadow:0 4px 12px rgba(0,0,0,.03)}
+.fact-label{font-size:.7rem;letter-spacing:.18em;text-transform:uppercase;font-weight:700;color:var(--sage);margin-bottom:8px}
+.fact-value{font-family:'Bebas Neue',sans-serif;font-size:1.9rem;color:var(--forest);line-height:1.05;letter-spacing:.02em}
+.fact-detail{font-size:.86rem;color:var(--ink-3);margin-top:6px;line-height:1.45}
+
+/* DAY IN THE LIFE */
+.day{background:var(--cream)}
+.day-grid{display:grid;grid-template-columns:1fr;gap:16px;margin-top:8px}
+.day-card{background:#fff;border:1px solid rgba(0,0,0,.06);border-radius:8px;padding:24px;
+  box-shadow:0 4px 12px rgba(0,0,0,.03);transition:transform .2s ease,box-shadow .2s ease}
+.day-card:hover{transform:translateY(-2px);box-shadow:0 12px 28px rgba(45,74,50,.1)}
+.day-head{display:flex;align-items:center;gap:14px;margin-bottom:10px}
+.day-icon{width:48px;height:48px;border-radius:8px;background:var(--cream-w);
+  display:flex;align-items:center;justify-content:center;font-size:1.6rem;flex-shrink:0;
+  border:1px solid rgba(0,0,0,.05)}
+.day-title{font-family:'Bebas Neue',sans-serif;font-size:1.4rem;letter-spacing:.04em;
+  color:var(--forest);line-height:1.05;text-transform:uppercase}
+.day-desc{font-size:.98rem;line-height:1.65;color:var(--ink-2)}
+
+/* WHAT WE LOOK FOR */
+.looking-bg{background:var(--cream-w);border-top:1px solid rgba(0,0,0,.06);border-bottom:1px solid rgba(0,0,0,.06)}
+.look-grid{display:grid;grid-template-columns:1fr;gap:14px;margin-top:8px}
+.look-item{background:#fff;border:1px solid rgba(0,0,0,.06);border-radius:8px;padding:20px 22px;
+  display:flex;gap:14px;align-items:flex-start}
+.look-check{width:32px;height:32px;border-radius:50%;background:var(--forest);color:#fff;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;font-weight:900;font-size:.95rem}
+.look-title{font-weight:800;color:var(--forest);font-size:1.02rem;margin-bottom:4px;line-height:1.2}
+.look-desc{font-size:.92rem;color:var(--ink-2);line-height:1.6}
+.look-note{margin-top:20px;padding:16px 18px;background:linear-gradient(135deg,rgba(201,169,110,.12) 0%,rgba(107,143,113,.08) 100%);
+  border-radius:6px;border-left:3px solid var(--tan)}
+.look-note-title{font-size:.7rem;letter-spacing:.18em;text-transform:uppercase;font-weight:700;color:var(--tan-d);margin-bottom:4px}
+.look-note-text{font-size:.94rem;color:var(--ink-2);line-height:1.55}
+
+/* MID CTA */
+.mid-cta{background:var(--forest);color:#fff;padding:48px 24px;text-align:center;position:relative;overflow:hidden}
+.mid-cta::after{content:'';position:absolute;inset:0;pointer-events:none;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 200'><g fill='none' stroke='%23C9A96E' stroke-opacity='0.22' stroke-width='.9'><circle cx='350' cy='40' r='40'/><circle cx='350' cy='40' r='80'/><circle cx='350' cy='40' r='120'/></g></svg>");
+  background-position:right top;background-repeat:no-repeat}
+.mid-cta-inner{max-width:780px;margin:0 auto;position:relative;z-index:1}
+.mid-cta .ce{font-size:.7rem;letter-spacing:.22em;text-transform:uppercase;font-weight:700;color:var(--tan);margin-bottom:10px}
+.mid-cta .ct{font-family:'Bebas Neue',sans-serif;font-size:clamp(1.8rem,5vw,2.6rem);
+  letter-spacing:.04em;line-height:1.05;text-transform:uppercase;margin-bottom:12px}
+.mid-cta p{color:rgba(255,255,255,.85);max-width:520px;margin:0 auto 22px;line-height:1.6;font-size:1rem}
+.mid-cta-btn{display:inline-flex;align-items:center;gap:8px;background:var(--tan);color:var(--dark);
+  font-weight:800;font-size:.9rem;letter-spacing:.04em;padding:13px 26px;border-radius:4px;transition:background .2s ease}
+.mid-cta-btn:hover{background:#dbb978}
+.mid-cta-btn svg{width:14px;height:14px}
+
+/* APPLICATION */
+.application{background:var(--cream-w);padding:56px 24px}
+.application-inner{max-width:780px;margin:0 auto}
+.application-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(2rem,5vw,2.8rem);
+  letter-spacing:.04em;color:var(--forest);text-align:center;line-height:1.05;text-transform:uppercase;margin-bottom:6px}
+.application-subtitle{color:var(--ink-2);text-align:center;margin-bottom:28px;font-size:1rem}
+
+/* ROLE PICKER (multi-select) */
+.role-options{display:grid;grid-template-columns:1fr;gap:14px;margin-bottom:10px}
+.role-option{background:#fff;border:1.5px solid rgba(0,0,0,.08);border-radius:8px;
+  padding:18px 20px;cursor:pointer;transition:all .2s ease;display:flex;gap:14px;align-items:flex-start;
+  text-align:left}
+.role-option:hover{border-color:var(--sage);transform:translateY(-2px);box-shadow:0 8px 20px rgba(45,74,50,.08)}
+.role-option.active{border-color:var(--tan);background:linear-gradient(135deg,#fff 0%,var(--cream-w) 100%);
+  box-shadow:0 8px 24px rgba(201,169,110,.25)}
+.role-box{width:22px;height:22px;border-radius:5px;border:2px solid rgba(0,0,0,.2);flex:none;margin-top:2px;
+  display:flex;align-items:center;justify-content:center;font-size:.85rem;font-weight:900;color:#fff;
+  transition:all .2s ease;background:#fff}
+.role-option.active .role-box{background:var(--forest);border-color:var(--forest)}
+.role-option.active .role-box::after{content:'✓'}
+.role-name{font-family:'Bebas Neue',sans-serif;font-size:1.3rem;color:var(--forest);
+  letter-spacing:.04em;text-transform:uppercase;line-height:1.05}
+.role-where{font-size:.76rem;color:var(--tan-d);font-weight:700;letter-spacing:.08em;
+  text-transform:uppercase;margin-top:3px}
+.role-desc{font-size:.92rem;color:var(--ink-2);line-height:1.6;margin-top:8px}
+.role-prompt{padding:14px 16px;border:1.5px dashed rgba(0,0,0,.15);border-radius:4px;
+  background:var(--cream-w);color:var(--ink-3);text-align:center;font-size:.88rem;margin-bottom:24px}
+.role-prompt.hidden{display:none}
+.role-selected{padding:14px 16px;border:1.5px solid rgba(0,0,0,.1);border-radius:4px;
+  background:var(--cream);margin-bottom:24px;display:none}
+.role-selected.shown{display:block}
+.role-selected-label{font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;
+  font-weight:700;color:var(--ink-3);margin-bottom:4px}
+.role-selected-names{font-weight:800;color:var(--forest);font-size:1rem;line-height:1.4}
+
+#form-message{padding:12px 14px;border-radius:6px;margin-bottom:16px;font-weight:700;font-size:.92rem;display:none}
+#form-message.error{background:#fbe5e5;color:#9a3636;display:block}
+#form-message.ok{background:#dcefdc;color:#1f5f24;display:block}
+
+.application-form{background:#fff;border:1px solid rgba(0,0,0,.06);border-radius:8px;padding:1.75rem}
+.form-section-title{font-family:'Bebas Neue',sans-serif;font-size:1.1rem;color:var(--forest);
+  letter-spacing:.06em;text-transform:uppercase;margin:26px 0 14px;padding-bottom:10px;
+  border-bottom:1px solid rgba(0,0,0,.06)}
+.form-section-title:first-child{margin-top:0}
+.form-row{display:grid;grid-template-columns:1fr;gap:14px;margin-bottom:14px}
+.form-group{display:flex;flex-direction:column}
+.form-label{font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;font-weight:700;
+  color:var(--ink-3);margin-bottom:6px}
+.form-hint{font-size:.8rem;color:var(--ink-3);margin-top:5px;line-height:1.45;font-weight:400;
+  letter-spacing:normal;text-transform:none}
+.required{color:#c43838}
+.optional{font-weight:400;color:var(--ink-3);font-size:.85em;text-transform:none;letter-spacing:normal}
+.form-input,.form-textarea,.form-select{width:100%;padding:.75rem 1rem;border:1.5px solid rgba(0,0,0,.1);
+  border-radius:4px;font-size:.95rem;font-family:inherit;transition:border-color .2s ease;
+  background:#fff;color:var(--ink)}
+.form-input:focus,.form-textarea:focus,.form-select:focus{outline:none;border-color:var(--sage)}
+.form-textarea{min-height:96px;resize:vertical}
+
+/* AVAILABILITY PILLS */
+.avail-list{display:grid;grid-template-columns:1fr;gap:8px}
+.avail-row{display:flex;align-items:center;gap:12px;padding:11px 14px;
+  border:1px solid rgba(0,0,0,.12);border-radius:8px;background:#fff;cursor:pointer;
+  transition:border-color .15s ease,background .15s ease}
+.avail-row:hover{border-color:var(--sage)}
+.avail-row input[type=checkbox]{width:18px;height:18px;accent-color:var(--forest);cursor:pointer;flex:none}
+.avail-row span{flex:1;font-weight:600;font-size:.94rem}
+
+.submit-btn{width:100%;background:var(--forest);color:#fff;
+  padding:1rem;border:none;border-radius:4px;font-size:1rem;font-weight:900;
+  text-transform:uppercase;letter-spacing:.06em;cursor:pointer;
+  transition:background .2s ease;margin-top:22px;font-family:inherit}
+.submit-btn:hover{background:var(--dark)}
+.submit-btn:disabled{background:rgba(0,0,0,.15);color:rgba(0,0,0,.4);cursor:not-allowed}
+.form-note{font-size:.82rem;color:var(--ink-3);margin-top:14px;line-height:1.6;text-align:center}
+
+/* MODAL */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(26,46,28,.6);
+  backdrop-filter:blur(4px);z-index:1000}
+.modal-overlay.shown{display:flex;align-items:center;justify-content:center;padding:24px}
+.modal-content{background:#fff;border-radius:8px;width:100%;max-width:460px;padding:2.4rem 2rem;
+  position:relative;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.25)}
+.close-btn{position:absolute;right:14px;top:8px;font-size:28px;cursor:pointer;
+  color:var(--ink-3);background:none;border:none;line-height:1}
+.close-btn:hover{color:var(--forest)}
+.success-icon{font-size:3rem;margin-bottom:8px}
+.success-title{font-family:'Bebas Neue',sans-serif;font-size:1.5rem;letter-spacing:.04em;
+  color:var(--forest);margin-bottom:8px;text-transform:uppercase}
+.success-message{color:var(--ink-2);margin-bottom:18px;line-height:1.55;font-size:.95rem}
+.success-btn{background:var(--forest);color:#fff;padding:.8rem 2rem;border:none;
+  border-radius:4px;font-weight:700;cursor:pointer;font-family:inherit;letter-spacing:.04em}
+.success-btn:hover{background:var(--dark)}
+
+/* FOOTER */
+footer{background:var(--dark);color:rgba(255,255,255,.7);padding:32px 24px;
+  text-align:center;font-size:.85rem;letter-spacing:.02em;margin-top:auto;border-top:2px solid var(--tan)}
+footer a{color:var(--tan);font-weight:500}
+footer a:hover{color:#fff}
+
+/* RESPONSIVE */
+@media(min-width:640px){
+  .facts-grid{grid-template-columns:repeat(3,1fr);gap:18px}
+  .day-grid{grid-template-columns:1fr 1fr;gap:20px}
+  .look-grid{grid-template-columns:1fr 1fr;gap:16px}
+  .form-row{grid-template-columns:1fr 1fr;gap:16px}
+  .avail-list{grid-template-columns:1fr 1fr}
+}
+@media(max-width:480px){
+  .topbar{padding:12px 16px}.brand-logo{height:32px}
+  .top-nav{gap:4px}.top-nav a{padding:6px 10px;font-size:.74rem}
+  .hero{padding:54px 16px 40px}
+  .crumb{padding:14px 16px 0;font-size:.7rem}
+  .section{padding:48px 16px}
+  .facts,.looking-bg,.application,.mid-cta{padding:40px 16px}
+  .application-form{padding:1.25rem}
+}
+@keyframes rise{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+@media(prefers-reduced-motion:reduce){.hero-content{animation:none;opacity:1;transform:none}}
+</style>
+<script src="site-enhance.js?v=20260625d"></script>
+<meta property="og:title" content="Join the Team | Cruise the Creek">
+<meta property="og:description" content="Apply to guide e-bike tours at Bears Den / Scholl Pavilion in Mill Creek Park — plus ride support, shop, and service roles.">
+<meta property="og:image" content="https://www.cruisethecreek.com/cityrunblackblack.jpg">
+<meta property="og:url" content="https://www.cruisethecreek.com/join-the-team.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Cruise the Creek">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Join the Team | Cruise the Creek">
+<meta name="twitter:description" content="Apply to guide e-bike tours at Bears Den / Scholl Pavilion in Mill Creek Park.">
+<meta name="twitter:image" content="https://www.cruisethecreek.com/cityrunblackblack.jpg">
+</head>
+<body>
+
+<!-- TOP BAR -->
+<header class="topbar">
+  <a href="index.html" aria-label="Cruise the Creek home">
+    <img class="brand-logo" src="BlackonTransparent.png" alt="Cruise the Creek">
+  </a>
+  <nav class="top-nav">
+    <a href="#roles">Roles</a>
+    <a class="apply" href="#application">Apply</a>
+  </nav>
+</header>
+
+<!-- BREADCRUMB -->
+<nav class="crumb"><a href="index.html">Home</a><span class="sep">/</span>Join the Team</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <img class="hero-img" src="media/Group%20Ride%201.jpg" alt=""
+       onload="this.classList.add('loaded');this.closest('.hero').classList.add('has-photo')"
+       onerror="this.remove()">
+  <div class="hero-overlay"></div>
+  <div class="hero-topo"></div>
+  <div class="hero-content">
+    <span class="hero-eyebrow">#Unleash Your Adventure · Bears Den</span>
+    <h1>
+      <span>Join the Crew</span>
+      <em>Get paid to show people the park.</em>
+    </h1>
+    <p>We're building out the guide team for our <strong>#Unleash Your Adventure</strong> tours at Bears Den / Scholl Pavilion in Mill Creek Park. If you know these trails and you like people, we want to meet you.</p>
+    <a class="hero-cta" href="#application">
+      <span>Start Your Application</span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+    </a>
+  </div>
+</section>
+
+<main>
+
+<!-- FACT STRIP -->
+<section class="facts">
+  <div class="facts-grid">
+    <div class="fact-card">
+      <div class="fact-label">Where</div>
+      <div class="fact-value">Bears Den</div>
+      <div class="fact-detail">Scholl Pavilion, Mill Creek Park — plus the Kirk Road Trailhead for Trailside shifts.</div>
+    </div>
+    <div class="fact-card">
+      <div class="fact-label">When</div>
+      <div class="fact-value">Seasonal</div>
+      <div class="fact-detail">Weekends and peak days carry most of the tour schedule. Tell us your availability and we'll work with it.</div>
+    </div>
+    <div class="fact-card">
+      <div class="fact-label">Who</div>
+      <div class="fact-value">18+</div>
+      <div class="fact-detail">Comfortable on an e-bike, comfortable talking to a group. We train you on the fleet and the routes.</div>
+    </div>
+  </div>
+</section>
+
+<!-- DAY IN THE LIFE -->
+<section class="section day">
+  <div class="section-inner">
+    <span class="section-eyebrow">The job</span>
+    <h2 class="section-title">What a tour day actually looks like</h2>
+    <p class="section-lead">Guiding at <span class="valley">Mill Creek Park</span> is part ride leader, part host, part safety net. Here's the shape of a shift, so nobody applies expecting something else.</p>
+
+    <div class="day-grid">
+      <div class="day-card">
+        <div class="day-head">
+          <div class="day-icon">🔧</div>
+          <div class="day-title">Before the guests arrive</div>
+        </div>
+        <div class="day-desc">Pull the bikes for the booking, check tires, brakes, and battery charge, and stage helmets. Anything that isn't trail-ready gets flagged before it goes out, not after.</div>
+      </div>
+      <div class="day-card">
+        <div class="day-head">
+          <div class="day-icon">👋</div>
+          <div class="day-title">Check-in &amp; fitting</div>
+        </div>
+        <div class="day-desc">Greet the group, match riders to the right bike and seat height, confirm waivers, and run the safety and controls walkthrough. Guests arrive 15 minutes early for exactly this.</div>
+      </div>
+      <div class="day-card">
+        <div class="day-head">
+          <div class="day-icon">🚵</div>
+          <div class="day-title">Leading the ride</div>
+        </div>
+        <div class="day-desc">Set a pace the slowest rider can hold, keep the group together at crossings and junctions, and know the park well enough to tell people what they're looking at. Mixed-ability groups are the norm.</div>
+      </div>
+      <div class="day-card">
+        <div class="day-head">
+          <div class="day-icon">🧰</div>
+          <div class="day-title">When something goes sideways</div>
+        </div>
+        <div class="day-desc">Flat tire, a nervous first-timer, weather rolling in, a battery lower than it should be. You handle it calmly on the trail and call it in when it's beyond a trailside fix.</div>
+      </div>
+      <div class="day-card">
+        <div class="day-head">
+          <div class="day-icon">🔋</div>
+          <div class="day-title">After the ride</div>
+        </div>
+        <div class="day-desc">Bikes back, batteries on charge, quick wipe-down and damage check, helmets sorted. The next group's experience is decided by how the last shift closed out.</div>
+      </div>
+      <div class="day-card">
+        <div class="day-head">
+          <div class="day-icon">📣</div>
+          <div class="day-title">The part that isn't riding</div>
+        </div>
+        <div class="day-desc">Answering questions about the bikes, pointing people to rentals or the shop, and being the face of Cruise the Creek in the park. A lot of our bookings start with a good conversation on the trail.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- WHAT WE LOOK FOR -->
+<section class="section looking-bg" id="roles">
+  <div class="section-inner">
+    <span class="section-eyebrow">The fit</span>
+    <h2 class="section-title">What we look for</h2>
+    <p class="section-lead">None of this is a checklist you have to clear perfectly. If you're strong on the people side, we can teach the rest.</p>
+
+    <div class="look-grid">
+      <div class="look-item">
+        <div class="look-check">✓</div>
+        <div>
+          <div class="look-title">You're good with people first</div>
+          <div class="look-desc">Half this job is making a nervous first-time rider feel safe. Patience beats bike knowledge every time.</div>
+        </div>
+      </div>
+      <div class="look-item">
+        <div class="look-check">✓</div>
+        <div>
+          <div class="look-title">You can ride and talk at once</div>
+          <div class="look-desc">Confident enough on an e-bike to lead a group, watch your riders, and narrate — not white-knuckling the bars.</div>
+        </div>
+      </div>
+      <div class="look-item">
+        <div class="look-check">✓</div>
+        <div>
+          <div class="look-title">You know the park, or you'll learn it fast</div>
+          <div class="look-desc">Mill Creek is 4,400 acres. Local knowledge is a real advantage, but we'll ride the routes with you until they're second nature.</div>
+        </div>
+      </div>
+      <div class="look-item">
+        <div class="look-check">✓</div>
+        <div>
+          <div class="look-title">You're reliable on a weekend</div>
+          <div class="look-desc">Tours run when people are off work. If Saturday mornings are sacred, this probably isn't the right fit — and that's fine, say so.</div>
+        </div>
+      </div>
+      <div class="look-item">
+        <div class="look-check">✓</div>
+        <div>
+          <div class="look-title">You keep a level head</div>
+          <div class="look-desc">Weather turns, chains drop, someone oversells their fitness. We want the person who solves it without making guests feel it.</div>
+        </div>
+      </div>
+      <div class="look-item">
+        <div class="look-check">✓</div>
+        <div>
+          <div class="look-title">You'd be proud of the fleet</div>
+          <div class="look-desc">Clean bikes, charged batteries, helmets that don't smell. The details are the job.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="look-note">
+      <div class="look-note-title">No experience guiding? Apply anyway.</div>
+      <div class="look-note-text">Some of the best people on a trail have never worked a tour in their life. Tell us what you have done — coaching, teaching, serving, retail, camp counseling, group rides with friends — and we'll read it.</div>
+    </div>
+  </div>
+</section>
+
+<!-- MID CTA -->
+<section class="mid-cta">
+  <div class="mid-cta-inner">
+    <div class="ce">Questions before you apply?</div>
+    <div class="ct">Talk to us first</div>
+    <p>Not sure whether you'd be a fit, or want to know what the schedule really looks like before you fill anything out? Call or text the info desk — it's a conversation, not an interview.</p>
+    <a class="mid-cta-btn" href="tel:+13304069686">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.9.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+      330-406-9686
+    </a>
+  </div>
+</section>
+
+<!-- APPLICATION -->
+<section class="application" id="application">
+  <div class="application-inner">
+    <h2 class="application-title">Apply to join the team</h2>
+    <p class="application-subtitle">Takes about five minutes. Pick every role you'd be open to — most of our crew covers more than one.</p>
+
+    <!-- ROLE PICKER — edit these cards to match what you're actually hiring for. -->
+    <div class="role-options" id="roleOptions">
+      <div class="role-option" data-role="Tour Guide — #Unleash Your Adventure" tabindex="0" role="checkbox" aria-checked="false">
+        <div class="role-box" aria-hidden="true"></div>
+        <div>
+          <div class="role-name">Tour Guide</div>
+          <div class="role-where">#Unleash Your Adventure · Bears Den / Scholl Pavilion</div>
+          <div class="role-desc">Lead guided e-bike tours through Mill Creek Park. Fit riders, run the safety briefing, set the pace, and know the stories behind what you're riding past. This is the role we're hiring hardest for.</div>
+        </div>
+      </div>
+      <div class="role-option" data-role="Ride Support — Trailside (Kirk Road)" tabindex="0" role="checkbox" aria-checked="false">
+        <div class="role-box" aria-hidden="true"></div>
+        <div>
+          <div class="role-name">Ride Support</div>
+          <div class="role-where">Trailside · Kirk Road Trailhead</div>
+          <div class="role-desc">Check riders out on the flat, paved bikeway. Fittings, safety intros, returns, and keeping the fleet turned around between bookings. Less narration, more logistics.</div>
+        </div>
+      </div>
+      <div class="role-option" data-role="Shop &amp; Sales Floor" tabindex="0" role="checkbox" aria-checked="false">
+        <div class="role-box" aria-hidden="true"></div>
+        <div>
+          <div class="role-name">Shop &amp; Sales Floor</div>
+          <div class="role-where">6685 Kirk Rd, Canfield</div>
+          <div class="role-desc">Help people find the right e-bike, run test rides, and answer the hundred questions that come before someone buys. Product knowledge is trainable; listening isn't.</div>
+        </div>
+      </div>
+      <div class="role-option" data-role="Bike Tech / Assembly" tabindex="0" role="checkbox" aria-checked="false">
+        <div class="role-box" aria-hidden="true"></div>
+        <div>
+          <div class="role-name">Bike Tech / Assembly</div>
+          <div class="role-where">Service bench</div>
+          <div class="role-desc">Build new bikes, run tune-ups, and keep the rental fleet trail-ready. Wrenching experience helps a lot here — tell us what you've worked on.</div>
+        </div>
+      </div>
+      <div class="role-option" data-role="Events &amp; Group Rides" tabindex="0" role="checkbox" aria-checked="false">
+        <div class="role-box" aria-hidden="true"></div>
+        <div>
+          <div class="role-name">Events &amp; Group Rides</div>
+          <div class="role-where">On location</div>
+          <div class="role-desc">Birthday rides, reunions, corporate outings, community events. Bigger groups, more moving parts, more setup and teardown.</div>
+        </div>
+      </div>
+      <div class="role-option" data-role="Open to anything" tabindex="0" role="checkbox" aria-checked="false">
+        <div class="role-box" aria-hidden="true"></div>
+        <div>
+          <div class="role-name">Open to anything</div>
+          <div class="role-where">Wherever you need me</div>
+          <div class="role-desc">You just want to be part of it and you'll go where you're useful. Perfectly good answer.</div>
+        </div>
+      </div>
+    </div>
+
+    <div id="role-prompt" class="role-prompt">↑ Pick at least one role you'd be open to</div>
+    <div id="role-selected" class="role-selected">
+      <div class="role-selected-label">You're applying for</div>
+      <div class="role-selected-names" id="role-selected-names">—</div>
+    </div>
+
+    <div id="form-message"></div>
+
+    <form id="application-form" class="application-form" novalidate>
+      <input type="hidden" id="roles-input" name="roles" required>
+      <input type="hidden" id="availability-input" name="availability">
+
+      <div class="form-section-title">About you</div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label" for="first-name">First name <span class="required">*</span></label><input class="form-input" type="text" id="first-name" name="first_name" autocomplete="given-name" required></div>
+        <div class="form-group"><label class="form-label" for="last-name">Last name <span class="required">*</span></label><input class="form-input" type="text" id="last-name" name="last_name" autocomplete="family-name" required></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label" for="email">Email <span class="required">*</span></label><input class="form-input" type="email" id="email" name="email" autocomplete="email" required></div>
+        <div class="form-group"><label class="form-label" for="phone">Phone <span class="required">*</span></label><input class="form-input" type="tel" id="phone" name="phone" autocomplete="tel" required></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label" for="city">City <span class="required">*</span></label><input class="form-input" type="text" id="city" name="city" autocomplete="address-level2" required></div>
+        <div class="form-group"><label class="form-label" for="zip">Zip <span class="required">*</span></label><input class="form-input" type="text" id="zip" name="zip" autocomplete="postal-code" inputmode="numeric" required></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label" for="over-18">Are you 18 or older? <span class="required">*</span></label>
+          <select class="form-select" id="over-18" name="over_18" required>
+            <option value="">Select…</option>
+            <option value="Yes">Yes</option>
+            <option value="No">No</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="work-authorized">Legally authorized to work in the US? <span class="required">*</span></label>
+          <select class="form-select" id="work-authorized" name="work_authorized" required>
+            <option value="">Select…</option>
+            <option value="Yes">Yes</option>
+            <option value="No">No</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-section-title">Availability</div>
+      <div class="form-group" style="margin-bottom:14px">
+        <label class="form-label">When can you work? <span class="required">*</span></label>
+        <div class="avail-list" id="availList">
+          <label class="avail-row"><input type="checkbox" data-avail="Weekday mornings"><span>Weekday mornings</span></label>
+          <label class="avail-row"><input type="checkbox" data-avail="Weekday afternoons"><span>Weekday afternoons</span></label>
+          <label class="avail-row"><input type="checkbox" data-avail="Weekday evenings"><span>Weekday evenings</span></label>
+          <label class="avail-row"><input type="checkbox" data-avail="Saturdays"><span>Saturdays</span></label>
+          <label class="avail-row"><input type="checkbox" data-avail="Sundays"><span>Sundays</span></label>
+          <label class="avail-row"><input type="checkbox" data-avail="Holidays / event days"><span>Holidays / event days</span></label>
+        </div>
+        <div class="form-hint">Tours run heaviest on weekends — be honest here, it won't count against you.</div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label" for="start-date">Earliest start date <span class="required">*</span></label><input class="form-input" type="date" id="start-date" name="start_date" required></div>
+        <div class="form-group">
+          <label class="form-label" for="hours-per-week">Hours you're looking for <span class="required">*</span></label>
+          <select class="form-select" id="hours-per-week" name="hours_per_week" required>
+            <option value="">Select…</option>
+            <option value="A few hours / occasional shifts">A few hours / occasional shifts</option>
+            <option value="Up to 10 hrs/week">Up to 10 hrs/week</option>
+            <option value="10–20 hrs/week">10–20 hrs/week</option>
+            <option value="20–30 hrs/week">20–30 hrs/week</option>
+            <option value="As many as I can get">As many as I can get</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-section-title">On the bike</div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label" for="ride-experience">How comfortable are you on an e-bike? <span class="required">*</span></label>
+          <select class="form-select" id="ride-experience" name="ride_experience" required>
+            <option value="">Select…</option>
+            <option value="Never ridden one">Never ridden one</option>
+            <option value="Ridden a few times">Ridden a few times</option>
+            <option value="Comfortable / ride regularly">Comfortable / ride regularly</option>
+            <option value="Very experienced">Very experienced</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="park-knowledge">How well do you know Mill Creek Park? <span class="required">*</span></label>
+          <select class="form-select" id="park-knowledge" name="park_knowledge" required>
+            <option value="">Select…</option>
+            <option value="New to it">New to it</option>
+            <option value="Been a few times">Been a few times</option>
+            <option value="Know it well">Know it well</option>
+            <option value="I'm there constantly">I'm there constantly</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label" for="first-aid">First Aid / CPR certified? <span class="optional">(optional)</span></label>
+          <select class="form-select" id="first-aid" name="first_aid">
+            <option value="">Select…</option>
+            <option value="Yes — current">Yes — current</option>
+            <option value="Expired / lapsed">Expired / lapsed</option>
+            <option value="No, but willing to get certified">No, but willing to get certified</option>
+            <option value="No">No</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="transport">Reliable transportation to the park? <span class="required">*</span></label>
+          <select class="form-select" id="transport" name="own_transport" required>
+            <option value="">Select…</option>
+            <option value="Yes — own vehicle">Yes — own vehicle</option>
+            <option value="Yes — other arrangement">Yes — other arrangement</option>
+            <option value="Not yet">Not yet</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-section-title">Tell us about you</div>
+      <div class="form-group" style="margin-bottom:14px">
+        <label class="form-label" for="group-experience">Any experience leading, teaching, or hosting groups? <span class="required">*</span></label>
+        <textarea class="form-textarea" id="group-experience" name="group_experience" required placeholder="Coaching, teaching, camp, serving, retail, group rides with friends — anything where you were responsible for people having a good time."></textarea>
+      </div>
+      <div class="form-group" style="margin-bottom:14px">
+        <label class="form-label" for="why-join">Why do you want this job? <span class="required">*</span></label>
+        <textarea class="form-textarea" id="why-join" name="why_join" required placeholder="Short and honest beats polished."></textarea>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label" for="resume-url">Link to a resume or profile <span class="optional">(optional)</span></label><input class="form-input" type="url" id="resume-url" name="resume_url" placeholder="https://…"><div class="form-hint">No resume? Skip it — the answers above matter more. You can also email one to info@cruisethecreek.com.</div></div>
+        <div class="form-group"><label class="form-label" for="referral">How'd you hear about us? <span class="optional">(optional)</span></label><input class="form-input" type="text" id="referral" name="referral" placeholder="Rode with us, saw a post, a friend on the crew…"></div>
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="notes">Anything else we should know? <span class="optional">(optional)</span></label>
+        <textarea class="form-textarea" id="notes" name="notes" placeholder="Scheduling constraints, a season you're only around for, questions you still have."></textarea>
+      </div>
+
+      <button type="submit" id="submit-btn" class="submit-btn">Submit Application</button>
+      <p class="form-note">Submitting this sends your application to our team — it isn't a job offer or a scheduled interview. Someone will follow up from <strong>330-406-9686</strong>. Cruise the Creek is an equal-opportunity employer.</p>
+    </form>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <span>&copy; 2026 Cruise the Creek. All rights reserved.</span>
+  &middot; <a href="index.html">Home</a>
+  &middot; <a href="adventures.html">Adventures</a>
+  &middot; <a href="shop.html">Shop</a>
+  &middot; <a href="donate.html">Support</a>
+</footer>
+
+<!-- SUCCESS MODAL -->
+<div id="successModal" class="modal-overlay" role="dialog" aria-modal="true">
+  <div class="modal-content">
+    <button class="close-btn" type="button" aria-label="Close" onclick="closeSuccessModal()">&times;</button>
+    <div class="success-icon">🚴</div>
+    <h3 class="success-title">Application received</h3>
+    <p class="success-message">Thanks for putting your name in. We read every one of these. If it looks like a fit, someone will reach out from <strong>330-406-9686</strong> — if you don't hear back and you're still interested, text that number and ask.</p>
+    <button class="success-btn" type="button" onclick="closeSuccessModal()">Close</button>
+  </div>
+</div>
+
+<script>
+/* ====== Role picker (multi-select, event-delegated) ====== */
+const roleContainer = document.getElementById('roleOptions');
+const rolesInput    = document.getElementById('roles-input');
+const rolePrompt    = document.getElementById('role-prompt');
+const roleSelected  = document.getElementById('role-selected');
+const roleNames     = document.getElementById('role-selected-names');
+
+function syncRoles() {
+  const picked = [...roleContainer.querySelectorAll('.role-option.active')]
+    .map(el => el.dataset.role);
+  rolesInput.value = picked.join(', ');
+  if (picked.length) {
+    roleNames.textContent = picked.join(' · ');
+    roleSelected.classList.add('shown');
+    rolePrompt.classList.add('hidden');
+  } else {
+    roleSelected.classList.remove('shown');
+    rolePrompt.classList.remove('hidden');
+  }
+  saveDraft();
+}
+
+function toggleRole(card) {
+  card.classList.toggle('active');
+  card.setAttribute('aria-checked', card.classList.contains('active') ? 'true' : 'false');
+  syncRoles();
+}
+
+roleContainer.addEventListener('click', e => {
+  const card = e.target.closest('.role-option');
+  if (card) toggleRole(card);
+});
+roleContainer.addEventListener('keydown', e => {
+  if (e.key !== 'Enter' && e.key !== ' ') return;
+  const card = e.target.closest('.role-option');
+  if (!card) return;
+  e.preventDefault();
+  toggleRole(card);
+});
+
+/* ====== Availability pills → hidden field ====== */
+const availList  = document.getElementById('availList');
+const availInput = document.getElementById('availability-input');
+
+function syncAvailability() {
+  const picked = [...availList.querySelectorAll('input[type=checkbox]:checked')]
+    .map(cb => cb.dataset.avail);
+  availInput.value = picked.join(', ');
+  saveDraft();
+}
+availList.addEventListener('change', syncAvailability);
+
+/* ====== Draft autosave — a long form shouldn't punish a dropped tab ====== */
+const form      = document.getElementById('application-form');
+const formMsg   = document.getElementById('form-message');
+const submitBtn = document.getElementById('submit-btn');
+
+const DRAFT_KEY = 'ctc_team_application_draft';
+const DRAFT_MAX_AGE_MS = 14 * 24 * 60 * 60 * 1000; // 14 days
+const DRAFT_FIELDS = ['first_name','last_name','email','phone','city','zip','over_18',
+  'work_authorized','start_date','hours_per_week','ride_experience','park_knowledge',
+  'first_aid','own_transport','group_experience','why_join','resume_url','referral','notes'];
+
+function saveDraft() {
+  try {
+    const data = {};
+    let hasAny = false;
+    DRAFT_FIELDS.forEach(name => {
+      const el = form.querySelector('[name="' + name + '"]');
+      if (el) { data[name] = el.value; if (el.value) hasAny = true; }
+    });
+    data.roles = rolesInput.value;
+    data.availability = availInput.value;
+    if (data.roles || data.availability) hasAny = true;
+    if (hasAny) localStorage.setItem(DRAFT_KEY, JSON.stringify({ ts: Date.now(), data }));
+    else localStorage.removeItem(DRAFT_KEY);
+  } catch (e) {}
+}
+function clearDraft() {
+  try { localStorage.removeItem(DRAFT_KEY); } catch (e) {}
+}
+(function hydrateDraft() {
+  let draft = null;
+  try {
+    const raw = localStorage.getItem(DRAFT_KEY);
+    const parsed = raw ? JSON.parse(raw) : null;
+    if (parsed && parsed.ts && (Date.now() - parsed.ts) <= DRAFT_MAX_AGE_MS) draft = parsed.data;
+    else localStorage.removeItem(DRAFT_KEY);
+  } catch (e) {}
+  if (draft) {
+    DRAFT_FIELDS.forEach(name => {
+      const el = form.querySelector('[name="' + name + '"]');
+      if (el && draft[name] != null && el.value === '') el.value = draft[name];
+    });
+    if (draft.roles) {
+      const wanted = draft.roles.split(', ');
+      roleContainer.querySelectorAll('.role-option').forEach(card => {
+        if (wanted.indexOf(card.dataset.role) !== -1) {
+          card.classList.add('active');
+          card.setAttribute('aria-checked', 'true');
+        }
+      });
+    }
+    if (draft.availability) {
+      const wanted = draft.availability.split(', ');
+      availList.querySelectorAll('input[type=checkbox]').forEach(cb => {
+        if (wanted.indexOf(cb.dataset.avail) !== -1) cb.checked = true;
+      });
+    }
+    syncRoles();
+    syncAvailability();
+  }
+  form.addEventListener('input', saveDraft);
+})();
+
+/* ====== Submit ======
+   Same /exec deployment the other CMS-backed forms post to —
+   handleTeamApplication branches on ?action=teamApplication. GET (not POST)
+   avoids the CORS preflight Apps Script can't answer without extra setup.
+   Handler lives in apps-script-team-application.snippet.gs — paste it into
+   the Apps Script project and redeploy before this form will store anything. */
+const APPLICATION_URL = 'https://script.google.com/macros/s/AKfycbwXv6r6Me-mdp9WFjCHQYDHcgEKbny-9_K8TX-yGgW40yTONhz6kAs3H96xM0tEDAhcJA/exec';
+
+form.addEventListener('submit', e => {
+  e.preventDefault();
+  formMsg.className = '';
+  formMsg.textContent = '';
+
+  if (!rolesInput.value) {
+    formMsg.className = 'error';
+    formMsg.textContent = 'Pick at least one role you’d be open to.';
+    document.getElementById('roleOptions').scrollIntoView({behavior:'smooth', block:'center'});
+    return;
+  }
+  if (!availInput.value) {
+    formMsg.className = 'error';
+    formMsg.textContent = 'Let us know when you can work — check at least one availability box.';
+    availList.scrollIntoView({behavior:'smooth', block:'center'});
+    return;
+  }
+  if (!form.checkValidity()) {
+    formMsg.className = 'error';
+    formMsg.textContent = 'A few fields still need to be filled in.';
+    form.reportValidity();
+    return;
+  }
+
+  submitBtn.disabled = true;
+  submitBtn.textContent = 'Submitting…';
+
+  const params = new URLSearchParams();
+  params.set('action', 'teamApplication');
+  new FormData(form).forEach((value, key) => params.append(key, value));
+
+  fetch(APPLICATION_URL + '?' + params.toString(), { redirect: 'follow' })
+    .then(r => r.ok ? r.json() : Promise.reject(r.status))
+    .then(resp => {
+      if (!resp || resp.ok !== true) throw new Error(resp && resp.error || 'unknown error');
+      document.getElementById('successModal').classList.add('shown');
+      form.reset();
+      roleContainer.querySelectorAll('.role-option.active').forEach(c => {
+        c.classList.remove('active');
+        c.setAttribute('aria-checked', 'false');
+      });
+      availList.querySelectorAll('input[type=checkbox]').forEach(cb => { cb.checked = false; });
+      syncRoles();
+      syncAvailability();
+      clearDraft();
+    })
+    .catch(err => {
+      console.error('[team-application] submit failed:', err);
+      formMsg.className = 'error';
+      formMsg.textContent = "We couldn't submit your application. Please call or text 330-406-9686 and we'll take it down by hand.";
+      formMsg.scrollIntoView({behavior:'smooth', block:'center'});
+    })
+    .then(() => {
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Submit Application';
+    });
+});
+
+function closeSuccessModal() {
+  document.getElementById('successModal').classList.remove('shown');
+}
+document.getElementById('successModal').addEventListener('click', e => {
+  if (e.target.id === 'successModal') closeSuccessModal();
+});
+</script>
+
+</body>
+</html>
