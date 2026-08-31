@@ -339,6 +339,8 @@ Once you have name + (email OR phone) + product + date + qty + pickup, CALL THE 
 
 If a Peek booking URL is available for the chosen product in the knowledge base ("Peek booking URLs" section), include it in the tool call's "peek_link" argument so the Sheet captures which link the customer got.
 
+HARD RULE — never narrate a hand-off you didn't perform: you may only tell a visitor that you've "passed this to Andrew / the team", that a lead is in, or that they'll get a PeekPro confirmation, AFTER you have actually called submit_booking_lead and it returned success in THIS conversation. If you haven't collected enough to call the tool (need at least name + a contact + product + date + quantity), ask for the missing piece instead — do NOT imply anything was booked or forwarded. Saying it without doing it strands a real customer.
+
 After the tool returns success, do THREE things in your confirmation — and do NOT call it "confirmed" or say "you're all set":
   1. Frame it as a LEAD captured. Andrew or the team will text to lock in time + send a payment link.
   2. If a Peek URL exists for their product, share it as the actual booking step: "To lock in the slot yourself, complete the Peek calendar here: <URL>."
@@ -564,6 +566,55 @@ async function fetchForecast(isoDate) {
 
 // Server-side execution of chat tools. The model calls one of these by
 // name; we run the side effect (Apps Script POST, Open-Meteo GET, etc.)
+// Flatten the message history to a readable "role: text" transcript for the
+// booking safety net below (skips tool_use / tool_result blocks).
+function messagesToText(msgs) {
+  return (msgs || []).map(m => {
+    const c = m && m.content;
+    let txt = '';
+    if (typeof c === 'string') txt = c;
+    else if (Array.isArray(c)) {
+      txt = c.map(b => (typeof b === 'string' ? b
+        : (b && b.type === 'text' ? b.text : ''))).filter(Boolean).join(' ');
+    }
+    return (m && m.role ? m.role : '?') + ': ' + txt.trim();
+  }).filter(l => l.length > 5).join('\n');
+}
+
+// SAFETY NET: the model sometimes NARRATES a booking hand-off ("I'm passing
+// this to Andrew", "you're all set") without actually calling
+// submit_booking_lead — so the lead is never filed and the shop never hears
+// about it, and a real customer shows up expecting a bike. When we detect
+// commitment language with no tool call, file the lead ourselves from the
+// transcript (best-effort contact extraction + full transcript in notes) so
+// staff are ALWAYS notified. Fire-and-forget; never blocks the reply.
+const BOOKING_COMMIT_RE = /(pass(?:ing|ed)\s+(?:this|you|it|your\s+(?:info|details|booking))\s+(?:to|along|over)|you'?re\s+all\s+set|you'?re\s+booked|you'?re\s+locked\s+in|locked\s+in\b|see\s+you\s+tomorrow|see\s+you\s+(?:at|@)\s*\d|confirmation\s+email\s+from\s+peekpro|peekpro\s+(?:sends|will\s+send)|all\s+set\s+for\b|enjoy\s+the\s+ride)/i;
+
+function fireFallbackBookingLead(messages, latestUserMsg, reply) {
+  try {
+    const convo = messagesToText(messages) +
+      '\nuser: ' + String(latestUserMsg || '') +
+      '\nassistant: ' + String(reply || '');
+    const email = (convo.match(/[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}/) || [''])[0];
+    const phone = (convo.match(/(?:\+?1[\s.\-]?)?\(?\d{3}\)?[\s.\-]?\d{3}[\s.\-]?\d{4}/) || [''])[0];
+    const params = new URLSearchParams({
+      action:  'bookingLead',
+      name:    '(auto-captured — see transcript)',
+      email:   email,
+      phone:   phone,
+      product: '⚠️ AUTO-CAPTURED — bot did not file this lead',
+      notes:   'SAFETY NET: the Concierge told the customer it was booking / handing '
+             + 'off, but it never called submit_booking_lead, so this lead was NOT '
+             + 'filed normally. Review the transcript and follow up ASAP.\n\n'
+             + '--- recent transcript ---\n' + convo.slice(-3500),
+    });
+    fetch(APPS_SCRIPT_URL + '?' + params.toString(), { method: 'GET', redirect: 'follow' })
+      .catch(err => console.warn('[chat] fallback lead fetch failed:', err));
+  } catch (e) {
+    console.warn('[chat] fallback lead build failed:', e);
+  }
+}
+
 // and hand the JSON back to the model for synthesis.
 async function execTool(name, input) {
   if (name === 'submit_booking_lead') {
@@ -886,6 +937,16 @@ export default async function handler(req, res) {
       .map(b => b.text)
       .join('\n')
       .trim() || "I'm not sure I caught that — could you rephrase?";
+
+    // Booking safety net: if the reply commits to a booking hand-off but
+    // submit_booking_lead never actually fired this turn, capture the lead
+    // from the transcript so the shop is notified no matter what the model did.
+    try {
+      const bookingFired = toolUses.some(t => t && t.name === 'submit_booking_lead');
+      if (!bookingFired && BOOKING_COMMIT_RE.test(reply)) {
+        fireFallbackBookingLead(messages, message, reply);
+      }
+    } catch (netErr) { console.warn('[chat] booking safety-net failed:', netErr); }
 
     // Echo back the updated user-visible history so the client can
     // persist it. Tool-use turns are NOT included — only the original

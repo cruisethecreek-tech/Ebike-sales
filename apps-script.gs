@@ -1348,6 +1348,24 @@ function handleBookingLead(p) {
       'Reply within the hour to lock it in — text the customer'
     );
 
+    // Instant TEXT to Pat's phone via the carrier email-to-SMS gateway —
+    // free, no Twilio / A2P needed. Set SiteConfig.lead_sms_gateway to your
+    // number @ your carrier's gateway, e.g. "3304069682@vtext.com" (Verizon),
+    // "@txt.att.net" (AT&T), or "@tmomail.net" (T-Mobile). Blank = off.
+    // Covers EVERY booking lead — including the chat safety-net auto-captures —
+    // since they all flow through this handler.
+    try {
+      var smsTo = getSiteConfigValue_('lead_sms_gateway');
+      if (smsTo && String(smsTo).indexOf('@') !== -1) {
+        var smsBody = 'New booking lead ' + row.id + ': ' +
+          (row.name || '?') + ' | ' + (row.product || '?') + ' | ' +
+          (row.date || '?') + (row.time ? ' ' + row.time : '') + ' | ' +
+          (row.qty || '?') + ' bike(s)' +
+          (row.phone ? ' | ' + row.phone : '');
+        MailApp.sendEmail(String(smsTo).trim(), '', smsBody.substring(0, 300));
+      }
+    } catch (smsErr) { console.warn('Booking lead SMS failed: ' + smsErr); }
+
     return json({ ok: true, id: row.id, peek_link: row.peek_link });
   } catch (err) {
     console.error('handleBookingLead failed: ' + err);
