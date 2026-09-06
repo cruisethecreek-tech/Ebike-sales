@@ -2059,6 +2059,23 @@ function handleInvoiceCreated(p) {
         const depositLine = (deposit > 0)
           ? 'Deposit received: $' + deposit.toFixed(2) + (dMethod ? ' (' + dMethod + ')' : '')
           : '';
+        const portalLoginUrl = 'https://portal.cruisethecreek.com/auth?email=' + encodeURIComponent(email);
+        const portalSection = [
+          '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━',
+          '🚴 ACCESS YOUR CREEK READY CUSTOMER PORTAL',
+          '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━',
+          'Welcome to the Cruise the Creek rider family! Your customer account gives you 24/7 access to:',
+          '  • Your registered e-bike & manufacturer warranty status',
+          '  • Invoices & payment receipts',
+          '  • 25% OFF Creek Ready Tune-Ups ($93.75 member rate)',
+          '  • Share your referral code to earn $100 for every 2 friends who buy',
+          '  • 24/7 Creek Concierge assistance',
+          '',
+          'Sign in to your portal here:',
+          '👉 ' + portalLoginUrl,
+          '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━',
+        ].join('\n');
+
         const custBody = [
           'Hi ' + customer + ',',
           '',
@@ -2075,11 +2092,14 @@ function handleInvoiceCreated(p) {
           balanceLine,
           payLine,
           '',
+          portalSection,
+          '',
           'Questions about this invoice? Reply to this email or call/text our sales desk at ' +
             (getSiteConfigValue_('sales_phone_display') || '330-406-9682') + '.',
           '',
           'Cruise the Creek',
           'cruisethecreek.com',
+          'portal.cruisethecreek.com',
         ].filter(function(l){ return l !== ''; }).join('\n');
         MailApp.sendEmail({
           to:      email,
@@ -2088,6 +2108,30 @@ function handleInvoiceCreated(p) {
           name:    'Cruise the Creek',
           body:    custBody,
         });
+
+        // Sync customer and invoice to Cruise the Creek Customer Portal
+        try {
+          UrlFetchApp.fetch('https://portal.cruisethecreek.com/api/invoices/sync', {
+            method: 'post',
+            contentType: 'application/json',
+            payload: JSON.stringify({
+              invoiceNumber: num,
+              invoiceDate: invDate,
+              customerName: customer,
+              customerEmail: email,
+              customerPhone: phone,
+              items: items,
+              total: total,
+              balanceDue: balanceDue,
+              paymentMode: paymentMode,
+              paymentLink: paymentLink,
+              status: (paymentMode === 'paidInFullCash' || balanceDue <= 0) ? 'paid' : 'pending'
+            }),
+            muteHttpExceptions: true
+          });
+        } catch (syncErr) {
+          console.warn('Portal sync via UrlFetchApp failed: ' + syncErr);
+        }
       } catch (custMailErr) {
         console.warn('Customer receipt email failed: ' + custMailErr);
       }

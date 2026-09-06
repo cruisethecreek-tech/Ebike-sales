@@ -1015,6 +1015,40 @@
 
                 <div class="form-section">
                     <div class="section-title">Bill To</div>
+
+                    <!-- Customer Type Selector: Existing vs New -->
+                    <div style="display: flex; gap: 8px; margin-bottom: 0.85rem;">
+                        <button type="button" id="btnExistingCust" onclick="setCustomerMode('existing')"
+                                style="flex: 1; padding: 8px 12px; font-size: 0.8rem; font-weight: 700; border-radius: 6px; border: 1px solid #C9A96E; background: #C9A96E; color: #1A2E1C; cursor: pointer; transition: all 0.15s ease; display: flex; align-items: center; justify-content: center; gap: 5px;">
+                            <span>👤 Existing Customer</span>
+                        </button>
+                        <button type="button" id="btnNewCust" onclick="setCustomerMode('new')"
+                                style="flex: 1; padding: 8px 12px; font-size: 0.8rem; font-weight: 700; border-radius: 6px; border: 1px solid rgba(201, 169, 110, 0.3); background: rgba(0,0,0,0.3); color: #F5F0E8; cursor: pointer; transition: all 0.15s ease; display: flex; align-items: center; justify-content: center; gap: 5px;">
+                            <span>➕ New Customer</span>
+                        </button>
+                    </div>
+
+                    <!-- Existing Customer Selector Tray -->
+                    <div id="existingCustTray" style="margin-bottom: 0.85rem; padding: 10px 12px; border-radius: 8px; background: rgba(201, 169, 110, 0.08); border: 1px solid rgba(201, 169, 110, 0.35);">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                            <label for="existingCustSelect" style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #C9A96E; margin: 0;">
+                                ⚡ Auto-Fill from Existing Customer
+                            </label>
+                            <span id="custDirectoryBadge" style="font-size: 0.7rem; color: #86EFAC;">Loading directory…</span>
+                        </div>
+                        <select id="existingCustSelect" onchange="onExistingCustSelected()"
+                                style="width: 100%; padding: 8px 10px; font-size: 0.85rem; border-radius: 6px; border: 1px solid #C9A96E; background: #142517; color: #F5F0E8; cursor: pointer;">
+                            <option value="">-- Choose existing customer to auto-fill --</option>
+                        </select>
+                        <div id="custAutofillNotice" style="display: none; margin-top: 6px; font-size: 0.75rem; color: #86EFAC; font-weight: 600;">
+                            ✓ Details auto-filled! You can edit any field below.
+                        </div>
+                    </div>
+
+                    <div id="newCustNotice" style="display: none; margin-bottom: 0.85rem; padding: 8px 12px; border-radius: 6px; background: rgba(134, 239, 172, 0.1); border: 1px solid rgba(134, 239, 172, 0.3); font-size: 0.75rem; color: #86EFAC;">
+                        ➕ Entering new customer. Portal account & invite will be dispatched automatically when invoice is saved.
+                    </div>
+
                     <div class="form-group" style="margin-bottom: 0.85rem;">
                         <label for="customerName">Customer Name</label>
                         <input type="text" id="customerName">
@@ -1701,7 +1735,8 @@
                 try {
                     logOrderToSheet(invoiceData, '', '');
                     notifyInvoiceCreated(invoiceData, '', '');
-                    showStatus('Invoice saved as paid (' + (depositMethod || 'cash') + ') for ' + invoiceData.customerName, 'success');
+                    syncInvoiceToPortal(invoiceData, '');
+                    showStatus('Invoice saved as paid (' + (depositMethod || 'cash') + ') for ' + invoiceData.customerName + ' · Invited to Customer Portal', 'success');
                     document.getElementById('paymentLinkBox').classList.remove('active');
                     setTimeout(loadNextInvoiceNumber, 1500);
                 } finally {
@@ -1750,6 +1785,7 @@
                     document.getElementById('paymentLinkBox').classList.add('active');
                     logOrderToSheet(invoiceData, hostedUrl, data.stripeInvoiceId || '');
                     notifyInvoiceCreated(invoiceData, hostedUrl, data.stripeInvoiceId || '');
+                    syncInvoiceToPortal(invoiceData, hostedUrl);
 
                     // Pre-fetch the next invoice number so a new invoice can be started without resetting
                     setTimeout(loadNextInvoiceNumber, 1500);
@@ -1796,6 +1832,39 @@
                     .catch(err => console.warn('[invoiceCreated] notify failed:', err));
             } catch (err) {
                 console.warn('[invoiceCreated] notify threw:', err);
+            }
+        }
+
+        // Automatically sync customer, invoice, and registered bikes to
+        // Cruise the Creek Customer Portal (portal.cruisethecreek.com).
+        // Dispatches official Supabase email invite to customer.
+        function syncInvoiceToPortal(invoiceData, paymentLink) {
+            if (!invoiceData.customerEmail || !invoiceData.customerEmail.trim()) return;
+            try {
+                const payload = {
+                    invoiceNumber : invoiceData.invoiceNumber || '',
+                    invoiceDate   : invoiceData.invoiceDate || '',
+                    customerName  : invoiceData.customerName || '',
+                    customerEmail : invoiceData.customerEmail || '',
+                    customerPhone : invoiceData.customerPhone || '',
+                    items         : invoiceData.items || [],
+                    total         : parseFloat(invoiceData.total) || 0,
+                    balanceDue    : parseFloat(invoiceData.balanceDue) || 0,
+                    paymentMode   : invoiceData.paymentMode || 'full',
+                    paymentLink   : paymentLink || '',
+                    status        : (invoiceData.paymentMode === 'paidInFullCash' || (parseFloat(invoiceData.balanceDue) || 0) <= 0) ? 'paid' : 'pending'
+                };
+                fetch('https://portal.cruisethecreek.com/api/invoices/sync', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                }).then(r => r.json()).then(data => {
+                    console.log('[Portal Sync successful]:', data);
+                }).catch(err => {
+                    console.warn('[Portal Sync failed]:', err);
+                });
+            } catch (err) {
+                console.warn('[syncInvoiceToPortal threw]:', err);
             }
         }
 
@@ -2444,6 +2513,131 @@
             updateInvoicePreview();
         }
 
+        // ─── EXISTING CUSTOMER DIRECTORY & AUTO-FILL ─────────────────────
+        var existingCustomersList = [];
+
+        function loadExistingCustomers() {
+            var select = document.getElementById('existingCustSelect');
+            var badge = document.getElementById('custDirectoryBadge');
+            if (!select) return;
+
+            fetch('https://portal.cruisethecreek.com/api/customers')
+                .then(function(res) { return res.json(); })
+                .then(function(data) {
+                    if (data && data.ok && Array.isArray(data.customers)) {
+                        existingCustomersList = data.customers;
+                        renderCustomerSelectOptions(existingCustomersList);
+                        if (badge) badge.textContent = existingCustomersList.length + ' customers';
+                    }
+                })
+                .catch(function(err) {
+                    console.warn('[customers API fallback to Google Sheet]:', err);
+                    fetch('https://docs.google.com/spreadsheets/d/1R3pDFG_sO81bKS6dEAa-k5F-OdD5OAbe4hQ-Oc0_T-E/gviz/tq?tqx=out:csv&sheet=Invoices')
+                        .then(function(r) { return r.text(); })
+                        .then(function(csv) {
+                            existingCustomersList = parseCustomersFromCsv(csv);
+                            renderCustomerSelectOptions(existingCustomersList);
+                            if (badge) badge.textContent = existingCustomersList.length + ' customers';
+                        })
+                        .catch(function() {
+                            if (badge) badge.textContent = '';
+                        });
+                });
+        }
+
+        function parseCustomersFromCsv(text) {
+            var lines = text.split('\n').filter(function(l){ return l.trim(); });
+            if (lines.length < 2) return [];
+            var custMap = {};
+            for (var i = 1; i < lines.length; i++) {
+                var row = lines[i];
+                var m = row.match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g) || [];
+                var clean = function(s){ return String(s || '').replace(/^"|"$/g, '').trim(); };
+                var name = clean(m[3]);
+                var email = clean(m[4]);
+                var phone = clean(m[5]);
+                var addr = clean(m[6]);
+                var key = (email || name).toLowerCase();
+                if (key && !custMap[key]) {
+                    custMap[key] = { name: name, email: email, phone: phone, address: addr };
+                }
+            }
+            var arr = Object.values(custMap);
+            arr.sort(function(a, b){ return a.name.localeCompare(b.name); });
+            return arr;
+        }
+
+        function renderCustomerSelectOptions(list) {
+            var select = document.getElementById('existingCustSelect');
+            if (!select) return;
+            select.innerHTML = '<option value="">-- Choose existing customer to auto-fill --</option>';
+            list.forEach(function(c, idx) {
+                var opt = document.createElement('option');
+                opt.value = String(idx);
+                var phonePart = c.phone ? ' (' + c.phone + ')' : '';
+                var emailPart = c.email ? ' · ' + c.email : '';
+                opt.textContent = c.name + phonePart + emailPart;
+                select.appendChild(opt);
+            });
+        }
+
+        function onExistingCustSelected() {
+            var select = document.getElementById('existingCustSelect');
+            var idx = parseInt(select.value, 10);
+            var notice = document.getElementById('custAutofillNotice');
+            if (isNaN(idx) || !existingCustomersList[idx]) {
+                if (notice) notice.style.display = 'none';
+                return;
+            }
+
+            var c = existingCustomersList[idx];
+            document.getElementById('customerName').value = c.name || '';
+            document.getElementById('customerEmail').value = c.email || '';
+            document.getElementById('customerPhone').value = c.phone || '';
+            document.getElementById('customerAddress').value = c.address || '';
+
+            if (notice) notice.style.display = 'block';
+            updateInvoicePreview();
+        }
+
+        function setCustomerMode(mode) {
+            var btnExisting = document.getElementById('btnExistingCust');
+            var btnNew = document.getElementById('btnNewCust');
+            var tray = document.getElementById('existingCustTray');
+            var newNotice = document.getElementById('newCustNotice');
+            var select = document.getElementById('existingCustSelect');
+            var notice = document.getElementById('custAutofillNotice');
+
+            if (mode === 'existing') {
+                btnExisting.style.background = '#C9A96E';
+                btnExisting.style.color = '#1A2E1C';
+                btnExisting.style.borderColor = '#C9A96E';
+                btnNew.style.background = 'rgba(0,0,0,0.3)';
+                btnNew.style.color = '#F5F0E8';
+                btnNew.style.borderColor = 'rgba(201, 169, 110, 0.3)';
+                if (tray) tray.style.display = 'block';
+                if (newNotice) newNotice.style.display = 'none';
+            } else {
+                btnNew.style.background = '#C9A96E';
+                btnNew.style.color = '#1A2E1C';
+                btnNew.style.borderColor = '#C9A96E';
+                btnExisting.style.background = 'rgba(0,0,0,0.3)';
+                btnExisting.style.color = '#F5F0E8';
+                btnExisting.style.borderColor = 'rgba(201, 169, 110, 0.3)';
+                if (tray) tray.style.display = 'none';
+                if (newNotice) newNotice.style.display = 'block';
+
+                // Clear fields for fresh entry
+                document.getElementById('customerName').value = '';
+                document.getElementById('customerEmail').value = '';
+                document.getElementById('customerPhone').value = '';
+                document.getElementById('customerAddress').value = '';
+                if (select) select.value = '';
+                if (notice) notice.style.display = 'none';
+                updateInvoicePreview();
+            }
+        }
+
         // ── Existing-invoice search + status change (Project C) ───────────
         function invEsc(s) {
             return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
@@ -2603,11 +2797,51 @@
         // already hides the form and expands the branded invoice preview.
         function printInvoice() { window.print(); }
 
+        // Parse incoming URL parameters for automated discounts & customer details
+        const urlParams = new URLSearchParams(window.location.search);
+        const editParam = urlParams.get('edit');
+        const discountParam = urlParams.get('discount') || urlParams.get('promo');
+        const refParam = urlParams.get('ref') || urlParams.get('code');
+        const serviceParam = urlParams.get('service');
+        const nameParam = urlParams.get('name') || urlParams.get('customerName');
+        const emailParam = urlParams.get('email') || urlParams.get('customerEmail');
+        const phoneParam = urlParams.get('phone') || urlParams.get('customerPhone');
+
+        if (nameParam && document.getElementById('customerName')) document.getElementById('customerName').value = nameParam;
+        if (emailParam && document.getElementById('customerEmail')) document.getElementById('customerEmail').value = emailParam;
+        if (phoneParam && document.getElementById('customerPhone')) document.getElementById('customerPhone').value = phoneParam;
+
+        if (discountParam && document.getElementById('discountPercent')) {
+            document.getElementById('discountPercent').value = discountParam;
+        }
+
+        if (refParam && document.getElementById('paymentNotes')) {
+            const currentNotes = document.getElementById('paymentNotes').value;
+            document.getElementById('paymentNotes').value = (currentNotes ? currentNotes + ' | ' : '') + 'Referral / Promo Code: ' + refParam + ' (25% Discount Applied)';
+        }
+
+        if (serviceParam === 'creek-ready') {
+            addLineItem('Creek Ready Tune-Up (28-Point Comprehensive Service & Diagnostics)', 1, 125.00);
+            if (!discountParam && document.getElementById('discountPercent')) {
+                document.getElementById('discountPercent').value = 25;
+            }
+        } else if (serviceParam === 'accessories') {
+            addLineItem('E-Bike Accessories & Gear Package', 1, 100.00);
+            if (!discountParam && document.getElementById('discountPercent')) {
+                document.getElementById('discountPercent').value = 25;
+            }
+        }
+
         loadCatalog();
-        // Edit mode: pull the existing invoice and skip the auto-increment.
-        // New mode: ask Apps Script for the next sequential CTR-NNN number.
-        if (editingInvoiceNumber) {
+        loadExistingCustomers();
+        if (typeof editingInvoiceNumber !== 'undefined' && editingInvoiceNumber) {
             loadInvoiceForEdit(editingInvoiceNumber);
+        } else if (editParam) {
+            // Auto search & load invoice by editParam
+            if (typeof runInvoiceSearch === 'function') {
+                document.getElementById('invoiceSearch').value = editParam;
+                runInvoiceSearch();
+            }
         } else {
             loadNextInvoiceNumber();
         }
