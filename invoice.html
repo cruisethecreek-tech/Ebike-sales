@@ -2764,9 +2764,129 @@
             });
         }
 
-        // Open a found invoice in edit mode — reuses the existing ?edit= load path.
+        // Open a found invoice in edit mode — directly loads it and syncs URL.
         function openInvoiceForEdit(numEnc) {
-            window.location.search = '?edit=' + numEnc;
+            var num = decodeURIComponent(numEnc || '');
+            if (window.history && window.history.pushState) {
+                window.history.pushState(null, '', '?edit=' + encodeURIComponent(num));
+            }
+            loadInvoiceForEdit(num, false);
+        }
+
+        function loadInvoiceForEdit(invNum, isViewOnly) {
+            if (!invNum) return;
+            invNum = String(invNum).trim();
+            showStatus('Loading invoice ' + invNum + '…', 'success');
+
+            function applyInvoiceData(inv) {
+                if (!inv) return;
+                var numEl = document.getElementById('invoiceNumber');
+                if (numEl) numEl.value = inv.invoiceNumber || invNum;
+
+                if (inv.customerName && document.getElementById('customerName')) document.getElementById('customerName').value = inv.customerName;
+                if (inv.customerEmail && document.getElementById('customerEmail')) document.getElementById('customerEmail').value = inv.customerEmail;
+                if (inv.customerPhone && document.getElementById('customerPhone')) document.getElementById('customerPhone').value = inv.customerPhone;
+                if (inv.customerAddress && document.getElementById('customerAddress')) document.getElementById('customerAddress').value = inv.customerAddress;
+
+                if (inv.invoiceDate && document.getElementById('invoiceDate')) {
+                    var d = new Date(inv.invoiceDate);
+                    if (!isNaN(d.getTime())) document.getElementById('invoiceDate').valueAsDate = d;
+                }
+                if (inv.dueDate && document.getElementById('dueDate')) {
+                    var dd = new Date(inv.dueDate);
+                    if (!isNaN(dd.getTime())) document.getElementById('dueDate').valueAsDate = dd;
+                }
+
+                if (inv.discountPct && document.getElementById('discountPercent')) document.getElementById('discountPercent').value = inv.discountPct;
+                if (inv.discountAmt && document.getElementById('discountFixed')) document.getElementById('discountFixed').value = inv.discountAmt;
+                if (inv.paymentNotes && document.getElementById('paymentNotes')) document.getElementById('paymentNotes').value = inv.paymentNotes;
+
+                // Clear & populate line items
+                var container = document.getElementById('lineItemsContainer');
+                if (container) container.innerHTML = '';
+
+                var items = [];
+                if (typeof inv.lineItems === 'string') {
+                    try { items = JSON.parse(inv.lineItems); } catch(e) { items = []; }
+                } else if (Array.isArray(inv.lineItems)) {
+                    items = inv.lineItems;
+                }
+
+                if (Array.isArray(items) && items.length > 0) {
+                    items.forEach(function(it) {
+                        addLineItem(it.description || it.name || 'Item', it.qty || 1, it.price || 0);
+                    });
+                } else if (inv.total) {
+                    addLineItem(inv.productDesc || 'Sales Order', 1, parseFloat(inv.total) || 0);
+                }
+
+                // Payment mode
+                if (inv.paymentMode) {
+                    var r = document.querySelector('input[name="paymentMode"][value="' + inv.paymentMode + '"]');
+                    if (r) {
+                        r.checked = true;
+                        if (typeof onPaymentModeChange === 'function') onPaymentModeChange();
+                    }
+                }
+
+                if (typeof loadSupplierUrl === 'function') {
+                    loadSupplierUrl(inv.invoiceNumber || invNum);
+                }
+                updateInvoicePreview();
+                showStatus('Loaded invoice ' + (inv.invoiceNumber || invNum) + '.', 'success');
+
+                if (isViewOnly) {
+                    var previewEl = document.getElementById('invoicePreview');
+                    if (previewEl) {
+                        setTimeout(function() {
+                            previewEl.scrollIntoView({ behavior: 'smooth' });
+                        }, 300);
+                    }
+                }
+            }
+
+            // 1. Try Apps Script getInvoice endpoint
+            invoiceJsonp({ action: 'getInvoice', invoiceNumber: invNum }, function(data) {
+                if (data && data.status === 'ok' && data.invoice) {
+                    applyInvoiceData(data.invoice);
+                } else {
+                    fetchSheetFallback(invNum, applyInvoiceData);
+                }
+            }, function(err) {
+                fetchSheetFallback(invNum, applyInvoiceData);
+            });
+        }
+
+        function fetchSheetFallback(invNum, cb) {
+            var url = 'https://docs.google.com/spreadsheets/d/1R3pDFG_sO81bKS6dEAa-k5F-OdD5OAbe4hQ-Oc0_T-E/gviz/tq?tqx=out:csv&sheet=Invoices';
+            fetch(url)
+                .then(function(r) { return r.text(); })
+                .then(function(txt) {
+                    var lines = txt.split('\n');
+                    for (var i = 1; i < lines.length; i++) {
+                        if (lines[i].indexOf(invNum) !== -1) {
+                            var m = lines[i].match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g) || [];
+                            var clean = function(s){ return String(s || '').replace(/^"|"$/g, '').trim(); };
+                            cb({
+                                invoiceNumber: clean(m[0]),
+                                invoiceDate: clean(m[1]),
+                                dueDate: clean(m[2]),
+                                customerName: clean(m[3]),
+                                customerEmail: clean(m[4]),
+                                customerPhone: clean(m[5]),
+                                customerAddress: clean(m[6]),
+                                lineItems: clean(m[7]),
+                                total: clean(m[12]),
+                                paymentMode: clean(m[15])
+                            });
+                            return;
+                        }
+                    }
+                    showStatus('Invoice ' + invNum + ' not found in sheet.', 'error');
+                })
+                .catch(function(err) {
+                    showStatus('Could not load invoice ' + invNum + ' (' + err + ').', 'error');
+                });
         }
 
         function applyInvoiceStatus() {
@@ -2799,6 +2919,7 @@
 
         // Parse incoming URL parameters for automated discounts & customer details
         const urlParams = new URLSearchParams(window.location.search);
+        const viewParam = urlParams.get('view') || urlParams.get('invoice');
         const editParam = urlParams.get('edit');
         const discountParam = urlParams.get('discount') || urlParams.get('promo');
         const refParam = urlParams.get('ref') || urlParams.get('code');
@@ -2834,14 +2955,10 @@
 
         loadCatalog();
         loadExistingCustomers();
-        if (typeof editingInvoiceNumber !== 'undefined' && editingInvoiceNumber) {
-            loadInvoiceForEdit(editingInvoiceNumber);
+        if (viewParam) {
+            loadInvoiceForEdit(viewParam, true);
         } else if (editParam) {
-            // Auto search & load invoice by editParam
-            if (typeof runInvoiceSearch === 'function') {
-                document.getElementById('invoiceSearch').value = editParam;
-                runInvoiceSearch();
-            }
+            loadInvoiceForEdit(editParam, false);
         } else {
             loadNextInvoiceNumber();
         }
