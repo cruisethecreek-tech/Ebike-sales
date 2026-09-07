@@ -2,11 +2,14 @@
 
 import { useState, useMemo, useEffect } from 'react'
 import Link from 'next/link'
+import { adminUpdateBike, adminAddBike, adminDeleteBike } from './actions'
 
 interface Bike {
   id: string
   brand: string
   model: string
+  serial_number?: string | null
+  receipt_number?: string | null
   purchase_date?: string | null
 }
 
@@ -24,6 +27,16 @@ interface CustomerData {
   latestPurchaseDate?: string | null
 }
 
+export function getGoogleVoiceUrls(phone?: string | null) {
+  if (!phone) return { callUrl: '#', textUrl: '#' }
+  const digits = phone.replace(/\D/g, '')
+  const num = digits.length === 11 && digits.startsWith('1') ? digits.slice(1) : digits
+  return {
+    callUrl: `https://voice.google.com/u/0/calls?a=nc,%2B1${num}`,
+    textUrl: `https://voice.google.com/u/0/messages?itemId=t.%2B1${num}`,
+  }
+}
+
 export function formatCustomerName(firstName?: string | null, lastName?: string | null): string {
   const f = (firstName || '').trim()
   let l = (lastName || '').trim()
@@ -39,11 +52,110 @@ export function formatCustomerName(firstName?: string | null, lastName?: string 
   return full || 'Customer'
 }
 
+function BikeAdminCard({ bike }: { bike: Bike }) {
+  const [serial, setSerial] = useState(bike.serial_number || '')
+  const [receipt, setReceipt] = useState(bike.receipt_number || '')
+  const [saved, setSaved] = useState(false)
+  const [isSaving, setIsSaving] = useState(false)
+
+  async function handleSave(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault()
+    setIsSaving(true)
+    const fd = new FormData(e.currentTarget)
+    await adminUpdateBike(fd)
+    setIsSaving(false)
+    setSaved(true)
+    setTimeout(() => setSaved(false), 3000)
+  }
+
+  return (
+    <form onSubmit={handleSave} className="p-3.5 rounded-xl bg-[#F5F0E8] border border-[#E5E5E5] space-y-2.5">
+      <input type="hidden" name="bike_id" value={bike.id} />
+      <div className="flex justify-between items-center">
+        <div className="flex items-center gap-1.5">
+          <span className="px-2 py-0.5 rounded bg-[#2D4A32] text-white text-[10px] uppercase font-bold">
+            {bike.brand}
+          </span>
+          <span className="font-bold text-sm text-[#1A2E1C]">{bike.model}</span>
+        </div>
+        {bike.purchase_date && (
+          <span className="text-gray-600 text-[11px] font-medium">
+            📅 {new Date(bike.purchase_date).toLocaleDateString()}
+          </span>
+        )}
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+        {/* Serial Number Slot */}
+        <div>
+          <label className="block text-[10px] font-bold uppercase text-[#2D4A32] tracking-wider mb-0.5">
+            🔢 Bike Serial Number
+          </label>
+          <input
+            type="text"
+            name="serial_number"
+            value={serial}
+            onChange={(e) => setSerial(e.target.value.toUpperCase())}
+            placeholder="Enter Serial # (e.g. SN12345)"
+            className="w-full px-2.5 py-1.5 rounded-lg border border-[#C9A96E] bg-white text-xs font-mono font-bold uppercase placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#2D4A32]"
+          />
+        </div>
+
+        {/* Receipt / Invoice Number Slot */}
+        <div>
+          <div className="flex justify-between items-center mb-0.5">
+            <label className="block text-[10px] font-bold uppercase text-[#2D4A32] tracking-wider">
+              🧾 Receipt / Invoice #
+            </label>
+            {receipt && (
+              <Link
+                href={`/dashboard/invoices/${receipt}`}
+                target="_blank"
+                className="text-[10px] text-[#2D4A32] font-bold hover:underline"
+              >
+                View Receipt ↗
+              </Link>
+            )}
+          </div>
+          <input
+            type="text"
+            name="receipt_number"
+            value={receipt}
+            onChange={(e) => setReceipt(e.target.value.toUpperCase())}
+            placeholder="Enter Receipt # (e.g. CTR-058)"
+            className="w-full px-2.5 py-1.5 rounded-lg border border-[#C9A96E] bg-white text-xs font-mono font-bold uppercase placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#2D4A32]"
+          />
+        </div>
+      </div>
+
+      <div className="flex justify-between items-center pt-1">
+        {saved ? (
+          <span className="text-xs font-bold text-green-700 animate-fadeIn">
+            ✓ Saved Serial & Receipt!
+          </span>
+        ) : (
+          <span className="text-[10px] text-gray-500">
+            Changes sync to customer portal immediately.
+          </span>
+        )}
+        <button
+          type="submit"
+          disabled={isSaving}
+          className="px-3 py-1 bg-[#2D4A32] text-white text-xs font-bold rounded-lg hover:bg-[#1A2E1C] transition-colors shadow-2xs"
+        >
+          {isSaving ? 'Saving...' : '💾 Save Bike Slots'}
+        </button>
+      </div>
+    </form>
+  )
+}
+
 export function CustomerDirectory({ customers }: { customers: CustomerData[] }) {
   const [activeLetter, setActiveLetter] = useState<string>('ALL')
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedCustomerId, setSelectedCustomerId] = useState<string | null>(null)
   const [copiedCode, setCopiedCode] = useState(false)
+  const [showAddBike, setShowAddBike] = useState(false)
 
   const alphabet = ['ALL', ...'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('')]
 
@@ -210,7 +322,7 @@ export function CustomerDirectory({ customers }: { customers: CustomerData[] }) 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 text-xs">
               {/* 1. Open Invoice Generator pre-filled */}
               <a
-                href={`https://ebike-sales.pages.dev/invoice.html?customer=${encodeURIComponent(
+                href={`https://ebike-sales-nu.vercel.app/invoice.html?customer=${encodeURIComponent(
                   formatCustomerName(selectedCustomer.first_name, selectedCustomer.last_name)
                 )}&phone=${encodeURIComponent(selectedCustomer.phone || '')}&email=${encodeURIComponent(
                   selectedCustomer.email || ''
@@ -222,9 +334,9 @@ export function CustomerDirectory({ customers }: { customers: CustomerData[] }) 
                 🧾 Open in Invoice Generator ↗
               </a>
 
-              {/* 2. Book Creek Ready Tune-up ($93.75) */}
+              {/* 2. Book Creek Ready Tune-up ($100.00 with 20% Discount) */}
               <a
-                href={`https://ebike-sales.pages.dev/repair-intake.html?service=tuneup&discount=25&promo=25OFF&ref=${encodeURIComponent(
+                href={`https://ebike-sales-nu.vercel.app/repair-intake.html?service=tuneup&discount=20&promo=20OFF&ref=${encodeURIComponent(
                   selectedCustomer.referral_code || ''
                 )}&firstName=${encodeURIComponent(selectedCustomer.first_name)}&lastName=${encodeURIComponent(
                   selectedCustomer.last_name && selectedCustomer.last_name.toLowerCase() !== '(none)'
@@ -237,23 +349,29 @@ export function CustomerDirectory({ customers }: { customers: CustomerData[] }) 
                 rel="noopener noreferrer"
                 className="p-2.5 rounded-lg bg-[#C9A96E] text-[#1A2E1C] font-bold flex items-center justify-center gap-1.5 hover:bg-[#dbb978] shadow-xs text-center"
               >
-                🌲 Book Tune-Up ($93.75) ↗
+                🌲 Book Tune-Up ($100.00) ↗
               </a>
 
-              {/* 3. Call or Text */}
+              {/* 3. Call or Text via Google Voice */}
               {selectedCustomer.phone ? (
                 <div className="flex gap-1">
                   <a
-                    href={`tel:${selectedCustomer.phone.replace(/\D/g, '')}`}
-                    className="flex-1 p-2 rounded-lg bg-white border border-[#2D4A32] text-[#2D4A32] font-bold flex items-center justify-center gap-1 hover:bg-[#FAF8F2]"
+                    href={getGoogleVoiceUrls(selectedCustomer.phone).callUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    title="Natively open Google Voice to Call"
+                    className="flex-1 p-2 rounded-lg bg-white border border-[#2D4A32] text-[#2D4A32] font-bold flex items-center justify-center gap-1 hover:bg-[#FAF8F2] shadow-2xs text-center"
                   >
-                    📞 Call
+                    📞 Call (Voice)
                   </a>
                   <a
-                    href={`sms:${selectedCustomer.phone.replace(/\D/g, '')}`}
-                    className="flex-1 p-2 rounded-lg bg-white border border-[#2D4A32] text-[#2D4A32] font-bold flex items-center justify-center gap-1 hover:bg-[#FAF8F2]"
+                    href={getGoogleVoiceUrls(selectedCustomer.phone).textUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    title="Natively open Google Voice to Text"
+                    className="flex-1 p-2 rounded-lg bg-white border border-[#2D4A32] text-[#2D4A32] font-bold flex items-center justify-center gap-1 hover:bg-[#FAF8F2] shadow-2xs text-center"
                   >
-                    💬 Text
+                    💬 Text (Voice)
                   </a>
                 </div>
               ) : (
@@ -299,33 +417,76 @@ export function CustomerDirectory({ customers }: { customers: CustomerData[] }) 
             </div>
           </div>
 
-          {/* Customer Bikes List */}
-          <div className="pt-2 border-t border-gray-100">
-            <h4 className="text-xs font-bold text-[#4A4A4A] uppercase tracking-wider mb-2">
-              🚴 Registered Bikes & Purchase Dates ({selectedCustomer.bikes.length}):
-            </h4>
-            {selectedCustomer.bikes.length > 0 ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                {selectedCustomer.bikes.map((b) => (
-                  <div
-                    key={b.id}
-                    className="p-3 rounded-xl bg-[#F5F0E8] border border-[#E5E5E5] flex items-center justify-between text-xs"
-                  >
-                    <div>
-                      <span className="px-1.5 py-0.5 rounded bg-[#2D4A32] text-white text-[10px] mr-1.5 uppercase font-bold">
-                        {b.brand}
-                      </span>
-                      <span className="font-semibold text-[#1A2E1C]">{b.model}</span>
-                    </div>
-                    <span className="text-gray-600 text-[11px] font-medium">
-                      📅 {b.purchase_date ? new Date(b.purchase_date).toLocaleDateString() : 'Date on file'}
-                    </span>
+          {/* Customer Bikes List & Management */}
+          <div className="pt-3 border-t border-gray-100 space-y-3">
+            <div className="flex justify-between items-center flex-wrap gap-2">
+              <h4 className="text-xs font-bold text-[#4A4A4A] uppercase tracking-wider">
+                🚴 Registered Bikes, Serial & Receipt Numbers ({selectedCustomer.bikes.length}):
+              </h4>
+              <button
+                type="button"
+                onClick={() => setShowAddBike(!showAddBike)}
+                className="text-xs font-bold text-[#2D4A32] bg-[#F5F0E8] border border-[#2D4A32]/20 px-2.5 py-1 rounded-lg hover:bg-[#FAF8F2] shadow-2xs transition-colors"
+              >
+                {showAddBike ? '✕ Cancel Add Bike' : '➕ Add Bike for Customer'}
+              </button>
+            </div>
+
+            {/* Optional Add Bike Form */}
+            {showAddBike && (
+              <form action={adminAddBike} className="p-3.5 bg-white border-2 border-[#2D4A32] rounded-xl space-y-3 animate-fadeIn">
+                <input type="hidden" name="customer_id" value={selectedCustomer.id} />
+                <div className="text-xs font-bold uppercase tracking-wider text-[#2D4A32]">
+                  Register Bike for {formatCustomerName(selectedCustomer.first_name, selectedCustomer.last_name)}
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-2 text-xs">
+                  <div>
+                    <label className="block text-[10px] font-bold text-gray-500 uppercase mb-0.5">Brand *</label>
+                    <select name="brand" required className="w-full p-2 border border-[#C9A96E] rounded-lg bg-[#FAF8F2] font-semibold">
+                      <option value="Velotric">Velotric</option>
+                      <option value="Heybike">Heybike</option>
+                      <option value="Mooncool">Mooncool</option>
+                      <option value="Jasion">Jasion</option>
+                      <option value="other">Other</option>
+                    </select>
                   </div>
+                  <div>
+                    <label className="block text-[10px] font-bold text-gray-500 uppercase mb-0.5">Model *</label>
+                    <input name="model" required placeholder="e.g. Discover 3" className="w-full p-2 border border-[#C9A96E] rounded-lg text-xs" />
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-bold text-gray-500 uppercase mb-0.5">Serial #</label>
+                    <input name="serial_number" placeholder="e.g. VT-987654" className="w-full p-2 border border-[#C9A96E] rounded-lg uppercase font-mono text-xs" />
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-bold text-gray-500 uppercase mb-0.5">Receipt #</label>
+                    <input name="receipt_number" placeholder="e.g. CTR-058" className="w-full p-2 border border-[#C9A96E] rounded-lg uppercase font-mono text-xs" />
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-bold text-gray-500 uppercase mb-0.5">Purchase Date</label>
+                    <input name="purchase_date" type="date" className="w-full p-2 border border-[#C9A96E] rounded-lg text-xs" />
+                  </div>
+                </div>
+                <div className="flex justify-end gap-2">
+                  <button type="button" onClick={() => setShowAddBike(false)} className="px-3 py-1.5 text-xs text-gray-500 hover:text-gray-800 font-semibold">
+                    Cancel
+                  </button>
+                  <button type="submit" className="btn-primary text-xs px-4 py-1.5 font-bold shadow-xs">
+                    Save New Bike 🚴
+                  </button>
+                </div>
+              </form>
+            )}
+
+            {selectedCustomer.bikes.length > 0 ? (
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-2.5">
+                {selectedCustomer.bikes.map((b) => (
+                  <BikeAdminCard key={b.id} bike={b} />
                 ))}
               </div>
             ) : (
-              <p className="text-xs text-gray-500 italic bg-[#FAF8F2] p-3 rounded-lg">
-                No bikes registered for this customer yet. (Bikes attach automatically when an invoice with a bike is created in the Invoice Generator).
+              <p className="text-xs text-gray-500 italic bg-[#FAF8F2] p-3 rounded-lg border border-dashed border-[#C9A96E]">
+                No bikes registered for this customer yet. Use the "+ Add Bike for Customer" button above or generate an invoice with an e-bike.
               </p>
             )}
           </div>

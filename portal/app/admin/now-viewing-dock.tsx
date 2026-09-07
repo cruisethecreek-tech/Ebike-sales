@@ -15,6 +15,8 @@ interface CustomerWithData {
     id: string
     brand: string
     model: string
+    serial_number?: string | null
+    receipt_number?: string | null
     purchase_date?: string | null
   }>
   invoices: Array<{
@@ -24,6 +26,16 @@ interface CustomerWithData {
     status: string
     issued_at: string
   }>
+}
+
+function getGoogleVoiceUrls(phone?: string | null) {
+  if (!phone) return { callUrl: '#', textUrl: '#' }
+  const digits = phone.replace(/\D/g, '')
+  const num = digits.length === 11 && digits.startsWith('1') ? digits.slice(1) : digits
+  return {
+    callUrl: `https://voice.google.com/u/0/calls?a=nc,%2B1${num}`,
+    textUrl: `https://voice.google.com/u/0/messages?itemId=t.%2B1${num}`,
+  }
 }
 
 interface NowViewingDockProps {
@@ -300,7 +312,7 @@ export function NowViewingDock({ customers }: NowViewingDockProps) {
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 text-xs">
                       {/* 1. Open Invoice Generator */}
                       <a
-                        href={`https://ebike-sales.pages.dev/invoice.html?customer=${encodeURIComponent(
+                        href={`https://ebike-sales-nu.vercel.app/invoice.html?customer=${encodeURIComponent(
                           cleanName(selectedCustomer.first_name, selectedCustomer.last_name)
                         )}&phone=${encodeURIComponent(selectedCustomer.phone || '')}&email=${encodeURIComponent(
                           selectedCustomer.email || ''
@@ -312,9 +324,9 @@ export function NowViewingDock({ customers }: NowViewingDockProps) {
                         🧾 Generate Invoice ↗
                       </a>
 
-                      {/* 2. Book Creek Ready Tune-up */}
+                      {/* 2. Book Creek Ready Tune-up ($100.00 with 20% Discount) */}
                       <a
-                        href={`https://ebike-sales.pages.dev/repair-intake.html?service=tuneup&discount=25&promo=25OFF&ref=${encodeURIComponent(
+                        href={`https://ebike-sales-nu.vercel.app/repair-intake.html?service=tuneup&discount=20&promo=20OFF&ref=${encodeURIComponent(
                           selectedCustomer.referral_code || ''
                         )}&firstName=${encodeURIComponent(selectedCustomer.first_name)}&lastName=${encodeURIComponent(
                           selectedCustomer.last_name && selectedCustomer.last_name.toLowerCase() !== '(none)'
@@ -327,23 +339,29 @@ export function NowViewingDock({ customers }: NowViewingDockProps) {
                         rel="noopener noreferrer"
                         className="p-2.5 rounded-lg bg-[#C9A96E] text-[#1A2E1C] font-bold flex items-center justify-center gap-1.5 hover:bg-[#dbb978] shadow-xs text-center"
                       >
-                        🌲 Book Tune-Up ($93.75) ↗
+                        🌲 Book Tune-Up ($100.00) ↗
                       </a>
 
-                      {/* 3. Call / Text */}
+                      {/* 3. Call / Text via Google Voice */}
                       {selectedCustomer.phone ? (
                         <div className="flex gap-1">
                           <a
-                            href={`tel:${selectedCustomer.phone.replace(/\D/g, '')}`}
-                            className="flex-1 p-2 rounded-lg bg-white border border-[#2D4A32] text-[#2D4A32] font-bold flex items-center justify-center gap-1 hover:bg-[#FAF8F2]"
+                            href={getGoogleVoiceUrls(selectedCustomer.phone).callUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            title="Natively open Google Voice to Call"
+                            className="flex-1 p-2 rounded-lg bg-white border border-[#2D4A32] text-[#2D4A32] font-bold flex items-center justify-center gap-1 hover:bg-[#FAF8F2] text-center"
                           >
-                            📞 Call
+                            📞 Call (Voice)
                           </a>
                           <a
-                            href={`sms:${selectedCustomer.phone.replace(/\D/g, '')}`}
-                            className="flex-1 p-2 rounded-lg bg-white border border-[#2D4A32] text-[#2D4A32] font-bold flex items-center justify-center gap-1 hover:bg-[#FAF8F2]"
+                            href={getGoogleVoiceUrls(selectedCustomer.phone).textUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            title="Natively open Google Voice to Text"
+                            className="flex-1 p-2 rounded-lg bg-white border border-[#2D4A32] text-[#2D4A32] font-bold flex items-center justify-center gap-1 hover:bg-[#FAF8F2] text-center"
                           >
-                            💬 Text
+                            💬 Text (Voice)
                           </a>
                         </div>
                       ) : (
@@ -396,27 +414,54 @@ export function NowViewingDock({ customers }: NowViewingDockProps) {
 
                   {/* Customer's Bikes */}
                   <div className="border-t border-[#E5E5E5] pt-3">
-                    <h5 className="text-xs uppercase font-bold text-[#4A4A4A] tracking-wider mb-2">
-                      🚴 Bikes Owned ({selectedCustomer.bikes?.length || 0})
-                    </h5>
+                    <div className="flex justify-between items-center mb-2">
+                      <h5 className="text-xs uppercase font-bold text-[#4A4A4A] tracking-wider">
+                        🚴 Bikes Owned ({selectedCustomer.bikes?.length || 0})
+                      </h5>
+                    </div>
                     {selectedCustomer.bikes?.length > 0 ? (
-                      <div className="space-y-1.5">
+                      <div className="space-y-2">
                         {selectedCustomer.bikes.map((b) => (
                           <div
                             key={b.id}
-                            className="p-2.5 rounded-lg bg-[#F5F0E8] flex items-center justify-between text-xs"
+                            className="p-3 rounded-xl bg-[#F5F0E8] border border-[#E5E5E5] space-y-2 text-xs"
                           >
-                            <div className="font-semibold text-[#1A2E1C]">
-                              <span className="px-1.5 py-0.5 rounded bg-[#2D4A32] text-white text-[10px] mr-1.5 uppercase font-bold">
-                                {b.brand}
-                              </span>
-                              {b.model}
+                            <div className="flex justify-between items-center">
+                              <div className="font-bold text-[#1A2E1C]">
+                                <span className="px-1.5 py-0.5 rounded bg-[#2D4A32] text-white text-[10px] mr-1.5 uppercase font-bold">
+                                  {b.brand}
+                                </span>
+                                {b.model}
+                              </div>
+                              {b.purchase_date && (
+                                <span className="text-gray-500 text-[11px]">
+                                  {new Date(b.purchase_date).toLocaleDateString()}
+                                </span>
+                              )}
                             </div>
-                            {b.purchase_date && (
-                              <span className="text-gray-500 text-[11px]">
-                                Purchased: {new Date(b.purchase_date).toLocaleDateString()}
-                              </span>
-                            )}
+
+                            <div className="grid grid-cols-2 gap-2 text-[11px]">
+                              <div className="bg-white p-2 rounded-lg border border-[#C9A96E]/40">
+                                <span className="text-gray-500 block text-[9px] uppercase font-bold">Serial Number</span>
+                                <span className="font-mono font-bold text-[#1A2E1C]">
+                                  {b.serial_number || '⚠️ Not entered'}
+                                </span>
+                              </div>
+                              <div className="bg-white p-2 rounded-lg border border-[#C9A96E]/40">
+                                <span className="text-gray-500 block text-[9px] uppercase font-bold">Receipt / Invoice #</span>
+                                {b.receipt_number ? (
+                                  <Link
+                                    href={`/dashboard/invoices/${b.receipt_number}`}
+                                    target="_blank"
+                                    className="font-mono font-bold text-[#2D4A32] hover:underline"
+                                  >
+                                    {b.receipt_number} ↗
+                                  </Link>
+                                ) : (
+                                  <span className="text-gray-400 font-mono">—</span>
+                                )}
+                              </div>
+                            </div>
                           </div>
                         ))}
                       </div>
@@ -457,7 +502,7 @@ export function NowViewingDock({ customers }: NowViewingDockProps) {
 
                             <div className="flex items-center gap-2">
                               <a
-                                href={`https://ebike-sales.pages.dev/invoice.html?edit=${encodeURIComponent(
+                                href={`https://ebike-sales-nu.vercel.app/invoice.html?edit=${encodeURIComponent(
                                   inv.invoice_number
                                 )}`}
                                 target="_blank"
@@ -481,7 +526,7 @@ export function NowViewingDock({ customers }: NowViewingDockProps) {
                       <div className="text-xs text-gray-500 italic flex items-center justify-between">
                         <span>No invoices on file yet.</span>
                         <a
-                          href={`https://ebike-sales.pages.dev/invoice.html?customer=${encodeURIComponent(
+                          href={`https://ebike-sales-nu.vercel.app/invoice.html?customer=${encodeURIComponent(
                             cleanName(selectedCustomer.first_name, selectedCustomer.last_name)
                           )}&phone=${encodeURIComponent(selectedCustomer.phone || '')}&email=${encodeURIComponent(
                             selectedCustomer.email || ''

@@ -23,7 +23,7 @@ export default async function AdminInvoices() {
           <p className="text-xs text-[#4A4A4A]">Manage & edit all customer invoices</p>
         </div>
         <a
-          href="https://ebike-sales.pages.dev/invoice.html"
+          href="https://ebike-sales-nu.vercel.app/invoice.html"
           target="_blank"
           rel="noopener noreferrer"
           className="btn-primary text-xs px-3.5 py-2 flex items-center gap-1.5 shadow-sm"
@@ -55,7 +55,7 @@ export default async function AdminInvoices() {
                   <td className="p-3 sm:p-4">
                     {/* Direct link to Invoice Generator in new tab */}
                     <a
-                      href={`https://ebike-sales.pages.dev/invoice.html?edit=${inv.invoice_number}`}
+                      href={`https://ebike-sales-nu.vercel.app/invoice.html?edit=${inv.invoice_number}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="font-mono text-sm font-bold underline hover:opacity-80 inline-flex items-center gap-1"
@@ -83,7 +83,7 @@ export default async function AdminInvoices() {
                   <td className="p-3 sm:p-4 text-right">
                     <div className="inline-flex items-center gap-2">
                       <a
-                        href={`https://ebike-sales.pages.dev/invoice.html?edit=${inv.invoice_number}`}
+                        href={`https://ebike-sales-nu.vercel.app/invoice.html?edit=${inv.invoice_number}`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="px-2.5 py-1 rounded bg-[#2D4A32] text-white text-xs font-bold hover:bg-[#1A2E1C]"

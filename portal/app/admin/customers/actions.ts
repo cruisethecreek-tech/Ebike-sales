@@ -69,3 +69,72 @@ export async function inviteCustomer(formData: FormData): Promise<void> {
 
   revalidatePath('/admin/customers')
 }
+
+export async function adminUpdateBike(formData: FormData): Promise<void> {
+  const bikeId = (formData.get('bike_id') as string || '').trim()
+  const rawSerial = formData.get('serial_number') as string
+  const rawReceipt = formData.get('receipt_number') as string
+
+  const serial_number = rawSerial && rawSerial.trim() ? rawSerial.trim().toUpperCase() : null
+  const receipt_number = rawReceipt && rawReceipt.trim() ? rawReceipt.trim().toUpperCase() : null
+
+  if (!bikeId) return
+
+  const supabase = createAdminClient()
+  const { error } = await supabase
+    .from('bikes')
+    .update({ serial_number, receipt_number })
+    .eq('id', bikeId)
+
+  if (error) {
+    console.error('Error updating bike:', error)
+  }
+
+  revalidatePath('/admin/customers')
+  revalidatePath('/dashboard/bikes')
+}
+
+export async function adminAddBike(formData: FormData): Promise<void> {
+  const customerId = (formData.get('customer_id') as string || '').trim()
+  const brand = (formData.get('brand') as string || 'Velotric').trim()
+  const model = (formData.get('model') as string || '').trim()
+  const rawSerial = formData.get('serial_number') as string
+  const rawReceipt = formData.get('receipt_number') as string
+  const purchaseDate = (formData.get('purchase_date') as string || '').trim() || null
+
+  const serial_number = rawSerial && rawSerial.trim() ? rawSerial.trim().toUpperCase() : null
+  const receipt_number = rawReceipt && rawReceipt.trim() ? rawReceipt.trim().toUpperCase() : null
+
+  if (!customerId || !model) return
+
+  const supabase = createAdminClient()
+  const { error } = await supabase
+    .from('bikes')
+    .insert({
+      customer_id: customerId,
+      brand,
+      model,
+      serial_number,
+      receipt_number,
+      purchase_date: purchaseDate,
+    })
+
+  if (error) {
+    console.error('Error adding bike:', error)
+  }
+
+  revalidatePath('/admin/customers')
+  revalidatePath('/dashboard/bikes')
+}
+
+export async function adminDeleteBike(formData: FormData): Promise<void> {
+  const bikeId = (formData.get('bike_id') as string || '').trim()
+  if (!bikeId) return
+
+  const supabase = createAdminClient()
+  await supabase.from('bikes').delete().eq('id', bikeId)
+
+  revalidatePath('/admin/customers')
+  revalidatePath('/dashboard/bikes')
+}
+

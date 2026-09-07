@@ -2,6 +2,8 @@ import { createClient } from '@/lib/supabase/server'
 import { EmptyState } from '@/app/components/empty-state'
 import { calculateBikeWarranties } from '@/lib/warranty'
 import { GoogleReviewCard } from '@/app/components/google-review-card'
+import { SerialNumberEditor } from './serial-number-editor'
+import BikeForm from './bike-form'
 import Link from 'next/link'
 
 export const metadata = {
@@ -113,6 +115,9 @@ export default async function BikesPage() {
                     </p>
                   </div>
 
+                  {/* ── Frame Serial Number & Receipt ── */}
+                  <SerialNumberEditor bike={bike} />
+
                   {/* ── 1. Manufacturer Warranty Countdown ── */}
                   <div className="p-4 bg-[#F5F0E8] rounded-xl space-y-2 border border-[#E5E5E5]">
                     <div className="flex justify-between items-center text-xs">
@@ -171,7 +176,7 @@ export default async function BikesPage() {
                     href={`/support?bikeId=${bike.id}`}
                     className="flex-1 text-center py-2.5 px-4 rounded-xl bg-[#2D4A32] text-white text-xs font-bold hover:bg-[#1A2E1C] transition-colors shadow-xs"
                   >
-                    🛠️ Book Creek Ready Tune-Up ($125)
+                    🛠️ Book Creek Ready Tune-Up ($100.00 Member Rate)
                   </Link>
                 </div>
               </div>
@@ -179,6 +184,11 @@ export default async function BikesPage() {
           })}
         </div>
       )}
+
+      {/* Register Another Bike Form */}
+      <div className="mt-8">
+        <BikeForm />
+      </div>
 
       {/* Google Review Banner */}
       <GoogleReviewCard />

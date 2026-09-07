@@ -43,6 +43,7 @@ export interface Bike {
   brand: BikeBrand;
   model: string;
   serial_number: string | null;
+  receipt_number?: string | null;
   purchase_date: string | null; // ISO date
   warranty_expires_at: string | null; // ISO date
   created_at: string;

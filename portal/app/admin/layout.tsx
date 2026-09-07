@@ -125,7 +125,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
               Admin Dashboard
             </h1>
             <a
-              href="https://ebike-sales.pages.dev/invoice.html"
+              href="https://ebike-sales-nu.vercel.app/invoice.html"
               target="_blank"
               rel="noopener noreferrer"
               className="btn-primary text-xs px-3.5 py-1.5 flex items-center gap-1 font-bold shadow-xs"
