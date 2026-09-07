@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { StatusBadge } from '@/app/components/status-badge'
 import { BrandBreakdownChart } from './brand-breakdown-chart'
+import { STORE_URL } from '@/lib/constants'
 import Link from 'next/link'
 
 export default async function AdminOverview() {
@@ -81,7 +82,7 @@ export default async function AdminOverview() {
           <p className="text-xs text-[#4A4A4A]">Real-time sales, bikes & referral metrics</p>
         </div>
         <a
-          href="https://ebike-sales-nu.vercel.app/invoice.html"
+          href={`${STORE_URL}/invoice.html`}
           target="_blank"
           rel="noopener noreferrer"
           className="btn-primary text-xs px-3.5 py-2 flex items-center gap-1.5 shadow-sm font-bold"
@@ -145,7 +146,7 @@ export default async function AdminOverview() {
                     </td>
                     <td className="p-3.5">
                       <a
-                        href={`https://ebike-sales-nu.vercel.app/invoice.html?edit=${inv.invoice_number}`}
+                        href={`${STORE_URL}/invoice.html?edit=${inv.invoice_number}`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="font-mono text-sm font-bold underline hover:opacity-80 inline-flex items-center gap-1"
@@ -191,7 +192,7 @@ export default async function AdminOverview() {
                 <div className="flex justify-between items-start">
                   <div>
                     <a
-                      href={`https://ebike-sales-nu.vercel.app/invoice.html?edit=${inv.invoice_number}`}
+                      href={`${STORE_URL}/invoice.html?edit=${inv.invoice_number}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="font-mono font-bold text-sm underline inline-flex items-center gap-1"

@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
+import { STORE_URL } from '@/lib/constants'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { NowViewingDock } from './now-viewing-dock'
@@ -125,7 +126,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
               Admin Dashboard
             </h1>
             <a
-              href="https://ebike-sales-nu.vercel.app/invoice.html"
+              href={`${STORE_URL}/invoice.html`}
               target="_blank"
               rel="noopener noreferrer"
               className="btn-primary text-xs px-3.5 py-1.5 flex items-center gap-1 font-bold shadow-xs"

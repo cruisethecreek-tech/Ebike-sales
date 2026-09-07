@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { EmptyState } from '@/app/components/empty-state'
+import { STORE_URL } from '@/lib/constants'
 import { CopyButton } from './copy-button'
 import { QRCodeCard } from '@/app/components/qr-code'
 import { GoogleReviewCard } from '@/app/components/google-review-card'
@@ -59,10 +60,10 @@ export default async function ReferralsPage() {
   const custEmail = encodeURIComponent(user.email || '')
   const encRef    = encodeURIComponent(refCode)
 
-  const tuneupDiscountUrl = `https://ebike-sales-nu.vercel.app/repair-intake.html?service=tuneup&discount=20&promo=20OFF&ref=${encRef}&firstName=${custFirst}&lastName=${custLast}&phone=${custPhone}&email=${custEmail}`
-  const accessoriesShopUrl = `https://ebike-sales-nu.vercel.app/accessories.html?ref=${encRef}&firstName=${custFirst}&lastName=${custLast}&phone=${custPhone}&email=${custEmail}`
-  const apparelShopUrl = `https://ebike-sales-nu.vercel.app/apparel.html?ref=${encRef}&firstName=${custFirst}&lastName=${custLast}&phone=${custPhone}&email=${custEmail}`
-  const creekReadyPolicyUrl = `https://ebike-sales-nu.vercel.app/creek-ready.html?ref=${encRef}&firstName=${custFirst}&lastName=${custLast}&phone=${custPhone}&email=${custEmail}`
+  const tuneupDiscountUrl = `${STORE_URL}/repair-intake.html?service=tuneup&discount=20&promo=20OFF&ref=${encRef}&firstName=${custFirst}&lastName=${custLast}&phone=${custPhone}&email=${custEmail}`
+  const accessoriesShopUrl = `${STORE_URL}/accessories.html?ref=${encRef}&firstName=${custFirst}&lastName=${custLast}&phone=${custPhone}&email=${custEmail}`
+  const apparelShopUrl = `${STORE_URL}/apparel.html?ref=${encRef}&firstName=${custFirst}&lastName=${custLast}&phone=${custPhone}&email=${custEmail}`
+  const creekReadyPolicyUrl = `${STORE_URL}/creek-ready.html?ref=${encRef}&firstName=${custFirst}&lastName=${custLast}&phone=${custPhone}&email=${custEmail}`
 
   return (
     <div className="max-w-4xl mx-auto space-y-8 pb-16">

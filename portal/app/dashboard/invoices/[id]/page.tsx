@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { notFound, redirect } from 'next/navigation'
 import Link from 'next/link'
+import { STORE_URL } from '@/lib/constants'
 import { fetchSheetInvoice } from '@/lib/sheet-invoices'
 import { PrintButton } from './print-button'
 
@@ -129,7 +130,7 @@ export default async function CustomerInvoiceDetailPage({ params }: PageProps) {
         <div className="flex items-center gap-2">
           {isAdmin && (
             <a
-              href={`https://ebike-sales-nu.vercel.app/invoice.html?edit=${invoice.invoice_number}`}
+              href={`${STORE_URL}/invoice.html?edit=${invoice.invoice_number}`}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-1 px-3 py-2 rounded-lg text-xs font-semibold bg-[#F5F0E8] text-[#2D4A32] hover:bg-[#EAE2D5] transition-colors"

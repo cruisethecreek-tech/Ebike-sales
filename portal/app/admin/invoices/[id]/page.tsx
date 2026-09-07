@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { StatusBadge } from '@/app/components/status-badge'
+import { STORE_URL } from '@/lib/constants'
 import { updateInvoiceStatus } from '../actions'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
@@ -35,7 +36,7 @@ export default async function AdminInvoiceDetail({ params }: { params: Promise<{
             📄 View Customer Receipt ↗
           </Link>
           <a
-            href={`https://ebike-sales-nu.vercel.app/invoice.html?edit=${invoice.invoice_number}`}
+            href={`${STORE_URL}/invoice.html?edit=${invoice.invoice_number}`}
             target="_blank"
             rel="noopener noreferrer"
             className="btn-primary text-xs px-3.5 py-1.5 flex items-center gap-1.5 shadow-sm font-bold"

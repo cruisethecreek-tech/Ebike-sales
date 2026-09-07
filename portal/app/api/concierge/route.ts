@@ -1,7 +1,8 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { STORE_URL } from '@/lib/constants'
 
-const PRIMARY_CHAT_API = 'https://ebike-sales-nu.vercel.app/api/chat'
+const PRIMARY_CHAT_API = `${STORE_URL}/api/chat`
 
 export async function POST(req: Request) {
   try {

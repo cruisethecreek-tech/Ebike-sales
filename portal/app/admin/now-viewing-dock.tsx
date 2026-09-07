@@ -2,6 +2,7 @@
 
 import { useState, useMemo, useEffect } from 'react'
 import Link from 'next/link'
+import { STORE_URL } from '@/lib/constants'
 
 interface CustomerWithData {
   id: string
@@ -312,7 +313,7 @@ export function NowViewingDock({ customers }: NowViewingDockProps) {
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 text-xs">
                       {/* 1. Open Invoice Generator */}
                       <a
-                        href={`https://ebike-sales-nu.vercel.app/invoice.html?customer=${encodeURIComponent(
+                        href={`${STORE_URL}/invoice.html?customer=${encodeURIComponent(
                           cleanName(selectedCustomer.first_name, selectedCustomer.last_name)
                         )}&phone=${encodeURIComponent(selectedCustomer.phone || '')}&email=${encodeURIComponent(
                           selectedCustomer.email || ''
@@ -326,7 +327,7 @@ export function NowViewingDock({ customers }: NowViewingDockProps) {
 
                       {/* 2. Book Creek Ready Tune-up ($100.00 with 20% Discount) */}
                       <a
-                        href={`https://ebike-sales-nu.vercel.app/repair-intake.html?service=tuneup&discount=20&promo=20OFF&ref=${encodeURIComponent(
+                        href={`${STORE_URL}/repair-intake.html?service=tuneup&discount=20&promo=20OFF&ref=${encodeURIComponent(
                           selectedCustomer.referral_code || ''
                         )}&firstName=${encodeURIComponent(selectedCustomer.first_name)}&lastName=${encodeURIComponent(
                           selectedCustomer.last_name && selectedCustomer.last_name.toLowerCase() !== '(none)'
@@ -502,7 +503,7 @@ export function NowViewingDock({ customers }: NowViewingDockProps) {
 
                             <div className="flex items-center gap-2">
                               <a
-                                href={`https://ebike-sales-nu.vercel.app/invoice.html?edit=${encodeURIComponent(
+                                href={`${STORE_URL}/invoice.html?edit=${encodeURIComponent(
                                   inv.invoice_number
                                 )}`}
                                 target="_blank"
@@ -526,7 +527,7 @@ export function NowViewingDock({ customers }: NowViewingDockProps) {
                       <div className="text-xs text-gray-500 italic flex items-center justify-between">
                         <span>No invoices on file yet.</span>
                         <a
-                          href={`https://ebike-sales-nu.vercel.app/invoice.html?customer=${encodeURIComponent(
+                          href={`${STORE_URL}/invoice.html?customer=${encodeURIComponent(
                             cleanName(selectedCustomer.first_name, selectedCustomer.last_name)
                           )}&phone=${encodeURIComponent(selectedCustomer.phone || '')}&email=${encodeURIComponent(
                             selectedCustomer.email || ''

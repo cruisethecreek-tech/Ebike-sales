@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import TicketForm from './ticket-form'
 import { StatusBadge } from '@/app/components/status-badge'
 import { ConciergeChat } from './concierge-chat'
+import { STORE_URL } from '@/lib/constants'
 import { redirect } from 'next/navigation'
 
 export const metadata = {
@@ -100,7 +101,7 @@ export default async function SupportPage() {
 
             <div className="space-y-2 pt-1">
               <a
-                href={`https://ebike-sales-nu.vercel.app/repair-intake.html?service=tuneup&discount=20&promo=20OFF&firstName=${encodeURIComponent(customer?.first_name || '')}&lastName=${encodeURIComponent(customer?.last_name || '')}&phone=${encodeURIComponent(customer?.phone || '')}&email=${encodeURIComponent(user?.email || '')}`}
+                href={`${STORE_URL}/repair-intake.html?service=tuneup&discount=20&promo=20OFF&firstName=${encodeURIComponent(customer?.first_name || '')}&lastName=${encodeURIComponent(customer?.last_name || '')}&phone=${encodeURIComponent(customer?.phone || '')}&email=${encodeURIComponent(user?.email || '')}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="btn-primary text-xs w-full block text-center py-2.5 font-bold shadow-xs hover:scale-[1.01] transition-transform"
@@ -108,7 +109,7 @@ export default async function SupportPage() {
                 ⚡ Book Creek Ready Tune-Up ($100.00) ↗
               </a>
               <a
-                href="https://ebike-sales-nu.vercel.app/creek-ready.html"
+                href={`${STORE_URL}/creek-ready.html`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-xs text-center block text-[#C9A96E] hover:underline"

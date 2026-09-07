@@ -2,6 +2,7 @@
 
 import { useState, useMemo, useEffect } from 'react'
 import Link from 'next/link'
+import { STORE_URL } from '@/lib/constants'
 import { adminUpdateBike, adminAddBike, adminDeleteBike } from './actions'
 
 interface Bike {
@@ -322,7 +323,7 @@ export function CustomerDirectory({ customers }: { customers: CustomerData[] }) 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 text-xs">
               {/* 1. Open Invoice Generator pre-filled */}
               <a
-                href={`https://ebike-sales-nu.vercel.app/invoice.html?customer=${encodeURIComponent(
+                href={`${STORE_URL}/invoice.html?customer=${encodeURIComponent(
                   formatCustomerName(selectedCustomer.first_name, selectedCustomer.last_name)
                 )}&phone=${encodeURIComponent(selectedCustomer.phone || '')}&email=${encodeURIComponent(
                   selectedCustomer.email || ''
@@ -336,7 +337,7 @@ export function CustomerDirectory({ customers }: { customers: CustomerData[] }) 
 
               {/* 2. Book Creek Ready Tune-up ($100.00 with 20% Discount) */}
               <a
-                href={`https://ebike-sales-nu.vercel.app/repair-intake.html?service=tuneup&discount=20&promo=20OFF&ref=${encodeURIComponent(
+                href={`${STORE_URL}/repair-intake.html?service=tuneup&discount=20&promo=20OFF&ref=${encodeURIComponent(
                   selectedCustomer.referral_code || ''
                 )}&firstName=${encodeURIComponent(selectedCustomer.first_name)}&lastName=${encodeURIComponent(
                   selectedCustomer.last_name && selectedCustomer.last_name.toLowerCase() !== '(none)'
