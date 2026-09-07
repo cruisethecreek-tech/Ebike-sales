@@ -2067,7 +2067,7 @@ function handleInvoiceCreated(p) {
           'Welcome to the Cruise the Creek rider family! Your customer account gives you 24/7 access to:',
           '  • Your registered e-bike & manufacturer warranty status',
           '  • Invoices & payment receipts',
-          '  • 25% OFF Creek Ready Tune-Ups ($93.75 member rate)',
+          '  • 20% OFF Creek Ready Tune-Ups ($100.00 member rate)',
           '  • Share your referral code to earn $100 for every 2 friends who buy',
           '  • 24/7 Creek Concierge assistance',
           '',

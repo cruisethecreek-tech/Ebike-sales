@@ -1300,6 +1300,19 @@
         if (Array.isArray(data.steps))    renderSteps(data.steps);
       },
     });
+
+    /* ── Propagate Referral & Promo Query Parameters to Booking Links ── */
+    (function() {
+      try {
+        if (window.location.search) {
+          document.querySelectorAll('a[href^="repair-intake.html"]').forEach(a => {
+            const base = a.getAttribute('href');
+            const sep = base.includes('?') ? '&' : '?';
+            a.setAttribute('href', base + sep + window.location.search.substring(1));
+          });
+        }
+      } catch (e) {}
+    })();
     </script>
 
 <script src="chatbot.js" defer></script>

@@ -78,8 +78,8 @@ export default async function SupportPage() {
               </span>
               <div className="text-right">
                 <span className="text-xs text-gray-300 line-through mr-1.5">$125</span>
-                <span className="text-xl font-bold text-[#C9A96E]">$93.75</span>
-                <span className="block text-[10px] text-[#86EFAC] font-bold">25% OFF APPLIED</span>
+                <span className="text-xl font-bold text-[#C9A96E]">$100.00</span>
+                <span className="block text-[10px] text-[#86EFAC] font-bold">20% OFF APPLIED</span>
               </div>
             </div>
 
@@ -100,15 +100,15 @@ export default async function SupportPage() {
 
             <div className="space-y-2 pt-1">
               <a
-                href={`https://ebike-sales.pages.dev/repair-intake.html?service=tuneup&discount=25&promo=25OFF&firstName=${encodeURIComponent(customer?.first_name || '')}&lastName=${encodeURIComponent(customer?.last_name || '')}&phone=${encodeURIComponent(customer?.phone || '')}&email=${encodeURIComponent(user?.email || '')}`}
+                href={`https://ebike-sales-nu.vercel.app/repair-intake.html?service=tuneup&discount=20&promo=20OFF&firstName=${encodeURIComponent(customer?.first_name || '')}&lastName=${encodeURIComponent(customer?.last_name || '')}&phone=${encodeURIComponent(customer?.phone || '')}&email=${encodeURIComponent(user?.email || '')}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="btn-primary text-xs w-full block text-center py-2.5 font-bold shadow-xs hover:scale-[1.01] transition-transform"
               >
-                ⚡ Book Creek Ready Tune-Up ($93.75) ↗
+                ⚡ Book Creek Ready Tune-Up ($100.00) ↗
               </a>
               <a
-                href="https://ebike-sales.pages.dev/creek-ready.html"
+                href="https://ebike-sales-nu.vercel.app/creek-ready.html"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-xs text-center block text-[#C9A96E] hover:underline"

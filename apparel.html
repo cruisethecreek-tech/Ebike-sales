@@ -522,6 +522,7 @@ function filteredApparel(){
 function renderProducts(){
   const grid = document.getElementById('product-grid');
   const countEl = document.getElementById('ap-count');
+
   if (!DATA.products.length) {
     if (countEl) countEl.textContent = '—';
     // Skeleton placeholders that mirror the final card shape — feels faster
@@ -569,11 +570,13 @@ function renderProducts(){
       ? (p.badge ? `<span class="product-badge">${esc(p.badge)}</span>` : '')
       : '<span class="product-badge soldout">Coming Soon</span>';
     const cls = `product-card${available ? '' : ' is-soldout'}${SELECTION.productId === p.id ? ' is-active' : ''}`;
+    const basePrice = parseFloat(p.base_price) || 30;
+
     return `<button type="button" class="${cls}" data-id="${esc(p.id)}" ${available ? '' : 'aria-disabled="true"'}>
       <div class="product-photo">${photo}${badge}</div>
       <div class="product-body">
         <div class="product-name">${esc(p.name)}</div>
-        <div class="product-price">$${(parseFloat(p.base_price) || 30).toFixed(0)}</div>
+        <div class="product-price">$${basePrice.toFixed(0)}</div>
         ${p.description ? `<div class="product-desc">${esc(p.description)}</div>` : ''}
         <div class="product-pick">${available ? 'Pick this print' : 'Notify me'} <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></div>
       </div>
@@ -855,9 +858,25 @@ function bindForm(product, available){
     submitOrder(product, available);
   });
 
-  // Hydrate personal-info fields from a saved draft (if present + fresh),
-  // then auto-save on every input. Hydration only fills empty inputs so a
-  // visitor mid-typing isn't overwritten.
+  // Hydrate personal-info fields: URL parameters first, then draft fallback
+  try {
+    const p = new URLSearchParams(window.location.search);
+    const urlMap = {
+      'f-first':   p.get('firstName') || p.get('first') || '',
+      'f-last':    p.get('lastName')  || p.get('last')  || '',
+      'f-email':   p.get('email')     || '',
+      'f-phone':   p.get('phone')     || '',
+      'f-address': p.get('address')   || '',
+      'f-city':    p.get('city')      || '',
+      'f-state':   p.get('state')     || '',
+      'f-zip':     p.get('zip')       || '',
+    };
+    Object.keys(urlMap).forEach(fid => {
+      const el = document.getElementById(fid);
+      if (el && urlMap[fid]) el.value = urlMap[fid];
+    });
+  } catch (_) {}
+
   const draft = readDraft();
   if (draft) {
     DRAFT_FIELD_IDS.forEach(fid => {
@@ -879,9 +898,6 @@ function bindForm(product, available){
   });
 
   // Secondary action: drop this configured item into the shared cart
-  // (cart.js) so visitors can stack multiple prints / bikes / etc.
-  // before checking out via the cart drawer's submit. Only present
-  // when the print is buyable (see the form render branch above).
   const cartBtn = document.getElementById('cart-btn');
   if (cartBtn) {
     cartBtn.addEventListener('click', () => addToCart(product));
@@ -898,6 +914,7 @@ function addToCart(product){
   if (!SELECTION.placement) { alert('Pick a print placement first.'); return; }
 
   const price = parseFloat(product.base_price) || 30;
+
   window.ctcCart.add({
     kind:     'apparel',
     brand:    'Cruise the Creek',
@@ -913,10 +930,6 @@ function addToCart(product){
     qty:       SELECTION.qty,
   });
 
-  // Brief on-button confirmation. The cart FAB also bumps + un-hides
-  // automatically (cart.js handles that side). Restore the button
-  // label after a beat so a second click on the same product still
-  // reads as an obvious action rather than a stuck state.
   const btn = document.getElementById('cart-btn');
   if (btn) {
     const original = btn.textContent;
@@ -960,8 +973,6 @@ async function submitOrder(product, available){
                  + (shipping ? ' · +$' + shipping + ' shipping' : '');
 
   // Step 1: ask Stripe for a payment link (only if the print is buyable).
-  // If Stripe is down or the page is on a non-allowlisted origin, we still
-  // log the order and fall back to manual follow-up — same UX as before.
   let paymentLink = '';
   if (available) {
     btn.textContent = 'Generating invoice…';
@@ -981,9 +992,6 @@ async function submitOrder(product, available){
       });
       if (stripeRes.ok) {
         const data = await stripeRes.json().catch(() => null);
-        // create-stripe-invoice returns both hostedInvoiceUrl + paymentLink
-        // (alias). Prefer hostedInvoiceUrl; fall back to paymentLink so the
-        // old create-payment-link endpoint also works during rollback.
         if (data) paymentLink = data.hostedInvoiceUrl || data.paymentLink || '';
       }
     } catch (err) {
@@ -991,8 +999,7 @@ async function submitOrder(product, available){
     }
   }
 
-  // Step 2: log the order to the Sheet + email sales team. Always runs,
-  // whether or not the Stripe call succeeded.
+  // Step 2: log the order to the Sheet + email sales team.
   btn.textContent = 'Submitting…';
   const params = new URLSearchParams({
     action:      'apparelOrder',

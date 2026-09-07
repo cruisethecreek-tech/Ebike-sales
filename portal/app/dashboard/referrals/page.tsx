@@ -52,17 +52,17 @@ export default async function ReferralsPage() {
   const customerFullName = `${customer.first_name} ${customer.last_name}`
   const referralUrl = `https://portal.cruisethecreek.com/auth?ref=${encodeURIComponent(refCode)}`
 
-  // Links for service (25% discount) and shop (standard) with prefilled customer details
+  // Links for service (20% discount) and shop (standard) with prefilled customer details
   const custFirst = encodeURIComponent(customer.first_name || '')
   const custLast  = encodeURIComponent(customer.last_name || '')
   const custPhone = encodeURIComponent(customer.phone || '')
   const custEmail = encodeURIComponent(user.email || '')
   const encRef    = encodeURIComponent(refCode)
 
-  const tuneupDiscountUrl = `https://ebike-sales.pages.dev/repair-intake.html?service=tuneup&discount=25&promo=25OFF&ref=${encRef}&firstName=${custFirst}&lastName=${custLast}&phone=${custPhone}&email=${custEmail}`
-  const accessoriesShopUrl = `https://ebike-sales.pages.dev/accessories.html?ref=${encRef}&firstName=${custFirst}&lastName=${custLast}&phone=${custPhone}&email=${custEmail}`
-  const apparelShopUrl = `https://ebike-sales.pages.dev/apparel.html?ref=${encRef}&firstName=${custFirst}&lastName=${custLast}&phone=${custPhone}&email=${custEmail}`
-  const creekReadyPolicyUrl = `https://ebike-sales.pages.dev/creek-ready.html?ref=${encRef}&firstName=${custFirst}&lastName=${custLast}&phone=${custPhone}&email=${custEmail}`
+  const tuneupDiscountUrl = `https://ebike-sales-nu.vercel.app/repair-intake.html?service=tuneup&discount=20&promo=20OFF&ref=${encRef}&firstName=${custFirst}&lastName=${custLast}&phone=${custPhone}&email=${custEmail}`
+  const accessoriesShopUrl = `https://ebike-sales-nu.vercel.app/accessories.html?ref=${encRef}&firstName=${custFirst}&lastName=${custLast}&phone=${custPhone}&email=${custEmail}`
+  const apparelShopUrl = `https://ebike-sales-nu.vercel.app/apparel.html?ref=${encRef}&firstName=${custFirst}&lastName=${custLast}&phone=${custPhone}&email=${custEmail}`
+  const creekReadyPolicyUrl = `https://ebike-sales-nu.vercel.app/creek-ready.html?ref=${encRef}&firstName=${custFirst}&lastName=${custLast}&phone=${custPhone}&email=${custEmail}`
 
   return (
     <div className="max-w-4xl mx-auto space-y-8 pb-16">
@@ -74,7 +74,7 @@ export default async function ReferralsPage() {
           🎁 Member Referral Rewards & Services
         </h1>
         <p className="text-sm text-[#4A4A4A]">
-          Share your referral code to earn $100 credits for every 2 friends who purchase, plus claim your 25% member tune-up discount!
+          Share your referral code to earn $100 credits for every 2 friends who purchase, plus claim your 20% member tune-up discount!
         </p>
       </div>
 
@@ -92,10 +92,10 @@ export default async function ReferralsPage() {
             className="uppercase tracking-wide text-2xl text-[#F5F0E8]"
             style={{ fontFamily: "'Bebas Neue', sans-serif" }}
           >
-            Earn $100 Account Credit & Save 25% on Tune-Ups
+            Earn $100 Account Credit & Save 20% on Tune-Ups
           </h2>
           <p className="text-xs text-gray-300 mt-1 max-w-xl">
-            Refer friends and earn <strong>$100 account credit</strong> for every 2 successful purchases. Plus, enjoy <strong>25% off Creek Ready Tune-Ups</strong> anytime!
+            Refer friends and earn <strong>$100 account credit</strong> for every 2 successful purchases. Plus, enjoy <strong>20% off Creek Ready Tune-Ups</strong> anytime!
           </p>
         </div>
 
@@ -109,7 +109,7 @@ export default async function ReferralsPage() {
             <div>
               <span className="text-xs font-bold text-[#C9A96E] block">🌲 Creek Ready Tune-Up</span>
               <span className="text-sm font-bold text-white">
-                <s className="text-gray-400 font-normal mr-1">$125</s> $93.75 (25% Off)
+                <s className="text-gray-400 font-normal mr-1">$125</s> $100.00 (20% Off)
               </span>
             </div>
             <span className="text-xs font-bold px-2.5 py-1 rounded-lg bg-[#C9A96E] text-[#1A2E1C] group-hover:scale-105 transition-transform self-end mt-3">

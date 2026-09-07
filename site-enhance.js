@@ -477,6 +477,172 @@
         })(el));
       }
       buildMarquee(el);
+  /* ── 7. Seasonal & Holiday Personality Theme ────────── */
+  var SEASONS = {
+    autumn: {
+      key: 'autumn',
+      name: 'Autumn Fall',
+      icon: '🍂',
+      banner: '🍂 Autumn Trail Season in Mill Creek Park · Crisp air, golden leaves & electrified rides 🍁',
+      color: '#C9A96E',
+      particles: ['🍂', '🍁', '🍃', '🌰'],
+    },
+    winter: {
+      key: 'winter',
+      name: 'Winter Holiday',
+      icon: '❄️',
+      banner: '❄️ Winter & Holiday Season · Ride bright, stay warm & store batteries indoors 🎄',
+      color: '#D4AF37',
+      particles: ['❄️', '✨', '🌲', '⭐'],
+    },
+    spring: {
+      key: 'spring',
+      name: 'Spring Bloom',
+      icon: '🌸',
+      banner: '🌸 Spring Trail Thaw · Mill Creek Park In Bloom · Tune-Up Time 🌱',
+      color: '#6B8F71',
+      particles: ['🌸', '🌱', '🌼', '🍃'],
+    },
+    summer: {
+      key: 'summer',
+      name: 'Summer Sun',
+      icon: '☀️',
+      banner: '☀️ Summer Riding Season · Lake Breeze & Shaded MetroParks Trails 🌊',
+      color: '#F59E0B',
+      particles: ['☀️', '✨', '🌊', '🚲'],
+    },
+  };
+
+  function getAutoSeason() {
+    var m = new Date().getMonth(); // 0-11
+    if (m >= 2 && m <= 4) return 'spring';
+    if (m >= 5 && m <= 7) return 'summer';
+    if (m >= 8 && m <= 10) return 'autumn';
+    return 'winter';
+  }
+
+  function setupSeasonalTheme() {
+    if (!document.body || document.getElementById('ctc-season-container')) return;
+
+    var saved = null;
+    try { saved = localStorage.getItem('ctc_season_theme'); } catch(e) {}
+    var currentKey = (saved && SEASONS[saved]) ? saved : getAutoSeason();
+    var current = SEASONS[currentKey] || SEASONS.autumn;
+
+    // Inject seasonal CSS
+    var seasonCss = [
+      '@keyframes ctc-particle-fall {',
+      '  0% { transform: translate3d(0, -20px, 0) rotate(0deg); opacity: 0; }',
+      '  15% { opacity: 0.85; }',
+      '  85% { opacity: 0.85; }',
+      '  100% { transform: translate3d(80px, 100vh, 0) rotate(360deg); opacity: 0; }',
+      '}',
+      '.ctc-particle { position: fixed; top: -30px; pointer-events: none; z-index: 999; user-select: none; font-size: 1.2rem; animation: ctc-particle-fall linear infinite; }',
+      '.ctc-season-banner { position: relative; z-index: 110; background: linear-gradient(135deg, #1A2E1C 0%, #2D4A32 100%); color: #F5F0E8; border-bottom: 2px solid ' + current.color + '; padding: 7px 16px; font-size: 0.78rem; font-weight: 700; display: flex; align-items: center; justify-content: center; text-align: center; gap: 8px; font-family: "DM Sans", system-ui, sans-serif; box-shadow: 0 2px 8px rgba(0,0,0,0.12); }',
+      '.ctc-season-banner a { color: ' + current.color + '; text-decoration: underline; margin-left: 6px; }',
+      '.ctc-season-banner-close { background: none; border: none; color: rgba(255,255,255,0.7); cursor: pointer; padding: 2px 6px; font-size: 1rem; line-height: 1; margin-left: 8px; }',
+      '.ctc-season-banner-close:hover { color: #fff; }',
+      '.ctc-season-pill { position: fixed; bottom: 18px; left: 18px; z-index: 9998; background: rgba(255,255,255,0.94); border: 1px solid rgba(45,74,50,0.25); border-radius: 999px; padding: 6px 12px; font-size: 0.72rem; font-weight: 800; color: #1A2E1C; display: flex; align-items: center; gap: 6px; box-shadow: 0 4px 14px rgba(0,0,0,0.12); cursor: pointer; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); transition: transform 0.15s ease, background 0.15s ease; font-family: "DM Sans", sans-serif; text-transform: uppercase; letter-spacing: 0.05em; }',
+      '.ctc-season-pill:hover { transform: translateY(-1px); background: #ffffff; }',
+      '@media (max-width: 767px) { .ctc-season-pill { bottom: calc(74px + env(safe-area-inset-bottom, 0px) + 8px); left: 12px; padding: 5px 10px; font-size: 0.68rem; } }',
+      '.ctc-season-menu { position: fixed; bottom: 58px; left: 18px; z-index: 9999; background: #ffffff; border: 1.5px solid #C9A96E; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.18); padding: 8px; display: none; flex-direction: column; gap: 4px; width: 210px; font-family: "DM Sans", sans-serif; }',
+      '@media (max-width: 767px) { .ctc-season-menu { bottom: calc(120px + env(safe-area-inset-bottom, 0px)); left: 12px; } }',
+      '.ctc-season-menu.is-open { display: flex; }',
+      '.ctc-season-opt { display: flex; align-items: center; justify-content: space-between; padding: 8px 10px; border-radius: 8px; border: none; background: none; font-size: 0.78rem; font-weight: 700; color: #1A1A1A; cursor: pointer; text-align: left; transition: background 0.15s ease; width: 100%; font-family: inherit; }',
+      '.ctc-season-opt:hover { background: #F5F0E8; color: #2D4A32; }',
+      '.ctc-season-opt.is-active { background: #2D4A32; color: #ffffff; }',
+      '@media (prefers-reduced-motion: reduce) { .ctc-particle { display: none !important; } }',
+    ].join('\n');
+
+    var styleEl = document.createElement('style');
+    styleEl.id = 'ctc-seasonal-css';
+    styleEl.textContent = seasonCss;
+    document.head.appendChild(styleEl);
+
+    // Season container
+    var container = document.createElement('div');
+    container.id = 'ctc-season-container';
+
+    // 1. Top Announcement Banner
+    var banner = document.createElement('div');
+    banner.className = 'ctc-season-banner';
+    banner.innerHTML = '<span>' + current.banner + '</span><button type="button" class="ctc-season-banner-close" title="Dismiss banner">&times;</button>';
+    banner.querySelector('.ctc-season-banner-close').addEventListener('click', function() {
+      banner.style.display = 'none';
+    });
+    container.appendChild(banner);
+
+    // 2. Interactive Season Switcher Pill & Menu
+    var pill = document.createElement('button');
+    pill.type = 'button';
+    pill.className = 'ctc-season-pill';
+    pill.innerHTML = '<span>' + current.icon + '</span> <span>' + current.name + '</span> <span style="font-size:0.65rem; opacity:0.7;">▾</span>';
+
+    var menu = document.createElement('div');
+    menu.className = 'ctc-season-menu';
+    menu.innerHTML = [
+      '<div style="font-size:0.68rem; font-weight:800; text-transform:uppercase; color:#6B8F71; padding:4px 8px; letter-spacing:0.06em;">Holiday &amp; Season Theme</div>',
+      '<button type="button" data-season="autumn" class="ctc-season-opt' + (currentKey === 'autumn' ? ' is-active' : '') + '"><span>🍂 Autumn Fall</span>' + (currentKey === 'autumn' ? '✓' : '') + '</button>',
+      '<button type="button" data-season="winter" class="ctc-season-opt' + (currentKey === 'winter' ? ' is-active' : '') + '"><span>❄️ Winter &amp; Holiday</span>' + (currentKey === 'winter' ? '✓' : '') + '</button>',
+      '<button type="button" data-season="spring" class="ctc-season-opt' + (currentKey === 'spring' ? ' is-active' : '') + '"><span>🌸 Spring Bloom</span>' + (currentKey === 'spring' ? '✓' : '') + '</button>',
+      '<button type="button" data-season="summer" class="ctc-season-opt' + (currentKey === 'summer' ? ' is-active' : '') + '"><span>☀️ Summer Sun</span>' + (currentKey === 'summer' ? '✓' : '') + '</button>',
+      '<div style="border-top:1px solid #eee; margin:4px 0;"></div>',
+      '<button type="button" data-season="auto" class="ctc-season-opt"><span>⚙️ Reset to Auto</span></button>',
+    ].join('');
+
+    pill.addEventListener('click', function(e) {
+      e.stopPropagation();
+      menu.classList.toggle('is-open');
+    });
+
+    document.addEventListener('click', function(e) {
+      if (!menu.contains(e.target) && e.target !== pill) {
+        menu.classList.remove('is-open');
+      }
+    });
+
+    menu.querySelectorAll('.ctc-season-opt').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        var sKey = btn.getAttribute('data-season');
+        if (sKey === 'auto') {
+          try { localStorage.removeItem('ctc_season_theme'); } catch(e) {}
+        } else {
+          try { localStorage.setItem('ctc_season_theme', sKey); } catch(e) {}
+        }
+        menu.classList.remove('is-open');
+        // Refresh season
+        location.reload();
+      });
+    });
+
+    container.appendChild(pill);
+    container.appendChild(menu);
+
+    // 3. Ambient Falling Particles (Subtle & gentle: 6 elements)
+    var isReduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (!isReduced && current.particles && current.particles.length) {
+      var particleBox = document.createElement('div');
+      particleBox.id = 'ctc-particle-box';
+      particleBox.setAttribute('aria-hidden', 'true');
+      var pCount = 7;
+      for (var i = 0; i < pCount; i++) {
+        var p = document.createElement('div');
+        p.className = 'ctc-particle';
+        p.textContent = current.particles[i % current.particles.length];
+        p.style.left = (Math.random() * 95) + 'vw';
+        p.style.animationDuration = (8 + Math.random() * 8) + 's';
+        p.style.animationDelay = (Math.random() * 6) + 's';
+        p.style.opacity = (0.4 + Math.random() * 0.4).toFixed(2);
+        particleBox.appendChild(p);
+      }
+      container.appendChild(particleBox);
+    }
+
+    // Insert banner at top of document
+    if (document.body.firstChild) {
+      document.body.insertBefore(container, document.body.firstChild);
+    } else {
+      document.body.appendChild(container);
     }
   }
 
@@ -490,6 +656,7 @@
     upgradeAllImages(document);
     watchForLateImages();
     setupMarquees(document);
+    setupSeasonalTheme();
   }
 
   if (document.readyState === 'loading') {

@@ -216,7 +216,12 @@ footer a{color:var(--tan);font-weight:500}
       <div class="row" style="margin-top:14px">
         <div><label class="lbl" for="f-sign">Type your full name to sign <span class="req">*</span></label><input type="text" id="f-sign" name="waiverSignature" autocomplete="name"></div>
       </div>
-      <p class="sign-note">Signing on <span id="waiver-date"></span>. This electronic signature has the same legal effect as a handwritten one.</p>
+    <!-- PRICING & SERVICE ESTIMATE AREA -->
+    <fieldset class="fieldset" id="pricing-summary-fieldset" style="background:#FAF8F2; border:2px solid #C9A96E; border-radius:10px; padding:20px 18px; margin-top:24px; margin-bottom:14px; box-shadow:0 4px 14px rgba(45,74,50,0.06);">
+      <div class="legend" style="margin-bottom:14px;"><span class="num">7</span> Service Estimate &amp; Pricing</div>
+      <div id="price-breakdown-box">
+        <!-- Live calculated pricing details -->
+      </div>
     </fieldset>
 
     <button type="submit" class="submit-btn" id="submit-btn">Submit repair request</button>
@@ -313,6 +318,174 @@ function compressImage(file){
   });
 }
 
+/* ── URL Parameter Prefill & Live Pricing Breakdown ────── */
+let activeDiscountCode = '';
+let isMemberDiscount = false;
+
+function updatePricingSection() {
+  const box = document.getElementById('price-breakdown-box');
+  const submitBtn = document.getElementById('submit-btn');
+  if (!box) return;
+
+  const tuneupChecked = !!document.querySelector('input[name="issues"][value="Routine tune-up"]:checked');
+  const otherIssues = Array.from(document.querySelectorAll('input[name="issues"]:checked'))
+    .filter(i => i.value !== 'Routine tune-up')
+    .map(i => i.value);
+
+  // If tune-up is checked (or default if service=tuneup)
+  const basePrice = (tuneupChecked || (!otherIssues.length)) ? 125.00 : 0.00;
+  const discountAmount = isMemberDiscount ? (basePrice * 0.20) : 0.00;
+  const finalPrice = Math.max(0, basePrice - discountAmount);
+
+  let html = `
+    <div style="display:flex; flex-direction:column; gap:12px;">
+      <!-- Line items -->
+      <div style="background:#fff; border:1px solid rgba(45,74,50,0.15); border-radius:8px; padding:14px;">
+        <div style="display:flex; justify-content:space-between; align-items:flex-start; padding-bottom:10px; border-bottom:1px solid #eee; gap:10px;">
+          <div>
+            <strong style="color:#2D4A32; font-size:0.95rem; display:block;">🌲 Creek Ready Comprehensive Tune-Up</strong>
+            <div style="font-size:0.75rem; color:#666; margin-top:2px;">28-point electrical & safety check, hydraulic brake bleed, electronic shifting tune & diagnostics</div>
+          </div>
+          <span style="font-weight:700; font-size:1rem; color:#1A1A1A;">$125.00</span>
+        </div>
+  `;
+
+  if (otherIssues.length > 0) {
+    html += `
+        <div style="display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-bottom:1px solid #eee; font-size:0.85rem;">
+          <span style="color:#4A4A4A;">Additional Issues (${otherIssues.join(', ')})</span>
+          <span style="color:#2D4A32; font-weight:600; font-size:0.8rem;">Diagnosis Included</span>
+        </div>
+    `;
+  }
+
+  if (isMemberDiscount) {
+    html += `
+        <div style="display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px solid #eee; color:#15803D; font-size:0.92rem;">
+          <div>
+            <strong>🎁 Member Referral Discount (20% OFF)</strong>
+            <div style="font-size:0.75rem; font-family:monospace; color:#2D4A32;">Applied Code: ${activeDiscountCode || '20OFF'}</div>
+          </div>
+          <strong style="font-size:1rem;">-$${discountAmount.toFixed(2)}</strong>
+        </div>
+    `;
+  }
+
+  html += `
+        <!-- Total Row -->
+        <div style="display:flex; justify-content:space-between; align-items:center; padding-top:12px;">
+          <div>
+            <strong style="font-size:1.1rem; color:#1A2E1C; text-transform:uppercase; letter-spacing:0.04em; display:block;">
+              Estimated Service Total:
+            </strong>
+            <span style="font-size:0.75rem; color:#666;">Pay at completion upon test ride</span>
+          </div>
+          <div style="text-align:right;">
+            ${isMemberDiscount ? `<s style="color:#888; font-size:0.9rem; margin-right:6px;">$125.00</s>` : ''}
+            <strong style="font-size:1.6rem; color:#2D4A32; font-family:'DM Sans', sans-serif;">$${finalPrice.toFixed(2)}</strong>
+          </div>
+        </div>
+      </div>
+  `;
+
+  // Status Badge or Promo Entry
+  if (isMemberDiscount) {
+    html += `
+      <div style="background:#DCFCE7; border:1px solid #86EFAC; border-radius:8px; padding:10px 14px; font-size:0.82rem; color:#15803D; font-weight:700; display:flex; align-items:center; gap:8px;">
+        <span style="font-size:1.2rem;">✅</span>
+        <span>20% Member Referral Pricing Confirmed: You save $${discountAmount.toFixed(2)} on this service!</span>
+      </div>
+    `;
+  } else {
+    html += `
+      <div style="background:#fff; border:1.5px dashed #C9A96E; border-radius:8px; padding:10px 12px; display:flex; gap:8px; align-items:center;">
+        <input type="text" id="promo-code-input" placeholder="Have a Member Referral Code?" style="flex:1; padding:8px 10px; font-size:0.85rem; border:1px solid #ddd; border-radius:6px; text-transform:uppercase;">
+        <button type="button" id="apply-code-btn" style="background:#2D4A32; color:#fff; padding:8px 16px; border-radius:6px; font-size:0.85rem; font-weight:700; cursor:pointer;">Apply 20% Off</button>
+      </div>
+    `;
+  }
+
+  html += `
+      <div style="font-size:0.78rem; color:#6B7280; line-height:1.4; text-align:center;">
+        💳 <strong>No upfront payment required today.</strong> Pricing is verified at drop-off; you only pay upon completion and test ride.
+      </div>
+    </div>
+  `;
+
+  box.innerHTML = html;
+
+  if (submitBtn) {
+    submitBtn.textContent = `Submit Repair Request — $${finalPrice.toFixed(2)}`;
+  }
+
+  // Bind promo code button
+  const applyBtn = document.getElementById('apply-code-btn');
+  if (applyBtn) {
+    applyBtn.addEventListener('click', () => {
+      const inp = document.getElementById('promo-code-input');
+      const val = (inp?.value || '').trim().toUpperCase();
+      if (val) {
+        activeDiscountCode = val;
+        isMemberDiscount = true;
+        updatePricingSection();
+      }
+    });
+  }
+}
+
+(function initIntakeData() {
+  try {
+    const p = new URLSearchParams(window.location.search);
+    const ref = p.get('ref') || p.get('referral') || p.get('promoCode') || '';
+    const promo = (p.get('promo') || '').toUpperCase();
+    const discount = p.get('discount');
+    const service = (p.get('service') || '').toLowerCase();
+    const firstName = p.get('firstName') || p.get('first') || p.get('name')?.split(' ')[0] || '';
+    const lastName = p.get('lastName') || p.get('last') || (p.get('name')?.includes(' ') ? p.get('name')?.split(' ').slice(1).join(' ') : '') || '';
+    const phone = p.get('phone') || '';
+    const email = p.get('email') || '';
+    const brand = p.get('brand') || '';
+    const model = p.get('model') || '';
+
+    // Contact info prefill
+    if (firstName && document.getElementById('f-first')) document.getElementById('f-first').value = firstName;
+    if (lastName && document.getElementById('f-last')) document.getElementById('f-last').value = lastName;
+    if (phone && document.getElementById('f-phone')) document.getElementById('f-phone').value = phone;
+    if (email && document.getElementById('f-email')) document.getElementById('f-email').value = email;
+
+    // Bike prefill
+    if (brand && document.getElementById('f-brand')) document.getElementById('f-brand').value = brand;
+    if (model && document.getElementById('f-model')) document.getElementById('f-model').value = model;
+
+    // Service auto-selection (Tune-up)
+    if (service === 'tuneup' || service === 'creek-ready' || service === 'tune-up' || !service) {
+      const tuneupCheck = document.querySelector('input[name="issues"][value="Routine tune-up"]');
+      if (tuneupCheck) {
+        tuneupCheck.checked = true;
+        const parentChoice = tuneupCheck.closest('.choice');
+        if (parentChoice) parentChoice.classList.add('is-checked');
+      }
+    }
+
+    // Check discount flags
+    if (promo === '20OFF' || promo === '25OFF' || discount === '20' || discount === '25' || ref) {
+      isMemberDiscount = true;
+      activeDiscountCode = ref || promo || '20% Member Referral';
+    }
+
+    // Listen for issue changes to dynamically update pricing
+    document.querySelectorAll('input[name="issues"]').forEach(ch => {
+      ch.addEventListener('change', updatePricingSection);
+    });
+
+    // Initial render of pricing
+    updatePricingSection();
+
+  } catch (e) {
+    console.warn('URL parameter parsing error:', e);
+  }
+})();
+
 /* ── submit ──────────────────────────────────────────── */
 form.addEventListener('submit', async e => {
   e.preventDefault();
@@ -341,12 +514,21 @@ form.addEventListener('submit', async e => {
     files = results.filter(r => r.status === 'fulfilled').map(r => r.value);
   }
 
+  let descriptionText = v('f-desc');
+  const servicePriceString = isMemberDiscount ? '$100.00 (20% Member Referral Discount off $125.00)' : '$125.00';
+  if (isMemberDiscount) {
+    descriptionText += `\n\n[20% Member Referral Discount Applied: ${activeDiscountCode || '20OFF'} | Confirmed Service Total: $100.00]`;
+  }
+
   btn.textContent = 'Submitting…';
   const payload = {
     action: 'repairIntake',
     firstName: first, lastName: last, phone: phone, email: email,
     brand: v('f-brand'), model: v('f-model'),
-    ebikeClass: ebikeClass, issues: issues, description: v('f-desc'),
+    ebikeClass: ebikeClass, issues: issues, description: descriptionText,
+    referralCode: activeDiscountCode,
+    discountPercent: isMemberDiscount ? '20%' : '',
+    serviceEstimate: servicePriceString,
     waiverAgreed: true, waiverSignature: waiverSignature,
     waiverVersion: WAIVER_VERSION, waiverDate: WAIVER_DATE,
     waiverText: (document.getElementById('waiver-box').innerText || '').trim(),

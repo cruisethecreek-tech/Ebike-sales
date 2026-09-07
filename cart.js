@@ -32,285 +32,43 @@
 
   const STORAGE_KEY = 'ctc_cart_v1';
   const DRAFT_KEY = 'ctc_cart_checkout_draft_v1';
+  const PROMO_KEY = 'ctc_active_promo_v1';
   const DRAFT_MAX_AGE_MS = 30 * 24 * 60 * 60 * 1000; // 30 days
   // Flat shipping when the customer chooses delivery; local pickup is free.
   // Pat reviews every cart as a draft invoice, so he can adjust this on
   // larger orders (e.g. a bike) before sending the payment link.
   const SHIP_FLAT = 5;
-  // AS_URL is Project A (AKfycbxjg2Zs...), same deployment that serves
-  // every customer-facing write (CMS reads, apparelOrder, cartOrder,
-  // bookingLead, bridgeApplication, chatLog). Cart used to point at
-  // Project B (AKfycbyxVMuF...) for `cartOrder`, but Project B's doGet
-  // got replaced at some point with an HTML-renderer template that
-  // throws "No HTML file named Index" before reaching the action
-  // dispatcher — every cart submit silently bounced. Project B still
-  // owns `getBikeInventory` for the brand pages, but cart.js no longer
-  // touches it. Full multi-deployment cleanup is tracked separately.
   const AS_URL = 'https://script.google.com/macros/s/AKfycbwXv6r6Me-mdp9WFjCHQYDHcgEKbny-9_K8TX-yGgW40yTONhz6kAs3H96xM0tEDAhcJA/exec';
 
-  // ── Styles ───────────────────────────────────────────────────
-  const STYLES = `
-.ctc-cart-fab{
-  position:fixed;left:20px;bottom:calc(20px + env(safe-area-inset-bottom, 0px));
-  z-index:9998;width:56px;height:56px;border-radius:50%;
-  background:#2D4A32;color:#C9A96E;border:none;cursor:pointer;
-  display:flex;align-items:center;justify-content:center;
-  box-shadow:0 8px 24px rgba(45,74,50,.32),0 2px 6px rgba(0,0,0,.18);
-  transition:transform .25s ease, background .2s ease, opacity .25s ease;
-  font-family:'DM Sans',-apple-system,system-ui,sans-serif;
-}
-.ctc-cart-fab:hover{transform:translateY(-2px);background:#1a2e1c}
-.ctc-cart-fab svg{width:24px;height:24px;stroke:currentColor;fill:none;stroke-width:2}
-.ctc-cart-badge{
-  position:absolute;top:-4px;right:-4px;min-width:22px;height:22px;padding:0 6px;
-  border-radius:11px;background:#C9A96E;color:#1a2e1c;font-size:.72rem;font-weight:800;
-  display:flex;align-items:center;justify-content:center;
-  box-shadow:0 0 0 2px #2D4A32;letter-spacing:.02em;
-}
-/* Hide the FAB entirely when the cart is empty — keeps the bottom-of-page
-   real estate clean. The FAB fades in the moment a visitor adds an item
-   (renderBadge flips .empty off), and out again if they clear the cart. */
-.ctc-cart-fab.empty{
-  opacity:0;transform:translateY(8px) scale(.9);pointer-events:none;
-}
-.ctc-cart-fab.bump{animation:ctc-cart-bump .35s ease}
-@keyframes ctc-cart-bump{
-  0%,100%{transform:scale(1)}
-  40%{transform:scale(1.15)}
-}
-
-.ctc-cart-overlay{
-  position:fixed;inset:0;background:rgba(26,46,28,.55);z-index:9998;
-  opacity:0;pointer-events:none;transition:opacity .2s ease;
-}
-.ctc-cart-drawer{
-  position:fixed;top:0;right:0;bottom:0;width:min(440px, 100vw);
-  z-index:9999;background:#fbf7ef;
-  display:flex;flex-direction:column;
-  font-family:'DM Sans',-apple-system,system-ui,sans-serif;color:#1a1a1a;
-  transform:translateX(100%);transition:transform .25s ease;
-  box-shadow:-8px 0 32px rgba(0,0,0,.22);
-}
-.ctc-cart-open .ctc-cart-overlay{opacity:1;pointer-events:auto}
-.ctc-cart-open .ctc-cart-drawer{transform:translateX(0)}
-
-.ctc-cart-head{
-  background:#2D4A32;color:#fff;padding:18px 22px;
-  display:flex;align-items:center;gap:12px;flex-shrink:0;
-}
-.ctc-cart-head h3{font-family:'Bebas Neue','DM Sans',sans-serif;font-size:1.35rem;
-  letter-spacing:.04em;text-transform:uppercase;margin:0;flex:1;font-weight:700}
-.ctc-cart-close{
-  background:transparent;border:none;color:rgba(255,255,255,.7);cursor:pointer;
-  font-size:1.8rem;line-height:1;padding:0 4px;font-family:inherit;
-}
-.ctc-cart-close:hover{color:#C9A96E}
-
-.ctc-cart-items{flex:1;overflow-y:auto;padding:14px 18px;background:#fbf7ef}
-.ctc-cart-empty{
-  text-align:center;color:#5a5a5a;font-size:.9rem;padding:40px 20px;line-height:1.6;
-}
-.ctc-cart-empty strong{display:block;color:#2D4A32;font-family:'Bebas Neue',sans-serif;
-  font-size:1.2rem;letter-spacing:.04em;margin-bottom:6px;text-transform:uppercase}
-.ctc-cart-empty-suggest{display:flex;gap:8px;justify-content:center;margin-top:14px;flex-wrap:wrap}
-.ctc-cart-empty-suggest a{
-  background:#2D4A32;color:#C9A96E;text-decoration:none;font-weight:800;
-  padding:8px 14px;border-radius:4px;font-size:.74rem;letter-spacing:.08em;
-  text-transform:uppercase;transition:background .15s ease;font-family:inherit;
-}
-.ctc-cart-empty-suggest a:hover{background:#1a2e1c}
-
-.ctc-cart-item{
-  background:#fff;border:1px solid rgba(0,0,0,.06);border-radius:8px;
-  padding:12px 14px;margin-bottom:10px;
-  display:flex;align-items:flex-start;gap:10px;
-  box-shadow:0 2px 6px rgba(0,0,0,.03);
-}
-.ctc-cart-item-info{flex:1;min-width:0}
-.ctc-cart-item-name{font-weight:700;color:#2D4A32;font-size:.94rem;line-height:1.2;margin-bottom:3px}
-.ctc-cart-item-config{font-size:.74rem;color:#5a5a5a;line-height:1.3;margin-bottom:6px}
-.ctc-cart-item-config .used-tag{
-  display:inline-block;background:#a98843;color:#fff;font-weight:700;
-  font-size:.62rem;letter-spacing:.08em;text-transform:uppercase;
-  padding:1px 6px;border-radius:3px;margin-left:4px;vertical-align:1px;
-}
-.ctc-cart-item-price{font-family:'Bebas Neue',sans-serif;font-size:1.2rem;
-  color:#a98843;letter-spacing:.02em;line-height:1}
-.ctc-cart-item-controls{display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0}
-.ctc-cart-qty-grp{display:flex;align-items:center;border:1px solid rgba(0,0,0,.12);border-radius:5px;overflow:hidden}
-.ctc-cart-qty-btn{
-  background:transparent;border:none;cursor:pointer;width:26px;height:26px;
-  font-size:1rem;color:#2D4A32;font-family:inherit;font-weight:700;
-}
-.ctc-cart-qty-btn:hover{background:#f5f0e8}
-.ctc-cart-qty-btn:disabled{color:rgba(0,0,0,.2);cursor:not-allowed}
-.ctc-cart-qty{min-width:24px;text-align:center;font-size:.86rem;font-weight:700;color:#1a1a1a}
-.ctc-cart-remove{
-  background:transparent;border:none;color:#7a7a7a;cursor:pointer;
-  font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;
-  padding:2px 4px;font-family:inherit;font-weight:600;
-}
-.ctc-cart-remove:hover{color:#c44a3a}
-
-.ctc-cart-suggest{
-  padding:12px 22px 4px;background:#fbf7ef;border-top:1px solid rgba(0,0,0,.06);
-  display:flex;flex-direction:column;gap:8px;flex-shrink:0;
-}
-.ctc-cart-suggest[hidden]{display:none}
-.ctc-cart-suggest-eyebrow{font-size:.64rem;letter-spacing:.18em;text-transform:uppercase;
-  font-weight:800;color:#a98843}
-.ctc-cart-suggest-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.ctc-cart-suggest-card{
-  background:#fff;border:1px solid rgba(0,0,0,.06);border-radius:6px;
-  padding:9px 12px;text-decoration:none;color:#2D4A32;
-  display:flex;flex-direction:column;gap:1px;
-  transition:border-color .15s ease, transform .1s ease;
-}
-.ctc-cart-suggest-card:hover{border-color:#C9A96E;transform:translateY(-1px)}
-.ctc-cart-suggest-card strong{font-size:.82rem;letter-spacing:.02em;font-weight:800;
-  font-family:'Bebas Neue','DM Sans',sans-serif;text-transform:uppercase;line-height:1.1}
-.ctc-cart-suggest-card span{font-size:.66rem;color:#5a5a5a;line-height:1.3}
-
-/* Featured upsell card — spans both columns and uses the brand forest
-   fill so it reads as the primary "while you're here" path. Used for
-   high-value categories (bikes) that deserve more emphasis than the
-   smaller accessory/apparel cards below. */
-.ctc-cart-suggest-card.featured{
-  grid-column:1 / -1;
-  background:#2D4A32;color:#fff;border-color:#2D4A32;
-  padding:11px 14px;
-}
-.ctc-cart-suggest-card.featured:hover{
-  background:#1a2e1c;border-color:#C9A96E;
-}
-.ctc-cart-suggest-card.featured strong{font-size:.92rem;color:#fff}
-.ctc-cart-suggest-card.featured span{color:rgba(255,255,255,.78);font-size:.7rem}
-
-/* Sticky footer wraps the subtotal row + the checkout form. The drop
-   shadow above lifts it off the scrolling items, so it always reads as
-   the anchored action area — same pattern as Shopify's drawer cart. */
-.ctc-cart-footer{
-  background:#fff;flex-shrink:0;
-  box-shadow:0 -6px 18px rgba(0,0,0,.06);
-}
-.ctc-cart-totals{
-  padding:14px 22px 6px;background:#fff;
-  display:flex;align-items:baseline;justify-content:space-between;
-}
-.ctc-cart-totals span{font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;
-  color:#5a5a5a;font-weight:700}
-.ctc-cart-totals strong{font-family:'Bebas Neue',sans-serif;font-size:1.8rem;
-  color:#2D4A32;letter-spacing:.02em}
-.ctc-cart-ship-line{padding:0 22px 6px;background:#fff;display:flex;align-items:center;
-  justify-content:space-between}
-.ctc-cart-ship-line span{font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;
-  color:#5a5a5a;font-weight:700}
-.ctc-cart-delivery{display:flex;gap:14px;flex-wrap:wrap;padding:2px 0}
-.ctc-cart-delivery label{display:flex;align-items:center;gap:6px;font-size:.82rem;
-  color:#2D4A32;font-weight:600;cursor:pointer}
-.ctc-cart-delivery input{width:auto;margin:0}
-.ctc-cart-ship-fields{display:flex;flex-direction:column;gap:8px}
-.ctc-cart-ship-fields[hidden]{display:none}
-
-.ctc-cart-checkout{
-  padding:10px 22px 22px;background:#fff;
-  display:flex;flex-direction:column;gap:8px;
-}
-.ctc-cart-checkout-toggle{
-  /* Primary CTA — filled green "Checkout — $X" button that also opens
-     the contact form below. Full-width so it works one-thumb on mobile;
-     the embedded price keeps the customer anchored to total spend even
-     while filling in details. */
-  display:flex;align-items:center;justify-content:center;gap:12px;
-  background:#2D4A32;color:#C9A96E;border:none;cursor:pointer;
-  padding:14px 18px;border-radius:6px;margin:0;width:100%;
-  font-family:'Bebas Neue','DM Sans',sans-serif;font-size:1.05rem;
-  letter-spacing:.08em;text-transform:uppercase;font-weight:800;
-  transition:background .15s ease,transform .1s ease;
-}
-.ctc-cart-checkout-toggle:hover{background:#1a2e1c}
-.ctc-cart-checkout-toggle:active{transform:scale(.99)}
-.ctc-cart-checkout-toggle:focus-visible{outline:2px solid #C9A96E;outline-offset:3px}
-.ctc-cart-checkout-toggle .ctc-cart-toggle-price{
-  font-family:'Bebas Neue',sans-serif;color:#fff;
-  border-left:1px solid rgba(255,255,255,.28);padding-left:12px;
-  letter-spacing:.02em;
-}
-.ctc-cart-checkout-toggle .chev{
-  width:16px;height:16px;flex-shrink:0;transition:transform .25s ease;
-  color:rgba(201,169,110,.75);
-}
-.ctc-cart-checkout.is-open .ctc-cart-checkout-toggle .chev{transform:rotate(180deg)}
-.ctc-cart-checkout-body{
-  /* Collapsed by default. max-height collapse plus opacity fade gives a
-     calm, in-place reveal without layout jank. The big max-height upper
-     bound is fine — actual height is governed by content, the cap just
-     needs to exceed any plausible form length. */
-  display:flex;flex-direction:column;gap:8px;
-  max-height:0;overflow:hidden;opacity:0;
-  transition:max-height .28s ease,opacity .2s ease,margin-top .25s ease;
-  margin-top:0;
-}
-.ctc-cart-checkout.is-open .ctc-cart-checkout-body{
-  max-height:760px;opacity:1;margin-top:10px;
-}
-.ctc-cart-checkout h4{
-  font-family:'Bebas Neue','DM Sans',sans-serif;font-size:1rem;
-  letter-spacing:.06em;text-transform:uppercase;color:#2D4A32;margin:0 0 2px;font-weight:700;
-}
-.ctc-cart-note{font-size:.72rem;color:#5a5a5a;line-height:1.4;margin:0 0 4px}
-.ctc-cart-row{display:grid;grid-template-columns:1fr 1fr;gap:6px}
-.ctc-cart-checkout input,
-.ctc-cart-checkout textarea{
-  width:100%;border:1px solid rgba(45,74,50,.18);border-radius:6px;
-  padding:8px 10px;font-family:inherit;font-size:.88rem;color:#1a1a1a;
-  background:#fbf7ef;transition:border-color .15s ease;resize:none;
-}
-.ctc-cart-checkout input:focus,
-.ctc-cart-checkout textarea:focus{outline:none;border-color:#6B8F71}
-.ctc-cart-checkout textarea{min-height:62px;line-height:1.4}
-.ctc-cart-contact-hint{font-size:.68rem;color:#7a7a7a;margin:-2px 0 2px;line-height:1.3}
-.ctc-cart-error{font-size:.78rem;color:#c44a3a;line-height:1.4;margin:2px 0}
-.ctc-cart-submit{
-  background:#2D4A32;color:#C9A96E;border:none;cursor:pointer;
-  padding:12px 16px;border-radius:6px;font-family:inherit;font-weight:800;
-  font-size:.86rem;letter-spacing:.08em;text-transform:uppercase;margin-top:4px;
-  transition:background .15s ease,transform .1s ease;
-}
-.ctc-cart-submit:hover{background:#1a2e1c}
-.ctc-cart-submit:active{transform:scale(.98)}
-.ctc-cart-submit:disabled{opacity:.5;cursor:not-allowed}
-
-.ctc-cart-success{
-  padding:30px 22px;background:#fff;border-top:1px solid rgba(0,0,0,.08);
-  text-align:center;flex-shrink:0;
-}
-.ctc-cart-success strong{
-  display:block;font-family:'Bebas Neue',sans-serif;font-size:1.5rem;
-  color:#2D4A32;letter-spacing:.04em;text-transform:uppercase;margin-bottom:8px;
-}
-.ctc-cart-success p{font-size:.88rem;color:#5a5a5a;line-height:1.55;margin:0 0 16px}
-.ctc-cart-success-id{font-size:.7rem;color:#a98843;letter-spacing:.12em;
-  text-transform:uppercase;font-weight:700;margin-bottom:14px}
-.ctc-cart-success button{
-  background:transparent;border:1px solid #2D4A32;color:#2D4A32;cursor:pointer;
-  padding:9px 18px;border-radius:4px;font-family:inherit;font-weight:700;
-  font-size:.78rem;letter-spacing:.08em;text-transform:uppercase;
-}
-.ctc-cart-success button:hover{background:#2D4A32;color:#fff}
-
-@media(max-width:560px){
-  .ctc-cart-drawer{width:100vw}
-  .ctc-cart-fab{left:14px;bottom:calc(14px + env(safe-area-inset-bottom, 0px));width:50px;height:50px}
-  .ctc-cart-fab svg{width:22px;height:22px}
-}
-  `;
-
-  const style = document.createElement('style');
-  style.textContent = STYLES;
-  document.head.appendChild(style);
-
   // ── State ─────────────────────────────────────────────────────
+  function readActivePromo() {
+    try {
+      if (typeof window !== 'undefined' && window.location) {
+        const p = new URLSearchParams(window.location.search);
+        const ref = p.get('ref') || p.get('referral') || p.get('promoCode') || '';
+        const promo = (p.get('promo') || '').toUpperCase();
+        // Referral codes do not discount apparel/accessories (discount only applies to tune-ups/repairs)
+        if (promo === '20OFF' || discount === '20') {
+          const promoData = {
+            code: promo || 'Promo Discount',
+            discountPercent: 20,
+            label: 'Promo Discount (20%)'
+          };
+          localStorage.setItem(PROMO_KEY, JSON.stringify(promoData));
+          return promoData;
+        }
+      }
+      const saved = localStorage.getItem(PROMO_KEY);
+      if (saved) return JSON.parse(saved);
+    } catch (e) {}
+    return null;
+  }
+
+  function clearActivePromo() {
+    try { localStorage.removeItem(PROMO_KEY); } catch (e) {}
+    renderItems();
+  }
+
   function readCart() {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
@@ -372,6 +130,13 @@
         <h3>Your Cart</h3>
         <button class="ctc-cart-close" type="button" data-act="close" aria-label="Close">×</button>
       </header>
+      <div class="ctc-cart-promo-banner" hidden>
+        <div>
+          <span class="ctc-cart-promo-tag">⚡ 25% Member Discount Applied</span>
+          <div class="ctc-cart-promo-detail">Code: <strong class="ctc-cart-promo-code"></strong></div>
+        </div>
+        <button type="button" class="ctc-cart-promo-remove" data-act="rm-promo">Remove</button>
+      </div>
       <div class="ctc-cart-items"></div>
       <div class="ctc-cart-suggest" hidden>
         <span class="ctc-cart-suggest-eyebrow">While you're here</span>
@@ -394,6 +159,10 @@
         <div class="ctc-cart-totals">
           <span>Subtotal</span>
           <strong class="ctc-cart-subtotal">$0</strong>
+        </div>
+        <div class="ctc-cart-discount-line" hidden>
+          <span class="ctc-cart-discount-label">Member Discount (25%)</span>
+          <strong class="ctc-cart-discount-amt">-$0</strong>
         </div>
         <div class="ctc-cart-ship-line" hidden>
           <span>Shipping</span>
@@ -494,8 +263,15 @@
         </div>
       `).join('');
     }
+
     const subtotal = cart.items.reduce((s, i) => s + (parseFloat(i.price) || 0) * (parseInt(i.qty, 10) || 1), 0);
     wrap.querySelector('.ctc-cart-subtotal').textContent = '$' + formatPrice(subtotal);
+
+    const promoBanner = wrap.querySelector('.ctc-cart-promo-banner');
+    const discountLine = wrap.querySelector('.ctc-cart-discount-line');
+    if (promoBanner) promoBanner.hidden = true;
+    if (discountLine) discountLine.hidden = true;
+
     // Shipping line tracks the delivery radio; the Checkout CTA shows the
     // grand total (merchandise + shipping) so the customer sees true spend.
     const ship = currentShipping();
@@ -505,8 +281,13 @@
       const amtEl = shipLine.querySelector('.ctc-cart-ship-amt');
       if (amtEl) amtEl.textContent = '$' + formatPrice(ship);
     }
+    const finalTotal = Math.max(0, subtotal + ship);
+    wrap.querySelector('.ctc-cart-toggle-price').textContent = '$' + formatPrice(finalTotal);
+    }
+    const finalTotal = Math.max(0, subtotal - discountAmt) + ship;
     const priceEl = wrap.querySelector('.ctc-cart-toggle-price');
-    if (priceEl) priceEl.textContent = '$' + formatPrice(subtotal + ship);
+    if (priceEl) priceEl.textContent = '$' + formatPrice(finalTotal);
+
     // Hide the entire sticky footer (subtotal + Checkout CTA) when the
     // cart is empty — a $0 Checkout button would be a dead-end action.
     const footer = wrap.querySelector('.ctc-cart-footer');
@@ -580,6 +361,7 @@
     if (!act) return;
     if (act === 'close') return closeDrawer();
     if (act === 'toggle-checkout') return toggleCheckout();
+    if (act === 'rm-promo') return clearActivePromo();
     const i = parseInt(actEl.dataset.i, 10);
     if (!isFinite(i) || i < 0 || i >= cart.items.length) return;
     if (act === 'inc') cart.items[i].qty = (cart.items[i].qty || 1) + 1;
@@ -610,10 +392,29 @@
   // ── Checkout submit ──────────────────────────────────────────
   const checkoutForm = wrap.querySelector('.ctc-cart-checkout');
 
-  // Hydrate the form from any saved draft, then auto-save on every input
-  // so progress survives drawer close / tab close / accidental nav.
+  // Hydrate the form from URL parameters first, then any saved draft
   const DRAFT_FIELDS = ['firstName', 'lastName', 'email', 'phone', 'address', 'city', 'state', 'zip', 'notes'];
   (function bindCheckoutDraftRecovery() {
+    try {
+      if (typeof window !== 'undefined' && window.location) {
+        const p = new URLSearchParams(window.location.search);
+        const urlVals = {
+          firstName: p.get('firstName') || p.get('first') || '',
+          lastName:  p.get('lastName')  || p.get('last')  || '',
+          email:     p.get('email')     || '',
+          phone:     p.get('phone')     || '',
+          address:   p.get('address')   || '',
+          city:      p.get('city')      || '',
+          state:     p.get('state')     || '',
+          zip:       p.get('zip')       || '',
+        };
+        DRAFT_FIELDS.forEach(name => {
+          const el = checkoutForm.querySelector(`[name="${name}"]`);
+          if (el && urlVals[name]) el.value = urlVals[name];
+        });
+      }
+    } catch (_) {}
+
     const draft = readDraft();
     if (draft) {
       DRAFT_FIELDS.forEach(name => {
@@ -664,6 +465,9 @@
     }
     const shipping = wantsShip ? SHIP_FLAT : 0;
 
+    const subtotal = cart.items.reduce((s, i) => s + (parseFloat(i.price) || 0) * (parseInt(i.qty, 10) || 1), 0);
+    let customerNotes = String(data.notes || '');
+
     const btn = checkoutForm.querySelector('.ctc-cart-submit');
     btn.disabled = true;
     btn.textContent = 'Sending…';
@@ -681,10 +485,12 @@
         zip:       String(data.zip       || ''),
         deliveryMethod: wantsShip ? 'Ship' : 'Pickup',
         shipping:  shipping.toFixed(2),
-        notes:     String(data.notes     || ''),
+        subtotal:  subtotal.toFixed(2),
+        notes:     customerNotes,
         cart:      JSON.stringify(cart.items),
         page:      (typeof location !== 'undefined' && location.href) ? location.href : '',
       });
+
       let orderId = '';
       let succeeded = false;
       let serverError = '';
