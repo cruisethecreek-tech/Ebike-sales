@@ -14,12 +14,12 @@ interface BikeProps {
 
 export function SerialNumberEditor({ bike }: { bike: BikeProps }) {
   const [isEditing, setIsEditing] = useState(false)
-  const [currentSerial, setCurrentSerial] = useState(bike.serial_number || '')
   const [state, formAction, isPending] = useActionState(updateBikeSerial, null)
+
+  const currentSerial = state?.success ? (state.serial_number || '') : (bike.serial_number || '')
 
   useEffect(() => {
     if (state?.success) {
-      setCurrentSerial(state.serial_number || '')
       setIsEditing(false)
     }
   }, [state])
@@ -99,7 +99,7 @@ export function SerialNumberEditor({ bike }: { bike: BikeProps }) {
             </button>
           </div>
           <p className="text-[11px] text-amber-800 leading-tight">
-            Enter your bike's serial number so it's permanently logged on file for manufacturer warranty claims, theft protection, and Creek Ready servicing.
+            Enter your bike&apos;s serial number so it&apos;s permanently logged on file for manufacturer warranty claims, theft protection, and Creek Ready servicing.
           </p>
         </div>
       )}

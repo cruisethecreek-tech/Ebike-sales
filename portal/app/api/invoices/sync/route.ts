@@ -175,6 +175,7 @@ export async function POST(req: NextRequest) {
             brand: bikeInfo.brand,
             model: bikeInfo.model,
             purchase_date: invoiceDate,
+            receipt_number: invoiceNumber || null,
           })
           if (!bikeErr) bikesAdded++
         }
