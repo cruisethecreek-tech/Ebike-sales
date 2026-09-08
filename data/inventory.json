@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2026-09-07T11:58:06Z",
+  "lastUpdated": "2026-09-08T10:53:52Z",
   "bikes": [
     {
       "brand": "Heybike",
@@ -1277,7 +1277,7 @@
       "name": "Nomad 2X",
       "subtitle": "Full Suspension Fat Tire",
       "price": 2399,
-      "testRide": "",
+      "testRide": "Test Ride Available",
       "styles": [
         "Step-Thru",
         "High-Step"
@@ -1746,7 +1746,7 @@
       "name": "Hybrid",
       "subtitle": "Commuter Cruiser",
       "price": 1699,
-      "testRide": "",
+      "testRide": "Test Ride Available",
       "styles": [
         "Step-Thru"
       ],
@@ -1790,7 +1790,7 @@
       "name": "Tempo",
       "subtitle": "Ultra Lightweight City",
       "price": 1499,
-      "testRide": "",
+      "testRide": "Test Ride Available",
       "styles": [
         "Mid-Step",
         "high-Step"
@@ -1914,7 +1914,7 @@
     },
     {
       "brand": "Mooncool",
-      "id": "tk2electrictrike",
+      "id": "tk2",
       "name": "TK2 Electric Trike",
       "subtitle": "Etrike",
       "price": 1399,
@@ -2034,9 +2034,9 @@
     {
       "brand": "Mooncool",
       "id": "tkpro",
-      "name": "Tk Pro",
+      "name": "Tk Pro ",
       "subtitle": "",
-      "price": 1699,
+      "price": 1899,
       "testRide": "",
       "styles": [
         "3-Wheel Trike"
@@ -2084,6 +2084,65 @@
               "name": "New Color",
               "hex": "#702200",
               "img": "https://ebike-sales.pages.dev/images/tkproorange.jpg"
+            }
+          ]
+        }
+      },
+      "colorsNested": true,
+      "sizeGuide": {}
+    },
+    {
+      "brand": "Mooncool",
+      "id": "tk2 Pro",
+      "name": "TK2Pro",
+      "subtitle": "",
+      "price": 1999,
+      "testRide": "",
+      "styles": [
+        "3-Wheel Trike"
+      ],
+      "sizes": [
+        "One size"
+      ],
+      "specs": {
+        "Range": "70 mi",
+        "Top Speed": "16 mph",
+        "Motor": "500W",
+        "Battery": "696WH",
+        "Weight": "89 lbs"
+      },
+      "colors": {
+        "Default": {
+          "One size": [
+            {
+              "name": "Grey",
+              "hex": "#888888",
+              "img": "http://Ebike-sales.pages.dev/images/tk1grey.jpg"
+            },
+            {
+              "name": "White",
+              "hex": "#ffffff",
+              "img": "http://Ebike-sales.pages.dev/images/tk1white.jpg"
+            },
+            {
+              "name": "Orange",
+              "hex": "#b37100",
+              "img": "http://Ebike-sales.pages.dev/images/tk1orange.jpg"
+            },
+            {
+              "name": "Cyan",
+              "hex": "#00bfff",
+              "img": "http://Ebike-sales.pages.dev/images/tk1cyan.jpg"
+            },
+            {
+              "name": "Green",
+              "hex": "#00ffff",
+              "img": "http://Ebike-sales.pages.dev/images/tk1green.jpg"
+            },
+            {
+              "name": "Purple",
+              "hex": "#8e13f2",
+              "img": "http://Ebike-sales.pages.dev/images/tk1purple.jpg"
             }
           ]
         }
@@ -2155,7 +2214,7 @@
       "id": "tk1fattire",
       "name": "TK1 fat tire",
       "subtitle": "",
-      "price": 1299,
+      "price": 1349,
       "testRide": "",
       "styles": [
         "3-Wheel Trike"
