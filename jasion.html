@@ -654,7 +654,24 @@ const SITE_CONFIG = {
                 try {
                     const target = new URLSearchParams(location.search).get('bike');
                     if (target) {
-                        const card = container.querySelector('.bike-card[data-bike="' + (window.CSS && CSS.escape ? CSS.escape(target) : target.replace(/"/g, '\\"')) + '"]');
+                        let card = container.querySelector('.bike-card[data-bike="' + (window.CSS && CSS.escape ? CSS.escape(target) : target.replace(/"/g, '\\"')) + '"]');
+                        if (!card) {
+                            // A link shared before the ids were normalized still
+                            // carries the old hand-typed id ("Thunder pro").
+                            // Compare on the slugified form so those keep landing
+                            // on the right card. Mirrors idcSlugify_() in
+                            // apps-script-id-cleanup.snippet.gs.
+                            const ALIAS = { 'thunder-prost': 'thunder-pro-st', 'eb5roamerst': 'eb5-roamer-st' };
+                            const slug = s => {
+                                const v = String(s || '').replace(/([a-z0-9])([A-Z])/g, '$1 $2')
+                                    .toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+                                return ALIAS[v] || v;
+                            };
+                            const want = slug(target);
+                            card = Array.prototype.find.call(
+                                container.querySelectorAll('.bike-card'),
+                                c => slug(c.dataset.bike) === want) || null;
+                        }
                         if (card) {
                             window.__bikeDeepLinked = true;
                             requestAnimationFrame(() => {
