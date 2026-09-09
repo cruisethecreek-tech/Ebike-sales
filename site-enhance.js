@@ -477,6 +477,9 @@
         })(el));
       }
       buildMarquee(el);
+    }
+  }
+
   /* ── 7. Seasonal & Holiday Personality Theme ────────── */
   var SEASONS = {
     autumn: {
