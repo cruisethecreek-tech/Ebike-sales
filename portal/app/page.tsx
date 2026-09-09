@@ -1,69 +1,109 @@
-import Image from "next/image";
+import Link from 'next/link'
 
-export default function Home() {
+export default function HomePage() {
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.tsx
-            </code>{" "}
-            file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+    <main style={{ backgroundColor: '#F5F0E8' }} className="min-h-screen">
+      {/* Hero */}
+      <section
+        className="relative overflow-hidden"
+        style={{ background: 'linear-gradient(135deg, #2D4A32 0%, #1A2E1C 100%)' }}
+      >
+        <div className="max-w-5xl mx-auto px-6 py-20 sm:py-28 text-center relative z-10">
+          <p
+            className="text-sm tracking-widest uppercase mb-3"
+            style={{ color: '#C9A96E', fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '0.15em' }}
+          >
+            Cruise the Creek Adventures
           </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+          <h1
+            className="text-5xl sm:text-7xl font-bold tracking-wide text-white mb-4"
+            style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '0.04em' }}
           >
-            <Image
-              className="dark:invert h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+            Your Adventure,{' '}
+            <span style={{ color: '#C9A96E' }}>Electrified</span>
+          </h1>
+          <p className="text-lg sm:text-xl max-w-2xl mx-auto mb-8" style={{ color: 'rgba(255,255,255,0.8)' }}>
+            Get outside. Explore more. Slow down. Reconnect.
+            <br className="hidden sm:block" />
+            Your customer portal for bikes, invoices, service, and more.
+          </p>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+            <Link
+              href="/auth"
+              className="px-8 py-3 rounded-lg font-bold text-lg transition-colors"
+              style={{ backgroundColor: '#C9A96E', color: '#1A2E1C' }}
+            >
+              Sign In to Your Portal
+            </Link>
+            <Link
+              href="/auth"
+              className="px-8 py-3 rounded-lg font-semibold text-lg border-2 transition-colors"
+              style={{ borderColor: 'rgba(255,255,255,0.3)', color: 'rgba(255,255,255,0.9)' }}
+            >
+              Create Account
+            </Link>
+          </div>
         </div>
-      </main>
-    </div>
-  );
+        {/* Decorative elements */}
+        <div className="absolute top-0 right-0 w-96 h-96 rounded-full opacity-5" style={{ background: '#6B8F71', filter: 'blur(100px)' }} />
+        <div className="absolute bottom-0 left-0 w-64 h-64 rounded-full opacity-5" style={{ background: '#C9A96E', filter: 'blur(80px)' }} />
+      </section>
+
+      {/* Features */}
+      <section className="max-w-5xl mx-auto px-6 py-16">
+        <h2
+          className="text-center text-3xl font-bold mb-2 tracking-wide"
+          style={{ fontFamily: "'Bebas Neue', sans-serif", color: '#2D4A32', letterSpacing: '0.04em' }}
+        >
+          Everything In One Place
+        </h2>
+        <p className="text-center mb-12" style={{ color: '#4A4A4A' }}>
+          Manage your e-bike experience from the trail to the shop
+        </p>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {[
+            { icon: '🚲', title: 'My Bikes', desc: 'Register your rides, track warranties, and keep everything in one spot.' },
+            { icon: '🧾', title: 'Invoices', desc: 'View purchase history, check balances, and stay on top of payments.' },
+            { icon: '🔧', title: 'Creek Ready Service', desc: '$125 comprehensive tune-up — deep clean, diagnostics, test ride on the trail.' },
+            { icon: '🎁', title: 'Referral Program', desc: 'Share your code with friends. Every 2 referrals = $100 toward tune-ups, accessories, or your next bike!' },
+            { icon: '🎫', title: 'Support', desc: 'Open service tickets, ask questions, or schedule an upgrade — we\'re here for you.' },
+          ].map((feat) => (
+            <div key={feat.title} className="card group hover:shadow-md transition-shadow">
+              <span className="text-3xl block mb-3">{feat.icon}</span>
+              <h3 className="font-bold mb-1" style={{ color: '#2D4A32' }}>{feat.title}</h3>
+              <p className="text-sm" style={{ color: '#4A4A4A' }}>{feat.desc}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* CTA */}
+      <section className="py-12 text-center" style={{ backgroundColor: '#2D4A32' }}>
+        <p
+          className="text-2xl font-bold tracking-wide text-white mb-2"
+          style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '0.04em' }}
+        >
+          Power Your Path
+        </p>
+        <p className="mb-6" style={{ color: 'rgba(255,255,255,0.7)' }}>
+          A lemonade stand for Mill Creek Park — served on two wheels 🍋
+        </p>
+        <Link
+          href="/auth"
+          className="inline-block px-8 py-3 rounded-lg font-bold transition-colors"
+          style={{ backgroundColor: '#C9A96E', color: '#1A2E1C' }}
+        >
+          Get Started
+        </Link>
+      </section>
+
+      {/* Footer */}
+      <footer className="py-6 text-center" style={{ backgroundColor: '#1A2E1C' }}>
+        <p className="text-xs" style={{ color: 'rgba(255,255,255,0.4)' }}>
+          © {new Date().getFullYear()} Cruise the Creek Adventures · Youngstown, OH
+        </p>
+      </footer>
+    </main>
+  )
 }

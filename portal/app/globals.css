@@ -1,26 +1,444 @@
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600;700&display=swap');
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  /* ── Cruise the Creek Brand Palette ── */
+  --color-forest: #2D4A32;
+  --color-forest-light: #3E6243;
+  --color-sage: #6B8F71;
+  --color-sage-dark: #557159;
+  --color-tan: #C9A96E;
+  --color-tan-dark: #A98843;
+  --color-cream: #F5F0E8;
+  --color-cream-warm: #FBF7EF;
+  --color-ink: #1A1A1A;
+  --color-ink-2: #4A4A4A;
+  --color-ink-3: #6A6A6A;
+  --color-dark: #1A2E1C;
+
+  /* Keep brand-* aliases for existing components */
+  --color-brand-50: #f0f5f1;
+  --color-brand-100: #dce8de;
+  --color-brand-200: #b8d1bc;
+  --color-brand-300: #8fb896;
+  --color-brand-400: #6B8F71;
+  --color-brand-500: #4a7a52;
+  --color-brand-600: #2D4A32;
+  --color-brand-700: #243d29;
+  --color-brand-800: #1A2E1C;
+  --color-brand-900: #121f14;
+  --color-brand-950: #0a130c;
+
+  --font-sans: 'DM Sans', system-ui, -apple-system, sans-serif;
+  --font-display: 'Bebas Neue', 'DM Sans', sans-serif;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
+/* ── Base ────────────────────────────────────────────────── */
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans);
+  background-color: var(--color-cream);
+  color: var(--color-ink);
+  -webkit-font-smoothing: antialiased;
 }
+
+/* ── Display headings (Bebas Neue) ───────────────────────── */
+
+.heading-display {
+  font-family: var(--font-display);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+/* ── Buttons ─────────────────────────────────────────────── */
+
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.625rem 1.25rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  border-radius: 0.5rem;
+  background-color: var(--color-tan);
+  color: var(--color-dark);
+  transition: all 0.15s ease;
+  cursor: pointer;
+  border: none;
+}
+.btn-primary:hover:not(:disabled) {
+  background-color: var(--color-tan-dark);
+}
+.btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.625rem 1.25rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  border-radius: 0.5rem;
+  background-color: var(--color-forest);
+  color: #fff;
+  transition: all 0.15s ease;
+  cursor: pointer;
+  border: none;
+}
+.btn-secondary:hover:not(:disabled) {
+  background-color: var(--color-forest-light);
+}
+
+.btn-danger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  border-radius: 0.5rem;
+  background-color: #dc2626;
+  color: #fff;
+  transition: all 0.15s ease;
+  cursor: pointer;
+  border: none;
+}
+.btn-danger:hover:not(:disabled) {
+  background-color: #b91c1c;
+}
+
+/* ── Cards ───────────────────────────────────────────────── */
+
+.card {
+  background-color: var(--color-cream-warm);
+  border: 1px solid #e8dfd1;
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  box-shadow: 0 1px 3px rgba(26, 26, 26, 0.06);
+}
+
+/* ── Form controls ───────────────────────────────────────── */
+
+.label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-ink);
+  margin-bottom: 0.25rem;
+}
+
+.input {
+  display: block;
+  width: 100%;
+  padding: 0.625rem 0.75rem;
+  font-size: 0.875rem;
+  border: 1px solid #d4c5a9;
+  border-radius: 0.5rem;
+  background-color: #fff;
+  color: var(--color-ink);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.input:focus {
+  outline: none;
+  border-color: var(--color-sage);
+  box-shadow: 0 0 0 3px rgba(107, 143, 113, 0.2);
+}
+
+.select {
+  display: block;
+  width: 100%;
+  padding: 0.625rem 0.75rem;
+  font-size: 0.875rem;
+  border: 1px solid #d4c5a9;
+  border-radius: 0.5rem;
+  background-color: #fff;
+  color: var(--color-ink);
+}
+.select:focus {
+  outline: none;
+  border-color: var(--color-sage);
+  box-shadow: 0 0 0 3px rgba(107, 143, 113, 0.2);
+}
+
+.textarea {
+  display: block;
+  width: 100%;
+  padding: 0.625rem 0.75rem;
+  font-size: 0.875rem;
+  border: 1px solid #d4c5a9;
+  border-radius: 0.5rem;
+  background-color: #fff;
+  color: var(--color-ink);
+  resize: vertical;
+  min-height: 5rem;
+}
+.textarea:focus {
+  outline: none;
+  border-color: var(--color-sage);
+  box-shadow: 0 0 0 3px rgba(107, 143, 113, 0.2);
+}
+
+/* ── Stat cards ──────────────────────────────────────────── */
+
+.stat-card {
+  background: linear-gradient(135deg, var(--color-forest), var(--color-sage-dark));
+  color: #fff;
+  border-radius: 0.75rem;
+  padding: 1.25rem;
+}
+.stat-card .stat-label {
+  font-size: 0.75rem;
+  font-weight: 500;
+  opacity: 0.85;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.stat-card .stat-value {
+  font-family: var(--font-display);
+  font-size: 2rem;
+  letter-spacing: 0.02em;
+  line-height: 1.1;
+  margin-top: 0.25rem;
+}
+
+/* ── Reminder/promo cards ────────────────────────────────── */
+
+.promo-card {
+  background: linear-gradient(135deg, #2D4A32 0%, #557159 100%);
+  color: #fff;
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  border: 1px solid rgba(107, 143, 113, 0.3);
+}
+.promo-card .promo-title {
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.promo-card .promo-body {
+  font-size: 0.875rem;
+  opacity: 0.9;
+  margin-top: 0.5rem;
+  line-height: 1.5;
+}
+.promo-card .promo-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 1rem;
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  border-radius: 0.5rem;
+  background-color: var(--color-tan);
+  color: var(--color-dark);
+  text-decoration: none;
+  transition: background-color 0.15s ease;
+}
+.promo-card .promo-btn:hover {
+  background-color: var(--color-tan-dark);
+}
+
+/* ════════════════════════════════════════════════════════════════
+   FULL-PAGE SEASONAL THEME PALETTES & CANVAS ENGINE
+   Transforms entire screen canvas, backgrounds, sidebars, navbars,
+   cards, stat boxes, and badges across all 5 tabs.
+════════════════════════════════════════════════════════════════ */
+
+.seasonal-canvas {
+  min-height: 100vh;
+  transition: background 0.4s ease, color 0.4s ease;
+}
+
+/* ── Fall / Autumn Theme (Default / Sep-Nov) ── */
+.seasonal-canvas[data-season="autumn"],
+[data-season="autumn"] .seasonal-canvas,
+html[data-season="autumn"] body {
+  background: linear-gradient(180deg, #FBF7EF 0%, #FAF3E6 40%, #F5EDE0 100%) !important;
+  color: #1A1A1A;
+}
+
+[data-season="autumn"] .seasonal-navbar {
+  background-color: #1A2E1C !important;
+  border-bottom: 2px solid #C9A96E !important;
+  box-shadow: 0 4px 20px -2px rgba(201, 169, 110, 0.25);
+}
+
+[data-season="autumn"] .seasonal-sidebar {
+  background-color: #142517 !important;
+  border-right: 1px solid rgba(201, 169, 110, 0.15) !important;
+}
+
+[data-season="autumn"] .seasonal-card,
+[data-season="autumn"] .card,
+[data-season="autumn"] .seasonal-box,
+[data-season="autumn"] main .bg-white,
+[data-season="autumn"] main .bg-\[\#FBF7EF\],
+[data-season="autumn"] main .bg-\[\#F5F0E8\] {
+  border-color: rgba(201, 169, 110, 0.4) !important;
+  box-shadow: 0 2px 10px -2px rgba(61, 38, 20, 0.08);
+}
+
+[data-season="autumn"] .stat-card,
+[data-season="autumn"] .seasonal-hero {
+  background: linear-gradient(135deg, #1A2E1C 0%, #2D4A32 50%, #3D2614 100%) !important;
+  border: 1px solid rgba(201, 169, 110, 0.35) !important;
+}
+[data-season="autumn"] .stat-card .stat-value {
+  color: #C9A96E !important;
+}
+
+[data-season="autumn"] .btn-primary {
+  background-color: #C9A96E !important;
+  color: #1A2E1C !important;
+}
+[data-season="autumn"] .btn-primary:hover {
+  background-color: #B89758 !important;
+}
+
+/* ── Winter / Holiday Theme (Dec-Feb) ── */
+.seasonal-canvas[data-season="winter"],
+[data-season="winter"] .seasonal-canvas,
+html[data-season="winter"] body {
+  background: linear-gradient(180deg, #F0F6FA 0%, #E6EFF6 40%, #DCE8F2 100%) !important;
+  color: #0F172A;
+}
+
+[data-season="winter"] .seasonal-navbar {
+  background-color: #0F2618 !important;
+  border-bottom: 2px solid #D4AF37 !important;
+  box-shadow: 0 4px 20px -2px rgba(212, 175, 55, 0.3);
+}
+
+[data-season="winter"] .seasonal-sidebar {
+  background-color: #0A1C12 !important;
+  border-right: 1px solid rgba(212, 175, 55, 0.2) !important;
+}
+
+[data-season="winter"] .seasonal-card,
+[data-season="winter"] .card,
+[data-season="winter"] .seasonal-box,
+[data-season="winter"] main .bg-white,
+[data-season="winter"] main .bg-\[\#FBF7EF\],
+[data-season="winter"] main .bg-\[\#F5F0E8\] {
+  border-color: rgba(147, 197, 253, 0.5) !important;
+  box-shadow: 0 2px 12px -2px rgba(30, 58, 138, 0.1);
+}
+
+[data-season="winter"] .stat-card,
+[data-season="winter"] .seasonal-hero {
+  background: linear-gradient(135deg, #0F2618 0%, #1A2E1C 50%, #1E3A8A 100%) !important;
+  border: 1px solid rgba(212, 175, 55, 0.45) !important;
+}
+[data-season="winter"] .stat-card .stat-value {
+  color: #FDE047 !important;
+}
+
+[data-season="winter"] .btn-primary {
+  background-color: #D4AF37 !important;
+  color: #0F2618 !important;
+}
+[data-season="winter"] .btn-primary:hover {
+  background-color: #C19E26 !important;
+}
+
+/* ── Spring / Bloom Theme (Mar-May) ── */
+.seasonal-canvas[data-season="spring"],
+[data-season="spring"] .seasonal-canvas,
+html[data-season="spring"] body {
+  background: linear-gradient(180deg, #F3FAF4 0%, #E7F5E9 40%, #D8EFDB 100%) !important;
+  color: #142818;
+}
+
+[data-season="spring"] .seasonal-navbar {
+  background-color: #16361E !important;
+  border-bottom: 2px solid #4ADE80 !important;
+  box-shadow: 0 4px 20px -2px rgba(74, 222, 128, 0.3);
+}
+
+[data-season="spring"] .seasonal-sidebar {
+  background-color: #0F2615 !important;
+  border-right: 1px solid rgba(74, 222, 128, 0.2) !important;
+}
+
+[data-season="spring"] .seasonal-card,
+[data-season="spring"] .card,
+[data-season="spring"] .seasonal-box,
+[data-season="spring"] main .bg-white,
+[data-season="spring"] main .bg-\[\#FBF7EF\],
+[data-season="spring"] main .bg-\[\#F5F0E8\] {
+  border-color: rgba(110, 231, 183, 0.5) !important;
+  box-shadow: 0 2px 12px -2px rgba(20, 83, 45, 0.1);
+}
+
+[data-season="spring"] .stat-card,
+[data-season="spring"] .seasonal-hero {
+  background: linear-gradient(135deg, #16361E 0%, #2D4A32 50%, #14532D 100%) !important;
+  border: 1px solid rgba(74, 222, 128, 0.45) !important;
+}
+[data-season="spring"] .stat-card .stat-value {
+  color: #86EFAC !important;
+}
+
+[data-season="spring"] .btn-primary {
+  background-color: #4ADE80 !important;
+  color: #16361E !important;
+}
+[data-season="spring"] .btn-primary:hover {
+  background-color: #38C96E !important;
+}
+
+/* ── Summer / Sun Theme (Jun-Aug) ── */
+.seasonal-canvas[data-season="summer"],
+[data-season="summer"] .seasonal-canvas,
+html[data-season="summer"] body {
+  background: linear-gradient(180deg, #FDFBF5 0%, #FAF4E4 40%, #F5E9C9 100%) !important;
+  color: #261E14;
+}
+
+[data-season="summer"] .seasonal-navbar {
+  background-color: #1A311F !important;
+  border-bottom: 2px solid #F59E0B !important;
+  box-shadow: 0 4px 20px -2px rgba(245, 158, 11, 0.3);
+}
+
+[data-season="summer"] .seasonal-sidebar {
+  background-color: #122316 !important;
+  border-right: 1px solid rgba(245, 158, 11, 0.2) !important;
+}
+
+[data-season="summer"] .seasonal-card,
+[data-season="summer"] .card,
+[data-season="summer"] .seasonal-box,
+[data-season="summer"] main .bg-white,
+[data-season="summer"] main .bg-\[\#FBF7EF\],
+[data-season="summer"] main .bg-\[\#F5F0E8\] {
+  border-color: rgba(252, 211, 77, 0.5) !important;
+  box-shadow: 0 2px 12px -2px rgba(180, 83, 9, 0.1);
+}
+
+[data-season="summer"] .stat-card,
+[data-season="summer"] .seasonal-hero {
+  background: linear-gradient(135deg, #1A311F 0%, #2D4A32 50%, #B45309 100%) !important;
+  border: 1px solid rgba(245, 158, 11, 0.45) !important;
+}
+[data-season="summer"] .stat-card .stat-value {
+  color: #FBBF24 !important;
+}
+
+[data-season="summer"] .btn-primary {
+  background-color: #F59E0B !important;
+  color: #1A311F !important;
+}
+[data-season="summer"] .btn-primary:hover {
+  background-color: #D97706 !important;
+}
+
+

@@ -22,6 +22,7 @@ const ALLOWED_ORIGINS = [
   'https://ebike-sales.pages.dev',
   'https://www.cruisethecreek.com',
   'https://cruisethecreek.com',
+  'https://portal.cruisethecreek.com',
 ];
 
 const CMS_URL    = 'https://script.google.com/macros/s/AKfycbwXv6r6Me-mdp9WFjCHQYDHcgEKbny-9_K8TX-yGgW40yTONhz6kAs3H96xM0tEDAhcJA/exec';
