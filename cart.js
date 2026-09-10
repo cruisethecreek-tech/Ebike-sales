@@ -282,9 +282,6 @@
       if (amtEl) amtEl.textContent = '$' + formatPrice(ship);
     }
     const finalTotal = Math.max(0, subtotal + ship);
-    wrap.querySelector('.ctc-cart-toggle-price').textContent = '$' + formatPrice(finalTotal);
-    }
-    const finalTotal = Math.max(0, subtotal - discountAmt) + ship;
     const priceEl = wrap.querySelector('.ctc-cart-toggle-price');
     if (priceEl) priceEl.textContent = '$' + formatPrice(finalTotal);
 
