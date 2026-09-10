@@ -37,7 +37,7 @@ SNAPSHOT: dict = {
         "sales_email":         "salesteam@cruisethecreek.com",
         "trailside_address":   "6685 Kirk Rd, Canfield, OH 44406",
         "adventures_address":  "Scholl Recreation Pavilion, Bears Den Rd, Youngstown, OH 44511",
-        "authorized_brands":   ["Heybike", "Velotric", "Jasion", "Mooncool"],
+        "authorized_brands":   ["Heybike", "Velotric", "Jasion", "Mooncool", "Mokwheel"],
         "fleet_size":          11,
         "fleet_mix":           "4 all-purpose, 1 high-step, 2 cruisers, 2 cargo, 2 e-trikes",
         "speed_limit":         "15 mph (strictly enforced on Mill Creek Bikeway)",
@@ -153,6 +153,8 @@ SNAPSHOT: dict = {
          "positioning": "Budget-friendly without sacrificing performance. Folding fat tires, hunter-style, value commuters."},
         {"brand": "Mooncool", "range": "$700–$2,000",
          "positioning": "Cruisers, e-trikes (3-wheel for extra stability), value picks."},
+        {"brand": "Mokwheel", "range": "$1,399–$2,199",
+         "positioning": "Newest brand. Range from the models we stock — check live inventory before quoting."},
     ],
     "services": [
         {"name": "Creek Ready Tune-Up", "price": "$125", "for": "ANY brand of e-bike",

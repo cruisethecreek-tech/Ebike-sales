@@ -143,7 +143,7 @@
         <div class="ctc-cart-suggest-grid">
           <a class="ctc-cart-suggest-card featured" href="shop.html">
             <strong>Shop Bikes</strong>
-            <span>Heybike · Velotric · Mooncool · Jasion</span>
+            <span>Heybike · Velotric · Mooncool · Jasion · Mokwheel</span>
           </a>
           <a class="ctc-cart-suggest-card" href="accessories.html">
             <strong>Accessories</strong>

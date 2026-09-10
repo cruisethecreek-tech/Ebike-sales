@@ -4,11 +4,11 @@
 <script>
 // ── SITE CONFIG — edit via Sales Pro Admin → 🌐 SITE tab ──
 const SITE_CONFIG = {
-  "brand": "Velotric",
-  "hero1": "BUILT FOR THE RIDE LOVED BY RIDERS",
-  "hero2": "Experience the flow with our SensorSwap technology",
-  "annOn": true,
-  "annText": "⚡ Hot Seller: Breeze 1 - Bestseller Now from $1,799! ⚡",
+  "brand": "Mokwheel",
+  "hero1": "MOKWHEEL EBIKES, NOW AT CRUISE THE CREEK",
+  "hero2": "Our newest brand \u2014 come ride one.",
+  "annOn": false,
+  "annText": "",
   "testRideUrl": "https://book.peek.com/s/57e3b62e-4f48-4cc4-8876-7b79f4c11baa/17Aw9",
   "testRideLabel": "📅 Book a Demo",
   "orderUrl": "https://www.cruisethecreek.com/shop-fix"
@@ -53,14 +53,14 @@ const SITE_CONFIG = {
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <title>Velotric - Premium Electric Bikes</title>
+    <title>Mokwheel - Cruise The Creek</title>
     <style>
         *{margin:0;padding:0;box-sizing:border-box}
         :root{
           --sage:#6B8F71;--sage-d:#557159;--forest:#2D4A32;--dark:#1a2e1c;
           --tan:#C9A96E;--tan-d:#a98843;--cream:#F5F0E8;--cream-w:#fbf7ef;
           --ink:#1a1a1a;--ink-2:#4a4a4a;--ink-3:#6a6a6a;
-          --accent:#5984a8;--accent-d:#2c4f6e;--accent-bg:#dce7f0;
+          --accent:#557159;--accent-d:#2D4A32;--accent-bg:#dce7d8;
           --on-accent:#fff;
         }
         html{scroll-behavior:smooth}
@@ -192,7 +192,7 @@ const SITE_CONFIG = {
         .brand-pill.active{background:var(--forest);border-color:var(--forest);color:#fff;cursor:default}
         .brand-pill.active:hover{color:#fff;border-color:var(--forest)}
 
-        /* FEATURES (jasion only — harmless on others) */
+        /* FEATURES (harmless on others) */
         .features{background:var(--cream-w);padding:48px 24px;border-top:1px solid rgba(0,0,0,.06)}
         .features-grid{max-width:1100px;margin:0 auto;
           display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:20px}
@@ -333,28 +333,28 @@ const SITE_CONFIG = {
         @keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
 </style>
 <script src="site-enhance.js?v=20260625d"></script>
-<meta property="og:title" content="Velotric - Premium Electric Bikes">
+<meta property="og:title" content="Mokwheel - Cruise The Creek">
 <meta property="og:description" content="Cruise the Creek — e-bike sales, rentals, and trailside adventures in Youngstown, Ohio.">
 <meta property="og:image" content="https://www.cruisethecreek.com/cityrunblackblack.jpg">
-<meta property="og:url" content="https://www.cruisethecreek.com/velotric.html">
+<meta property="og:url" content="https://www.cruisethecreek.com/mokwheel.html">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Cruise the Creek">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Velotric - Premium Electric Bikes">
+<meta name="twitter:title" content="Mokwheel - Cruise The Creek">
 <meta name="twitter:description" content="Cruise the Creek — e-bike sales, rentals, and trailside adventures in Youngstown, Ohio.">
 <meta name="twitter:image" content="https://www.cruisethecreek.com/cityrunblackblack.jpg">
-<link rel="canonical" href="https://www.cruisethecreek.com/velotric.html">
+<link rel="canonical" href="https://www.cruisethecreek.com/mokwheel.html">
 </head>
 <body>
     <!-- Loading overlay -->
-    <div id="loadingOverlay" style="position:fixed;inset:0;background:#1a2e1c;z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px;transition:opacity .6s;">
+    <div id="loadingOverlay" style="position:fixed;inset:0;background:#0d0d0d;z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px;transition:opacity .6s;">
       <div style="font-size:3rem;margin-bottom:16px;animation:bounce 1s infinite alternate;">🚴</div>
-      <div style="font-family:'Bebas Neue',sans-serif;font-size:2rem;color:#C9A96E;letter-spacing:.06em;text-align:center;margin-bottom:10px;">CRUISE THE CREEK</div>
-      <div id="loadingMsg" style="font-size:13px;color:#86efac;font-weight:700;text-align:center;letter-spacing:.05em;min-height:20px;transition:opacity .4s;"></div>
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:2rem;color:#ff4757;letter-spacing:.06em;text-align:center;margin-bottom:10px;">CRUISE THE CREEK</div>
+      <div id="loadingMsg" style="font-size:13px;color:#ff6b81;font-weight:700;text-align:center;letter-spacing:.05em;min-height:20px;transition:opacity .4s;"></div>
       <div style="margin-top:28px;display:flex;gap:6px;">
-        <div style="width:8px;height:8px;border-radius:50%;background:#C9A96E;animation:dot 1.2s .0s infinite;"></div>
-        <div style="width:8px;height:8px;border-radius:50%;background:#C9A96E;animation:dot 1.2s .2s infinite;"></div>
-        <div style="width:8px;height:8px;border-radius:50%;background:#C9A96E;animation:dot 1.2s .4s infinite;"></div>
+        <div style="width:8px;height:8px;border-radius:50%;background:#ff4757;animation:dot 1.2s .0s infinite;"></div>
+        <div style="width:8px;height:8px;border-radius:50%;background:#ff4757;animation:dot 1.2s .2s infinite;"></div>
+        <div style="width:8px;height:8px;border-radius:50%;background:#ff4757;animation:dot 1.2s .4s infinite;"></div>
       </div>
     </div>
     <style>
@@ -365,7 +365,7 @@ const SITE_CONFIG = {
     const AS_URL = 'https://script.google.com/macros/s/AKfycbyxVMuFEUeR8_YqM1VVnfPSVPnDhdCs_63dDthZ4jODlTDGQ-7yXSkQeYT-Ux0SM8tw/exec';
 
     (function(){
-      const msgs = ["Loading your next adventure on 2 wheels...", "Fueling up the inventory...", "Charging up your options...", "Almost ready to ride! 🚴"];
+      const msgs = ["Mokwheel bikes loading...", "Powering up the lineup...", "Getting your adventure ready...", "Almost ready to ride! ⚡"];
       const el = document.getElementById('loadingMsg');
       let i = 0;
       el.textContent = msgs[0];
@@ -385,7 +385,7 @@ const SITE_CONFIG = {
       };
     })();
     </script>
-    <div class="top-banner" id="announcementBar"><span id="announcementText">⚡ Hot Seller: Breeze 1 - Bestseller Now from $1,799! ⚡</span></div>
+    <div class="top-banner" id="announcementBar"><span id="announcementText">⚡ Top Seller: Hunter Pro from $1,099! ⚡</span></div>
 
     <header class="topbar">
         <a class="brand" href="index.html" aria-label="Cruise the Creek home">
@@ -396,26 +396,25 @@ const SITE_CONFIG = {
         </nav>
     </header>
     <nav class="crumb">
-        <a href="index.html">Home</a><span class="sep">/</span><a href="shop.html">Shop</a><span class="sep">/</span>Velotric
+        <a href="index.html">Home</a><span class="sep">/</span><a href="shop.html">Shop</a><span class="sep">/</span>Mokwheel
     </nav>
 
     <section class="hero">
         <div class="hero-topo"></div>
         <div class="hero-content">
-            <span class="hero-eyebrow">Velotric</span>
-            <h1 id="heroHeadline">BUILT FOR THE RIDE<span class="highlight"> LOVED BY RIDERS</span></h1>
-            <p id="heroSubline">EXPERIENCE THE FLOW WITH OUR SENSORY SWAP</p>
+            <span class="hero-eyebrow">Mokwheel · New arrival</span>
+            <h1 id="heroHeadline">Mokwheel eBikes<br>now at <span class="highlight">Cruise the Creek</span></h1>
         </div>
     </section>
 
     <section id="bikes" class="container">
-        <h2 class="section-title">ELECTRIC BIKES</h2>
+            <h2 class="section-title">ELECTRIC BIKES</h2>
         <nav class="brand-switch" aria-label="Switch brand">
-          <a class="brand-pill active" href="velotric.html" aria-current="page">Velotric</a>
+          <a class="brand-pill" href="velotric.html">Velotric</a>
           <a class="brand-pill" href="heybike.html">Heybike</a>
           <a class="brand-pill" href="jasion.html">Jasion</a>
           <a class="brand-pill" href="mooncool.html">Mooncool</a>
-          <a class="brand-pill" href="mokwheel.html">Mokwheel</a>
+          <a class="brand-pill active" href="mokwheel.html" aria-current="page">Mokwheel</a>
         </nav>
         <div class="sort-bar">
           <label for="sortBy">Sort by:</label>
@@ -425,10 +424,10 @@ const SITE_CONFIG = {
             <option value="price-desc">Price: High to Low</option>
           </select>
         </div>
-        <div class="bikes-grid" id="bikes-grid-container">
-            <div style="text-align:center; width:100%; padding: 2rem;">Loading inventory...</div>
-        </div>
-    </section>
+            <div class="bikes-grid" id="bikes-grid-container">
+                <div style="text-align:center;width:100%;padding:2rem;color:#2D4A32;font-weight:700;">Loading inventory...</div>
+            </div>
+        </section>
 
     <section class="features">
         <div class="features-grid" id="trustStripGrid">
@@ -443,6 +442,7 @@ const SITE_CONFIG = {
         <div class="order-container">
             <h2 class="order-title">Request Your Order</h2>
             <p class="order-subtitle">Fill out the form below and we'll contact you to complete your purchase</p>
+
             <div id="selected-bike-preview" class="selected-bike-preview">
                 <div class="preview-header">
                     <span class="preview-badge">Selected</span>
@@ -456,24 +456,25 @@ const SITE_CONFIG = {
                     <div class="preview-item"><div class="preview-item-label">Price</div><div class="preview-item-value" id="preview-price">—</div></div>
                 </div>
             </div>
+
             <form id="order-form" class="order-form">
                 <div class="form-row">
-                    <div class="form-group"><label class="form-label">First Name *</label><input type="text" id="first-name" name="first_name" class="form-input" required></div>
-                    <div class="form-group"><label class="form-label">Last Name *</label><input type="text" id="last-name" name="last_name" class="form-input" required></div>
+                    <div class="form-group"><label class="form-label">First Name *</label><input type="text" id="first-name" class="form-input" required></div>
+                    <div class="form-group"><label class="form-label">Last Name *</label><input type="text" id="last-name" class="form-input" required></div>
                 </div>
                 <div class="form-row">
-                    <div class="form-group"><label class="form-label">Email *</label><input type="email" id="email" name="email" class="form-input" required></div>
-                    <div class="form-group"><label class="form-label">Phone *</label><input type="tel" id="phone" name="phone" class="form-input" required></div>
+                    <div class="form-group"><label class="form-label">Email *</label><input type="email" id="email" class="form-input" required></div>
+                    <div class="form-group"><label class="form-label">Phone *</label><input type="tel" id="phone" class="form-input" required></div>
                 </div>
-                <div class="form-group"><label class="form-label">Selected Bike Model *</label><input type="text" id="bike-select" name="bike_model" class="form-input prefilled" readonly placeholder="Please select a bike above" required></div>
+                <div class="form-group"><label class="form-label">Selected Bike Model *</label><input type="text" id="bike-select" class="form-input prefilled" readonly placeholder="Please select a bike above" required></div>
                 <div class="form-row">
-                    <div class="form-group"><label class="form-label">Frame Style</label><input type="text" id="style-select" name="style" class="form-input prefilled" readonly placeholder="—"></div>
-                    <div class="form-group"><label class="form-label">Size</label><input type="text" id="size-select" name="size" class="form-input prefilled" readonly placeholder="—"></div>
+                    <div class="form-group"><label class="form-label">Frame Style</label><input type="text" id="style-select" class="form-input prefilled" readonly placeholder="—"></div>
+                    <div class="form-group"><label class="form-label">Size</label><input type="text" id="size-select" class="form-input prefilled" readonly placeholder="—"></div>
                 </div>
-                <div class="form-group"><label class="form-label">Preferred Color</label><input type="text" id="color-select" name="color" class="form-input prefilled" readonly placeholder="—"></div>
-                <div class="form-group"><label class="form-label">Your Height (for sizing confirmation)</label><input type="text" id="rider-height" name="rider_height" class="form-input" placeholder="e.g., 5'8&quot;"></div>
+                <div class="form-group"><label class="form-label">Preferred Color</label><input type="text" id="color-select" class="form-input prefilled" readonly placeholder="—"></div>
+                <div class="form-group"><label class="form-label">Your Height (for sizing confirmation)</label><input type="text" id="rider-height" class="form-input" placeholder="e.g., 5'8&quot;"></div>
                 <div class="form-group addon-section">
-                    <label class="form-label">We highly recommend a mirror if we can install. Would you like a Mirror? *</label>
+                    <label class="form-label">Would you like to add a Mirror? *</label>
                     <div class="checkbox-group">
                         <label class="checkbox-option"><input type="radio" name="mirror_option" value="No Mirror (+$0)" checked><span class="checkbox-label">No Mirror (+$0)</span></label>
                         <label class="checkbox-option"><input type="radio" name="mirror_option" value="Yes - Left-Hand Mirror (+$25)"><span class="checkbox-label">Yes - Add On A Left-Hand Mirror (+$25)</span></label>
@@ -487,7 +488,7 @@ const SITE_CONFIG = {
                         <label class="checkbox-option"><input type="radio" name="creek_ready" value="Yes - Creek Ready Package (+$100)"><span class="checkbox-label">Yes - Creek Ready Package (+$100)</span></label>
                     </div>
                 </div>
-                <div class="form-group"><label class="form-label">Additional Comments</label><textarea id="comments" name="comments" class="form-textarea" placeholder="Any questions, special requests..."></textarea></div>
+                <div class="form-group"><label class="form-label">Additional Comments</label><textarea id="comments" class="form-textarea" placeholder="Any questions, special requests..."></textarea></div>
                 <button type="submit" id="submit-btn" class="submit-btn">Submit Order Request</button>
             </form>
         </div>
@@ -511,44 +512,42 @@ const SITE_CONFIG = {
         </div>
     </div>
 
-    <footer><p>&copy; 2026 <a href="index.html">Cruise The Creek</a> &middot; Official Authorized Dealer For Velotric &middot; Prices Subject To Change</p></footer>
+    <footer><p>&copy; 2026 <a href="index.html">Cruise The Creek</a> &middot; Official Authorized Dealer For Mokwheel &middot; Prices Subject To Change</p></footer>
 
     <script>
-        const currentBrand = "Velotric";
-        let currentSelection = { bikeName: '', bikeKey: '', style: '', size: '', color: '', price: '' };
+        const currentBrand = "Mokwheel";
+        let currentSelection = { bikeName:'', bikeKey:'', style:'', size:'', color:'', price:'' };
         let globalInventory = [];
 
         document.addEventListener('DOMContentLoaded', function() {
-            // Show skeleton immediately so page feels responsive
             const container = document.getElementById('bikes-grid-container');
             container.innerHTML = Array(4).fill(0).map(() => `
                 <div style="background:#fff;border-radius:8px;border:1px solid rgba(0,0,0,.06);overflow:hidden;box-shadow:0 4px 12px rgba(0,0,0,.04);">
                     <div style="height:220px;background:linear-gradient(90deg,#f1ebde 25%,#e8e0cf 50%,#f1ebde 75%);background-size:200% 100%;animation:shimmer 1.5s infinite;"></div>
-                    <div style="padding:1.5rem;">
-                        <div style="height:14px;background:#f0f0f0;border-radius:4px;margin-bottom:12px;width:60%;"></div>
-                        <div style="height:24px;background:#f0f0f0;border-radius:4px;margin-bottom:8px;width:80%;"></div>
-                        <div style="height:12px;background:#f0f0f0;border-radius:4px;margin-bottom:16px;width:40%;"></div>
+                    <div style="padding:1.4rem;">
+                        <div style="height:14px;background:#ece2cf;border-radius:4px;margin-bottom:12px;width:60%;"></div>
+                        <div style="height:24px;background:#ece2cf;border-radius:4px;margin-bottom:8px;width:80%;"></div>
                         <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px;">
-                            ${Array(6).fill('<div style="height:50px;background:#f0f0f0;border-radius:8px;"></div>').join('')}
+                            ${Array(6).fill('<div style="height:50px;background:#ece2cf;border-radius:4px;"></div>').join('')}
                         </div>
-                        <div style="height:44px;background:#f0f0f0;border-radius:12px;"></div>
+                        <div style="height:44px;background:#ece2cf;border-radius:4px;"></div>
                     </div>
                 </div>`).join('');
             // Show cached inventory instantly — no freeze
-                const cached_velotric = localStorage.getItem('ctc_inv_velotric');
-                if (cached_velotric) {
-                    try { buildBikeCards(JSON.parse(cached_velotric)); } catch(ex) {}
+                const cached_mokwheel = localStorage.getItem('ctc_inv_mokwheel');
+                if (cached_mokwheel) {
+                    try { buildBikeCards(JSON.parse(cached_mokwheel)); } catch(ex) {}
                 }
                 fetch('/data/inventory.json')
                 .then(r => r.json())
                 .then(envelope => {
                     const data = Array.isArray(envelope) ? envelope : (envelope.bikes || []);
-                    localStorage.setItem('ctc_inv_velotric', JSON.stringify(data));
+                    localStorage.setItem('ctc_inv_mokwheel', JSON.stringify(data));
                     buildBikeCards(data);
                 })
                 .catch(e => {
-                    if (!cached_velotric) {
-                        document.getElementById('bikes-grid-container').innerHTML = `<div style="text-align:center;color:red;padding:2rem;"><b>Error loading:</b><br>${e.message}</div>`;
+                    if (!cached_mokwheel) {
+                        document.getElementById('bikes-grid-container').innerHTML = `<div style="text-align:center;color:#2D4A32;font-weight:700;padding:2rem;">Error loading: ${e.message}</div>`;
                     }
                 });
         });
@@ -557,31 +556,24 @@ const SITE_CONFIG = {
             if(window._hideOverlay) window._hideOverlay(); // overlay gone as soon as data renders
             globalInventory = inventory;
             const container = document.getElementById('bikes-grid-container');
-            let html = '';
             // Filter out discontinued bikes — check sheet field AND admin localStorage list
             const discNames = JSON.parse(localStorage.getItem('ctc_discontinued_names') || '[]');
-            let filteredInventory = inventory.filter(bike =>
+            let filtered = inventory.filter(bike =>
                 bike.discontinued !== 'Yes' && bike.discontinued !== true &&
-                !discNames.includes((bike.name||'').toLowerCase().trim())
+                !discNames.includes((bike.name||'').toLowerCase().trim()) &&
+                bike.brand.toLowerCase() === currentBrand.toLowerCase()
             );
-            if (currentBrand !== 'All') {
-                filteredInventory = filteredInventory.filter(bike => bike.brand.toLowerCase() === currentBrand.toLowerCase());
-            }
-            if (filteredInventory.length === 0) {
-                container.innerHTML = '<div style="text-align:center; width:100%;">No bikes found for this brand.</div>';
+            if (filtered.length === 0) {
+                container.innerHTML = '<div style="text-align:center;width:100%;color:var(--accent);">No bikes found.</div>';
                 return;
             }
-
-                        // Apply user-selected sort (default: featured / sheet order).
+            // Apply user-selected sort (default: featured / sheet order).
             const sortBy = (document.getElementById('sortBy') || {}).value || 'featured';
-            if (sortBy === 'price-asc')  filteredInventory.sort((a,b) => (Number(a.price)||0) - (Number(b.price)||0));
-            if (sortBy === 'price-desc') filteredInventory.sort((a,b) => (Number(b.price)||0) - (Number(a.price)||0));
-
-            filteredInventory.forEach(bike => {
-                const firstGroup = Object.keys(bike.colors)[0];
-                const firstGroupVal = bike.colors[firstGroup];
-                // Find first non-empty image across all swatches
-                let firstImage = '';
+            if (sortBy === 'price-asc')  filtered.sort((a,b) => (Number(a.price)||0) - (Number(b.price)||0));
+            if (sortBy === 'price-desc') filtered.sort((a,b) => (Number(b.price)||0) - (Number(a.price)||0));
+            let html = '';
+            filtered.forEach(bike => {
+                // Find first non-empty image across all swatches (nested or flat)
                 const findFirstImg = (colors) => {
                     for (const groupVal of Object.values(colors)) {
                         if (Array.isArray(groupVal)) {
@@ -597,16 +589,13 @@ const SITE_CONFIG = {
                     }
                     return '';
                 };
-                firstImage = findFirstImg(bike.colors);
-
+                const firstImage = findFirstImg(bike.colors);
                 html += `<div class="bike-card" data-brand="${bike.brand}" data-bike="${bike.id}" data-bike-name="${bike.name}" data-bike-price="${bike.price}">
                     <div class="bike-image"><img class="main-bike-img" src="${firstImage}"></div>
                     <div class="bike-content">
                         <div class="bike-name">${bike.name}</div>
                         <div class="bike-style">${bike.subtitle}</div>
-                        <div class="bike-price">$${Number(bike.price).toLocaleString()}<br>${bike.testRide && bike.testRide.startsWith('http')
-                            ? `<a href="${bike.testRide}" target="_blank" style="font-size:0.85rem;color:#999;font-weight:600;text-decoration:underline;">📅 Book a Test Ride</a>`
-                            : `<span style="font-size:0.85rem;color:#999;">${bike.testRide}</span>`}</div>`;
+                        <div class="bike-price">$${Number(bike.price).toLocaleString()}<br>${bike.testRide && bike.testRide.startsWith('http') ? `<a href="${bike.testRide}" target="_blank" style="font-size:0.85rem;color:#aaa;font-weight:600;text-decoration:underline;">📅 Book a Test Ride</a>` : `<span style="font-size:0.85rem;color:#aaa;">${bike.testRide}</span>`}</div>`;
 
                 // Style buttons — check disabled flag
                 if (bike.styles && bike.styles.length > 0) {
@@ -626,51 +615,36 @@ const SITE_CONFIG = {
                     });
                     html += `</div></div>`;
                 }
-
-                // Size buttons (only for non-nested — nested builds its own per-style size selectors)
-                if (!bike.colorsNested && bike.sizes && bike.sizes.length > 0) {
-                    const guideLink = (bike.sizeGuide && bike.sizeGuide.title) ? `<span class="size-guide-link" onclick="openSizeGuide('${bike.id}')">Size Guide</span>` : '';
-                    html += `<div class="option-group"><div class="option-header"><span class="option-label">Size:</span>${guideLink}</div><div class="selector-btns size-selector">`;
-                    bike.sizes.forEach((size, index) => {
-                        const isActive = index === 0 ? 'active' : '';
-                        const toggleCall = bike.colors[size] ? `onclick="toggleColorGroup(this, '${bike.id}-${size.replace(/[^a-zA-Z0-9]/g, '')}')"` : `onclick="toggleColorGroup(this, null)"`;
-                        html += `<button class="size-btn ${isActive}" data-size="${size}" ${toggleCall}>${size}</button>`;
-                    });
-                    html += `</div></div>`;
-                }
-
-                // Color swatches — nested or flat
                 if (bike.colorsNested) {
                     html = buildNestedColorGroups(bike, html);
                 } else {
-                    let isFirstGroup = true;
+                    let isFirst = true;
                     for (const [groupName, swatches] of Object.entries(bike.colors)) {
-                        if (!Array.isArray(swatches)) { isFirstGroup = false; continue; }
-                        const displayStyle = isFirstGroup ? 'block' : 'none';
-                        const groupId = groupName === 'Default' ? `${bike.id}-colors` : `${bike.id}-${groupName.replace(/[^a-zA-Z0-9]/g, '')}`;
-                        html += `<div class="color-selection swatch-group" id="${groupId}" style="display: ${displayStyle};"><span class="swatch-label">${groupName === 'Default' ? 'Available' : groupName} Colors:</span><div class="swatches">`;
-                        swatches.forEach((swatch, index) => {
-                            const isActive = index === 0 && isFirstGroup ? 'active' : '';
-                            const swatchPrice = swatch.price ? swatch.price : bike.price;
-                            if (swatch.soldOut) {
-                                html += `<div class="swatch sold-out-swatch" style="background-color:${swatch.hex};opacity:0.35;cursor:not-allowed;position:relative;" title="${swatch.name} — Sold Out"><div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%) rotate(-45deg);width:130%;height:2px;background:#e53935;border-radius:2px;"></div></div>`;
-                            } else {
-                                html += `<div class="swatch ${isActive}" style="background-color: ${swatch.hex};" data-image="${swatch.img}" data-color="${swatch.name}" data-price="${swatchPrice}" title="${swatch.name}" onclick="updateImageAndSwatch(this)"></div>`;
-                            }
-                        });
-                        html += `</div></div>`;
-                        isFirstGroup = false;
+                        const display = isFirst ? 'block' : 'none';
+                        const groupId = groupName === 'Default' ? `${bike.id}-colors` : `${bike.id}-${groupName.replace(/[^a-zA-Z0-9]/g,'')}`;
+                        if (!Array.isArray(swatches)) { isFirst = false; continue; }
+                        if (swatches.length > 1) {
+                            html += `<div class="color-selection swatch-group" id="${groupId}" style="display:${display};"><span class="swatch-label">${groupName === 'Default' ? 'Available' : groupName} Colors:</span><div class="swatches">`;
+                            swatches.forEach((swatch, i) => {
+                                const active = i === 0 && isFirst ? 'active' : '';
+                                const price = swatch.price ? swatch.price : bike.price;
+                                if (swatch.soldOut) {
+                                    html += `<div class="swatch sold-out-swatch" style="background-color:${swatch.hex};opacity:0.35;cursor:not-allowed;position:relative;" title="${swatch.name} — Sold Out"><div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%) rotate(-45deg);width:130%;height:2px;background:#e53935;border-radius:2px;"></div></div>`;
+                                } else {
+                                    html += `<div class="swatch ${active}" style="background-color:${swatch.hex};" data-image="${swatch.img}" data-color="${swatch.name}" data-price="${price}" title="${swatch.name}" onclick="updateImageAndSwatch(this)"></div>`;
+                                }
+                            });
+                            html += `</div></div>`;
+                        }
+                        isFirst = false;
                     }
                 }
-
-                // Specs + button
                 html += `<ul class="bike-specs">`;
-                for (const [specName, specValue] of Object.entries(bike.specs)) {
-                    html += `<li><span class="spec-label">${specName}</span><span class="spec-value">${specValue}</span></li>`;
+                for (const [k, v] of Object.entries(bike.specs)) {
+                    html += `<li><span class="spec-label">${k}</span><span class="spec-value">${v}</span></li>`;
                 }
                 html += `</ul><button class="buy-button" onclick="selectBikeAndScroll(this)">SUBMIT ORDER REQUEST</button><button class="cart-button" type="button" onclick="addBikeToCart(this)">Add to Cart</button></div></div>`;
             });
-
             container.innerHTML = html;
             // Deep-link from shop.html catalog: ?bike=<id> in the URL means
             // the visitor clicked a specific bike on the catalog grid — scroll
@@ -715,26 +689,21 @@ const SITE_CONFIG = {
 
         function toggleColorGroup(btn, groupId) {
             const card = btn.closest('.bike-card');
-            const btnGroup = btn.closest('.selector-btns');
-            btnGroup.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+            btn.closest('.selector-btns').querySelectorAll('button').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
-
-            const bikeData = globalInventory.find(b => b.id === card.getAttribute('data-bike'));
+            const bikeId = card.getAttribute('data-bike');
+            const bikeData = globalInventory.find(b => b.id === bikeId);
             if (bikeData && bikeData.colorsNested) {
                 const activeStyle = btn.getAttribute('data-style');
                 card.querySelectorAll('.nested-style-wrapper').forEach(w => w.style.display = 'none');
-                const wrapper = document.getElementById('nested-style-' + card.getAttribute('data-bike') + '-' + (activeStyle||'').replace(/[^a-zA-Z0-9]/g,''));
-                if (wrapper) wrapper.style.display = 'block';
+                const styleWrapper = document.getElementById('nested-style-' + bikeId + '-' + (activeStyle||'').replace(/[^a-zA-Z0-9]/g,''));
+                if (styleWrapper) styleWrapper.style.display = 'block';
                 if (activeStyle) updateSizeRestrictions(card, bikeData, activeStyle);
             } else {
                 if (groupId) {
                     card.querySelectorAll('.swatch-group').forEach(g => g.style.display = 'none');
                     const target = document.getElementById(groupId);
-                    if (target) {
-                        target.style.display = 'block';
-                        const firstSwatch = target.querySelector('.swatch');
-                        if (firstSwatch) firstSwatch.click();
-                    }
+                    if (target) { target.style.display = 'block'; const first = target.querySelector('.swatch'); if (first) first.click(); }
                 }
                 if (bikeData) {
                     const activeStyle = btn.getAttribute('data-style');
@@ -745,8 +714,7 @@ const SITE_CONFIG = {
 
         function updateImageAndSwatch(swatch) {
             const card = swatch.closest('.bike-card');
-            const mainImg = card.querySelector('.main-bike-img');
-            mainImg.src = swatch.getAttribute('data-image');
+            card.querySelector('.main-bike-img').src = swatch.getAttribute('data-image');
             const newPrice = swatch.getAttribute('data-price');
             card.setAttribute('data-bike-price', newPrice);
             const priceDisplay = card.querySelector('.bike-price');
@@ -759,9 +727,7 @@ const SITE_CONFIG = {
         /**
          * Add the currently-configured bike (the same selection
          * selectBikeAndScroll captures) into the shared cart drawer.
-         * Reuses the swatch / size / style extraction so the cart line
-         * always matches what the customer sees on the card. Brand is
-         * read from the card's data-brand attribute so this function
+         * Brand is read from data-brand on the card so the function
          * is identical across all four brand pages.
          */
         function addBikeToCart(button) {
@@ -801,20 +767,16 @@ const SITE_CONFIG = {
         function selectBikeAndScroll(button) {
             const card = button.closest('.bike-card');
             currentSelection.bikeName = card.getAttribute('data-bike-name');
-            const basePrice = card.getAttribute('data-bike-price');
-            const numericPrice = parseFloat(basePrice.toString().replace(/[^0-9.-]+/g,''));
-            currentSelection.price = '$' + numericPrice.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+            const raw = parseFloat(card.getAttribute('data-bike-price').toString().replace(/[^0-9.-]+/g,''));
+            currentSelection.price = '$' + raw.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2});
             const styleBtn = card.querySelector('.style-btn.active');
             currentSelection.style = styleBtn ? styleBtn.getAttribute('data-style') : 'N/A';
-            // For nested bikes, scope size/swatch lookup to the VISIBLE style wrapper only
             const visibleWrapper = card.querySelector('.nested-style-wrapper[style*="display: block"]')
                                 || card.querySelector('.nested-style-wrapper:not([style*="display: none"])');
             const sizeScope = visibleWrapper || card;
-            const sizeBtn = sizeScope.querySelector('.size-btn.active:not(.size-unavailable)');
+            const sizeBtn = sizeScope.querySelector('.size-btn.active:not(.size-unavailable)') || sizeScope.querySelector('.size-btn.active');
             currentSelection.size = sizeBtn ? sizeBtn.getAttribute('data-size') : 'N/A';
-            const activeSwatch = sizeScope.querySelector('.swatch-group[style*="display: block"] .swatch.active')
-                               || sizeScope.querySelector('.swatch.active')
-                               || card.querySelector('.swatch.active');
+            const activeSwatch = sizeScope.querySelector('.swatch-group[style*="display: block"] .swatch.active') || card.querySelector('.swatch.active');
             currentSelection.color = activeSwatch ? activeSwatch.getAttribute('data-color') : 'N/A';
             updatePreview();
             document.getElementById('bike-select').value = currentSelection.bikeName;
@@ -834,7 +796,7 @@ const SITE_CONFIG = {
         }
 
         function clearSelection() {
-            currentSelection = { bikeName: '', bikeKey: '', style: '', size: '', color: '', price: '' };
+            currentSelection = { bikeName:'', bikeKey:'', style:'', size:'', color:'', price:'' };
             document.getElementById('selected-bike-preview').classList.remove('active');
             ['bike-select','style-select','size-select','color-select'].forEach(id => document.getElementById(id).value = '');
         }
@@ -843,38 +805,80 @@ const SITE_CONFIG = {
             const bike = globalInventory.find(b => b.id === bikeKey);
             if (!bike || !bike.sizeGuide || !bike.sizeGuide.title) return;
             document.getElementById('modal-bike-title').textContent = bike.sizeGuide.title;
-            let rowsHtml = '';
-            bike.sizeGuide.sizes.forEach(item => rowsHtml += `<tr><td>${item.size}</td><td>${item.height}</td></tr>`);
-            document.getElementById('size-table-body').innerHTML = rowsHtml;
+            let rows = '';
+            bike.sizeGuide.sizes.forEach(item => rows += `<tr><td>${item.size}</td><td>${item.height}</td></tr>`);
+            document.getElementById('size-table-body').innerHTML = rows;
             document.getElementById('size-note').textContent = bike.sizeGuide.note;
             document.getElementById('sizeGuideModal').style.display = 'block';
         }
-
         function closeSizeGuide() { document.getElementById('sizeGuideModal').style.display = 'none'; }
         function showSuccessModal() { document.getElementById('successModal').style.display = 'block'; }
         function closeSuccessModal() { document.getElementById('successModal').style.display = 'none'; }
         document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeSizeGuide(); closeSuccessModal(); } });
 
-        function updateSizeRestrictions(card, bike, activeStyle) {
-            if (!bike.sizeRestrictions || Object.keys(bike.sizeRestrictions).length === 0) return;
-            const restrictedSizes = bike.sizeRestrictions[activeStyle] || [];
-            card.querySelectorAll('.size-selector .size-btn').forEach(btn => {
-                const size = btn.getAttribute('data-size');
-                if (restrictedSizes.includes(size)) {
-                    btn.classList.add('size-unavailable');
-                    btn.classList.remove('active');
-                } else {
-                    btn.classList.remove('size-unavailable');
-                    const activeBtn = card.querySelector('.size-selector .size-btn.active');
-                    if (!activeBtn || activeBtn.classList.contains('size-unavailable')) {
-                        const firstAvail = card.querySelector('.size-selector .size-btn:not(.size-unavailable)');
-                        if (firstAvail) firstAvail.classList.add('active');
-                    }
-                }
-            });
+        document.getElementById('order-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const submitBtn = document.getElementById('submit-btn');
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Submitting...';
+            const orderData = {
+                firstName: document.getElementById('first-name').value,
+                lastName: document.getElementById('last-name').value,
+                email: document.getElementById('email').value,
+                phone: document.getElementById('phone').value,
+                bikeModel: document.getElementById('bike-select').value,
+                style: document.getElementById('style-select').value,
+                size: document.getElementById('size-select').value,
+                color: document.getElementById('color-select').value,
+                riderHeight: document.getElementById('rider-height').value,
+                mirrorOption: document.querySelector('input[name="mirror_option"]:checked').value,
+                creekReady: document.querySelector('input[name="creek_ready"]:checked').value,
+                comments: document.getElementById('comments').value,
+                price: currentSelection.price
+            };
+            const orderParams = new URLSearchParams({action:'processOrder'});
+            Object.keys(orderData).forEach(k => orderParams.append(k, orderData[k]||''));
+            fetch(AS_URL + '?' + orderParams.toString(), {redirect:'follow'})
+                .then(function(r) {
+                    // Apps Script may return non-JSON on redirect — treat any response as success
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'Submit Order Request';
+                    showConfirmation();
+                })
+                .catch(function(e) {
+                    // Even on network error, order likely went through — show confirmation
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'Submit Order Request';
+                    showConfirmation();
+                });
+        });
+    
+// ─── Size restriction logic ───────────────────────────────────────────────
+function updateSizeRestrictions(card, bike, activeStyle) {
+    if (!bike.sizeRestrictions || Object.keys(bike.sizeRestrictions).length === 0) return;
+    const restrictedSizes = bike.sizeRestrictions[activeStyle] || [];
+    card.querySelectorAll('.size-selector .size-btn').forEach(btn => {
+        const size = btn.getAttribute('data-size');
+        if (restrictedSizes.includes(size)) {
+            btn.classList.add('size-unavailable');
+            btn.classList.remove('active');
+            btn.title = size + ' — Not available in ' + activeStyle;
+        } else {
+            btn.classList.remove('size-unavailable');
+            btn.title = '';
+            // Auto-select first available if current is restricted
+            const activeBtn = card.querySelector('.size-selector .size-btn.active');
+            if (!activeBtn || activeBtn.classList.contains('size-unavailable')) {
+                const firstAvail = card.querySelector('.size-selector .size-btn:not(.size-unavailable)');
+                if (firstAvail) firstAvail.classList.add('active');
+            }
         }
+    });
+}
 
-        function buildNestedColorGroups(bike, html) {
+
+// ─── Nested color rendering (Style -> Size -> Swatches) ──────────────────
+function buildNestedColorGroups(bike, html) {
     for (const [styleName, sizeGroups] of Object.entries(bike.colors)) {
         if (typeof sizeGroups !== 'object' || Array.isArray(sizeGroups)) continue;
         const styleDisabled = sizeGroups.disabled === true;
@@ -920,56 +924,20 @@ const SITE_CONFIG = {
     return html;
 }
 
-        function toggleNestedSwatchGroup(btn, sizeGroupId) {
-            const wrapper = btn.closest('.nested-style-wrapper');
-            wrapper.querySelectorAll('.nested-size-selector .size-btn').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            wrapper.querySelectorAll('.swatch-group').forEach(g => g.style.display = 'none');
-            const target = document.getElementById(sizeGroupId);
-            if (target) {
-                target.style.display = 'block';
-                const first = target.querySelector('.swatch:not(.sold-out-swatch)');
-                if (first) first.click();
-            }
-        }
+function toggleNestedSwatchGroup(btn, sizeGroupId) {
+    const wrapper = btn.closest('.nested-style-wrapper');
+    wrapper.querySelectorAll('.nested-size-selector .size-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    wrapper.querySelectorAll('.swatch-group').forEach(g => g.style.display = 'none');
+    const target = document.getElementById(sizeGroupId);
+    if (target) {
+        target.style.display = 'block';
+        const first = target.querySelector('.swatch:not(.sold-out-swatch)');
+        if (first) first.click();
+    }
+}
 
-        document.getElementById('order-form').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const submitBtn = document.getElementById('submit-btn');
-            submitBtn.disabled = true;
-            submitBtn.textContent = 'Submitting...';
-            const orderData = {
-                firstName: document.getElementById('first-name').value,
-                lastName: document.getElementById('last-name').value,
-                email: document.getElementById('email').value,
-                phone: document.getElementById('phone').value,
-                bikeModel: document.getElementById('bike-select').value,
-                style: document.getElementById('style-select').value,
-                size: document.getElementById('size-select').value,
-                color: document.getElementById('color-select').value,
-                riderHeight: document.getElementById('rider-height').value,
-                mirrorOption: document.querySelector('input[name="mirror_option"]:checked').value,
-                creekReady: document.querySelector('input[name="creek_ready"]:checked').value,
-                comments: document.getElementById('comments').value,
-                price: currentSelection.price
-            };
-            const orderParams = new URLSearchParams({action:'processOrder'});
-            Object.keys(orderData).forEach(k => orderParams.append(k, orderData[k]||''));
-            fetch(AS_URL + '?' + orderParams.toString(), {redirect:'follow'})
-                .then(function(r) {
-                    // Apps Script may return non-JSON on redirect — treat any response as success
-                    submitBtn.disabled = false;
-                    submitBtn.textContent = 'Submit Order Request';
-                    showConfirmation();
-                })
-                .catch(function(e) {
-                    // Even on network error, order likely went through — show confirmation
-                    submitBtn.disabled = false;
-                    submitBtn.textContent = 'Submit Order Request';
-                    showConfirmation();
-                });
-        });
-    </script>
+</script>
 
 <script>
 // Prevent Wix parent frame from intercepting horizontal swipes inside iframe

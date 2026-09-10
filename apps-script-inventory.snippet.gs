@@ -23,7 +23,7 @@
 // SHEET STRUCTURE (tab named "Direct_Inventory"):
 //   id           stable slug, e.g. "rangers"
 //   order        number -- lower = first (use gaps of 10)
-//   brand        "Heybike" | "Velotric" | "Jasion" | "Mooncool"
+//   brand        "Heybike" | "Velotric" | "Jasion" | "Mooncool" | "Mokwheel"
 //   name         display name, e.g. "Ranger S"
 //   subtitle     short descriptor, e.g. "Folding Fat Tire Step-Thru"
 //   price        number only, no $
