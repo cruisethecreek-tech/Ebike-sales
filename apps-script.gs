@@ -1970,10 +1970,21 @@ function handleSponsorInquiry(p) {
  * not anything this script controls.
  */
 function handleInvoiceCreated(p) {
+  // Responds as JSONP when a ?callback= is supplied, plain JSON otherwise.
+  // invoice.html reads the result over a <script> tag so a failed email is
+  // visible to staff instead of disappearing into a no-cors request.
+  const cb = String((p && p.callback) || '').trim();
   const json = function(obj) {
+    if (cb && /^[A-Za-z_$][A-Za-z0-9_$]*$/.test(cb)) {
+      return ContentService.createTextOutput(cb + '(' + JSON.stringify(obj) + ');')
+        .setMimeType(ContentService.MimeType.JAVASCRIPT);
+    }
     return ContentService.createTextOutput(JSON.stringify(obj))
       .setMimeType(ContentService.MimeType.JSON);
   };
+
+  // Recorded per-recipient so the caller learns WHICH email failed.
+  var mailResult = { staffEmail: false, customerEmail: false, customerSkipped: false, mailError: '' };
 
   try {
     const num         = String(p.invoiceNumber  || '').trim() || '(no #)';
@@ -2040,7 +2051,9 @@ function handleInvoiceCreated(p) {
         subject: 'Invoice ' + num + ' — ' + customer + ', $' + total.toFixed(0),
         body:    body,
       });
+      mailResult.staffEmail = true;
     } catch (mailErr) {
+      mailResult.mailError = 'staff: ' + mailErr;
       console.warn('Invoice notify email failed: ' + mailErr);
     }
 
@@ -2133,9 +2146,15 @@ function handleInvoiceCreated(p) {
         } catch (syncErr) {
           console.warn('Portal sync via UrlFetchApp failed: ' + syncErr);
         }
+        mailResult.customerEmail = true;
       } catch (custMailErr) {
+        mailResult.mailError = (mailResult.mailError ? mailResult.mailError + ' | ' : '')
+                             + 'customer: ' + custMailErr;
         console.warn('Customer receipt email failed: ' + custMailErr);
       }
+    } else {
+      // No address on the invoice (cash / walk-up) — not a failure.
+      mailResult.customerSkipped = true;
     }
     var itemsForDiscord = itemsText || '(none)';
     if (itemsForDiscord.length > 1020) itemsForDiscord = itemsForDiscord.substring(0, 1017) + '...';
@@ -2158,7 +2177,14 @@ function handleInvoiceCreated(p) {
       paymentLink ? 'Customer can pay via the link above' : 'Cash/check flow — no Stripe link'
     );
 
-    return json({ ok: true, invoiceNumber: num });
+    return json({
+      ok: true,
+      invoiceNumber:   num,
+      staffEmail:      mailResult.staffEmail,
+      customerEmail:   mailResult.customerEmail,
+      customerSkipped: mailResult.customerSkipped,
+      mailError:       mailResult.mailError,
+    });
   } catch (err) {
     console.error('handleInvoiceCreated failed: ' + err);
     return json({ ok: false, error: String(err) });
