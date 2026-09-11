@@ -7,7 +7,7 @@
  *                           (apparelOrder, cartOrder, bookingLead, bridgeApplication,
  *                           chatLog, chatVisitor). Used by 30+ pages.
  *     2. AKfycbyxVMuF...  ← Separate Apps Script project. Owns getBikeInventory
- *                           (called by heybike/jasion/mooncool/velotric/salespro/quiz
+ *                           (called by heybike/jasion/mooncool/velotric/mokwheel/salespro/quiz
  *                           brand pages) plus its own cartOrder/apparelOrder handlers.
  *     3. AKfycbxmz...     ← Separate Apps Script project. Owns admin actions:
  *                           getOpenBalances, getInvoiceCatalog, getNextInvoiceNumber,
@@ -57,6 +57,7 @@
  *       velotric    2       Velotric    Sleek, premium e-bikes         link    velotric.html      FALSE
  *       jasion      3       Jasion      Trail-ready power              link    jasion.html        FALSE
  *       mooncool    4       Mooncool    Three-wheel comfort            link    mooncool.html      FALSE
+ *       mokwheel    5       Mokwheel    Our newest brand               link    mokwheel.html      FALSE
  *       apparel     5       Apparel     Tees, caps & ride threads      link    apparel.html       FALSE
  *
  *     Shop_Submenus  (leave empty for now — none of the brand tiles have submenus)
@@ -2657,8 +2658,9 @@ function getTabDefs() {
         ['velotric',    2, 'Velotric',    'Sleek, premium e-bikes',      'link', 'velotric.html',    false, ''],
         ['jasion',      3, 'Jasion',      'Trail-ready power',           'link', 'jasion.html',      false, ''],
         ['mooncool',    4, 'Mooncool',    'Three-wheel comfort',         'link', 'mooncool.html',    false, ''],
-        ['apparel',     5, 'Apparel',     'Tees, caps & ride threads',   'link', 'apparel.html',     false, ''],
-        ['accessories', 6, 'Accessories', 'Saddles, seat posts & tools', 'link', 'accessories.html', false, ''],
+        ['mokwheel',    5, 'Mokwheel',    'Our newest brand',            'link', 'mokwheel.html',    false, ''],
+        ['apparel',     6, 'Apparel',     'Tees, caps & ride threads',   'link', 'apparel.html',     false, ''],
+        ['accessories', 7, 'Accessories', 'Saddles, seat posts & tools', 'link', 'accessories.html', false, ''],
       ],
     },
     'Shop_Submenus': {
@@ -3040,7 +3042,7 @@ function getTabDefs() {
         ['brand_jasion_external', false],
         // assembly.html: pipe-separated brand list drives inline mentions
         // ("factory-trained on …") + trust badges at page bottom.
-        ['assembly_authorized_brands', 'Heybike|Velotric|Jasion|Mooncool'],
+        ['assembly_authorized_brands', 'Heybike|Velotric|Jasion|Mooncool|Mokwheel'],
 
         ['── ASSEMBLY page · "Ride with Certainty" pricing cards ──', ''],
         ['assembly_pricing_title',     'Ride with Certainty.'],
@@ -3215,6 +3217,7 @@ function getTabDefs() {
         ['chat_price_heybike',  'Heybike e-bikes: $900–$2,000. Wide range — fat tires, cargo, step-thru, all-purpose.'],
         ['chat_price_velotric', 'Velotric e-bikes: $1,200–$2,500. Mid-to-premium tier — commuter, fat tire, cargo. Strong components, popular for Bridge the Gap.'],
         ['chat_price_mooncool', 'Mooncool e-bikes: $700–$2,000. Cruisers, e-trikes, value picks.'],
+        ['chat_price_mokwheel', 'Mokwheel e-bikes: $1,399–$2,199 across the models we stock. Newest brand — check live inventory before quoting.'],
 
         ['── MASCOT (chatbot personality) ──', ''],
         // Fill these in once you pick a name + upload the bear image.
@@ -3388,7 +3391,7 @@ function getTabDefs() {
 
         // ── Sales ──
         [40, 'Sales', 'sales', 'What brands do you sell?',
-          "We carry a deliberate mix of brands that complement each other and serve the diverse needs of the community:\n\n- **Heybike** — part of our original fleet since 2022, and nearly three quarters of our rentals. We've used them for years and stand behind their quality.\n- **Velotric** — less \"fat-tire,\" more traditional cycling feel. Perfect for riders transitioning into e-bikes who want a familiar ride.\n- **Jasion** — budget-friendly without sacrificing performance. Strong value for the price.\n- **Mooncool** — three-wheel e-trikes for riders who want extra stability."],
+          "We carry a deliberate mix of brands that complement each other and serve the diverse needs of the community:\n\n- **Heybike** — part of our original fleet since 2022, and nearly three quarters of our rentals. We've used them for years and stand behind their quality.\n- **Velotric** — less \"fat-tire,\" more traditional cycling feel. Perfect for riders transitioning into e-bikes who want a familiar ride.\n- **Jasion** — budget-friendly without sacrificing performance. Strong value for the price.\n- **Mooncool** — three-wheel e-trikes for riders who want extra stability.\n- **Mokwheel** — our newest brand. Come see the lineup in person."],
         [41, 'Sales', '', 'How much do e-bikes cost?',
           "Our current lineup ranges from **about $650 (Jasion)** to **about $2,400 (Velotric)**. Most riders land somewhere in the $900–$1,500 range depending on motor power, range, and frame style. Prices subject to change — see the brand pages for the current lineup."],
         [42, 'Sales', '', 'Do you assemble the bike for me?',
@@ -3438,7 +3441,7 @@ function getTabDefs() {
         [74, 'Service', '', 'Do you offer remote support?',
           "Yes — **Video Diagnostics**. Stuck on assembly or seeing an error code? Book a live video call with our factory-trained technician. 1-on-1, error-code troubleshooting, guided assembly support — Velotric, Heybike, and Jasion specialists, no travel needed. [Book a session →](video-diagnostics.html)"],
         [75, 'Service', '', 'What about warranty work?',
-          "As an authorized dealer for Heybike, Velotric, Jasion, and Mooncool, we handle warranty claims directly with the manufacturer. Bring the bike (and proof of purchase) to the shop and we'll get the conversation started."],
+          "As an authorized dealer for Heybike, Velotric, Jasion, Mooncool, and Mokwheel, we handle warranty claims directly with the manufacturer. Bring the bike (and proof of purchase) to the shop and we'll get the conversation started."],
 
         // ── Policies ──
         [80, 'Policies', 'policies', "What's your cancellation policy on rentals?",

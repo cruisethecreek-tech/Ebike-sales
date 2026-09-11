@@ -65,7 +65,7 @@
 /* ─────────────────────────────────────────────────────────────────
  * Discontinued-bike safety net.
  *
- * The storefront pages (shop, heybike, velotric, mooncool, jasion,
+ * The storefront pages (shop, heybike, velotric, mooncool, jasion, mokwheel,
  * quiz) hide a bike when its name is in localStorage's
  * `ctc_discontinued_names`. That list is published by the Sales Pro
  * admin — but localStorage is per-origin and per-browser, so an

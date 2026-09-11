@@ -37,6 +37,7 @@ var PM_BRANDS = {
   'Jasion':   'https://www.jasionbike.com',
   'Velotric': 'https://www.velotricbike.com',
   'Mooncool': 'https://www.mooncool.com',
+  'Mokwheel': 'https://mokwheel.com',
 };
 
 // -- KEYWORDS THAT IDENTIFY ACCESSORIES (not bikes) --------

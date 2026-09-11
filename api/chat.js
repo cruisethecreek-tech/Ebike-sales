@@ -229,7 +229,7 @@ Before suggesting a phone number, try in this order:
        - Service, tune-up, repair, flat tire → tune-ups.html
        - New-bike setup / "make my bike trail-ready" → creek-ready.html
        - Rent-to-own / can't pay full price up front → bridge-the-gap.html (rentals-side — phone follow-up goes to 330-406-9686, not Andrew)
-       - Buy a bike (shopping intent) → the brand page (heybike.html / velotric.html / mooncool.html / jasion.html) or quiz.html if undecided
+       - Buy a bike (shopping intent) → the brand page (heybike.html / velotric.html / mooncool.html / jasion.html / mokwheel.html) or quiz.html if undecided
        - Longer rental (a week, a month) → long-term-rental.html
        - Multi-stop trail tour info → adventures.html or trailside.html
        - Group ride / event / sponsor → sponsors.html or events.html
@@ -250,7 +250,7 @@ ONE STANDING EXCEPTION: if the visitor is about to come to us in person, always 
 
 ==== RENTAL FLEET vs. BIKES FOR SALE (never cross the streams) ====
 These are two completely different things and must never be mixed:
-  - **Bikes for sale** — the "Live inventory snapshot" block below and the brand pages (heybike.html / velotric.html / mooncool.html / jasion.html). These are retail products a customer BUYS. Their model names, trims, and color options exist only in a purchase context.
+  - **Bikes for sale** — the "Live inventory snapshot" block below and the brand pages (heybike.html / velotric.html / mooncool.html / jasion.html / mokwheel.html). These are retail products a customer BUYS. Their model names, trims, and color options exist only in a purchase context.
   - **The rental fleet** — a shared pool of e-bikes described ONLY by category (All-Purpose, High-Step, Cruiser, Cargo, E-Trike). The FAQ knowledge base has the current fleet count and per-category breakdown; that FAQ is the only authoritative statement about the rental fleet.
 
 The Live inventory snapshot is NOT a list of rentable bikes. A model being for sale tells you NOTHING about whether it's in the rental fleet, and a color existing on a brand page tells you NOTHING about what a renter will be handed.
@@ -292,6 +292,7 @@ Applies even when the visit is already booked through Peek: a confirmed booking 
     • Heybike: $900–$2,000
     • Velotric: $1,200–$2,500
     • Mooncool: $700–$2,000
+    • Mokwheel: $1,399–$2,199 (newest brand — the live inventory below is the only reliable range)
   Each brand carries multiple frame styles and categories — the live inventory below is the ground truth for which specific models, frame styles, and prices are in stock today. Don't summarize a brand as "the trike brand" or "the step-thru brand" without checking; the lineup shifts.
 
 ==== PRODUCT EXISTENCE QUESTIONS (use the inventory) ====
@@ -306,6 +307,7 @@ When a visitor signals they want to BUY a bike (not rent — "I want to buy an e
   - heybike.html for Heybike inventory
   - velotric.html for Velotric inventory
   - mooncool.html for Mooncool inventory
+  - mokwheel.html for Mokwheel inventory
   - jasion.html for Jasion inventory
 Don't try to close the sale yourself — these pages have the live inventory and configurator. Recommend a starting point based on what they said (budget, ride style, frame style), share the link, and offer to keep helping if they have questions.
 
@@ -778,6 +780,7 @@ export default async function handler(req, res) {
         'long-term-rental':'the long-term rental page (currently "Coming Soon")',
         'shop':            'the shop landing page (shop.html) — overview of all four bike brands',
         'heybike':         'the Heybike brand page — wide range, fat tires, cargo, step-thru ($900–$2,000)',
+        'mokwheel':        'the Mokwheel brand page — our newest brand',
         'velotric':        'the Velotric brand page — mid-to-premium, popular for Bridge the Gap ($1,200–$2,500)',
         'mooncool':        'the Mooncool brand page — cruisers, e-trikes, value picks ($700–$2,000)',
         'jasion':          'the Jasion brand page — entry value, folding fat tires ($700–$1,500)',
