@@ -142,7 +142,7 @@
       { label: 'Video Diagnostic',     url: 'video-diagnostics.html' },
       { label: 'Repair Intake',        url: 'repair-intake.html' },
     ]},
-    { label: 'Test Ride', url: 'https://book.peek.com/s/57e3b62e-4f48-4cc4-8876-7b79f4c11baa/17Aw9' },
+    { label: 'Test Ride', url: 'test-ride.html' },
     { label: 'Creek Life', items: [
       { label: 'Creek Life Blog', url: 'creek-life-blog.html' },
       { label: 'Our Story',       url: 'our-story.html' },
