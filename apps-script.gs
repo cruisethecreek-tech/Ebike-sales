@@ -58,7 +58,7 @@
  *       jasion      3       Jasion      Trail-ready power              link    jasion.html        FALSE
  *       mooncool    4       Mooncool    Three-wheel comfort            link    mooncool.html      FALSE
  *       mokwheel    5       Mokwheel    Our newest brand               link    mokwheel.html      FALSE
- *       apparel     5       Apparel     Tees, caps & ride threads      link    apparel.html       FALSE
+ *       apparel     6       Apparel     Tees, caps & ride threads      link    apparel.html       FALSE
  *
  *     Shop_Submenus  (leave empty for now — none of the brand tiles have submenus)
  *       tile        order   label       url       external
