@@ -7,6 +7,16 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <script>
+        // Set the theme before the first paint. Doing this in the main script
+        // block at the bottom of the page repaints after layout, so staff see
+        // a flash of the old palette on every load.
+        (function () {
+            var t = 'light';
+            try { t = localStorage.getItem('ctcInvoiceTheme') || 'light'; } catch (e) {}
+            document.documentElement.setAttribute('data-theme', t === 'dark' ? 'dark' : 'light');
+        })();
+    </script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -24,6 +34,12 @@
             --op-border: #313a35;
             --op-text: #e8ebe9;
             --op-text-dim: #8a948e;
+            --op-readonly: rgba(255,255,255,0.03);
+
+            /* Accent TEXT only. The same gold is also used as a button
+               background, which stays put — only text needs to darken. */
+            --op-gold-text: #C9A96E;
+            --op-ok-text: #86EFAC;
 
             --cust-bg: #faf7f2;
             --cust-panel: #ffffff;
@@ -40,6 +56,31 @@
 
             --success: #4a8b6a;
             --error: #c4564f;
+        }
+
+        /* Light theme for the staff UI.
+           Only the --op-* variables move. The invoice preview on the right
+           already renders on its own --cust-* palette (it has to look like the
+           printed invoice), so it is identical in both themes.
+           Contrast: #1d2b22 on #ffffff is 13.9:1 and on #f4f1ea 12.6:1; the
+           dimmed #5a6560 is 6.5:1 and 5.9:1. All well past WCAG AA. */
+        :root[data-theme="light"] {
+            --op-bg: #f4f1ea;
+            --op-panel: #ffffff;
+            --op-input: #ffffff;
+            --op-border: #ddd5c6;
+            --op-text: #1d2b22;
+            --op-text-dim: #5a6560;
+            --op-readonly: rgba(0,0,0,0.04);
+
+            /* #C9A96E is 2.1:1 on this background and #86EFAC is 1.4:1 —
+               unreadable. These are 5.0:1 and 4.9:1. */
+            --op-gold-text: #8a6a2f;
+            --op-ok-text: #1c7a44;
+
+            /* Native selects and scrollbars follow suit; left on dark this
+               renders black-on-black option text once a dropdown opens. */
+            color-scheme: light;
         }
 
         body {
@@ -188,7 +229,7 @@
         }
 
         input[readonly] {
-            background: rgba(255,255,255,0.03);
+            background: var(--op-readonly);
             color: var(--op-text-dim);
             cursor: default;
         }
@@ -945,6 +986,9 @@
             </div>
             <div style="display:flex;align-items:center;gap:1rem;">
                 <div class="header-meta" id="headerDate"></div>
+                <button type="button" id="themeToggle" onclick="toggleTheme()"
+                        title="Switch between the light and dark screen"
+                        style="font-family:'JetBrains Mono', monospace;font-size:0.7rem;color:var(--op-text-dim);background:transparent;text-transform:uppercase;letter-spacing:0.1em;border:1px solid var(--op-border);padding:0.55rem 0.9rem;border-radius:6px;cursor:pointer;transition:all 0.15s ease;"></button>
                 <a href="balance.html" style="font-family:'JetBrains Mono', monospace;font-size:0.7rem;color:var(--op-text-dim);text-decoration:none;text-transform:uppercase;letter-spacing:0.1em;border:1px solid var(--op-border);padding:0.55rem 0.9rem;border-radius:6px;transition:all 0.15s ease;" onmouseover="this.style.color='#b47850';this.style.borderColor='#b47850';" onmouseout="this.style.color='';this.style.borderColor='';">Balance Due →</a>
             </div>
         </header>
@@ -1031,21 +1075,21 @@
                     <!-- Existing Customer Selector Tray -->
                     <div id="existingCustTray" style="margin-bottom: 0.85rem; padding: 10px 12px; border-radius: 8px; background: rgba(201, 169, 110, 0.08); border: 1px solid rgba(201, 169, 110, 0.35);">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-                            <label for="existingCustSelect" style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #C9A96E; margin: 0;">
+                            <label for="existingCustSelect" style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--op-gold-text); margin: 0;">
                                 ⚡ Auto-Fill from Existing Customer
                             </label>
-                            <span id="custDirectoryBadge" style="font-size: 0.7rem; color: #86EFAC;">Loading directory…</span>
+                            <span id="custDirectoryBadge" style="font-size: 0.7rem; color: var(--op-ok-text);">Loading directory…</span>
                         </div>
                         <select id="existingCustSelect" onchange="onExistingCustSelected()"
-                                style="width: 100%; padding: 8px 10px; font-size: 0.85rem; border-radius: 6px; border: 1px solid #C9A96E; background: #142517; color: #F5F0E8; cursor: pointer;">
+                                style="width: 100%; padding: 8px 10px; font-size: 0.85rem; border-radius: 6px; border: 1px solid #C9A96E; background: var(--op-input); color: var(--op-text); cursor: pointer;">
                             <option value="">-- Choose existing customer to auto-fill --</option>
                         </select>
-                        <div id="custAutofillNotice" style="display: none; margin-top: 6px; font-size: 0.75rem; color: #86EFAC; font-weight: 600;">
+                        <div id="custAutofillNotice" style="display: none; margin-top: 6px; font-size: 0.75rem; color: var(--op-ok-text); font-weight: 600;">
                             ✓ Details auto-filled! You can edit any field below.
                         </div>
                     </div>
 
-                    <div id="newCustNotice" style="display: none; margin-bottom: 0.85rem; padding: 8px 12px; border-radius: 6px; background: rgba(134, 239, 172, 0.1); border: 1px solid rgba(134, 239, 172, 0.3); font-size: 0.75rem; color: #86EFAC;">
+                    <div id="newCustNotice" style="display: none; margin-bottom: 0.85rem; padding: 8px 12px; border-radius: 6px; background: rgba(134, 239, 172, 0.1); border: 1px solid rgba(134, 239, 172, 0.3); font-size: 0.75rem; color: var(--op-ok-text);">
                         ➕ Entering new customer. Portal account & invite will be dispatched automatically when invoice is saved.
                     </div>
 
@@ -1097,7 +1141,7 @@
                          printable invoice preview, so the customer never sees it. It is
                          saved per-invoice via setInvoiceMeta so warranty claims can jump
                          straight to the original Shop.com order. -->
-                    <div class="form-group" style="margin-top:.9rem;border-top:1px dashed rgba(255,255,255,.16);padding-top:.9rem">
+                    <div class="form-group" style="margin-top:.9rem;border-top:1px dashed var(--op-border);padding-top:.9rem">
                         <label for="supplierUrl" style="display:flex;align-items:center;gap:.45rem;flex-wrap:wrap">
                             Shop.com order / warranty tracking (Link or PDF)
                             <span style="font-size:.64rem;letter-spacing:.05em;text-transform:uppercase;background:#8a5a2b;color:#fff;padding:.1rem .45rem;border-radius:999px">Internal · not on invoice</span>
@@ -1116,7 +1160,7 @@
                                 <span>📄 Upload Shop PDF</span>
                                 <input type="file" id="supplierPdfFile" accept="application/pdf,image/*" style="display:none" onchange="handleSupplierFileUpload(this)">
                             </label>
-                            <span id="supplierUploadStatus" style="font-size:.78rem;color:#C9A96E">
+                            <span id="supplierUploadStatus" style="font-size:.78rem;color: var(--op-gold-text)">
                                 Can't share Shop link? Upload downloaded invoice PDF here
                             </span>
                         </div>
@@ -2835,7 +2879,7 @@
             }
 
             if (statusEl) {
-                statusEl.innerHTML = '<span style="color:#C9A96E">⏳ Uploading ' + invEsc(file.name) + '…</span>';
+                statusEl.innerHTML = '<span style="color: var(--op-gold-text)">⏳ Uploading ' + invEsc(file.name) + '…</span>';
             }
 
             try {
@@ -2866,8 +2910,8 @@
                 saveSupplierUrl(invNum, data.url);
 
                 if (statusEl) {
-                    statusEl.innerHTML = '<span style="color:#86EFAC;font-weight:700;">✓ PDF Uploaded: ' + invEsc(file.name) + '</span> ' +
-                        '<a href="' + data.url + '" target="_blank" style="color:#C9A96E;text-decoration:underline;margin-left:6px;font-size:0.75rem;font-weight:bold;">View PDF ↗</a>';
+                    statusEl.innerHTML = '<span style="color: var(--op-ok-text);font-weight:700;">✓ PDF Uploaded: ' + invEsc(file.name) + '</span> ' +
+                        '<a href="' + data.url + '" target="_blank" style="color: var(--op-gold-text);text-decoration:underline;margin-left:6px;font-size:0.75rem;font-weight:bold;">View PDF ↗</a>';
                 }
 
                 showStatus('Shop invoice PDF uploaded and attached to ' + invNum + '.', 'success');
@@ -2902,7 +2946,7 @@
                         var statusEl = document.getElementById('supplierUploadStatus');
                         if (statusEl && data.supplierUrl) {
                             if (/\.pdf$/i.test(data.supplierUrl) || data.supplierUrl.includes('/documents/')) {
-                                statusEl.innerHTML = '<span style="color:#86EFAC;font-weight:600;">✓ Attached PDF:</span> <a href="' + data.supplierUrl + '" target="_blank" style="color:#C9A96E;text-decoration:underline;font-weight:bold;margin-left:4px;">View Uploaded Receipt ↗</a>';
+                                statusEl.innerHTML = '<span style="color: var(--op-ok-text);font-weight:600;">✓ Attached PDF:</span> <a href="' + data.supplierUrl + '" target="_blank" style="color: var(--op-gold-text);text-decoration:underline;font-weight:bold;margin-left:4px;">View Uploaded Receipt ↗</a>';
                             }
                         }
                     }
@@ -3153,6 +3197,34 @@
             addLineItem('E-Bike Accessories & Gear Package', 1, 100.00);
         }
 
+
+        // ── Screen theme ───────────────────────────────────────────────
+        // Light by default: the dark screen is hard to read under the shop
+        // lights. The choice is per device, so a phone at the counter and the
+        // desktop in the back can differ.
+        function currentTheme() {
+            return document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+        }
+
+        function syncThemeButton() {
+            const btn = document.getElementById('themeToggle');
+            if (!btn) return;
+            // Label the destination, not the current state — "Dark" on a light
+            // screen reads as the thing the button will do.
+            btn.textContent = currentTheme() === 'dark' ? '☀ Light' : '☾ Dark';
+        }
+
+        function toggleTheme() {
+            const next = currentTheme() === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', next);
+            try { localStorage.setItem('ctcInvoiceTheme', next); } catch (e) {
+                // Private window or blocked storage: the theme still applies
+                // for this visit, it just will not be remembered.
+            }
+            syncThemeButton();
+        }
+
+        syncThemeButton();
         loadCatalog();
         loadExistingCustomers();
         if (viewParam) {
