@@ -214,7 +214,8 @@ footer a{color:var(--tan);font-weight:500}
       </div>
       <label class="waiver-agree"><input type="checkbox" id="f-waiver"> <span>I have read and agree to the Service Authorization &amp; Liability Waiver above, and I'm authorized to approve work on this bike. <span class="req">*</span></span></label>
       <div class="row" style="margin-top:14px">
-        <div><label class="lbl" for="f-sign">Type your full name to sign <span class="req">*</span></label><input type="text" id="f-sign" name="waiverSignature" autocomplete="name"></div>
+        <div><label class="lbl" for="f-sign">Type your full name to sign <span class="req">*</span></label><input type="text" id="f-sign" name="waiverSignature" autocomplete="name">
+        <div style="font-size:.76rem;color:#5c6660;margin-top:6px">Signed on <span id="waiver-date"></span></div></div>
       </div>
     <!-- PRICING & SERVICE ESTIMATE AREA -->
     <fieldset class="fieldset" id="pricing-summary-fieldset" style="background:#FAF8F2; border:2px solid #C9A96E; border-radius:10px; padding:20px 18px; margin-top:24px; margin-bottom:14px; box-shadow:0 4px 14px rgba(45,74,50,0.06);">
@@ -262,8 +263,18 @@ document.querySelectorAll('.choice input').forEach(inp => {
 });
 
 // Show today's date on the signature line.
+//
+// Guarded deliberately. This line used to read
+//   document.getElementById('waiver-date').textContent = WAIVER_DATE
+// while no #waiver-date element existed, so it threw at the top level of the
+// script and aborted everything below it — the submit handler included. The
+// form looked completely normal and silently did nothing: clicking Submit
+// fell back to a native form post, reloading the page with the answers in the
+// query string and never reaching the Apps Script. Cosmetic code must not be
+// able to take the form down.
 const WAIVER_DATE = new Date().toLocaleDateString('en-US', { year:'numeric', month:'long', day:'numeric' });
-document.getElementById('waiver-date').textContent = WAIVER_DATE;
+const waiverDateEl = document.getElementById('waiver-date');
+if (waiverDateEl) waiverDateEl.textContent = WAIVER_DATE;
 
 function showMsg(kind, text){
   formMsg.className = kind;
