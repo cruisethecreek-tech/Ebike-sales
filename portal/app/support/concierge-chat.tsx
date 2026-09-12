@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
+import { useSeasonalTheme } from '@/app/components/seasonal-theme-provider'
 
 interface Message {
   role: 'assistant' | 'user'
@@ -56,6 +57,7 @@ function renderFormattedMessage(text: string) {
 export function ConciergeChat({ customerName, bikeSummary }: ConciergeChatProps) {
   const initialGreeting = `Hey ${customerName || 'there'}! I'm your Creek Concierge — powered by Claude with live knowledge of your ${bikeSummary || 'e-bike on file'}, Creek Ready tune-ups ($125), error codes, trail regulations, and shop policies. How can I help you today?`
 
+  const { season } = useSeasonalTheme()
   const [messages, setMessages] = useState<Message[]>([
     {
       role: 'assistant',
@@ -160,10 +162,18 @@ export function ConciergeChat({ customerName, bikeSummary }: ConciergeChatProps)
   return (
     <div className="bg-white rounded-2xl border border-[#E5E5E5] shadow-md overflow-hidden flex flex-col h-[560px]">
       {/* Concierge Mascot Header matching Main Website */}
-      <div className="p-3.5 bg-[#1A2E1C] text-white flex items-center justify-between border-b border-[#2D4A32]">
+      {/* Header follows the active season rather than a fixed forest green,
+          so it shifts with the banner and navbar above it. */}
+      <div
+        className="p-3.5 text-white flex items-center justify-between border-b"
+        style={{ background: season.bgGradient, borderColor: season.accentColor + '55' }}
+      >
         <div className="flex items-center gap-3">
           <div className="relative">
-            <div className="w-11 h-11 rounded-full bg-[#2D4A32] border-2 border-[#C9A96E] flex items-center justify-center overflow-hidden shadow-inner">
+            <div
+              className="w-11 h-11 rounded-full border-2 flex items-center justify-center overflow-hidden shadow-inner"
+              style={{ background: season.secondaryColor, borderColor: season.accentColor }}
+            >
               {!imgError ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
