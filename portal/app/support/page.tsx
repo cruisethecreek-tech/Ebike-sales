@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import TicketForm from './ticket-form'
 import { StatusBadge } from '@/app/components/status-badge'
 import { ConciergeChat } from './concierge-chat'
+import { TuneUpCard } from './tune-up-card'
 import { STORE_URL } from '@/lib/constants'
 import { redirect } from 'next/navigation'
 
@@ -71,53 +72,12 @@ export default async function SupportPage() {
 
         {/* Creek Ready & Quick Policy Hub */}
         <div className="lg:col-span-5 space-y-4">
-          {/* Creek Ready Tune-Up Highlight Card */}
-          <div className="p-5 rounded-2xl bg-[#1A2E1C] text-[#F5F0E8] shadow-sm space-y-3 border border-[#2D4A32]">
-            <div className="flex items-center justify-between">
-              <span className="text-xs px-2.5 py-0.5 rounded-full bg-[#C9A96E] text-[#1A2E1C] font-bold uppercase tracking-wider">
-                Signature Service · Member Benefit
-              </span>
-              <div className="text-right">
-                <span className="text-xs text-gray-300 line-through mr-1.5">$125</span>
-                <span className="text-xl font-bold text-[#C9A96E]">$100.00</span>
-                <span className="block text-[10px] text-[#86EFAC] font-bold">20% OFF APPLIED</span>
-              </div>
-            </div>
-
-            <h3
-              className="uppercase tracking-wide text-2xl text-white"
-              style={{ fontFamily: "'Bebas Neue', sans-serif" }}
-            >
-              🌲 Creek Ready Tune-Up
-            </h3>
-
-            <ul className="text-xs space-y-1.5 text-gray-300">
-              <li>✓ Complete 28-point safety & electrical check</li>
-              <li>✓ Hydraulic brake flush & lever adjustment</li>
-              <li>✓ Drivetrain clean & electronic shifting tune</li>
-              <li>✓ Motor diagnostics & firmware updates</li>
-              <li>✓ Battery health check & tire optimization</li>
-            </ul>
-
-            <div className="space-y-2 pt-1">
-              <a
-                href={`${STORE_URL}/repair-intake.html?service=tuneup&discount=20&promo=20OFF&firstName=${encodeURIComponent(customer?.first_name || '')}&lastName=${encodeURIComponent(customer?.last_name || '')}&phone=${encodeURIComponent(customer?.phone || '')}&email=${encodeURIComponent(user?.email || '')}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="btn-primary text-xs w-full block text-center py-2.5 font-bold shadow-xs hover:scale-[1.01] transition-transform"
-              >
-                ⚡ Book Creek Ready Tune-Up ($100.00) ↗
-              </a>
-              <a
-                href={`${STORE_URL}/creek-ready.html`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-xs text-center block text-[#C9A96E] hover:underline"
-              >
-                View Full Creek Ready Policy ↗
-              </a>
-            </div>
-          </div>
+          {/* Creek Ready Tune-Up Highlight Card — a client component so it
+              can follow the seasonal theme; see tune-up-card.tsx */}
+          <TuneUpCard
+            bookHref={`${STORE_URL}/repair-intake.html?service=tuneup&discount=20&promo=20OFF&firstName=${encodeURIComponent(customer?.first_name || '')}&lastName=${encodeURIComponent(customer?.last_name || '')}&phone=${encodeURIComponent(customer?.phone || '')}&email=${encodeURIComponent(user?.email || '')}`}
+            policyHref={`${STORE_URL}/creek-ready.html`}
+          />
 
           {/* Quick Knowledge & Rules */}
           <div className="p-4 rounded-xl bg-white border border-[#E5E5E5] space-y-2 text-xs">
