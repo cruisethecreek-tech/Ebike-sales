@@ -1855,10 +1855,15 @@
         // staff enter it once and it lives in this browser's localStorage.
         const PORTAL_KEY_STORAGE = 'ctc_portal_admin_key';
 
+        // Only ask once per page load, however many portal calls miss the key,
+        // so a page with three of them doesn't stack three prompts.
+        let portalKeyPromptShown = false;
+
         function portalKey(promptIfMissing) {
             let k = '';
             try { k = localStorage.getItem(PORTAL_KEY_STORAGE) || ''; } catch (e) {}
-            if (!k && promptIfMissing) {
+            if (!k && promptIfMissing && !portalKeyPromptShown) {
+                portalKeyPromptShown = true;
                 k = (window.prompt('Portal admin key (asked once per device):') || '').trim();
                 if (k) { try { localStorage.setItem(PORTAL_KEY_STORAGE, k); } catch (e) {} }
             }
@@ -1867,7 +1872,9 @@
 
         function portalHeaders(extra) {
             const h = Object.assign({}, extra || {});
-            const k = portalKey(false);
+            // Prompt when it's missing. Passing false here meant nothing ever
+            // asked for the key, so every portal call 401'd with no way in.
+            const k = portalKey(true);
             if (k) h['x-ctc-admin-key'] = k;
             return h;
         }
@@ -1878,6 +1885,7 @@
             if (!resp || (resp.status !== 401 && resp.status !== 503)) return false;
             if (resp.status === 401) {
                 try { localStorage.removeItem(PORTAL_KEY_STORAGE); } catch (e) {}
+                portalKeyPromptShown = false;   // let the next call ask again
                 showStatus('The portal rejected the admin key. It has been cleared — ' +
                            'you will be asked for it again on the next action.', 'error');
             } else {
