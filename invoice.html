@@ -1902,6 +1902,54 @@
             }
         }
 
+        // ── Portal admin key ─────────────────────────────────────────
+        // The portal's /api/customers, /api/invoices/sync and
+        // /api/invoices/upload routes run with the Supabase service-role key
+        // and return or write customer records, so they now require a shared
+        // secret. This page is public, so the secret is NOT hardcoded here —
+        // staff enter it once and it lives in this browser's localStorage.
+        const PORTAL_KEY_STORAGE = 'ctc_portal_admin_key';
+
+        // Only ask once per page load, however many portal calls miss the key,
+        // so a page with three of them doesn't stack three prompts.
+        let portalKeyPromptShown = false;
+
+        function portalKey(promptIfMissing) {
+            let k = '';
+            try { k = localStorage.getItem(PORTAL_KEY_STORAGE) || ''; } catch (e) {}
+            if (!k && promptIfMissing && !portalKeyPromptShown) {
+                portalKeyPromptShown = true;
+                k = (window.prompt('Portal admin key (asked once per device):') || '').trim();
+                if (k) { try { localStorage.setItem(PORTAL_KEY_STORAGE, k); } catch (e) {} }
+            }
+            return k;
+        }
+
+        function portalHeaders(extra) {
+            const h = Object.assign({}, extra || {});
+            // Prompt when it's missing. Passing false here meant nothing ever
+            // asked for the key, so every portal call 401'd with no way in.
+            const k = portalKey(true);
+            if (k) h['x-ctc-admin-key'] = k;
+            return h;
+        }
+
+        // A rejected key is almost always a stale one — drop it so the next
+        // call re-prompts rather than failing forever in silence.
+        function portalAuthFailed(resp) {
+            if (!resp || (resp.status !== 401 && resp.status !== 503)) return false;
+            if (resp.status === 401) {
+                try { localStorage.removeItem(PORTAL_KEY_STORAGE); } catch (e) {}
+                portalKeyPromptShown = false;   // let the next call ask again
+                showStatus('The portal rejected the admin key. It has been cleared — ' +
+                           'you will be asked for it again on the next action.', 'error');
+            } else {
+                showStatus('The portal has no admin key configured (ADMIN_API_KEY). ' +
+                           'Nothing was synced.', 'error');
+            }
+            return true;
+        }
+
         // Automatically sync customer, invoice, and registered bikes to
         // Cruise the Creek Customer Portal (portal.cruisethecreek.com).
         // Dispatches official Supabase email invite to customer.
@@ -1923,12 +1971,22 @@
                 };
                 fetch('https://portal.cruisethecreek.com/api/invoices/sync', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: portalHeaders({ 'Content-Type': 'application/json' }),
                     body: JSON.stringify(payload)
-                }).then(r => r.json()).then(data => {
+                }).then(r => {
+                    if (portalAuthFailed(r)) return null;
+                    if (!r.ok) throw new Error('HTTP ' + r.status);
+                    return r.json();
+                }).then(data => {
+                    if (!data) return;
+                    if (data.ok === false) throw new Error(data.error || 'sync rejected');
                     console.log('[Portal Sync successful]:', data);
                 }).catch(err => {
+                    // Used to be console-only, so a customer portal that never
+                    // received the invoice looked identical to one that did.
                     console.warn('[Portal Sync failed]:', err);
+                    showStatus('Invoice created, but it did NOT sync to the customer portal (' +
+                               err.message + '). It will not appear in the customer\'s account.', 'error');
                 });
             } catch (err) {
                 console.warn('[syncInvoiceToPortal threw]:', err);
@@ -2588,8 +2646,11 @@
             var badge = document.getElementById('custDirectoryBadge');
             if (!select) return;
 
-            fetch('https://portal.cruisethecreek.com/api/customers')
-                .then(function(res) { return res.json(); })
+            fetch('https://portal.cruisethecreek.com/api/customers', { headers: portalHeaders() })
+                .then(function(res) {
+                    if (portalAuthFailed(res)) return { ok: false, customers: [] };
+                    return res.json();
+                })
                 .then(function(data) {
                     if (data && data.ok && Array.isArray(data.customers)) {
                         existingCustomersList = data.customers;
@@ -2779,9 +2840,11 @@
                 var uploadEndpoint = 'https://portal.cruisethecreek.com/api/invoices/upload';
                 var resp = await fetch(uploadEndpoint, {
                     method: 'POST',
+                    headers: portalHeaders(),   // no Content-Type — the browser sets the multipart boundary
                     body: formData
                 });
 
+                if (portalAuthFailed(resp)) throw new Error('portal rejected the admin key');
                 var data = await resp.json();
                 if (!resp.ok || !data.ok) {
                     throw new Error(data.error || 'Upload failed');

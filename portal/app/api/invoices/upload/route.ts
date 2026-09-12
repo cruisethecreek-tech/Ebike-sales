@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { requireAdminKey, corsFor } from '@/lib/api-auth'
 import { createClient } from '@supabase/supabase-js'
 
 function getAdminClient() {
@@ -9,17 +10,17 @@ function getAdminClient() {
   )
 }
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-}
-
-export async function OPTIONS() {
-  return NextResponse.json({}, { headers: corsHeaders })
+export async function OPTIONS(req: Request) {
+  return NextResponse.json({}, { headers: corsFor(req) })
 }
 
 export async function POST(req: NextRequest) {
+  // These routes run with the service-role key and return/write customer
+  // records. Reject anything without the shared admin key.
+  const denied = requireAdminKey(req)
+  if (denied) return denied
+  const corsHeaders = corsFor(req)
+
   try {
     const formData = await req.formData()
     const file = formData.get('file') as File | null
