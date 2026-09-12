@@ -1,7 +1,7 @@
 import Link from 'next/link'
 
 export function GoogleReviewCard() {
-  const reviewUrl = 'https://maps.app.goo.gl/gtvVMSKqfzgzoHkQ6'
+  const reviewUrl = 'https://maps.app.goo.gl/tkoSTWMwqvBS8ETR7'
 
   return (
     <div className="bg-gradient-to-br from-[#1A2E1C] to-[#2D4A32] rounded-2xl p-5 sm:p-6 text-white shadow-sm border border-[#C9A96E]/30 space-y-3">

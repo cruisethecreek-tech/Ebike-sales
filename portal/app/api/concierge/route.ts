@@ -1,8 +1,8 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
-import { STORE_URL } from '@/lib/constants'
+import { CHAT_API_URL } from '@/lib/constants'
 
-const PRIMARY_CHAT_API = `${STORE_URL}/api/chat`
+const PRIMARY_CHAT_API = CHAT_API_URL
 
 export async function POST(req: Request) {
   try {

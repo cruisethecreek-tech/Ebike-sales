@@ -207,6 +207,33 @@ body {
   margin-top: 0.25rem;
 }
 
+/* A tile that navigates. Without some affordance these read as read-only
+   numbers and nobody tries tapping them — hence the small arrow line and a
+   lift on hover. display:block keeps the <a> laying out like the <div> it
+   replaced, so the grid is unchanged. */
+.stat-card-link {
+  display: block;
+  text-decoration: none;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.stat-card-link:hover,
+.stat-card-link:focus-visible {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.18);
+}
+.stat-card-link:focus-visible {
+  outline: 2px solid var(--color-gold, #C9A96E);
+  outline-offset: 2px;
+}
+.stat-card .stat-cta {
+  display: block;
+  margin-top: 0.4rem;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  opacity: 0.8;
+}
+
 /* ── Reminder/promo cards ────────────────────────────────── */
 
 .promo-card {
