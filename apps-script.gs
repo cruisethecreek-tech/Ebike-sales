@@ -1970,10 +1970,23 @@ function handleSponsorInquiry(p) {
  * not anything this script controls.
  */
 function handleInvoiceCreated(p) {
+  // Responds as JSONP when a ?callback= is supplied, plain JSON otherwise.
+  // invoice.html reads the result over a <script> tag so a failed email is
+  // visible to staff instead of disappearing into a no-cors request.
+  const cb = String((p && p.callback) || '').trim();
   const json = function(obj) {
+    if (cb && /^[A-Za-z_$][A-Za-z0-9_$]*$/.test(cb)) {
+      return ContentService.createTextOutput(cb + '(' + JSON.stringify(obj) + ');')
+        .setMimeType(ContentService.MimeType.JAVASCRIPT);
+    }
     return ContentService.createTextOutput(JSON.stringify(obj))
       .setMimeType(ContentService.MimeType.JSON);
   };
+
+  // Recorded per-recipient so the caller learns WHICH email failed.
+  // portalSync stays '' when there was no customer email to sync at all.
+  var mailResult = { staffEmail: false, customerEmail: false, customerSkipped: false,
+                     mailError: '', portalSync: '' };
 
   try {
     const num         = String(p.invoiceNumber  || '').trim() || '(no #)';
@@ -2040,7 +2053,9 @@ function handleInvoiceCreated(p) {
         subject: 'Invoice ' + num + ' — ' + customer + ', $' + total.toFixed(0),
         body:    body,
       });
+      mailResult.staffEmail = true;
     } catch (mailErr) {
+      mailResult.mailError = 'staff: ' + mailErr;
       console.warn('Invoice notify email failed: ' + mailErr);
     }
 
@@ -2110,32 +2125,63 @@ function handleInvoiceCreated(p) {
           body:    custBody,
         });
 
-        // Sync customer and invoice to Cruise the Creek Customer Portal
+        // Sync customer and invoice to Cruise the Creek Customer Portal.
+        // The portal's service-role routes require an admin key; set it once
+        // under Project Settings -> Script Properties as PORTAL_ADMIN_KEY,
+        // matching ADMIN_API_KEY on the Vercel project. Without it every sync
+        // comes back 401 and the invoice never reaches Supabase.
         try {
-          UrlFetchApp.fetch('https://portal.cruisethecreek.com/api/invoices/sync', {
-            method: 'post',
-            contentType: 'application/json',
-            payload: JSON.stringify({
-              invoiceNumber: num,
-              invoiceDate: invDate,
-              customerName: customer,
-              customerEmail: email,
-              customerPhone: phone,
-              items: items,
-              total: total,
-              balanceDue: balanceDue,
-              paymentMode: paymentMode,
-              paymentLink: paymentLink,
-              status: (paymentMode === 'paidInFullCash' || balanceDue <= 0) ? 'paid' : 'pending'
-            }),
-            muteHttpExceptions: true
-          });
+          var portalKey = '';
+          try {
+            portalKey = String(PropertiesService.getScriptProperties()
+              .getProperty('PORTAL_ADMIN_KEY') || '').trim();
+          } catch (propErr) {
+            portalKey = '';
+          }
+          if (!portalKey) {
+            mailResult.portalSync = 'no PORTAL_ADMIN_KEY script property';
+          } else {
+            var syncResp = UrlFetchApp.fetch('https://portal.cruisethecreek.com/api/invoices/sync', {
+              method: 'post',
+              contentType: 'application/json',
+              headers: { 'x-ctc-admin-key': portalKey },
+              payload: JSON.stringify({
+                invoiceNumber: num,
+                invoiceDate: invDate,
+                customerName: customer,
+                customerEmail: email,
+                customerPhone: phone,
+                items: items,
+                total: total,
+                balanceDue: balanceDue,
+                paymentMode: paymentMode,
+                paymentLink: paymentLink,
+                status: (paymentMode === 'paidInFullCash' || balanceDue <= 0) ? 'paid' : 'pending'
+              }),
+              muteHttpExceptions: true
+            });
+            var syncCode = syncResp.getResponseCode();
+            if (syncCode >= 200 && syncCode < 300) {
+              mailResult.portalSync = 'ok';
+            } else {
+              mailResult.portalSync = 'HTTP ' + syncCode;
+              console.warn('Portal sync returned ' + syncCode + ': ' +
+                           String(syncResp.getContentText() || '').slice(0, 200));
+            }
+          }
         } catch (syncErr) {
+          mailResult.portalSync = String(syncErr);
           console.warn('Portal sync via UrlFetchApp failed: ' + syncErr);
         }
+        mailResult.customerEmail = true;
       } catch (custMailErr) {
+        mailResult.mailError = (mailResult.mailError ? mailResult.mailError + ' | ' : '')
+                             + 'customer: ' + custMailErr;
         console.warn('Customer receipt email failed: ' + custMailErr);
       }
+    } else {
+      // No address on the invoice (cash / walk-up) — not a failure.
+      mailResult.customerSkipped = true;
     }
     var itemsForDiscord = itemsText || '(none)';
     if (itemsForDiscord.length > 1020) itemsForDiscord = itemsForDiscord.substring(0, 1017) + '...';
@@ -2158,7 +2204,15 @@ function handleInvoiceCreated(p) {
       paymentLink ? 'Customer can pay via the link above' : 'Cash/check flow — no Stripe link'
     );
 
-    return json({ ok: true, invoiceNumber: num });
+    return json({
+      ok: true,
+      invoiceNumber:   num,
+      staffEmail:      mailResult.staffEmail,
+      customerEmail:   mailResult.customerEmail,
+      customerSkipped: mailResult.customerSkipped,
+      mailError:       mailResult.mailError,
+      portalSync:      mailResult.portalSync,
+    });
   } catch (err) {
     console.error('handleInvoiceCreated failed: ' + err);
     return json({ ok: false, error: String(err) });

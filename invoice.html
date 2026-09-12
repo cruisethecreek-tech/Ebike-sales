@@ -1814,8 +1814,8 @@
         // Fan out a staff email + Discord ping to the CMS Apps Script.
         // Independent of the Project C sheet write — failure here doesn't
         // block invoice creation, success here doesn't depend on the
-        // sheet write completing. Uses no-cors so we don't block on the
-        // CORS preflight; we never read the response.
+        // sheet write completing. Uses JSONP so we DO read the response:
+        // the script reports which recipients it actually mailed.
         function notifyInvoiceCreated(invoiceData, paymentLink, stripeInvoiceId) {
             try {
                 const params = new URLSearchParams({
@@ -1838,12 +1838,74 @@
                     paymentLink     : paymentLink || '',
                     stripeInvoiceId : stripeInvoiceId || ''
                 });
-                // no-cors keeps this fire-and-forget; we only care that the
-                // request reached Google, not what came back.
-                fetch(CMS_URL + '?' + params.toString(), { method: 'GET', mode: 'no-cors' })
-                    .catch(err => console.warn('[invoiceCreated] notify failed:', err));
+                // JSONP, not no-cors. This used to be fire-and-forget: the
+                // response was opaque, so an invoice whose email never sent
+                // looked exactly like one that did. Staff found out when a
+                // customer said they got nothing. Now the Apps Script reports
+                // which recipients it actually mailed and we surface it.
+                const cbName = 'invoiceMailCb_' + Date.now();
+                const script = document.createElement('script');
+                let settled = false;
+
+                const cleanup = () => {
+                    try { delete window[cbName]; } catch (e) { window[cbName] = undefined; }
+                    if (script.parentNode) script.parentNode.removeChild(script);
+                };
+
+                window[cbName] = function(resp) {
+                    settled = true;
+                    cleanup();
+                    if (!resp || resp.ok !== true) {
+                        showStatus('Invoice created, but the notification script failed: ' +
+                                   ((resp && resp.error) || 'unknown error') +
+                                   '. No email was sent — follow up manually.', 'error');
+                        return;
+                    }
+                    const missing = [];
+                    if (!resp.staffEmail) missing.push('staff notification');
+                    if (!resp.customerEmail && !resp.customerSkipped) missing.push('customer receipt');
+                    // '' means there was nothing to sync; anything but 'ok' is a
+                    // failure that would otherwise vanish into muteHttpExceptions.
+                    const syncFailed = resp.portalSync && resp.portalSync !== 'ok';
+                    if (missing.length) {
+                        showStatus('Invoice created, but ' + missing.join(' and ') + ' did NOT send' +
+                                   (resp.mailError ? ' (' + resp.mailError + ')' : '') +
+                                   '. Send it by hand before the customer notices.', 'error');
+                    } else if (syncFailed) {
+                        showStatus('Invoice created and emailed, but it did NOT reach the customer ' +
+                                   'portal (' + resp.portalSync + '). The customer will not see it ' +
+                                   'when they log in.', 'error');
+                    } else if (resp.customerSkipped) {
+                        showStatus('Invoice created. Staff notified — no customer email on file, ' +
+                                   'so no receipt was sent.', 'success');
+                    }
+                    // All mail sent and synced: the existing success status already covers it.
+                };
+
+                params.set('callback', cbName);
+                script.src = CMS_URL + '?' + params.toString();
+                script.onerror = () => {
+                    if (settled) return;
+                    settled = true;
+                    cleanup();
+                    showStatus('Invoice created, but the email notification could not be reached. ' +
+                               'Nothing was emailed — check the Apps Script deployment.', 'error');
+                };
+                document.head.appendChild(script);
+
+                // A deployment that 200s with no callback body never calls back,
+                // so time out rather than leaving staff with a false all-clear.
+                setTimeout(() => {
+                    if (settled) return;
+                    settled = true;
+                    cleanup();
+                    showStatus('Invoice created, but the email notification never responded. ' +
+                               'Assume nothing was emailed and confirm before relying on it.', 'error');
+                }, 15000);
             } catch (err) {
                 console.warn('[invoiceCreated] notify threw:', err);
+                showStatus('Invoice created, but the email notification could not be started: ' +
+                           err.message + '. Nothing was emailed.', 'error');
             }
         }
 
