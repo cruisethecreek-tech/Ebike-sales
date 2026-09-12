@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { StatusBadge } from '@/app/components/status-badge'
 import { STORE_URL } from '@/lib/constants'
+import { DeleteInvoiceButton } from './delete-invoice-button'
 import Link from 'next/link'
 
 export default async function AdminInvoices() {
@@ -97,6 +98,10 @@ export default async function AdminInvoices() {
                       >
                         Status
                       </Link>
+                      <DeleteInvoiceButton
+                        invoiceId={inv.id}
+                        invoiceNumber={inv.invoice_number}
+                      />
                     </div>
                   </td>
                 </tr>
