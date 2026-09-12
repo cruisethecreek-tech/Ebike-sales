@@ -1991,12 +1991,26 @@
                 }).catch(err => {
                     // Used to be console-only, so a customer portal that never
                     // received the invoice looked identical to one that did.
+                    //
+                    // Don't claim the invoice is missing from the portal: the CMS
+                    // Apps Script posts to the same endpoint server-side after it
+                    // emails the receipt, and that path succeeds when this one is
+                    // blocked by CORS or a missing key on this device. Report what
+                    // is actually known — this browser's attempt failed — and say
+                    // where to confirm.
                     console.warn('[Portal Sync failed]:', err);
-                    showStatus('Invoice created, but it did NOT sync to the customer portal (' +
-                               err.message + '). It will not appear in the customer\'s account.', 'error');
+                    showStatus('Invoice created and emailed. This browser could not reach the ' +
+                               'customer portal (' + err.message + '), though the CMS script may ' +
+                               'still have synced it — check the invoice in the portal before ' +
+                               'telling the customer it is there.', 'error');
                 });
             } catch (err) {
+                // A throw before the request is sent means nothing was attempted
+                // at all, which is worth saying out loud rather than logging.
                 console.warn('[syncInvoiceToPortal threw]:', err);
+                showStatus('Invoice created and emailed, but the portal sync could not be ' +
+                           'started: ' + err.message + '. Check the portal before assuming ' +
+                           'the customer can see it.', 'error');
             }
         }
 
