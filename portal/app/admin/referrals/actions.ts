@@ -1,9 +1,12 @@
 'use server'
 
 import { createClient } from '@/lib/supabase/server'
+import { requireAdminUser } from '@/lib/require-admin'
 import { revalidatePath } from 'next/cache'
 
 export async function redeemCredit(formData: FormData): Promise<void> {
+  await requireAdminUser()
+
   const id = formData.get('id') as string
   const note = formData.get('note') as string
 
@@ -24,6 +27,8 @@ export async function redeemCredit(formData: FormData): Promise<void> {
 }
 
 export async function approveAndIssueCredit(formData: FormData): Promise<void> {
+  await requireAdminUser()
+
   const customerId = formData.get('customer_id') as string
   const amount = parseFloat(formData.get('amount') as string) || 100
   const reason = (formData.get('reason') as string) || 'Manual referral approval after verified purchase'

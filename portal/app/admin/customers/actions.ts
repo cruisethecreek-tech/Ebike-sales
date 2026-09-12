@@ -1,6 +1,7 @@
 'use server'
 
 import { createClient } from '@supabase/supabase-js'
+import { requireAdminUser } from '@/lib/require-admin'
 import { revalidatePath } from 'next/cache'
 
 // Admin-only: uses service role key to send invite emails
@@ -12,6 +13,8 @@ function createAdminClient() {
 }
 
 export async function inviteCustomer(formData: FormData): Promise<void> {
+  await requireAdminUser()
+
   const email = formData.get('email') as string
   const firstName = formData.get('first_name') as string
   const lastName = formData.get('last_name') as string
@@ -71,6 +74,8 @@ export async function inviteCustomer(formData: FormData): Promise<void> {
 }
 
 export async function adminUpdateBike(formData: FormData): Promise<void> {
+  await requireAdminUser()
+
   const bikeId = (formData.get('bike_id') as string || '').trim()
   const rawSerial = formData.get('serial_number') as string
   const rawReceipt = formData.get('receipt_number') as string
@@ -95,6 +100,8 @@ export async function adminUpdateBike(formData: FormData): Promise<void> {
 }
 
 export async function adminAddBike(formData: FormData): Promise<void> {
+  await requireAdminUser()
+
   const customerId = (formData.get('customer_id') as string || '').trim()
   const brand = (formData.get('brand') as string || 'Velotric').trim()
   const model = (formData.get('model') as string || '').trim()
@@ -128,6 +135,8 @@ export async function adminAddBike(formData: FormData): Promise<void> {
 }
 
 export async function adminDeleteBike(formData: FormData): Promise<void> {
+  await requireAdminUser()
+
   const bikeId = (formData.get('bike_id') as string || '').trim()
   if (!bikeId) return
 
