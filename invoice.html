@@ -1814,8 +1814,8 @@
         // Fan out a staff email + Discord ping to the CMS Apps Script.
         // Independent of the Project C sheet write — failure here doesn't
         // block invoice creation, success here doesn't depend on the
-        // sheet write completing. Uses no-cors so we don't block on the
-        // CORS preflight; we never read the response.
+        // sheet write completing. Uses JSONP so we DO read the response:
+        // the script reports which recipients it actually mailed.
         function notifyInvoiceCreated(invoiceData, paymentLink, stripeInvoiceId) {
             try {
                 const params = new URLSearchParams({
@@ -1864,15 +1864,22 @@
                     const missing = [];
                     if (!resp.staffEmail) missing.push('staff notification');
                     if (!resp.customerEmail && !resp.customerSkipped) missing.push('customer receipt');
+                    // '' means there was nothing to sync; anything but 'ok' is a
+                    // failure that would otherwise vanish into muteHttpExceptions.
+                    const syncFailed = resp.portalSync && resp.portalSync !== 'ok';
                     if (missing.length) {
                         showStatus('Invoice created, but ' + missing.join(' and ') + ' did NOT send' +
                                    (resp.mailError ? ' (' + resp.mailError + ')' : '') +
                                    '. Send it by hand before the customer notices.', 'error');
+                    } else if (syncFailed) {
+                        showStatus('Invoice created and emailed, but it did NOT reach the customer ' +
+                                   'portal (' + resp.portalSync + '). The customer will not see it ' +
+                                   'when they log in.', 'error');
                     } else if (resp.customerSkipped) {
                         showStatus('Invoice created. Staff notified — no customer email on file, ' +
                                    'so no receipt was sent.', 'success');
                     }
-                    // All mail sent: the existing success status already covers it.
+                    // All mail sent and synced: the existing success status already covers it.
                 };
 
                 params.set('callback', cbName);
