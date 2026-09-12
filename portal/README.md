@@ -65,6 +65,42 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 
 ## Deploy on Vercel
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+This app lives in the `portal/` subdirectory of a repository whose root is the
+static storefront. **The repo root has no `package.json` at all.** So on the
+Vercel project, Settings -> Build & Deployment -> **Root Directory must be
+`portal`**. If it is empty or wrong, every build fails with:
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```
+Error: No Next.js version detected. Make sure your package.json has "next" in
+either "dependencies" or "devDependencies".
+```
+
+Don't try to fix that from the repo. The root `vercel.json` is shared with the
+storefront's own Vercel project, so a `buildCommand` added there would break
+that one instead. Root Directory is a dashboard setting and has to be set there.
+
+### A failed build is not a safe state
+
+When a production build fails, Vercel keeps serving the **previous successful
+deployment**. Nothing goes down, nothing warns you, and the old code stays live
+indefinitely — so merging a fix to `main` does nothing at all until a build
+actually goes green.
+
+That is not hypothetical here. The admin-API guard in `lib/api-auth.ts` sat
+merged for a day while production kept serving a build that predated it, and
+`/api/customers` returned every customer's name, email, phone and home address
+to anyone who asked. The code was right; it was never deployed.
+
+So after merging anything that matters, confirm the deployment succeeded, then
+confirm the behaviour:
+
+```
+GET https://portal.cruisethecreek.com/api/customers
+```
+
+- **401** — the guard is live and `ADMIN_API_KEY` is set. This is what you want.
+- **503** — the guard is live, `ADMIN_API_KEY` is missing. Safe, but configure it.
+- **Customer data** — an old build is serving. Pause the project (Settings ->
+  General -> Pause Project) and fix the deployment before doing anything else.
+
+Check out the [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
