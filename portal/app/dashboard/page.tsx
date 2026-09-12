@@ -88,14 +88,19 @@ export default async function DashboardPage() {
 
       {/* Stat cards */}
       <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
-        <div className="stat-card">
+        {/* The first two tiles each have a page behind them, so they are
+            links. Pending Invoices stays a plain tile — it is a total across
+            invoices, not a view of its own. */}
+        <Link href="/dashboard/bikes" className="stat-card stat-card-link">
           <p className="stat-label">My Registered Bikes</p>
           <p className="stat-value">{bikes.length}</p>
-        </div>
-        <div className="stat-card">
+          <span className="stat-cta">View bikes →</span>
+        </Link>
+        <Link href="/dashboard/invoices" className="stat-card stat-card-link">
           <p className="stat-label">Invoices on File</p>
           <p className="stat-value">{invoices.length}</p>
-        </div>
+          <span className="stat-cta">View invoices →</span>
+        </Link>
         <div className="stat-card">
           <p className="stat-label">Pending Invoices</p>
           <p className="stat-value" style={{ color: pendingInvoices.length > 0 ? '#C9A96E' : '#fff' }}>
