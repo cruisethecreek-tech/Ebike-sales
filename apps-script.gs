@@ -2130,6 +2130,13 @@ function handleInvoiceCreated(p) {
         // under Project Settings -> Script Properties as PORTAL_ADMIN_KEY,
         // matching ADMIN_API_KEY on the Vercel project. Without it every sync
         // comes back 401 and the invoice never reaches Supabase.
+        //
+        // PropertiesService needs the script.storage scope, which appsscript.json
+        // must list explicitly — this manifest pins oauthScopes, so an undeclared
+        // scope doesn't just fail this call, it stops the whole web app from
+        // serving and every action starts looking like a network error to the
+        // browser. If you add another Google service here, add its scope there
+        // in the same commit and re-authorize before deploying.
         try {
           var portalKey = '';
           try {
