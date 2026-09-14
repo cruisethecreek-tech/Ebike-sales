@@ -228,6 +228,72 @@ main{flex:1;max-width:880px;margin:0 auto;padding:32px 24px 56px;width:100%}
   }
   updateCounts();
 
+  /**
+   * Which shop a bike can be demoed at now comes from the sheet's
+   * testRideLoc column, so adding or moving a bike is a spreadsheet edit
+   * rather than a code change.
+   *
+   * The hardcoded <li> entries stay as a fallback and are only replaced for a
+   * location once at least one bike in the catalog claims it. That matters
+   * during rollout: before anyone fills the column in, every list would
+   * otherwise render empty, and a test-ride page showing no bikes is far worse
+   * than one showing a slightly stale list.
+   */
+  var LOCATIONS = [
+    { listId: 'kirk-bikes',  match: /kirk|both|all/i },
+    { listId: 'bears-bikes', match: /bear|both|all/i }
+  ];
+
+  function rebuildFromCatalog(bikes) {
+    LOCATIONS.forEach(function (loc) {
+      var ul = document.getElementById(loc.listId);
+      if (!ul) return;
+
+      var mine = bikes.filter(function (b) {
+        return loc.match.test(String(b.testRideLoc || ''));
+      });
+      if (!mine.length) return;           // column not filled in yet — keep the markup
+
+      ul.innerHTML = '';
+      mine.forEach(function (b) {
+        var full = ((b.brand || '') + ' ' + (b.name || '')).trim();
+        var li = document.createElement('li');
+        li.dataset.bike = b.id || '';
+        li.dataset.name = full;
+
+        var main = document.createElement('span');
+        main.className = 'b-main';
+
+        var name = document.createElement('span');
+        name.className = 'b-name';
+        name.textContent = full;
+        main.appendChild(name);
+
+        // The status column rides along as the descriptor when it says
+        // something a customer needs to know before turning up — "Class 4
+        // Needs Registration" is not a category, but it is the single most
+        // useful thing on the row.
+        var note = String(b.testRide || '').trim();
+        var kind = document.createElement('span');
+        kind.className = 'b-kind';
+        kind.textContent = (note && !/^test ride available$/i.test(note))
+          ? note
+          : (b.subtitle || '');
+        if (kind.textContent) main.appendChild(kind);
+
+        li.appendChild(main);
+
+        var price = document.createElement('span');
+        price.className = 'b-price';
+        price.textContent = b.price ? '$' + Number(b.price).toLocaleString() : '';
+        li.appendChild(price);
+
+        ul.appendChild(li);
+      });
+    });
+    updateCounts();
+  }
+
   fetch('data/inventory.json', { cache: 'no-store' })
     .then(function (r) { return r.ok ? r.json() : Promise.reject(r.status); })
     .then(function (payload) {
@@ -247,6 +313,8 @@ main{flex:1;max-width:880px;margin:0 auto;padding:32px 24px 56px;width:100%}
         var price = li.querySelector('.b-price');
         if (price && b.price) price.textContent = '$' + Number(b.price).toLocaleString();
       });
+
+      rebuildFromCatalog(bikes);
     })
     .catch(function (e) {
       // Fallback prices are already in the markup, so a failed fetch is silent
