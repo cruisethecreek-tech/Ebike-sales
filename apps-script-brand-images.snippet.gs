@@ -37,16 +37,68 @@
  * the old images until 6 AM UTC.
  */
 
-var BIMG_VERSION = '2026-09-15a';
+var BIMG_VERSION = '2026-09-15b';
 
 /** Lowercase, strip punctuation. "Alpine Blue" and "alpine-blue" match. */
 function _bimgNorm_(s) {
   return String(s == null ? '' : s).toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
 }
 
-/** The sheet's Name may carry a vendor "Ebike" suffix; product titles vary. */
-function _bimgNormTitle_(s) {
-  return _bimgNorm_(String(s == null ? '' : s).replace(/\s*e[\s-]?bike\s*$/i, ''));
+/** All non-alphanumerics removed, so "City Run" and "Cityrun" collapse together. */
+function _bimgSquash_(s) {
+  return String(s == null ? '' : s).toLowerCase().replace(/[^a-z0-9]+/g, '');
+}
+
+/**
+ * Reduce a product title to the model name.
+ *
+ * The first version of this only stripped a trailing "Ebike", and the Heybike
+ * dry run showed why that is not enough: the sheet says "Hero" while the feed
+ * says "Heybike Hero Electric Bike", and "Cityrun" against "City Run". Six of
+ * eleven Heybike models missed. So the brand name and the generic words come
+ * out too. "Folding", "Pro", "Plus" and the like stay — they distinguish real
+ * models from each other.
+ */
+function _bimgStripBrand_(title, brand) {
+  var t = String(title == null ? '' : title);
+  var b = String(brand || '').trim();
+  if (b) {
+    t = t.replace(new RegExp('\\b' + b.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\b', 'ig'), ' ');
+  }
+  t = t.replace(/\b(electric|bicycle|bikes?|e[\s-]?bikes?)\b/ig, ' ');
+  return _bimgNorm_(t);
+}
+
+/** Every spelling of one product we are willing to match on. */
+function _bimgTitleKeys_(title, brand) {
+  var stripped = _bimgStripBrand_(title, brand);
+  var keys = [_bimgNorm_(title), stripped, _bimgSquash_(title), _bimgSquash_(stripped)];
+  var out = [];
+  keys.forEach(function (k) { if (k && out.indexOf(k) === -1) out.push(k); });
+  return out;
+}
+
+/**
+ * Find the vendor product for a sheet row.
+ *
+ * Exact on any spelling first. Then containment, but only when exactly one
+ * product is a candidate — "Hero" sits inside "Hero Hub", and quietly picking
+ * one would put the wrong bike's photos on a row.
+ */
+function _bimgFindProduct_(index, sheetName, brand) {
+  var keys = _bimgTitleKeys_(sheetName, brand);
+  for (var i = 0; i < keys.length; i++) if (index[keys[i]]) return index[keys[i]];
+
+  var hits = [], seen = [];
+  Object.keys(index).forEach(function (k) {
+    var match = keys.some(function (want) {
+      return want.length > 2 && (k.indexOf(want) !== -1 || want.indexOf(k) !== -1);
+    });
+    if (!match) return;
+    var p = index[k];
+    if (seen.indexOf(p) === -1) { seen.push(p); hits.push(p); }
+  });
+  return hits.length === 1 ? hits[0] : null;
 }
 
 /**
@@ -145,8 +197,11 @@ function refreshBrandImages(brandName, baseUrl, apply) {
     return { ok: false };
   }
 
-  var byTitle = {};
-  products.forEach(function (p) { byTitle[_bimgNormTitle_(p.title)] = p; });
+  var index = {};
+  products.forEach(function (p) {
+    _bimgTitleKeys_(p.title, brandName).forEach(function (k) { if (!index[k]) index[k] = p; });
+    [_bimgNorm_(p.handle), _bimgSquash_(p.handle)].forEach(function (k) { if (k && !index[k]) index[k] = p; });
+  });
 
   var sh = SpreadsheetApp.openById(INV_SHEET_ID).getSheetByName(INV_TAB_NAME);
   if (!sh) { Logger.log('Tab "' + INV_TAB_NAME + '" not found.'); return { ok: false }; }
@@ -167,28 +222,38 @@ function refreshBrandImages(brandName, baseUrl, apply) {
              '  (BrandImages.gs ' + BIMG_VERSION + ') ===');
   Logger.log(products.length + ' vendor products, ' + (data.length - 1) + ' sheet rows.\n');
 
-  var changedRows = [], noProduct = [], unmatched = [], totalChanged = 0, totalKept = 0;
+  var changedRows = [], noProduct = [], unmatched = [], noVendorImages = [], skipped = [];
+  var totalChanged = 0, totalIdentical = 0, rowsSeen = 0, swatchesSeen = 0;
 
   for (var r = 1; r < data.length; r++) {
     if (_bimgNorm_(data[r][col.brand]) !== _bimgNorm_(brandName)) continue;
     var title = String(data[r][col.name] || '').trim();
 
+    rowsSeen++;
+
     var raw = String(data[r][col.colors] || '').trim();
-    if (!raw) continue;
+    if (!raw) { skipped.push(title + '  (no Colors JSON)'); continue; }
     var colors;
     try { colors = JSON.parse(raw); }
-    catch (e) { Logger.log('  ' + title + ' — Colors JSON will not parse, skipped'); continue; }
+    catch (e) { skipped.push(title + '  (Colors JSON will not parse)'); continue; }
 
-    var product = byTitle[_bimgNormTitle_(title)];
+    var product = _bimgFindProduct_(index, title, brandName);
     if (!product) { noProduct.push(title); continue; }
 
     var map = _bimgVariantImages_(product);
-    var changes = [];
+    if (!Object.keys(map).length) {
+      // Distinct from "colour not matched": the vendor publishes no per-variant
+      // photo at all for this product, so there is nothing here to copy.
+      noVendorImages.push(title + '  (vendor title: ' + product.title + ')');
+      continue;
+    }
 
+    var changes = [];
     _bimgWalkSwatches_(colors, function (sw) {
+      swatchesSeen++;
       var hit = _bimgLookup_(map, sw.name);
-      if (!hit) { unmatched.push(title + ' / ' + sw.name); totalKept++; return; }
-      if (sw.img === hit.src) { totalKept++; return; }
+      if (!hit) { unmatched.push(title + ' / ' + sw.name); return; }
+      if (sw.img === hit.src) { totalIdentical++; return; }
       changes.push({ name: sw.name, from: sw.img, to: hit.src, how: hit.how });
       sw.img = hit.src;
       totalChanged++;
@@ -210,6 +275,13 @@ function refreshBrandImages(brandName, baseUrl, apply) {
   if (noProduct.length) {
     Logger.log('NOT FOUND on the vendor site (' + noProduct.length + ') — renamed or discontinued:');
     noProduct.forEach(function (t) { Logger.log('  ' + t); });
+    Logger.log('  For reference, the first few titles the feed actually uses:');
+    products.slice(0, 8).forEach(function (p) { Logger.log('    ' + p.title); });
+    Logger.log('');
+  }
+  if (noVendorImages.length) {
+    Logger.log('VENDOR PUBLISHES NO PER-COLOUR PHOTO (' + noVendorImages.length + '):');
+    noVendorImages.forEach(function (t) { Logger.log('  ' + t); });
     Logger.log('');
   }
   if (unmatched.length) {
@@ -217,14 +289,30 @@ function refreshBrandImages(brandName, baseUrl, apply) {
     unmatched.forEach(function (t) { Logger.log('  ' + t); });
     Logger.log('');
   }
+  if (skipped.length) {
+    Logger.log('SKIPPED (' + skipped.length + '):');
+    skipped.forEach(function (t) { Logger.log('  ' + t); });
+    Logger.log('');
+  }
 
-  Logger.log(totalChanged + ' image(s) would change, ' + totalKept + ' left alone, across ' +
-             changedRows.length + ' row(s).');
+  // Every row and swatch is accounted for, so the numbers can be checked
+  // against each other rather than taken on trust.
+  Logger.log('Accounting for ' + brandName + ':');
+  Logger.log('  sheet rows with this brand : ' + rowsSeen);
+  Logger.log('     matched to a product    : ' + (rowsSeen - noProduct.length - noVendorImages.length - skipped.length));
+  Logger.log('     no product found        : ' + noProduct.length);
+  Logger.log('     product has no photos   : ' + noVendorImages.length);
+  Logger.log('     skipped                 : ' + skipped.length);
+  Logger.log('  swatches inspected         : ' + swatchesSeen);
+  Logger.log('     would change            : ' + totalChanged);
+  Logger.log('     already correct         : ' + totalIdentical);
+  Logger.log('     no colour match         : ' + unmatched.length);
+  Logger.log('  rows to write              : ' + changedRows.length);
 
   if (!apply) {
     Logger.log('\nDry run. Nothing written. Spot-check two or three of the "to" URLs.');
-    return { ok: true, applied: false, rows: changedRows.length,
-             changed: totalChanged, unmatched: unmatched, noProduct: noProduct };
+    return { ok: true, applied: false, rows: changedRows.length, changed: totalChanged,
+             unmatched: unmatched, noProduct: noProduct, noVendorImages: noVendorImages };
   }
 
   changedRows.forEach(function (c) {
@@ -234,8 +322,8 @@ function refreshBrandImages(brandName, baseUrl, apply) {
 
   Logger.log('\nWrote ' + changedRows.length + ' row(s).');
   Logger.log('Run the sync-inventory Action, or the site serves the old images until 6 AM UTC.');
-  return { ok: true, applied: true, rows: changedRows.length,
-           changed: totalChanged, unmatched: unmatched, noProduct: noProduct };
+  return { ok: true, applied: true, rows: changedRows.length, changed: totalChanged,
+           unmatched: unmatched, noProduct: noProduct, noVendorImages: noVendorImages };
 }
 
 // -- Runnable wrappers. The Run button passes no arguments. ---------------

@@ -61,6 +61,43 @@ eq('unique containment is allowed', (_bimgLookup_({ 'lemans blue': 'E' }, 'Leman
 ok('no match returns null', _bimgLookup_(m, 'Chartreuse') === null);
 ok('empty swatch name returns null', _bimgLookup_(m, '') === null);
 
+// -- product title matching ----------------------------------------------
+// Every pair below is a real miss from the first Heybike dry run, where the
+// matcher only stripped a trailing "Ebike" and 6 of 11 models went unfound.
+const vendorProducts = [
+  { title: 'Heybike Hero Electric Bike',     handle: 'hero' },
+  { title: 'Hero Hub',                       handle: 'hero-hub' },
+  { title: 'City Run',                       handle: 'cityrun' },
+  { title: 'Mars 2.0 Folding Electric Bike', handle: 'mars-2-0' },
+  { title: 'Mars 3.0',                       handle: 'mars-3-0' },
+  { title: 'Helio Folding',                  handle: 'helio-folding' },
+  { title: 'Horizon Electric Bike',          handle: 'horizon' },
+  { title: 'Ranger S',                       handle: 'ranger-s' },
+];
+const index = {};
+vendorProducts.forEach(p => {
+  _bimgTitleKeys_(p.title, 'Heybike').forEach(k => { if (!index[k]) index[k] = p; });
+  [_bimgNorm_(p.handle), _bimgSquash_(p.handle)].forEach(k => { if (k && !index[k]) index[k] = p; });
+});
+const found = n => (_bimgFindProduct_(index, n, 'Heybike') || {}).title;
+
+eq('brand name and "Electric Bike" stripped', found('Hero'), 'Heybike Hero Electric Bike');
+eq('spacing difference collapses', found('Cityrun'), 'City Run');
+eq('vendor title carries extra words', found('Mars 2.0'), 'Mars 2.0 Folding Electric Bike');
+eq('abbreviated sheet name', found('Helio F'), 'Helio Folding');
+eq('plain suffix still works', found('Horizon'), 'Horizon Electric Bike');
+eq('already-identical title', found('Ranger S'), 'Ranger S');
+
+// The disambiguation that matters: "Hero" is a substring of "Hero Hub", and
+// "Mars 2.0" of nothing else. Exact must win over containment, or the Hero Hub
+// row would quietly inherit the Hero's photos.
+eq('longer sibling is not swallowed', found('Hero Hub'), 'Hero Hub');
+eq('sibling model keeps its own product', found('Mars 3.0'), 'Mars 3.0');
+ok('an unknown model matches nothing', found('Chartreuse Cruiser') === undefined);
+
+eq('strip leaves distinguishing words alone', _bimgStripBrand_('Mars 2.0 Folding Electric Bike', 'Heybike'), 'mars 2 0 folding');
+eq('squash removes spacing', _bimgSquash_('City Run'), 'cityrun');
+
 // -- _bimgWalkSwatches_ --------------------------------------------------
 const heybikeShape = {
   '750W':  { 'One Size': [{ name: 'Merlot Red', hex: '#7b1e2b', img: 'images/old1.png' }] },

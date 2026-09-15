@@ -113,6 +113,64 @@ function _impIsAccessory_(title) {
   return _impAny_(title, _impAccessoryWords_());
 }
 
+/** All non-alphanumerics removed, so "City Run" and "Cityrun" collapse. */
+function _impSquash_(x) {
+  return String(x == null ? '' : x).toLowerCase().replace(/[^a-z0-9]+/g, '');
+}
+
+function _impNormName_(x) {
+  return String(x == null ? '' : x).toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
+}
+
+/**
+ * Reduce a title to the model name: drop the brand and the generic words,
+ * keep everything that tells two models apart.
+ */
+function _impStripBrand_(title, brand) {
+  var t = String(title == null ? '' : title);
+  var b = String(brand || '').trim();
+  if (b) t = t.replace(new RegExp('\\b' + b.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\b', 'ig'), ' ');
+  t = t.replace(/\b(electric|bicycle|bikes?|e[\s-]?bikes?)\b/ig, ' ');
+  return _impNormName_(t);
+}
+
+/** Every spelling of one product we are willing to treat as the same bike. */
+function _impTitleKeys_(title, brand) {
+  var stripped = _impStripBrand_(title, brand);
+  var keys = [_impNormName_(title), stripped, _impSquash_(title), _impSquash_(stripped)];
+  var out = [];
+  keys.forEach(function (k) { if (k && out.indexOf(k) === -1) out.push(k); });
+  return out;
+}
+
+/**
+ * Is this vendor product already a row in the sheet?
+ *
+ * This has to be forgiving, because the sheet's names are what a human typed
+ * and the feed's are marketing copy: "Hero" in the sheet is "Heybike Hero
+ * Electric Bike" in the feed, and "Mars 2.0" is "Mars 2.0 Folding Electric
+ * Bike". An exact comparison says "new" to both and the import quietly adds a
+ * second row for a bike already on the site — and because the id collides it
+ * gets prefixed, so the duplicate does not even look like one.
+ *
+ * Exact on any spelling first, then containment, but only when exactly one
+ * existing row is a candidate: "Hero" sits inside "Hero Hub", and treating
+ * those as the same bike would silently skip importing a real model.
+ */
+function _impFindExisting_(index, title, brand) {
+  var keys = _impTitleKeys_(title, brand);
+  for (var i = 0; i < keys.length; i++) if (index[keys[i]]) return index[keys[i]];
+
+  var hits = [];
+  Object.keys(index).forEach(function (k) {
+    var match = keys.some(function (want) {
+      return want.length > 2 && (k.indexOf(want) !== -1 || want.indexOf(k) !== -1);
+    });
+    if (match && hits.indexOf(index[k]) === -1) hits.push(index[k]);
+  });
+  return hits.length === 1 ? hits[0] : null;
+}
+
 /** Same slug rule as apps-script-id-cleanup.snippet.gs. Keep them identical. */
 function _impSlug_(raw) {
   return String(raw == null ? '' : raw).trim()
@@ -232,13 +290,21 @@ function importBrand(brandName, baseUrl, apply) {
   }
 
   // Existing state: ids are global keys, so a new bike must not reuse one.
-  var existingIds = {}, existingNames = {}, maxOrder = 0;
+  // Names are indexed per brand under every spelling we are willing to treat
+  // as the same bike, so a feed title that is wordier than the sheet's name
+  // still recognises the row that is already there.
+  var existingIds = {}, nameIndex = {}, maxOrder = 0;
   for (var r = 1; r < data.length; r++) {
     var eid = String(data[r][col.id] || '').trim().toLowerCase();
     if (eid) existingIds[eid] = true;
-    var en = String(data[r][col.name] || '').trim().toLowerCase();
-    var eb = String(data[r][col.brand] || '').trim().toLowerCase();
-    if (en) existingNames[eb + '|' + en] = true;
+
+    var en = String(data[r][col.name] || '').trim();
+    var eb = String(data[r][col.brand] || '').trim();
+    if (en && _impNormName_(eb) === _impNormName_(brandName)) {
+      _impTitleKeys_(en, brandName).forEach(function (k) {
+        if (!nameIndex[k]) nameIndex[k] = en;
+      });
+    }
     if (col.order != null) {
       var o = Number(data[r][col.order]);
       if (isFinite(o) && o > maxOrder) maxOrder = o;
@@ -267,8 +333,11 @@ function importBrand(brandName, baseUrl, apply) {
 
     if (_impIsAccessory_(title)) { skipped.push(title + '  (accessory)'); return; }
 
-    var nameKey = brandName.toLowerCase() + '|' + title.toLowerCase();
-    if (existingNames[nameKey]) { skipped.push(title + '  (already in sheet)'); return; }
+    var already = _impFindExisting_(nameIndex, title, brandName);
+    if (already) {
+      skipped.push(title + '  (already in sheet as "' + already + '")');
+      return;
+    }
 
     // Shopify handles are already slugs; re-slug anyway so the rule is ours.
     var id = _impSlug_(p.handle || title);
@@ -386,3 +455,33 @@ function step1_mokwheelImportDryRun() {
 function step2_mokwheelImportApply() {
   return importBrand('Mokwheel', 'https://mokwheel.com', true);
 }
+
+// ── The four established brands ──────────────────────────────────
+// These sheets already have rows, so the dry run matters more here than it did
+// for Mokwheel: read the "already in sheet as ..." lines and make sure each one
+// names the row you expect. A wrong match there means a real new model is
+// skipped; a missed match means a duplicate row for a bike already on the site.
+//
+// Everything added lands with discontinued = "Yes" and empty Specs, so nothing
+// reaches the public site until you fill it in and clear the flag. Follow an
+// import with the specs pass and then BrandImages.gs for that brand.
+
+/** Heybike — dry run. */
+function step1_heybikeImportDryRun()  { return importBrand('Heybike',  'https://www.heybike.com'); }
+/** Heybike — add the rows, hidden. */
+function step2_heybikeImportApply()   { return importBrand('Heybike',  'https://www.heybike.com', true); }
+
+/** Velotric — dry run. */
+function step1_velotricImportDryRun() { return importBrand('Velotric', 'https://www.velotricbike.com'); }
+/** Velotric — add the rows, hidden. */
+function step2_velotricImportApply()  { return importBrand('Velotric', 'https://www.velotricbike.com', true); }
+
+/** Jasion — dry run. */
+function step1_jasionImportDryRun()   { return importBrand('Jasion',   'https://www.jasionbike.com'); }
+/** Jasion — add the rows, hidden. */
+function step2_jasionImportApply()    { return importBrand('Jasion',   'https://www.jasionbike.com', true); }
+
+/** Mooncool — dry run. */
+function step1_mooncoolImportDryRun() { return importBrand('Mooncool', 'https://www.mooncool.com'); }
+/** Mooncool — add the rows, hidden. */
+function step2_mooncoolImportApply()  { return importBrand('Mooncool', 'https://www.mooncool.com', true); }
