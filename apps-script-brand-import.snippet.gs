@@ -72,6 +72,10 @@ var IMP_BIKE_PHRASES = [
 var IMP_HARD_PARTS = [
   'battery', 'charger', 'inner tube', 'tube', 'warranty', 'protection plan',
   'gift card', 'helmet', 'lock', 'rack', 'pump', 'pedal', 'saddle', 'fender',
+  // Bundles and free-gift SKUs. Brands list one per colourway, so a single
+  // missing word here adds a dozen junk rows. 'accessory' does not match
+  // "Accessories" -- matching is whole-word -- so both spellings are listed.
+  'accessory', 'accessories', 'pack', 'bundle',
 ];
 
 /** Whole-word (or whole-phrase) test, so 'light' does not match "Lightweight". */
