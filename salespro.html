@@ -2108,9 +2108,16 @@ function syncDiscontinuedToSheet(d) {
       return JSON.parse(s > -1 ? text.slice(s, e + 1) : text);
     })
     .then(sheetBikes => {
+      // The sheet's Name comes straight from the vendor's product feed, so
+      // Mokwheel's rows read "Basalt ST Ebike" while this app calls the same
+      // bike "Basalt ST". A strict comparison misses every one of them and the
+      // toggle silently reports "not found in Sheet". Drop a trailing
+      // Ebike/E-Bike/E Bike from both sides before comparing.
+      const norm = n => String(n || '').toLowerCase()
+        .replace(/\s*e[\s-]?bike\s*$/, '').replace(/\s+/g, ' ').trim();
       const match = sheetBikes.find(sb =>
         sb.name && d.model &&
-        sb.name.toLowerCase().trim() === d.model.toLowerCase().trim() &&
+        norm(sb.name) === norm(d.model) &&
         sb.brand.toLowerCase() === d.brand.toLowerCase()
       );
       if (!match || !match.rowIndex) {
