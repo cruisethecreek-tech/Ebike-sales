@@ -245,7 +245,38 @@
         'tk1':           { frame: 'ST',   fold: 'no',  weight: 89,  cat: 'trike', feel: 'cadence' },
         'tk2':           { frame: 'ST',   fold: 'no',  weight: 115, cat: 'trike', feel: 'torque'  },
         'cd1':           { frame: 'ST',   fold: 'no',  weight: 55,  cat: 'trike', feel: 'cadence' },
-        'ft1':           { frame: 'ST',   fold: 'yes', weight: 65,  cat: 'trike', feel: 'cadence' }
+        'ft1':           { frame: 'ST',   fold: 'yes', weight: 65,  cat: 'trike', feel: 'cadence' },
+        // Mokwheel. weight is null wherever Mokwheel does not publish one —
+        // the "≤ 55 lbs only" answer is a hard filter, so a guessed weight
+        // would either hide a bike the rider could have had or offer them one
+        // they cannot lift. A null weight opts the bike out of that filter
+        // instead. Every fat-tire model below is in reality well over 55 lbs,
+        // so these are worth measuring on the floor and filling in.
+        'basalt':          { frame: 'High', fold: 'no',  weight: null, cat: 'fat',  feel: 'torque'  },
+        'basalt-st':       { frame: 'ST',   fold: 'no',  weight: null, cat: 'fat',  feel: 'torque'  },
+        'basalt-2-0':      { frame: 'High', fold: 'no',  weight: null, cat: 'fat',  feel: 'torque'  },
+        'basalt-st-2-0-s': { frame: 'ST',   fold: 'no',  weight: null, cat: 'fat',  feel: 'torque'  },
+        'scoria':          { frame: 'ST',   fold: 'no',  weight: null, cat: 'fat',  feel: 'torque'  },
+        'obsidian':        { frame: 'High', fold: 'no',  weight: null, cat: 'fat',  feel: 'torque'  },
+        'obsidian-st':     { frame: 'ST',   fold: 'no',  weight: null, cat: 'fat',  feel: 'torque'  },
+        'obsidian-2-0':    { frame: 'High', fold: 'no',  weight: 77,   cat: 'fat',  feel: 'torque'  },
+        'obsidian-st-2-0': { frame: 'ST',   fold: 'no',  weight: 77,   cat: 'fat',  feel: 'torque'  },
+        'onyx':            { frame: 'High', fold: 'no',  weight: 89,   cat: 'fat',  feel: 'torque'  },
+        'onyx-st':         { frame: 'ST',   fold: 'no',  weight: 89,   cat: 'fat',  feel: 'torque'  },
+        'tarmac':          { frame: 'High', fold: 'no',  weight: null, cat: 'road', feel: 'both'    },
+        'tarmac-st':       { frame: 'ST',   fold: 'no',  weight: null, cat: 'road', feel: 'both'    },
+        'asphalt':         { frame: 'High', fold: 'no',  weight: null, cat: 'road', feel: 'torque'  },
+        'asphalt-st':      { frame: 'ST',   fold: 'no',  weight: null, cat: 'road', feel: 'torque'  },
+        'new-mesa-lite':   { frame: 'High', fold: 'no',  weight: 58,   cat: 'road', feel: 'cadence' },
+        'new-mesa-lite-st':{ frame: 'ST',   fold: 'no',  weight: 58,   cat: 'road', feel: 'cadence' },
+        'mesa-plus-st':    { frame: 'ST',   fold: 'no',  weight: null, cat: 'fat',  feel: 'cadence' },
+        'tor-plus':        { frame: 'High', fold: 'no',  weight: null, cat: 'fat',  feel: 'cadence' },
+        'flint':           { frame: 'High', fold: 'no',  weight: 36,   cat: 'road', feel: 'both'    },
+        'flint-st':        { frame: 'ST',   fold: 'no',  weight: 36,   cat: 'road', feel: 'both'    },
+        'flint-pro':       { frame: 'High', fold: 'no',  weight: 31,   cat: 'road', feel: 'both'    },
+        'flint-pro-st':    { frame: 'ST',   fold: 'no',  weight: 31,   cat: 'road', feel: 'both'    },
+        'granite':         { frame: 'ST',   fold: 'yes', weight: null, cat: 'trike',feel: 'cadence' },
+        'slate':           { frame: 'High', fold: 'yes', weight: 54,   cat: 'fat',  feel: 'cadence' }
     };
 
     let fleet = [];

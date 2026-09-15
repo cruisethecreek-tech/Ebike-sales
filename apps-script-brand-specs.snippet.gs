@@ -12,9 +12,13 @@
  * it, pulls the four values out of the manufacturer's own copy, and reports
  * exactly what it found and what it could not.
  *
- * It NEVER guesses. A row is only written when all four values were found in
- * the vendor's own text. Anything partial is listed for a human and left
- * hidden, which is the same safety posture importBrand already takes.
+ * It NEVER guesses — every value written was read from the vendor's own text.
+ * It does write partial results: a row that yielded three of the four values
+ * gets those three, and the dry-run log names what is still missing. Only a
+ * key that parsed is stored, so a gap is an absent line rather than a blank
+ * one. A row where nothing at all parsed is left untouched. Rows stay hidden
+ * (discontinued = "Yes") either way, which is the safety posture importBrand
+ * already takes.
  *
  * Run from the inventory Apps Script (the one bound to the bike sheet):
  *
@@ -27,6 +31,14 @@
  */
 
 /** Strip tags and decode the handful of entities that matter, so the text is scannable. */
+/**
+ * Printed at the top of every run. Apps Script executes the last SAVED version
+ * of a file, so a paste that has not finished saving runs the old code and
+ * produces an identical log — which is impossible to spot by eye. Bump this
+ * whenever this file changes, and the log says which version actually ran.
+ */
+var FS_VERSION = '2026-09-15d';
+
 function _fsText_(html) {
   return String(html || '')
     .replace(/<br\s*\/?>/gi, ' | ')
@@ -58,7 +70,7 @@ function _fsNear_(text, labels, valueRe, windowChars) {
     while ((m = labelRe.exec(hay)) !== null) {
       var slice = hay.slice(m.index + m[0].length, m.index + m[0].length + win);
       var v = slice.match(valueRe);
-      if (v) return v;
+      if (_fsCaptured_(v)) return v;
     }
   }
   return null;
@@ -73,8 +85,33 @@ function _fsNear_(text, labels, valueRe, windowChars) {
  * (up to 1100W peak)" it returns the peak as the nominal rating.
  */
 function _fsBefore_(text, label, valueRe) {
-  var re = new RegExp(valueRe.source + '[^|]{0,24}?' + label, 'i');
-  return String(text || '').match(re);
+  // The label is wrapped in a non-capturing group on purpose. 'battery|pack'
+  // spliced in bare turned the whole pattern into
+  //   (\d{3,4})\s*Wh\b[^|]{0,24}?battery  OR  pack
+  // so any text containing the word "pack" matched with no capture group at
+  // all, and the caller cheerfully wrote "undefinedWh" into the sheet.
+  var re = new RegExp(valueRe.source + '[^|]{0,24}?(?:' + label + ')', 'i');
+  var m = String(text || '').match(re);
+  return _fsCaptured_(m) ? m : null;
+}
+
+/** A match whose capture groups are all undefined matched nothing useful. */
+function _fsCaptured_(m) {
+  if (!m) return false;
+  for (var i = 1; i < m.length; i++) if (m[i] == null) return false;
+  return m.length > 1;
+}
+
+/**
+ * True when the number at idx is introduced as a peak/maximum figure.
+ *
+ * "1100W peak motor" put the peak rating where the nominal one belongs, which
+ * is how a Basalt ended up claiming an 1100W motor. Reading backwards from the
+ * number is the only way to tell the two apart.
+ */
+function _fsIsPeakContext_(text, idx) {
+  var lead = String(text || '').slice(Math.max(0, idx - 30), idx);
+  return /\b(?:peak|up to|max|maximum)\b[^|]{0,14}$/i.test(lead);
 }
 
 /** "55" or "60-80" → "55 mi" / "60-80 mi". */
@@ -93,17 +130,29 @@ function _fsSpeed_(text) {
   return m ? m[1] + ' mph' : '';
 }
 
-/** "750W", or "750W / 1100W peak" when the page states a peak as well. */
+/**
+ * "750W", or "750W / 1100W peak" when the page states a peak as well.
+ *
+ * Returns { value, note }. When the only wattage on the page reads as a peak
+ * figure, value is empty and the note says so: a peak rating printed as the
+ * motor spec overstates the bike, and this is a number staff quote to buyers.
+ */
 function _fsMotor_(text) {
   // "750W motor" first — in prose the nominal rating precedes the noun, and a
   // forward-only scan would pick up the peak in "750W motor (up to 1100W)".
   var m = _fsBefore_(text, 'motor', /(\d{3,4})\s*W\b/);
   if (!m) m = _fsNear_(text, ['motor', 'hub drive', 'mid drive'], /(\d{3,4})\s*W\b/i, 120);
-  if (!m) return '';
+  if (!m) return { value: '', note: '' };
+
+  if (m.index != null && _fsIsPeakContext_(text, m.index)) {
+    return { value: '', note: 'found ' + m[1] + 'W but the copy reads it as a peak/max ' +
+                              'figure, not a nominal rating — motor left blank' };
+  }
+
   var watts = m[1] + 'W';
   var peak = _fsNear_(text, ['peak', 'up to'], /(\d{3,4})\s*W\b/i, 40);
   if (peak && peak[1] !== m[1]) watts += ' / ' + peak[1] + 'W peak';
-  return watts;
+  return { value: watts, note: '' };
 }
 
 /**
@@ -138,14 +187,16 @@ function _fsBattery_(text) {
  */
 function fsExtractSpecs(bodyHtml, title) {
   var text = _fsText_(bodyHtml) + ' | ' + String(title || '');
-  var batt = _fsBattery_(text);
+  var batt  = _fsBattery_(text);
+  var motor = _fsMotor_(text);
   var notes = [];
   if (batt.derived) notes.push('battery derived from ' + batt.derived + ' — vendor may state it rounded');
+  if (motor.note) notes.push(motor.note);
   return {
     specs: {
       'Range':     _fsRange_(text),
       'Top Speed': _fsSpeed_(text),
-      'Motor':     _fsMotor_(text),
+      'Motor':     motor.value,
       'Battery':   batt.value
     },
     notes: notes
@@ -217,7 +268,7 @@ function fillBrandSpecs(brandName, baseUrl, apply) {
     return { ok: false };
   }
 
-  var filled = [], partial = [], unmatched = [], already = [];
+  var filled = [], partial = [], empty = [], unmatched = [], already = [];
 
   for (var r = 1; r < data.length; r++) {
     var row = data[r];
@@ -229,18 +280,25 @@ function fillBrandSpecs(brandName, baseUrl, apply) {
     var product = byTitle[_fsNorm_(title)];
     if (!product) { unmatched.push(title); continue; }
 
-    var out   = fsExtractSpecs(product.body_html, product.title);
-    var specs = out.specs;
-    var missing = Object.keys(specs).filter(function (k) { return !specs[k]; });
+    var out     = fsExtractSpecs(product.body_html, product.title);
+    var missing = Object.keys(out.specs).filter(function (k) { return !out.specs[k]; });
 
-    if (missing.length) {
-      partial.push({ title: title, specs: specs, missing: missing, notes: out.notes });
-      continue;
-    }
-    filled.push({ rowIndex: r + 1, title: title, specs: specs, notes: out.notes });
+    // Keep only the values we actually found. A blank key renders as an empty
+    // spec line on the site, which looks broken; an absent one just isn't shown.
+    var specs = {};
+    Object.keys(out.specs).forEach(function (k) { if (out.specs[k]) specs[k] = out.specs[k]; });
+
+    var rec = { rowIndex: r + 1, title: title, specs: specs, missing: missing, notes: out.notes };
+
+    // Three of four beats a blank cell. Only a row where nothing at all parsed
+    // is left alone — writing "{}" would just make it look done when it isn't.
+    if (!Object.keys(specs).length) empty.push(rec);
+    else if (missing.length) partial.push(rec);
+    else filled.push(rec);
   }
 
-  Logger.log('=== ' + brandName + ' specs from ' + baseUrl + ' ===');
+  Logger.log('=== ' + brandName + ' specs from ' + baseUrl +
+             '  (BrandSpecs.gs ' + FS_VERSION + ') ===');
   Logger.log(products.length + ' products fetched, ' + (data.length - 1) + ' sheet rows scanned.\n');
 
   if (filled.length) {
@@ -252,11 +310,21 @@ function fillBrandSpecs(brandName, baseUrl, apply) {
     });
   }
   if (partial.length) {
-    Logger.log('\nINCOMPLETE (' + partial.length + ') — left blank and still hidden, fill by hand:');
+    Logger.log('\nPARTIAL (' + partial.length + ') — written, but finish these by hand:');
     partial.forEach(function (p) {
-      Logger.log('  ' + p.title + '   missing: ' + p.missing.join(', '));
+      Logger.log('  ' + p.title + '   still missing: ' + p.missing.join(', '));
       Logger.log('      ' + JSON.stringify(p.specs));
+      (p.notes || []).forEach(function (n) { Logger.log('      note: ' + n); });
     });
+  }
+  if (empty.length) {
+    Logger.log('\nNOTHING PARSED (' + empty.length + ') — left blank, type these in by hand:');
+    empty.forEach(function (e) {
+      Logger.log('  ' + e.title);
+      (e.notes || []).forEach(function (n) { Logger.log('      note: ' + n); });
+    });
+    Logger.log('  The vendor keeps these specs outside body_html (a tab, a table');
+    Logger.log('  image, or a metafield), so there is nothing here to read.');
   }
   if (unmatched.length) {
     Logger.log('\nNOT FOUND on the vendor site (' + unmatched.length + ') — renamed or discontinued?');
@@ -269,19 +337,23 @@ function fillBrandSpecs(brandName, baseUrl, apply) {
   if (!apply) {
     Logger.log('\nDry run. Nothing written. Re-run with true as the third argument to apply.');
     Logger.log('Check two or three against the product page first.');
-    return { ok: true, applied: false, filled: filled, partial: partial, unmatched: unmatched };
+    return { ok: true, applied: false, filled: filled, partial: partial,
+             empty: empty, unmatched: unmatched };
   }
 
-  filled.forEach(function (f) {
+  var written = filled.concat(partial);
+  written.forEach(function (f) {
     sh.getRange(f.rowIndex, col.specs + 1).setValue(JSON.stringify(f.specs));
   });
   SpreadsheetApp.flush();
 
-  Logger.log('\nWrote specs for ' + filled.length + ' row(s).');
+  Logger.log('\nWrote specs for ' + written.length + ' row(s) (' + filled.length +
+             ' complete, ' + partial.length + ' partial).');
   Logger.log('Rows stay hidden until you clear discontinued — the colour hex codes');
   Logger.log('still need a human, and a bike with no hexes renders with blank swatches.');
 
-  return { ok: true, applied: true, filled: filled, partial: partial, unmatched: unmatched };
+  return { ok: true, applied: true, filled: filled, partial: partial,
+           empty: empty, unmatched: unmatched };
 }
 
 
@@ -296,7 +368,7 @@ function step3_mokwheelSpecsDryRun() {
   return fillBrandSpecs('Mokwheel', 'https://mokwheel.com');
 }
 
-/** Step 4 — write specs for models where all four values were found. */
+/** Step 4 — write every spec that parsed, complete or not. */
 function step4_mokwheelSpecsApply() {
   return fillBrandSpecs('Mokwheel', 'https://mokwheel.com', true);
 }

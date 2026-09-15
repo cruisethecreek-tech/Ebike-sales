@@ -41,6 +41,11 @@
 
 var IMP_TAB_NAME = 'Inventory';   // keep in sync with INV_TAB_NAME
 
+// Printed at the top of every run — see the note on FS_VERSION in BrandSpecs.gs.
+// Apps Script runs the last SAVED file, so this is how you tell whether the
+// paste you just made is the code that actually executed.
+var IMP_VERSION = '2026-09-15d';
+
 // Products whose title contains any of these are not bikes. PriceMonitor.gs
 // has the long battle-tested list; if it lives in this project we reuse it.
 var IMP_FALLBACK_ACCESSORY_WORDS = [
@@ -248,6 +253,7 @@ function importBrand(brandName, baseUrl, apply) {
     Logger.log('No products returned from ' + baseUrl + '/products.json — is this a Shopify store?');
     return { ok: false, error: 'no products fetched' };
   }
+  Logger.log('BrandImport.gs ' + IMP_VERSION);
   Logger.log('Fetched ' + products.length + ' product(s) from ' + baseUrl);
 
   var added = [], skipped = [], batchIds = {};
