@@ -358,3 +358,18 @@ function _impFetchProducts_(brand, baseUrl) {
   }
   return products;
 }
+
+
+// ── Runnable wrappers ────────────────────────────────────────────
+// The Run button calls the selected function with no arguments, so
+// importBrand('Mokwheel', ...) cannot be run from the dropdown directly.
+
+/** Step 1 — list what would be added. Writes nothing. */
+function step1_mokwheelImportDryRun() {
+  return importBrand('Mokwheel', 'https://mokwheel.com');
+}
+
+/** Step 2 — add the rows, every one hidden until its specs are filled in. */
+function step2_mokwheelImportApply() {
+  return importBrand('Mokwheel', 'https://mokwheel.com', true);
+}

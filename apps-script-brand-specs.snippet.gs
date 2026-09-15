@@ -195,8 +195,16 @@ function fillBrandSpecs(brandName, baseUrl, apply) {
   var byTitle = {};
   products.forEach(function (p) { byTitle[_fsNorm_(p.title)] = p; });
 
-  var sh      = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Bikes')
-             || SpreadsheetApp.getActiveSpreadsheet().getSheets()[0];
+  // Same sheet and tab importBrand writes to. getActiveSpreadsheet() is wrong
+  // here: this script is standalone, not container-bound, so it returns null —
+  // and there is no tab called "Bikes" either. INV_SHEET_ID and INV_TAB_NAME
+  // come from the inventory handlers file in the same Apps Script project.
+  var ss      = SpreadsheetApp.openById(INV_SHEET_ID);
+  var sh      = ss.getSheetByName(INV_TAB_NAME);
+  if (!sh) {
+    Logger.log('Tab "' + INV_TAB_NAME + '" not found in spreadsheet ' + INV_SHEET_ID + '.');
+    return { ok: false };
+  }
   var data    = sh.getDataRange().getValues();
   var headers = data[0] || [];
   var col = {};
@@ -274,4 +282,21 @@ function fillBrandSpecs(brandName, baseUrl, apply) {
   Logger.log('still need a human, and a bike with no hexes renders with blank swatches.');
 
   return { ok: true, applied: true, filled: filled, partial: partial, unmatched: unmatched };
+}
+
+
+// ── Runnable wrappers ────────────────────────────────────────────
+// The Apps Script editor's Run button calls the selected function with no
+// arguments, so fillBrandSpecs('Mokwheel', ...) cannot be run directly from
+// the dropdown. Pick one of these instead. Named in running order so the
+// dropdown reads as a sequence.
+
+/** Step 3 — read the log, change nothing. */
+function step3_mokwheelSpecsDryRun() {
+  return fillBrandSpecs('Mokwheel', 'https://mokwheel.com');
+}
+
+/** Step 4 — write specs for models where all four values were found. */
+function step4_mokwheelSpecsApply() {
+  return fillBrandSpecs('Mokwheel', 'https://mokwheel.com', true);
 }

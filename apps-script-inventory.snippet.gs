@@ -20,7 +20,7 @@
 //
 //   5. Deploy -> Manage deployments -> Edit -> New version -> Deploy.
 //
-// SHEET STRUCTURE (tab named "Direct_Inventory"):
+// SHEET STRUCTURE (tab named "Inventory" — see INV_TAB_NAME below):
 //   id           stable slug, e.g. "rangers"
 //   order        number -- lower = first (use gaps of 10)
 //   brand        "Heybike" | "Velotric" | "Jasion" | "Mooncool" | "Mokwheel"
@@ -387,7 +387,7 @@ function handleGetStock(e) {
 
 // -- WEBHOOK: onInventoryEdit -------------------------------
 /**
- * Fires when Pat edits the Direct_Inventory tab.
+ * Fires when Pat edits the Inventory tab.
  * Triggers the GitHub Action that commits updated data/inventory.json
  * to the repo so Cloudflare Pages auto-rebuilds (~30s later).
  *
