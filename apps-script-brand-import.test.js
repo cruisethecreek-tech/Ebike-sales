@@ -51,7 +51,45 @@ const bikes = [
   'Backpacker Cargo Bike',
 ];
 
-let pass = 0, fail = 0;
+// ── Duplicate protection ────────────────────────────────────────────────
+// The four established brands already have rows, so the import's real job is
+// recognising them. The sheet's names are what a human typed; the feed's are
+// marketing copy. An exact comparison calls every one of these "new" and adds
+// a second row for a bike already on the site.
+const sheetRows = ['Hero', 'Hero Hub', 'Cityrun', 'Mars 2.0', 'Mars 3.0', 'Ranger S'];
+const nameIndex = {};
+sheetRows.forEach(n => _impTitleKeys_(n, 'Heybike').forEach(k => { if (!nameIndex[k]) nameIndex[k] = n; }));
+const existing = t => _impFindExisting_(nameIndex, t, 'Heybike');
+
+const dupCases = [
+  ['Heybike Hero Electric Bike',     'Hero'],
+  ['Mars 2.0 Folding Electric Bike', 'Mars 2.0'],
+  ['City Run',                       'Cityrun'],
+  ['Hero Hub',                       'Hero Hub'],
+  ['Ranger S',                       'Ranger S'],
+];
+let dupPass = 0;
+dupCases.forEach(([feedTitle, want]) => {
+  const got = existing(feedTitle);
+  if (got === want) dupPass++;
+  else console.log('FAIL  "' + feedTitle + '" should match row "' + want + '", got ' + JSON.stringify(got));
+});
+
+// The other direction matters just as much: a genuinely new model must NOT be
+// mistaken for an existing row, or the import silently skips it. These are the
+// models the user noticed were missing.
+const newCases = ['Saturn', 'Villain', 'Titan', 'Galaxy Pro', 'Mars 4.0'];
+let newPass = 0;
+newCases.forEach(t => {
+  const got = existing(t);
+  if (got === null) newPass++;
+  else console.log('FAIL  new model "' + t + '" was mistaken for existing row "' + got + '"');
+});
+
+console.log('dedupe: ' + dupPass + '/' + dupCases.length + ' existing recognised, '
+          + newPass + '/' + newCases.length + ' new models let through');
+
+let pass = dupPass + newPass, fail = (dupCases.length - dupPass) + (newCases.length - newPass);
 accessories.forEach(function (t) {
   if (_impIsAccessory_(t)) { pass++; }
   else { fail++; console.log('FAIL  should be skipped as an accessory: ' + t); }
