@@ -27,7 +27,15 @@
 //   name         display name, e.g. "Ranger S"
 //   subtitle     short descriptor, e.g. "Folding Fat Tire Step-Thru"
 //   price        number only, no $
-//   testRide     e.g. "Test Ride Available" or blank
+//   testRide     STATUS only, free text shown beside the bike.
+//                e.g. "Test Ride Available", "Class 4 Needs Registration",
+//                "Test Ride March 30th", or blank.
+//   testRideLoc  WHICH SHOP the bike can be demoed at. This is what puts it on
+//                test-ride.html, so a bike with a status but no location will
+//                not appear there. Accepted: "Kirk Road", "Bears Den", "Both",
+//                or a list ("Kirk Road, Bears Den"). Blank = not offered.
+//                Name the column exactly "testRideLoc" (or "testRideLocation",
+//                "Test Ride Location", "Test Ride Loc" — all are accepted).
 //   styles       comma-separated, e.g. "750W,1000W"
 //   sizes        comma-separated, e.g. "One Size" or "S,M,L,XL"
 //   specs        JSON: {"Range":"55 mi","Top Speed":"28 mph","Motor":"750W","Battery":"692Wh"}
@@ -134,6 +142,18 @@ function _rowToBike_(row) {
     subtitle:     String(row.subtitle || ''),
     price:        Number(row.price)   || 0,
     testRide:     String(row.testRide || ''),
+    // Kept separate from testRide deliberately: one column said both where a
+    // bike could be ridden and what the caveat was, so neither could be read
+    // reliably. Location decides whether it appears on test-ride.html;
+    // testRide is the note shown next to it.
+    // _openInventorySheet_ uses the header cell verbatim as the key, so the
+    // column has to be named one of these. Several spellings are accepted
+    // because a header typo would otherwise fail silently — the field would
+    // just be empty and every bike would quietly vanish from test-ride.html.
+    testRideLoc:  String(
+                    row.testRideLoc || row.testRideLocation ||
+                    row['Test Ride Location'] || row['Test Ride Loc'] || ''
+                  ),
     styles:       styles,
     sizes:        sizes,
     specs:        specs,
