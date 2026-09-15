@@ -28,7 +28,7 @@
  * you typed by hand.
  */
 
-var MOK_VERSION = '2026-09-15d';
+var MOK_VERSION = '2026-09-15e';
 
 // Battery is written as V x Ah in watt-hours, matching the existing rows
 // ("705.6WH"). Mokwheel quotes the pack as V and Ah; the Wh figure on their
@@ -54,24 +54,44 @@ var MOKWHEEL_SPECS = {
     src: 'https://www.mokwheel.com/products/scoria-2-0' },
 
   // --- Obsidian, full suspension: 48V 19.6Ah = 940.8Wh -----------------
+  // Mokwheel publishes three numbers for this motor: rated 750W, continuous
+  // 1000W, peak 1300W. The first pass of this table used 1000W as the rating,
+  // which is the same overstatement the Basalt's 1100W was — a continuous or
+  // peak figure standing in for the rated one. Rated power is what goes here,
+  // consistently with the Basalt and Tarmac entries.
   'Obsidian Ebike': {
-    Range: '60-80 mi', 'Top Speed': '28 mph', Motor: '1000W / 1300W peak', Battery: '940.8WH',
+    Range: '60-80 mi', 'Top Speed': '28 mph', Motor: '750W / 1300W peak', Battery: '940.8WH',
     src: 'https://www.mokwheel.com/products/obsidian' },
   'Obsidian ST Ebike': {
-    Range: '60-80 mi', 'Top Speed': '28 mph', Motor: '1000W / 1300W peak', Battery: '940.8WH',
+    Range: '60-80 mi', 'Top Speed': '28 mph', Motor: '750W / 1300W peak', Battery: '940.8WH',
     src: 'https://www.mokwheel.com/products/obsidian-st' },
 
-  // --- Onyx, mid-drive. Mokwheel's pages state 750W rated / 1300W peak and
-  // 210Nm, but do not state a top speed. Left blank rather than assumed from
-  // the rest of the lineup. 48V 19.6Ah = 940.8Wh.
+  // The 2.0s keep the 750W rear-hub layout and the 48V 19.6Ah pack, and raise
+  // torque to 105Nm+. Their speed spec is genuinely different from the 1.0:
+  // Mokwheel ships them at 20 mph by default, rider-adjustable 15-28 mph. That
+  // is worth saying out loud on the floor — a customer who reads "28 mph" and
+  // takes delivery of a 20 mph bike will think something is broken.
+  'Obsidian 2.0 Ebike': {
+    Range: '60-80 mi', 'Top Speed': '20-28 mph (adjustable)', Motor: '750W / 1300W peak',
+    Battery: '940.8WH',
+    notes: 'ships at 20 mph by default, adjustable 15-28 mph in custom mode',
+    src: 'https://www.mokwheel.com/products/obsidian-2-0' },
+  'Obsidian ST 2.0 Ebike': {
+    Range: '60-80 mi', 'Top Speed': '20-28 mph (adjustable)', Motor: '750W / 1300W peak',
+    Battery: '940.8WH',
+    notes: 'ships at 20 mph by default, adjustable 15-28 mph in custom mode',
+    src: 'https://www.mokwheel.com/products/obsidian-st-2-0' },
+
+  // --- Onyx, mid-drive: 750W rated / 1300W peak, 210Nm+. 48V 19.6Ah = 940.8Wh.
+  // The product page omits a top speed, so this was left blank on the first
+  // pass; Mokwheel lists the Onyx in its 28 MPH collection, which is the
+  // vendor stating it directly rather than us inferring it from the lineup.
   'Onyx Ebike': {
-    Range: '60-80 mi', 'Top Speed': '', Motor: '750W / 1300W peak', Battery: '940.8WH',
-    notes: 'top speed not stated on the product page — confirm before publishing',
-    src: 'https://www.mokwheel.com/products/onyx' },
+    Range: '60-80 mi', 'Top Speed': '28 mph', Motor: '750W / 1300W peak', Battery: '940.8WH',
+    src: 'https://www.mokwheel.com/collections/28-mph-electric-bike' },
   'Onyx ST Ebike': {
-    Range: '60-80 mi', 'Top Speed': '', Motor: '750W / 1300W peak', Battery: '940.8WH',
-    notes: 'top speed not stated on the product page — confirm before publishing',
-    src: 'https://www.mokwheel.com/products/onyx-st' },
+    Range: '60-80 mi', 'Top Speed': '28 mph', Motor: '750W / 1300W peak', Battery: '940.8WH',
+    src: 'https://www.mokwheel.com/collections/28-mph-electric-bike' },
 
   // --- Tarmac commuter: 48V 15Ah = 720Wh -------------------------------
   'Tarmac Ebike': {
@@ -140,11 +160,24 @@ var MOKWHEEL_SPECS = {
     src: 'https://www.mokwheel.com/products/slate' },
 };
 
-// Models in the sheet with no entry above. Listed so the log names them instead
-// of passing over them in silence.
-//   Obsidian 2.0 Ebike, Obsidian ST 2.0 Ebike — Mokwheel publishes a 2.0 page
-//   but its figures were not confirmed separately from the 1.0, and guessing
-//   that they carry over is exactly the mistake this file exists to avoid.
+/**
+ * Models whose Specs cell an earlier version of this table got wrong, and which
+ * step7 is allowed to overwrite rather than skip.
+ *
+ * The normal fill refuses to touch a non-empty cell, which is the right default
+ * — it protects anything typed by hand. But that also means a correction made
+ * here can never reach a row that was already written, and a wrong motor rating
+ * sitting in the sheet is worse than one that was never written at all.
+ *
+ * So: an explicit, named list. Remove a name once its row is correct. Never add
+ * a name to force a bulk rewrite — that is how hand-entered work gets lost.
+ */
+var MOK_RECHECK = [
+  'Obsidian Ebike',      // was 1000W / 1300W peak — 1000W is the continuous figure
+  'Obsidian ST Ebike',   // same
+  'Onyx Ebike',          // was written with no Top Speed
+  'Onyx ST Ebike',       // same
+];
 
 var MOK_FIELDS = ['Range', 'Top Speed', 'Motor', 'Battery'];
 
@@ -246,5 +279,49 @@ function step5_mokwheelSpecsFromTableDryRun() {
 
 /** Step 6 — write the table into empty Specs cells. */
 function step6_mokwheelSpecsFromTableApply() {
+  return fillMokwheelSpecsFromTable(true);
+}
+
+/**
+ * Step 7 — overwrite only the rows named in MOK_RECHECK, then run the normal
+ * fill. Every other row with a value in Specs is left exactly as it is.
+ */
+function step7_mokwheelSpecsFixCorrectedRows() {
+  var sh = SpreadsheetApp.openById(INV_SHEET_ID).getSheetByName(INV_TAB_NAME);
+  if (!sh) {
+    Logger.log('Tab "' + INV_TAB_NAME + '" not found in spreadsheet ' + INV_SHEET_ID + '.');
+    return { ok: false };
+  }
+  var data = sh.getDataRange().getValues();
+  var headers = data[0] || [];
+  var col = {};
+  headers.forEach(function (h, i) {
+    var k = String(h || '').toLowerCase().replace(/\s*\(json\)/, '').replace(/[^a-z]/g, '');
+    if (k) col[k] = i;
+  });
+  if (col.name == null || col.specs == null) {
+    Logger.log('Sheet needs Name and Specs columns. Found: ' + headers.join(' | '));
+    return { ok: false };
+  }
+
+  var recheck = {};
+  MOK_RECHECK.forEach(function (n) { recheck[_mokNorm_(n)] = true; });
+
+  Logger.log('=== Clearing ' + MOK_RECHECK.length + ' corrected row(s)  (MokwheelSpecs.gs ' +
+             MOK_VERSION + ') ===');
+  var cleared = 0;
+  for (var r = 1; r < data.length; r++) {
+    var title = String(data[r][col.name] || '').trim();
+    if (!recheck[_mokNorm_(title)]) continue;
+    var before = String(data[r][col.specs] || '').trim();
+    if (!before) { Logger.log('  ' + title + ' — already empty'); continue; }
+    Logger.log('  ' + title);
+    Logger.log('      was: ' + before);
+    sh.getRange(r + 1, col.specs + 1).setValue('');
+    cleared++;
+  }
+  SpreadsheetApp.flush();
+  Logger.log('Cleared ' + cleared + ' cell(s). Refilling from the table:\n');
+
   return fillMokwheelSpecsFromTable(true);
 }
