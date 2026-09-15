@@ -38,6 +38,8 @@ const accessories = [
   'Commuter Bundle',
   '48V 19.6Ah Spare Battery',
   'Fat Tire Inner Tube',
+  '230W Solar Panel + Inverter',
+  '100W Solar Panel + Inverter',
 ];
 
 // Titles that must survive. Mokwheel's current lineup plus the historical
