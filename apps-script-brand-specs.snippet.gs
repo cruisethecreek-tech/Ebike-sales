@@ -31,6 +31,14 @@
  */
 
 /** Strip tags and decode the handful of entities that matter, so the text is scannable. */
+/**
+ * Printed at the top of every run. Apps Script executes the last SAVED version
+ * of a file, so a paste that has not finished saving runs the old code and
+ * produces an identical log — which is impossible to spot by eye. Bump this
+ * whenever this file changes, and the log says which version actually ran.
+ */
+var FS_VERSION = '2026-09-15d';
+
 function _fsText_(html) {
   return String(html || '')
     .replace(/<br\s*\/?>/gi, ' | ')
@@ -289,7 +297,8 @@ function fillBrandSpecs(brandName, baseUrl, apply) {
     else filled.push(rec);
   }
 
-  Logger.log('=== ' + brandName + ' specs from ' + baseUrl + ' ===');
+  Logger.log('=== ' + brandName + ' specs from ' + baseUrl +
+             '  (BrandSpecs.gs ' + FS_VERSION + ') ===');
   Logger.log(products.length + ' products fetched, ' + (data.length - 1) + ' sheet rows scanned.\n');
 
   if (filled.length) {
