@@ -81,6 +81,9 @@ var IMP_HARD_PARTS = [
   // missing word here adds a dozen junk rows. 'accessory' does not match
   // "Accessories" -- matching is whole-word -- so both spellings are listed.
   'accessory', 'accessories', 'pack', 'bundle',
+  // Mokwheel sells power gear alongside the bikes; two solar panels imported
+  // as bicycles on the first real run.
+  'solar panel', 'solar', 'inverter', 'generator', 'power station',
 ];
 
 /** Whole-word (or whole-phrase) test, so 'light' does not match "Lightweight". */
