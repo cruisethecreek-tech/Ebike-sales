@@ -17,6 +17,27 @@ src = src.slice(0, src.indexOf('function fillBrandSpecs'));
 eval(src);
 
 const cases = [
+  // From a real Mokwheel run: an accessory listing with the word "pack" in it
+  // wrote {"Battery":"undefinedWh"} into the sheet. 'battery|pack' was spliced
+  // into the pattern ungrouped, so the alternation swallowed the whole regex
+  // and "pack" matched with no capture group.
+  { n: 'Accessory copy containing "pack" — must not invent a battery',
+    html: `<p>Charge your Mokwheel battery pack anywhere with this 230W solar panel and inverter.</p>`,
+    want: { Range: '', 'Top Speed': '', Motor: '', Battery: '' } },
+
+  // Also from a real run: a Basalt reported an 1100W motor. Mokwheel's copy
+  // leads with the peak figure, and the nominal rating is never stated in
+  // body_html, so the honest answer is to report nothing.
+  { n: 'Peak wattage printed before "motor" — must not become the nominal rating',
+    html: `<p>Climb anything with up to 1100W peak motor power.</p>`,
+    want: { Range: '', 'Top Speed': '', Motor: '', Battery: '' } },
+
+  // The guard must not swallow a genuine nominal rating that happens to sit
+  // near a peak figure.
+  { n: 'Nominal before peak still reports both',
+    html: `<p>A 750W motor (up to 1100W peak) pulls away from stops.</p>`,
+    want: { Range: '', 'Top Speed': '', Motor: '750W / 1100W peak', Battery: '' } },
+
   { n: 'Basalt — prose, V/Ah pack, peak watts',
     html: `<p>The Basalt features a removable 48V 19.6Ah lithium battery, delivering a long-range ride of 60 to 80 miles on a single charge. The 750W motor (up to 1100W peak) helps you pull away from stops.</p><p>Top speed: 28 mph. Tires 26x4".</p>`,
     want: { Range: '60-80 mi', 'Top Speed': '28 mph', Motor: '750W / 1100W peak', Battery: '941Wh' } },

@@ -62,7 +62,7 @@ function _fsNear_(text, labels, valueRe, windowChars) {
     while ((m = labelRe.exec(hay)) !== null) {
       var slice = hay.slice(m.index + m[0].length, m.index + m[0].length + win);
       var v = slice.match(valueRe);
-      if (v) return v;
+      if (_fsCaptured_(v)) return v;
     }
   }
   return null;
@@ -77,8 +77,33 @@ function _fsNear_(text, labels, valueRe, windowChars) {
  * (up to 1100W peak)" it returns the peak as the nominal rating.
  */
 function _fsBefore_(text, label, valueRe) {
-  var re = new RegExp(valueRe.source + '[^|]{0,24}?' + label, 'i');
-  return String(text || '').match(re);
+  // The label is wrapped in a non-capturing group on purpose. 'battery|pack'
+  // spliced in bare turned the whole pattern into
+  //   (\d{3,4})\s*Wh\b[^|]{0,24}?battery  OR  pack
+  // so any text containing the word "pack" matched with no capture group at
+  // all, and the caller cheerfully wrote "undefinedWh" into the sheet.
+  var re = new RegExp(valueRe.source + '[^|]{0,24}?(?:' + label + ')', 'i');
+  var m = String(text || '').match(re);
+  return _fsCaptured_(m) ? m : null;
+}
+
+/** A match whose capture groups are all undefined matched nothing useful. */
+function _fsCaptured_(m) {
+  if (!m) return false;
+  for (var i = 1; i < m.length; i++) if (m[i] == null) return false;
+  return m.length > 1;
+}
+
+/**
+ * True when the number at idx is introduced as a peak/maximum figure.
+ *
+ * "1100W peak motor" put the peak rating where the nominal one belongs, which
+ * is how a Basalt ended up claiming an 1100W motor. Reading backwards from the
+ * number is the only way to tell the two apart.
+ */
+function _fsIsPeakContext_(text, idx) {
+  var lead = String(text || '').slice(Math.max(0, idx - 30), idx);
+  return /\b(?:peak|up to|max|maximum)\b[^|]{0,14}$/i.test(lead);
 }
 
 /** "55" or "60-80" → "55 mi" / "60-80 mi". */
@@ -97,17 +122,29 @@ function _fsSpeed_(text) {
   return m ? m[1] + ' mph' : '';
 }
 
-/** "750W", or "750W / 1100W peak" when the page states a peak as well. */
+/**
+ * "750W", or "750W / 1100W peak" when the page states a peak as well.
+ *
+ * Returns { value, note }. When the only wattage on the page reads as a peak
+ * figure, value is empty and the note says so: a peak rating printed as the
+ * motor spec overstates the bike, and this is a number staff quote to buyers.
+ */
 function _fsMotor_(text) {
   // "750W motor" first — in prose the nominal rating precedes the noun, and a
   // forward-only scan would pick up the peak in "750W motor (up to 1100W)".
   var m = _fsBefore_(text, 'motor', /(\d{3,4})\s*W\b/);
   if (!m) m = _fsNear_(text, ['motor', 'hub drive', 'mid drive'], /(\d{3,4})\s*W\b/i, 120);
-  if (!m) return '';
+  if (!m) return { value: '', note: '' };
+
+  if (m.index != null && _fsIsPeakContext_(text, m.index)) {
+    return { value: '', note: 'found ' + m[1] + 'W but the copy reads it as a peak/max ' +
+                              'figure, not a nominal rating — motor left blank' };
+  }
+
   var watts = m[1] + 'W';
   var peak = _fsNear_(text, ['peak', 'up to'], /(\d{3,4})\s*W\b/i, 40);
   if (peak && peak[1] !== m[1]) watts += ' / ' + peak[1] + 'W peak';
-  return watts;
+  return { value: watts, note: '' };
 }
 
 /**
@@ -142,14 +179,16 @@ function _fsBattery_(text) {
  */
 function fsExtractSpecs(bodyHtml, title) {
   var text = _fsText_(bodyHtml) + ' | ' + String(title || '');
-  var batt = _fsBattery_(text);
+  var batt  = _fsBattery_(text);
+  var motor = _fsMotor_(text);
   var notes = [];
   if (batt.derived) notes.push('battery derived from ' + batt.derived + ' — vendor may state it rounded');
+  if (motor.note) notes.push(motor.note);
   return {
     specs: {
       'Range':     _fsRange_(text),
       'Top Speed': _fsSpeed_(text),
-      'Motor':     _fsMotor_(text),
+      'Motor':     motor.value,
       'Battery':   batt.value
     },
     notes: notes
@@ -271,7 +310,10 @@ function fillBrandSpecs(brandName, baseUrl, apply) {
   }
   if (empty.length) {
     Logger.log('\nNOTHING PARSED (' + empty.length + ') — left blank, type these in by hand:');
-    empty.forEach(function (e) { Logger.log('  ' + e.title); });
+    empty.forEach(function (e) {
+      Logger.log('  ' + e.title);
+      (e.notes || []).forEach(function (n) { Logger.log('      note: ' + n); });
+    });
     Logger.log('  The vendor keeps these specs outside body_html (a tab, a table');
     Logger.log('  image, or a metafield), so there is nothing here to read.');
   }
