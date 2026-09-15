@@ -12,9 +12,13 @@
  * it, pulls the four values out of the manufacturer's own copy, and reports
  * exactly what it found and what it could not.
  *
- * It NEVER guesses. A row is only written when all four values were found in
- * the vendor's own text. Anything partial is listed for a human and left
- * hidden, which is the same safety posture importBrand already takes.
+ * It NEVER guesses — every value written was read from the vendor's own text.
+ * It does write partial results: a row that yielded three of the four values
+ * gets those three, and the dry-run log names what is still missing. Only a
+ * key that parsed is stored, so a gap is an absent line rather than a blank
+ * one. A row where nothing at all parsed is left untouched. Rows stay hidden
+ * (discontinued = "Yes") either way, which is the safety posture importBrand
+ * already takes.
  *
  * Run from the inventory Apps Script (the one bound to the bike sheet):
  *
@@ -217,7 +221,7 @@ function fillBrandSpecs(brandName, baseUrl, apply) {
     return { ok: false };
   }
 
-  var filled = [], partial = [], unmatched = [], already = [];
+  var filled = [], partial = [], empty = [], unmatched = [], already = [];
 
   for (var r = 1; r < data.length; r++) {
     var row = data[r];
@@ -229,15 +233,21 @@ function fillBrandSpecs(brandName, baseUrl, apply) {
     var product = byTitle[_fsNorm_(title)];
     if (!product) { unmatched.push(title); continue; }
 
-    var out   = fsExtractSpecs(product.body_html, product.title);
-    var specs = out.specs;
-    var missing = Object.keys(specs).filter(function (k) { return !specs[k]; });
+    var out     = fsExtractSpecs(product.body_html, product.title);
+    var missing = Object.keys(out.specs).filter(function (k) { return !out.specs[k]; });
 
-    if (missing.length) {
-      partial.push({ title: title, specs: specs, missing: missing, notes: out.notes });
-      continue;
-    }
-    filled.push({ rowIndex: r + 1, title: title, specs: specs, notes: out.notes });
+    // Keep only the values we actually found. A blank key renders as an empty
+    // spec line on the site, which looks broken; an absent one just isn't shown.
+    var specs = {};
+    Object.keys(out.specs).forEach(function (k) { if (out.specs[k]) specs[k] = out.specs[k]; });
+
+    var rec = { rowIndex: r + 1, title: title, specs: specs, missing: missing, notes: out.notes };
+
+    // Three of four beats a blank cell. Only a row where nothing at all parsed
+    // is left alone — writing "{}" would just make it look done when it isn't.
+    if (!Object.keys(specs).length) empty.push(rec);
+    else if (missing.length) partial.push(rec);
+    else filled.push(rec);
   }
 
   Logger.log('=== ' + brandName + ' specs from ' + baseUrl + ' ===');
@@ -252,11 +262,18 @@ function fillBrandSpecs(brandName, baseUrl, apply) {
     });
   }
   if (partial.length) {
-    Logger.log('\nINCOMPLETE (' + partial.length + ') — left blank and still hidden, fill by hand:');
+    Logger.log('\nPARTIAL (' + partial.length + ') — written, but finish these by hand:');
     partial.forEach(function (p) {
-      Logger.log('  ' + p.title + '   missing: ' + p.missing.join(', '));
+      Logger.log('  ' + p.title + '   still missing: ' + p.missing.join(', '));
       Logger.log('      ' + JSON.stringify(p.specs));
+      (p.notes || []).forEach(function (n) { Logger.log('      note: ' + n); });
     });
+  }
+  if (empty.length) {
+    Logger.log('\nNOTHING PARSED (' + empty.length + ') — left blank, type these in by hand:');
+    empty.forEach(function (e) { Logger.log('  ' + e.title); });
+    Logger.log('  The vendor keeps these specs outside body_html (a tab, a table');
+    Logger.log('  image, or a metafield), so there is nothing here to read.');
   }
   if (unmatched.length) {
     Logger.log('\nNOT FOUND on the vendor site (' + unmatched.length + ') — renamed or discontinued?');
@@ -269,19 +286,23 @@ function fillBrandSpecs(brandName, baseUrl, apply) {
   if (!apply) {
     Logger.log('\nDry run. Nothing written. Re-run with true as the third argument to apply.');
     Logger.log('Check two or three against the product page first.');
-    return { ok: true, applied: false, filled: filled, partial: partial, unmatched: unmatched };
+    return { ok: true, applied: false, filled: filled, partial: partial,
+             empty: empty, unmatched: unmatched };
   }
 
-  filled.forEach(function (f) {
+  var written = filled.concat(partial);
+  written.forEach(function (f) {
     sh.getRange(f.rowIndex, col.specs + 1).setValue(JSON.stringify(f.specs));
   });
   SpreadsheetApp.flush();
 
-  Logger.log('\nWrote specs for ' + filled.length + ' row(s).');
+  Logger.log('\nWrote specs for ' + written.length + ' row(s) (' + filled.length +
+             ' complete, ' + partial.length + ' partial).');
   Logger.log('Rows stay hidden until you clear discontinued — the colour hex codes');
   Logger.log('still need a human, and a bike with no hexes renders with blank swatches.');
 
-  return { ok: true, applied: true, filled: filled, partial: partial, unmatched: unmatched };
+  return { ok: true, applied: true, filled: filled, partial: partial,
+           empty: empty, unmatched: unmatched };
 }
 
 
@@ -296,7 +317,7 @@ function step3_mokwheelSpecsDryRun() {
   return fillBrandSpecs('Mokwheel', 'https://mokwheel.com');
 }
 
-/** Step 4 — write specs for models where all four values were found. */
+/** Step 4 — write every spec that parsed, complete or not. */
 function step4_mokwheelSpecsApply() {
   return fillBrandSpecs('Mokwheel', 'https://mokwheel.com', true);
 }
