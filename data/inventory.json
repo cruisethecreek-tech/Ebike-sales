@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2026-09-15T11:22:52Z",
+  "lastUpdated": "2026-09-15T20:34:12Z",
   "bikes": [
     {
       "brand": "Heybike",
@@ -2291,6 +2291,1050 @@
               "name": "Sage",
               "hex": "#24422a",
               "img": "images/gomadsage.jpg"
+            }
+          ]
+        }
+      },
+      "colorsNested": true,
+      "sizeGuide": {}
+    },
+    {
+      "brand": "Mokwheel",
+      "id": "basalt-st",
+      "name": "Basalt ST Ebike",
+      "subtitle": "",
+      "price": 1099.99,
+      "testRide": "",
+      "styles": [],
+      "sizes": [
+        "One Size"
+      ],
+      "specs": {
+        "Range": "60-80 mi",
+        "Top Speed": "28 mph",
+        "Motor": "750W / 1100W peak",
+        "Battery": "940.8WH"
+      },
+      "colors": {
+        "Default": {
+          "One Size": [
+            {
+              "name": "White",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0785/3794/9231/files/1_d7357181-7969-4c38-913c-c9955e7a5583.jpg?v=1787291945",
+              "soldOut": true
+            }
+          ]
+        }
+      },
+      "colorsNested": true,
+      "sizeGuide": {}
+    },
+    {
+      "brand": "Mokwheel",
+      "id": "new-mesa-lite",
+      "name": "Mesa Lite Ebike",
+      "subtitle": "",
+      "price": 799.99,
+      "testRide": "",
+      "styles": [],
+      "sizes": [
+        "One Size"
+      ],
+      "specs": {
+        "Range": "40-50 mi",
+        "Top Speed": "28 mph",
+        "Motor": "350W / 600W peak",
+        "Battery": "529.2WH"
+      },
+      "colors": {
+        "Default": {
+          "One Size": [
+            {
+              "name": "Mocha",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0785/3794/9231/files/1_4751daa0-aef8-4cc3-acb2-18d1c337338d.jpg?v=1787292375",
+              "soldOut": true
+            },
+            {
+              "name": "Sky blue",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0785/3794/9231/files/1_acee59e2-5523-4785-aa75-464b842cfd7a.jpg?v=1787292393",
+              "soldOut": true
+            },
+            {
+              "name": "Sage",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0785/3794/9231/files/1_f5c2d1ac-a1c5-4911-8b7d-37798e348b59.jpg?v=1787292384",
+              "soldOut": true
+            }
+          ]
+        }
+      },
+      "colorsNested": true,
+      "sizeGuide": {}
+    },
+    {
+      "brand": "Mokwheel",
+      "id": "scoria",
+      "name": "Scoria 2.0 Ebike",
+      "subtitle": "",
+      "price": 1799.99,
+      "testRide": "",
+      "styles": [],
+      "sizes": [
+        "One Size"
+      ],
+      "specs": {
+        "Range": "60-80 mi",
+        "Top Speed": "28 mph",
+        "Motor": "750W / 1100W peak",
+        "Battery": "940.8WH"
+      },
+      "colors": {
+        "Default": {
+          "One Size": [
+            {
+              "name": "White",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0785/3794/9231/files/d92e076f69cb1a6f81c9bab8cd8f57a2_8543f0f2-e175-43ac-942d-6eb90826da82.jpg?v=1787291977"
+            },
+            {
+              "name": "Olive Green",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0785/3794/9231/files/8c15d41b9b829464843b5aa4449a28f3_05f0d52a-fca8-4667-8e37-c2afed2b14fd.jpg?v=1787292010"
+            },
+            {
+              "name": "Dark Blue",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0785/3794/9231/files/4f53fc355ab7224f6e37e5f09fca99ab_4a58e134-6452-4079-bf6c-d9a38b6b8bdc.jpg?v=1787291996"
+            },
+            {
+              "name": "Firebrick",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0785/3794/9231/files/765ecb80461164a1abfaa4e78a6ff303_6b5edb08-5a0d-4abb-895c-bd0cd10c9ce9.jpg?v=1787291986"
+            }
+          ]
+        }
+      },
+      "colorsNested": true,
+      "sizeGuide": {}
+    },
+    {
+      "brand": "Mokwheel",
+      "id": "flint",
+      "name": "FLINT Ebike",
+      "subtitle": "",
+      "price": 1399.99,
+      "testRide": "",
+      "styles": [],
+      "sizes": [
+        "One Size"
+      ],
+      "specs": {
+        "Range": "60 mi",
+        "Top Speed": "28 mph",
+        "Motor": "350W / 550W peak",
+        "Battery": "360WH"
+      },
+      "colors": {
+        "Default": {
+          "One Size": [
+            {
+              "name": "Grey",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0785/3794/9231/files/1_3328f933-2c3b-47b1-9225-11ecacf4cf72.jpg?v=1787293056"
+            },
+            {
+              "name": "Steel Blue",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0785/3794/9231/files/1_10c3db59-0491-4d26-81ef-d11005b29ca6.jpg?v=1787293066"
+            },
+            {
+              "name": "Phantom Black",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0785/3794/9231/files/1_78974104-2d76-445c-b02e-33ad21f452eb.jpg?v=1787293047"
+            }
+          ]
+        }
+      },
+      "colorsNested": true,
+      "sizeGuide": {}
+    },
+    {
+      "brand": "Mokwheel",
+      "id": "flint-pro",
+      "name": "FLINT PRO Ebike",
+      "subtitle": "",
+      "price": 1599.99,
+      "testRide": "",
+      "styles": [],
+      "sizes": [
+        "One Size"
+      ],
+      "specs": {
+        "Range": "60 mi",
+        "Top Speed": "28 mph",
+        "Motor": "250W",
+        "Battery": "360WH"
+      },
+      "colors": {
+        "Default": {
+          "One Size": [
+            {
+              "name": "Steel Blue",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0785/3794/9231/files/1_61a0a9a9-5fba-481f-b2a3-fec41816e583.jpg?v=1787292687"
+            },
+            {
+              "name": "Grey",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0785/3794/9231/files/1_54e32ca1-cd9e-4c31-bfec-dea77bd68fea.jpg?v=1787292677"
+            },
+            {
+              "name": "Phantom Black",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0785/3794/9231/files/1_94676090-3f54-4782-bf25-b8a060424ca9.jpg?v=1787292668",
+              "soldOut": true
+            },
+            {
+              "name": "Orange",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0785/3794/9231/files/1_c2185923-dc67-4cea-a830-b87eafd4f8b6.jpg?v=1787292659",
+              "soldOut": true
+            }
+          ]
+        }
+      },
+      "colorsNested": true,
+      "sizeGuide": {}
+    },
+    {
+      "brand": "Mokwheel",
+      "id": "flint-pro-st",
+      "name": "FLINT PRO ST Ebike",
+      "subtitle": "",
+      "price": 1599.99,
+      "testRide": "Test Ride Available",
+      "styles": [],
+      "sizes": [
+        "One Size"
+      ],
+      "specs": {
+        "Range": "60 mi",
+        "Top Speed": "28 mph",
+        "Motor": "250W",
+        "Battery": "360WH"
+      },
+      "colors": {
+        "Default": {
+          "One Size": [
+            {
+              "name": "White",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0785/3794/9231/files/2_6c2a0b6a-1b78-45cf-a18f-bb7bbab52d86.jpg?v=1787292727"
+            },
+            {
+              "name": "Mocha",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0785/3794/9231/files/2_ef7e71a7-834a-479e-af1c-2501578ce578.jpg?v=1787292708"
+            },
+            {
+              "name": "Skyblue",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0785/3794/9231/files/2_89f38e07-36d8-4b6d-9bb2-9475c82aa2c2.jpg?v=1787292699"
+            },
+            {
+              "name": "Crystal Pink",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0785/3794/9231/files/2_c246793b-1fb8-4e40-9aad-006cc493c38c.jpg?v=1787292717",
+              "soldOut": true
+            }
+          ]
+        }
+      },
+      "colorsNested": true,
+      "sizeGuide": {}
+    },
+    {
+      "brand": "Mokwheel",
+      "id": "flint-st",
+      "name": "FLINT ST Ebike",
+      "subtitle": "",
+      "price": 1399.99,
+      "testRide": "",
+      "styles": [],
+      "sizes": [
+        "One Size"
+      ],
+      "specs": {
+        "Range": "60 mi",
+        "Top Speed": "28 mph",
+        "Motor": "350W / 550W peak",
+        "Battery": "360WH"
+      },
+      "colors": {
+        "Default": {
+          "One Size": [
+            {
+              "name": "Crystal Pink",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0785/3794/9231/files/2_3c24764b-5e90-4c8d-b30d-ee36d09f59c8.jpg?v=1787292666",
+              "soldOut": true
+            },
+            {
+              "name": "Skyblue",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0785/3794/9231/files/2_995a6644-e7a9-4a47-a410-bb3e2e3fa0da.jpg?v=1787292685",
+              "soldOut": true
+            },
+            {
+              "name": "White",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0785/3794/9231/files/2_9d728bdc-90cb-4e2d-8634-d56c51b78b0d.jpg?v=1787292675",
+              "soldOut": true
+            },
+            {
+              "name": "Mocha",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0785/3794/9231/files/2_1ad675dd-3d27-4d69-89b7-7416840f2624.jpg?v=1787292694",
+              "soldOut": true
+            }
+          ]
+        }
+      },
+      "colorsNested": true,
+      "sizeGuide": {}
+    },
+    {
+      "brand": "Mokwheel",
+      "id": "onyx-st",
+      "name": "Onyx ST Ebike",
+      "subtitle": "",
+      "price": 3299.99,
+      "testRide": "",
+      "styles": [],
+      "sizes": [
+        "One Size"
+      ],
+      "specs": {
+        "Range": "60-80 mi",
+        "Top Speed": "28 mph",
+        "Motor": "750W / 1300W peak",
+        "Battery": "940.8WH"
+      },
+      "colors": {
+        "Default": {
+          "One Size": [
+            {
+              "name": "Desert Camo",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0785/3794/9231/files/2_1c357a42-47ad-4bbe-a948-404c11fdaed5.jpg?v=1787292616"
+            },
+            {
+              "name": "Panda",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0785/3794/9231/files/2_fc1d0b59-f9fb-4760-a2f2-e61d443bcebf.jpg?v=1787292614"
+            },
+            {
+              "name": "Mint Green",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0785/3794/9231/files/2_0ecc53a1-93d7-4196-aab1-6ee50121993e.jpg?v=1787292612"
+            }
+          ]
+        }
+      },
+      "colorsNested": true,
+      "sizeGuide": {}
+    },
+    {
+      "brand": "Mokwheel",
+      "id": "onyx",
+      "name": "Onyx Ebike",
+      "subtitle": "",
+      "price": 3299.99,
+      "testRide": "",
+      "styles": [],
+      "sizes": [
+        "One Size"
+      ],
+      "specs": {
+        "Range": "60-80 mi",
+        "Top Speed": "28 mph",
+        "Motor": "750W / 1300W peak",
+        "Battery": "940.8WH"
+      },
+      "colors": {
+        "Default": {
+          "One Size": [
+            {
+              "name": "Brown Gray",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0785/3794/9231/files/2_fd329d7e-9558-4592-9c10-2a9e08b853f3.jpg?v=1787292612"
+            },
+            {
+              "name": "Jungle Camo",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0785/3794/9231/files/2_2cf871a2-fdd6-443b-b426-6378a510e1ae.jpg?v=1787292614",
+              "soldOut": true
+            },
+            {
+              "name": "Black and Blue",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0785/3794/9231/files/2_b72a5f69-338e-431e-883d-9901c5dd1e57.jpg?v=1787292616",
+              "soldOut": true
+            }
+          ]
+        }
+      },
+      "colorsNested": true,
+      "sizeGuide": {}
+    },
+    {
+      "brand": "Mokwheel",
+      "id": "tarmac-st",
+      "name": "Tarmac ST Ebike",
+      "subtitle": "",
+      "price": 1699.99,
+      "testRide": "",
+      "styles": [],
+      "sizes": [
+        "One Size"
+      ],
+      "specs": {
+        "Range": "60 mi",
+        "Top Speed": "28 mph",
+        "Motor": "750W / 920W peak",
+        "Battery": "720WH"
+      },
+      "colors": {
+        "Default": {
+          "One Size": [
+            {
+              "name": "Smoke Grey",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0785/3794/9231/files/2_36633887-570e-4a66-ae44-059a2160ca1b.jpg?v=1787292905"
+            },
+            {
+              "name": "Hazelnut Yellow",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0785/3794/9231/files/2_b2dd1bbe-6074-404f-b4b2-e2ee0520990b.jpg?v=1787292927"
+            },
+            {
+              "name": "Crimson Red",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0785/3794/9231/files/2_9d484feb-555a-472b-9252-5a8d71ba1e91.jpg?v=1787292916"
+            }
+          ]
+        }
+      },
+      "colorsNested": true,
+      "sizeGuide": {}
+    },
+    {
+      "brand": "Mokwheel",
+      "id": "obsidian-2-0",
+      "name": "Obsidian 2.0 Ebike",
+      "subtitle": "",
+      "price": 2199.99,
+      "testRide": "",
+      "styles": [],
+      "sizes": [
+        "One Size"
+      ],
+      "specs": {
+        "Range": "60-80 mi",
+        "Top Speed": "20-28 mph (adjustable)",
+        "Motor": "750W / 1300W peak",
+        "Battery": "940.8WH"
+      },
+      "colors": {
+        "Default": {
+          "One Size": [
+            {
+              "name": "Jungle Camo",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0785/3794/9231/files/2_ca9b3c2b-3d8c-4a8e-8de7-f863ab4475c1.jpg?v=1787292866"
+            },
+            {
+              "name": "Black and Red",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0785/3794/9231/files/2_2b14eb7f-0bbe-4fc7-a7b7-64e71c963346.jpg?v=1787292848"
+            },
+            {
+              "name": "Yellow and Black",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0785/3794/9231/files/2_365d362b-c479-4b01-810e-d9fdb1d43afe.jpg?v=1787292857"
+            }
+          ]
+        }
+      },
+      "colorsNested": true,
+      "sizeGuide": {}
+    },
+    {
+      "brand": "Mokwheel",
+      "id": "obsidian-st-2-0",
+      "name": "Obsidian ST 2.0 Ebike",
+      "subtitle": "",
+      "price": 2199.99,
+      "testRide": "Test Ride Available",
+      "styles": [],
+      "sizes": [
+        "One Size"
+      ],
+      "specs": {
+        "Range": "60-80 mi",
+        "Top Speed": "20-28 mph (adjustable)",
+        "Motor": "750W / 1300W peak",
+        "Battery": "940.8WH"
+      },
+      "colors": {
+        "Default": {
+          "One Size": [
+            {
+              "name": "Black and Red",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0785/3794/9231/files/2_cc802d55-d4bb-4317-a84e-bf3ad059bcf6.jpg?v=1787292843"
+            },
+            {
+              "name": "Blue and Grey",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0785/3794/9231/files/2_c02f0a38-474d-4c7c-bdac-d8cd349a607e.jpg?v=1787292854"
+            },
+            {
+              "name": "Desert Camo",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0785/3794/9231/files/2_991b9797-d65a-48b5-bcac-88ee8e59552b.jpg?v=1787292866"
+            }
+          ]
+        }
+      },
+      "colorsNested": true,
+      "sizeGuide": {}
+    },
+    {
+      "brand": "Mokwheel",
+      "id": "basalt-2-0",
+      "name": "Basalt 2.0 Ebike",
+      "subtitle": "",
+      "price": 1699.99,
+      "testRide": "Test Ride Available",
+      "styles": [],
+      "sizes": [
+        "One Size"
+      ],
+      "specs": {
+        "Range": "60-80 mi",
+        "Top Speed": "28 mph",
+        "Motor": "1000W / 1100W peak",
+        "Battery": "940.8WH"
+      },
+      "colors": {
+        "Default": {
+          "One Size": [
+            {
+              "name": "Phantom Black",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0785/3794/9231/files/2_9a154054-42da-4bea-8460-3c5fbefd267c.jpg?v=1787292831"
+            },
+            {
+              "name": "Grey",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0785/3794/9231/files/2_f84ea412-0e01-4602-ba14-0a3c708b6f23.jpg?v=1787292832"
+            },
+            {
+              "name": "DarkBlue",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0785/3794/9231/files/2_336345a7-a218-46d5-89f7-56078d051ca1.jpg?v=1787292834"
+            },
+            {
+              "name": "Jungle Camo",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0785/3794/9231/files/2_8df4196d-2e82-4cc3-967e-82fd17b73734.jpg?v=1787292836"
+            }
+          ]
+        }
+      },
+      "colorsNested": true,
+      "sizeGuide": {}
+    },
+    {
+      "brand": "Mokwheel",
+      "id": "asphalt-st",
+      "name": "Asphalt ST Ebike",
+      "subtitle": "",
+      "price": 1499.99,
+      "testRide": "",
+      "styles": [],
+      "sizes": [
+        "One Size"
+      ],
+      "specs": {
+        "Range": "50-60 mi",
+        "Top Speed": "28 mph",
+        "Motor": "500W / 860W peak",
+        "Battery": "705.6WH"
+      },
+      "colors": {
+        "Default": {
+          "One Size": [
+            {
+              "name": "White",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0785/3794/9231/files/2_0f5ad3ea-6ddc-4814-9c74-2c819f634fb0.jpg?v=1787292184"
+            },
+            {
+              "name": "Mocha",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0785/3794/9231/files/2_0296693e-8ac0-42d7-8c62-545e88c1dcb1.jpg?v=1787292196",
+              "soldOut": true
+            },
+            {
+              "name": "Lapis",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0785/3794/9231/files/2_567accff-1af6-44f2-8d60-c14f33ea2ad6.jpg?v=1787292206",
+              "soldOut": true
+            }
+          ]
+        }
+      },
+      "colorsNested": true,
+      "sizeGuide": {}
+    },
+    {
+      "brand": "Mokwheel",
+      "id": "asphalt",
+      "name": "Asphalt Ebike",
+      "subtitle": "",
+      "price": 1499.99,
+      "testRide": "",
+      "styles": [],
+      "sizes": [
+        "One Size"
+      ],
+      "specs": {
+        "Range": "50-60 mi",
+        "Top Speed": "28 mph",
+        "Motor": "500W / 860W peak",
+        "Battery": "705.6WH"
+      },
+      "colors": {
+        "Default": {
+          "One Size": [
+            {
+              "name": "Khaki",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0785/3794/9231/files/3_d493413c-5e78-4087-8a64-63b07ab8c938.jpg?v=1787292240"
+            },
+            {
+              "name": "Orange",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0785/3794/9231/files/3_e9a929ad-2aab-44b5-b500-f2fc9f815b04.jpg?v=1787292242"
+            },
+            {
+              "name": "Denim",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0785/3794/9231/files/3_6933573e-fed8-4470-ab8a-1fc80ebbf50d.jpg?v=1787292244"
+            }
+          ]
+        }
+      },
+      "colorsNested": true,
+      "sizeGuide": {}
+    },
+    {
+      "brand": "Mokwheel",
+      "id": "new-mesa-lite-st",
+      "name": "Mesa Lite ST Ebike",
+      "subtitle": "",
+      "price": 999.99,
+      "testRide": "",
+      "styles": [],
+      "sizes": [
+        "One Size"
+      ],
+      "specs": {
+        "Range": "40-50 mi",
+        "Top Speed": "28 mph",
+        "Motor": "350W / 600W peak",
+        "Battery": "529.2WH"
+      },
+      "colors": {
+        "Default": {
+          "One Size": [
+            {
+              "name": "White",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0785/3794/9231/files/1_dbc04246-e952-4890-8fc0-5d41258106fe.jpg?v=1787292375",
+              "soldOut": true
+            }
+          ]
+        }
+      },
+      "colorsNested": true,
+      "sizeGuide": {}
+    },
+    {
+      "brand": "Mokwheel",
+      "id": "tarmac",
+      "name": "Tarmac Ebike",
+      "subtitle": "",
+      "price": 1699.99,
+      "testRide": "",
+      "styles": [],
+      "sizes": [
+        "One Size"
+      ],
+      "specs": {
+        "Range": "60 mi",
+        "Top Speed": "28 mph",
+        "Motor": "750W / 920W peak",
+        "Battery": "720WH"
+      },
+      "colors": {
+        "Default": {
+          "One Size": [
+            {
+              "name": "Phantom Black",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0785/3794/9231/files/2_17d8aae3-d0b1-48f8-a5a2-29b323e77c82.jpg?v=1787292628"
+            },
+            {
+              "name": "Pine Green",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0785/3794/9231/files/2_c768294a-1d68-42fb-bce2-36d1b071fa17.jpg?v=1787292650"
+            },
+            {
+              "name": "Marine Blue",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0785/3794/9231/files/2_a030f7ae-cc82-437d-a53b-0d74c20d32bd.jpg?v=1787292639"
+            }
+          ]
+        }
+      },
+      "colorsNested": true,
+      "sizeGuide": {}
+    },
+    {
+      "brand": "Mokwheel",
+      "id": "basalt-st-2-0-s",
+      "name": "Basalt ST 2.0 Ebike",
+      "subtitle": "",
+      "price": 1699.99,
+      "testRide": "Test Ride Available",
+      "styles": [],
+      "sizes": [
+        "One Size"
+      ],
+      "specs": {
+        "Range": "60-80 mi",
+        "Top Speed": "28 mph",
+        "Motor": "1000W / 1100W peak",
+        "Battery": "940.8WH"
+      },
+      "colors": {
+        "Default": {
+          "One Size": [
+            {
+              "name": "Olive Green",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0785/3794/9231/files/2_8380dc48-93fc-4298-8a2a-aedc1a0423c2.jpg?v=1787292584",
+              "price": 1800
+            },
+            {
+              "name": "Orange",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0785/3794/9231/files/2_1d26279c-1d1c-423b-8d00-269f9b7d1399.jpg?v=1787292590",
+              "price": 1800
+            },
+            {
+              "name": "White",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0785/3794/9231/files/2_40301cbb-f377-4efc-994f-980a205988dc.jpg?v=1787292588",
+              "price": 1800
+            },
+            {
+              "name": "Crystal Pink",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0785/3794/9231/files/2_1776402e-cfbc-4e8e-a83f-2ce9668f84c8.jpg?v=1787292591",
+              "price": 1800
+            },
+            {
+              "name": "Jungle Camo",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0785/3794/9231/files/2_d8b7e2b9-cfd6-40ae-bbcc-8f3ac9ef9c32.jpg?v=1787292586",
+              "price": 1800
+            }
+          ]
+        }
+      },
+      "colorsNested": true,
+      "sizeGuide": {}
+    },
+    {
+      "brand": "Mokwheel",
+      "id": "obsidian-st",
+      "name": "Obsidian ST Ebike",
+      "subtitle": "",
+      "price": 1999.99,
+      "testRide": "Test Ride Available",
+      "styles": [],
+      "sizes": [
+        "One Size"
+      ],
+      "specs": {
+        "Range": "60-80 mi",
+        "Top Speed": "28 mph",
+        "Motor": "750W / 1300W peak",
+        "Battery": "940.8WH"
+      },
+      "colors": {
+        "Default": {
+          "One Size": [
+            {
+              "name": "Desert Camo",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0785/3794/9231/files/2c6b27aa2a0ee3c25b4403fb7c49db7f_889e5d8e-b6e7-4499-a903-2e5b27277bb3.jpg?v=1787292534",
+              "soldOut": true
+            },
+            {
+              "name": "Blue and Grey",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0785/3794/9231/files/c512696efd74edbc925ec22020bded3c_cda2fca2-adaa-4dd5-977d-ba0b9c3ef163.jpg?v=1787292544",
+              "soldOut": true
+            },
+            {
+              "name": "Black and Red",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0785/3794/9231/files/7a96918c5a4111f5106ad2b0941050e0_9c3dfbd7-51ee-4f71-8f47-d6d40ff7b584.jpg?v=1787292545",
+              "soldOut": true
+            }
+          ]
+        }
+      },
+      "colorsNested": true,
+      "sizeGuide": {}
+    },
+    {
+      "brand": "Mokwheel",
+      "id": "obsidian",
+      "name": "Obsidian Ebike",
+      "subtitle": "",
+      "price": 1699.99,
+      "testRide": "",
+      "styles": [],
+      "sizes": [
+        "One Size"
+      ],
+      "specs": {
+        "Range": "60-80 mi",
+        "Top Speed": "28 mph",
+        "Motor": "750W / 1300W peak",
+        "Battery": "940.8WH"
+      },
+      "colors": {
+        "Default": {
+          "One Size": [
+            {
+              "name": "Jungle Camo",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0785/3794/9231/files/2_77a492f5-d547-4653-8a2a-d9b79f648d13.jpg?v=1787292495"
+            },
+            {
+              "name": "Black and Red",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0785/3794/9231/files/2_b390905f-7538-4d22-aad1-6936b99189f2.jpg?v=1787292476"
+            },
+            {
+              "name": "Yellow and Black",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0785/3794/9231/files/2_45bf29f8-de6a-43e4-b78a-913c2b92e6e1.jpg?v=1787292485"
+            }
+          ]
+        }
+      },
+      "colorsNested": true,
+      "sizeGuide": {}
+    },
+    {
+      "brand": "Mokwheel",
+      "id": "basalt",
+      "name": "Basalt Ebike",
+      "subtitle": "",
+      "price": 1099.99,
+      "testRide": "",
+      "styles": [],
+      "sizes": [
+        "One Size"
+      ],
+      "specs": {
+        "Range": "60-80 mi",
+        "Top Speed": "28 mph",
+        "Motor": "750W / 1100W peak",
+        "Battery": "940.8WH"
+      },
+      "colors": {
+        "Default": {
+          "One Size": [
+            {
+              "name": "Jungle Camo",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0785/3794/9231/files/2_9f1f5813-d375-470c-a0b3-bf8923d3ee74.jpg?v=1787291914",
+              "soldOut": true
+            },
+            {
+              "name": "Steel Blue",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0785/3794/9231/files/2_2176451c-4ab2-4a9b-bfb8-17811cc0b6f0.jpg?v=1787291910",
+              "soldOut": true
+            }
+          ]
+        }
+      },
+      "colorsNested": true,
+      "sizeGuide": {}
+    },
+    {
+      "brand": "Mokwheel",
+      "id": "granite",
+      "name": "Granite E-Trike",
+      "subtitle": "",
+      "price": 1999.99,
+      "testRide": "",
+      "styles": [],
+      "sizes": [
+        "One Size"
+      ],
+      "specs": {
+        "Range": "45-55 mi",
+        "Top Speed": "20 mph",
+        "Motor": "500W / 1092W peak",
+        "Battery": "720WH"
+      },
+      "colors": {
+        "Default": {
+          "One Size": [
+            {
+              "name": "Steel Blue",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0785/3794/9231/files/1_e9fea1db-9920-406c-ad09-723323fb53ed.jpg?v=1787292421",
+              "soldOut": true
+            },
+            {
+              "name": "Grey",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0785/3794/9231/files/1_d424171e-1291-4a09-a8bd-616170f4e88e.jpg?v=1787292412",
+              "soldOut": true
+            }
+          ]
+        }
+      },
+      "colorsNested": true,
+      "sizeGuide": {}
+    },
+    {
+      "brand": "Mokwheel",
+      "id": "slate",
+      "name": "Slate Ebike",
+      "subtitle": "",
+      "price": 1499.99,
+      "testRide": "",
+      "styles": [],
+      "sizes": [
+        "One Size"
+      ],
+      "specs": {
+        "Range": "60 mi",
+        "Top Speed": "28 mph",
+        "Motor": "500W",
+        "Battery": "720WH"
+      },
+      "colors": {
+        "Default": {
+          "One Size": [
+            {
+              "name": "Denim",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0785/3794/9231/files/2_0f3ecae4-38a2-4337-9fac-765438ad8932.jpg?v=1787292421"
+            },
+            {
+              "name": "Platinum",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0785/3794/9231/files/2_a2d2c77d-0103-43ec-80cf-76d1710af47d.jpg?v=1787292420"
+            }
+          ]
+        }
+      },
+      "colorsNested": true,
+      "sizeGuide": {}
+    },
+    {
+      "brand": "Mokwheel",
+      "id": "mesa-plus-st",
+      "name": "Mesa Plus ST Ebike",
+      "subtitle": "",
+      "price": 1199.99,
+      "testRide": "",
+      "styles": [],
+      "sizes": [
+        "One Size"
+      ],
+      "specs": {
+        "Range": "60 mi",
+        "Top Speed": "28 mph",
+        "Motor": "750W / 1100W peak",
+        "Battery": "768WH"
+      },
+      "colors": {
+        "Default": {
+          "One Size": [
+            {
+              "name": "Tan",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0785/3794/9231/files/2_726955c1-1cf4-4761-968d-9918e8a14c42.jpg?v=1787291895"
+            },
+            {
+              "name": "Grey",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0785/3794/9231/files/2_bae016bd-5bf9-4bc7-902e-ab59bf7d79af.jpg?v=1787291897",
+              "soldOut": true
+            }
+          ]
+        }
+      },
+      "colorsNested": true,
+      "sizeGuide": {}
+    },
+    {
+      "brand": "Mokwheel",
+      "id": "tor-plus",
+      "name": "Tor Plus Ebike",
+      "subtitle": "",
+      "price": 1199.99,
+      "testRide": "",
+      "styles": [],
+      "sizes": [
+        "One Size"
+      ],
+      "specs": {
+        "Range": "50-60 mi",
+        "Top Speed": "28 mph",
+        "Motor": "750W / 1100W peak",
+        "Battery": "768WH"
+      },
+      "colors": {
+        "Default": {
+          "One Size": [
+            {
+              "name": "Grey",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0785/3794/9231/files/2_51a2499d-ba35-4526-9d51-07cf0253fbc1.jpg?v=1787291894"
+            },
+            {
+              "name": "Green",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0785/3794/9231/files/2_6b4ea16a-1f49-4078-9007-d556a38d17eb.jpg?v=1787291893"
             }
           ]
         }
