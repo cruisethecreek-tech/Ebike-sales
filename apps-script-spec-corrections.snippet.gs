@@ -18,9 +18,110 @@
  * rewriter — the sheet is where hand-entered work lives.
  */
 
-var FIX_VERSION = '2026-09-16a';
+var FIX_VERSION = '2026-09-16b';
 
 var SPEC_FIXES = [
+
+  // ── Rows the brand imports added with empty Specs ──────────────────────
+  // Seven of these reuse figures already vetted in salespro rather than being
+  // re-derived; the rest come from the vendor's own product pages. Anything a
+  // vendor does not publish is left out entirely rather than estimated, which
+  // is why several carry no Top Speed.
+
+  { brand: 'Velotric', name: 'Velotric Discover 2 Ebike',
+    why: 'imported empty. Figures already vetted in salespro.',
+    src: 'https://www.velotricbike.com/products/velotric-discover-2',
+    specs: { 'Range': '75 mi', 'Top Speed': '28 mph', 'Motor': '750W / 1200W peak',
+             'Battery': '706WH', 'Torque': '75 NM', 'Weight': '68 lbs' } },
+
+  { brand: 'Velotric', name: 'Velotric Go 1 Ebike',
+    why: 'imported empty. Figures already vetted in salespro.',
+    src: 'https://www.velotricbike.com/products/velotric-go-1',
+    specs: { 'Range': '55 mi', 'Top Speed': '20 mph', 'Motor': '500W / 900W peak',
+             'Battery': '691.2WH', 'Torque': '65 NM', 'Weight': '65 lbs' } },
+
+  { brand: 'Velotric', name: 'Velotric Packer 1 Ebike',
+    why: 'imported empty. Figures already vetted in salespro.',
+    src: 'https://www.velotricbike.com/products/velotric-packer-1',
+    specs: { 'Range': '52 mi', 'Top Speed': '20 mph', 'Motor': '750W / 1200W peak',
+             'Battery': '804WH', 'Torque': '75 NM', 'Weight': '75 lbs' } },
+
+  { brand: 'Velotric', name: 'Velotric Nomad 1 Plus Ebike',
+    why: 'imported empty. Figures already vetted in salespro.',
+    src: 'https://www.velotricbike.com/products/velotric-nomad-1',
+    specs: { 'Range': '55 mi', 'Top Speed': '28 mph', 'Motor': '750W / 1200W peak',
+             'Battery': '691.2WH', 'Torque': '75 NM', 'Weight': '73 lbs' } },
+
+  { brand: 'Velotric', name: 'Velotric Discover 1 Plus Ebike',
+    why: 'imported empty. Figures already vetted in salespro.',
+    src: 'https://www.velotricbike.com/products/velotric-discover-1',
+    specs: { 'Range': '65 mi', 'Top Speed': '28 mph', 'Motor': '500W / 900W peak',
+             'Battery': '691WH', 'Torque': '65 NM', 'Weight': '60 lbs' } },
+
+  { brand: 'Velotric', name: 'Velotric T1 Ebike',
+    why: 'imported empty. 36V x 9.8Ah = 352.8Wh. Velotric publishes a top speed '
+       + 'for the T1 ST Plus but not for the base T1, so this row carries none '
+       + 'rather than borrowing the other model\'s number.',
+    src: 'https://www.velotricbike.com/products/velotric-t1-ebike',
+    specs: { 'Range': '70 mi', 'Motor': '350W / 600W peak', 'Battery': '352.8WH',
+             'Torque': '45 NM', 'Weight': '36 lbs' } },
+
+  { brand: 'Heybike', name: 'Cityscape 2.0',
+    why: 'imported empty. Figures already vetted in salespro.',
+    src: 'https://www.heybike.com/products/cityscape',
+    specs: { 'Range': '50 mi', 'Top Speed': '20 mph', 'Motor': '500W / 800W peak',
+             'Battery': '360WH', 'Torque': '65 NM', 'Weight': '61.7 lbs' } },
+
+  { brand: 'Heybike', name: 'Mars 2.5',
+    why: 'imported empty. Heybike states 750W/1000W peak, 85Nm, a 600Wh UL pack '
+       + 'and 45 miles, but no top speed on the product page — so none is given.',
+    src: 'https://www.heybike.com/products/mars-2-5',
+    specs: { 'Range': '45 mi', 'Motor': '750W / 1000W peak', 'Battery': '600WH',
+             'Torque': '85 NM' } },
+
+  { brand: 'Jasion', name: 'X-Hunter ST Ebike',
+    why: 'imported empty. Figures already vetted in salespro.',
+    src: 'https://www.jasionbike.com/products/x-hunter-st',
+    specs: { 'Range': '70 mi', 'Top Speed': '28 mph', 'Motor': '750W / 1400W peak',
+             'Battery': '624WH', 'Torque': '85 NM', 'Weight': '70 lbs' } },
+
+  { brand: 'Jasion', name: 'Kago Ebike',
+    why: 'imported empty. Cargo bike on a DUAL 52V x 20Ah pack = 2080Wh, which is '
+       + 'where the 120-mile figure comes from. Jasion publishes peak watts only, '
+       + 'so the motor reads as peak rather than inventing a rated number.',
+    src: 'https://www.jasionbike.com/products/kago',
+    specs: { 'Range': '120 mi', 'Motor': '1200W peak', 'Battery': '2080WH',
+             'Torque': '80 NM' } },
+
+  { brand: 'Jasion', name: 'JT18 eTrike',
+    why: 'imported empty. Jasion publishes motor, range, speed and a 300 lb '
+       + 'capacity but not the pack size, so Battery is absent rather than guessed.',
+    src: 'https://www.jasionbike.com/products/jt18',
+    specs: { 'Range': '60 mi', 'Top Speed': '16 mph', 'Motor': '1200W peak' } },
+
+  { brand: 'Jasion', name: 'RetroVolt Max Ebike',
+    why: 'imported empty. 52V x 20Ah x2 = 2080Wh. NOT A CLASS 3 E-BIKE: 35 mph is '
+       + 'above the 28 mph ceiling, so in Ohio this is a motor vehicle, not a '
+       + 'bicycle. The number is recorded as published — do not quietly print 28.',
+    src: 'https://www.jasionbike.com/products/retrovolt-max',
+    specs: { 'Range': '150 mi', 'Top Speed': '35 mph', 'Motor': '2000W peak',
+             'Battery': '2080WH', 'Torque': '99 NM' } },
+
+  { brand: 'Jasion', name: 'Patrol Ebike',
+    why: 'imported empty. 4000W, 145Nm, 52V x 30Ah = 1560Wh. THROTTLE ONLY — '
+       + 'Jasion states it has no pedal assist at all, which puts it outside every '
+       + 'e-bike class; it is an electric dirt bike. Jasion publishes 0-20 mph in '
+       + '3.5s but no top speed, so none is given.',
+    src: 'https://www.jasionbike.com/products/patrol-52',
+    specs: { 'Range': '50 mi', 'Motor': '4000W', 'Battery': '1560WH',
+             'Torque': '145 NM' } },
+
+  { brand: 'Mooncool', name: 'POP Folding Electric Bike',
+    why: 'imported empty. 48V x 20Ah = 960Wh, 450 lb capacity. Mooncool publishes '
+       + 'no top speed for the POP.',
+    src: 'https://www.mooncool.com/products/pop-folding-electric-bike',
+    specs: { 'Range': '45-65 mi', 'Motor': '750W', 'Battery': '960WH' } },
+
   {
     brand: 'Mooncool', name: 'TK2Pro',
     why: 'row carried a copy of the TK1 specs — 500W / 696WH / 70 mi / 16 mph. '
