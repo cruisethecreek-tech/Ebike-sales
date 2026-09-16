@@ -121,6 +121,42 @@ _bimgWalkSwatches_({}, () => ok('empty object must not call back', false));
 _bimgWalkSwatches_(null, () => ok('null must not call back', false));
 pass += 2;
 
+// -- seeding a row that has no colours at all -----------------------------
+// refreshBrandImages only repoints an existing swatch, so "TK1 fat tire" —
+// stored as {"Default":{"One Size":[]}} — stayed photoless no matter how many
+// times the image pass ran. There was nothing to repoint.
+const emptyRow = { Default: { 'One Size': [] } };
+eq('a row stored with an empty array counts as zero', _bimgCountSwatches_(emptyRow), 0);
+eq('a populated row counts correctly', _bimgCountSwatches_(heybikeShape), 2);
+
+const seedProduct = {
+  options: [{ name: 'Color' }],
+  images: [{ src: 'https://cdn/product-first.jpg' }],
+  variants: [
+    { option1: 'Grey',  available: true,  featured_image: { src: 'https://cdn/grey.jpg' } },
+    { option1: 'White', available: false, featured_image: { src: 'https://cdn/white.jpg' } },
+    { option1: 'Grey',  available: true,  featured_image: { src: 'https://cdn/grey-2.jpg' } },
+    { option1: 'Default Title',           featured_image: { src: 'https://cdn/x.jpg' } },
+  ],
+};
+const seeded = _bimgVariantSwatches_(seedProduct);
+eq('one swatch per colour, duplicates collapsed', seeded.length, 2);
+eq('name carried', seeded[0].name, 'Grey');
+eq('image carried', seeded[0].img, 'https://cdn/grey.jpg');
+eq('hex left blank rather than guessed', seeded[0].hex, '');
+eq('sold-out flag carried', seeded[1].soldOut, true);
+ok('in-stock colour carries no soldOut key', seeded[0].soldOut === undefined);
+ok('"Default Title" excluded', !seeded.some(s => /default/i.test(s.name)));
+
+// A vendor with no per-variant photo falls back to the product image, because
+// one shared picture beats a card with no picture at all.
+const noVariantPhoto = { options: [{ name: 'Color' }],
+  images: [{ src: 'https://cdn/only.jpg' }],
+  variants: [{ option1: 'Red', available: true }] };
+eq('falls back to the product photo', _bimgVariantSwatches_(noVariantPhoto)[0].img, 'https://cdn/only.jpg');
+eq('and nothing at all yields nothing',
+   _bimgVariantSwatches_({ options: [{ name: 'Color' }], variants: [{ option1: 'Red' }] }).length, 0);
+
 // -- the whole point: only img changes -----------------------------------
 const before = JSON.parse(JSON.stringify(heybikeShape));
 _bimgWalkSwatches_(heybikeShape, sw => {
