@@ -44,7 +44,7 @@ var IMP_TAB_NAME = 'Inventory';   // keep in sync with INV_TAB_NAME
 // Printed at the top of every run — see the note on FS_VERSION in BrandSpecs.gs.
 // Apps Script runs the last SAVED file, so this is how you tell whether the
 // paste you just made is the code that actually executed.
-var IMP_VERSION = '2026-09-15d';
+var IMP_VERSION = '2026-09-15e';
 
 // Products whose title contains any of these are not bikes. PriceMonitor.gs
 // has the long battle-tested list; if it lives in this project we reuse it.
@@ -84,13 +84,27 @@ var IMP_HARD_PARTS = [
   // Mokwheel sells power gear alongside the bikes; two solar panels imported
   // as bicycles on the first real run.
   'solar panel', 'solar', 'inverter', 'generator', 'power station',
+  // Heybike lists the same bike many times over: "Saturn-combo", "ALPHA (VIP
+  // only)", "Cityscape 2.0（Deal）", "Mars 3.0 for Spurs Fans". Each one is a
+  // separate product in the feed and each became its own row. They are not new
+  // models, they are the same bike with a promotion attached, and a shop with
+  // four Saturn rows is worse than one.
+  'combo', 'deal', 'vip', 'spurs fans', 'gift pack', 'protection', 'headlight',
 ];
 
-/** Whole-word (or whole-phrase) test, so 'light' does not match "Lightweight". */
+/**
+ * Whole-word (or whole-phrase) test, so 'light' does not match "Lightweight".
+ *
+ * An optional trailing "s" is allowed, because the keyword lists are singular
+ * and vendors are not: 'mirror' did not match "Mirrors（3FOR99）" and 'basket'
+ * did not match "Dual Rear Side Baskets Set", so both imported as bicycles.
+ * Listing every plural by hand would have to be redone for each new list.
+ */
 function _impHasTerm_(title, term) {
   var w = String(term || '').trim();
   if (!w) return false;
-  var re = new RegExp('(^|[^a-z0-9])' + w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '([^a-z0-9]|$)', 'i');
+  var re = new RegExp('(^|[^a-z0-9])' + w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') +
+                      's?([^a-z0-9]|$)', 'i');
   return re.test(String(title || ''));
 }
 
@@ -485,3 +499,14 @@ function step2_jasionImportApply()    { return importBrand('Jasion',   'https://
 function step1_mooncoolImportDryRun() { return importBrand('Mooncool', 'https://www.mooncool.com'); }
 /** Mooncool — add the rows, hidden. */
 function step2_mooncoolImportApply()  { return importBrand('Mooncool', 'https://www.mooncool.com', true); }
+
+/**
+ * Heybike Sports — a SEPARATE Shopify store.
+ *
+ * The Villain dirt bike is not in www.heybike.com's 131 products because it is
+ * not sold there; sports.heybike.com is its own storefront. A brand with two
+ * stores needs two imports, and nothing in the first run's log hints that the
+ * second exists — the model simply never appears.
+ */
+function step1_heybikeSportsImportDryRun() { return importBrand('Heybike', 'https://sports.heybike.com'); }
+function step2_heybikeSportsImportApply()  { return importBrand('Heybike', 'https://sports.heybike.com', true); }

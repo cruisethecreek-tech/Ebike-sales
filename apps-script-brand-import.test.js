@@ -40,6 +40,23 @@ const accessories = [
   'Fat Tire Inner Tube',
   '230W Solar Panel + Inverter',
   '100W Solar Panel + Inverter',
+  // Straight out of the first real Heybike dry run. The plurals are the
+  // interesting ones: the keyword lists say 'mirror' and 'basket', matching is
+  // whole-word, so both of these imported as bicycles.
+  'Mirrors（3FOR99）',
+  'Dual Rear Side Baskets Set',
+  'LED Bike Long Headlight（3FOR99）',
+  'LED Bike Headlight',
+  'Seel E-Mobility Protection',
+  'Limited Miami Sunset Gift Pack',
+  // The same bike relisted with a promotion attached. Not new models.
+  'Saturn-combo',
+  'ALPHA-Combo（Deal）',
+  'ALPHA (VIP only)',
+  'Cityscape 2.0（Deal）',
+  'Mars 3.0 for Spurs Fans',
+  'Saturn for Spurs Fans',
+  'Saturn-Dual Battery-VIP Only',
 ];
 
 // Titles that must survive. Mokwheel's current lineup plus the historical
@@ -49,6 +66,11 @@ const bikes = [
   'Onyx', 'Tarmac', 'Obsidian', 'Tor Plus', 'Mesa Plus ST', 'Flint',
   'Upland Fat Tire', 'Lightweight Commuter E-Bike', 'Folding Bike 20"',
   'Backpacker Cargo Bike',
+  // Real Heybike and Mokwheel models that must survive the promo words above.
+  // 'deal' and 'vip' are broad, so the whole live lineup is asserted here.
+  'Saturn', 'Titan', 'Villain', 'Ranger S', 'Ranger 3.0 Pro', 'Mars 2.0',
+  'Mars 3.0', 'Mars 2.5', 'Cityrun', 'Venus', 'Alpha', 'Horizon', 'Hero',
+  'Hero Hub', 'Helio F', 'Hybrid', 'Ranger S 2.0', 'Cityscape 2.0',
 ];
 
 // ── Duplicate protection ────────────────────────────────────────────────
