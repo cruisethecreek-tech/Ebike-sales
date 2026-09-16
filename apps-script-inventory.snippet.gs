@@ -481,9 +481,27 @@ function testGithubSyncTrigger() {
 
   if (!pat) {
     Logger.log('FAILED at step 1: no GITHUB_PAT in Script Properties.');
+
+    // Print the keys that DO exist. "Not saved yet", "typed the name wrong" and
+    // "added it to the other Apps Script project" all look identical otherwise,
+    // and the last one is easy to do when two projects are open in two tabs.
+    var keys = PropertiesService.getScriptProperties().getKeys();
+    if (!keys.length) {
+      Logger.log('  This project has NO script properties at all.');
+      Logger.log('  If you did add one, check you added it to "Pricing and Orders"');
+      Logger.log('  and not the other Apps Script project.');
+    } else {
+      Logger.log('  Properties this project does have (names only, no values):');
+      keys.forEach(function (k) {
+        Logger.log('    "' + k + '"' + (k !== k.trim() ? '   <- has a stray space' : ''));
+      });
+      Logger.log('  The name must be exactly GITHUB_PAT — capitals, underscore, no spaces.');
+    }
     Logger.log('  Project Settings -> Script Properties -> Add script property');
     Logger.log('  Property: GITHUB_PAT     Value: the token');
-    return { ok: false, step: 'token' };
+    Logger.log('  Then press the Save button under the table — the row does not');
+    Logger.log('  save on its own when you click away.');
+    return { ok: false, step: 'token', keys: keys };
   }
   Logger.log('1. GITHUB_PAT found (' + pat.length + ' chars, starts "' +
              pat.slice(0, 4) + '...")  — the value itself is never logged.');
