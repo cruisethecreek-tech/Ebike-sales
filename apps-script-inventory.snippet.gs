@@ -639,3 +639,80 @@ function showScriptPropertyNames() {
   }).join(', ') : 'This project has no script properties.');
   return keys;
 }
+
+/**
+ * diagnoseInventoryFilter — decide, in one run, WHERE the discontinued filter
+ * is being lost.
+ *
+ * Three different failures look identical from the website, and guessing
+ * between them costs a deploy and a sync each time:
+ *
+ *   A. the new code is not in this project at all (paste went elsewhere, or
+ *      an older copy in another .gs file defines the same function name and
+ *      wins — Apps Script keeps the LAST definition loaded, not the one you
+ *      are looking at)
+ *   B. the code is here and correct, but /exec still serves an older
+ *      deployment, so the website sees the old logic
+ *   C. both are current and the sheet genuinely has fewer rows marked than
+ *      you think
+ *
+ * This runs against the real sheet using whatever definitions this project
+ * currently has, and prints the number the code computes right now. Compare it
+ * with what the /exec URL returns:
+ *
+ *   this says 73, /exec returns 82  -> B, redeploy (Manage deployments ->
+ *                                      pencil -> New version)
+ *   this says 82                    -> A or C, and the detail below says which
+ */
+function diagnoseInventoryFilter() {
+  Logger.log('=== Inventory filter diagnosis ===\n');
+
+  // A: is the current code even loaded? _rowGet_ arrived with the fix, so its
+  // absence means this project is running an older copy of this file.
+  var hasRowGet = (typeof _rowGet_ === 'function');
+  Logger.log('_rowGet_ present in this project : ' + hasRowGet);
+  if (!hasRowGet) {
+    Logger.log('  -> The fix is NOT loaded. Either the paste did not land in this');
+    Logger.log('     project, or another .gs file here defines these functions too');
+    Logger.log('     and its copy wins. Search the project for "_isDiscontinued_";');
+    Logger.log('     there must be exactly one.');
+    return { ok: false, reason: 'old code' };
+  }
+
+  var inv = _openInventorySheet_();
+  Logger.log('Headers, exactly as the sheet spells them:');
+  Logger.log('  ' + inv.headers.map(function (h) { return JSON.stringify(h); }).join(', '));
+
+  var total = inv.rows.length, blank = 0, disc = 0, published = 0;
+  var sample = [];
+  inv.rows.forEach(function (row) {
+    if (_isBlankRow_(row)) { blank++; return; }
+    var raw = _rowGet_(row, 'discontinued');
+    if (_isDiscontinued_(row)) {
+      disc++;
+      if (sample.length < 4) {
+        sample.push(String(_rowGet_(row, 'name') || '?') + '  cell=' + JSON.stringify(raw));
+      }
+    } else {
+      published++;
+    }
+  });
+
+  Logger.log('\nRows in the tab        : ' + total);
+  Logger.log('  blank                : ' + blank);
+  Logger.log('  discontinued         : ' + disc);
+  Logger.log('  WOULD BE PUBLISHED   : ' + published);
+
+  if (sample.length) {
+    Logger.log('\nExamples this code hides:');
+    sample.forEach(function (s) { Logger.log('  ' + s); });
+  }
+
+  Logger.log('\nNow open the /exec URL with ?action=getBikeInventory and count.');
+  Logger.log('If it returns more than ' + published + ', the code here is right and the');
+  Logger.log('DEPLOYMENT is stale: Deploy -> Manage deployments -> pencil ->');
+  Logger.log('Version: New version -> Deploy. Do not use "New deployment" —');
+  Logger.log('that makes a second URL and every page points at the current one.');
+
+  return { ok: true, total: total, blank: blank, discontinued: disc, published: published };
+}
