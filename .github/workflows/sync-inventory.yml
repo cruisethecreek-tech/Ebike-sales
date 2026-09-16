@@ -117,7 +117,14 @@ jobs:
               exit 0
             fi
 
-            git commit -m "chore: sync inventory — $BIKE_COUNT bikes [skip ci]"
+            # No "[skip ci]" here. This workflow has no push trigger — its
+            # triggers are repository_dispatch, schedule and workflow_dispatch —
+            # so the tag was never protecting against a loop. What it DID do was
+            # tell Cloudflare Pages to skip the build, so the repo got the new
+            # catalogue and the website kept serving the old one until some
+            # unrelated merge happened to rebuild the site. From the shop floor
+            # that is indistinguishable from the sync not having run at all.
+            git commit -m "chore: sync inventory — $BIKE_COUNT bikes"
             if git push origin HEAD:main; then
               echo "Pushed $BIKE_COUNT bikes."
               exit 0

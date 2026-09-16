@@ -1,0 +1,12 @@
+# Cloudflare Pages response headers.
+#
+# data/inventory.json is rewritten by the sync workflow whenever the Google
+# Sheet changes, but every page fetched it with default caching, so browsers
+# and Cloudflare's edge kept serving the previous catalogue. A bike marked
+# discontinued stayed on the shop until someone happened to hard-refresh —
+# which is indistinguishable from the sync not having run.
+#
+# The pages also pass cache:'no-store', but that only governs the browser.
+# This governs the edge.
+/data/inventory.json
+  Cache-Control: no-cache, must-revalidate

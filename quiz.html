@@ -335,7 +335,7 @@
                 updateRemainingBikes(1);
             } catch (e) { /* ignore parse errors, wait for fresh fetch */ }
         }
-        fetch('/data/inventory.json')
+        fetch('/data/inventory.json', { cache: 'no-store' })
             .then(r => r.json())
             .then(envelope => {
                 const data = Array.isArray(envelope) ? envelope : (envelope.bikes || []);

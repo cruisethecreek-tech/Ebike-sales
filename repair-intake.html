@@ -651,7 +651,7 @@ form.addEventListener('submit', async e => {
   rebuild();
 
   // Layer live sales inventory on top (auto-updating brands + models).
-  fetch('/data/inventory.json')
+  fetch('/data/inventory.json', { cache: 'no-store' })
     .then(function (r) { return r.json(); })
     .then(function (envelope) {
       var data = Array.isArray(envelope) ? envelope : (envelope && (envelope.bikes || envelope.inventory || envelope.data)) || [];
