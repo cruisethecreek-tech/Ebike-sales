@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2026-09-16T17:32:35Z",
+  "lastUpdated": "2026-09-16T17:35:46Z",
   "bikes": [
     {
       "brand": "Heybike",
@@ -447,94 +447,6 @@
               "name": "Standard",
               "hex": "",
               "img": "https://cdn.shopify.com/s/files/1/0769/9238/1155/files/1850_fe31111e-be24-4512-99c2-7ddc8799ff54.png?v=1779440185"
-            }
-          ]
-        }
-      },
-      "colorsNested": true,
-      "sizeGuide": {}
-    },
-    {
-      "brand": "Jasion",
-      "id": "eb720",
-      "name": "EB7 2.0",
-      "subtitle": "Folding Style",
-      "price": 699,
-      "testRide": "",
-      "testRideLoc": "",
-      "styles": [
-        "Folding"
-      ],
-      "sizes": [
-        "One Size"
-      ],
-      "specs": {
-        "Range": "55 mi",
-        "Top Speed": "28 mph",
-        "Motor": "500W",
-        "Battery": "48V 10Ah"
-      },
-      "colors": {
-        "Folding": {
-          "One Size": [
-            {
-              "name": "Black",
-              "hex": "#222222",
-              "img": "images/Mars 2.0 Folding Orange.png"
-            },
-            {
-              "name": "White",
-              "hex": "#ede9e9",
-              "img": "images/Mars 2.0 Folding Orange.png"
-            },
-            {
-              "name": "Green",
-              "hex": "#829558",
-              "img": "images/Mars 2.0 Folding Orange.png"
-            }
-          ]
-        }
-      },
-      "colorsNested": true,
-      "sizeGuide": {}
-    },
-    {
-      "brand": "Jasion",
-      "id": "eb5 roamer",
-      "name": "EB5 Roamer",
-      "subtitle": "Step-Over",
-      "price": 659,
-      "testRide": "",
-      "testRideLoc": "",
-      "styles": [
-        "Step-Over"
-      ],
-      "sizes": [
-        "One Size"
-      ],
-      "specs": {
-        "Range": "62 mi",
-        "Top Speed": "28 mph",
-        "Motor": "500W",
-        "Battery": "48V 11Ah"
-      },
-      "colors": {
-        "Step-Over": {
-          "One Size": [
-            {
-              "name": "Black",
-              "hex": "#000000",
-              "img": "images/EB5 Roamer Badge Black.jpg"
-            },
-            {
-              "name": "Blue",
-              "hex": "#57758b",
-              "img": "https://static.wixstatic.com/media/56427e_66a29716f19c40529fac92ae5b78ea0c~mv2.jpg"
-            },
-            {
-              "name": "Green",
-              "hex": "#5a6b4a",
-              "img": "https://static.wixstatic.com/media/56427e_b4df91ea9b174af4a3acaf0d7748d2e6~mv2.jpg"
             }
           ]
         }
