@@ -1,341 +1,6 @@
 {
-  "lastUpdated": "2026-09-16T17:13:12Z",
+  "lastUpdated": "2026-09-16T17:17:55Z",
   "bikes": [
-    {
-      "brand": "Heybike",
-      "id": "mars2",
-      "name": "Mars 2.0",
-      "subtitle": "Folding Fat Tire",
-      "price": 999,
-      "testRide": "Test Ride Available",
-      "styles": [
-        "750W",
-        "1000W"
-      ],
-      "sizes": [
-        "One Size"
-      ],
-      "specs": {
-        "Range": "45 mi",
-        "Top Speed": "28 mph",
-        "Motor": "750W / 1000W",
-        "Battery": "600Wh"
-      },
-      "colors": {
-        "750W": {
-          "One Size": [
-            {
-              "name": "Pumpkin Orange",
-              "hex": "#FF6600",
-              "img": "images/Mars 2.0 Orange Black.png"
-            },
-            {
-              "name": "Dusty Blue",
-              "hex": "#6B8E9F",
-              "img": "images/Mars 2.0 Badge Blue Black.png"
-            },
-            {
-              "name": "Leather Black",
-              "hex": "#2C2C2C",
-              "img": "images/Mars 2.0 Black Black.png"
-            },
-            {
-              "name": "Granite Gray",
-              "hex": "#696969",
-              "img": "images/Mars 2.0 Grey Black.png"
-            }
-          ]
-        },
-        "1000W": {
-          "One Size": [
-            {
-              "name": "Pumpkin Orange",
-              "hex": "#FF6600",
-              "img": "images/Mars 2.0 Orange Black.png",
-              "price": 1099
-            },
-            {
-              "name": "Dusty Blue",
-              "hex": "#6B8E9F",
-              "img": "images/Mars 2.0 Badge Blue Black.png",
-              "price": 1099
-            },
-            {
-              "name": "Leather Black",
-              "hex": "#2C2C2C",
-              "img": "images/Mars 2.0 Black Black.png",
-              "price": 1099
-            },
-            {
-              "name": "Granite Gray",
-              "hex": "#696969",
-              "img": "images/Mars 2.0 Grey Black.png",
-              "price": 1099
-            }
-          ],
-          "disabled": true
-        }
-      },
-      "colorsNested": true,
-      "sizeGuide": {
-        "title": "Mars 2.0 Sizing Guide",
-        "sizes": [
-          {
-            "size": "One Size",
-            "height": "5'3\" - 6'1\""
-          }
-        ],
-        "note": "Step-over folding frame with 65mm front suspension. Folds in 15 seconds. Max payload: 330 lbs."
-      }
-    },
-    {
-      "brand": "Heybike",
-      "id": "heliof",
-      "name": "Helio F",
-      "subtitle": "Vintage Compact Folding",
-      "price": 1299,
-      "testRide": "",
-      "styles": [
-        "Folding"
-      ],
-      "sizes": [
-        "One Size"
-      ],
-      "specs": {
-        "Range": "50-75 mi",
-        "Top Speed": "20 mph",
-        "Motor": "250W",
-        "Battery": "360Wh"
-      },
-      "colors": {
-        "Folding": {
-          "One Size": [
-            {
-              "name": "Racing Green",
-              "hex": "#36656B",
-              "img": "images/Helio F Green Black.png"
-            },
-            {
-              "name": "Anchor Red",
-              "hex": "#8B0000",
-              "img": "images/Helio F pbp black.png"
-            },
-            {
-              "name": "Mark Edition",
-              "hex": "#E7AC04",
-              "img": "images/Helio Mark Black.png",
-              "price": 1399
-            },
-            {
-              "name": "Hedof Edition",
-              "hex": "#30CAE0",
-              "img": "images/Helio hedof.png",
-              "price": 1399
-            },
-            {
-              "name": "Emi Edition",
-              "hex": "#FAF04D",
-              "img": "images/Helio F Emi Black.png",
-              "price": 1399
-            }
-          ]
-        }
-      },
-      "colorsNested": true,
-      "sizeGuide": {
-        "title": "Helio F Sizing Guide",
-        "sizes": [
-          {
-            "size": "One Size",
-            "height": "5'0\" - 6'2\""
-          }
-        ],
-        "note": "Ultra-lightweight at just 40 lbs. Patented X-Fold system. Vintage-inspired design. Shimano 8-speed."
-      }
-    },
-    {
-      "brand": "Heybike",
-      "id": "cityrun",
-      "name": "Cityrun",
-      "subtitle": "Commuter Cruiser",
-      "price": 999,
-      "testRide": "Test Ride Available",
-      "styles": [
-        "Step-Thru"
-      ],
-      "sizes": [
-        "One Size"
-      ],
-      "specs": {
-        "Range": "55 mi",
-        "Top Speed": "21 mph",
-        "Motor": "500W",
-        "Battery": "720Wh"
-      },
-      "colors": {
-        "Step-Thru": {
-          "One Size": [
-            {
-              "name": "Honey Orange",
-              "hex": "#E8A317",
-              "img": "https://ebike-sales.pages.dev/images/cityrunorangeblack.jpg"
-            },
-            {
-              "name": "Ebony Black",
-              "hex": "#1C1C1C",
-              "img": "https://ebike-sales.pages.dev/images/cityrunblackblack.jpg"
-            },
-            {
-              "name": "Emerald Green",
-              "hex": "#2E8B57",
-              "img": "https://ebike-sales.pages.dev/images/cityrungreenblack.jpg"
-            }
-          ]
-        }
-      },
-      "colorsNested": true,
-      "sizeGuide": {
-        "title": "Cityrun Sizing Guide",
-        "sizes": [
-          {
-            "size": "One Size",
-            "height": "5'4\" - 6'5\""
-          }
-        ],
-        "note": "Step-thru commuter frame with hydraulic front suspension. Lightweight at 62 lbs. Max payload: 350 lbs."
-      }
-    },
-    {
-      "brand": "Heybike",
-      "id": "rangers",
-      "name": "Ranger S",
-      "subtitle": "Folding Fat Tire Step-Thru",
-      "price": 1199,
-      "testRide": "Test Ride Available",
-      "styles": [
-        "750W",
-        "1000W"
-      ],
-      "sizes": [
-        "One Size"
-      ],
-      "specs": {
-        "Range": "55 mi",
-        "Top Speed": "28 mph",
-        "Motor": "750W / 1000W",
-        "Battery": "692Wh"
-      },
-      "colors": {
-        "750W": {
-          "One Size": [
-            {
-              "name": "Merlot Red",
-              "hex": "#8B0000",
-              "img": "images/Ranger S Melot Black.png",
-              "price": 999,
-              "soldOut": true
-            },
-            {
-              "name": "Stone Blue",
-              "hex": "#4A6B8A",
-              "img": "images/Ranger S Blue Black.png",
-              "price": 999,
-              "soldOut": true
-            },
-            {
-              "name": "Shark Grey",
-              "hex": "#5C5C5C",
-              "img": "images/Ranger S Grey Black.png",
-              "price": 999,
-              "soldOut": true
-            }
-          ],
-          "disabled": true
-        },
-        "1000W": {
-          "One Size": [
-            {
-              "name": "Merlot Red",
-              "hex": "#8B0000",
-              "img": "images/Ranger S Melot Black.png",
-              "price": 1199
-            },
-            {
-              "name": "Stone Blue",
-              "hex": "#4A6B8A",
-              "img": "images/Ranger S Blue Black.png",
-              "price": 1199
-            },
-            {
-              "name": "Shark Grey",
-              "hex": "#5C5C5C",
-              "img": "images/Ranger S Grey Black.png",
-              "price": 1199
-            }
-          ],
-          "disabled": true
-        }
-      },
-      "colorsNested": true,
-      "sizeGuide": {}
-    },
-    {
-      "brand": "Heybike",
-      "id": "horizon",
-      "name": "Horizon",
-      "subtitle": "24in Full Suspension Step-Thru",
-      "price": 1399,
-      "testRide": "Test Ride Available",
-      "styles": [
-        "Step-Thru"
-      ],
-      "sizes": [
-        "One Size"
-      ],
-      "specs": {
-        "Range": "55 mi",
-        "Top Speed": "28 mph",
-        "Motor": "750W",
-        "Battery": "692Wh"
-      },
-      "colors": {
-        "Step-Thru": {
-          "One Size": [
-            {
-              "name": "Black & Blue",
-              "hex": "#4682B4",
-              "img": "images/Horizon Blue black.png"
-            },
-            {
-              "name": "Cynical Black",
-              "hex": "#1C1C1C",
-              "img": "images/Horizon Black Black.png"
-            },
-            {
-              "name": "Cyan & Pearl",
-              "hex": "#5A7863",
-              "img": "images/Horizon Cyan Badge Black.png"
-            },
-            {
-              "name": "Sunset Horizon",
-              "hex": "#FF6B6B",
-              "img": "images/Horizon orange.png"
-            }
-          ]
-        }
-      },
-      "colorsNested": true,
-      "sizeGuide": {
-        "title": "Horizon Sizing Guide",
-        "sizes": [
-          {
-            "size": "One Size",
-            "height": "4'11\" - 6'3\""
-          }
-        ],
-        "note": "24 in fat tires with full suspension front and rear. Step-thru frame for easy mounting. Max payload: 330 lbs."
-      }
-    },
     {
       "brand": "Heybike",
       "id": "alpha",
@@ -343,6 +8,7 @@
       "subtitle": "Mid-Drive All-Terrain",
       "price": 1299,
       "testRide": "Test Ride Available",
+      "testRideLoc": "",
       "styles": [
         "Step-Thru",
         "Step-Over"
@@ -394,71 +60,12 @@
     },
     {
       "brand": "Heybike",
-      "id": "hero",
-      "name": "Hero",
-      "subtitle": "Carbon Fiber Full Suspension",
-      "price": 1899,
-      "testRide": "",
-      "styles": [
-        "1000Wfdrf"
-      ],
-      "sizes": [
-        "One Size"
-      ],
-      "specs": {
-        "Range": "60 mi",
-        "Top Speed": "35 mph",
-        "Motor": "750W / 1000W",
-        "Battery": "864Wh"
-      },
-      "colors": {
-        "1000Wfdrf": {
-          "One Size": [
-            {
-              "name": "Tangerine",
-              "hex": "#D38B05",
-              "img": "images/Hero Tangerine Badge White.png",
-              "price": 1899
-            },
-            {
-              "name": "Lime Yellow",
-              "hex": "#89FE8F",
-              "img": "images/Hero Black.png",
-              "price": 1899
-            },
-            {
-              "name": "Limited Edition",
-              "hex": "#0549EC",
-              "img": "images/Hero Black.png",
-              "price": 1899
-            }
-          ],
-          "disabled": true
-        }
-      },
-      "colorsNested": true,
-      "sizeGuide": {
-        "title": "Hero Sizing Guide",
-        "sizes": [
-          {
-            "size": "Step-Thru",
-            "height": "5'3\" - 6'6\""
-          },
-          {
-            "size": "Trapeze",
-            "height": "5'5\" - 6'6\""
-          }
-        ],
-        "note": "T800 carbon fiber frame at just 6.2 lbs. Full suspension. 26x4 in fat tires. 10-year frame warranty. Max payload: 400 lbs."
-      }
-    },
-    {
-      "brand": "Heybike",
       "id": "mars3",
       "name": "Mars 3.0",
       "subtitle": "Full Suspension Folding",
       "price": 1199,
       "testRide": "Test Ride Available",
+      "testRideLoc": "",
       "styles": [
         "High-Step"
       ],
@@ -511,6 +118,7 @@
       "subtitle": "Lightweight Step-Thru",
       "price": 1499,
       "testRide": "Test Ride Available",
+      "testRideLoc": "",
       "styles": [
         "Step-Thru"
       ],
@@ -563,6 +171,7 @@
       "subtitle": "Premium Folding Full Suspension",
       "price": 1499,
       "testRide": "Test Ride Available",
+      "testRideLoc": "",
       "styles": [
         "Step-Thru"
       ],
@@ -621,6 +230,7 @@
       "subtitle": "Commuter Cruiser",
       "price": 1699,
       "testRide": "Test Ride Available",
+      "testRideLoc": "",
       "styles": [
         "Step-Thru"
       ],
@@ -666,7 +276,10 @@
       "subtitle": "",
       "price": 999,
       "testRide": "",
-      "styles": [],
+      "testRideLoc": "",
+      "styles": [
+        "Standard"
+      ],
       "sizes": [
         "One Size"
       ],
@@ -699,7 +312,10 @@
       "subtitle": "",
       "price": 1399,
       "testRide": "",
-      "styles": [],
+      "testRideLoc": "",
+      "styles": [
+        "Standard"
+      ],
       "sizes": [
         "One Size"
       ],
@@ -736,7 +352,10 @@
       "subtitle": "",
       "price": 999,
       "testRide": "",
-      "styles": [],
+      "testRideLoc": "",
+      "styles": [
+        "Standard"
+      ],
       "sizes": [
         "One Size"
       ],
@@ -767,7 +386,10 @@
       "subtitle": "",
       "price": 899,
       "testRide": "",
-      "styles": [],
+      "testRideLoc": "",
+      "styles": [
+        "Standard"
+      ],
       "sizes": [
         "One Size"
       ],
@@ -810,6 +432,7 @@
       "subtitle": "Folding Style",
       "price": 699,
       "testRide": "",
+      "testRideLoc": "",
       "styles": [
         "Folding"
       ],
@@ -853,6 +476,7 @@
       "subtitle": "Step-Over",
       "price": 659,
       "testRide": "",
+      "testRideLoc": "",
       "styles": [
         "Step-Over"
       ],
@@ -896,6 +520,7 @@
       "subtitle": "Step-Thru",
       "price": 699,
       "testRide": "",
+      "testRideLoc": "",
       "styles": [
         "Step-Thru"
       ],
@@ -935,6 +560,7 @@
       "subtitle": "Folding",
       "price": 859,
       "testRide": "",
+      "testRideLoc": "",
       "styles": [
         "Folding"
       ],
@@ -983,6 +609,7 @@
       "subtitle": "Step-Thru Folding",
       "price": 899,
       "testRide": "",
+      "testRideLoc": "",
       "styles": [
         "hunterst"
       ],
@@ -1026,6 +653,7 @@
       "subtitle": "Popular Folding",
       "price": 1099,
       "testRide": "",
+      "testRideLoc": "",
       "styles": [
         "Step-Thru"
       ],
@@ -1069,6 +697,7 @@
       "subtitle": "All Terrain",
       "price": 929,
       "testRide": "",
+      "testRideLoc": "",
       "styles": [
         "All Terrain"
       ],
@@ -1112,6 +741,7 @@
       "subtitle": "Step-Over",
       "price": 1299,
       "testRide": "Class 4 Needs Registration",
+      "testRideLoc": "",
       "styles": [
         "Power Moped"
       ],
@@ -1156,6 +786,7 @@
       "subtitle": "Step-Thru",
       "price": 1299,
       "testRide": "Class 4 Needs Registration",
+      "testRideLoc": "",
       "styles": [
         "Power Moped"
       ],
@@ -1200,6 +831,7 @@
       "subtitle": "Power Moped",
       "price": 899,
       "testRide": "Class 4 Needs Registration",
+      "testRideLoc": "",
       "styles": [
         "Power Moped"
       ],
@@ -1239,7 +871,10 @@
       "subtitle": "",
       "price": 1099,
       "testRide": "",
-      "styles": [],
+      "testRideLoc": "",
+      "styles": [
+        "Standard"
+      ],
       "sizes": [
         "One Size"
       ],
@@ -1275,7 +910,10 @@
       "subtitle": "",
       "price": 1299,
       "testRide": "",
-      "styles": [],
+      "testRideLoc": "",
+      "styles": [
+        "Standard"
+      ],
       "sizes": [
         "One Size"
       ],
@@ -1312,7 +950,10 @@
       "subtitle": "",
       "price": 1399,
       "testRide": "",
-      "styles": [],
+      "testRideLoc": "",
+      "styles": [
+        "Standard"
+      ],
       "sizes": [
         "One Size"
       ],
@@ -1348,7 +989,10 @@
       "subtitle": "",
       "price": 699,
       "testRide": "",
-      "styles": [],
+      "testRideLoc": "",
+      "styles": [
+        "Standard"
+      ],
       "sizes": [
         "One Size"
       ],
@@ -1383,7 +1027,10 @@
       "subtitle": "",
       "price": 899,
       "testRide": "",
-      "styles": [],
+      "testRideLoc": "",
+      "styles": [
+        "Standard"
+      ],
       "sizes": [
         "One Size"
       ],
@@ -1426,7 +1073,10 @@
       "subtitle": "",
       "price": 799.99,
       "testRide": "",
-      "styles": [],
+      "testRideLoc": "",
+      "styles": [
+        "Standard"
+      ],
       "sizes": [
         "One Size"
       ],
@@ -1470,7 +1120,10 @@
       "subtitle": "",
       "price": 999.99,
       "testRide": "",
-      "styles": [],
+      "testRideLoc": "",
+      "styles": [
+        "Standard"
+      ],
       "sizes": [
         "One Size"
       ],
@@ -1502,7 +1155,10 @@
       "subtitle": "",
       "price": 1999.99,
       "testRide": "",
-      "styles": [],
+      "testRideLoc": "",
+      "styles": [
+        "Standard"
+      ],
       "sizes": [
         "One Size"
       ],
@@ -1540,7 +1196,10 @@
       "subtitle": "",
       "price": 1499.99,
       "testRide": "",
-      "styles": [],
+      "testRideLoc": "",
+      "styles": [
+        "Standard"
+      ],
       "sizes": [
         "One Size"
       ],
@@ -1581,7 +1240,10 @@
       "subtitle": "",
       "price": 1499.99,
       "testRide": "",
-      "styles": [],
+      "testRideLoc": "",
+      "styles": [
+        "Standard"
+      ],
       "sizes": [
         "One Size"
       ],
@@ -1624,7 +1286,10 @@
       "subtitle": "",
       "price": 1199.99,
       "testRide": "",
-      "styles": [],
+      "testRideLoc": "",
+      "styles": [
+        "Standard"
+      ],
       "sizes": [
         "One Size"
       ],
@@ -1660,7 +1325,10 @@
       "subtitle": "",
       "price": 1599.99,
       "testRide": "",
-      "styles": [],
+      "testRideLoc": "",
+      "styles": [
+        "Standard"
+      ],
       "sizes": [
         "One Size"
       ],
@@ -1708,7 +1376,10 @@
       "subtitle": "",
       "price": 1599.99,
       "testRide": "Test Ride Available",
-      "styles": [],
+      "testRideLoc": "",
+      "styles": [
+        "Standard"
+      ],
       "sizes": [
         "One Size"
       ],
@@ -1755,7 +1426,10 @@
       "subtitle": "",
       "price": 1399.99,
       "testRide": "",
-      "styles": [],
+      "testRideLoc": "",
+      "styles": [
+        "Standard"
+      ],
       "sizes": [
         "One Size"
       ],
@@ -1796,7 +1470,10 @@
       "subtitle": "",
       "price": 1399.99,
       "testRide": "",
-      "styles": [],
+      "testRideLoc": "",
+      "styles": [
+        "Standard"
+      ],
       "sizes": [
         "One Size"
       ],
@@ -1846,7 +1523,10 @@
       "subtitle": "",
       "price": 1499.99,
       "testRide": "",
-      "styles": [],
+      "testRideLoc": "",
+      "styles": [
+        "Standard"
+      ],
       "sizes": [
         "One Size"
       ],
@@ -1882,7 +1562,10 @@
       "subtitle": "",
       "price": 1199.99,
       "testRide": "",
-      "styles": [],
+      "testRideLoc": "",
+      "styles": [
+        "Standard"
+      ],
       "sizes": [
         "One Size"
       ],
@@ -1919,7 +1602,10 @@
       "subtitle": "",
       "price": 1699.99,
       "testRide": "",
-      "styles": [],
+      "testRideLoc": "",
+      "styles": [
+        "Standard"
+      ],
       "sizes": [
         "One Size"
       ],
@@ -1960,7 +1646,10 @@
       "subtitle": "",
       "price": 1699.99,
       "testRide": "",
-      "styles": [],
+      "testRideLoc": "",
+      "styles": [
+        "Standard"
+      ],
       "sizes": [
         "One Size"
       ],
@@ -2001,7 +1690,10 @@
       "subtitle": "",
       "price": 2199.99,
       "testRide": "",
-      "styles": [],
+      "testRideLoc": "",
+      "styles": [
+        "Standard"
+      ],
       "sizes": [
         "One Size"
       ],
@@ -2042,7 +1734,10 @@
       "subtitle": "",
       "price": 2199.99,
       "testRide": "Test Ride Available",
-      "styles": [],
+      "testRideLoc": "",
+      "styles": [
+        "Standard"
+      ],
       "sizes": [
         "One Size"
       ],
@@ -2083,7 +1778,10 @@
       "subtitle": "",
       "price": 1699.99,
       "testRide": "Test Ride Available",
-      "styles": [],
+      "testRideLoc": "",
+      "styles": [
+        "Standard"
+      ],
       "sizes": [
         "One Size"
       ],
@@ -2129,7 +1827,10 @@
       "subtitle": "",
       "price": 1699.99,
       "testRide": "Test Ride Available",
-      "styles": [],
+      "testRideLoc": "",
+      "styles": [
+        "Standard"
+      ],
       "sizes": [
         "One Size"
       ],
@@ -2185,7 +1886,10 @@
       "subtitle": "",
       "price": 1099.99,
       "testRide": "",
-      "styles": [],
+      "testRideLoc": "",
+      "styles": [
+        "Standard"
+      ],
       "sizes": [
         "One Size"
       ],
@@ -2217,7 +1921,10 @@
       "subtitle": "",
       "price": 1099.99,
       "testRide": "",
-      "styles": [],
+      "testRideLoc": "",
+      "styles": [
+        "Standard"
+      ],
       "sizes": [
         "One Size"
       ],
@@ -2255,7 +1962,10 @@
       "subtitle": "",
       "price": 1799.99,
       "testRide": "",
-      "styles": [],
+      "testRideLoc": "",
+      "styles": [
+        "Standard"
+      ],
       "sizes": [
         "One Size"
       ],
@@ -2301,7 +2011,10 @@
       "subtitle": "",
       "price": 1699.99,
       "testRide": "",
-      "styles": [],
+      "testRideLoc": "",
+      "styles": [
+        "Standard"
+      ],
       "sizes": [
         "One Size"
       ],
@@ -2342,7 +2055,10 @@
       "subtitle": "",
       "price": 1999.99,
       "testRide": "Test Ride Available",
-      "styles": [],
+      "testRideLoc": "",
+      "styles": [
+        "Standard"
+      ],
       "sizes": [
         "One Size"
       ],
@@ -2386,7 +2102,10 @@
       "subtitle": "",
       "price": 3299.99,
       "testRide": "",
-      "styles": [],
+      "testRideLoc": "",
+      "styles": [
+        "Standard"
+      ],
       "sizes": [
         "One Size"
       ],
@@ -2429,7 +2148,10 @@
       "subtitle": "",
       "price": 3299.99,
       "testRide": "",
-      "styles": [],
+      "testRideLoc": "",
+      "styles": [
+        "Standard"
+      ],
       "sizes": [
         "One Size"
       ],
@@ -2470,6 +2192,7 @@
       "subtitle": "Recommended age 8-14",
       "price": 599,
       "testRide": "",
+      "testRideLoc": "",
       "styles": [
         "3-Wheel Kids Trike"
       ],
@@ -2529,7 +2252,10 @@
       "subtitle": "",
       "price": 1199.99,
       "testRide": "",
-      "styles": [],
+      "testRideLoc": "",
+      "styles": [
+        "Standard"
+      ],
       "sizes": [
         "One Size"
       ],
@@ -2579,6 +2305,7 @@
       "subtitle": "",
       "price": 1999,
       "testRide": "",
+      "testRideLoc": "",
       "styles": [
         "3-Wheel Trike"
       ],
@@ -2638,6 +2365,7 @@
       "subtitle": "",
       "price": 1199,
       "testRide": "",
+      "testRideLoc": "",
       "styles": [
         "3-Wheel Trike"
       ],
@@ -2698,6 +2426,7 @@
       "subtitle": "Etrike",
       "price": 1399,
       "testRide": "Test Ride Available",
+      "testRideLoc": "",
       "styles": [
         "3-Wheel Trike"
       ],
@@ -2717,33 +2446,33 @@
           "One size": [
             {
               "name": "White",
-              "hex": "#fbf9f9",
-              "img": "https://ebike-sales.pages.dev/images/TK2White.jpg"
+              "img": "https://ebike-sales.pages.dev/images/TK2White.jpg",
+              "hex": "#fbf9f9"
             },
             {
               "name": "Slate Gray",
-              "hex": "#888888",
-              "img": "https://ebike-sales.pages.dev/images/Tk2grey.jpg"
+              "img": "https://ebike-sales.pages.dev/images/Tk2grey.jpg",
+              "hex": "#888888"
             },
             {
               "name": "Cyan Green",
-              "hex": "#5dbab5",
-              "img": "https://ebike-sales.pages.dev/images/Tk2aqua.jpg"
+              "img": "https://ebike-sales.pages.dev/images/Tk2aqua.jpg",
+              "hex": "#5dbab5"
             },
             {
               "name": "Vibrant Orange",
-              "hex": "#fa6524",
-              "img": "https://ebike-sales.pages.dev/images/Tk2orange.jpg"
+              "img": "https://ebike-sales.pages.dev/images/Tk2orange.jpg",
+              "hex": "#fa6524"
             },
             {
               "name": "Serenity Blue",
-              "hex": "#71a6b7",
-              "img": "https://ebike-sales.pages.dev/images/Tk2blue.jpg"
+              "img": "https://ebike-sales.pages.dev/images/Tk2blue.jpg",
+              "hex": "#71a6b7"
             },
             {
               "name": "Lavender Purple",
-              "hex": "#5b5c98",
-              "img": "https://ebike-sales.pages.dev/images/TK2purple.jpg"
+              "img": "https://ebike-sales.pages.dev/images/TK2purple.jpg",
+              "hex": "#5b5c98"
             }
           ]
         }
@@ -2758,6 +2487,7 @@
       "subtitle": "",
       "price": 1349,
       "testRide": "",
+      "testRideLoc": "",
       "styles": [
         "3-Wheel Trike"
       ],
@@ -2787,6 +2517,7 @@
       "subtitle": "",
       "price": 1299,
       "testRide": "",
+      "testRideLoc": "",
       "styles": [
         "3-Wheel Trike"
       ],
@@ -2846,6 +2577,7 @@
       "subtitle": "",
       "price": 1899,
       "testRide": "",
+      "testRideLoc": "",
       "styles": [
         "3-Wheel Trike"
       ],
@@ -2901,180 +2633,12 @@
     },
     {
       "brand": "Velotric",
-      "id": "packer-1-e-bike",
-      "name": "Velotric Packer 1 Ebike",
-      "subtitle": "",
-      "price": 2199,
-      "testRide": "",
-      "styles": [],
-      "sizes": [
-        "One Size"
-      ],
-      "specs": {
-        "Range": "52 mi",
-        "Top Speed": "20 mph",
-        "Motor": "750W / 1200W peak",
-        "Battery": "804WH",
-        "Torque": "75 NM",
-        "Weight": "75 lbs"
-      },
-      "colors": {
-        "Default": {
-          "One Size": [
-            {
-              "name": "Sky Blue",
-              "hex": "",
-              "img": "https://cdn.shopify.com/s/files/1/0599/2094/1239/files/Packer1_Skyblue_rightside.png?v=1691047937",
-              "soldOut": true
-            },
-            {
-              "name": "Indigo Gray",
-              "hex": "",
-              "img": "https://cdn.shopify.com/s/files/1/0599/2094/1239/files/Packer1_Indigogray_rightside.png?v=1690189488",
-              "soldOut": true
-            }
-          ]
-        }
-      },
-      "colorsNested": true,
-      "sizeGuide": {}
-    },
-    {
-      "brand": "Velotric",
-      "id": "go-1-e-bike",
-      "name": "Velotric Go 1 Ebike",
-      "subtitle": "",
-      "price": 1699,
-      "testRide": "",
-      "styles": [],
-      "sizes": [
-        "One Size"
-      ],
-      "specs": {
-        "Range": "55 mi",
-        "Top Speed": "20 mph",
-        "Motor": "500W / 900W peak",
-        "Battery": "691.2WH",
-        "Torque": "65 NM",
-        "Weight": "65 lbs"
-      },
-      "colors": {
-        "Default": {
-          "One Size": [
-            {
-              "name": "Indigo Gray",
-              "hex": "",
-              "img": "https://cdn.shopify.com/s/files/1/0599/2094/1239/files/Go1_Indigogray_rightside_8b53a7e2-d655-4776-8c10-1a11d8881d6b.png?v=1708598878",
-              "soldOut": true
-            },
-            {
-              "name": "Forest",
-              "hex": "",
-              "img": "https://cdn.shopify.com/s/files/1/0599/2094/1239/files/Go1_Forest_rightside_609d8fc4-21b5-48c8-b918-20ddfb14ff24.png?v=1690189695",
-              "soldOut": true
-            }
-          ]
-        }
-      },
-      "colorsNested": true,
-      "sizeGuide": {}
-    },
-    {
-      "brand": "Velotric",
-      "id": "nomad-1",
-      "name": "Velotric Nomad 1 Plus Ebike",
-      "subtitle": "",
-      "price": 1899,
-      "testRide": "",
-      "styles": [],
-      "sizes": [
-        "One Size"
-      ],
-      "specs": {
-        "Range": "55 mi",
-        "Top Speed": "28 mph",
-        "Motor": "750W / 1200W peak",
-        "Battery": "691.2WH",
-        "Torque": "75 NM",
-        "Weight": "73 lbs"
-      },
-      "colors": {
-        "Default": {
-          "One Size": [
-            {
-              "name": "Indigo Gray",
-              "hex": "",
-              "img": "https://cdn.shopify.com/s/files/1/0599/2094/1239/files/N1_Plus_ST_indigogrey_1.png?v=1722237926",
-              "soldOut": true
-            },
-            {
-              "name": "Cyan",
-              "hex": "",
-              "img": "https://cdn.shopify.com/s/files/1/0599/2094/1239/files/N1_Plus_ST_cyan_1.png?v=1722237926",
-              "soldOut": true
-            },
-            {
-              "name": "Forest",
-              "hex": "",
-              "img": "https://cdn.shopify.com/s/files/1/0599/2094/1239/files/N1_Plus_ST_forest_1.png?v=1722237925",
-              "soldOut": true
-            }
-          ]
-        }
-      },
-      "colorsNested": true,
-      "sizeGuide": {}
-    },
-    {
-      "brand": "Velotric",
-      "id": "fold1",
-      "name": "Fold 1",
-      "subtitle": "Compact Folding",
-      "price": 1299,
-      "testRide": "",
-      "styles": [
-        "Folding"
-      ],
-      "sizes": [
-        "One Size"
-      ],
-      "specs": {
-        "Range": "55 mi",
-        "Top Speed": "28 mph",
-        "Motor": "750W",
-        "Battery": "608WH"
-      },
-      "colors": {
-        "Folding": {
-          "One Size": [
-            {
-              "name": "Stone Gray",
-              "hex": "#696969",
-              "img": "images/Fold 1 Gray.png"
-            },
-            {
-              "name": "Electric Blue",
-              "hex": "#1563eb",
-              "img": "images/Fold 1 blue.png"
-            },
-            {
-              "name": "Pearl White",
-              "hex": "#ebebeb",
-              "img": "images/Fold 1 White.png"
-            }
-          ]
-        }
-      },
-      "colorsNested": true,
-      "sizeGuide": {}
-    },
-    {
-      "brand": "Velotric",
       "id": "triker",
       "name": "Triker",
       "subtitle": "Electric Tricycle",
       "price": 2499,
       "testRide": "Test Ride Available",
+      "testRideLoc": "",
       "styles": [
         "3-Wheel Trike"
       ],
@@ -3118,6 +2682,7 @@
       "subtitle": "Ultra Lightweight",
       "price": 1499,
       "testRide": "Test Ride Available",
+      "testRideLoc": "",
       "styles": [
         "Mid-Step",
         "high-Step"
@@ -3139,25 +2704,25 @@
           "Regular": [
             {
               "name": "Forest Evergreen",
-              "hex": "#7b9e7b",
-              "img": "http://ebike-sales.pages.dev/images/tempogreenhigh.JPG"
+              "img": "http://ebike-sales.pages.dev/images/tempogreenhigh.JPG",
+              "hex": "#7b9e7b"
             },
             {
               "name": "Lightning Silver",
-              "hex": "#eceaea",
-              "img": "http://ebike-sales.pages.dev/images/tempohighsilver.JPG"
+              "img": "http://ebike-sales.pages.dev/images/tempohighsilver.JPG",
+              "hex": "#eceaea"
             }
           ],
           "Large": [
             {
               "name": "Forest Evergreen",
-              "hex": "#7b9e7b",
-              "img": "http://ebike-sales.pages.dev/images/tempogreenhigh.JPG"
+              "img": "http://ebike-sales.pages.dev/images/tempogreenhigh.JPG",
+              "hex": "#7b9e7b"
             },
             {
               "name": "Lightning silver",
-              "hex": "#d9d4d4",
-              "img": "http://ebike-sales.pages.dev/images/tempohighsilver.JPG"
+              "img": "http://ebike-sales.pages.dev/images/tempohighsilver.JPG",
+              "hex": "#d9d4d4"
             }
           ]
         },
@@ -3165,25 +2730,25 @@
           "Regular": [
             {
               "name": "Forest Evergreen",
-              "hex": "#7da07d",
-              "img": "http://ebike-sales.pages.dev/images/tempogreenmid.JPG"
+              "img": "http://ebike-sales.pages.dev/images/tempogreenmid.JPG",
+              "hex": "#7da07d"
             },
             {
               "name": "Tangerine Orange",
-              "hex": "#de5a2d",
-              "img": "http://ebike-sales.pages.dev/images/tempomidorange.JPG"
+              "img": "http://ebike-sales.pages.dev/images/tempomidorange.JPG",
+              "hex": "#de5a2d"
             }
           ],
           "Large": [
             {
               "name": "Forest Green",
-              "hex": "#7b9e7b",
-              "img": "http://ebike-sales.pages.dev/images/tempogreenmid.JPG"
+              "img": "http://ebike-sales.pages.dev/images/tempogreenmid.JPG",
+              "hex": "#7b9e7b"
             },
             {
               "name": "Tangerine Orange",
-              "hex": "#de5a2d",
-              "img": "http://ebike-sales.pages.dev/images/tempomidorange.JPG"
+              "img": "http://ebike-sales.pages.dev/images/tempomidorange.JPG",
+              "hex": "#de5a2d"
             }
           ]
         }
@@ -3201,7 +2766,10 @@
       "subtitle": "",
       "price": 1699,
       "testRide": "",
-      "styles": [],
+      "testRideLoc": "",
+      "styles": [
+        "Standard"
+      ],
       "sizes": [
         "One Size"
       ],
@@ -3241,6 +2809,7 @@
       "subtitle": "All-Terrain Adventure",
       "price": 1899,
       "testRide": "",
+      "testRideLoc": "",
       "styles": [
         "Step-Thru",
         "High-Step"
@@ -3337,6 +2906,7 @@
       "subtitle": "Popular Folding",
       "price": 1399,
       "testRide": "Test Ride Available",
+      "testRideLoc": "",
       "styles": [
         "Folding"
       ],
@@ -3395,7 +2965,10 @@
       "subtitle": "",
       "price": 2199,
       "testRide": "",
-      "styles": [],
+      "testRideLoc": "",
+      "styles": [
+        "Standard"
+      ],
       "sizes": [
         "One Size"
       ],
@@ -3429,62 +3002,12 @@
     },
     {
       "brand": "Velotric",
-      "id": "t1stplus",
-      "name": "T1 ST Plus",
-      "subtitle": "Ultra Lightweight",
-      "price": 1249,
-      "testRide": "",
-      "styles": [
-        "High-Step"
-      ],
-      "sizes": [
-        "Regular",
-        "Large"
-      ],
-      "specs": {
-        "Range": "70 mi",
-        "Top Speed": "28 mph",
-        "Motor": "350W",
-        "Battery": "352.8WH"
-      },
-      "colors": {
-        "High-Step": {
-          "Regular": [
-            {
-              "name": "Sand White",
-              "hex": "#ece7e1",
-              "img": "images/T1ST White.png"
-            },
-            {
-              "name": "Lava Orange",
-              "hex": "#ef7421",
-              "img": "images/T1ST Orange Badge.png"
-            }
-          ],
-          "Large": [
-            {
-              "name": "Sand White",
-              "hex": "#ece7e1",
-              "img": "images/T1ST White.png"
-            },
-            {
-              "name": "Lava Orange",
-              "hex": "#ef7421",
-              "img": "images/T1ST Orange Badge.png"
-            }
-          ]
-        }
-      },
-      "colorsNested": true,
-      "sizeGuide": {}
-    },
-    {
-      "brand": "Velotric",
       "id": "breeze1",
       "name": "Breeze 1",
       "subtitle": "Lightweight Cruiser",
       "price": 1799,
       "testRide": "Test Ride Available",
+      "testRideLoc": "",
       "styles": [
         "Lightweight"
       ],
@@ -3565,72 +3088,12 @@
     },
     {
       "brand": "Velotric",
-      "id": "summit1",
-      "name": "Summit 1",
-      "subtitle": "Electric Mountain Bike",
-      "price": 1999,
-      "testRide": "",
-      "styles": [
-        "High-Step"
-      ],
-      "sizes": [
-        "Regular",
-        "Large"
-      ],
-      "specs": {
-        "Range": "70 mi",
-        "Top Speed": "28 mph",
-        "Motor": "750W",
-        "Battery": "705.6WH"
-      },
-      "colors": {
-        "High-Step": {
-          "Regular": [
-            {
-              "name": "Royal Blue",
-              "hex": "#233b6b",
-              "img": "images/Summit Blue.png"
-            },
-            {
-              "name": "Sunrise Orange",
-              "hex": "#f17022",
-              "img": "images/Summit Orange.png"
-            },
-            {
-              "name": "Space Black",
-              "hex": "#080c0d",
-              "img": "images/Summit Black.png"
-            }
-          ],
-          "Large": [
-            {
-              "name": "Royal Blue",
-              "hex": "#233b6b",
-              "img": "images/Summit Blue.png"
-            },
-            {
-              "name": "Sunrise Orange",
-              "hex": "#f17022",
-              "img": "images/Summit Orange.png"
-            },
-            {
-              "name": "Space Black",
-              "hex": "#080c0d",
-              "img": "images/Summit Black.png"
-            }
-          ]
-        }
-      },
-      "colorsNested": true,
-      "sizeGuide": {}
-    },
-    {
-      "brand": "Velotric",
       "id": "summit2",
       "name": "Summit 2",
       "subtitle": "Electric Mountain Bike",
       "price": 2099,
       "testRide": "Test Ride Available",
+      "testRideLoc": "",
       "styles": [
         "High-Step"
       ],
@@ -3692,6 +3155,7 @@
       "subtitle": "Mid Drive",
       "price": 2499,
       "testRide": "Test Ride Available",
+      "testRideLoc": "",
       "styles": [
         "Step-Thru"
       ],
@@ -3743,7 +3207,10 @@
       "subtitle": "",
       "price": 1499,
       "testRide": "",
-      "styles": [],
+      "testRideLoc": "",
+      "styles": [
+        "Standard"
+      ],
       "sizes": [
         "One Size"
       ],
@@ -3793,6 +3260,7 @@
       "subtitle": "Commuter",
       "price": 1999,
       "testRide": "Test Ride Available",
+      "testRideLoc": "",
       "styles": [
         "Step-Thru"
       ],
@@ -3874,6 +3342,7 @@
       "subtitle": "Fat Tire utility",
       "price": 1999,
       "testRide": "",
+      "testRideLoc": "",
       "styles": [
         "Step-Thru"
       ],
@@ -3919,6 +3388,7 @@
       "subtitle": "Full Suspension Fat Tire",
       "price": 2399,
       "testRide": "Test Ride Available",
+      "testRideLoc": "",
       "styles": [
         "Step-Thru",
         "High-Step"
