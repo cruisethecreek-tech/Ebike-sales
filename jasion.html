@@ -552,7 +552,7 @@ window.ctcNextImage = function (img) {
                 if (cached_jasion) {
                     try { buildBikeCards(JSON.parse(cached_jasion)); } catch(ex) {}
                 }
-                fetch('/data/inventory.json')
+                fetch('/data/inventory.json', { cache: 'no-store' })
                 .then(r => r.json())
                 .then(envelope => {
                     const data = Array.isArray(envelope) ? envelope : (envelope.bikes || []);

@@ -1010,7 +1010,7 @@ try {
   if (cached) paintCatalog(JSON.parse(cached));
 } catch(e) {}
 
-fetch('/data/inventory.json')
+fetch('/data/inventory.json', { cache: 'no-store' })
   .then(r => r.json())
   .then(envelope => {
     const data = Array.isArray(envelope) ? envelope : (envelope.bikes || []);

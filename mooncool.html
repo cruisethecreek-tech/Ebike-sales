@@ -553,7 +553,7 @@ window.ctcNextImage = function (img) {
                 if (cached_mooncool) {
                     try { buildBikeCards(JSON.parse(cached_mooncool)); } catch(ex) {}
                 }
-                fetch('/data/inventory.json')
+                fetch('/data/inventory.json', { cache: 'no-store' })
                 .then(r => r.json())
                 .then(envelope => {
                     const data = Array.isArray(envelope) ? envelope : (envelope.bikes || []);
