@@ -448,3 +448,79 @@ function onInventoryEdit(e) {
     console.error('GitHub sync failed:', err);
   }
 }
+
+/**
+ * testGithubSyncTrigger — check the auto-sync setup without touching the sheet.
+ *
+ * Run this from the editor dropdown. It reports, in order, the three things
+ * that have to be true, and stops at the first one that is not:
+ *
+ *   1. GITHUB_PAT exists in Script Properties
+ *   2. this project is allowed to read it (the script.storage OAuth scope)
+ *   3. GitHub accepts the dispatch (HTTP 204)
+ *
+ * The on-edit trigger swallows all of this: onInventoryEdit logs a warning and
+ * returns when the token is missing, and an installable trigger's log is not
+ * the one you are looking at. That is why the sync has never fired and nothing
+ * ever said so.
+ *
+ * A successful run DOES start a real sync — that is the point, it proves the
+ * whole path works end to end.
+ */
+function testGithubSyncTrigger() {
+  var pat;
+  try {
+    pat = PropertiesService.getScriptProperties().getProperty('GITHUB_PAT');
+  } catch (err) {
+    Logger.log('FAILED at step 2: this project cannot read Script Properties.');
+    Logger.log('  ' + err);
+    Logger.log('  Add this to appsscript.json under oauthScopes, then re-authorise:');
+    Logger.log('    https://www.googleapis.com/auth/script.storage');
+    return { ok: false, step: 'scope' };
+  }
+
+  if (!pat) {
+    Logger.log('FAILED at step 1: no GITHUB_PAT in Script Properties.');
+    Logger.log('  Project Settings -> Script Properties -> Add script property');
+    Logger.log('  Property: GITHUB_PAT     Value: the token');
+    return { ok: false, step: 'token' };
+  }
+  Logger.log('1. GITHUB_PAT found (' + pat.length + ' chars, starts "' +
+             pat.slice(0, 4) + '...")  — the value itself is never logged.');
+  Logger.log('2. Script Properties readable — the script.storage scope is present.');
+
+  var resp = UrlFetchApp.fetch(
+    'https://api.github.com/repos/cruisethecreek-tech/Ebike-sales/dispatches', {
+      method: 'post',
+      contentType: 'application/json',
+      headers: {
+        'Authorization': 'token ' + pat,
+        'Accept': 'application/vnd.github.v3+json',
+        'User-Agent': 'CTC-Apps-Script'
+      },
+      payload: JSON.stringify({
+        event_type: 'sync-inventory',
+        client_payload: { triggered_by: 'testGithubSyncTrigger' }
+      }),
+      muteHttpExceptions: true
+    });
+
+  var code = resp.getResponseCode();
+  Logger.log('3. GitHub replied HTTP ' + code);
+
+  if (code === 204) {
+    Logger.log('\nWorking. A sync is running now — check the Actions tab, the run');
+    Logger.log('will say "repository_dispatch" instead of "Scheduled".');
+    Logger.log('Now add the On edit trigger so this happens by itself:');
+    Logger.log('  Triggers (clock icon) -> Add Trigger -> onInventoryEdit,');
+    Logger.log('  Head, From spreadsheet, On edit.');
+    return { ok: true };
+  }
+
+  if (code === 401) Logger.log('  401 — the token is wrong, revoked, or expired.');
+  if (code === 403) Logger.log('  403 — the token lacks Contents: Read and write on this repo.');
+  if (code === 404) Logger.log('  404 — the token cannot see the repo. On a fine-grained');
+  if (code === 404) Logger.log('        token, check it lists Ebike-sales under Repository access.');
+  Logger.log('  Body: ' + resp.getContentText().slice(0, 300));
+  return { ok: false, step: 'github', code: code };
+}
