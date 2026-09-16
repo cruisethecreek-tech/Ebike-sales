@@ -37,7 +37,7 @@
  * the old images until 6 AM UTC.
  */
 
-var BIMG_VERSION = '2026-09-15b';
+var BIMG_VERSION = '2026-09-16a';
 
 /** Lowercase, strip punctuation. "Alpine Blue" and "alpine-blue" match. */
 function _bimgNorm_(s) {
@@ -167,6 +167,162 @@ function _bimgLookup_(map, swatchName) {
   });
   if (hits.length === 1) return { src: map[hits[0]], how: 'matched "' + hits[0] + '"' };
   return null;
+}
+
+/**
+ * Build a full swatch list from a vendor product: name, image, sold-out flag.
+ *
+ * refreshBrandImages only ever REPOINTS an existing swatch, so a row whose
+ * colour list is empty stays empty — "TK1 fat tire" has "One Size": [] and
+ * therefore renders with no photo and nothing to click, and no amount of
+ * re-running the image pass changes that. There is nothing there to repoint.
+ *
+ * hex is deliberately left blank. The vendor feed does not carry one, and a
+ * guessed colour chip beside a real photo is worse than an empty circle.
+ */
+function _bimgVariantSwatches_(product) {
+  var optIdx = -1;
+  (product.options || []).forEach(function (o, i) {
+    if (optIdx === -1 && /colou?r/i.test(String(o.name || ''))) optIdx = i;
+  });
+
+  var out = [], seen = {};
+  (product.variants || []).forEach(function (v) {
+    var label = optIdx === -1
+      ? String(v.title || '').trim()
+      : String(v['option' + (optIdx + 1)] || '').trim();
+    if (!label || label.toLowerCase() === 'default title') return;
+    if (seen[label]) return;
+    seen[label] = true;
+
+    var src = (v.featured_image && v.featured_image.src) ||
+              ((product.images && product.images[0] && product.images[0].src) || '');
+    if (!src) return;
+
+    var sw = { name: label, hex: '', img: src };
+    if (v.available === false) sw.soldOut = true;
+    out.push(sw);
+  });
+  return out;
+}
+
+/** Count the swatches in a Colors JSON blob, whatever its shape. */
+function _bimgCountSwatches_(colors) {
+  var n = 0;
+  _bimgWalkSwatches_(colors, function () { n++; });
+  return n;
+}
+
+/**
+ * Fill in colours for rows that have NONE, from the vendor's own feed.
+ *
+ * Deliberately separate from refreshBrandImages and deliberately narrow: it
+ * touches a row only when that row has zero swatches. A row with even one
+ * swatch is left entirely alone, so this can never overwrite colours somebody
+ * entered by hand — which is the whole reason the image pass refuses to add
+ * any.
+ */
+function seedEmptyColors(brandName, baseUrl, apply) {
+  brandName = String(brandName || '').trim();
+  baseUrl   = String(baseUrl || '').replace(/\/+$/, '');
+  apply     = apply === true;
+
+  var products = [], page = 1;
+  while (page <= 10) {
+    var resp = UrlFetchApp.fetch(baseUrl + '/products.json?limit=250&page=' + page,
+                                 { muteHttpExceptions: true, followRedirects: true });
+    if (resp.getResponseCode() !== 200) {
+      Logger.log('products.json returned HTTP ' + resp.getResponseCode());
+      return { ok: false };
+    }
+    var batch = (JSON.parse(resp.getContentText()) || {}).products || [];
+    if (!batch.length) break;
+    products = products.concat(batch);
+    page++;
+  }
+  if (!products.length) { Logger.log('No products from ' + baseUrl); return { ok: false }; }
+
+  var index = {};
+  products.forEach(function (p) {
+    _bimgTitleKeys_(p.title, brandName).forEach(function (k) { if (!index[k]) index[k] = p; });
+    [_bimgNorm_(p.handle), _bimgSquash_(p.handle)].forEach(function (k) { if (k && !index[k]) index[k] = p; });
+  });
+
+  var sh = SpreadsheetApp.openById(INV_SHEET_ID).getSheetByName(INV_TAB_NAME);
+  if (!sh) { Logger.log('Tab "' + INV_TAB_NAME + '" not found.'); return { ok: false }; }
+  var data = sh.getDataRange().getValues();
+  var headers = data[0] || [];
+  var col = {};
+  headers.forEach(function (h, i) {
+    var k = String(h || '').toLowerCase().replace(/\s*\(json\)/, '').replace(/[^a-z]/g, '');
+    if (k) col[k] = i;
+  });
+  if (col.brand == null || col.name == null || col.colors == null) {
+    Logger.log('Sheet needs Brand, Name and Colors columns. Found: ' + headers.join(' | '));
+    return { ok: false };
+  }
+
+  Logger.log('=== ' + brandName + ' — seed colours for rows that have none  (BrandImages.gs ' +
+             BIMG_VERSION + ') ===\n');
+
+  var seeded = [], noProduct = [], noSwatches = [], alreadyHave = 0;
+
+  for (var r = 1; r < data.length; r++) {
+    if (_bimgNorm_(data[r][col.brand]) !== _bimgNorm_(brandName)) continue;
+    var title = String(data[r][col.name] || '').trim();
+
+    var colors = {};
+    var raw = String(data[r][col.colors] || '').trim();
+    if (raw) { try { colors = JSON.parse(raw); } catch (e) { colors = {}; } }
+
+    if (_bimgCountSwatches_(colors) > 0) { alreadyHave++; continue; }
+
+    var product = _bimgFindProduct_(index, title, brandName);
+    if (!product) { noProduct.push(title); continue; }
+
+    var swatches = _bimgVariantSwatches_(product);
+    if (!swatches.length) { noSwatches.push(title + '  (vendor: ' + product.title + ')'); continue; }
+
+    // Keep the shape the rest of the sheet uses: style -> size -> [swatches].
+    var built = { Default: { 'One Size': swatches } };
+    seeded.push({ rowIndex: r + 1, title: title, json: JSON.stringify(built), swatches: swatches });
+  }
+
+  if (seeded.length) {
+    Logger.log((apply ? 'WRITING ' : 'WOULD WRITE ') + seeded.length + ' row(s):');
+    seeded.forEach(function (x) {
+      Logger.log('  ' + x.title + '  (' + x.swatches.length + ' colour(s))');
+      x.swatches.forEach(function (sw) {
+        Logger.log('      ' + sw.name + (sw.soldOut ? '  [sold out]' : '') + '  ' + sw.img);
+      });
+    });
+    Logger.log('');
+  }
+  if (noProduct.length) {
+    Logger.log('Empty, and NOT FOUND on the vendor site (' + noProduct.length + '):');
+    noProduct.forEach(function (t) { Logger.log('  ' + t); });
+    Logger.log('');
+  }
+  if (noSwatches.length) {
+    Logger.log('Empty, vendor has no per-colour photo (' + noSwatches.length + '):');
+    noSwatches.forEach(function (t) { Logger.log('  ' + t); });
+    Logger.log('');
+  }
+
+  Logger.log('rows with colours already, untouched : ' + alreadyHave);
+  Logger.log('rows that would gain colours         : ' + seeded.length);
+
+  if (!apply) {
+    Logger.log('\nDry run. Nothing written. Every hex will be blank — the feed does');
+    Logger.log('not carry one — so the swatch circles stay empty until somebody');
+    Logger.log('fills them in salespro. The PHOTOS will work.');
+    return { ok: true, applied: false, seeded: seeded, noProduct: noProduct };
+  }
+
+  seeded.forEach(function (x) { sh.getRange(x.rowIndex, col.colors + 1).setValue(x.json); });
+  SpreadsheetApp.flush();
+  Logger.log('\nWrote ' + seeded.length + ' row(s). Run the sync-inventory Action.');
+  return { ok: true, applied: true, seeded: seeded, noProduct: noProduct };
 }
 
 function refreshBrandImages(brandName, baseUrl, apply) {
@@ -335,3 +491,13 @@ function step1_jasionImagesDryRun()   { return refreshBrandImages('Jasion',   'h
 function step2_jasionImagesApply()    { return refreshBrandImages('Jasion',   'https://www.jasionbike.com', true); }
 function step1_mooncoolImagesDryRun() { return refreshBrandImages('Mooncool', 'https://www.mooncool.com'); }
 function step2_mooncoolImagesApply()  { return refreshBrandImages('Mooncool', 'https://www.mooncool.com', true); }
+
+// -- Seed colours for rows that have none --------------------------------
+function step3_mooncoolSeedColorsDryRun() { return seedEmptyColors('Mooncool', 'https://www.mooncool.com'); }
+function step4_mooncoolSeedColorsApply()  { return seedEmptyColors('Mooncool', 'https://www.mooncool.com', true); }
+function step3_heybikeSeedColorsDryRun()  { return seedEmptyColors('Heybike',  'https://www.heybike.com'); }
+function step4_heybikeSeedColorsApply()   { return seedEmptyColors('Heybike',  'https://www.heybike.com', true); }
+function step3_velotricSeedColorsDryRun() { return seedEmptyColors('Velotric', 'https://www.velotricbike.com'); }
+function step4_velotricSeedColorsApply()  { return seedEmptyColors('Velotric', 'https://www.velotricbike.com', true); }
+function step3_jasionSeedColorsDryRun()   { return seedEmptyColors('Jasion',   'https://www.jasionbike.com'); }
+function step4_jasionSeedColorsApply()    { return seedEmptyColors('Jasion',   'https://www.jasionbike.com', true); }
