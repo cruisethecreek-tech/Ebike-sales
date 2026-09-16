@@ -198,37 +198,90 @@ main{flex:1;width:100%}
 .catalog-wrap{max-width:1080px;margin:0 auto;padding:0 24px 48px}
 .filter-bar{
   background:#fff;border:1px solid rgba(0,0,0,.06);border-radius:8px;
-  padding:16px;display:grid;gap:12px;margin-bottom:20px;
-  grid-template-columns:1fr;
+  padding:14px;display:flex;flex-direction:column;gap:11px;margin-bottom:14px;
 }
-@media(min-width:640px){
-  .filter-bar{grid-template-columns:2fr 1fr 1fr 1fr auto;align-items:end}
+/* Search field with a leading icon and a trailing clear button. */
+.filter-search{position:relative;display:flex;align-items:center}
+.filter-search input{
+  width:100%;padding:11px 38px;border:1px solid rgba(0,0,0,.12);border-radius:6px;
+  font:inherit;font-size:.95rem;color:var(--ink);background:var(--cream-w);
+  transition:border-color .15s ease,background .15s ease;
 }
-.filter-field{display:flex;flex-direction:column;gap:4px;min-width:0}
-.filter-label{
-  font-size:.7rem;letter-spacing:.12em;font-weight:700;text-transform:uppercase;
-  color:var(--sage);
+.filter-search input:focus{outline:none;border-color:var(--sage);background:#fff}
+.filter-search input::-webkit-search-cancel-button{display:none}
+.filter-search-icon{
+  position:absolute;left:13px;width:15px;height:15px;pointer-events:none;
+  fill:none;stroke:var(--sage);stroke-width:2.2;stroke-linecap:round;
 }
-.filter-bar input,.filter-bar select{
-  width:100%;padding:10px 12px;border:1px solid rgba(0,0,0,.12);border-radius:4px;
-  font:inherit;font-size:.92rem;color:var(--ink);background:#fbf7ef;
-  transition:border-color .15s ease,background .15s ease;min-width:0;
+.filter-search-clear{
+  position:absolute;right:7px;width:26px;height:26px;padding:0;border:0;
+  background:transparent;color:var(--ink-2);font-size:1.15rem;line-height:1;
+  cursor:pointer;border-radius:50%;display:none;
 }
-.filter-bar input:focus,.filter-bar select:focus{
-  outline:none;border-color:var(--sage);background:#fff;
+.filter-search-clear:hover{background:var(--cream);color:var(--forest)}
+.filter-search.has-value .filter-search-clear{display:block}
+
+/* One horizontally scrollable chip row per facet, so each facet costs
+   a single line of height no matter how many options it has. */
+.filter-row{display:flex;align-items:center;gap:9px;min-width:0}
+.filter-row-label{
+  font-size:.64rem;letter-spacing:.11em;font-weight:700;text-transform:uppercase;
+  color:var(--sage);flex:0 0 42px;line-height:1.3;
 }
-.filter-reset{
-  background:transparent;border:1px solid rgba(0,0,0,.12);color:var(--ink-2);
-  padding:10px 14px;border-radius:4px;cursor:pointer;font-size:.85rem;font-weight:600;
-  transition:background .15s ease,border-color .15s ease,color .15s ease;
-  white-space:nowrap;
+.chip-scroll{
+  display:flex;gap:7px;flex:1 1 auto;min-width:0;
+  overflow-x:auto;overflow-y:hidden;padding:2px 0;
+  scrollbar-width:none;-ms-overflow-style:none;
+  -webkit-overflow-scrolling:touch;overscroll-behavior-x:contain;
 }
-.filter-reset:hover{background:var(--cream);border-color:var(--sage);color:var(--forest)}
+.chip-scroll::-webkit-scrollbar{display:none}
+/* Fade the edge a row can still scroll toward, so a cut-off chip
+   reads as "there's more" rather than as a layout bug. */
+.chip-scroll.fade-r{-webkit-mask-image:linear-gradient(to right,#000 calc(100% - 28px),transparent);mask-image:linear-gradient(to right,#000 calc(100% - 28px),transparent)}
+.chip-scroll.fade-l{-webkit-mask-image:linear-gradient(to left,#000 calc(100% - 28px),transparent);mask-image:linear-gradient(to left,#000 calc(100% - 28px),transparent)}
+.chip-scroll.fade-l.fade-r{-webkit-mask-image:linear-gradient(to right,transparent,#000 28px,#000 calc(100% - 28px),transparent);mask-image:linear-gradient(to right,transparent,#000 28px,#000 calc(100% - 28px),transparent)}
+.chip{
+  flex:0 0 auto;
+  background:var(--cream-w);border:1px solid rgba(0,0,0,.12);color:var(--ink-2);
+  padding:7px 13px;border-radius:999px;cursor:pointer;
+  font:inherit;font-size:.83rem;font-weight:600;white-space:nowrap;
+  transition:background .15s ease,border-color .15s ease,color .15s ease,opacity .15s ease;
+}
+@media(hover:hover){
+  .chip:hover:not(:disabled):not([aria-pressed="true"]){border-color:var(--sage);color:var(--forest)}
+}
+.chip:focus-visible{outline:2px solid var(--sage);outline-offset:2px}
+.chip[aria-pressed="true"]{background:var(--forest);border-color:var(--forest);color:#fff}
+.chip:disabled{opacity:.3;cursor:not-allowed}
+/* Live count of what this chip would return, given the other facets. */
+.chip-n{margin-left:5px;font-size:.78em;font-weight:500;opacity:.55}
+.chip[aria-pressed="true"] .chip-n{opacity:.75}
+
 .filter-meta{
   font-size:.78rem;letter-spacing:.1em;text-transform:uppercase;font-weight:700;
-  color:var(--ink-2);padding:0 4px 12px;display:flex;justify-content:space-between;align-items:center;gap:12px;
+  color:var(--ink-2);padding:0 4px 12px;display:flex;flex-wrap:wrap;
+  align-items:center;gap:8px 12px;
 }
 .filter-meta strong{color:var(--forest)}
+.filter-meta-count{display:inline-flex;flex-wrap:wrap;align-items:baseline;gap:4px 10px}
+#bikePriceRange{font-weight:600;opacity:.72}
+.filter-meta-end{display:flex;align-items:center;gap:8px;margin-left:auto}
+.filter-sort{
+  border:1px solid rgba(0,0,0,.12);border-radius:4px;background:#fff;
+  font:inherit;font-size:.68rem;letter-spacing:.07em;font-weight:700;
+  text-transform:uppercase;color:var(--ink-2);padding:6px 7px;cursor:pointer;
+  max-width:11.5rem;
+}
+.filter-sort:focus{outline:none;border-color:var(--sage)}
+.filter-reset{
+  background:transparent;border:1px solid rgba(0,0,0,.12);color:var(--ink-2);
+  padding:6px 11px;border-radius:999px;cursor:pointer;
+  font:inherit;font-size:.68rem;letter-spacing:.07em;font-weight:700;
+  text-transform:uppercase;white-space:nowrap;display:none;
+  transition:background .15s ease,border-color .15s ease,color .15s ease;
+}
+.filter-reset:hover{background:var(--cream);border-color:var(--sage);color:var(--forest)}
+.filter-reset.is-on{display:inline-block}
 
 .bike-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
 @media(min-width:640px){.bike-grid{grid-template-columns:repeat(3,1fr);gap:20px}}
@@ -504,34 +557,40 @@ footer{background:var(--dark);color:rgba(255,255,255,.75);padding:40px 24px 32px
 
   <div class="catalog-wrap">
     <div class="filter-bar" role="search" aria-label="Bike filters">
-      <div class="filter-field" style="grid-column:1/-1">
-        <label class="filter-label" for="f-search">Search</label>
-        <input id="f-search" type="search" placeholder="e.g. Ranger, fat tire, step-thru" autocomplete="off">
+      <div class="filter-search" id="f-search-wrap">
+        <svg class="filter-search-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+        <input id="f-search" type="search" placeholder="Search by name, brand or style" autocomplete="off" aria-label="Search bikes">
+        <button class="filter-search-clear" type="button" id="f-search-clear" aria-label="Clear search">&times;</button>
       </div>
-      <div class="filter-field">
-        <label class="filter-label" for="f-style">Style</label>
-        <select id="f-style">
-          <option value="">All styles</option>
-          <option value="Trike">Trike</option>
-          <option value="Folding">Folding</option>
-          <option value="Mid Drive">Mid Drive</option>
-          <option value="Step Thru">Step Thru</option>
-          <option value="Step Over">Step Over</option>
-        </select>
+      <!-- Chip rows are built from the live catalog in buildFacets(), so
+           a facet never offers an option that no bike actually has. -->
+      <div class="filter-row">
+        <span class="filter-row-label" id="lbl-brand">Brand</span>
+        <div class="chip-scroll" id="f-brand" role="group" aria-labelledby="lbl-brand"></div>
       </div>
-      <div class="filter-field">
-        <label class="filter-label" for="f-min">Min $</label>
-        <input id="f-min" type="number" min="0" step="50" inputmode="numeric" placeholder="0">
+      <div class="filter-row">
+        <span class="filter-row-label" id="lbl-style">Style</span>
+        <div class="chip-scroll" id="f-style" role="group" aria-labelledby="lbl-style"></div>
       </div>
-      <div class="filter-field">
-        <label class="filter-label" for="f-max">Max $</label>
-        <input id="f-max" type="number" min="0" step="50" inputmode="numeric" placeholder="Any">
+      <div class="filter-row">
+        <span class="filter-row-label" id="lbl-price">Price</span>
+        <div class="chip-scroll" id="f-price" role="group" aria-labelledby="lbl-price"></div>
       </div>
-      <button class="filter-reset" type="button" id="f-reset">Clear</button>
     </div>
     <div class="filter-meta">
-      <span><strong id="bikeMatchCount">—</strong> bike<span id="bikePluralS">s</span></span>
-      <span id="bikePriceRange" aria-live="polite"></span>
+      <span class="filter-meta-count">
+        <span><strong id="bikeMatchCount">—</strong> <span id="bikeMatchOf"></span></span>
+        <span id="bikePriceRange" aria-live="polite"></span>
+      </span>
+      <span class="filter-meta-end">
+        <select class="filter-sort" id="f-sort" aria-label="Sort bikes">
+          <option value="price-asc">Price: low first</option>
+          <option value="price-desc">Price: high first</option>
+          <option value="name">Name A–Z</option>
+          <option value="brand">By brand</option>
+        </select>
+        <button class="filter-reset" type="button" id="f-reset">Clear all</button>
+      </span>
     </div>
     <div class="bike-grid" id="bikeGrid" aria-live="polite" aria-busy="true">
       <!-- skeletons while loading -->
@@ -902,6 +961,7 @@ function paintCatalog(inventory){
         id:       b.id || '',
         name:     b.name || '(unnamed)',
         brand:    b.brand || '',
+        brandKey: String(b.brand || '').toLowerCase().trim(),
         style:    b.subtitle || '',
         price:    Number(b.price) || 0,
         img:      firstBikeImage(b.colors),
@@ -913,40 +973,189 @@ function paintCatalog(inventory){
   document.getElementById('bikeCount').textContent =
     CATALOG.length + ' bike' + (CATALOG.length === 1 ? '' : 's');
 
+  buildFacets();
   applyBikeFilters();
+  revealSelectedChips();
+}
+
+/* ── FACETED FILTERING ──────────────────────────────────────
+   Three chip rows (brand / style / price) plus a search box.
+   Within a row the chips are multi-select and OR together;
+   across rows they AND. Each chip carries a live count of what
+   it would return given the *other* rows' selections, so a chip
+   can never lead to an empty grid — one that would is disabled.
+   ─────────────────────────────────────────────────────────── */
+
+const PRICE_BUCKETS = [
+  { id:'u1000', label:'Under $1,000', min:0,    max:999.99   },
+  { id:'1000',  label:'$1,000–1,499', min:1000, max:1499.99  },
+  { id:'1500',  label:'$1,500–1,999', min:1500, max:1999.99  },
+  { id:'2000',  label:'$2,000–2,499', min:2000, max:2499.99  },
+  { id:'2500',  label:'$2,500+',      min:2500, max:Infinity },
+];
+
+const STATE = {
+  q:      '',
+  brands: new Set(),   // lowercased brand keys
+  styles: new Set(),   // canonical category names
+  prices: new Set(),   // PRICE_BUCKETS ids
+  sort:   'price-asc',
+};
+
+/* Per-facet predicates. Each returns true when the facet imposes
+   no constraint, which is what makes the "count excluding my own
+   row" trick below a one-liner. */
+function matchQ(b){
+  if (!STATE.q) return true;
+  const hay = (b.name + ' ' + b.brand + ' ' + b.style + ' ' + b.cats.join(' ')).toLowerCase();
+  return STATE.q.split(/\s+/).every(term => hay.indexOf(term) > -1);
+}
+function matchBrand(b){ return STATE.brands.size === 0 || STATE.brands.has(b.brandKey); }
+function matchStyle(b){
+  if (STATE.styles.size === 0) return true;
+  return b.cats.some(c => STATE.styles.has(c));
+}
+function inBucket(b, id){
+  const bk = PRICE_BUCKETS.find(x => x.id === id);
+  // Price 0 means "Call for price" — unknown, so it belongs to no
+  // bucket and drops out as soon as a price chip is active.
+  return !!bk && b.price > 0 && b.price >= bk.min && b.price <= bk.max;
+}
+function matchPrice(b){
+  if (STATE.prices.size === 0) return true;
+  for (const id of STATE.prices) { if (inBucket(b, id)) return true; }
+  return false;
+}
+
+/* Everything that passes every facet except `skip`. Passing a group
+   name gives that row the population its own chips are counted against. */
+function subset(skip){
+  return CATALOG.filter(b =>
+    (skip === 'q'     || matchQ(b))     &&
+    (skip === 'brand' || matchBrand(b)) &&
+    (skip === 'style' || matchStyle(b)) &&
+    (skip === 'price' || matchPrice(b))
+  );
+}
+
+function anyFilterActive(){
+  return !!STATE.q || STATE.brands.size > 0 || STATE.styles.size > 0 || STATE.prices.size > 0;
+}
+
+/* The option lists, derived from the catalog so a row never offers
+   something no bike has. Rebuilt only when the inventory changes. */
+let FACETS = { brand: [], style: [], price: [] };
+
+function buildFacets(){
+  const brandSeen = new Map();
+  CATALOG.forEach(b => { if (b.brand && !brandSeen.has(b.brandKey)) brandSeen.set(b.brandKey, b.brand); });
+  FACETS.brand = [...brandSeen.entries()]
+    .map(([value, label]) => ({ value, label }))
+    .sort((a, b) => a.label.localeCompare(b.label));
+
+  FACETS.style = CANON_CATS
+    .filter(c => CATALOG.some(b => b.cats.indexOf(c) > -1))
+    .map(c => ({ value: c, label: c }));
+
+  FACETS.price = PRICE_BUCKETS
+    .filter(bk => CATALOG.some(b => b.price > 0 && b.price >= bk.min && b.price <= bk.max))
+    .map(bk => ({ value: bk.id, label: bk.label }));
+
+  // Drop any restored selection that this inventory no longer offers.
+  const prune = (set, list) => { [...set].forEach(v => { if (!list.some(o => o.value === v)) set.delete(v); }); };
+  prune(STATE.brands, FACETS.brand);
+  prune(STATE.styles, FACETS.style);
+  prune(STATE.prices, FACETS.price);
+
+  ['brand', 'style', 'price'].forEach(group => {
+    const host = document.getElementById('f-' + group);
+    const all  = ['<button class="chip" type="button" data-group="' + group + '" data-value="" aria-pressed="false">All<span class="chip-n"></span></button>'];
+    host.innerHTML = all.concat(FACETS[group].map(o =>
+      '<button class="chip" type="button" data-group="' + group + '" data-value="' + esc(o.value) + '" aria-pressed="false">' +
+      esc(o.label) + '<span class="chip-n"></span></button>'
+    )).join('');
+  });
+}
+
+/* Show a fade on whichever edge a row can still scroll toward. */
+function updateChipFades(){
+  document.querySelectorAll('.chip-scroll').forEach(row => {
+    const over = row.scrollWidth - row.clientWidth;
+    row.classList.toggle('fade-l', row.scrollLeft > 4);
+    row.classList.toggle('fade-r', over > 4 && row.scrollLeft < over - 4);
+  });
+}
+
+/* Bring the first selected chip in each row into view — otherwise a
+   shared "#brand=velotric" link lands with its own chip off-screen. */
+function revealSelectedChips(){
+  document.querySelectorAll('.chip-scroll').forEach(row => {
+    const on = row.querySelector('.chip[aria-pressed="true"]:not([data-value=""])');
+    if (on) row.scrollLeft = Math.max(0, on.offsetLeft - row.clientWidth / 2 + on.offsetWidth / 2);
+  });
+  updateChipFades();
+}
+
+/* Repaint pressed/disabled/counts in place — never rebuild the DOM
+   here, or the chip rows lose their horizontal scroll position. */
+function refreshFacetCounts(){
+  const groups = {
+    brand: { set: STATE.brands, pool: subset('brand'), hit: (b, v) => b.brandKey === v },
+    style: { set: STATE.styles, pool: subset('style'), hit: (b, v) => b.cats.indexOf(v) > -1 },
+    price: { set: STATE.prices, pool: subset('price'), hit: (b, v) => inBucket(b, v) },
+  };
+  Object.keys(groups).forEach(group => {
+    const g = groups[group];
+    document.querySelectorAll('#f-' + group + ' .chip').forEach(chip => {
+      const v  = chip.dataset.value;
+      const on = v === '' ? g.set.size === 0 : g.set.has(v);
+      const n  = v === '' ? g.pool.length : g.pool.filter(b => g.hit(b, v)).length;
+      chip.setAttribute('aria-pressed', on ? 'true' : 'false');
+      chip.disabled = (n === 0 && !on);
+      chip.querySelector('.chip-n').textContent = n ? ' ' + n : '';
+    });
+  });
+  document.getElementById('f-reset').classList.toggle('is-on', anyFilterActive());
+  updateChipFades();
+}
+
+function sortMatches(list){
+  const byName = (a, b) => a.name.localeCompare(b.name);
+  if (STATE.sort === 'price-desc') return list.sort((a, b) => (b.price - a.price) || byName(a, b));
+  if (STATE.sort === 'name')       return list.sort(byName);
+  if (STATE.sort === 'brand')      return list.sort((a, b) => a.brand.localeCompare(b.brand) || (a.price - b.price));
+  // Default: price ascending, with "Call for price" (0) sent to the end
+  // rather than leading the grid.
+  return list.sort((a, b) => {
+    const ap = a.price || Infinity, bp = b.price || Infinity;
+    return (ap - bp) || byName(a, b);
+  });
 }
 
 function applyBikeFilters(){
-  const q     = (document.getElementById('f-search').value || '').toLowerCase().trim();
-  const style = document.getElementById('f-style').value || '';
-  const minV  = parseFloat(document.getElementById('f-min').value);
-  const maxV  = parseFloat(document.getElementById('f-max').value);
-  const min   = isNaN(minV) ? -Infinity : minV;
-  const max   = isNaN(maxV) ?  Infinity : maxV;
+  refreshFacetCounts();
+  writeFilterHash();
 
-  const matches = CATALOG.filter(b => {
-    if (style && b.cats.indexOf(style) === -1) return false;
-    if (b.price < min || b.price > max) return false;
-    if (q) {
-      const hay = (b.name + ' ' + b.brand + ' ' + b.style + ' ' + b.cats.join(' ')).toLowerCase();
-      if (hay.indexOf(q) === -1) return false;
-    }
-    return true;
-  });
-
+  const matches = subset(null);
   const grid = document.getElementById('bikeGrid');
   grid.removeAttribute('aria-busy');
 
+  // Always show the denominator, so this count and the "N bikes" in
+  // the section header can never look like they disagree.
   document.getElementById('bikeMatchCount').textContent = matches.length;
-  document.getElementById('bikePluralS').textContent = matches.length === 1 ? '' : 's';
+  document.getElementById('bikeMatchOf').textContent =
+    (anyFilterActive() ? 'of ' + CATALOG.length + ' ' : '') +
+    'bike' + (matches.length === 1 && !anyFilterActive() ? '' : 's');
 
   if (matches.length === 0) {
     document.getElementById('bikePriceRange').textContent = '';
-    grid.innerHTML = '<div class="bike-empty"><strong>No matches</strong>Try widening your price range or clearing the search.</div>';
+    grid.innerHTML = '<div class="bike-empty"><strong>No matches</strong>' +
+      'Nothing fits all of those at once. ' +
+      '<button class="filter-reset is-on" type="button" id="f-reset-empty">Clear all</button></div>';
+    document.getElementById('f-reset-empty').addEventListener('click', resetFilters);
     return;
   }
 
-  // Price-range hint based on visible matches.
   const prices = matches.map(b => b.price).filter(p => p > 0);
   if (prices.length) {
     const lo = Math.min(...prices), hi = Math.max(...prices);
@@ -957,8 +1166,7 @@ function applyBikeFilters(){
     document.getElementById('bikePriceRange').textContent = '';
   }
 
-  // Sort visible: price ascending makes "Min $" feel responsive.
-  matches.sort((a,b) => a.price - b.price);
+  sortMatches(matches);
 
   grid.innerHTML = matches.map(b => {
     const slug = bikeBrandSlug(b.brand);
@@ -983,26 +1191,117 @@ function applyBikeFilters(){
   }).join('');
 }
 
-// Wire up filter inputs (debounced search).
-let searchTimer;
-document.getElementById('f-search').addEventListener('input', () => {
-  clearTimeout(searchTimer); searchTimer = setTimeout(applyBikeFilters, 120);
-});
-document.getElementById('f-style').addEventListener('change', applyBikeFilters);
-document.getElementById('f-min').addEventListener('input', () => {
-  clearTimeout(searchTimer); searchTimer = setTimeout(applyBikeFilters, 200);
-});
-document.getElementById('f-max').addEventListener('input', () => {
-  clearTimeout(searchTimer); searchTimer = setTimeout(applyBikeFilters, 200);
-});
-document.getElementById('f-reset').addEventListener('click', () => {
-  document.getElementById('f-search').value = '';
-  document.getElementById('f-style').value  = '';
-  document.getElementById('f-min').value    = '';
-  document.getElementById('f-max').value    = '';
+function resetFilters(){
+  STATE.q = '';
+  STATE.brands.clear(); STATE.styles.clear(); STATE.prices.clear();
+  const s = document.getElementById('f-search');
+  s.value = '';
+  document.getElementById('f-search-wrap').classList.remove('has-value');
   applyBikeFilters();
   document.getElementById('f-search').focus();
+}
+
+/* ── Shareable state in the URL hash ──
+   Lets a filtered view ("trikes under $1,500") be texted to a
+   customer and land on exactly what the sender was looking at. */
+function writeFilterHash(){
+  const parts = [];
+  if (STATE.brands.size) parts.push('brand=' + [...STATE.brands].map(encodeURIComponent).join(','));
+  if (STATE.styles.size) parts.push('style=' + [...STATE.styles].map(encodeURIComponent).join(','));
+  if (STATE.prices.size) parts.push('price=' + [...STATE.prices].map(encodeURIComponent).join(','));
+  if (STATE.q)           parts.push('q=' + encodeURIComponent(STATE.q));
+  if (STATE.sort !== 'price-asc') parts.push('sort=' + STATE.sort);
+  const hash = parts.length ? '#' + parts.join('&') : '';
+  if ((location.hash || '') !== hash) {
+    history.replaceState(null, '', location.pathname + location.search + hash);
+  }
+}
+
+function readFilterHash(){
+  const raw = (location.hash || '').replace(/^#/, '');
+  if (!raw) return;
+  raw.split('&').forEach(pair => {
+    const eq = pair.indexOf('=');
+    if (eq < 0) return;
+    const k = pair.slice(0, eq);
+    const v = decodeURIComponent(pair.slice(eq + 1).replace(/\+/g, ' '));
+    const fill = (set) => v.split(',').forEach(x => { if (x) set.add(decodeURIComponent(x)); });
+    if (k === 'brand') fill(STATE.brands);
+    else if (k === 'style') fill(STATE.styles);
+    else if (k === 'price') fill(STATE.prices);
+    else if (k === 'q') {
+      STATE.q = v.toLowerCase().trim();
+      const s = document.getElementById('f-search');
+      s.value = v;
+      document.getElementById('f-search-wrap').classList.toggle('has-value', !!v);
+    }
+    else if (k === 'sort') {
+      const sel = document.getElementById('f-sort');
+      if ([...sel.options].some(o => o.value === v)) { STATE.sort = v; sel.value = v; }
+    }
+  });
+}
+
+// ── Wiring ──
+let searchTimer;
+const searchEl = document.getElementById('f-search');
+searchEl.addEventListener('input', () => {
+  document.getElementById('f-search-wrap').classList.toggle('has-value', !!searchEl.value);
+  clearTimeout(searchTimer);
+  searchTimer = setTimeout(() => {
+    STATE.q = searchEl.value.toLowerCase().trim();
+    applyBikeFilters();
+  }, 120);
 });
+document.getElementById('f-search-clear').addEventListener('click', () => {
+  searchEl.value = '';
+  STATE.q = '';
+  document.getElementById('f-search-wrap').classList.remove('has-value');
+  applyBikeFilters();
+  searchEl.focus();
+});
+
+// One delegated handler for all three chip rows — they're rebuilt
+// whenever inventory lands, so per-chip listeners would go stale.
+document.querySelector('.filter-bar').addEventListener('click', (ev) => {
+  const chip = ev.target.closest('.chip');
+  if (!chip || chip.disabled) return;
+  const set = { brand: STATE.brands, style: STATE.styles, price: STATE.prices }[chip.dataset.group];
+  if (!set) return;
+  const v = chip.dataset.value;
+  if (v === '') set.clear();                                  // the "All" chip
+  else if (set.has(v)) set.delete(v);
+  else set.add(v);
+  applyBikeFilters();
+});
+
+document.getElementById('f-sort').addEventListener('change', (ev) => {
+  STATE.sort = ev.target.value;
+  applyBikeFilters();
+});
+document.getElementById('f-reset').addEventListener('click', resetFilters);
+document.querySelector('.filter-bar').addEventListener('scroll', (ev) => {
+  if (ev.target.classList && ev.target.classList.contains('chip-scroll')) updateChipFades();
+}, true);
+window.addEventListener('resize', updateChipFades);
+
+// A shared link tapped while already on this page changes only the
+// fragment, so the script never re-runs — pick the new state up here.
+window.addEventListener('hashchange', () => {
+  STATE.brands.clear(); STATE.styles.clear(); STATE.prices.clear();
+  STATE.q = ''; STATE.sort = 'price-asc';
+  const s = document.getElementById('f-search');
+  s.value = '';
+  document.getElementById('f-sort').value = 'price-asc';
+  document.getElementById('f-search-wrap').classList.remove('has-value');
+  readFilterHash();
+  applyBikeFilters();
+  revealSelectedChips();
+});
+
+// Restore any filters carried in the URL before the first paint, so a
+// shared link never flashes the unfiltered grid first.
+readFilterHash();
 
 // Paint from cache instantly, then refresh from network.
 try {
