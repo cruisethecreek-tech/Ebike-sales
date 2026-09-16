@@ -26,7 +26,7 @@ const ALLOWED_ORIGINS = [
 ];
 
 const CMS_URL    = 'https://script.google.com/macros/s/AKfycbwXv6r6Me-mdp9WFjCHQYDHcgEKbny-9_K8TX-yGgW40yTONhz6kAs3H96xM0tEDAhcJA/exec';
-const INV_URL    = 'https://script.google.com/macros/s/AKfycbyxVMuFEUeR8_YqM1VVnfPSVPnDhdCs_63dDthZ4jODlTDGQ-7yXSkQeYT-Ux0SM8tw/exec';
+const INV_URL    = 'https://script.google.com/macros/s/AKfycbxmzlQHP4ghYbTzInhTANG7Wv9Cjj4dHTPFv-m8Q7GYPwbtx0yC7ydt8Nd_gFLobsBE/exec';
 const CMS_TTL_MS = 5 * 60 * 1000;  // 5 min — matches Apps Script CDN cache
 const MODEL      = 'claude-haiku-4-5-20251001';
 const MAX_TOKENS = 600;            // cap response length — keeps cost predictable

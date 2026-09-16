@@ -25,7 +25,7 @@ jobs:
       - name: Fetch inventory from Apps Script
         run: |
           set -o pipefail
-          INV_URL="https://script.google.com/macros/s/AKfycbyxVMuFEUeR8_YqM1VVnfPSVPnDhdCs_63dDthZ4jODlTDGQ-7yXSkQeYT-Ux0SM8tw/exec"
+          INV_URL="https://script.google.com/macros/s/AKfycbxmzlQHP4ghYbTzInhTANG7Wv9Cjj4dHTPFv-m8Q7GYPwbtx0yC7ydt8Nd_gFLobsBE/exec"
           CODE=$(curl -sL -w '%{http_code}' "$INV_URL?action=getBikeInventory" -o /tmp/bikes_raw.json)
           echo "HTTP $CODE, $(wc -c < /tmp/bikes_raw.json) bytes"
 
