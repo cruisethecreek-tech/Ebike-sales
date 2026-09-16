@@ -27,6 +27,21 @@ export interface AuthAccountsResult {
 
 const PER_PAGE = 1000   // Supabase caps listUsers at 1000 per page.
 const MAX_PAGES = 50    // Belt and braces against a non-terminating loop.
+const PAGE_TIMEOUT_MS = 5000  // Per page, so a slow Supabase degrades the
+                              // banner instead of hanging the whole page.
+
+/**
+ * Resolve to a marker rather than hang. A slow Supabase does not throw,
+ * it simply never settles, so try/catch is no protection on its own.
+ */
+const TIMED_OUT = Symbol('timed-out')
+
+function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T | typeof TIMED_OUT> {
+  return Promise.race([
+    promise,
+    new Promise<typeof TIMED_OUT>((resolve) => setTimeout(() => resolve(TIMED_OUT), ms)),
+  ])
+}
 
 /**
  * Every portal login, keyed by user id (= `customers.id`).
@@ -47,7 +62,16 @@ export async function listAuthAccounts(): Promise<AuthAccountsResult> {
   const accounts = new Map<string, AuthAccount>()
 
   for (let page = 1; page <= MAX_PAGES; page++) {
-    const { data, error } = await supabase.auth.admin.listUsers({ page, perPage: PER_PAGE })
+    const settled = await withTimeout(
+      supabase.auth.admin.listUsers({ page, perPage: PER_PAGE }),
+      PAGE_TIMEOUT_MS,
+    )
+
+    if (settled === TIMED_OUT) {
+      return { accounts, error: 'Timed out reading login records from Supabase.' }
+    }
+
+    const { data, error } = settled
 
     if (error) {
       // Partial results are still worth showing; report the failure alongside.
