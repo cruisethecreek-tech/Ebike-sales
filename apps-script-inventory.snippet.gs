@@ -542,3 +542,74 @@ function testGithubSyncTrigger() {
   Logger.log('  Body: ' + resp.getContentText().slice(0, 300));
   return { ok: false, step: 'github', code: code };
 }
+
+/**
+ * setGithubPatOnce — write GITHUB_PAT from code, because the Script Properties
+ * UI drops rows.
+ *
+ * The Project Settings table looks like it saved, and the value is gone on the
+ * next load. Writing the property from code is the same storage, without that
+ * screen in the way.
+ *
+ * HOW TO USE, AND THEN UNDO
+ *
+ *   1. Paste your token between the quotes below, replacing PASTE_TOKEN_HERE.
+ *   2. Save (Ctrl+S), then Run this function once. It prints a confirmation.
+ *   3. DELETE THE TOKEN from the line below, leaving PASTE_TOKEN_HERE, and save
+ *      again. The property is already stored — the code does not need to keep
+ *      holding it.
+ *
+ * WHY STEP 3 MATTERS
+ *
+ * Anything typed into this editor is readable by anyone with access to the
+ * project, shows up in its version history, and travels with the file if it is
+ * ever copied, pasted into a chat, or committed. The stored property is not in
+ * any of those places. Leaving the token in the code turns a private credential
+ * into part of the source. It can write to your repository.
+ *
+ * If the token ever does get out, revoke it at
+ * https://github.com/settings/tokens?type=beta and issue a new one.
+ */
+function setGithubPatOnce() {
+  var TOKEN = 'PASTE_TOKEN_HERE';
+
+  if (!TOKEN || TOKEN === 'PASTE_TOKEN_HERE') {
+    Logger.log('Nothing to do — replace PASTE_TOKEN_HERE with the token first.');
+    return { ok: false, reason: 'placeholder' };
+  }
+  if (TOKEN !== TOKEN.trim()) {
+    Logger.log('The token has a space or newline around it. Copy it again cleanly.');
+    return { ok: false, reason: 'whitespace' };
+  }
+
+  try {
+    PropertiesService.getScriptProperties().setProperty('GITHUB_PAT', TOKEN);
+  } catch (err) {
+    Logger.log('Could not write the property: ' + err);
+    Logger.log('That usually means this account cannot edit this project.');
+    return { ok: false, reason: 'write failed' };
+  }
+
+  var back = PropertiesService.getScriptProperties().getProperty('GITHUB_PAT');
+  if (back !== TOKEN) {
+    Logger.log('Wrote it, but reading it back gave something different. Stop here.');
+    return { ok: false, reason: 'readback mismatch' };
+  }
+
+  Logger.log('Stored. GITHUB_PAT is ' + back.length + ' chars, starts "' +
+             back.slice(0, 4) + '..." — the value itself is never logged.');
+  Logger.log('');
+  Logger.log('NOW DELETE THE TOKEN from the TOKEN line above and save. The');
+  Logger.log('property is stored; the code does not need to keep a copy.');
+  Logger.log('Then run testGithubSyncTrigger — you want HTTP 204.');
+  return { ok: true };
+}
+
+/** Names of the script properties this project holds. Never prints a value. */
+function showScriptPropertyNames() {
+  var keys = PropertiesService.getScriptProperties().getKeys();
+  Logger.log(keys.length ? 'Script properties here: ' + keys.map(function (k) {
+    return '"' + k + '"';
+  }).join(', ') : 'This project has no script properties.');
+  return keys;
+}
