@@ -94,6 +94,32 @@ function _openInventorySheet_() {
   return { sheet: sh, rows: rows, headers: headers };
 }
 
+/**
+ * Read a field from a row whatever case its header happens to use.
+ *
+ * _openInventorySheet_ keys each row by the header cell VERBATIM, so
+ * row.discontinued only resolves when the header is spelled exactly
+ * "discontinued". This sheet's header is "Discontinued", so the lookup
+ * returned undefined, _isDiscontinued_ saw an empty string, and nine rows
+ * marked yes were published anyway. Nothing anywhere reported it — the value
+ * was right there in the cell, and the reader simply never found it.
+ *
+ * Exact match first, so nothing that works today changes. Then a match
+ * ignoring case and punctuation, so "Discontinued", "DISCONTINUED" and
+ * "Size Guide" all resolve. A one-character difference in a header should not
+ * be able to put a retired bike back on the shop.
+ */
+function _rowGet_(row, key) {
+  if (row == null) return undefined;
+  if (Object.prototype.hasOwnProperty.call(row, key)) return row[key];
+  var want = String(key).toLowerCase().replace(/[^a-z0-9]/g, '');
+  var keys = Object.keys(row);
+  for (var i = 0; i < keys.length; i++) {
+    if (String(keys[i]).toLowerCase().replace(/[^a-z0-9]/g, '') === want) return row[keys[i]];
+  }
+  return undefined;
+}
+
 /** Safely parses a JSON string from a sheet cell. */
 function _parseJson_(cell, defaultVal) {
   var s = String(cell || '').trim();
@@ -110,11 +136,11 @@ function _parseList_(cell) {
 
 /** Converts a sheet row into a public bike object. */
 function _rowToBike_(row) {
-  var colors = _parseJson_(row.colors,    {});
-  var specs  = _parseJson_(row.specs,     {});
-  var guide  = _parseJson_(row.sizeGuide, {});
-  var styles = _parseList_(row.styles);
-  var sizes  = _parseList_(row.sizes);
+  var colors = _parseJson_(_rowGet_(row, 'colors'),    {});
+  var specs  = _parseJson_(_rowGet_(row, 'specs'),     {});
+  var guide  = _parseJson_(_rowGet_(row, 'sizeGuide'), {});
+  var styles = _parseList_(_rowGet_(row, 'styles'));
+  var sizes  = _parseList_(_rowGet_(row, 'sizes'));
   if (!styles.length) styles = ['Standard'];
   if (!sizes.length)  sizes  = ['One Size'];
 
@@ -136,12 +162,12 @@ function _rowToBike_(row) {
   }
 
   return {
-    brand:        String(row.brand    || ''),
-    id:           String(row.id       || ''),
-    name:         String(row.name     || ''),
-    subtitle:     String(row.subtitle || ''),
-    price:        Number(row.price)   || 0,
-    testRide:     String(row.testRide || ''),
+    brand:        String(_rowGet_(row, 'brand')    || ''),
+    id:           String(_rowGet_(row, 'id')       || ''),
+    name:         String(_rowGet_(row, 'name')     || ''),
+    subtitle:     String(_rowGet_(row, 'subtitle') || ''),
+    price:        Number(_rowGet_(row, 'price'))   || 0,
+    testRide:     String(_rowGet_(row, 'testRide') || ''),
     // Kept separate from testRide deliberately: one column said both where a
     // bike could be ridden and what the caveat was, so neither could be read
     // reliably. Location decides whether it appears on test-ride.html;
@@ -165,12 +191,12 @@ function _rowToBike_(row) {
 
 /** Returns true if a row is blank (no id or name). */
 function _isBlankRow_(row) {
-  return !String(row.id || '').trim() && !String(row.name || '').trim();
+  return !String(_rowGet_(row, 'id') || '').trim() && !String(_rowGet_(row, 'name') || '').trim();
 }
 
 /** Returns true if a row is marked discontinued. */
 function _isDiscontinued_(row) {
-  var d = String(row.discontinued || '').trim().toLowerCase();
+  var d = String(_rowGet_(row, 'discontinued') || '').trim().toLowerCase();
   return d === 'yes' || d === 'true';
 }
 
@@ -221,9 +247,9 @@ function handleGetSidebarInventory(e) {
       .map(function(row) {
         var bike = _rowToBike_(row);
         bike.rowIndex     = row.rowIndex;
-        bike.discontinued = String(row.discontinued || '').trim();
-        bike.categories   = String(row.categories   || '').trim();
-        bike.stock        = _parseJson_(row.stock, {});
+        bike.discontinued = String(_rowGet_(row, 'discontinued') || '').trim();
+        bike.categories   = String(_rowGet_(row, 'categories')   || '').trim();
+        bike.stock        = _parseJson_(_rowGet_(row, 'stock'), {});
         return bike;
       });
 
@@ -371,8 +397,8 @@ function handleGetStock(e) {
     var inv    = _openInventorySheet_();
     var result = {};
     inv.rows.forEach(function(row) {
-      var id = String(row.id || '').trim();
-      if (id) result[id] = _parseJson_(row.stock, {});
+      var id = String(_rowGet_(row, 'id') || '').trim();
+      if (id) result[id] = _parseJson_(_rowGet_(row, 'stock'), {});
     });
     return ContentService
       .createTextOutput(JSON.stringify(result))
