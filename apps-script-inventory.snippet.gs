@@ -104,18 +104,32 @@ function _openInventorySheet_() {
  * marked yes were published anyway. Nothing anywhere reported it — the value
  * was right there in the cell, and the reader simply never found it.
  *
- * Exact match first, so nothing that works today changes. Then a match
- * ignoring case and punctuation, so "Discontinued", "DISCONTINUED" and
- * "Size Guide" all resolve. A one-character difference in a header should not
- * be able to put a retired bike back on the shop.
+ * Exact match first, so nothing that works today changes. Then a match that
+ * ignores case, punctuation and a parenthesised suffix, because this sheet's
+ * headers read "Specs (JSON)", "Colors (JSON)" and "SizeGuide (JSON)".
+ * Dropping only case and punctuation was not enough: those normalise to
+ * "specsjson" and "colorsjson", which match nothing, and a deploy in that
+ * state would have emptied the specs and colour swatches on every bike while
+ * fixing the discontinued flag.
+ *
+ * A one-character difference in a header should not be able to put a retired
+ * bike back on the shop, or take the photos off a live one.
  */
+function _rowNormKey_(k) {
+  return String(k == null ? '' : k)
+    .replace(/\([^)]*\)/g, '')   // drop "(JSON)" and anything else parenthesised
+    .toLowerCase()
+    .replace(/[^a-z0-9]/g, '');
+}
+
 function _rowGet_(row, key) {
   if (row == null) return undefined;
   if (Object.prototype.hasOwnProperty.call(row, key)) return row[key];
-  var want = String(key).toLowerCase().replace(/[^a-z0-9]/g, '');
+  var want = _rowNormKey_(key);
+  if (!want) return undefined;
   var keys = Object.keys(row);
   for (var i = 0; i < keys.length; i++) {
-    if (String(keys[i]).toLowerCase().replace(/[^a-z0-9]/g, '') === want) return row[keys[i]];
+    if (_rowNormKey_(keys[i]) === want) return row[keys[i]];
   }
   return undefined;
 }
