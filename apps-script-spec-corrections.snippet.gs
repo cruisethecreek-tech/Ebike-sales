@@ -18,7 +18,7 @@
  * rewriter — the sheet is where hand-entered work lives.
  */
 
-var FIX_VERSION = '2026-09-15a';
+var FIX_VERSION = '2026-09-16a';
 
 var SPEC_FIXES = [
   {
@@ -43,6 +43,32 @@ var SPEC_FIXES = [
     specs: {
       'Range': '35 mi', 'Top Speed': '12 mph',
       'Motor': '250W', 'Battery': '249.6WH', 'Weight': '55 lbs'
+    }
+  },
+  {
+    brand: 'Heybike', name: 'Saturn',
+    why: 'imported with empty Specs, so it cannot be published. Figures are for '
+       + 'the SINGLE-battery Saturn, which is what this row is: 52V x 18.4Ah = '
+       + '956.8Wh. The dual-battery version is a separate listing and roughly '
+       + 'doubles both the pack and the range. Top speed is the 28 mph it ships '
+       + 'at; Heybike advertises unlocking to 40 mph, which is not a Class 3 '
+       + 'figure and should not be quoted as the bike\'s speed.',
+    src: 'https://www.heybike.com/products/saturn',
+    specs: {
+      'Range': '30-50 mi', 'Top Speed': '28 mph', 'Motor': '1000W / 1800W peak',
+      'Battery': '956.8WH', 'Torque': '95 NM', 'Weight': '103 lbs'
+    }
+  },
+  {
+    brand: 'Heybike', name: 'Titan',
+    why: 'imported with empty Specs. Single-battery figures: 48V x 15Ah = 720Wh, '
+       + 'up to 40 miles. The dual-battery build is 1440Wh and up to 80 miles. '
+       + 'It SHIPS Class 2 at 20 mph and is raised to 28 through the Heybike app, '
+       + 'so 20 is the honest number on the tag.',
+    src: 'https://www.heybike.com/products/titan',
+    specs: {
+      'Range': '40 mi', 'Top Speed': '20 mph', 'Motor': '750W / 1500W peak',
+      'Battery': '720WH', 'Torque': '65 NM'
     }
   },
   {
