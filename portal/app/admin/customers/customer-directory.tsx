@@ -22,6 +22,10 @@ interface CustomerData {
   email?: string | null
   referral_code?: string | null
   is_admin?: boolean
+  /** Has signed into the portal at least once (from auth.users). */
+  registered?: boolean
+  lastSignInAt?: string | null
+  invitedAt?: string | null
   invoiceCount: number
   totalSpent: number
   bikes: Bike[]
@@ -51,6 +55,32 @@ export function formatCustomerName(firstName?: string | null, lastName?: string 
   }
   const full = `${f} ${l}`.trim()
   return full || 'Customer'
+}
+
+function formatWhen(iso?: string | null): string {
+  if (!iso) return '\u2014'
+  const d = new Date(iso)
+  return isNaN(d.getTime()) ? '\u2014' : d.toLocaleDateString()
+}
+
+/** Registered = has signed in. Everyone else was invited and never arrived. */
+export function SignupBadge({ customer, size = 'sm' }: { customer: CustomerData; size?: 'sm' | 'md' }) {
+  const pad = size === 'md' ? 'px-2.5 py-0.5 text-[11px]' : 'px-1.5 py-0.5 text-[10px]'
+  return customer.registered ? (
+    <span
+      title={customer.lastSignInAt ? `Last signed in ${formatWhen(customer.lastSignInAt)}` : 'Signed in'}
+      className={`${pad} rounded bg-[#2D4A32] text-white font-bold uppercase tracking-wide whitespace-nowrap`}
+    >
+      \u2713 Registered
+    </span>
+  ) : (
+    <span
+      title={customer.invitedAt ? `Invited ${formatWhen(customer.invitedAt)} \u2014 never signed in` : 'Never signed in'}
+      className={`${pad} rounded bg-[#C9A96E]/25 text-[#8a6d2f] border border-[#C9A96E] font-bold uppercase tracking-wide whitespace-nowrap`}
+    >
+      \u23f3 Invited
+    </span>
+  )
 }
 
 function BikeAdminCard({ bike }: { bike: Bike }) {
@@ -153,6 +183,7 @@ function BikeAdminCard({ bike }: { bike: Bike }) {
 
 export function CustomerDirectory({ customers }: { customers: CustomerData[] }) {
   const [activeLetter, setActiveLetter] = useState<string>('ALL')
+  const [signupFilter, setSignupFilter] = useState<'ALL' | 'REGISTERED' | 'INVITED'>('ALL')
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedCustomerId, setSelectedCustomerId] = useState<string | null>(null)
   const [copiedCode, setCopiedCode] = useState(false)
@@ -210,6 +241,10 @@ export function CustomerDirectory({ customers }: { customers: CustomerData[] }) 
 
       if (!matchesLetter) return false
 
+      // Sign-up state filter
+      if (signupFilter === 'REGISTERED' && !c.registered) return false
+      if (signupFilter === 'INVITED' && c.registered) return false
+
       // Search query filter
       if (!searchQuery.trim()) return true
 
@@ -227,7 +262,12 @@ export function CustomerDirectory({ customers }: { customers: CustomerData[] }) 
         bikeMatch
       )
     })
-  }, [customers, activeLetter, searchQuery])
+  }, [customers, activeLetter, signupFilter, searchQuery])
+
+  const signupCounts = useMemo(() => {
+    const registered = customers.filter((c) => c.registered).length
+    return { ALL: customers.length, REGISTERED: registered, INVITED: customers.length - registered }
+  }, [customers])
 
   const selectedCustomer = useMemo(() => {
     if (!selectedCustomerId) return null
@@ -243,6 +283,38 @@ export function CustomerDirectory({ customers }: { customers: CustomerData[] }) 
 
   return (
     <div className="space-y-4">
+      {/* ── Portal Sign-Up Filter ── */}
+      <div className="bg-white p-3 rounded-xl border border-[#E5E5E5] shadow-xs space-y-2">
+        <span className="text-xs font-bold uppercase tracking-wider text-[#4A4A4A]">
+          🔑 Portal Sign-Up:
+        </span>
+        <div className="flex items-center gap-2 flex-wrap text-xs">
+          {([
+            { key: 'ALL', label: 'Everyone' },
+            { key: 'REGISTERED', label: '✓ Registered' },
+            { key: 'INVITED', label: '⏳ Invited, never signed in' },
+          ] as const).map(({ key, label }) => {
+            const isOn = signupFilter === key
+            return (
+              <button
+                key={key}
+                type="button"
+                aria-pressed={isOn}
+                onClick={() => setSignupFilter(key)}
+                className={`px-3 py-1.5 rounded-lg font-bold transition-all ${
+                  isOn
+                    ? 'bg-[#2D4A32] text-white shadow-xs'
+                    : 'bg-[#F5F0E8] text-[#2D4A32] hover:bg-[#e8dfd1]'
+                }`}
+              >
+                {label}{' '}
+                <span className={isOn ? 'opacity-70' : 'opacity-50'}>{signupCounts[key]}</span>
+              </button>
+            )
+          })}
+        </div>
+      </div>
+
       {/* ── Alphabetical Quick-Filter Bar ── */}
       <div className="bg-white p-3 rounded-xl border border-[#E5E5E5] shadow-xs space-y-2">
         <div className="flex items-center justify-between flex-wrap gap-2">
@@ -279,7 +351,7 @@ export function CustomerDirectory({ customers }: { customers: CustomerData[] }) 
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search by name, phone, bike (e.g. Discover 3), or ref code..."
+            placeholder="Search by name, email, phone, bike (e.g. Discover 3), or ref code..."
             className="w-full px-3 py-2 rounded-lg border border-[#C9A96E] bg-white text-xs placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#2D4A32]"
           />
         </div>
@@ -294,6 +366,7 @@ export function CustomerDirectory({ customers }: { customers: CustomerData[] }) 
                 <span className="text-[10px] px-2.5 py-0.5 rounded bg-[#2D4A32] text-[#F5F0E8] font-bold uppercase tracking-wider">
                   👤 Currently Viewing & Active Customer
                 </span>
+                <SignupBadge customer={selectedCustomer} size="md" />
                 {selectedCustomer.is_admin && (
                   <span className="text-[10px] px-2 py-0.5 rounded bg-[#C9A96E] text-[#1A2E1C] font-bold">
                     👑 ADMIN
@@ -416,6 +489,20 @@ export function CustomerDirectory({ customers }: { customers: CustomerData[] }) 
               <span className="text-gray-500 block text-[10px] font-bold uppercase">Referral Code</span>
               <span className="font-mono font-bold text-[#2D4A32]">{selectedCustomer.referral_code || '—'}</span>
             </div>
+            <div className="p-2.5 rounded-lg bg-[#FAF8F2] border border-[#E5E5E5]">
+              <span className="text-gray-500 block text-[10px] font-bold uppercase">Email</span>
+              <span className="font-semibold text-[#1A1A1A] break-all">{selectedCustomer.email || '—'}</span>
+            </div>
+            <div className="p-2.5 rounded-lg bg-[#FAF8F2] border border-[#E5E5E5]">
+              <span className="text-gray-500 block text-[10px] font-bold uppercase">
+                {selectedCustomer.registered ? 'Last Signed In' : 'Invited'}
+              </span>
+              <span className="font-semibold text-[#1A1A1A]">
+                {selectedCustomer.registered
+                  ? formatWhen(selectedCustomer.lastSignInAt)
+                  : `${formatWhen(selectedCustomer.invitedAt)} · never signed in`}
+              </span>
+            </div>
           </div>
 
           {/* Customer Bikes List & Management */}
@@ -521,11 +608,17 @@ export function CustomerDirectory({ customers }: { customers: CustomerData[] }) 
                   }`}
                 >
                   <td className="p-3.5 font-bold text-sm text-[#1A2E1C]">
-                    {cleanName}{' '}
-                    {c.is_admin && (
-                      <span className="text-[10px] px-1.5 py-0.5 rounded bg-[#C9A96E] font-bold text-[#1A2E1C]">
-                        ADMIN
-                      </span>
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                      <span>{cleanName}</span>
+                      {c.is_admin && (
+                        <span className="text-[10px] px-1.5 py-0.5 rounded bg-[#C9A96E] font-bold text-[#1A2E1C]">
+                          ADMIN
+                        </span>
+                      )}
+                      <SignupBadge customer={c} />
+                    </div>
+                    {c.email && (
+                      <span className="block font-normal text-[11px] text-gray-500 mt-0.5">{c.email}</span>
                     )}
                   </td>
                   <td className="p-3.5 text-xs text-[#4A4A4A]">{c.phone || '—'}</td>
@@ -588,15 +681,17 @@ export function CustomerDirectory({ customers }: { customers: CustomerData[] }) 
             >
               <div className="flex justify-between items-start">
                 <div>
-                  <p className="font-bold text-base text-[#1A2E1C]">
-                    {cleanName}{' '}
+                  <p className="font-bold text-base text-[#1A2E1C] flex items-center gap-1.5 flex-wrap">
+                    <span>{cleanName}</span>
                     {c.is_admin && (
                       <span className="text-[10px] px-1.5 py-0.5 rounded bg-[#C9A96E] font-bold text-[#1A2E1C]">
                         ADMIN
                       </span>
                     )}
+                    <SignupBadge customer={c} />
                   </p>
                   <p className="text-xs text-[#4A4A4A]">{c.phone || 'No phone'}</p>
+                  {c.email && <p className="text-[11px] text-gray-500 break-all">{c.email}</p>}
                 </div>
                 <div className="text-right">
                   <span className="text-sm font-bold text-[#2D4A32]">${c.totalSpent.toFixed(2)}</span>
