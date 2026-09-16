@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2026-09-16T17:35:46Z",
+  "lastUpdated": "2026-09-16T17:46:58Z",
   "bikes": [
     {
       "brand": "Heybike",
@@ -456,46 +456,6 @@
     },
     {
       "brand": "Jasion",
-      "id": "eb5roamerst",
-      "name": "EB5 Roamer ST",
-      "subtitle": "Step-Thru",
-      "price": 699,
-      "testRide": "",
-      "testRideLoc": "",
-      "styles": [
-        "Step-Thru"
-      ],
-      "sizes": [
-        "One Size"
-      ],
-      "specs": {
-        "Range": "62 mi",
-        "Top Speed": "28 mph",
-        "Motor": "500W",
-        "Battery": "48V 11Ah"
-      },
-      "colors": {
-        "Step-Thru": {
-          "One Size": [
-            {
-              "name": "White",
-              "hex": "#e8e8e8",
-              "img": "https://cdn.shopify.com/s/files/1/0605/0044/3373/files/EB5_roamer_st_efd5df89-84f2-42eb-9e99-1ca1769c84b1.png?v=1762156436"
-            },
-            {
-              "name": "Green",
-              "hex": "#c9d7b7",
-              "img": "https://cdn.shopify.com/s/files/1/0605/0044/3373/files/EB5_roamer_st_9f1a65da-bd13-4c92-8f25-c6541e7eabc9.png?v=1762156436"
-            }
-          ],
-          "disabled": true
-        }
-      },
-      "colorsNested": true,
-      "sizeGuide": {}
-    },
-    {
-      "brand": "Jasion",
       "id": "xhunter",
       "name": "X-Hunter",
       "subtitle": "Folding",
@@ -536,50 +496,6 @@
               "name": "Grey",
               "hex": "#888888",
               "img": "https://cdn.shopify.com/s/files/1/0605/0044/3373/files/4_e6fae634-aaa2-4a5a-b67d-f272d939257c.png?v=1762764652"
-            }
-          ]
-        }
-      },
-      "colorsNested": true,
-      "sizeGuide": {}
-    },
-    {
-      "brand": "Jasion",
-      "id": "hunter st",
-      "name": "Hunter ST",
-      "subtitle": "Step-Thru Folding",
-      "price": 899,
-      "testRide": "",
-      "testRideLoc": "",
-      "styles": [
-        "hunterst"
-      ],
-      "sizes": [
-        "One Size"
-      ],
-      "specs": {
-        "Range": "70 mi",
-        "Top Speed": "30 mph",
-        "Motor": "750W",
-        "Battery": "48V 13Ah"
-      },
-      "colors": {
-        "hunterst": {
-          "One Size": [
-            {
-              "name": "Blue",
-              "hex": "#4f5a72",
-              "img": "https://static.wixstatic.com/media/56427e_36c1e303d9f741539d2b6a82c8a1513a~mv2.jpg"
-            },
-            {
-              "name": "White",
-              "hex": "#f0f0f0",
-              "img": "https://static.wixstatic.com/media/56427e_0be7a21afdcc43baa26b23294277e046~mv2.png"
-            },
-            {
-              "name": "Green",
-              "hex": "#caf3c9",
-              "img": "https://static.wixstatic.com/media/56427e_39c08f495ba14e819979d08ac9ab437a~mv2.jpg"
             }
           ]
         }
@@ -2153,22 +2069,22 @@
             {
               "name": "White",
               "hex": "#ffffff",
-              "img": "http://Ebike-sales.pages.dev/images/cd1white.jpg"
+              "img": "https://cdn.shopify.com/s/files/1/0567/3821/8156/files/1_491856ce-6365-45fa-8532-7e20a942a3e0.png?v=1783058218"
             },
             {
               "name": "Cyan",
               "hex": "#888888",
-              "img": "http://Ebike-sales.pages.dev/images/cd1cyan.jpg"
+              "img": "https://cdn.shopify.com/s/files/1/0567/3821/8156/files/2_40e2767c-45b6-4b95-bf71-f7baf432dd4a.png?v=1783058221"
             },
             {
               "name": "Pink",
               "hex": "#888888",
-              "img": "http://Ebike-sales.pages.dev/images/cd1pink.jpg"
+              "img": "https://cdn.shopify.com/s/files/1/0567/3821/8156/files/1_7179068b-f2ea-4110-9712-b9e52c1b3c01.png?v=1783058217"
             },
             {
               "name": "Blue",
               "hex": "#888888",
-              "img": "http://Ebike-sales.pages.dev/images/cd1blue.jpg"
+              "img": "https://cdn.shopify.com/s/files/1/0567/3821/8156/files/1_4a484f31-93fe-4242-a1d0-281fc2a2c4d1.png?v=1783058209"
             },
             {
               "name": "Green",
@@ -2387,32 +2303,32 @@
           "One size": [
             {
               "name": "White",
-              "img": "https://ebike-sales.pages.dev/images/TK2White.jpg",
+              "img": "https://cdn.shopify.com/s/files/1/0567/3821/8156/files/180_3fae17e8-7ec9-4750-afd0-dc903e705cc4.png?v=1788860915",
               "hex": "#fbf9f9"
             },
             {
               "name": "Slate Gray",
-              "img": "https://ebike-sales.pages.dev/images/Tk2grey.jpg",
+              "img": "https://cdn.shopify.com/s/files/1/0567/3821/8156/files/180_8debb2c3-4acd-470f-8951-3aa08dab4b98.png?v=1788860915",
               "hex": "#888888"
             },
             {
               "name": "Cyan Green",
-              "img": "https://ebike-sales.pages.dev/images/Tk2aqua.jpg",
+              "img": "https://cdn.shopify.com/s/files/1/0567/3821/8156/files/180_7f6d6a95-2ba0-497a-83fd-a43d22a4e337.png?v=1788860915",
               "hex": "#5dbab5"
             },
             {
               "name": "Vibrant Orange",
-              "img": "https://ebike-sales.pages.dev/images/Tk2orange.jpg",
+              "img": "https://cdn.shopify.com/s/files/1/0567/3821/8156/files/180_9296ee30-5840-4409-b3f3-a62f591cd8b2.png?v=1788860915",
               "hex": "#fa6524"
             },
             {
               "name": "Serenity Blue",
-              "img": "https://ebike-sales.pages.dev/images/Tk2blue.jpg",
+              "img": "https://cdn.shopify.com/s/files/1/0567/3821/8156/files/180_17352a97-d80a-4379-91d8-83727074931b.png?v=1788860916",
               "hex": "#71a6b7"
             },
             {
               "name": "Lavender Purple",
-              "img": "https://ebike-sales.pages.dev/images/TK2purple.jpg",
+              "img": "https://cdn.shopify.com/s/files/1/0567/3821/8156/files/180_1d770631-25cd-4fa2-84dd-96fe220921a0.png?v=1788860915",
               "hex": "#5b5c98"
             }
           ]
