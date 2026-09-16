@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2026-09-15T20:34:12Z",
+  "lastUpdated": "2026-09-16T11:07:18Z",
   "bikes": [
     {
       "brand": "Heybike",
@@ -100,17 +100,17 @@
             {
               "name": "Ruby Red",
               "hex": "#9B111E",
-              "img": "images/Ranger 3.0 Badge Red Black.png"
+              "img": "https://cdn.shopify.com/s/files/1/0516/9804/1009/files/Ranger_3.0_Pro_c2d5e9fa-4994-4522-9011-72bd6fcba94f.png?v=1788255282"
             },
             {
               "name": "Sapphire Blue",
               "hex": "#0E21A0",
-              "img": "images/Ranger 3.0 Blue White.png"
+              "img": "https://cdn.shopify.com/s/files/1/0516/9804/1009/files/Ranger_3.0_Pro_be7e97cb-33d5-41fc-8c48-c6b9fa1d257e.png?v=1788255282"
             },
             {
               "name": "Emerald Green",
               "hex": "#005461",
-              "img": "images/Ranger Green 3.0 White.png"
+              "img": "https://cdn.shopify.com/s/files/1/0516/9804/1009/files/Ranger_3.0_Pro_10aaaee1-a9bf-40c8-8f97-a6f11b484d05.png?v=1788255282"
             },
             {
               "name": "Miami Sunset (Limited)",
@@ -245,17 +245,17 @@
             {
               "name": "Vivid Orange",
               "hex": "#FF4500",
-              "img": "images/Mars 3.0 Orange Black.png"
+              "img": "https://cdn.shopify.com/s/files/1/0516/9804/1009/files/Mars_3.0_Right.png?v=1776334832"
             },
             {
               "name": "Stormy Blue",
               "hex": "#4A5D6E",
-              "img": "images/Mars 3.0 Blue Black.png"
+              "img": "https://cdn.shopify.com/s/files/1/0516/9804/1009/files/Mars_3.0_Blue.png?v=1776334832"
             },
             {
               "name": "Nightrider Black",
               "hex": "#1C1C1C",
-              "img": "images/Mars 3.0 Black Black.png"
+              "img": "https://cdn.shopify.com/s/files/1/0516/9804/1009/files/Mars_3.0_B.png?v=1776334832"
             }
           ]
         }
@@ -359,7 +359,7 @@
             {
               "name": "White",
               "hex": "#F8F8F8",
-              "img": "images/Alpha White Back.png"
+              "img": "https://cdn.shopify.com/s/files/1/0516/9804/1009/files/VENUS_a0c9d8a6-1906-466d-86df-3dd67ef10717.png?v=1782386322"
             }
           ]
         }
@@ -402,7 +402,7 @@
             {
               "name": "Pearl White",
               "hex": "#F5F5F5",
-              "img": "images/Alpha White Back.png"
+              "img": "https://cdn.shopify.com/s/files/1/0516/9804/1009/files/FDA5C027-38ED-4501-A658-5A163286BD91.png?v=1787191200"
             }
           ]
         },
@@ -411,7 +411,7 @@
             {
               "name": "Galaxy Black",
               "hex": "#1a1a2e",
-              "img": "images/alpha black.png"
+              "img": "https://cdn.shopify.com/s/files/1/0516/9804/1009/files/F6CCF761-8982-4068-AE95-80C72D311E8E.png?v=1787191685"
             }
           ]
         }
@@ -629,6 +629,7 @@
       ],
       "specs": {
         "Range": "100 mi",
+        "Top Speed": "28 mph",
         "Motor": "750W",
         "Battery": "864WH",
         "Torque": "75 NM",
@@ -640,12 +641,12 @@
             {
               "name": "Onyx Black",
               "hex": "#4d4d4d",
-              "img": "https://static.wixstatic.com/media/56427e_9c4d8771079c4d45933e881c9c05fc5a~mv2.png"
+              "img": "https://cdn.shopify.com/s/files/1/0516/9804/1009/files/Hybird_324bfb79-d769-4651-b61e-830ea9bea287.png?v=1783592705"
             },
             {
               "name": "Ruby Red",
               "hex": "#c1464e",
-              "img": "https://static.wixstatic.com/media/56427e_d35b6a5833c14c9c9f2e5b83e8b26feb~mv2.png"
+              "img": "https://cdn.shopify.com/s/files/1/0516/9804/1009/files/Hybird_c6cb34bf-650b-4021-b23f-a474ec7a2061.png?v=1783592705"
             },
             {
               "name": "Emarald Green",
@@ -683,7 +684,7 @@
             {
               "name": "Stealth Black",
               "hex": "#050505",
-              "img": "https://ebike-sales.pages.dev/images/thunderproblackhigh.png"
+              "img": "https://cdn.shopify.com/s/files/1/0605/0044/3373/files/1.1_a3cfe345-7f1a-430a-8930-32751e050d62.png?v=1770809854"
             },
             {
               "name": "Artic Blue",
@@ -693,7 +694,7 @@
             {
               "name": "Camo",
               "hex": "#f0f0f0",
-              "img": "https://ebike-sales.pages.dev/images/thunderprocamohigh.png"
+              "img": "https://cdn.shopify.com/s/files/1/0605/0044/3373/files/1_50e95e0e-8297-4738-89aa-5b936f9ff9a5.png?v=1776941698"
             }
           ],
           "disabled": true
@@ -727,7 +728,7 @@
             {
               "name": "Stealth Black",
               "hex": "#050505",
-              "img": "https://ebike-sales.pages.dev/images/thunderproblacklow.png"
+              "img": "https://cdn.shopify.com/s/files/1/0605/0044/3373/files/1.1_39db4bb7-0bea-4a81-ac34-3a70578a10c4.png?v=1772006243"
             },
             {
               "name": "Artic Blue",
@@ -771,22 +772,22 @@
             {
               "name": "Black",
               "hex": "#0a0a0a",
-              "img": "https://static.wixstatic.com/media/56427e_4d2ca9479632489188ecbe8975f9dc72~mv2.png"
+              "img": "https://cdn.shopify.com/s/files/1/0605/0044/3373/files/1_31470001-753e-44c0-a318-cabf956cb179.png?v=1762764652"
             },
             {
               "name": "White",
               "hex": "#faf5f5",
-              "img": "https://static.wixstatic.com/media/56427e_c5fe8ddf97194e06be86c1438988548f~mv2.jpg"
+              "img": "https://cdn.shopify.com/s/files/1/0605/0044/3373/files/2_7eedecf5-92d5-4eda-b7a5-24da138c5fe0.png?v=1762764652"
             },
             {
               "name": "Blue",
               "hex": "#5f5c7a",
-              "img": "https://static.wixstatic.com/media/56427e_b1485c147bd7481f945c54df923b43f6~mv2.jpg"
+              "img": "https://cdn.shopify.com/s/files/1/0605/0044/3373/files/3_220b598a-9b8b-46bb-829c-ec62d2f5a84c.png?v=1762764652"
             },
             {
               "name": "Grey",
               "hex": "#888888",
-              "img": "https://static.wixstatic.com/media/56427e_a81bc5a0e20a46059b9b7aefc0f82ee4~mv2.jpg"
+              "img": "https://cdn.shopify.com/s/files/1/0605/0044/3373/files/4_e6fae634-aaa2-4a5a-b67d-f272d939257c.png?v=1762764652"
             }
           ]
         }
@@ -824,12 +825,12 @@
             {
               "name": "Blue",
               "hex": "#5c5d7f",
-              "img": "https://static.wixstatic.com/media/56427e_4e1217cafe4c4e2397ba661272bc31f5~mv2.jpg"
+              "img": "https://cdn.shopify.com/s/files/1/0605/0044/3373/files/HUNTERT_PRO_74c74a63-959c-4b68-b6c3-ab304147a221.png?v=1763545427"
             },
             {
               "name": "Black",
               "hex": "#0d0d0d",
-              "img": "images/Hunter Pro Badge Black.jpg"
+              "img": "https://cdn.shopify.com/s/files/1/0605/0044/3373/files/HUNTERT_PRO_e1f51363-23ad-4780-b4d7-4c2903ac486e.png?v=1763545427"
             }
           ]
         }
@@ -944,7 +945,7 @@
             {
               "name": "Blue",
               "hex": "#5a7a91",
-              "img": "images/Thunder Alpine Blue Black.jpg"
+              "img": "https://cdn.shopify.com/s/files/1/0605/0044/3373/files/Thunder_01b528e2-b4f1-41af-bd8c-fe0eaa272808.png?v=1762156886"
             },
             {
               "name": "Black",
@@ -1073,12 +1074,12 @@
             {
               "name": "White",
               "hex": "#e8e8e8",
-              "img": "https://static.wixstatic.com/media/56427e_c0c98a15b1b54fe19fdc016c817a2748~mv2.jpg"
+              "img": "https://cdn.shopify.com/s/files/1/0605/0044/3373/files/EB5_roamer_st_efd5df89-84f2-42eb-9e99-1ca1769c84b1.png?v=1762156436"
             },
             {
               "name": "Green",
               "hex": "#c9d7b7",
-              "img": "https://static.wixstatic.com/media/56427e_77aba66e55bc4936a3035ba7635e2b7a~mv2.jpg"
+              "img": "https://cdn.shopify.com/s/files/1/0605/0044/3373/files/EB5_roamer_st_9f1a65da-bd13-4c92-8f25-c6541e7eabc9.png?v=1762156436"
             }
           ],
           "disabled": true
@@ -1280,11 +1281,11 @@
         "One size"
       ],
       "specs": {
-        "Range": "70 mi",
-        "Top Speed": "16 mph",
-        "Motor": "500W",
-        "Battery": "696WH",
-        "Weight": "89 lbs"
+        "Range": "45-75 mi",
+        "Top Speed": "15 mph",
+        "Motor": "750W / 1310W peak",
+        "Battery": "960WH",
+        "Torque": "90 NM"
       },
       "colors": {
         "Default": {
@@ -1342,7 +1343,7 @@
         "Range": "35 mi",
         "Top Speed": "12 mph",
         "Motor": "250W",
-        "Battery": "696WH",
+        "Battery": "249.6WH",
         "Weight": "55 lbs"
       },
       "colors": {
@@ -3335,6 +3336,2853 @@
               "name": "Green",
               "hex": "",
               "img": "https://cdn.shopify.com/s/files/1/0785/3794/9231/files/2_6b4ea16a-1f49-4078-9007-d556a38d17eb.jpg?v=1787291893"
+            }
+          ]
+        }
+      },
+      "colorsNested": true,
+      "sizeGuide": {}
+    },
+    {
+      "brand": "Heybike",
+      "id": "seel-e-mobility-protection",
+      "name": "Seel E-Mobility Protection",
+      "subtitle": "",
+      "price": 16.99,
+      "testRide": "",
+      "styles": [],
+      "sizes": [
+        "One Size"
+      ],
+      "specs": {},
+      "colors": {
+        "Default": {
+          "One Size": [
+            {
+              "name": "16.99 / 3 Years",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0516/9804/1009/files/seel_warranty.png?v=1787910908"
+            },
+            {
+              "name": "29.99 / 3 Years",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0516/9804/1009/files/seel_warranty.png?v=1787910908",
+              "price": 30
+            },
+            {
+              "name": "71.99 / 3 Years",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0516/9804/1009/files/seel_warranty.png?v=1787910908",
+              "price": 72
+            },
+            {
+              "name": "134.99 / 3 Years",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0516/9804/1009/files/seel_warranty.png?v=1787910908",
+              "price": 135
+            },
+            {
+              "name": "177.99 / 3 Years",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0516/9804/1009/files/seel_warranty.png?v=1787910908",
+              "price": 178
+            },
+            {
+              "name": "215.99 / 3 Years",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0516/9804/1009/files/seel_warranty.png?v=1787910908",
+              "price": 216
+            },
+            {
+              "name": "233.99 / 3 Years",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0516/9804/1009/files/seel_warranty.png?v=1787910908",
+              "price": 234
+            },
+            {
+              "name": "255.99 / 3 Years",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0516/9804/1009/files/seel_warranty.png?v=1787910908",
+              "price": 256
+            },
+            {
+              "name": "279.99 / 3 Years",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0516/9804/1009/files/seel_warranty.png?v=1787910908",
+              "price": 280
+            },
+            {
+              "name": "300.99 / 3 Years",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0516/9804/1009/files/seel_warranty.png?v=1787910908",
+              "price": 301
+            },
+            {
+              "name": "321.99 / 3 Years",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0516/9804/1009/files/seel_warranty.png?v=1787910908",
+              "price": 322
+            },
+            {
+              "name": "339.99 / 3 Years",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0516/9804/1009/files/seel_warranty.png?v=1787910908",
+              "price": 340
+            },
+            {
+              "name": "357.99 / 3 Years",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0516/9804/1009/files/seel_warranty.png?v=1787910908",
+              "price": 358
+            },
+            {
+              "name": "375.99 / 3 Years",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0516/9804/1009/files/seel_warranty.png?v=1787910908",
+              "price": 376
+            },
+            {
+              "name": "397.99 / 3 Years",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0516/9804/1009/files/seel_warranty.png?v=1787910908",
+              "price": 398
+            },
+            {
+              "name": "419.99 / 3 Years",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0516/9804/1009/files/seel_warranty.png?v=1787910908",
+              "price": 420
+            },
+            {
+              "name": "449.99 / 3 Years",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0516/9804/1009/files/seel_warranty.png?v=1787910908",
+              "price": 450
+            },
+            {
+              "name": "20.99 / 4 Years",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0516/9804/1009/files/seel_warranty.png?v=1787910908",
+              "price": 21
+            },
+            {
+              "name": "39.99 / 4 Years",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0516/9804/1009/files/seel_warranty.png?v=1787910908",
+              "price": 40
+            },
+            {
+              "name": "91.99 / 4 Years",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0516/9804/1009/files/seel_warranty.png?v=1787910908",
+              "price": 92
+            },
+            {
+              "name": "175.99 / 4 Years",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0516/9804/1009/files/seel_warranty.png?v=1787910908",
+              "price": 176
+            },
+            {
+              "name": "223.99 / 4 Years",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0516/9804/1009/files/seel_warranty.png?v=1787910908",
+              "price": 224
+            },
+            {
+              "name": "279.99 / 4 Years",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0516/9804/1009/files/seel_warranty.png?v=1787910908",
+              "price": 280
+            },
+            {
+              "name": "299.99 / 4 Years",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0516/9804/1009/files/seel_warranty.png?v=1787910908",
+              "price": 300
+            },
+            {
+              "name": "331.99 / 4 Years",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0516/9804/1009/files/seel_warranty.png?v=1787910908",
+              "price": 332
+            },
+            {
+              "name": "355.99 / 4 Years",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0516/9804/1009/files/seel_warranty.png?v=1787910908",
+              "price": 356
+            },
+            {
+              "name": "381.99 / 4 Years",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0516/9804/1009/files/seel_warranty.png?v=1787910908",
+              "price": 382
+            },
+            {
+              "name": "403.99 / 4 Years",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0516/9804/1009/files/seel_warranty.png?v=1787910908",
+              "price": 404
+            },
+            {
+              "name": "425.99 / 4 Years",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0516/9804/1009/files/seel_warranty.png?v=1787910908",
+              "price": 426
+            },
+            {
+              "name": "441.99 / 4 Years",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0516/9804/1009/files/seel_warranty.png?v=1787910908",
+              "price": 442
+            },
+            {
+              "name": "455.99 / 4 Years",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0516/9804/1009/files/seel_warranty.png?v=1787910908",
+              "price": 456
+            },
+            {
+              "name": "475.99 / 4 Years",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0516/9804/1009/files/seel_warranty.png?v=1787910908",
+              "price": 476
+            },
+            {
+              "name": "495.99 / 4 Years",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0516/9804/1009/files/seel_warranty.png?v=1787910908",
+              "price": 496
+            },
+            {
+              "name": "525.99 / 4 Years",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0516/9804/1009/files/seel_warranty.png?v=1787910908",
+              "price": 526
+            }
+          ]
+        }
+      },
+      "colorsNested": true,
+      "sizeGuide": {}
+    },
+    {
+      "brand": "Heybike",
+      "id": "titan",
+      "name": "Titan",
+      "subtitle": "",
+      "price": 1399,
+      "testRide": "",
+      "styles": [],
+      "sizes": [
+        "One Size"
+      ],
+      "specs": {},
+      "colors": {
+        "Default": {
+          "One Size": [
+            {
+              "name": "White",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0516/9804/1009/files/Titan-_01_a6eda7e3-8f5f-47da-9e71-346b24a30de1.png?v=1788255521"
+            },
+            {
+              "name": "Black",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0516/9804/1009/files/Titan-_01_0a0e351a-8fab-48a2-a19a-0405e887eef7.png?v=1788255521"
+            }
+          ]
+        }
+      },
+      "colorsNested": true,
+      "sizeGuide": {}
+    },
+    {
+      "brand": "Heybike",
+      "id": "led-bike-headlight-for-school-1",
+      "name": "LED Bike Long Headlight\uff083FOR99\uff09",
+      "subtitle": "",
+      "price": 61,
+      "testRide": "",
+      "styles": [],
+      "sizes": [
+        "One Size"
+      ],
+      "specs": {},
+      "colors": {
+        "Default": {
+          "One Size": [
+            {
+              "name": "Long Version",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0516/9804/1009/files/56b31cbdd9b492307fa1761435e9b43e_a82b2002-bbf5-49a9-bcea-1cb84c7c5bf4.png?v=1781172785"
+            }
+          ]
+        }
+      },
+      "colorsNested": true,
+      "sizeGuide": {}
+    },
+    {
+      "brand": "Heybike",
+      "id": "mirrors-for-school",
+      "name": "Mirrors\uff083FOR99\uff09",
+      "subtitle": "",
+      "price": 61,
+      "testRide": "",
+      "styles": [],
+      "sizes": [
+        "One Size"
+      ],
+      "specs": {},
+      "colors": {
+        "Default": {
+          "One Size": [
+            {
+              "name": "Left & Right",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0516/9804/1009/products/4_3030419e-8351-4a31-a291-614042eb1698.jpg?v=1677235843"
+            }
+          ]
+        }
+      },
+      "colorsNested": true,
+      "sizeGuide": {}
+    },
+    {
+      "brand": "Heybike",
+      "id": "led-bike-headlight-for-school",
+      "name": "LED Bike Short Headlight\uff083FOR99\uff09",
+      "subtitle": "",
+      "price": 61,
+      "testRide": "",
+      "styles": [],
+      "sizes": [
+        "One Size"
+      ],
+      "specs": {},
+      "colors": {
+        "Default": {
+          "One Size": [
+            {
+              "name": "Short Version",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0516/9804/1009/files/56b31cbdd9b492307fa1761435e9b43e_a82b2002-bbf5-49a9-bcea-1cb84c7c5bf4.png?v=1781172785"
+            }
+          ]
+        }
+      },
+      "colorsNested": true,
+      "sizeGuide": {}
+    },
+    {
+      "brand": "Heybike",
+      "id": "mars-2-5",
+      "name": "Mars 2.5",
+      "subtitle": "",
+      "price": 999,
+      "testRide": "",
+      "styles": [],
+      "sizes": [
+        "One Size"
+      ],
+      "specs": {},
+      "colors": {
+        "Default": {
+          "One Size": [
+            {
+              "name": "Black",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0516/9804/1009/files/2048_1285_32a671b7-705e-4153-8779-0a0bdce0b6e3.png?v=1786539255"
+            }
+          ]
+        }
+      },
+      "colorsNested": true,
+      "sizeGuide": {}
+    },
+    {
+      "brand": "Heybike",
+      "id": "cityscape-2-0-deal",
+      "name": "Cityscape 2.0\uff08Deal\uff09",
+      "subtitle": "",
+      "price": 799,
+      "testRide": "",
+      "styles": [],
+      "sizes": [
+        "One Size"
+      ],
+      "specs": {},
+      "colors": {
+        "Default": {
+          "One Size": [
+            {
+              "name": "Green",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0516/9804/1009/files/Cityscape2.0_-__1.png?v=1784875378"
+            },
+            {
+              "name": "White",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0516/9804/1009/files/Cityscape2.0_46163a45-4b84-4f1a-a0f8-0329c53ad7f4.png?v=1784875378"
+            },
+            {
+              "name": "Black",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0516/9804/1009/files/Cityscape2.0.png?v=1784875378"
+            }
+          ]
+        }
+      },
+      "colorsNested": true,
+      "sizeGuide": {}
+    },
+    {
+      "brand": "Heybike",
+      "id": "saturn-for-spur-fans",
+      "name": "Saturn for Spurs Fans",
+      "subtitle": "",
+      "price": 999,
+      "testRide": "",
+      "styles": [],
+      "sizes": [
+        "One Size"
+      ],
+      "specs": {},
+      "colors": {
+        "Default": {
+          "One Size": [
+            {
+              "name": "Leather Black",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0516/9804/1009/files/Saturn_58a82cee-db71-4899-add6-3c1d18c8f6ed.png?v=1788255406"
+            }
+          ]
+        }
+      },
+      "colorsNested": true,
+      "sizeGuide": {}
+    },
+    {
+      "brand": "Heybike",
+      "id": "cityscape-2-0",
+      "name": "Cityscape 2.0",
+      "subtitle": "",
+      "price": 899,
+      "testRide": "",
+      "styles": [],
+      "sizes": [
+        "One Size"
+      ],
+      "specs": {},
+      "colors": {
+        "Default": {
+          "One Size": [
+            {
+              "name": "Green",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0516/9804/1009/files/Cityscape2.0_-__1.png?v=1784875378"
+            },
+            {
+              "name": "White",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0516/9804/1009/files/Cityscape2.0_46163a45-4b84-4f1a-a0f8-0329c53ad7f4.png?v=1784875378"
+            },
+            {
+              "name": "Black",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0516/9804/1009/files/Cityscape2.0.png?v=1784875378"
+            }
+          ]
+        }
+      },
+      "colorsNested": true,
+      "sizeGuide": {}
+    },
+    {
+      "brand": "Heybike",
+      "id": "hero-rear-rack-for-step-through-version-1",
+      "name": "LED Bike Headlight",
+      "subtitle": "",
+      "price": 69,
+      "testRide": "",
+      "styles": [],
+      "sizes": [
+        "One Size"
+      ],
+      "specs": {},
+      "colors": {
+        "Default": {
+          "One Size": [
+            {
+              "name": "Short Version",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0516/9804/1009/files/56b31cbdd9b492307fa1761435e9b43e_a82b2002-bbf5-49a9-bcea-1cb84c7c5bf4.png?v=1781172785"
+            },
+            {
+              "name": "Long Version",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0516/9804/1009/files/56b31cbdd9b492307fa1761435e9b43e_a82b2002-bbf5-49a9-bcea-1cb84c7c5bf4.png?v=1781172785",
+              "price": 79
+            }
+          ]
+        }
+      },
+      "colorsNested": true,
+      "sizeGuide": {}
+    },
+    {
+      "brand": "Heybike",
+      "id": "saturn-combo",
+      "name": "Saturn-combo",
+      "subtitle": "",
+      "price": 2198,
+      "testRide": "",
+      "styles": [],
+      "sizes": [
+        "One Size"
+      ],
+      "specs": {},
+      "colors": {
+        "Default": {
+          "One Size": [
+            {
+              "name": "Leather Black",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0516/9804/1009/files/Saturn_x2_79677eb2-11e7-40bc-869f-f0d1bc681cd2.png?v=1788260243"
+            }
+          ]
+        }
+      },
+      "colorsNested": true,
+      "sizeGuide": {}
+    },
+    {
+      "brand": "Heybike",
+      "id": "saturn",
+      "name": "Saturn",
+      "subtitle": "",
+      "price": 999,
+      "testRide": "",
+      "styles": [],
+      "sizes": [
+        "One Size"
+      ],
+      "specs": {},
+      "colors": {
+        "Default": {
+          "One Size": [
+            {
+              "name": "Leather Black",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0516/9804/1009/files/Saturn_58a82cee-db71-4899-add6-3c1d18c8f6ed.png?v=1788255406"
+            }
+          ]
+        }
+      },
+      "colorsNested": true,
+      "sizeGuide": {}
+    },
+    {
+      "brand": "Heybike",
+      "id": "mirror",
+      "name": "Mirrors",
+      "subtitle": "",
+      "price": 39,
+      "testRide": "",
+      "styles": [],
+      "sizes": [
+        "One Size"
+      ],
+      "specs": {},
+      "colors": {
+        "Default": {
+          "One Size": [
+            {
+              "name": "Left & Right",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0516/9804/1009/products/4_3030419e-8351-4a31-a291-614042eb1698.jpg?v=1677235843"
+            }
+          ]
+        }
+      },
+      "colorsNested": true,
+      "sizeGuide": {}
+    },
+    {
+      "brand": "Heybike",
+      "id": "rear-side-baskets-set",
+      "name": "Dual Rear Side Baskets Set",
+      "subtitle": "",
+      "price": 89,
+      "testRide": "",
+      "styles": [],
+      "sizes": [
+        "One Size"
+      ],
+      "specs": {},
+      "colors": {
+        "Default": {
+          "One Size": [
+            {
+              "name": "Left & Right",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0516/9804/1009/files/1068f5b3852c38a0fa9c7488c81ddb35.png?v=1724384731"
+            }
+          ]
+        }
+      },
+      "colorsNested": true,
+      "sizeGuide": {}
+    },
+    {
+      "brand": "Velotric",
+      "id": "gen-2-shotgun-scabbard-black-edition",
+      "name": "Ebike Scabbards Shotgun Scabbard",
+      "subtitle": "",
+      "price": 390,
+      "testRide": "",
+      "styles": [],
+      "sizes": [
+        "One Size"
+      ],
+      "specs": {},
+      "colors": {
+        "Default": {
+          "One Size": [
+            {
+              "name": "Standard",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0599/2094/1239/files/2_9984d473-9958-437c-a70c-fcfef0bef125.png?v=1788259371"
+            }
+          ]
+        }
+      },
+      "colorsNested": true,
+      "sizeGuide": {}
+    },
+    {
+      "brand": "Velotric",
+      "id": "kastking-spartacus-defender-twin-tip-baitcaster-rod-and-reel-combo",
+      "name": "KastKing Spartacus Defender Twin-Tip Baitcaster Rod and Reel Combo",
+      "subtitle": "",
+      "price": 129.99,
+      "testRide": "",
+      "styles": [],
+      "sizes": [
+        "One Size"
+      ],
+      "specs": {},
+      "colors": {
+        "Default": {
+          "One Size": [
+            {
+              "name": "Right Handed / 6'0\" / Medium / Fast",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0599/2094/1239/files/KastKingSpartacusDefenderTwin-TipBaitcasterRodandReelCombo_1.jpg?v=1784713018"
+            },
+            {
+              "name": "Left Handed / 6'0\" / Medium / Fast",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0599/2094/1239/files/KastKingSpartacusDefenderTwin-TipBaitcasterRodandReelCombo_2.jpg?v=1784713018"
+            },
+            {
+              "name": "Right Handed / 6'6\" / Medium / Fast",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0599/2094/1239/files/KastKingSpartacusDefenderTwin-TipBaitcasterRodandReelCombo_1.jpg?v=1784713018"
+            },
+            {
+              "name": "Left Handed / 6'6\" / Medium / Fast",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0599/2094/1239/files/KastKingSpartacusDefenderTwin-TipBaitcasterRodandReelCombo_2.jpg?v=1784713018"
+            },
+            {
+              "name": "Right Handed / 7'0\" / Medium / Fast",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0599/2094/1239/files/KastKingSpartacusDefenderTwin-TipBaitcasterRodandReelCombo_1.jpg?v=1784713018"
+            },
+            {
+              "name": "Left Handed / 7'0\" / Medium / Fast",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0599/2094/1239/files/KastKingSpartacusDefenderTwin-TipBaitcasterRodandReelCombo_2.jpg?v=1784713018"
+            },
+            {
+              "name": "Right Handed / 7'0\" / Medium Heavy / Fast",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0599/2094/1239/files/KastKingSpartacusDefenderTwin-TipBaitcasterRodandReelCombo_1.jpg?v=1784713018"
+            },
+            {
+              "name": "Left Handed / 7'0\" / Medium Heavy / Fast",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0599/2094/1239/files/KastKingSpartacusDefenderTwin-TipBaitcasterRodandReelCombo_2.jpg?v=1784713018"
+            }
+          ]
+        }
+      },
+      "colorsNested": true,
+      "sizeGuide": {}
+    },
+    {
+      "brand": "Velotric",
+      "id": "velotric-fold-1-plus-ebike-pannier-bag",
+      "name": "Velotric Fold 1 Plus Ebike + Pannier Bag",
+      "subtitle": "",
+      "price": 1573.99,
+      "testRide": "",
+      "styles": [],
+      "sizes": [
+        "One Size"
+      ],
+      "specs": {},
+      "colors": {
+        "Default": {
+          "One Size": [
+            {
+              "name": "Violet Haze",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0599/2094/1239/files/F1__Violet_Haze_1_1.png?v=1773211164"
+            },
+            {
+              "name": "Mango",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0599/2094/1239/files/F1__Mango_1.png?v=1744970971"
+            },
+            {
+              "name": "Electric Blue",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0599/2094/1239/files/F1__Electric_Blue_1.png?v=1755245570"
+            },
+            {
+              "name": "Stone Gray",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0599/2094/1239/files/F1__Stone_Gray_1.png?v=1755245570"
+            },
+            {
+              "name": "Pearl White",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0599/2094/1239/files/F1__Pearl_White_1.png?v=1755245570"
+            }
+          ]
+        }
+      },
+      "colorsNested": true,
+      "sizeGuide": {}
+    },
+    {
+      "brand": "Velotric",
+      "id": "velotric-all-mountain-pedals",
+      "name": "Velotric All-Mountain  Pedals",
+      "subtitle": "",
+      "price": 99.99,
+      "testRide": "",
+      "styles": [],
+      "sizes": [
+        "One Size"
+      ],
+      "specs": {},
+      "colors": {
+        "Default": {
+          "One Size": [
+            {
+              "name": "Skyline Blue",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0599/2094/1239/files/MTBPedal-1_1.png?v=1764052024"
+            },
+            {
+              "name": "Ember Orange",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0599/2094/1239/files/MTBPedal-2_1.png?v=1764052024"
+            },
+            {
+              "name": "Mesa Bronze",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0599/2094/1239/files/MTBPedal-3_2.png?v=1764052024"
+            }
+          ]
+        }
+      },
+      "colorsNested": true,
+      "sizeGuide": {}
+    },
+    {
+      "brand": "Velotric",
+      "id": "velotric-discover-2",
+      "name": "Velotric Discover 2 Ebike",
+      "subtitle": "",
+      "price": 1499,
+      "testRide": "",
+      "styles": [],
+      "sizes": [
+        "One Size"
+      ],
+      "specs": {},
+      "colors": {
+        "Default": {
+          "One Size": [
+            {
+              "name": "Cherry Crimson",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0599/2094/1239/files/Discover_2-Cherry_Crimson_right_side_1_1_1.png?v=1781150053"
+            },
+            {
+              "name": "Pine Green",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0599/2094/1239/files/D2_Pine_Green_right_side_1_1_1.png?v=1781150053"
+            },
+            {
+              "name": "Mint",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0599/2094/1239/files/D2_Mint_right_side_1_1_1.png?v=1781150053",
+              "soldOut": true
+            },
+            {
+              "name": "Stone Gray",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0599/2094/1239/files/D2_Gray_right_side_1_1_1.png?v=1781150053",
+              "soldOut": true
+            }
+          ]
+        }
+      },
+      "colorsNested": true,
+      "sizeGuide": {}
+    },
+    {
+      "brand": "Velotric",
+      "id": "velotric-go-1-e-bike",
+      "name": "Velotric Go 1 Ebike",
+      "subtitle": "",
+      "price": 1699,
+      "testRide": "",
+      "styles": [],
+      "sizes": [
+        "One Size"
+      ],
+      "specs": {},
+      "colors": {
+        "Default": {
+          "One Size": [
+            {
+              "name": "Indigo Gray",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0599/2094/1239/files/Go1_Indigogray_rightside_8b53a7e2-d655-4776-8c10-1a11d8881d6b.png?v=1708598878",
+              "soldOut": true
+            },
+            {
+              "name": "Forest",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0599/2094/1239/files/Go1_Forest_rightside_609d8fc4-21b5-48c8-b918-20ddfb14ff24.png?v=1690189695",
+              "soldOut": true
+            }
+          ]
+        }
+      },
+      "colorsNested": true,
+      "sizeGuide": {}
+    },
+    {
+      "brand": "Velotric",
+      "id": "velotric-packer-1-e-bike",
+      "name": "Velotric Packer 1 Ebike",
+      "subtitle": "",
+      "price": 2199,
+      "testRide": "",
+      "styles": [],
+      "sizes": [
+        "One Size"
+      ],
+      "specs": {},
+      "colors": {
+        "Default": {
+          "One Size": [
+            {
+              "name": "Sky Blue",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0599/2094/1239/files/Packer1_Skyblue_rightside.png?v=1691047937",
+              "soldOut": true
+            },
+            {
+              "name": "Indigo Gray",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0599/2094/1239/files/Packer1_Indigogray_rightside.png?v=1690189488",
+              "soldOut": true
+            }
+          ]
+        }
+      },
+      "colorsNested": true,
+      "sizeGuide": {}
+    },
+    {
+      "brand": "Velotric",
+      "id": "velotric-t1-ebike",
+      "name": "Velotric T1 Ebike",
+      "subtitle": "",
+      "price": 2199,
+      "testRide": "",
+      "styles": [],
+      "sizes": [
+        "One Size"
+      ],
+      "specs": {},
+      "colors": {
+        "Default": {
+          "One Size": [
+            {
+              "name": "Frozen Blue",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0599/2094/1239/files/T1_frozenblue_M_1_13787e7d-a810-47fd-aac2-de4bcd99d3a4.png?v=1689155145",
+              "soldOut": true
+            },
+            {
+              "name": "Crystal Black",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0599/2094/1239/files/T1_cystalblack_M_1_3cf6ee0d-e8e6-43da-9ac3-958678a3a830.png?v=1708669816",
+              "soldOut": true
+            }
+          ]
+        }
+      },
+      "colorsNested": true,
+      "sizeGuide": {}
+    },
+    {
+      "brand": "Velotric",
+      "id": "velotric-nomad-1",
+      "name": "Velotric Nomad 1 Plus Ebike",
+      "subtitle": "",
+      "price": 1899,
+      "testRide": "",
+      "styles": [],
+      "sizes": [
+        "One Size"
+      ],
+      "specs": {},
+      "colors": {
+        "Default": {
+          "One Size": [
+            {
+              "name": "Indigo Gray",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0599/2094/1239/files/N1_Plus_ST_indigogrey_1.png?v=1722237926",
+              "soldOut": true
+            },
+            {
+              "name": "Cyan",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0599/2094/1239/files/N1_Plus_ST_cyan_1.png?v=1722237926",
+              "soldOut": true
+            },
+            {
+              "name": "Forest",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0599/2094/1239/files/N1_Plus_ST_forest_1.png?v=1722237925",
+              "soldOut": true
+            }
+          ]
+        }
+      },
+      "colorsNested": true,
+      "sizeGuide": {}
+    },
+    {
+      "brand": "Velotric",
+      "id": "velotric-discover-1",
+      "name": "Velotric Discover 1 Plus Ebike",
+      "subtitle": "",
+      "price": 1699,
+      "testRide": "",
+      "styles": [],
+      "sizes": [
+        "One Size"
+      ],
+      "specs": {},
+      "colors": {
+        "Default": {
+          "One Size": [
+            {
+              "name": "Cyan",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0599/2094/1239/files/D1_Plus_cyan.png?v=1715935324",
+              "soldOut": true
+            },
+            {
+              "name": "Silver",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0599/2094/1239/files/D1_Plus_Silver.png?v=1752548339",
+              "soldOut": true
+            }
+          ]
+        }
+      },
+      "colorsNested": true,
+      "sizeGuide": {}
+    },
+    {
+      "brand": "Jasion",
+      "id": "e-bike-kickstand",
+      "name": "E-Bike Kickstand",
+      "subtitle": "",
+      "price": 22,
+      "testRide": "",
+      "styles": [],
+      "sizes": [
+        "One Size"
+      ],
+      "specs": {},
+      "colors": {
+        "Default": {
+          "One Size": [
+            {
+              "name": "EB5 Roamer ST",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0605/0044/3373/files/ChatGPTImageAug20_2026_10_06_32AM.png?v=1787192187"
+            },
+            {
+              "name": "X-Hunter",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0605/0044/3373/files/ChatGPTImageAug20_2026_10_06_32AM.png?v=1787192187",
+              "soldOut": true
+            },
+            {
+              "name": "X-Hunter ST",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0605/0044/3373/files/ChatGPTImageAug20_2026_10_06_47AM.png?v=1787192188",
+              "price": 29,
+              "soldOut": true
+            },
+            {
+              "name": "Hunter Pro",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0605/0044/3373/files/ChatGPTImageAug20_2026_10_06_32AM.png?v=1787192187",
+              "price": 29,
+              "soldOut": true
+            },
+            {
+              "name": "Thunder",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0605/0044/3373/files/ChatGPTImageAug20_2026_10_06_47AM.png?v=1787192188",
+              "price": 29,
+              "soldOut": true
+            },
+            {
+              "name": "Thunder Pro",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0605/0044/3373/files/ChatGPTImageAug20_2026_10_06_32AM.png?v=1787192187",
+              "price": 29
+            },
+            {
+              "name": "Thunder Pro ST",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0605/0044/3373/files/ChatGPTImageAug20_2026_10_06_47AM.png?v=1787192188",
+              "price": 29
+            },
+            {
+              "name": "RetroVolt Pro",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0605/0044/3373/files/ChatGPTImageAug20_2026_10_06_47AM.png?v=1787192188",
+              "soldOut": true
+            },
+            {
+              "name": "RetroVolt Max",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0605/0044/3373/files/ChatGPTImageAug20_2026_10_06_32AM.png?v=1787192187",
+              "price": 29,
+              "soldOut": true
+            },
+            {
+              "name": "Patrol",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0605/0044/3373/files/ChatGPTImageAug20_2026_10_06_32AM.png?v=1787192187",
+              "price": 29,
+              "soldOut": true
+            },
+            {
+              "name": "Kago",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0605/0044/3373/files/ChatGPTImageAug20_2026_10_06_47AM.png?v=1787192188",
+              "price": 29,
+              "soldOut": true
+            }
+          ]
+        }
+      },
+      "colorsNested": true,
+      "sizeGuide": {}
+    },
+    {
+      "brand": "Jasion",
+      "id": "e-bike-pannier-backpack",
+      "name": "E-Bike Pannier Backpack",
+      "subtitle": "",
+      "price": 79,
+      "testRide": "",
+      "styles": [],
+      "sizes": [
+        "One Size"
+      ],
+      "specs": {},
+      "colors": {
+        "Default": {
+          "One Size": [
+            {
+              "name": "Black",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0605/0044/3373/files/ChatGPTImageAug20_2026_04_50_26PM.png?v=1787216325"
+            }
+          ]
+        }
+      },
+      "colorsNested": true,
+      "sizeGuide": {}
+    },
+    {
+      "brand": "Jasion",
+      "id": "ebike-motor-controller",
+      "name": "EBike Motor Controller",
+      "subtitle": "",
+      "price": 35,
+      "testRide": "",
+      "styles": [],
+      "sizes": [
+        "One Size"
+      ],
+      "specs": {},
+      "colors": {
+        "Default": {
+          "One Size": [
+            {
+              "name": "EB5 Roamer ST",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0605/0044/3373/files/ChatGPTImageJul31_2026_03_06_03PM.png?v=1785481649",
+              "price": 40
+            },
+            {
+              "name": "RetroVolt Pro",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0605/0044/3373/files/ChatGPTImageJul31_2026_03_06_10PM.png?v=1785481649",
+              "price": 39,
+              "soldOut": true
+            },
+            {
+              "name": "X-Hunter",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0605/0044/3373/files/ChatGPTImageJul31_2026_03_06_03PM.png?v=1785481649",
+              "price": 53
+            },
+            {
+              "name": "X-Hunter ST",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0605/0044/3373/files/ChatGPTImageJul31_2026_03_06_10PM.png?v=1785481649",
+              "price": 39
+            },
+            {
+              "name": "Hunter Pro",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0605/0044/3373/files/ChatGPTImageJul31_2026_03_06_03PM.png?v=1785481649"
+            },
+            {
+              "name": "Thunder",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0605/0044/3373/files/ChatGPTImageJul31_2026_03_06_10PM.png?v=1785481649"
+            },
+            {
+              "name": "Thunder Pro",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0605/0044/3373/files/ChatGPTImageJul31_2026_03_06_03PM.png?v=1785481649",
+              "price": 45
+            },
+            {
+              "name": "Thunder Pro ST",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0605/0044/3373/files/ChatGPTImageJul31_2026_03_06_10PM.png?v=1785481649",
+              "price": 45
+            },
+            {
+              "name": "Patrol",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0605/0044/3373/files/ChatGPTImageJul31_2026_03_06_03PM.png?v=1785481649",
+              "price": 49
+            },
+            {
+              "name": "Kago",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0605/0044/3373/files/ChatGPTImageJul31_2026_03_06_10PM.png?v=1785481649",
+              "price": 45
+            },
+            {
+              "name": "RetroVolt Max",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0605/0044/3373/files/ChatGPTImageJul31_2026_03_06_03PM.png?v=1785481649",
+              "price": 39
+            },
+            {
+              "name": "JT18",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0605/0044/3373/files/ChatGPTImageJul31_2026_03_06_10PM.png?v=1785481649",
+              "price": 36,
+              "soldOut": true
+            }
+          ]
+        }
+      },
+      "colorsNested": true,
+      "sizeGuide": {}
+    },
+    {
+      "brand": "Jasion",
+      "id": "kago-combo",
+      "name": "Kago*2",
+      "subtitle": "",
+      "price": 1999,
+      "testRide": "",
+      "styles": [],
+      "sizes": [
+        "One Size"
+      ],
+      "specs": {},
+      "colors": {
+        "Default": {
+          "One Size": [
+            {
+              "name": "Pearl White+Obsidian Black",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0605/0044/3373/files/1_1_2.png?v=1786955515"
+            },
+            {
+              "name": "Pearl White+Pearl White",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0605/0044/3373/files/1_1_3ba92a9f-a265-48ef-95bc-fd7061810601.png?v=1786955515"
+            },
+            {
+              "name": "Obsidian Black+Obsidian Black",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0605/0044/3373/files/1_1_95090f24-91da-4eb2-88ac-119b9b4eb5c8.png?v=1786955515"
+            }
+          ]
+        }
+      },
+      "colorsNested": true,
+      "sizeGuide": {}
+    },
+    {
+      "brand": "Jasion",
+      "id": "kago",
+      "name": "Kago Ebike",
+      "subtitle": "",
+      "price": 1099,
+      "testRide": "",
+      "styles": [],
+      "sizes": [
+        "One Size"
+      ],
+      "specs": {},
+      "colors": {
+        "Default": {
+          "One Size": [
+            {
+              "name": "Pearl White",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0605/0044/3373/files/20260903-100759.png?v=1788421671"
+            },
+            {
+              "name": "Obsidian Black",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0605/0044/3373/files/20260903-100806.png?v=1788421671"
+            }
+          ]
+        }
+      },
+      "colorsNested": true,
+      "sizeGuide": {}
+    },
+    {
+      "brand": "Jasion",
+      "id": "ebike-handlebar-bag",
+      "name": "EBike Handlebar Bag",
+      "subtitle": "",
+      "price": 29,
+      "testRide": "",
+      "styles": [],
+      "sizes": [
+        "One Size"
+      ],
+      "specs": {},
+      "colors": {
+        "Default": {
+          "One Size": [
+            {
+              "name": "Black",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0605/0044/3373/files/ChatGPTImageAug12_2026_02_23_55PM.png?v=1786516845"
+            }
+          ]
+        }
+      },
+      "colorsNested": true,
+      "sizeGuide": {}
+    },
+    {
+      "brand": "Jasion",
+      "id": "jt18-combo",
+      "name": "JT18*2",
+      "subtitle": "",
+      "price": 1359,
+      "testRide": "",
+      "styles": [],
+      "sizes": [
+        "One Size"
+      ],
+      "specs": {},
+      "colors": {
+        "Default": {
+          "One Size": [
+            {
+              "name": "Polar White+Stealth Black",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0605/0044/3373/files/1_3_d003c167-f56b-4a8f-ae5d-fdef070f3976.png?v=1786329373"
+            },
+            {
+              "name": "Polar White+Polar White",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0605/0044/3373/files/1_1_aff334d3-9105-46b7-9c25-87992013a394.png?v=1786329372"
+            },
+            {
+              "name": "Stealth Black+Stealth Black",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0605/0044/3373/files/1_2_021febae-8707-4b9d-a015-93b5811c329f.png?v=1786329372"
+            }
+          ]
+        }
+      },
+      "colorsNested": true,
+      "sizeGuide": {}
+    },
+    {
+      "brand": "Jasion",
+      "id": "jt18",
+      "name": "JT18 eTrike",
+      "subtitle": "",
+      "price": 699,
+      "testRide": "",
+      "styles": [],
+      "sizes": [
+        "One Size"
+      ],
+      "specs": {},
+      "colors": {
+        "Default": {
+          "One Size": [
+            {
+              "name": "Polar White",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0605/0044/3373/files/1_1_cc95067b-5bb8-4d8e-9b02-9eedfafb1cfd.png?v=1786327342"
+            },
+            {
+              "name": "Stealth Black",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0605/0044/3373/files/1_1_c26a14be-c5af-4ae4-80db-a84cc3a4b94e.png?v=1786327342"
+            }
+          ]
+        }
+      },
+      "colorsNested": true,
+      "sizeGuide": {}
+    },
+    {
+      "brand": "Jasion",
+      "id": "retrovolt-max-combo",
+      "name": "RetroVolt Max*2",
+      "subtitle": "",
+      "price": 2499,
+      "testRide": "",
+      "styles": [],
+      "sizes": [
+        "One Size"
+      ],
+      "specs": {},
+      "colors": {
+        "Default": {
+          "One Size": [
+            {
+              "name": "Venom Green+Shadow Steel",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0605/0044/3373/files/1_5_28b50397-704e-4c2b-8565-ab950e1eaa73.png?v=1785494456"
+            },
+            {
+              "name": "Venom Green+Venom Green",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0605/0044/3373/files/1_2_23a08354-5c48-477d-9f2c-87a3dcc36b64.png?v=1785494456"
+            },
+            {
+              "name": "Shadow Steel+Shadow Steel",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0605/0044/3373/files/1_f04e4c48-4f35-4099-ad11-cf064ff425b3.png?v=1785494456"
+            }
+          ]
+        }
+      },
+      "colorsNested": true,
+      "sizeGuide": {}
+    },
+    {
+      "brand": "Jasion",
+      "id": "retrovolt-max",
+      "name": "RetroVolt Max Ebike",
+      "subtitle": "",
+      "price": 1299,
+      "testRide": "",
+      "styles": [],
+      "sizes": [
+        "One Size"
+      ],
+      "specs": {},
+      "colors": {
+        "Default": {
+          "One Size": [
+            {
+              "name": "Shadow Steel",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0605/0044/3373/files/1_1_8e99e724-8a54-4087-81a8-6ffc39f71255.png?v=1785213036"
+            },
+            {
+              "name": "Venom Green",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0605/0044/3373/files/1_1_cd338901-4e68-49a7-817b-40e8c88c0d1c.png?v=1785213037"
+            }
+          ]
+        }
+      },
+      "colorsNested": true,
+      "sizeGuide": {}
+    },
+    {
+      "brand": "Jasion",
+      "id": "ebike-chain",
+      "name": "eBike Chain",
+      "subtitle": "",
+      "price": 23,
+      "testRide": "",
+      "styles": [],
+      "sizes": [
+        "One Size"
+      ],
+      "specs": {},
+      "colors": {
+        "Default": {
+          "One Size": [
+            {
+              "name": "EB7",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0605/0044/3373/files/ChatGPTImage2026_7_31_10_14_50.png?v=1785464176",
+              "price": 25
+            },
+            {
+              "name": "EB7 ST",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0605/0044/3373/files/ChatGPTImage2026_7_31_10_14_50.png?v=1785464176",
+              "price": 25
+            },
+            {
+              "name": "EB5 Roamer ST",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0605/0044/3373/files/ChatGPTImage2026_7_31_10_14_50.png?v=1785464176"
+            },
+            {
+              "name": "RetroVolt Pro",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0605/0044/3373/files/ChatGPTImage2026_7_31_10_14_50.png?v=1785464176"
+            },
+            {
+              "name": "X-Hunter",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0605/0044/3373/files/ChatGPTImage2026_7_31_10_14_50.png?v=1785464176"
+            },
+            {
+              "name": "X-Hunter ST",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0605/0044/3373/files/ChatGPTImage2026_7_31_10_14_50.png?v=1785464176"
+            },
+            {
+              "name": "Hunter Pro",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0605/0044/3373/files/ChatGPTImage2026_7_31_10_14_50.png?v=1785464176"
+            },
+            {
+              "name": "Thunder",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0605/0044/3373/files/ChatGPTImage2026_7_31_10_14_50.png?v=1785464176"
+            },
+            {
+              "name": "Thunder Pro",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0605/0044/3373/files/ChatGPTImage2026_7_31_10_14_50.png?v=1785464176"
+            },
+            {
+              "name": "Thunder Pro ST",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0605/0044/3373/files/ChatGPTImage2026_7_31_10_14_50.png?v=1785464176"
+            },
+            {
+              "name": "Patrol 52",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0605/0044/3373/files/ChatGPTImage2026_7_31_10_14_50.png?v=1785464176"
+            }
+          ]
+        }
+      },
+      "colorsNested": true,
+      "sizeGuide": {}
+    },
+    {
+      "brand": "Jasion",
+      "id": "universal-ebike-handlebar-bottle-holder",
+      "name": "Universal eBike Handlebar Bottle Holder",
+      "subtitle": "",
+      "price": 29.9,
+      "testRide": "",
+      "styles": [],
+      "sizes": [
+        "One Size"
+      ],
+      "specs": {},
+      "colors": {
+        "Default": {
+          "One Size": [
+            {
+              "name": "Standard",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0605/0044/3373/files/lQLPJwD59Z1bbYnNA4TNBLCwv7oE19SQy7AJ6UrDl_PNAA_1200_900.png?v=1780380933"
+            }
+          ]
+        }
+      },
+      "colorsNested": true,
+      "sizeGuide": {}
+    },
+    {
+      "brand": "Jasion",
+      "id": "jasionebike-mirrors",
+      "name": "JasionEbike Mirrors",
+      "subtitle": "",
+      "price": 39,
+      "testRide": "",
+      "styles": [],
+      "sizes": [
+        "One Size"
+      ],
+      "specs": {},
+      "colors": {
+        "Default": {
+          "One Size": [
+            {
+              "name": "Standard",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0605/0044/3373/files/1_ee067f49-ee9b-4479-9ac9-945f902dee8d.png?v=1770869833"
+            }
+          ]
+        }
+      },
+      "colorsNested": true,
+      "sizeGuide": {}
+    },
+    {
+      "brand": "Jasion",
+      "id": "jasion-ebike-combo-sale-eb5-roamer-st",
+      "name": "EB5 Roamer ST*2",
+      "subtitle": "",
+      "price": 1369,
+      "testRide": "",
+      "styles": [],
+      "sizes": [
+        "One Size"
+      ],
+      "specs": {},
+      "colors": {
+        "Default": {
+          "One Size": [
+            {
+              "name": "White+Pale Green",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0605/0044/3373/files/EB5_Roamer_ST_x2_49971d46-dee6-4d24-9df3-e359fdade486.png?v=1762156788"
+            },
+            {
+              "name": "White+White",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0605/0044/3373/files/EB5_Roamer_ST_x2-3.png?v=1762156788"
+            },
+            {
+              "name": "Pale Green+Pale Green",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0605/0044/3373/files/EB5_Roamer_ST_x2-1.png?v=1762156788"
+            }
+          ]
+        }
+      },
+      "colorsNested": true,
+      "sizeGuide": {}
+    },
+    {
+      "brand": "Jasion",
+      "id": "jasion-bicycle-universal-mirrors",
+      "name": "Jasion Ebike Universal Mirrors",
+      "subtitle": "",
+      "price": 39,
+      "testRide": "",
+      "styles": [],
+      "sizes": [
+        "One Size"
+      ],
+      "specs": {},
+      "colors": {
+        "Default": {
+          "One Size": [
+            {
+              "name": "Standard",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0605/0044/3373/products/1_fb5b083b-65cd-4785-a01a-cdab09a3cc2b.png?v=1693968162"
+            }
+          ]
+        }
+      },
+      "colorsNested": true,
+      "sizeGuide": {}
+    },
+    {
+      "brand": "Jasion",
+      "id": "e-bike-phone-mount-holder",
+      "name": "Jasion Ebike Phone Mount Holder",
+      "subtitle": "",
+      "price": 39,
+      "testRide": "",
+      "styles": [],
+      "sizes": [
+        "One Size"
+      ],
+      "specs": {},
+      "colors": {
+        "Default": {
+          "One Size": [
+            {
+              "name": "Standard",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0605/0044/3373/files/Universal_Phone_Mount_Holder_857d3d39-c7dc-452c-8a34-8bbcc58968dc.png?v=1781001804"
+            }
+          ]
+        }
+      },
+      "colorsNested": true,
+      "sizeGuide": {}
+    },
+    {
+      "brand": "Jasion",
+      "id": "patrol-52",
+      "name": "Patrol Ebike",
+      "subtitle": "",
+      "price": 1399,
+      "testRide": "",
+      "styles": [],
+      "sizes": [
+        "One Size"
+      ],
+      "specs": {},
+      "colors": {
+        "Default": {
+          "One Size": [
+            {
+              "name": "White Sprite",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0605/0044/3373/files/1.1_496a7440-7100-4c72-a7f0-ddfecf50efee.png?v=1784188346"
+            },
+            {
+              "name": "Black Knight",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0605/0044/3373/files/1.1_d3d9aa4a-0bb3-4523-af4a-bedbbb350240.png?v=1774237514"
+            }
+          ]
+        }
+      },
+      "colorsNested": true,
+      "sizeGuide": {}
+    },
+    {
+      "brand": "Jasion",
+      "id": "patrol-52-combo",
+      "name": "Patrol*2",
+      "subtitle": "",
+      "price": 2749,
+      "testRide": "",
+      "styles": [],
+      "sizes": [
+        "One Size"
+      ],
+      "specs": {},
+      "colors": {
+        "Default": {
+          "One Size": [
+            {
+              "name": "Black Knight+White Sprite",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0605/0044/3373/files/31ed4baf23f41c914134a266f5006d03.png?v=1784188520"
+            },
+            {
+              "name": "Black Knight+Black Knight",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0605/0044/3373/files/222.png?v=1773991543"
+            },
+            {
+              "name": "White Sprite+White Sprite",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0605/0044/3373/files/321d31c0fefc5bdd013bd88ece15823f.png?v=1784188521"
+            }
+          ]
+        }
+      },
+      "colorsNested": true,
+      "sizeGuide": {}
+    },
+    {
+      "brand": "Jasion",
+      "id": "thunder-pro-thunder-pro-st",
+      "name": "Thunder Pro+Thunder Pro ST",
+      "subtitle": "",
+      "price": 2298,
+      "testRide": "",
+      "styles": [],
+      "sizes": [
+        "One Size"
+      ],
+      "specs": {},
+      "colors": {
+        "Default": {
+          "One Size": [
+            {
+              "name": "Arctic Blue+Tactical Camo",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0605/0044/3373/files/10_bc2cdf17-4e7b-408f-9858-0a31674a9370.png?v=1787911624"
+            },
+            {
+              "name": "Stealth Black+Tactical Camo",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0605/0044/3373/files/11_97a3a1f3-5435-446d-b2e8-b1ef3d8783ae.png?v=1787911624"
+            },
+            {
+              "name": "Tactical Camo+Tactical Camo",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0605/0044/3373/files/7_6873166d-3e7e-4b39-8513-7c5b61605493.png?v=1787910359"
+            },
+            {
+              "name": "Tactical Camo+Arctic Blue",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0605/0044/3373/files/8_91fe8cd0-8534-458f-a18a-3815cecad4f9.png?v=1787910359"
+            },
+            {
+              "name": "Tactical Camo+Stealth Black",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0605/0044/3373/files/9_66a0cd9f-3271-4622-b103-a68c3de73848.png?v=1787910359"
+            },
+            {
+              "name": "Stealth Black+Arctic Blue",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0605/0044/3373/files/2.1_cc0dff50-dd53-418a-b43f-f254affdb57d.png?v=1772007930",
+              "price": 2358
+            },
+            {
+              "name": "Stealth Black+Stealth Black",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0605/0044/3373/files/2.2_99a168e2-c6fa-4511-8ef3-5412788dfbdd.png?v=1772007930",
+              "price": 2358
+            },
+            {
+              "name": "Arctic Blue+Stealth Black",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0605/0044/3373/files/2.4_2f102fd2-90bf-47da-90a7-12bb2a225d2b.png?v=1772007930",
+              "price": 2358
+            },
+            {
+              "name": "Arctic Blue+Arctic Blue",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0605/0044/3373/files/2.3_e81f5699-a591-483d-ac0c-a6d0f85c1bfa.png?v=1772007930",
+              "price": 2358
+            }
+          ]
+        }
+      },
+      "colorsNested": true,
+      "sizeGuide": {}
+    },
+    {
+      "brand": "Jasion",
+      "id": "thunder-pro-st-combo",
+      "name": "Thunder Pro ST*2",
+      "subtitle": "",
+      "price": 2149,
+      "testRide": "",
+      "styles": [],
+      "sizes": [
+        "One Size"
+      ],
+      "specs": {},
+      "colors": {
+        "Default": {
+          "One Size": [
+            {
+              "name": "Tactical Camo+Tactical Camo",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0605/0044/3373/files/4_9fc79d2f-6795-4303-916c-97844515f3d9.png?v=1787909819"
+            },
+            {
+              "name": "Tactical Camo+Arctic Blue",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0605/0044/3373/files/5_c5fc6880-d91e-4d7f-8918-86ab9cbb7b53.png?v=1787909819",
+              "price": 2298
+            },
+            {
+              "name": "Tactical Camo+Stealth Black",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0605/0044/3373/files/6_4e3e5053-e662-4086-a460-a4ed43065d05.png?v=1787909819",
+              "price": 2298
+            },
+            {
+              "name": "Stealth Black+Arctic Blue",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0605/0044/3373/files/1.3_69c92a4d-b3e5-4f16-b98f-797c5e46fb53.png?v=1771990090",
+              "price": 2358
+            },
+            {
+              "name": "Stealth Black+Stealth Black",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0605/0044/3373/files/1.1_b742986a-263b-4100-8517-6e6b75ff2b46.png?v=1772006841",
+              "price": 2358
+            },
+            {
+              "name": "Arctic Blue+Arctic Blue",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0605/0044/3373/files/1.2l.png?v=1772006841",
+              "price": 2358
+            }
+          ]
+        }
+      },
+      "colorsNested": true,
+      "sizeGuide": {}
+    },
+    {
+      "brand": "Jasion",
+      "id": "thunder-pro-combo",
+      "name": "Thunder Pro*2",
+      "subtitle": "",
+      "price": 2149,
+      "testRide": "",
+      "styles": [],
+      "sizes": [
+        "One Size"
+      ],
+      "specs": {},
+      "colors": {
+        "Default": {
+          "One Size": [
+            {
+              "name": "Tactical Camo+Tactical Camo",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0605/0044/3373/files/1_73066aba-29d0-44a0-aee6-9c18c5a628c6.png?v=1787909451"
+            },
+            {
+              "name": "Tactical Camo+Stealth Black",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0605/0044/3373/files/3_079b2ae3-86a9-4eec-907b-736ef8c38a4e.png?v=1787909402",
+              "price": 2298
+            },
+            {
+              "name": "Tactical Camo+Arctic Blue",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0605/0044/3373/files/2_85f0470a-69f2-4783-a990-4f07092ae281.png?v=1787909431",
+              "price": 2298
+            },
+            {
+              "name": "Stealth Black+Arctic Blue",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0605/0044/3373/files/2_ebaf9582-37db-48af-8b41-c4ba560fb228.png?v=1771988514",
+              "price": 2298
+            },
+            {
+              "name": "Stealth Black+Stealth Black",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0605/0044/3373/files/1_cb68c95a-1a9c-4622-8d2c-442ba2298166.png?v=1771988514",
+              "price": 2298
+            },
+            {
+              "name": "Arctic Blue+Arctic Blue",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0605/0044/3373/files/3_50e42c15-5165-46f5-bb31-6ba1a134fd74.png?v=1771988193",
+              "price": 2298
+            }
+          ]
+        }
+      },
+      "colorsNested": true,
+      "sizeGuide": {}
+    },
+    {
+      "brand": "Jasion",
+      "id": "ebike-mirrors",
+      "name": "Ebike Mirrors",
+      "subtitle": "",
+      "price": 69,
+      "testRide": "",
+      "styles": [],
+      "sizes": [
+        "One Size"
+      ],
+      "specs": {},
+      "colors": {
+        "Default": {
+          "One Size": [
+            {
+              "name": "Standard",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0605/0044/3373/files/1_ee067f49-ee9b-4479-9ac9-945f902dee8d.png?v=1770869833"
+            }
+          ]
+        }
+      },
+      "colorsNested": true,
+      "sizeGuide": {}
+    },
+    {
+      "brand": "Jasion",
+      "id": "hunter-pro-x-hunter",
+      "name": "Hunter Pro+X-Hunter",
+      "subtitle": "",
+      "price": 1939,
+      "testRide": "",
+      "styles": [],
+      "sizes": [
+        "One Size"
+      ],
+      "specs": {},
+      "colors": {
+        "Default": {
+          "One Size": [
+            {
+              "name": "Beast Brown+Black",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0605/0044/3373/files/11_90757f17-ba9c-4843-98b0-82cf4c483a68.png?v=1765451023"
+            },
+            {
+              "name": "Beast Brown+White",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0605/0044/3373/files/12_36295d41-87f8-403e-a4f3-b2d567f7d674.png?v=1765451023"
+            },
+            {
+              "name": "Beast Brown+Grey",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0605/0044/3373/files/10_cfbf5de4-c373-46e2-baf0-1124fb1a4c95.png?v=1765451023"
+            },
+            {
+              "name": "Beast Brown+Blue",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0605/0044/3373/files/9_bd0ff3e0-f5e6-4cbe-aab5-b05a9026fba8.png?v=1765451023"
+            },
+            {
+              "name": "Phantom Black+Black",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0605/0044/3373/files/7_5e0ea711-d069-4927-8941-86d3f8ab586e.png?v=1765451023"
+            },
+            {
+              "name": "Phantom Black+White",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0605/0044/3373/files/8_eebeb767-20fb-4423-9a06-dbffa632f125.png?v=1765451023"
+            },
+            {
+              "name": "Phantom Black+Grey",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0605/0044/3373/files/6_aa549795-6f53-4fa4-b0c7-2ca4ad3ae674.png?v=1765451023"
+            },
+            {
+              "name": "Phantom Black+Blue",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0605/0044/3373/files/5_904f173f-ad3e-4d29-96e6-80987de2b442.png?v=1765451023"
+            },
+            {
+              "name": "Storm Blue+Black",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0605/0044/3373/files/3_6d4b82ec-c3ec-4889-8b8a-1ae0a6e97314.png?v=1765451023"
+            },
+            {
+              "name": "Storm Blue+White",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0605/0044/3373/files/4_3b18a8e6-1589-4b28-b842-118581e32384.png?v=1765451023"
+            },
+            {
+              "name": "Storm Blue+Grey",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0605/0044/3373/files/2_d8a3ae40-fb7a-474e-b1c1-6aa760d3fe45.png?v=1765451023"
+            },
+            {
+              "name": "Storm Blue+Blue",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0605/0044/3373/files/1_9547951d-d57b-46c2-9841-1f028e01da73.png?v=1765451023"
+            }
+          ]
+        }
+      },
+      "colorsNested": true,
+      "sizeGuide": {}
+    },
+    {
+      "brand": "Jasion",
+      "id": "x-hunter-x-hunter-st",
+      "name": "X-Hunter + X-Hunter ST",
+      "subtitle": "",
+      "price": 1739,
+      "testRide": "",
+      "styles": [],
+      "sizes": [
+        "One Size"
+      ],
+      "specs": {},
+      "colors": {
+        "Default": {
+          "One Size": [
+            {
+              "name": "Black / Electric Blue",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0605/0044/3373/files/1_6b8da239-10f6-4ad4-934c-321530f7883b.png?v=1762916494"
+            },
+            {
+              "name": "Black / Arctic White",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0605/0044/3373/files/5_eaad1c41-441d-43d4-b0a6-951e22741892.png?v=1762916685"
+            },
+            {
+              "name": "Black / Aqua Green",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0605/0044/3373/files/9_53d0e49c-20db-4102-9c54-74a84c8cef96.png?v=1762916685"
+            },
+            {
+              "name": "White / Electric Blue",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0605/0044/3373/files/2_5ecd302d-7883-45e3-8fd2-b937760b69e6.png?v=1762916685"
+            },
+            {
+              "name": "White / Arctic White",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0605/0044/3373/files/6_f51c6901-188e-4c49-a642-0bd1b5563568.png?v=1762916685"
+            },
+            {
+              "name": "White / Aqua Green",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0605/0044/3373/files/10_690323a4-52e5-4864-91fe-5b58b6666252.png?v=1762916685"
+            },
+            {
+              "name": "Grey / Electric Blue",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0605/0044/3373/files/4_a7d43bbe-5c93-412c-b1d0-3ec036c175ba.png?v=1762916685"
+            },
+            {
+              "name": "Grey / Arctic White",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0605/0044/3373/files/8_16be56aa-a0c8-462a-8c5f-e917ea071344.png?v=1762916685"
+            },
+            {
+              "name": "Grey / Aqua Green",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0605/0044/3373/files/12_214623fd-f433-4e87-99ee-a524814a68f1.png?v=1762916685"
+            },
+            {
+              "name": "Blue / Electric Blue",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0605/0044/3373/files/3_bcef8532-2cc7-4fce-aeb8-441adccc6fea.png?v=1762916685"
+            },
+            {
+              "name": "Blue / Arctic White",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0605/0044/3373/files/7_b9adb982-ab53-4062-8179-f16a1fd1d432.png?v=1762916685"
+            },
+            {
+              "name": "Blue / Aqua Green",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0605/0044/3373/files/11_650ffc15-7d1a-4842-8fb4-15c78dd6a645.png?v=1762916685"
+            }
+          ]
+        }
+      },
+      "colorsNested": true,
+      "sizeGuide": {}
+    },
+    {
+      "brand": "Jasion",
+      "id": "x-hunter-st-combo",
+      "name": "X-Hunter ST*2",
+      "subtitle": "",
+      "price": 1759,
+      "testRide": "",
+      "styles": [],
+      "sizes": [
+        "One Size"
+      ],
+      "specs": {},
+      "colors": {
+        "Default": {
+          "One Size": [
+            {
+              "name": "Electric Blue+Aqua Green",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0605/0044/3373/files/4_4985da0d-4008-41ed-9cee-846d56665e26.png?v=1782211344"
+            },
+            {
+              "name": "Electric Blue+Arctic White",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0605/0044/3373/files/5_cdcf5627-3e3b-46fc-a28c-aa9cd63d65bf.png?v=1782211344"
+            },
+            {
+              "name": "Aqua Green+Arctic White",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0605/0044/3373/files/6_ee78fe5a-36a2-4660-b434-6b71e65abb71.png?v=1782211345"
+            },
+            {
+              "name": "Arctic White+Arctic White",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0605/0044/3373/files/3_be661544-6a0f-411f-937e-9de593ec524e.png?v=1782211344"
+            },
+            {
+              "name": "Aqua Green+Aqua Green",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0605/0044/3373/files/2_cf4229e9-1660-4bee-b216-114e1cbc23c8.png?v=1782211344"
+            },
+            {
+              "name": "Electric Blue+Electric Blue",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0605/0044/3373/files/1_aaf6b673-2dd1-4167-b95a-75699e5431b2.png?v=1782211344"
+            }
+          ]
+        }
+      },
+      "colorsNested": true,
+      "sizeGuide": {}
+    },
+    {
+      "brand": "Jasion",
+      "id": "x-hunter-st",
+      "name": "X-Hunter ST Ebike",
+      "subtitle": "",
+      "price": 899,
+      "testRide": "",
+      "styles": [],
+      "sizes": [
+        "One Size"
+      ],
+      "specs": {},
+      "colors": {
+        "Default": {
+          "One Size": [
+            {
+              "name": "Arctic White",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0605/0044/3373/files/1.1_6248b33c-c9db-4d4d-9288-47fa7cb99323.png?v=1762155375"
+            },
+            {
+              "name": "Aqua Green",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0605/0044/3373/files/3.1.png?v=1762155375"
+            },
+            {
+              "name": "Electric Blue",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0605/0044/3373/files/2.1_596acbdd-cc99-4b1b-8f55-5db98ccfbc35.png?v=1762155375"
+            }
+          ]
+        }
+      },
+      "colorsNested": true,
+      "sizeGuide": {}
+    },
+    {
+      "brand": "Jasion",
+      "id": "jasion-ebike-rear-basket-copy",
+      "name": "Ebike Rear Basket",
+      "subtitle": "",
+      "price": 69,
+      "testRide": "",
+      "styles": [],
+      "sizes": [
+        "One Size"
+      ],
+      "specs": {},
+      "colors": {
+        "Default": {
+          "One Size": [
+            {
+              "name": "Classic Hollowed-Out Bottom",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0605/0044/3373/files/Rear_Basket-2.png?v=1760168985"
+            }
+          ]
+        }
+      },
+      "colorsNested": true,
+      "sizeGuide": {}
+    },
+    {
+      "brand": "Jasion",
+      "id": "jasion-ebike-front-basket-copy",
+      "name": "Ebike Front Basket",
+      "subtitle": "",
+      "price": 69,
+      "testRide": "",
+      "styles": [],
+      "sizes": [
+        "One Size"
+      ],
+      "specs": {},
+      "colors": {
+        "Default": {
+          "One Size": [
+            {
+              "name": "Classic Hollowed-Out Bottom",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0605/0044/3373/files/Front_Basket-2.png?v=1760168929"
+            }
+          ]
+        }
+      },
+      "colorsNested": true,
+      "sizeGuide": {}
+    },
+    {
+      "brand": "Jasion",
+      "id": "jasion-ebike-front-basket-1",
+      "name": "Jasion Ebike Front Basket",
+      "subtitle": "",
+      "price": 79,
+      "testRide": "",
+      "styles": [],
+      "sizes": [
+        "One Size"
+      ],
+      "specs": {},
+      "colors": {
+        "Default": {
+          "One Size": [
+            {
+              "name": "Standard",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0605/0044/3373/files/Front_Basket-2_166511de-9017-4f06-9cd2-3145c216726b.png?v=1744960289"
+            }
+          ]
+        }
+      },
+      "colorsNested": true,
+      "sizeGuide": {}
+    },
+    {
+      "brand": "Jasion",
+      "id": "jasion-ebike-rear-basket-iron-bottom",
+      "name": "Jasion Ebike Rear Basket Iron Bottom",
+      "subtitle": "",
+      "price": 99,
+      "testRide": "",
+      "styles": [],
+      "sizes": [
+        "One Size"
+      ],
+      "specs": {},
+      "colors": {
+        "Default": {
+          "One Size": [
+            {
+              "name": "Standard",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0605/0044/3373/files/1_a17cf437-d8da-4328-a612-14226e35c534.png?v=1744789434"
+            }
+          ]
+        }
+      },
+      "colorsNested": true,
+      "sizeGuide": {}
+    },
+    {
+      "brand": "Jasion",
+      "id": "jasion-ebike-front-basket",
+      "name": "Jasion Ebike Front Basket Iron Bottom",
+      "subtitle": "",
+      "price": 99,
+      "testRide": "",
+      "styles": [],
+      "sizes": [
+        "One Size"
+      ],
+      "specs": {},
+      "colors": {
+        "Default": {
+          "One Size": [
+            {
+              "name": "Standard",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0605/0044/3373/files/Front_Basket_Iron_Bottom_13e98e90-a7c8-4164-a6f5-49908144e5dc.png?v=1744789153"
+            }
+          ]
+        }
+      },
+      "colorsNested": true,
+      "sizeGuide": {}
+    },
+    {
+      "brand": "Jasion",
+      "id": "jasion-ebike-rear-basket",
+      "name": "Jasion Ebike Rear Basket",
+      "subtitle": "",
+      "price": 79,
+      "testRide": "",
+      "styles": [],
+      "sizes": [
+        "One Size"
+      ],
+      "specs": {},
+      "colors": {
+        "Default": {
+          "One Size": [
+            {
+              "name": "Standard",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0605/0044/3373/files/2_76ecf0a1-a711-4340-b525-3030107c9c19.png?v=1737095580"
+            }
+          ]
+        }
+      },
+      "colorsNested": true,
+      "sizeGuide": {}
+    },
+    {
+      "brand": "Jasion",
+      "id": "front-basket-for-jasion-ebike",
+      "name": "Jasion Ebike Front Basket",
+      "subtitle": "",
+      "price": 79,
+      "testRide": "",
+      "styles": [],
+      "sizes": [
+        "One Size"
+      ],
+      "specs": {},
+      "colors": {
+        "Default": {
+          "One Size": [
+            {
+              "name": "Classic Hollowed-Out Bottom",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0605/0044/3373/files/Front_Basket-2.png?v=1760168929"
+            },
+            {
+              "name": "Iron Bottom",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0605/0044/3373/files/Front_Basket-4.png?v=1743127857",
+              "price": 99
+            }
+          ]
+        }
+      },
+      "colorsNested": true,
+      "sizeGuide": {}
+    },
+    {
+      "brand": "Jasion",
+      "id": "jasion-ebike-super-bright-wide-range-front-ebike-light-with-usb",
+      "name": "Ultra-Bright Wide-Beam E-Bike Headlight",
+      "subtitle": "",
+      "price": 45,
+      "testRide": "",
+      "styles": [],
+      "sizes": [
+        "One Size"
+      ],
+      "specs": {},
+      "colors": {
+        "Default": {
+          "One Size": [
+            {
+              "name": "1000 lumens",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0605/0044/3373/files/Super_Bright_Wide_Range_Front_EBike_Light_with_USB-1.png?v=1743088810"
+            },
+            {
+              "name": "1800 lumens",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0605/0044/3373/files/Super_Bright_Wide_Range_Front_EBike_Light_with_USB-1.png?v=1743088810",
+              "price": 80
+            }
+          ]
+        }
+      },
+      "colorsNested": true,
+      "sizeGuide": {}
+    },
+    {
+      "brand": "Jasion",
+      "id": "copy-of-jasion-bike-rack-pannier-bag",
+      "name": "Jasion Ebike Pet Bike Basket",
+      "subtitle": "",
+      "price": 89,
+      "testRide": "",
+      "styles": [],
+      "sizes": [
+        "One Size"
+      ],
+      "specs": {},
+      "colors": {
+        "Default": {
+          "One Size": [
+            {
+              "name": "Standard",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0605/0044/3373/files/Pet_Bike_Basket.png?v=1743126990"
+            }
+          ]
+        }
+      },
+      "colorsNested": true,
+      "sizeGuide": {}
+    },
+    {
+      "brand": "Jasion",
+      "id": "fenders-for-jasion-eb7",
+      "name": "Jasion Ebike Bike Fenders",
+      "subtitle": "",
+      "price": 79,
+      "testRide": "",
+      "styles": [],
+      "sizes": [
+        "One Size"
+      ],
+      "specs": {},
+      "colors": {
+        "Default": {
+          "One Size": [
+            {
+              "name": "Standard",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0605/0044/3373/files/Bike_Fenders.png?v=1743130464"
+            }
+          ]
+        }
+      },
+      "colorsNested": true,
+      "sizeGuide": {}
+    },
+    {
+      "brand": "Jasion",
+      "id": "jasion-crank-arm-and-pedals",
+      "name": "Jasion Ebike Crank Arm and Pedals",
+      "subtitle": "",
+      "price": 30,
+      "testRide": "",
+      "styles": [],
+      "sizes": [
+        "One Size"
+      ],
+      "specs": {},
+      "colors": {
+        "Default": {
+          "One Size": [
+            {
+              "name": "EB7 Pedals",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0605/0044/3373/files/Crank_Arm_and_Pedals.png?v=1743129935",
+              "soldOut": true
+            },
+            {
+              "name": "EB7 Right Crank Arm",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0605/0044/3373/files/Crank_Arm_and_Pedals-2.png?v=1743129935",
+              "price": 45,
+              "soldOut": true
+            },
+            {
+              "name": "EB7 Left Crank Arm",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0605/0044/3373/files/Crank_Arm_and_Pedals-3.png?v=1743129933",
+              "price": 39,
+              "soldOut": true
+            },
+            {
+              "name": "EB7 ST Pedals",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0605/0044/3373/files/Crank_Arm_and_Pedals.png?v=1743129935",
+              "soldOut": true
+            },
+            {
+              "name": "EB7 ST Right Crank Arm",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0605/0044/3373/files/Crank_Arm_and_Pedals-2.png?v=1743129935",
+              "price": 45,
+              "soldOut": true
+            },
+            {
+              "name": "EB7 ST Left Crank Arm",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0605/0044/3373/files/Crank_Arm_and_Pedals-3.png?v=1743129933",
+              "price": 39,
+              "soldOut": true
+            },
+            {
+              "name": "X-Hunter Pedals",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0605/0044/3373/files/Crank_Arm_and_Pedals_42904458-061c-4245-9475-8b05ddfacf44.png?v=1747368628",
+              "soldOut": true
+            },
+            {
+              "name": "X-Hunter Right Crank Arm",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0605/0044/3373/files/Crank_Arm_and_Pedals-2.png?v=1743129935",
+              "price": 45,
+              "soldOut": true
+            },
+            {
+              "name": "X-Hunter Left Crank Arm",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0605/0044/3373/files/Crank_Arm_and_Pedals-3.png?v=1743129933",
+              "price": 39,
+              "soldOut": true
+            },
+            {
+              "name": "EB5 Roamer Pedals",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0605/0044/3373/files/Crank_Arm_and_Pedals.png?v=1743129935",
+              "soldOut": true
+            },
+            {
+              "name": "EB5 Roamer Right Crank Arm",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0605/0044/3373/files/Crank_Arm_and_Pedals-2.png?v=1743129935",
+              "price": 45,
+              "soldOut": true
+            },
+            {
+              "name": "EB5 Roamer ST Pedals",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0605/0044/3373/files/Crank_Arm_and_Pedals.png?v=1743129935"
+            },
+            {
+              "name": "EB5 Roamer ST Right Crank Arm",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0605/0044/3373/files/Crank_Arm_and_Pedals-2.png?v=1743129935",
+              "price": 45,
+              "soldOut": true
+            }
+          ]
+        }
+      },
+      "colorsNested": true,
+      "sizeGuide": {}
+    },
+    {
+      "brand": "Jasion",
+      "id": "rear-basket-for-jasion-ebike",
+      "name": "Jasion Ebike Rear Basket",
+      "subtitle": "",
+      "price": 79,
+      "testRide": "",
+      "styles": [],
+      "sizes": [
+        "One Size"
+      ],
+      "specs": {},
+      "colors": {
+        "Default": {
+          "One Size": [
+            {
+              "name": "Classic Hollowed-Out Bottom",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0605/0044/3373/files/Rear_Basket-2.png?v=1760168985"
+            },
+            {
+              "name": "Iron Bottom",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0605/0044/3373/files/Rear_Basket-4.png?v=1743126634",
+              "price": 99
+            }
+          ]
+        }
+      },
+      "colorsNested": true,
+      "sizeGuide": {}
+    },
+    {
+      "brand": "Mooncool",
+      "id": "test",
+      "name": "Test",
+      "subtitle": "",
+      "price": 0,
+      "testRide": "",
+      "styles": [],
+      "sizes": [
+        "One Size"
+      ],
+      "specs": {},
+      "colors": {
+        "Default": {
+          "One Size": [
+            {
+              "name": "Yellow",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0567/3821/8156/files/Gemini_Generated_Image_buoxt7buoxt7buox_02.gif?v=1787734623"
+            },
+            {
+              "name": "Red",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0567/3821/8156/files/Gemini_Generated_Image_buoxt7buoxt7buox_01.jpg?v=1787734623"
+            },
+            {
+              "name": "Blue",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0567/3821/8156/files/Gemini_Generated_Image_buoxt7buoxt7buox_03.gif?v=1787734624"
+            },
+            {
+              "name": "Green",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0567/3821/8156/files/Gemini_Generated_Image_buoxt7buoxt7buox_04.gif?v=1787734623"
+            },
+            {
+              "name": "Purple",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0567/3821/8156/files/Gemini_Generated_Image_buoxt7buoxt7buox_05.gif?v=1787734623"
+            }
+          ]
+        }
+      },
+      "colorsNested": true,
+      "sizeGuide": {}
+    },
+    {
+      "brand": "Mooncool",
+      "id": "tk1-fat20-electric-trike",
+      "name": "TK1 Fat Tire Electric Trike",
+      "subtitle": "",
+      "price": 1299.99,
+      "testRide": "",
+      "styles": [],
+      "sizes": [
+        "One Size"
+      ],
+      "specs": {},
+      "colors": {
+        "Default": {
+          "One Size": [
+            {
+              "name": "Cyan Green",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0567/3821/8156/files/6_e87f09f8-8c44-4767-b476-b8413f64726d.png?v=1721179858",
+              "soldOut": true
+            },
+            {
+              "name": "Buccaneer Blue",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0567/3821/8156/files/electric_trike_Buccaneer_Blue.png?v=1747036171",
+              "soldOut": true
+            },
+            {
+              "name": "Navy Blue",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0567/3821/8156/files/5_fea56a9f-bc8d-4ee3-be1c-8d9e2ba241af.png?v=1747036171",
+              "soldOut": true
+            },
+            {
+              "name": "Warm Pink",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0567/3821/8156/files/1_a1e40368-35c3-44ad-852a-effca17837ba.png?v=1747036171",
+              "soldOut": true
+            },
+            {
+              "name": "Cool Black",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0567/3821/8156/files/2_887c13ec-9ba5-498f-8646-c9492ef44989.png?v=1747036171",
+              "soldOut": true
+            },
+            {
+              "name": "Dark Red",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0567/3821/8156/files/3_ad650218-eb9e-4cd6-91dc-a22733b5fd89.png?v=1747036171",
+              "soldOut": true
+            }
+          ]
+        }
+      },
+      "colorsNested": true,
+      "sizeGuide": {}
+    },
+    {
+      "brand": "Mooncool",
+      "id": "mc-mirrors-pair",
+      "name": "MC Mirrors (Pair)",
+      "subtitle": "",
+      "price": 39.99,
+      "testRide": "",
+      "styles": [],
+      "sizes": [
+        "One Size"
+      ],
+      "specs": {},
+      "colors": {
+        "Default": {
+          "One Size": [
+            {
+              "name": "Standard",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0567/3821/8156/files/m_1.jpg?v=1709715184"
+            }
+          ]
+        }
+      },
+      "colorsNested": true,
+      "sizeGuide": {}
+    },
+    {
+      "brand": "Mooncool",
+      "id": "mc-front-basket-for-pop-ebike",
+      "name": "MC Front Basket For POP Ebike",
+      "subtitle": "",
+      "price": 55.99,
+      "testRide": "",
+      "styles": [],
+      "sizes": [
+        "One Size"
+      ],
+      "specs": {},
+      "colors": {
+        "Default": {
+          "One Size": [
+            {
+              "name": "Standard",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0567/3821/8156/files/20260717-150224.png?v=1784272006"
+            }
+          ]
+        }
+      },
+      "colorsNested": true,
+      "sizeGuide": {}
+    },
+    {
+      "brand": "Mooncool",
+      "id": "mc-rear-basket-for-pop-ebike",
+      "name": "MC Rear Basket For POP Ebike",
+      "subtitle": "",
+      "price": 69.99,
+      "testRide": "",
+      "styles": [],
+      "sizes": [
+        "One Size"
+      ],
+      "specs": {},
+      "colors": {
+        "Default": {
+          "One Size": [
+            {
+              "name": "Standard",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0567/3821/8156/files/20260717-150233.png?v=1784271954"
+            }
+          ]
+        }
+      },
+      "colorsNested": true,
+      "sizeGuide": {}
+    },
+    {
+      "brand": "Mooncool",
+      "id": "pop-folding-electric-bike",
+      "name": "POP Folding Electric Bike",
+      "subtitle": "",
+      "price": 1199.99,
+      "testRide": "",
+      "styles": [],
+      "sizes": [
+        "One Size"
+      ],
+      "specs": {},
+      "colors": {
+        "Default": {
+          "One Size": [
+            {
+              "name": "Vibrant Orange",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0567/3821/8156/files/180_57694132-9550-4203-9c78-307fd931c164.png?v=1788141570"
+            },
+            {
+              "name": "Cyan Green",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0567/3821/8156/files/180_bcc6be06-6a77-4227-833a-1a8f6acb8243.png?v=1788141569"
+            },
+            {
+              "name": "Cool Black",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0567/3821/8156/files/180_816defc8-d7b6-4588-8fbb-ad021ab35f6f.png?v=1788141570"
+            },
+            {
+              "name": "Purple",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0567/3821/8156/files/180_47dc6167-3031-47f4-ac9a-8bb3b9a4903b.png?v=1788141571"
+            },
+            {
+              "name": "White",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0567/3821/8156/files/180_b1624444-a7b4-4cf3-a4b8-f94333a4ddcf.png?v=1788141570"
+            }
+          ]
+        }
+      },
+      "colorsNested": true,
+      "sizeGuide": {}
+    },
+    {
+      "brand": "Mooncool",
+      "id": "tk2-electric-trike",
+      "name": "TK2 Folding Electric Trike",
+      "subtitle": "",
+      "price": 1499.99,
+      "testRide": "",
+      "styles": [],
+      "sizes": [
+        "One Size"
+      ],
+      "specs": {},
+      "colors": {
+        "Default": {
+          "One Size": [
+            {
+              "name": "Vibrant Orange",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0567/3821/8156/files/180_9296ee30-5840-4409-b3f3-a62f591cd8b2.png?v=1788860915"
+            },
+            {
+              "name": "Cyan Green",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0567/3821/8156/files/180_7f6d6a95-2ba0-497a-83fd-a43d22a4e337.png?v=1788860915"
+            },
+            {
+              "name": "Slate Gray",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0567/3821/8156/files/180_8debb2c3-4acd-470f-8951-3aa08dab4b98.png?v=1788860915",
+              "soldOut": true
+            },
+            {
+              "name": "White",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0567/3821/8156/files/180_3fae17e8-7ec9-4750-afd0-dc903e705cc4.png?v=1788860915"
+            },
+            {
+              "name": "Serenity Blue",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0567/3821/8156/files/180_17352a97-d80a-4379-91d8-83727074931b.png?v=1788860916",
+              "soldOut": true
+            },
+            {
+              "name": "Lavender Purple",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0567/3821/8156/files/180_1d770631-25cd-4fa2-84dd-96fe220921a0.png?v=1788860915",
+              "soldOut": true
             }
           ]
         }
