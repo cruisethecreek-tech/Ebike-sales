@@ -44,7 +44,7 @@ var IMP_TAB_NAME = 'Inventory';   // keep in sync with INV_TAB_NAME
 // Printed at the top of every run — see the note on FS_VERSION in BrandSpecs.gs.
 // Apps Script runs the last SAVED file, so this is how you tell whether the
 // paste you just made is the code that actually executed.
-var IMP_VERSION = '2026-09-15e';
+var IMP_VERSION = '2026-09-16a';
 
 // Products whose title contains any of these are not bikes. PriceMonitor.gs
 // has the long battle-tested list; if it lives in this project we reuse it.
@@ -90,7 +90,30 @@ var IMP_HARD_PARTS = [
   // models, they are the same bike with a promotion attached, and a shop with
   // four Saturn rows is worse than one.
   'combo', 'deal', 'vip', 'spurs fans', 'gift pack', 'protection', 'headlight',
+  // Parts whose names contain "Ebike". Jasion calls every accessory "Jasion
+  // Ebike <thing>", and IMP_BIKE_PHRASES was rescuing all of them as bicycles
+  // before the accessory list was ever consulted — that is how "Jasion Ebike
+  // Front Basket" and "Ebike Mirrors" ended up on the public shop. These must
+  // live HERE, above the rescue, not in the keyword list below it.
+  // 'tire' is deliberately absent: "TK1 Fat Tire Electric Trike" is a real bike
+  // and IMP_BIKE_PHRASES exists precisely to save it.
+  'basket', 'mirror', 'holder', 'bag', 'backpack', 'chain', 'kickstand',
+  'controller', 'scabbard', 'mount', 'bottle', 'crank', 'wheel', 'fork',
+  'derailleur', 'shifter', 'caliper', 'rotor', 'freewheel', 'seatpost',
+  'stem', 'grip', 'display', 'horn', 'liner', 'rod', 'reel',
 ];
+
+/**
+ * Multi-packs and two-bike bundles.
+ *
+ * Jasion sells "Thunder Pro*2" and "X-Hunter + X-Hunter ST" as their own
+ * products. Each one imported as a separate bike, so the shop showed a Thunder
+ * Pro twice over at two different prices. They are not models.
+ */
+function _impIsBundle_(title) {
+  var t = String(title || '');
+  return /\*\s*\d/.test(t) || /\S\s*\+\s*\S/.test(t);
+}
 
 /**
  * Whole-word (or whole-phrase) test, so 'light' does not match "Lightweight".
@@ -122,6 +145,7 @@ function _impAny_(title, terms) {
  * visible before anything is written.
  */
 function _impIsAccessory_(title) {
+  if (_impIsBundle_(title)) return true;
   if (_impAny_(title, IMP_HARD_PARTS)) return true;
   if (_impAny_(title, IMP_BIKE_PHRASES)) return false;
   return _impAny_(title, _impAccessoryWords_());
