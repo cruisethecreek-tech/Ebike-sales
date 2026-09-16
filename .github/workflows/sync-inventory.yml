@@ -1,4 +1,4 @@
-﻿name: Sync Bike Inventory
+name: Sync Bike Inventory
 
 # Triggers:
 #   1. repository_dispatch — called by Apps Script when Pat edits the Sheet.
@@ -37,7 +37,7 @@ jobs:
               bikes = json.load(f)
 
           payload = {
-              "lastUpdated": datetime.datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%SZ'),
+              "lastUpdated": datetime.datetime.now(datetime.timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ'),
               "bikes": bikes
           }
 
@@ -52,12 +52,38 @@ jobs:
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add data/inventory.json
-          if git diff --staged --quiet; then
-            echo "No inventory changes — nothing to commit."
-          else
-            BIKE_COUNT=$(python3 -c "import json; d=json.load(open('data/inventory.json')); print(len(d['bikes']))")
+
+          BIKE_COUNT=$(python3 -c "import json; print(len(json.load(open('data/inventory.json'))['bikes']))")
+          cp data/inventory.json /tmp/inventory.json
+
+          # The checkout happens at the start of the job and the push a minute
+          # or two later. Any commit to main in between — a merged PR, another
+          # sync — rejects this push, and the whole run fails with the freshly
+          # generated file thrown away. It is a race, not a conflict: this file
+          # is derived wholly from the sheet, so the version just built is
+          # always the right one. Rebase onto whatever main is now, replace the
+          # file, and try again.
+          for attempt in 1 2 3; do
+            git fetch origin main
+            git reset --hard origin/main
+            cp /tmp/inventory.json data/inventory.json
+            git add data/inventory.json
+
+            if git diff --staged --quiet; then
+              echo "No inventory changes — nothing to commit."
+              exit 0
+            fi
+
             git commit -m "chore: sync inventory — $BIKE_COUNT bikes [skip ci]"
-            git push
-            echo "Pushed updated inventory.json"
-          fi
+            if git push origin HEAD:main; then
+              echo "Pushed $BIKE_COUNT bikes."
+              exit 0
+            fi
+
+            echo "Push rejected (main moved). Attempt $attempt of 3; retrying."
+            sleep 5
+          done
+
+          echo "::error::Could not push after 3 attempts — main is changing faster"
+          echo "than this job can land. Re-run the workflow."
+          exit 1
