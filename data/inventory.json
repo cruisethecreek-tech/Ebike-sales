@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2026-09-16T17:31:05Z",
+  "lastUpdated": "2026-09-16T17:32:35Z",
   "bikes": [
     {
       "brand": "Heybike",
@@ -418,6 +418,35 @@
               "name": "Black",
               "hex": "",
               "img": "https://cdn.shopify.com/s/files/1/0516/9804/1009/files/Cityscape2.0.png?v=1784875378"
+            }
+          ]
+        }
+      },
+      "colorsNested": true,
+      "sizeGuide": {}
+    },
+    {
+      "brand": "Heybike",
+      "id": "Villain",
+      "name": "Villain",
+      "subtitle": "Electric Dirt Bike",
+      "price": 1499,
+      "testRide": "",
+      "testRideLoc": "",
+      "styles": [
+        "Standard"
+      ],
+      "sizes": [
+        "One Size"
+      ],
+      "specs": {},
+      "colors": {
+        "Default": {
+          "One Size": [
+            {
+              "name": "Standard",
+              "hex": "",
+              "img": "https://cdn.shopify.com/s/files/1/0769/9238/1155/files/1850_fe31111e-be24-4512-99c2-7ddc8799ff54.png?v=1779440185"
             }
           ]
         }
