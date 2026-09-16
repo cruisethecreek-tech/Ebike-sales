@@ -122,6 +122,26 @@ function _rowNormKey_(k) {
     .replace(/[^a-z0-9]/g, '');
 }
 
+/**
+ * Column index for a header, tolerant of case and a "(JSON)" suffix.
+ *
+ * The four admin write handlers used headers.indexOf('colors') and friends.
+ * Against this sheet every one of them returned -1 and threw "column not
+ * found", because the headers read "Colors (JSON)", "Price", "SizeGuide
+ * (JSON)" and "Discontinued". So salespro's colour editor, price editor, size
+ * guide and discontinue toggle have all been failing — the same single cause
+ * as the read path, on the side that writes.
+ */
+function _headerIndex_(headers, key) {
+  var exact = headers.indexOf(key);
+  if (exact !== -1) return exact;
+  var want = _rowNormKey_(key);
+  for (var i = 0; i < headers.length; i++) {
+    if (_rowNormKey_(headers[i]) === want) return i;
+  }
+  return -1;
+}
+
 function _rowGet_(row, key) {
   if (row == null) return undefined;
   if (Object.prototype.hasOwnProperty.call(row, key)) return row[key];
@@ -293,7 +313,7 @@ function handleSetDiscontinued(e) {
     if (!rowIndex || rowIndex < 2) throw new Error('Invalid rowIndex: ' + p.rowIndex);
 
     var inv = _openInventorySheet_();
-    var col = inv.headers.indexOf('discontinued');
+    var col = _headerIndex_(inv.headers, 'discontinued');
     if (col === -1) throw new Error('"discontinued" column not found.');
 
     inv.sheet.getRange(rowIndex, col + 1).setValue(value);
@@ -323,7 +343,7 @@ function handleUpdatePrice(e) {
     if (isNaN(price) || price < 0)  throw new Error('Invalid price: ' + p.price);
 
     var inv = _openInventorySheet_();
-    var col = inv.headers.indexOf('price');
+    var col = _headerIndex_(inv.headers, 'price');
     if (col === -1) throw new Error('"price" column not found.');
 
     inv.sheet.getRange(rowIndex, col + 1).setValue(price);
@@ -353,7 +373,7 @@ function handleSaveColors(e) {
     JSON.parse(json); // validate before writing
 
     var inv = _openInventorySheet_();
-    var col = inv.headers.indexOf('colors');
+    var col = _headerIndex_(inv.headers, 'colors');
     if (col === -1) throw new Error('"colors" column not found.');
 
     inv.sheet.getRange(rowIndex, col + 1).setValue(json);
@@ -383,7 +403,7 @@ function handleSaveSizeGuide(e) {
     JSON.parse(json); // validate before writing
 
     var inv = _openInventorySheet_();
-    var col = inv.headers.indexOf('sizeGuide');
+    var col = _headerIndex_(inv.headers, 'sizeGuide');
     if (col === -1) throw new Error('"sizeGuide" column not found.');
 
     inv.sheet.getRange(rowIndex, col + 1).setValue(json);
