@@ -104,3 +104,77 @@ function cleanupInventory(apply) {
 
 function cleanupInventoryDryRun() { return cleanupInventory(false); }
 function cleanupInventoryApply()  { return cleanupInventory(true); }
+
+/**
+ * auditDiscontinuedColumn — why a row you marked "Yes" is still on the site.
+ *
+ * getBikeInventory hides a row only when its Discontinued cell, trimmed and
+ * lowercased, is exactly "yes" or "true". Anything else — "Y", "1", "N/A",
+ * "Discontinued", a checkbox left unticked, a cell holding a formula that
+ * returns a blank — reads as "still for sale", and nothing anywhere says so.
+ *
+ * This lists every distinct value in that column with a count, marks which
+ * ones actually hide a row, and then names the rows using an unrecognised
+ * value. Run it and the answer is usually obvious in the first three lines.
+ */
+function auditDiscontinuedColumn() {
+  var sh = SpreadsheetApp.openById(INV_SHEET_ID).getSheetByName(INV_TAB_NAME);
+  if (!sh) { Logger.log('Tab "' + INV_TAB_NAME + '" not found.'); return { ok: false }; }
+
+  var data = sh.getDataRange().getValues();
+  var headers = data[0] || [];
+  var col = {};
+  headers.forEach(function (h, i) {
+    var k = String(h || '').toLowerCase().replace(/\s*\(json\)/, '').replace(/[^a-z]/g, '');
+    if (k) col[k] = i;
+  });
+  if (col.discontinued == null) {
+    Logger.log('No Discontinued column found. Headers: ' + headers.join(' | '));
+    Logger.log('The header must normalise to "discontinued" — that is how every');
+    Logger.log('reader finds it. If yours is spelled differently, NOTHING is ever');
+    Logger.log('hidden, whatever you type in it.');
+    return { ok: false };
+  }
+  if (col.name == null) { Logger.log('No Name column found.'); return { ok: false }; }
+
+  var counts = {}, odd = [], hidden = 0;
+  for (var r = 1; r < data.length; r++) {
+    var name = String(data[r][col.name] || '').trim();
+    if (!name) continue;
+    var raw = data[r][col.discontinued];
+    var shown = JSON.stringify(raw);                 // exposes spaces and type
+    counts[shown] = (counts[shown] || 0) + 1;
+
+    var norm = String(raw == null ? '' : raw).trim().toLowerCase();
+    if (norm === 'yes' || norm === 'true') { hidden++; continue; }
+    if (norm !== '' && norm !== 'no' && norm !== 'false') {
+      odd.push({ row: r + 1, name: name, value: shown });
+    }
+  }
+
+  Logger.log('=== Discontinued column  (SheetCleanup.gs ' + CLEAN_VERSION + ') ===');
+  Logger.log('Column ' + String.fromCharCode(65 + col.discontinued) +
+             ', header "' + headers[col.discontinued] + '"\n');
+  Logger.log('Values present (exact, quotes show stray spaces):');
+  Object.keys(counts).sort().forEach(function (v) {
+    var n = String(v).replace(/^"|"$/g, '').trim().toLowerCase();
+    var hides = (n === 'yes' || n === 'true');
+    Logger.log('  ' + v + '  x' + counts[v] + (hides ? '   -> HIDES the row' : '   -> row stays visible'));
+  });
+
+  Logger.log('\n' + hidden + ' row(s) are hidden from the site.');
+
+  if (odd.length) {
+    Logger.log('\nRows with a value that is neither yes/true nor no/blank (' + odd.length + ').');
+    Logger.log('These are all VISIBLE on the site:');
+    odd.forEach(function (o) {
+      Logger.log('  row ' + o.row + '  ' + o.name + '  = ' + o.value);
+    });
+    Logger.log('Set them to exactly Yes to hide them.');
+  }
+
+  Logger.log('\nIf the value already reads "Yes" and the bike is still on the');
+  Logger.log('site, the sheet is right and the site is stale — run the');
+  Logger.log('sync-inventory Action.');
+  return { ok: true, hidden: hidden, odd: odd };
+}

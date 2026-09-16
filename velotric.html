@@ -344,6 +344,20 @@ const SITE_CONFIG = {
 <meta name="twitter:description" content="Cruise the Creek — e-bike sales, rentals, and trailside adventures in Youngstown, Ohio.">
 <meta name="twitter:image" content="https://www.cruisethecreek.com/cityrunblackblack.jpg">
 <link rel="canonical" href="https://www.cruisethecreek.com/velotric.html">
+<script>
+// Swap to the next candidate image when one fails to load. Declared on window
+// in its own tag because the onerror attribute is evaluated in global scope —
+// a function defined inside another script's closure is invisible to it.
+// Each attempt is removed from the list, so a run of dead URLs terminates and
+// the last failure just leaves the broken icon rather than looping.
+window.ctcNextImage = function (img) {
+    var rest = (img.getAttribute('data-fallbacks') || '').split('|').filter(Boolean);
+    if (!rest.length) { img.onerror = null; return; }
+    var next = rest.shift();
+    img.setAttribute('data-fallbacks', rest.join('|'));
+    img.src = next;
+};
+</script>
 </head>
 <body>
     <!-- Loading overlay -->
@@ -582,6 +596,22 @@ const SITE_CONFIG = {
                 const firstGroupVal = bike.colors[firstGroup];
                 // Find first non-empty image across all swatches
                 let firstImage = '';
+
+                // A swatch can point at a file that is no longer in the repo —
+                // Venus leads with images/Venus Pink Badge Black.png, which is
+                // gone, so the card rendered a broken image even though a
+                // working photo sat two swatches later. Collect every image and
+                // let the browser fall through to the next on error.
+                const allImgs = (colors) => {
+                    const out = [];
+                    const walk = (v) => {
+                        if (Array.isArray(v)) { v.forEach(s => { if (s && s.img) out.push(s.img); }); return; }
+                        if (v && typeof v === 'object') Object.values(v).forEach(x => { if (typeof x !== 'boolean') walk(x); });
+                    };
+                    walk(colors || {});
+                    return [...new Set(out)];
+                };
+
                 const findFirstImg = (colors) => {
                     for (const groupVal of Object.values(colors)) {
                         if (Array.isArray(groupVal)) {
@@ -600,7 +630,7 @@ const SITE_CONFIG = {
                 firstImage = findFirstImg(bike.colors);
 
                 html += `<div class="bike-card" data-brand="${bike.brand}" data-bike="${bike.id}" data-bike-name="${bike.name}" data-bike-price="${bike.price}">
-                    <div class="bike-image"><img class="main-bike-img" src="${firstImage}"></div>
+                    <div class="bike-image"><img class="main-bike-img" src="${firstImage}" data-fallbacks="${allImgs(bike.colors).slice(1).join('|')}" onerror="ctcNextImage(this)"></div>
                     <div class="bike-content">
                         <div class="bike-name">${bike.name}</div>
                         <div class="bike-style">${bike.subtitle}</div>
