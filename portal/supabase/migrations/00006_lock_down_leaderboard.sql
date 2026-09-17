@@ -10,6 +10,11 @@
 -- are deliberately left alone here: enabling RLS on them with no
 -- policies would take that application offline. They need their own
 -- owner's decision.
+--
+-- Applied to production 2026-09-17. Verified afterwards: leaderboard
+-- grants reduced to `authenticated:SELECT` (anon removed), the view
+-- still returns all 57 customer rows so the feature is intact, and
+-- the linter's function_search_path_mutable finding cleared.
 -- ─────────────────────────────────────────────────────────────
 
 -- ── 1. public.leaderboard ────────────────────────────────────
