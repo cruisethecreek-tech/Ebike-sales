@@ -71,14 +71,35 @@ export function SignupBadge({ customer, size = 'sm' }: { customer: CustomerData;
       title={customer.lastSignInAt ? `Last signed in ${formatWhen(customer.lastSignInAt)}` : 'Signed in'}
       className={`${pad} rounded bg-[#2D4A32] text-white font-bold uppercase tracking-wide whitespace-nowrap`}
     >
-      \u2713 Registered
+      ✓ Registered
     </span>
   ) : (
     <span
       title={customer.invitedAt ? `Invited ${formatWhen(customer.invitedAt)} \u2014 never signed in` : 'Never signed in'}
       className={`${pad} rounded bg-[#C9A96E]/25 text-[#8a6d2f] border border-[#C9A96E] font-bold uppercase tracking-wide whitespace-nowrap`}
     >
-      \u23f3 Invited
+      ⏳ Invited
+    </span>
+  )
+}
+
+/**
+ * The date behind the badge, for the list rows. The badge alone answers
+ * "have they ever signed in"; this answers "when", which is the question
+ * you actually have when scanning the directory.
+ */
+export function SignupWhen({ customer }: { customer: CustomerData }) {
+  if (customer.registered) {
+    if (!customer.lastSignInAt) return null
+    return (
+      <span className="text-[11px] text-gray-500">
+        Last in {formatWhen(customer.lastSignInAt)}
+      </span>
+    )
+  }
+  return (
+    <span className="text-[11px] text-[#8a6d2f]">
+      {customer.invitedAt ? `Invited ${formatWhen(customer.invitedAt)} · never signed in` : 'Never signed in'}
     </span>
   )
 }
@@ -617,9 +638,10 @@ export function CustomerDirectory({ customers }: { customers: CustomerData[] }) 
                       )}
                       <SignupBadge customer={c} />
                     </div>
-                    {c.email && (
-                      <span className="block font-normal text-[11px] text-gray-500 mt-0.5">{c.email}</span>
-                    )}
+                    <span className="block font-normal mt-0.5 space-x-2">
+                      {c.email && <span className="text-[11px] text-gray-500">{c.email}</span>}
+                      <SignupWhen customer={c} />
+                    </span>
                   </td>
                   <td className="p-3.5 text-xs text-[#4A4A4A]">{c.phone || '—'}</td>
                   <td className="p-3.5">
@@ -692,6 +714,7 @@ export function CustomerDirectory({ customers }: { customers: CustomerData[] }) 
                   </p>
                   <p className="text-xs text-[#4A4A4A]">{c.phone || 'No phone'}</p>
                   {c.email && <p className="text-[11px] text-gray-500 break-all">{c.email}</p>}
+                  <p className="mt-0.5"><SignupWhen customer={c} /></p>
                 </div>
                 <div className="text-right">
                   <span className="text-sm font-bold text-[#2D4A32]">${c.totalSpent.toFixed(2)}</span>
