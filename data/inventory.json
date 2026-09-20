@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2026-09-19T10:33:24Z",
+  "lastUpdated": "2026-09-20T02:04:47Z",
   "bikes": [
     {
       "brand": "Heybike",
@@ -928,7 +928,7 @@
       "id": "new-mesa-lite",
       "name": "Mesa Lite Ebike",
       "subtitle": "",
-      "price": 799.99,
+      "price": 799,
       "testRide": "",
       "testRideLoc": "",
       "styles": [
@@ -975,7 +975,7 @@
       "id": "new-mesa-lite-st",
       "name": "Mesa Lite ST Ebike",
       "subtitle": "",
-      "price": 999.99,
+      "price": 999,
       "testRide": "",
       "testRideLoc": "",
       "styles": [
@@ -1010,7 +1010,7 @@
       "id": "granite",
       "name": "Granite E-Trike",
       "subtitle": "",
-      "price": 1999.99,
+      "price": 1999,
       "testRide": "",
       "testRideLoc": "",
       "styles": [
@@ -1051,7 +1051,7 @@
       "id": "asphalt",
       "name": "Asphalt Ebike",
       "subtitle": "",
-      "price": 1499.99,
+      "price": 1499,
       "testRide": "",
       "testRideLoc": "",
       "styles": [
@@ -1095,7 +1095,7 @@
       "id": "asphalt-st",
       "name": "Asphalt ST Ebike",
       "subtitle": "",
-      "price": 1499.99,
+      "price": 1499,
       "testRide": "",
       "testRideLoc": "",
       "styles": [
@@ -1141,7 +1141,7 @@
       "id": "tor-plus",
       "name": "Tor Plus Ebike",
       "subtitle": "",
-      "price": 1199.99,
+      "price": 1199,
       "testRide": "",
       "testRideLoc": "",
       "styles": [
@@ -1180,7 +1180,7 @@
       "id": "flint-pro",
       "name": "FLINT PRO Ebike",
       "subtitle": "",
-      "price": 1599.99,
+      "price": 1599,
       "testRide": "",
       "testRideLoc": "",
       "styles": [
@@ -1231,7 +1231,7 @@
       "id": "flint-pro-st",
       "name": "FLINT PRO ST Ebike",
       "subtitle": "",
-      "price": 1599.99,
+      "price": 1599,
       "testRide": "Test Ride Available",
       "testRideLoc": "",
       "styles": [
@@ -1281,7 +1281,7 @@
       "id": "flint",
       "name": "FLINT Ebike",
       "subtitle": "",
-      "price": 1399.99,
+      "price": 1399,
       "testRide": "",
       "testRideLoc": "",
       "styles": [
@@ -1325,7 +1325,7 @@
       "id": "flint-st",
       "name": "FLINT ST Ebike",
       "subtitle": "",
-      "price": 1399.99,
+      "price": 1399,
       "testRide": "",
       "testRideLoc": "",
       "styles": [
@@ -1378,7 +1378,7 @@
       "id": "slate",
       "name": "Slate Ebike",
       "subtitle": "",
-      "price": 1499.99,
+      "price": 1499,
       "testRide": "",
       "testRideLoc": "",
       "styles": [
@@ -1417,7 +1417,7 @@
       "id": "mesa-plus-st",
       "name": "Mesa Plus ST Ebike",
       "subtitle": "",
-      "price": 1199.99,
+      "price": 1199,
       "testRide": "",
       "testRideLoc": "",
       "styles": [
@@ -1457,7 +1457,7 @@
       "id": "tarmac",
       "name": "Tarmac Ebike",
       "subtitle": "",
-      "price": 1699.99,
+      "price": 1699,
       "testRide": "",
       "testRideLoc": "",
       "styles": [
@@ -1501,7 +1501,7 @@
       "id": "tarmac-st",
       "name": "Tarmac ST Ebike",
       "subtitle": "",
-      "price": 1699.99,
+      "price": 1699,
       "testRide": "",
       "testRideLoc": "",
       "styles": [
@@ -1545,7 +1545,7 @@
       "id": "obsidian-2-0",
       "name": "Obsidian 2.0 Ebike",
       "subtitle": "",
-      "price": 2199.99,
+      "price": 2199,
       "testRide": "",
       "testRideLoc": "",
       "styles": [
@@ -1589,7 +1589,7 @@
       "id": "obsidian-st-2-0",
       "name": "Obsidian ST 2.0 Ebike",
       "subtitle": "",
-      "price": 2199.99,
+      "price": 2199,
       "testRide": "Test Ride Available",
       "testRideLoc": "",
       "styles": [
@@ -1633,7 +1633,7 @@
       "id": "basalt-2-0",
       "name": "Basalt 2.0 Ebike",
       "subtitle": "",
-      "price": 1699.99,
+      "price": 1699,
       "testRide": "Test Ride Available",
       "testRideLoc": "",
       "styles": [
@@ -1682,7 +1682,7 @@
       "id": "basalt-st-2-0-s",
       "name": "Basalt ST 2.0 Ebike",
       "subtitle": "",
-      "price": 1699.99,
+      "price": 1699,
       "testRide": "Test Ride Available",
       "testRideLoc": "",
       "styles": [
@@ -1741,7 +1741,7 @@
       "id": "basalt-st",
       "name": "Basalt ST Ebike",
       "subtitle": "",
-      "price": 1099.99,
+      "price": 1099,
       "testRide": "",
       "testRideLoc": "",
       "styles": [
@@ -1776,7 +1776,7 @@
       "id": "basalt",
       "name": "Basalt Ebike",
       "subtitle": "",
-      "price": 1099.99,
+      "price": 1099,
       "testRide": "",
       "testRideLoc": "",
       "styles": [
@@ -1817,7 +1817,7 @@
       "id": "scoria",
       "name": "Scoria 2.0 Ebike",
       "subtitle": "",
-      "price": 1799.99,
+      "price": 1799,
       "testRide": "",
       "testRideLoc": "",
       "styles": [
@@ -1866,7 +1866,7 @@
       "id": "obsidian",
       "name": "Obsidian Ebike",
       "subtitle": "",
-      "price": 1699.99,
+      "price": 1699,
       "testRide": "",
       "testRideLoc": "",
       "styles": [
@@ -1910,7 +1910,7 @@
       "id": "obsidian-st",
       "name": "Obsidian ST Ebike",
       "subtitle": "",
-      "price": 1999.99,
+      "price": 1999,
       "testRide": "Test Ride Available",
       "testRideLoc": "",
       "styles": [
@@ -1957,7 +1957,7 @@
       "id": "onyx",
       "name": "Onyx Ebike",
       "subtitle": "",
-      "price": 3299.99,
+      "price": 3299,
       "testRide": "",
       "testRideLoc": "",
       "styles": [
@@ -2003,7 +2003,7 @@
       "id": "onyx-st",
       "name": "Onyx ST Ebike",
       "subtitle": "",
-      "price": 3299.99,
+      "price": 3299,
       "testRide": "",
       "testRideLoc": "",
       "styles": [
@@ -2107,7 +2107,7 @@
       "id": "pop-folding-electric-bike",
       "name": "POP Folding Electric Bike",
       "subtitle": "",
-      "price": 1199.99,
+      "price": 1199,
       "testRide": "",
       "testRideLoc": "",
       "styles": [
