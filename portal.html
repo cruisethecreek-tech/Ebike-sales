@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Customer Portal | Cruise the Creek</title>
+<meta name="description" content="Sign in to your Cruise the Creek customer portal. Access is by email invitation after you buy a bike from us.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --sage:#6B8F71;--forest:#2D4A32;--dark:#1a2e1c;
+  --tan:#C9A96E;--cream:#F5F0E8;--cream-w:#fbf7ef;
+  --ink:#1a1a1a;--ink-2:#4a4a4a;
+}
+html,body{height:100%}
+html{scroll-behavior:smooth}
+body{font-family:'DM Sans',sans-serif;color:var(--ink);background:var(--cream);
+  min-height:100vh;display:flex;flex-direction:column;line-height:1.75}
+a{text-decoration:none;color:inherit}
+
+.topbar{background:rgba(255,255,255,.95);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+  color:var(--dark);padding:16px 24px;display:flex;align-items:center;justify-content:space-between;
+  position:sticky;top:0;z-index:100;border-bottom:1px solid rgba(0,0,0,.05)}
+.brand-logo{height:38px;width:auto;display:block}
+
+/* HERO */
+.hero{position:relative;min-height:34vh;padding:64px 24px 48px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;
+  color:#fff;background:var(--forest);overflow:hidden;isolation:isolate}
+.hero-topo{position:absolute;inset:0;z-index:-1;opacity:.18;pointer-events:none;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 600 400' preserveAspectRatio='none'><g fill='none' stroke='%23F5F0E8' stroke-width='1.2'><path d='M0,80 Q150,60 300,90 T600,80'/><path d='M0,140 Q150,120 300,150 T600,140'/><path d='M0,200 Q150,180 300,210 T600,200'/><path d='M0,260 Q150,240 300,270 T600,260'/></g></svg>");
+  background-size:cover}
+.hero-eyebrow{display:inline-block;font-size:.75rem;font-weight:700;letter-spacing:.2em;
+  text-transform:uppercase;color:var(--tan);margin-bottom:16px;
+  padding:6px 14px;border:1px solid rgba(201,169,110,.3);border-radius:4px;
+  background:rgba(26,46,28,.2)}
+.hero h1{font-family:'Bebas Neue',sans-serif;font-size:clamp(2.4rem,7vw,4rem);
+  letter-spacing:.02em;line-height:1;margin-bottom:14px}
+.hero p{font-size:clamp(1rem,2.4vw,1.1rem);color:rgba(255,255,255,.9);
+  max-width:520px;line-height:1.6}
+
+/* BREADCRUMB */
+.crumb{max-width:880px;margin:0 auto;padding:24px 24px 0;
+  font-size:.75rem;letter-spacing:.1em;text-transform:uppercase;font-weight:700;color:var(--sage)}
+.crumb a{color:var(--ink-2)}
+.crumb a:hover{color:var(--forest)}
+.crumb .sep{color:rgba(0,0,0,.2);margin:0 8px}
+
+main{flex:1;max-width:880px;margin:0 auto;padding:32px 24px 56px;width:100%}
+
+/* SIGN IN */
+.signin{background:#fff;border-radius:10px;padding:32px 30px;text-align:center;
+  box-shadow:0 4px 14px rgba(0,0,0,.05);border:1px solid rgba(0,0,0,.05)}
+.signin h2{font-family:'Bebas Neue',sans-serif;font-size:1.9rem;letter-spacing:.02em;
+  color:var(--forest);line-height:1.1;margin-bottom:10px}
+.signin p{color:var(--ink-2);max-width:520px;margin:0 auto;font-size:1rem}
+.btn{display:inline-flex;align-items:center;gap:9px;background:var(--forest);color:#fff;
+  padding:15px 30px;border-radius:4px;font-weight:800;font-size:.95rem;letter-spacing:.04em;
+  margin-top:22px;transition:background .2s ease}
+.btn:hover{background:var(--dark)}
+.btn svg{width:15px;height:15px}
+
+/* INVITE-ONLY NOTICE — the thing most visitors are here to find out. */
+.invite{margin-top:16px;background:var(--cream-w);border:1px solid rgba(201,169,110,.45);
+  border-left:4px solid var(--tan);border-radius:8px;padding:20px 22px;font-size:.96rem;color:var(--ink-2)}
+.invite b{color:var(--forest)}
+.invite p+p{margin-top:10px}
+
+h2.sec{font-family:'Bebas Neue',sans-serif;font-size:1.7rem;letter-spacing:.02em;
+  color:var(--forest);line-height:1.1;margin:44px 0 6px}
+.sec-sub{color:var(--ink-2);font-size:.98rem;margin-bottom:18px}
+
+/* CARD GRIDS */
+.grid{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
+.card{background:#fff;border:1px solid rgba(0,0,0,.06);border-radius:8px;padding:20px 20px;
+  box-shadow:0 2px 8px rgba(0,0,0,.03)}
+.card h3{font-size:1rem;font-weight:800;color:var(--forest);margin-bottom:6px;line-height:1.35}
+.card p{font-size:.92rem;color:var(--ink-2);line-height:1.6}
+.card .ico{font-size:1.3rem;line-height:1;margin-bottom:10px;display:block}
+
+/* DEALER SECTION */
+.dealer{margin-top:14px;background:var(--forest);color:#fff;border-radius:10px;padding:30px 28px}
+.dealer h2{font-family:'Bebas Neue',sans-serif;font-size:1.7rem;letter-spacing:.02em;
+  line-height:1.1;margin-bottom:8px}
+.dealer>p{color:rgba(255,255,255,.88);font-size:.98rem;max-width:640px}
+.dealer ul{list-style:none;margin-top:18px;display:grid;gap:12px}
+.dealer li{display:flex;gap:11px;align-items:flex-start;font-size:.95rem;
+  color:rgba(255,255,255,.92);line-height:1.6}
+.dealer li svg{width:17px;height:17px;flex:0 0 17px;margin-top:4px;color:var(--tan)}
+.dealer .more{display:inline-flex;align-items:center;gap:8px;margin-top:22px;
+  background:#fff;color:var(--forest);padding:12px 22px;border-radius:4px;
+  font-weight:700;font-size:.88rem;letter-spacing:.03em;transition:background .2s ease,color .2s ease}
+.dealer .more:hover{background:var(--tan);color:var(--dark)}
+.dealer .more svg{width:14px;height:14px;color:inherit}
+
+/* HELP */
+.help{margin-top:34px;padding:20px 22px;background:#fff;border:1px solid rgba(0,0,0,.07);
+  border-radius:8px;font-size:.95rem;color:var(--ink-2);line-height:1.7}
+.help b{color:var(--forest)}
+.help a{color:var(--forest);font-weight:700;text-decoration:underline}
+
+footer{background:var(--dark);color:rgba(255,255,255,.65);padding:32px 24px;
+  text-align:center;font-size:.85rem;letter-spacing:.02em}
+footer a{color:var(--tan);font-weight:500}
+footer a:hover{color:#fff}
+
+@media(max-width:560px){
+  .hero{padding:48px 16px 36px}
+  main{padding:24px 16px 40px}
+  .signin{padding:26px 20px}
+  .dealer{padding:24px 20px}
+  .btn{width:100%;justify-content:center}
+}
+</style>
+<script src="site-enhance.js?v=20260911a"></script>
+<meta property="og:title" content="Customer Portal">
+<meta property="og:description" content="Sign in to your Cruise the Creek customer portal. Access is by email invitation after you buy a bike from us.">
+<meta property="og:image" content="https://www.cruisethecreek.com/cityrunblackblack.jpg">
+<meta property="og:url" content="https://www.cruisethecreek.com/portal.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Cruise the Creek">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Customer Portal">
+<meta name="twitter:description" content="Sign in to your Cruise the Creek customer portal. Access is by email invitation after you buy a bike from us.">
+<meta name="twitter:image" content="https://www.cruisethecreek.com/cityrunblackblack.jpg">
+<link rel="canonical" href="https://www.cruisethecreek.com/portal.html">
+</head>
+<body>
+
+<header class="topbar">
+  <a href="index.html" aria-label="Cruise the Creek home"><img class="brand-logo" src="BlackonTransparent.png" alt="Cruise the Creek"></a>
+</header>
+
+<section class="hero">
+  <div class="hero-topo"></div>
+  <span class="hero-eyebrow">For Our Customers</span>
+  <h1>Customer Portal</h1>
+  <p>Your bikes, your receipts, your service history — in one place, for as long as you own the bike.</p>
+</section>
+
+<nav class="crumb"><a href="index.html">Home</a><span class="sep">/</span>Customer Portal</nav>
+
+<main>
+
+  <div class="signin">
+    <h2>Already a customer?</h2>
+    <p>Sign in with the email address you gave us when you bought your bike.</p>
+    <a class="btn" href="https://portal.cruisethecreek.com" target="_blank" rel="noopener">
+      Sign in to your portal
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+    </a>
+  </div>
+
+  <!-- Stated plainly and early. Someone who cannot sign up will otherwise
+       hunt for a "create account" link that does not exist and conclude the
+       site is broken. -->
+  <div class="invite">
+    <p><b>There's no sign-up form — and that's on purpose.</b> The portal is for people who bought
+    a bike from us, so we create your account ourselves. Buy a bike and we'll email you an
+    invitation to the address on your receipt. Open it, set a password, and you're in.</p>
+    <p>If you've bought from us and never got that email, it's almost always the wrong address
+    on file or a spam folder. Text us and we'll resend it.</p>
+  </div>
+
+  <h2 class="sec">What's in there</h2>
+  <p class="sec-sub">Everything we know about your bike, available to you without having to call and ask.</p>
+  <div class="grid">
+    <div class="card">
+      <span class="ico" aria-hidden="true">🚲</span>
+      <h3>Your bikes</h3>
+      <p>Every bike you've bought from us, with its model, serial number and purchase date — the details you need for an insurance claim or a police report, without digging through a drawer.</p>
+    </div>
+    <div class="card">
+      <span class="ico" aria-hidden="true">🛡️</span>
+      <h3>Warranty &amp; service countdown</h3>
+      <p>How long is left on your manufacturer warranty, and when your next Creek Ready service is due. No guessing whether you're still covered.</p>
+    </div>
+    <div class="card">
+      <span class="ico" aria-hidden="true">🧾</span>
+      <h3>Receipts and invoices</h3>
+      <p>Every invoice we've issued you, ready to view or download. Useful when a manufacturer asks for proof of purchase.</p>
+    </div>
+    <div class="card">
+      <span class="ico" aria-hidden="true">🎁</span>
+      <h3>Your referral code</h3>
+      <p>Your personal code and link, plus any credit you've earned from friends who bought through you.</p>
+    </div>
+  </div>
+
+  <h2 class="sec">Why buying from a dealer matters</h2>
+  <p class="sec-sub">The portal only works because we're the ones who sold you the bike. That's the point.</p>
+
+  <div class="dealer">
+    <h2>Bought online, you're on your own</h2>
+    <p>An e-bike ordered to your porch arrives in a box, half-built, with a warranty you have to
+    argue for yourself. Here's what buying from your local authorized dealer changes.</p>
+    <ul>
+      <li>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg>
+        <span><b>Built by a technician, not by you.</b> Master assembly by Andrew Barret to the CTC Care Standard — brakes, torque and electronics checked before you ever ride it.</span>
+      </li>
+      <li>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg>
+        <span><b>We handle the warranty claim.</b> We're an authorized dealer for Heybike, Velotric, Mooncool, Mokwheel and Jasion, and we act as your liaison with the manufacturer instead of handing you a support email address.</span>
+      </li>
+      <li>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg>
+        <span><b>Service you can drive to.</b> Two Mahoning County locations, plus remote video diagnostics with a factory-trained technician if you'd rather not load the bike up.</span>
+      </li>
+      <li>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg>
+        <span><b>A record that outlives the receipt.</b> Your purchase, warranty dates and service history stay in the portal — so three years from now you can still prove what you bought and when.</span>
+      </li>
+      <li>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg>
+        <span><b>Ride it first.</b> Free test rides on the trails you'll actually ride, before you spend a cent.</span>
+      </li>
+    </ul>
+    <a class="more" href="test-ride.html">
+      Book a free test ride
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+    </a>
+  </div>
+
+  <div class="help">
+    <b>Can't get in?</b> Text <a href="tel:+13304069682">330-406-9682</a> and we'll check which email
+    your account is under and resend the invitation. If you've never bought from us, there's nothing
+    to sign in to yet — start with a <a href="test-ride.html">free test ride</a> or
+    <a href="shop.html">browse the bikes</a>.
+  </div>
+
+</main>
+
+<footer>
+  &copy; 2026 Cruise the Creek &middot; <a href="index.html">Home</a> &middot; <a href="shop.html">Shop</a> &middot; <a href="test-ride.html">Test Rides</a>
+</footer>
+
+</body>
+</html>
