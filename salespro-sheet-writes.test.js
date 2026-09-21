@@ -274,8 +274,16 @@ async function statusAfter(page, fn) {
       /older deployment/i.test(document.getElementById('edStatus').textContent),
       null, { timeout: 8000 }).catch(() => {});
     const full = await page.evaluate(() => document.getElementById('edStatus').textContent);
-    ok('an endpoint with no inventoryVersion is called out as an older deployment',
-       /older deployment/i.test(full), full);
+    ok('an endpoint with no inventoryVersion is called out as running old code',
+       /still on OLD code/.test(full), full);
+    // The part that kept going wrong: knowing WHICH deployment to update.
+    const tail = await page.evaluate(() => edDeploymentId());
+    ok('the message names the deployment this page actually writes to',
+       tail.length > 4 && full.indexOf(tail) !== -1, tail + ' | ' + full);
+    ok('and says a New version elsewhere will not help',
+       /more than one web-app deployment/.test(full), full);
+    ok('the deployment id is a recognisable tail of AS_URL',
+       await page.evaluate(() => AS_URL.indexOf(edDeploymentId().replace('…', '')) !== -1), tail);
     await page.close();
   }
 
