@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2026-09-21T01:37:26Z",
+  "lastUpdated": "2026-09-21T02:04:09Z",
   "bikes": [
     {
       "brand": "Heybike",
@@ -142,7 +142,7 @@
             {
               "name": "Pink",
               "hex": "#FFDCDC",
-              "img": "images/Venus Pink Badge Black.png"
+              "img": "images/Pink.png"
             },
             {
               "name": "White",
