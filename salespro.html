@@ -2124,10 +2124,46 @@ function syncBikeToSheet(d, isNew) {
   };
 
   const qs = Object.keys(payload).map(k => k + '=' + encodeURIComponent(payload[k])).join('&');
-  toast('⏳ Syncing to sheet...');
-  fetch(AS_URL + '?' + qs, {redirect:'follow', mode:'no-cors'})
-    .then(() => toast('🔄 ' + d.model + ' sync request sent'))
-    .catch(() => toast('⚠️ ' + d.model + ' DID NOT save to Sheet — only saved in this browser. Fix manually.'));
+  toast('⏳ Adding to sheet...');
+
+  // This one creates a row, so there is no rowIndex to verify against — go
+  // looking for the bike instead. Worth being strict about: no handler for
+  // action=addBike exists in this repo, so if the Apps Script project has
+  // never had one, every "add" has been landing nowhere and saying
+  // "sync request sent". The read-back settles it either way.
+  const wantId   = payload.id;
+  const wantName = String(d.model || '').toLowerCase().trim();
+  const wantBrand = String(d.brand || '').toLowerCase().trim();
+
+  edSheetWrite(AS_URL + '?' + qs)
+    .then(function (out) {
+      if (out.status === 'refused') {
+        toast('❌ ' + d.model + ' NOT added — the sheet refused it: ' + out.error);
+        return;
+      }
+      if (out.status === 'network') {
+        toast('❌ ' + d.model + ' DID NOT save to Sheet — only saved in this browser. Fix manually.');
+        return;
+      }
+      // Even a readable {ok:true} is worth confirming here, because an
+      // unrecognised action can still come back looking like a success.
+      return edVerifyRowPresent(function (row) {
+        return String(row.id || '').toLowerCase() === wantId ||
+               (String(row.name || '').toLowerCase().trim() === wantName &&
+                String(row.brand || '').toLowerCase().trim() === wantBrand);
+      }).then(function (found) {
+        if (found === true) {
+          toast('✅ ' + d.model + ' added to the Sheet. Run the sync action to put it on the site.');
+        } else if (found === null) {
+          toast('⚠️ ' + d.model + ' sent, but the Sheet could not be read back — check it before relying on this.');
+        } else {
+          toast('❌ ' + d.model + ' is NOT in the Sheet — saved in this browser only. Add the row manually.');
+        }
+      });
+    })
+    .catch(function (e) {
+      toast('❌ ' + d.model + ' DID NOT save to Sheet: ' + ((e && e.message) || e));
+    });
 }
 
 function syncDiscontinuedToSheet(d) {
@@ -2157,19 +2193,34 @@ function syncDiscontinuedToSheet(d) {
         return;
       }
       const disc = d.discontinued === 'Yes' ? 'Yes' : '';
-      // mode:'no-cors' matches the bike-order pattern (heybike.html:726).
-      // The Apps Script setDiscontinued action returns no CORS headers, so
-      // mode:'cors' was being blocked outright — the request never landed.
-      // With no-cors the browser fires the request fire-and-forget; the
-      // Sheet write happens server-side, but we can't read the response.
-      fetch(AS_URL + '?action=setDiscontinued&rowIndex=' + match.rowIndex + '&discontinued=' + encodeURIComponent(disc), {redirect:'follow', mode:'no-cors'})
-        .then(() => {
-          console.log('[discontinue] sync request sent for ' + d.model + ' (row ' + match.rowIndex + ', value: ' + (disc || 'cleared') + ')');
-          toast('🔄 ' + d.model + ' synced to Sheet');
+      const url = AS_URL + '?action=setDiscontinued&rowIndex=' + match.rowIndex +
+                  '&discontinued=' + encodeURIComponent(disc);
+
+      // This flag decides whether a bike appears on the live site at all, so
+      // "sync request sent" was never good enough. An opaque response says
+      // nothing about whether the sheet took it, and a discontinued bike that
+      // quietly stays listed is a customer asking for something unsellable.
+      edSheetWriteVerified(url, match.rowIndex, function (row) {
+        return String(row.discontinued || '').trim() === disc;
+      })
+        .then(function (out) {
+          if (out.status === 'ok') {
+            console.log('[discontinue] confirmed for ' + d.model + ' (row ' + match.rowIndex + ', value: ' + (disc || 'cleared') + ')');
+            toast('✅ ' + d.model + ' ' + (disc ? 'marked discontinued' : 'restored') + ' in the Sheet');
+          } else if (out.status === 'refused') {
+            console.error('[discontinue] sheet refused ' + d.model + ': ' + out.error);
+            toast('❌ ' + d.model + ' NOT saved — the sheet refused it: ' + out.error);
+          } else if (out.status === 'unknown') {
+            console.warn('[discontinue] sent but unconfirmed for ' + d.model + ': ' + out.why);
+            toast('⚠️ ' + d.model + ' sent, but could not confirm — check the Sheet');
+          } else {
+            console.error('[discontinue] network error for ' + d.model + ':', out.error);
+            toast('❌ ' + d.model + ' Sheet sync failed — fix manually');
+          }
         })
-        .catch(err => {
-          console.error('[discontinue] sync failed for ' + d.model + ':', err);
-          toast('⚠️ ' + d.model + ' Sheet sync failed — fix manually');
+        .catch(function (err) {
+          console.error('[discontinue] unexpected error for ' + d.model + ':', err);
+          toast('❌ ' + d.model + ' Sheet sync failed — fix manually');
         });
     })
     .catch(err => {
@@ -3425,17 +3476,35 @@ function edSaveSizeGuide() {
   const pass = prompt('Enter admin password to save size guide:');
   if (pass !== ADMIN_PASS) { edSetStatus('err', 'Incorrect password.'); return; }
   edSetStatus('info', 'Saving size guide...');
-  // no-cors fire-and-forget. Apps Script returns no CORS headers, so
-  // mode:'cors' was being blocked outright and the local state was the
-  // only thing actually updated. Switch to no-cors: the request lands
-  // server-side, the Sheet write happens, but we can't read the body.
-  fetch(AS_URL + '?action=saveSizeGuide&rowIndex=' + edActiveBike.rowIndex + '&json=' + encodeURIComponent(JSON.stringify(parsed)), {redirect:'follow', mode:'no-cors'})
-    .then(() => {
-      edActiveBike.sizeGuide = parsed;
-      edSetStatus('ok', '✅ Size guide synced to Sheet');
-      logActivity('features', edActiveBike.name, 'Size guide updated');
+  const savedRow = edActiveBike.rowIndex;
+  const bikeName = edActiveBike.name;
+  const want = edCanonical(parsed);
+  const url = AS_URL + '?action=saveSizeGuide&rowIndex=' + savedRow +
+              '&json=' + encodeURIComponent(JSON.stringify(parsed));
+
+  // Only touch local state once the sheet has actually confirmed. Updating
+  // it first is what made a failed write look successful: the editor showed
+  // the new guide, the sheet kept the old one, and a reload undid it.
+  edSheetWriteVerified(url, savedRow, function (row) {
+    return edCanonical(row.sizeGuide || {}) === want;
+  })
+    .then(function (out) {
+      if (out.status === 'ok') {
+        edActiveBike.sizeGuide = parsed;
+        edSetStatus('ok', '✅ Size guide saved to row ' + savedRow +
+                          (out.viaReadBack ? ' and confirmed by reading it back' : '') + '.');
+        logActivity('features', bikeName, 'Size guide updated');
+      } else if (out.status === 'refused') {
+        edSetStatus('err', '❌ The sheet refused this write: ' + out.error + '   [row ' + savedRow + ']');
+      } else if (out.status === 'unknown') {
+        edSetStatus('err', '⚠️ Sent, but the sheet could not be read back to confirm. Reload before relying on it.');
+      } else {
+        edSetStatus('err', '❌ Network error — size guide NOT saved to Sheet: ' + out.error);
+      }
     })
-    .catch(e => edSetStatus('err', 'Network error — size guide NOT saved to Sheet: ' + e.message));
+    .catch(function (e) {
+      edSetStatus('err', '❌ Unexpected error — size guide NOT saved to Sheet: ' + ((e && e.message) || e));
+    });
 }
 
 // ── Price editing ──
@@ -3452,23 +3521,40 @@ function edSavePrice() {
   const newPrice = parseFloat(document.getElementById('edPriceInput').value);
   if (!newPrice || newPrice < 1) { edSetStatus('err', 'Enter a valid price.'); return; }
   edSetStatus('info', 'Saving price...');
-  // no-cors fire-and-forget (Apps Script returns no CORS headers, see
-  // syncDiscontinuedToSheet for the original diagnosis). Server-side
-  // write happens; we can't read the response, so trust + update local
-  // state immediately.
-  fetch(AS_URL + '?action=updatePrice&rowIndex=' + edActiveBike.rowIndex + '&price=' + newPrice, {redirect:'follow', mode:'no-cors'})
-    .then(() => {
-      const oldPrice = edActiveBike.basePrice;
-      edActiveBike.basePrice = newPrice;
-      document.getElementById('edBaseDisplay').textContent = '$' + newPrice.toLocaleString();
-      document.getElementById('edPriceEdit').style.display = 'none';
-      edSetStatus('ok', '✅ Price synced to Sheet: $' + newPrice.toLocaleString());
-      logActivity('price', edActiveBike.name, 'Base price updated to $' + newPrice.toLocaleString() + (oldPrice ? ' (was $' + Number(oldPrice).toLocaleString() + ')' : ''));
-      if (priceMap[edActiveBike.name.toLowerCase()]) {
-        priceMap[edActiveBike.name.toLowerCase()].mfrPrice = null;
+  const savedRow = edActiveBike.rowIndex;
+  const bikeName = edActiveBike.name;
+  const url = AS_URL + '?action=updatePrice&rowIndex=' + savedRow + '&price=' + newPrice;
+
+  // A price that reports "synced" and is not in the sheet is worse than an
+  // error: the next sync publishes the OLD number to the live site and the
+  // editor still shows the new one. Confirm before changing anything here.
+  edSheetWriteVerified(url, savedRow, function (row) {
+    return Number(row.price) === Number(newPrice);
+  })
+    .then(function (out) {
+      if (out.status === 'ok') {
+        const oldPrice = edActiveBike.basePrice;
+        edActiveBike.basePrice = newPrice;
+        document.getElementById('edBaseDisplay').textContent = '$' + newPrice.toLocaleString();
+        document.getElementById('edPriceEdit').style.display = 'none';
+        edSetStatus('ok', '✅ Price saved to Sheet: $' + newPrice.toLocaleString() +
+                          (out.viaReadBack ? ' (confirmed by reading it back)' : '') +
+                          '. Run the sync action to put it on the site.');
+        logActivity('price', bikeName, 'Base price updated to $' + newPrice.toLocaleString() + (oldPrice ? ' (was $' + Number(oldPrice).toLocaleString() + ')' : ''));
+        if (priceMap[bikeName.toLowerCase()]) {
+          priceMap[bikeName.toLowerCase()].mfrPrice = null;
+        }
+      } else if (out.status === 'refused') {
+        edSetStatus('err', '❌ The sheet refused this price: ' + out.error + '   [row ' + savedRow + ']');
+      } else if (out.status === 'unknown') {
+        edSetStatus('err', '⚠️ Sent, but the sheet could not be read back to confirm. Check the sheet before quoting this price.');
+      } else {
+        edSetStatus('err', '❌ Network error — price NOT saved to Sheet: ' + out.error);
       }
     })
-    .catch(e => edSetStatus('err', 'Network error — price NOT saved to Sheet: ' + e.message));
+    .catch(function (e) {
+      edSetStatus('err', '❌ Unexpected error — price NOT saved to Sheet: ' + ((e && e.message) || e));
+    });
 }
 
 // ── Swatch rendering ──
@@ -3724,11 +3810,11 @@ function edCanonical(v) {
 /**
  * Read the row back and say whether the write actually landed.
  *
- * Every write action here is sent with mode:'no-cors', which makes the
- * response opaque — fetch resolves identically whether the sheet took the
- * write or the handler threw. A save therefore cannot be trusted from its own
- * promise, and reporting success from it is how a swatch edit could report
- * "synced" and still be gone on reload.
+ * Writes now ask for a readable reply first (see edSheetWrite), but a
+ * browser can still block it, and the opaque fallback resolves identically
+ * whether the sheet took the write or the handler threw. On that path the
+ * save cannot be trusted from its own promise — reporting success from it is
+ * how a swatch edit could say "synced" and still be gone on reload.
  *
  * getSidebarInventory is an ordinary readable GET, which is what makes an
  * honest answer possible at all.
@@ -3753,6 +3839,104 @@ function edVerifySaved(rowIndex, compare) {
         })
         .catch(function () { resolve(null); });
     }, 1500);
+  });
+}
+
+/**
+ * Send a write to the Apps Script endpoint and report what actually happened.
+ *
+ * Every write in this file used to go out as mode:'no-cors' on the belief
+ * that Apps Script sends no CORS headers for the write actions. That was
+ * never checked, and it cannot be the whole story — every read here
+ * (getSidebarInventory, getBikeInventory, getStock) is an ordinary fetch of
+ * the same /exec URL and they all work.
+ *
+ * The cost of that belief was concrete. An opaque response resolves
+ * identically whether the sheet took the write or the handler threw, so
+ * `.then(() => 'saved')` was reporting success unconditionally. For months
+ * saveColors was throwing '"colors" column not found.' server-side on every
+ * single call and the editor said "synced" every time.
+ *
+ * Ask for a readable reply first. The handlers already return
+ * {ok:true,...} or {ok:false,error:...}; an opaque request simply threw that
+ * away. If the browser really does block it, fall back to the old opaque
+ * request and say so, so the caller knows the result is unproven.
+ *
+ * Resolves one of:
+ *   {status:'ok', res}          server confirmed the write
+ *   {status:'refused', error}   server rejected it, with its own reason
+ *   {status:'opaque', why}      it was sent but the reply is unreadable
+ *   {status:'network', error}   it never left
+ */
+/**
+ * Like edVerifySaved, but finds the row by predicate instead of rowIndex.
+ *
+ * A write that creates a row has no rowIndex to check against, so the only
+ * way to prove it landed is to go looking for the row it should have made.
+ *
+ * Resolves true (found), false (not there) or null (could not check).
+ */
+function edVerifyRowPresent(match) {
+  return new Promise(function (resolve) {
+    setTimeout(function () {
+      fetch(AS_URL + '?action=getSidebarInventory&_=' + Date.now(), { redirect: 'follow', cache: 'no-store' })
+        .then(function (r) { return r.text(); })
+        .then(function (text) {
+          var a = text.indexOf('['), b = text.lastIndexOf(']');
+          var rows = JSON.parse(a > -1 ? text.slice(a, b + 1) : text);
+          for (var i = 0; i < rows.length; i++) {
+            if (match(rows[i])) { resolve(true); return; }
+          }
+          resolve(false);
+        })
+        .catch(function () { resolve(null); });
+    }, 1500);
+  });
+}
+
+function edSheetWrite(url) {
+  function opaque(why) {
+    return fetch(url, { redirect: 'follow', mode: 'no-cors' })
+      .then(function () { return { status: 'opaque', why: why }; })
+      .catch(function (e) { return { status: 'network', error: (e && e.message) || String(e) }; });
+  }
+  return fetch(url, { redirect: 'follow' })
+    .then(function (r) { return r.text(); })
+    .then(function (text) {
+      var res = null;
+      try {
+        var a = text.indexOf('{'), b = text.lastIndexOf('}');
+        res = JSON.parse(a > -1 ? text.slice(a, b + 1) : text);
+      } catch (e) { /* not JSON - fall through to the opaque path */ }
+      if (res && res.ok === true)  return { status: 'ok', res: res };
+      if (res && res.ok === false) return { status: 'refused', error: res.error || '(no reason given)' };
+      return opaque('the reply was not readable JSON');
+    })
+    .catch(function (e) {
+      return opaque('CORS blocked the reply: ' + ((e && e.message) || e));
+    });
+}
+
+/**
+ * edSheetWrite, plus a read-back whenever the reply could not be read.
+ *
+ * `compare` receives the row as the sheet now holds it and returns true if
+ * the write landed. Only reached on the opaque path, so a readable reply
+ * costs nothing extra.
+ *
+ * Adds one outcome to edSheetWrite's four:
+ *   {status:'unknown'}  sent, unreadable, and the sheet could not be
+ *                       re-read either. Say so - do not claim either way.
+ */
+function edSheetWriteVerified(url, rowIndex, compare) {
+  return edSheetWrite(url).then(function (out) {
+    if (out.status !== 'opaque') return out;
+    return edVerifySaved(rowIndex, compare).then(function (confirmed) {
+      if (confirmed === true) return { status: 'ok', res: { rowIndex: rowIndex }, viaReadBack: true };
+      if (confirmed === null) return { status: 'unknown', why: out.why };
+      return { status: 'refused',
+               error: 'the sheet still holds the old value, and the reason is hidden (' + out.why + ')' };
+    });
   });
 }
 
@@ -3782,83 +3966,32 @@ function edSaveColors() {
   if (swatchChanges.length) logActivity('swatch_price', edActiveBike.name, 'Color price overrides: ' + swatchChanges.slice(0,3).join(', ') + (swatchChanges.length > 3 ? ' +more' : ''));
   else logActivity('swatch_price', edActiveBike.name, 'Color swatches updated');
   edSetStatus('info', 'Saving to sheet...');
-  // no-cors fire-and-forget. Apps Script returns no CORS headers on the
-  // saveColors action so mode:'cors' was being blocked outright — the
-  // Sheet never got the write (Pat's swatches kept disappearing). The
-  // request DOES land server-side with no-cors; we just can't read the
-  // response, so trust the write and update local state.
   var savedRow = edActiveBike.rowIndex;
   var want = edCanonical(JSON.parse(jsonStr));
   var url = AS_URL + '?action=saveColors&rowIndex=' + savedRow +
             '&json=' + encodeURIComponent(jsonStr);
 
-  /**
-   * Fall back to the old opaque request, then prove the result by reading
-   * the row back. Used only when the readable attempt is blocked.
-   */
-  function saveOpaquely(why) {
-    return fetch(url, { redirect: 'follow', mode: 'no-cors' })
-      .then(function () {
-        edSetStatus('info', 'Sent — reading the row back to confirm...');
-        return edVerifySaved(savedRow, function (row) {
-          return edCanonical(row.colors || {}) === want;
-        });
-      })
-      .then(function (confirmed) {
-        if (confirmed === true) {
-          edSetStatus('ok', '✅ Saved and confirmed in the Sheet. Run the sync action to put it on the site.');
-        } else if (confirmed === null) {
-          edSetStatus('err', '⚠️ Sent, but the sheet could not be read back to confirm. Reload this editor before relying on it.');
-        } else {
-          edSetStatus('err', '❌ NOT saved — the sheet still holds the old colours, and the reason is hidden (' + why + ').');
-        }
-      });
-  }
-
-  // Ask for a READABLE response first.
-  //
-  // This used to go out as mode:'no-cors' only, on the belief that Apps
-  // Script sends no CORS headers for this action. That cannot be the whole
-  // story: every read in this file — getSidebarInventory, getBikeInventory,
-  // getStock — is an ordinary fetch of the same /exec endpoint and they all
-  // work. handleSaveColors already returns {ok:true} or {ok:false,error:...};
-  // an opaque request simply threw that away, so a failing save could only
-  // ever be reported as "something went wrong".
-  //
-  // If the browser does block it, nothing is lost: we fall back to the
-  // opaque request and the read-back check below.
-  edSetStatus('info', 'Saving to sheet...');
-  fetch(url, { redirect: 'follow' })
-    .then(function (r) { return r.text(); })
-    .then(function (text) {
-      var res = null;
-      try {
-        var a = text.indexOf('{'), b = text.lastIndexOf('}');
-        res = JSON.parse(a > -1 ? text.slice(a, b + 1) : text);
-      } catch (e) { /* not JSON — fall through to the read-back path */ }
-
-      if (res && res.ok === true) {
-        edSetStatus('ok', '✅ Saved to row ' + (res.rowIndex || savedRow) +
+  edSheetWriteVerified(url, savedRow, function (row) {
+    return edCanonical(row.colors || {}) === want;
+  })
+    .then(function (out) {
+      if (out.status === 'ok') {
+        edSetStatus('ok', '✅ Saved to row ' + ((out.res && out.res.rowIndex) || savedRow) +
+                          (out.viaReadBack ? ' and confirmed by reading it back' : '') +
                           '. Run the sync action to put it on the site.');
-        return;
+      } else if (out.status === 'refused') {
+        // The server's own words. This is the message no-cors was swallowing.
+        edSetStatus('err', '❌ The sheet refused this write: ' + out.error + '   [row ' + savedRow + ']');
+      } else if (out.status === 'unknown') {
+        edSetStatus('err', '⚠️ Sent, but the sheet could not be read back to confirm. Reload this editor before relying on it.');
+      } else {
+        edSetStatus('err', '❌ Network error — swatches NOT saved to Sheet: ' + out.error);
       }
-      if (res && res.ok === false) {
-        // The server said exactly what went wrong. Show it verbatim rather
-        // than guessing — this is the message no-cors was swallowing.
-        edSetStatus('err', '❌ The sheet refused this write: ' + (res.error || '(no reason given)') +
-                           '   [row ' + savedRow + ']');
-        return;
-      }
-      return saveOpaquely('the reply was not readable JSON');
     })
+    // Without this the status line can stick on "Saving to sheet..." forever,
+    // which is the worst outcome of all because it looks like progress.
     .catch(function (e) {
-      return saveOpaquely('CORS blocked the reply: ' + e.message);
-    })
-    // If the fallback fails too there is nothing left to try, and without
-    // this the status line sticks on "Saving to sheet..." forever — which
-    // is the worst of the three outcomes, because it looks like progress.
-    .catch(function (e) {
-      edSetStatus('err', '❌ Network error — swatches NOT saved to Sheet: ' + (e && e.message ? e.message : e));
+      edSetStatus('err', '❌ Unexpected error — swatches NOT saved to Sheet: ' + ((e && e.message) || e));
     });
 }
 
@@ -4266,20 +4399,33 @@ function pmApprove(alert) {
   const pass = prompt('Enter admin password to confirm price change:');
   if (pass !== ADMIN_PASS) { toast('❌ Incorrect password'); return; }
 
-  // Fire price update — same no-cors pattern as edSavePrice()
-  fetch(AS_URL + '?action=updatePrice&rowIndex=' + bike.rowIndex + '&price=' + newPrice, {redirect:'follow', mode:'no-cors'})
-    .then(() => {
-      // Update local bike record
-      bike.basePrice = newPrice;
-      bike.price     = newPrice;
-      // Hide the card
-      const cardId = 'pma-' + btoa(alert.dismissKey).replace(/=/g, '');
-      const card   = document.getElementById(cardId);
-      if (card) { card.style.opacity = '0'; card.style.transition = 'opacity .3s'; setTimeout(() => card.remove(), 320); }
-      toast(`✅ ${alert.model} price updated to $${newPrice.toLocaleString()} — live on Sheet`);
-      logActivity('price', alert.model, `Price matched to mfr ${alert.theirPr} (was ${alert.ourPr}) via Price Monitor alert`);
+  // Same confirmed-write path as edSavePrice(). Dismissing the alert card is
+  // the destructive part here: it removes the only reminder that this price
+  // is out of step, so it must not happen unless the sheet really took it.
+  toast('⏳ Saving price to Sheet...');
+  edSheetWriteVerified(
+    AS_URL + '?action=updatePrice&rowIndex=' + bike.rowIndex + '&price=' + newPrice,
+    bike.rowIndex,
+    function (row) { return Number(row.price) === Number(newPrice); }
+  )
+    .then(function (out) {
+      if (out.status === 'ok') {
+        bike.basePrice = newPrice;
+        bike.price     = newPrice;
+        const cardId = 'pma-' + btoa(alert.dismissKey).replace(/=/g, '');
+        const card   = document.getElementById(cardId);
+        if (card) { card.style.opacity = '0'; card.style.transition = 'opacity .3s'; setTimeout(() => card.remove(), 320); }
+        toast(`✅ ${alert.model} price updated to $${newPrice.toLocaleString()} — saved to the Sheet`);
+        logActivity('price', alert.model, `Price matched to mfr ${alert.theirPr} (was ${alert.ourPr}) via Price Monitor alert`);
+      } else if (out.status === 'refused') {
+        toast('❌ ' + alert.model + ' NOT saved — the sheet refused it: ' + out.error);
+      } else if (out.status === 'unknown') {
+        toast('⚠️ ' + alert.model + ' sent, but could not confirm — check the Sheet');
+      } else {
+        toast('❌ Network error — ' + alert.model + ' price NOT saved: ' + out.error);
+      }
     })
-    .catch(e => toast('❌ Network error: ' + e.message));
+    .catch(function (e) { toast('❌ Unexpected error: ' + ((e && e.message) || e)); });
 }
 
 // ── Price Monitor: Skip (dismiss for this session) ──────────────
