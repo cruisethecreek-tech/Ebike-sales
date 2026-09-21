@@ -3789,23 +3789,77 @@ function edSaveColors() {
   // response, so trust the write and update local state.
   var savedRow = edActiveBike.rowIndex;
   var want = edCanonical(JSON.parse(jsonStr));
-  fetch(AS_URL + '?action=saveColors&rowIndex=' + savedRow + '&json=' + encodeURIComponent(jsonStr), {redirect:'follow', mode:'no-cors'})
-    .then(function () {
-      edSetStatus('info', 'Sent — reading the row back to confirm...');
-      return edVerifySaved(savedRow, function (row) {
-        return edCanonical(row.colors || {}) === want;
+  var url = AS_URL + '?action=saveColors&rowIndex=' + savedRow +
+            '&json=' + encodeURIComponent(jsonStr);
+
+  /**
+   * Fall back to the old opaque request, then prove the result by reading
+   * the row back. Used only when the readable attempt is blocked.
+   */
+  function saveOpaquely(why) {
+    return fetch(url, { redirect: 'follow', mode: 'no-cors' })
+      .then(function () {
+        edSetStatus('info', 'Sent — reading the row back to confirm...');
+        return edVerifySaved(savedRow, function (row) {
+          return edCanonical(row.colors || {}) === want;
+        });
+      })
+      .then(function (confirmed) {
+        if (confirmed === true) {
+          edSetStatus('ok', '✅ Saved and confirmed in the Sheet. Run the sync action to put it on the site.');
+        } else if (confirmed === null) {
+          edSetStatus('err', '⚠️ Sent, but the sheet could not be read back to confirm. Reload this editor before relying on it.');
+        } else {
+          edSetStatus('err', '❌ NOT saved — the sheet still holds the old colours, and the reason is hidden (' + why + ').');
+        }
       });
-    })
-    .then(function (confirmed) {
-      if (confirmed === true) {
-        edSetStatus('ok', '✅ Saved and confirmed in the Sheet. Run the sync action to put it on the site.');
-      } else if (confirmed === null) {
-        edSetStatus('err', '⚠️ Sent, but the sheet could not be read back to confirm. Reload this editor before relying on it.');
-      } else {
-        edSetStatus('err', '❌ NOT saved — the sheet still holds the old colours. Most often the Apps Script deployment is serving an older version: open the project, Deploy > Manage deployments > pencil > New version.');
+  }
+
+  // Ask for a READABLE response first.
+  //
+  // This used to go out as mode:'no-cors' only, on the belief that Apps
+  // Script sends no CORS headers for this action. That cannot be the whole
+  // story: every read in this file — getSidebarInventory, getBikeInventory,
+  // getStock — is an ordinary fetch of the same /exec endpoint and they all
+  // work. handleSaveColors already returns {ok:true} or {ok:false,error:...};
+  // an opaque request simply threw that away, so a failing save could only
+  // ever be reported as "something went wrong".
+  //
+  // If the browser does block it, nothing is lost: we fall back to the
+  // opaque request and the read-back check below.
+  edSetStatus('info', 'Saving to sheet...');
+  fetch(url, { redirect: 'follow' })
+    .then(function (r) { return r.text(); })
+    .then(function (text) {
+      var res = null;
+      try {
+        var a = text.indexOf('{'), b = text.lastIndexOf('}');
+        res = JSON.parse(a > -1 ? text.slice(a, b + 1) : text);
+      } catch (e) { /* not JSON — fall through to the read-back path */ }
+
+      if (res && res.ok === true) {
+        edSetStatus('ok', '✅ Saved to row ' + (res.rowIndex || savedRow) +
+                          '. Run the sync action to put it on the site.');
+        return;
       }
+      if (res && res.ok === false) {
+        // The server said exactly what went wrong. Show it verbatim rather
+        // than guessing — this is the message no-cors was swallowing.
+        edSetStatus('err', '❌ The sheet refused this write: ' + (res.error || '(no reason given)') +
+                           '   [row ' + savedRow + ']');
+        return;
+      }
+      return saveOpaquely('the reply was not readable JSON');
     })
-    .catch(e => edSetStatus('err', 'Network error — swatches NOT saved to Sheet: ' + e.message));
+    .catch(function (e) {
+      return saveOpaquely('CORS blocked the reply: ' + e.message);
+    })
+    // If the fallback fails too there is nothing left to try, and without
+    // this the status line sticks on "Saving to sheet..." forever — which
+    // is the worst of the three outcomes, because it looks like progress.
+    .catch(function (e) {
+      edSetStatus('err', '❌ Network error — swatches NOT saved to Sheet: ' + (e && e.message ? e.message : e));
+    });
 }
 
 /// ── Manufacturer Stock ───────────────────────────────────────
