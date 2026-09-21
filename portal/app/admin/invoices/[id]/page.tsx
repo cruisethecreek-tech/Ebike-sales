@@ -4,6 +4,7 @@ import { STORE_URL } from '@/lib/constants'
 import { updateInvoiceStatus } from '../actions'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
+import { SyncNowViewing } from '@/app/admin/sync-now-viewing'
 
 export default async function AdminInvoiceDetail({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
@@ -23,6 +24,9 @@ export default async function AdminInvoiceDetail({ params }: { params: Promise<{
 
   return (
     <div className="space-y-6 max-w-2xl">
+      {/* This page is about one customer, so the dock should say so rather
+          than keep naming whoever was picked last. */}
+      <SyncNowViewing customerId={invoice.customer_id} />
       <div className="flex items-center justify-between flex-wrap gap-2">
         <Link href="/admin/invoices" className="text-sm font-medium" style={{ color: '#6B8F71' }}>
           ← Back to Invoices

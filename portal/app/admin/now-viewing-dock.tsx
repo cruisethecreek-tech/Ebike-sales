@@ -60,7 +60,13 @@ function cleanName(firstName?: string | null, lastName?: string | null): string 
 
 export function NowViewingDock({ customers }: NowViewingDockProps) {
   const [isOpen, setIsOpen] = useState(false)
+  // What the user pinned in this dock. Persisted, and survives navigation.
   const [selectedId, setSelectedId] = useState<string | null>(null)
+  // Who the CURRENT PAGE is about, if it is about anyone. Not persisted —
+  // it lasts exactly as long as the page does. This is what makes the words
+  // "Now Viewing" true; before it existed the dock showed whoever was picked
+  // last, on every page, forever.
+  const [pageCustomerId, setPageCustomerId] = useState<string | null>(null)
   const [query, setQuery] = useState('')
   const [selectedBrand, setSelectedBrand] = useState<string>('ALL')
   const [copiedCode, setCopiedCode] = useState(false)
@@ -76,7 +82,11 @@ export function NowViewingDock({ customers }: NowViewingDockProps) {
         setSelectedId(null)
       }
     }
+    function handlePageCustomer(e: any) {
+      setPageCustomerId(e.detail?.id ?? null)
+    }
     window.addEventListener('ctc-select-customer', handleSelect)
+    window.addEventListener('ctc-page-customer', handlePageCustomer)
 
     // Load initial selection from localStorage
     try {
@@ -86,7 +96,10 @@ export function NowViewingDock({ customers }: NowViewingDockProps) {
       }
     } catch (_) {}
 
-    return () => window.removeEventListener('ctc-select-customer', handleSelect)
+    return () => {
+      window.removeEventListener('ctc-select-customer', handleSelect)
+      window.removeEventListener('ctc-page-customer', handlePageCustomer)
+    }
   }, [customers])
 
   function selectCustomer(id: string) {
@@ -105,11 +118,30 @@ export function NowViewingDock({ customers }: NowViewingDockProps) {
     } catch (_) {}
   }
 
-  // Find currently selected customer
-  const selectedCustomer = useMemo(() => {
+  // The page wins over the pin. If this page is about someone, that is who
+  // is being viewed; the pin is only what to fall back to elsewhere.
+  //
+  // A page id that matches no loaded customer resolves to null rather than to
+  // the pin, so the bar goes quiet instead of naming the wrong person.
+  const pageCustomer = useMemo(() => {
+    if (!pageCustomerId) return null
+    return customers.find((c) => c.id === pageCustomerId) || null
+  }, [pageCustomerId, customers])
+
+  const pinnedCustomer = useMemo(() => {
     if (!selectedId) return null
     return customers.find((c) => c.id === selectedId) || null
   }, [selectedId, customers])
+
+  const selectedCustomer = pageCustomerId ? pageCustomer : pinnedCustomer
+
+  // Say which of the two the bar is showing. Calling a pin "Now Viewing" is
+  // the whole bug; the label has to track the source.
+  const viewingLabel = pageCustomerId
+    ? 'Now Viewing'
+    : selectedCustomer
+      ? 'Pinned Customer'
+      : 'Now Viewing'
 
   // Filter customers based on search query and brand filter
   const filteredCustomers = useMemo(() => {
@@ -174,7 +206,7 @@ export function NowViewingDock({ customers }: NowViewingDockProps) {
               </span>
               <div className="text-left min-w-0">
                 <div className="text-[10px] uppercase font-bold tracking-widest text-[#C9A96E]">
-                  Now Viewing
+                  {viewingLabel}
                 </div>
                 <div className="text-sm font-bold truncate text-[#F5F0E8]">
                   {selectedCustomer
