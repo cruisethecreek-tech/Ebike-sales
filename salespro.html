@@ -3926,14 +3926,36 @@ function edDeploymentReport() {
     });
 }
 
+/**
+ * The tail of this page's AS_URL, enough to pick it out of the deployment
+ * list without printing the whole thing into a status bar.
+ *
+ * This project has more than one web-app deployment of the same Apps Script
+ * code. Giving one of them a New version leaves the other on old code, and
+ * nothing in either the editor or the browser says which URL a given page
+ * uses. Printing it here turns "deploy a new version" into "deploy a new
+ * version to THIS row", which is the part that kept going wrong.
+ */
+function edDeploymentId() {
+  var m = String(AS_URL).match(/\/macros\/s\/([^\/]+)\//);
+  if (!m) return AS_URL;
+  var id = m[1];
+  return id.length > 18 ? '…' + id.slice(-12) : id;
+}
+
 /** One line summarising a deployment report, for appending to an error. */
 function edDeploymentSummary(rep) {
   if (!rep) return '';
-  if (rep.unreachable) return ' — could not reach this page\'s AS_URL at all (' + rep.error + ').';
+  if (rep.unreachable) return ' — could not reach deployment ' + edDeploymentId() + ' at all (' + rep.error + ').';
   if (rep.noSuchAction) {
-    return ' — this page\'s AS_URL answered but has NO inventoryVersion action, so it is serving an OLDER deployment than whatever you checked in a browser tab. Deploy a New version to THIS url.';
+    return ' — this page writes to deployment ' + edDeploymentId() +
+           ', which answered but has NO inventoryVersion action. That deployment is' +
+           ' still on OLD code. This project has more than one web-app deployment, so' +
+           ' giving a New version to a different one changes nothing here: in Deploy →' +
+           ' Manage deployments, find the row whose URL ends ' + edDeploymentId() +
+           ' and give THAT one a New version.';
   }
-  var bits = ['version ' + rep.version];
+  var bits = ['deployment ' + edDeploymentId(), 'version ' + rep.version];
   if (rep.handlersAreCurrent === false) {
     bits.push('running OLD code for: ' + (rep.staleHandlers || []).join(', '));
   }
