@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2026-09-21T02:04:09Z",
+  "lastUpdated": "2026-09-21T12:21:53Z",
   "bikes": [
     {
       "brand": "Heybike",
@@ -948,7 +948,7 @@
           "One Size": [
             {
               "name": "Mocha",
-              "hex": "",
+              "hex": "#dbcccc",
               "img": "https://cdn.shopify.com/s/files/1/0785/3794/9231/files/1_4751daa0-aef8-4cc3-acb2-18d1c337338d.jpg?v=1787292375",
               "soldOut": true
             },
