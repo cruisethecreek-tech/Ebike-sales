@@ -137,6 +137,11 @@ main{flex:1;max-width:880px;margin:0 auto;padding:32px 24px 56px;width:100%}
 @keyframes bphoto{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
 .b-photo img{width:100%;height:auto;aspect-ratio:4/3;object-fit:contain;
   background:var(--cream-w);border-radius:8px;display:block}
+.b-order{display:inline-flex;align-items:center;gap:7px;margin-top:10px;
+  background:var(--forest);color:#fff;padding:9px 16px;border-radius:4px;
+  font-weight:700;font-size:.82rem;letter-spacing:.03em;transition:background .2s ease}
+.b-order:hover{background:var(--dark)}
+.b-order svg{width:13px;height:13px}
 @media(prefers-reduced-motion:reduce){
   .b-photo.open{animation:none}
   .b-toggle span{transition:none}
@@ -413,6 +418,21 @@ main{flex:1;max-width:880px;margin:0 auto;padding:32px 24px 56px;width:100%}
     return '';
   }
 
+  /**
+   * The five brands with their own page, and therefore their own
+   * "Request Your Order" form at #order-section. A bike from anywhere else
+   * gets no order link rather than a link to a page that does not exist.
+   */
+  var BRAND_PAGES = {
+    heybike: 'heybike.html', velotric: 'velotric.html', jasion: 'jasion.html',
+    mooncool: 'mooncool.html', mokwheel: 'mokwheel.html'
+  };
+
+  function brandOrderPage(brand) {
+    var key = String(brand || '').toLowerCase().replace(/[^a-z]/g, '');
+    return BRAND_PAGES[key] || '';
+  }
+
   var previewSeq = 0;
 
   /**
@@ -465,6 +485,21 @@ main{flex:1;max-width:880px;margin:0 auto;padding:32px 24px 56px;width:100%}
     big.loading = 'lazy';
     big.dataset.src = src;          // only fetched the first time it opens
     panel.appendChild(big);
+
+    // Straight through to this bike's own order form. ?bike= lands on the
+    // matching card on the brand page, where SUBMIT ORDER REQUEST fills the
+    // form with the style, size and colour the customer picks there — which
+    // is why this points at the card and not at #order-section directly.
+    var page = brandOrderPage(bike && bike.brand);
+    if (page && bike && bike.id) {
+      var order = document.createElement('a');
+      order.className = 'b-order';
+      order.href = page + '?bike=' + encodeURIComponent(bike.id);
+      order.innerHTML = 'Order this bike' +
+        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" ' +
+        'stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>';
+      panel.appendChild(order);
+    }
 
     row.addEventListener('click', function () {
       var open = row.getAttribute('aria-expanded') === 'true';
