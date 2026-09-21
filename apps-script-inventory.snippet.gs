@@ -30,12 +30,18 @@
 //        step 5 and make sure you picked New version, not New deployment.
 //      - "writesWillWork" must be true. If "missingColumns" lists anything,
 //        the sheet's headers were renamed and the handlers cannot find them.
-//   b. Apps Script shares ONE global namespace across every .gs file in the
-//      project. If an older copy of handleSaveColors still exists in another
-//      file, whichever definition loads last wins and the fix below may never
-//      run. Search the project for "handleSaveColors" and make sure exactly
-//      one definition survives. This is the failure mode that makes a correct
-//      paste look like it changed nothing.
+//      - "handlersAreCurrent" must be true. If it is false, "staleHandlers"
+//        names the ones still running old code -- see (b).
+//   b. Apps Script evaluates every .gs file in the project into ONE global
+//      scope. Two files that both declare handleSaveColors do not conflict:
+//      the last one evaluated simply wins, silently. So pasting this file in
+//      as a NEW file while the old one survives changes NOTHING, and looks
+//      identical to a successful fix -- the endpoint above will even report
+//      the right version and the right column indexes, because the new file
+//      really is deployed. Only the handler body lost.
+//      That is what "handlersAreCurrent": false means. Search the project for
+//      the handler it names and delete every copy but this one. Redeploying
+//      will not help: the project is already deployed correctly.
 //
 // SHEET STRUCTURE (tab named "Inventory" — see INV_TAB_NAME below):
 //   id           stable slug, e.g. "rangers"
@@ -90,7 +96,7 @@ var INV_TAB_NAME = 'Inventory';
 // Bump this string whenever you paste a new copy of this file into the editor.
 // ?action=inventoryVersion echoes it back, so you can tell at a glance whether
 // the /exec URL is serving the code you just saved or an older deployment.
-var INV_HANDLERS_VERSION = '2026-09-21a';
+var INV_HANDLERS_VERSION = '2026-09-21b';
 
 
 // -- HELPERS ------------------------------------------------
@@ -465,12 +471,57 @@ function handleSaveSizeGuide(e) {
  *
  * GET ?action=inventoryVersion
  */
+/**
+ * Describe the function body that actually won the global namespace.
+ *
+ * Apps Script evaluates every .gs file in the project into ONE global scope,
+ * so two files that both declare handleSaveColors do not conflict — the last
+ * one evaluated simply wins, silently. Pasting the fixed code into a NEW file
+ * while the old file still exists therefore changes nothing, and looks
+ * identical to a successful fix from every angle except the actual result.
+ *
+ * Function.prototype.toString returns the source of whichever body won, so
+ * this reports the truth rather than what the project is supposed to contain.
+ */
+function _handlerReport_(fn) {
+  if (typeof fn !== 'function') return { present: false };
+  var src = String(fn);
+  return {
+    present: true,
+    // The fix: a lookup tolerant of "Colors (JSON)" and friends.
+    usesHeaderIndex: src.indexOf('_headerIndex_') !== -1,
+    // The bug: an exact match that returns -1 against this sheet's headers.
+    usesBareIndexOf: /headers\s*\.\s*indexOf\s*\(/.test(src),
+    length: src.length
+  };
+}
+
 function handleInventoryVersion(e) {
   var out = {
     ok: true,
     version: INV_HANDLERS_VERSION,
     hasHeaderIndex: (typeof _headerIndex_ === 'function')
   };
+
+  // Which copy of each write handler is the one that will actually run?
+  // hasHeaderIndex above only says the helper EXISTS somewhere in the
+  // project; it says nothing about whether the handlers call it.
+  out.handlers = {
+    saveColors:     _handlerReport_(typeof handleSaveColors     === 'function' ? handleSaveColors     : null),
+    updatePrice:    _handlerReport_(typeof handleUpdatePrice    === 'function' ? handleUpdatePrice    : null),
+    setDiscontinued:_handlerReport_(typeof handleSetDiscontinued=== 'function' ? handleSetDiscontinued: null),
+    saveSizeGuide:  _handlerReport_(typeof handleSaveSizeGuide  === 'function' ? handleSaveSizeGuide  : null)
+  };
+  var stale = [];
+  for (var h in out.handlers) {
+    var r = out.handlers[h];
+    if (r.present && !r.usesHeaderIndex) stale.push(h);
+  }
+  out.staleHandlers = stale;
+  // The headline. False means an older copy of one of these handlers is
+  // shadowing the fixed one — find it and delete it; a redeploy will not
+  // help, because the project really is deployed.
+  out.handlersAreCurrent = (stale.length === 0);
   try {
     var inv = _openInventorySheet_();
     out.headers = inv.headers;
@@ -486,7 +537,10 @@ function handleInventoryVersion(e) {
       if (out.columns[k] === -1) missing.push(k);
     }
     out.missingColumns = missing;
-    out.writesWillWork = (missing.length === 0);
+    // Both halves have to hold: the columns must resolve AND the handlers
+    // doing the resolving must be the fixed ones. Reporting only the first
+    // is what let a stale handler hide behind a healthy-looking sheet.
+    out.writesWillWork = (missing.length === 0) && out.handlersAreCurrent;
   } catch (err) {
     out.ok = false;
     out.error = String(err);

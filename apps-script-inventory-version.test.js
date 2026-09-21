@@ -169,5 +169,90 @@ ok('reports a sheet failure instead of throwing', json.ok === false && /boom/.te
 ok('still reports the deployed version when the sheet fails',
    typeof json.version === 'string' && json.version.length > 0);
 
+// ---------------------------------------------------------------
+// The trap the first version of this endpoint could NOT see.
+//
+// Apps Script evaluates every .gs file into ONE global scope, so pasting the
+// fixed code into a NEW file while the old file survives changes nothing --
+// the last handleSaveColors evaluated wins, silently. The sheet is healthy,
+// the new file IS deployed, and saves still fail. Reporting only the column
+// indexes made that look like success.
+// ---------------------------------------------------------------
+sh = makeSheet();
+({ json } = call('handleInventoryVersion', sh, {}));
+ok('reports which body won for each handler',
+   json.handlers && json.handlers.saveColors && json.handlers.saveColors.present === true,
+   JSON.stringify(json.handlers));
+ok('sees the fixed saveColors calling _headerIndex_',
+   json.handlers.saveColors.usesHeaderIndex === true);
+ok('sees the fixed saveColors NOT using a bare indexOf',
+   json.handlers.saveColors.usesBareIndexOf === false);
+ok('all four handlers report as current', json.handlersAreCurrent === true,
+   String(json.staleHandlers));
+ok('nothing listed as stale', json.staleHandlers.length === 0, String(json.staleHandlers));
+
+// Simulate the shadowing: append the OLD buggy handleSaveColors after the
+// file, exactly as a leftover .gs file would. The later declaration wins.
+const SHADOW = `
+function handleSaveColors(e) {
+  try {
+    var p = (e && e.parameter) || {};
+    var rowIndex = parseInt(p.rowIndex, 10);
+    var json = String(p.json || '').trim();
+    if (!rowIndex || rowIndex < 2) throw new Error('Invalid rowIndex: ' + p.rowIndex);
+    JSON.parse(json);
+    var inv = _openInventorySheet_();
+    var col = inv.headers.indexOf('colors');
+    if (col === -1) throw new Error('"colors" column not found.');
+    inv.sheet.getRange(rowIndex, col + 1).setValue(json);
+    return ContentService.createTextOutput(JSON.stringify({ ok: true, rowIndex: rowIndex }))
+      .setMimeType(ContentService.MimeType.JSON);
+  } catch (err) {
+    return ContentService.createTextOutput(JSON.stringify({ ok: false, error: String(err) }))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+}
+`;
+function callShadowed(fn, sheet, params) {
+  let body = null;
+  const ContentService = {
+    MimeType: { JSON: 'application/json' },
+    createTextOutput: t => ({ setMimeType: () => { body = t; } })
+  };
+  const sb = {
+    SpreadsheetApp: { openById: () => ({ getSheetByName: () => sheet }), flush() {} },
+    ContentService, Logger: { log() {} },
+    JSON, String, Object, Array, Number, Error, parseInt, parseFloat, isFinite, Date
+  };
+  const keys = Object.keys(sb);
+  new Function(...keys, src + SHADOW + `\nreturn ${fn}(${JSON.stringify({ parameter: params || {} })});`)(...keys.map(k => sb[k]));
+  return JSON.parse(body);
+}
+
+// First prove the shadow really does reproduce the original bug.
+sh = makeSheet();
+let shadowed = callShadowed('handleSaveColors', sh, { rowIndex: 2, json: NEW_COLORS });
+ok('a shadowing old handler reproduces the original failure',
+   shadowed.ok === false && /column not found/.test(shadowed.error), JSON.stringify(shadowed));
+
+// Now the point: the endpoint must SEE it.
+sh = makeSheet();
+shadowed = callShadowed('handleInventoryVersion', sh, {});
+ok('the endpoint detects the shadowed saveColors',
+   shadowed.handlers.saveColors.usesHeaderIndex === false,
+   JSON.stringify(shadowed.handlers.saveColors));
+ok('and spots its bare indexOf', shadowed.handlers.saveColors.usesBareIndexOf === true);
+ok('handlersAreCurrent goes false', shadowed.handlersAreCurrent === false);
+ok('saveColors is named as stale', shadowed.staleHandlers.indexOf('saveColors') !== -1,
+   String(shadowed.staleHandlers));
+ok('the untouched handlers are NOT accused',
+   shadowed.staleHandlers.length === 1, String(shadowed.staleHandlers));
+
+// The headline boolean must not stay green while a handler is shadowed --
+// this is the exact false-positive that sent us chasing a redeploy.
+ok('writesWillWork goes false even though every column resolves',
+   shadowed.writesWillWork === false && shadowed.missingColumns.length === 0,
+   'writesWillWork=' + shadowed.writesWillWork + ' missing=' + shadowed.missingColumns);
+
 console.log(fails ? `\n${fails} FAILED` : '\nAll passed');
 process.exit(fails ? 1 : 0);
