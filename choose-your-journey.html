@@ -29,6 +29,11 @@ img{max-width:100%;display:block}
 .top-nav{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
 .top-nav a{padding:8px 13px;border-radius:4px;font-size:.8rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--ink-2);transition:all .2s}
 .top-nav a:hover{background:rgba(0,0,0,.05);color:var(--forest)}
+/* The account link is an action, not another place to browse, so give it a
+   quiet outline to separate it from the browse links without competing
+   with the filled Book a Ride button. */
+.top-nav .portal-link{box-shadow:inset 0 0 0 1.5px rgba(45,74,50,.35);color:var(--forest,#2D4A32)}
+.top-nav .portal-link:hover{background:var(--forest,#2D4A32);color:#fff;box-shadow:none}
 @media(max-width:560px){.top-nav a{padding:7px 9px;font-size:.7rem}}
 
 /* ── HERO ── */
@@ -98,6 +103,7 @@ footer .foot-links a{margin:0 8px}
     <a href="rentals.html">Rentals</a>
     <a href="trailside.html">Trailside</a>
     <a href="pricing.html">Pricing</a>
+    <a href="portal.html" class="portal-link">Portal</a>
   </nav>
 </header>
 

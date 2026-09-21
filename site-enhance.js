@@ -143,6 +143,11 @@
       { label: 'Repair Intake',        url: 'repair-intake.html' },
     ]},
     { label: 'Test Ride', url: 'test-ride.html' },
+    /* Customers only — accounts are created when someone buys a bike, so this
+       points at the explainer rather than straight at the sign-in. Someone
+       who has not bought from us needs to be told why there is no sign-up
+       form before they are dropped on a login screen. */
+    { label: 'Customer Portal', url: 'portal.html' },
     { label: 'Creek Life', items: [
       { label: 'Creek Life Blog', url: 'creek-life-blog.html' },
       { label: 'Our Story',       url: 'our-story.html' },

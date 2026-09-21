@@ -1281,6 +1281,11 @@
                 <div class="actions">
                     <button type="button" class="btn-secondary" onclick="resetForm()">Reset</button>
                     <button type="button" class="btn-secondary" onclick="printInvoice()">🖨️ Print / Save PDF</button>
+                    <!-- Only meaningful once an existing invoice is loaded, so it
+                         stays hidden on a blank form where there is nothing to
+                         update yet. -->
+                    <button type="button" class="btn-primary" id="saveBtn" hidden
+                            onclick="saveInvoiceChanges()">💾 Save Changes</button>
                     <button type="submit" class="btn-primary" id="submitBtn">Create Payment Link</button>
                 </div>
 
@@ -1682,6 +1687,10 @@
             document.getElementById('paymentLinkBox').classList.remove('active');
             document.getElementById('statusMessage').classList.remove('active', 'error');
             document.getElementById('lineItemsContainer').innerHTML = '';
+            // A blank form has no invoice to update, and no link to preserve.
+            currentPaymentLink = '';
+            const _saveBtn = document.getElementById('saveBtn');
+            if (_saveBtn) _saveBtn.hidden = true;
             resetPicker();
             hideDeliveryCalc();
             onPaymentModeChange();
@@ -1700,6 +1709,117 @@
             loadNextInvoiceNumber();
 
             updateInvoicePreview();
+        }
+
+        /**
+         * The payment link this invoice already has, if any.
+         *
+         * Set when an existing invoice is loaded for editing and when a new
+         * Stripe link is created. Saving an edit passes it straight back so
+         * the link is not blanked out by the update — losing it would leave a
+         * customer holding a link the record no longer knows about.
+         */
+        var currentPaymentLink = '';
+
+        /**
+         * Collect the form into the invoice payload.
+         *
+         * Pulled out of handleSubmit so saving an edit and creating a payment
+         * link build the SAME object. When this lived inside the submit
+         * handler, the only way to write an invoice back to the Sheet was to
+         * create a Stripe payment link — so editing an existing invoice to
+         * correct, say, a warranty tracking URL meant either issuing the
+         * customer a second link or not saving at all.
+         */
+        function buildInvoiceData(totals, paymentMode, depositMethod, depositRef) {
+            const data = {
+                customerName: document.getElementById('customerName').value,
+                customerEmail: document.getElementById('customerEmail').value,
+                customerPhone: document.getElementById('customerPhone').value,
+                customerAddress: document.getElementById('customerAddress').value,
+                invoiceNumber: document.getElementById('invoiceNumber').value,
+                invoiceDate: document.getElementById('invoiceDate').value,
+                dueDate: document.getElementById('dueDate').value,
+                paymentNotes: document.getElementById('notes').value,
+                subtotal: totals.subtotal,
+                discountPct: totals.discountPercent,
+                discountAmt: totals.discountAmount,
+                tax: totals.tax,
+                total: totals.total,
+                deposit: totals.deposit,
+                balanceDue: totals.balance,
+                paymentMode: paymentMode,
+                depositMethod: depositMethod,
+                depositRef: depositRef,
+                supplierUrl: (document.getElementById('supplierUrl').value || '').trim(),
+                items: []
+            };
+
+            document.querySelectorAll('.line-item').forEach(item => {
+                const desc = item.querySelector('.description').value;
+                const qty = item.querySelector('.quantity').value;
+                const price = item.querySelector('.price').value;
+                if (desc && price) {
+                    data.items.push({
+                        description: desc,
+                        qty: parseFloat(qty),
+                        price: parseFloat(price)
+                    });
+                }
+            });
+
+            return data;
+        }
+
+        /**
+         * Write the invoice back to the Sheet and the portal WITHOUT touching
+         * Stripe.
+         *
+         * Every existing save path ran through Stripe, so "Create Payment
+         * Link" was the only button that persisted anything. That is the
+         * wrong tool for an edit: it issues the customer a second link for an
+         * invoice they may already have paid.
+         *
+         * The payment link already on the invoice is passed straight back
+         * through, so saving an edit does not blank it.
+         */
+        async function saveInvoiceChanges() {
+            const saveBtn = document.getElementById('saveBtn');
+            const totals = calculateTotals();
+
+            const invNum = (document.getElementById('invoiceNumber').value || '').trim();
+            if (!invNum) {
+                showStatus('This invoice has no number yet, so there is nothing to update.', 'error');
+                return;
+            }
+            if (totals.total <= 0) {
+                showStatus('Total must be greater than $0', 'error');
+                return;
+            }
+
+            const paymentModeEl = document.querySelector('input[name="paymentMode"]:checked');
+            const paymentMode = paymentModeEl ? paymentModeEl.value : 'full';
+            const depositMethod = (document.getElementById('depositMethod') || {}).value || '';
+            const depositRef = (document.getElementById('depositRef') || {}).value || '';
+
+            const invoiceData = buildInvoiceData(totals, paymentMode, depositMethod, depositRef);
+            const existingLink = currentPaymentLink ||
+                (document.getElementById('paymentLinkDisplay') || {}).textContent || '';
+
+            if (saveBtn) { saveBtn.disabled = true; saveBtn.textContent = 'Saving…'; }
+            showStatus('Saving ' + invNum + '…', 'success');
+            try {
+                // No notifyInvoiceCreated here: this invoice already exists,
+                // and announcing it again would read as a second sale.
+                logOrderToSheet(invoiceData, existingLink, '');
+                syncInvoiceToPortal(invoiceData, existingLink);
+                showStatus('Saved ' + invNum + ' — the Sheet row and the portal were updated. ' +
+                           'No payment link was created.', 'success');
+            } catch (err) {
+                showStatus('Could not save ' + invNum + ': ' + (err && err.message ? err.message : err), 'error');
+            } finally {
+                if (saveBtn) { saveBtn.disabled = false; saveBtn.textContent = '💾 Save Changes'; }
+            }
         }
 
         async function handleSubmit(e) {
@@ -1747,41 +1867,7 @@
                 return;
             }
 
-            const invoiceData = {
-                customerName: document.getElementById('customerName').value,
-                customerEmail: document.getElementById('customerEmail').value,
-                customerPhone: document.getElementById('customerPhone').value,
-                customerAddress: document.getElementById('customerAddress').value,
-                invoiceNumber: document.getElementById('invoiceNumber').value,
-                invoiceDate: document.getElementById('invoiceDate').value,
-                dueDate: document.getElementById('dueDate').value,
-                paymentNotes: document.getElementById('notes').value,
-                subtotal: totals.subtotal,
-                discountPct: totals.discountPercent,
-                discountAmt: totals.discountAmount,
-                tax: totals.tax,
-                total: totals.total,
-                deposit: totals.deposit,
-                balanceDue: totals.balance,
-                paymentMode: paymentMode,
-                depositMethod: depositMethod,
-                depositRef: depositRef,
-                supplierUrl: (document.getElementById('supplierUrl').value || '').trim(),
-                items: []
-            };
-
-            document.querySelectorAll('.line-item').forEach(item => {
-                const desc = item.querySelector('.description').value;
-                const qty = item.querySelector('.quantity').value;
-                const price = item.querySelector('.price').value;
-                if (desc && price) {
-                    invoiceData.items.push({
-                        description: desc,
-                        qty: parseFloat(qty),
-                        price: parseFloat(price)
-                    });
-                }
-            });
+            const invoiceData = buildInvoiceData(totals, paymentMode, depositMethod, depositRef);
 
             // No Stripe call when the customer paid the whole thing in
             // cash/check — just log the invoice and show a "saved" state.
@@ -1800,7 +1886,6 @@
                 }
                 return;
             }
-
             // Stripe requires a customer email to create + send the invoice
             // (and it's where the auto-receipt goes). All other fields are
             // optional, but this one path can't proceed without it.
@@ -1838,6 +1923,7 @@
                 if (response.ok && hostedUrl) {
                     showStatus('Invoice ready for ' + invoiceData.customerName, 'success');
                     document.getElementById('paymentLinkDisplay').textContent = hostedUrl;
+                    currentPaymentLink = hostedUrl;
                     document.getElementById('paymentLinkBox').classList.add('active');
                     logOrderToSheet(invoiceData, hostedUrl, data.stripeInvoiceId || '');
                     notifyInvoiceCreated(invoiceData, hostedUrl, data.stripeInvoiceId || '');
@@ -2602,7 +2688,14 @@
         // doesn't pollute the Invoices tab with duplicate rows.
         const editingInvoiceNumber = new URLSearchParams(window.location.search).get('edit');
 
-        function loadInvoiceForEdit(invNum) {
+        /**
+         * SHADOWED — DO NOT EDIT. A second loadInvoiceForEdit is declared
+         * further down this file; function declarations share one scope and
+         * the later one wins, so nothing in here ever runs. Kept only because
+         * removing it is a larger change than this fix warrants. Edit the
+         * definition that takes (invNum, isViewOnly) instead.
+         */
+        function loadInvoiceForEdit_unused(invNum) {
             showStatus('Loading invoice ' + invNum + '…', 'success');
             const callbackName = 'getInvCb_' + Date.now();
             const timeoutMs = 10000;
@@ -2618,9 +2711,14 @@
                 clearTimeout(timeoutId);
                 if (data && data.status === 'ok' && data.invoice) {
                     populateFormFromInvoice(data.invoice);
-                    showStatus('Editing ' + invNum + ' — Save updates the saved row', 'success');
-                    const submitBtn = document.querySelector('button[type="submit"]');
-                    if (submitBtn) submitBtn.textContent = 'Update Invoice';
+                    showStatus('Editing ' + invNum + ' — use Save Changes to update it without creating a new payment link.', 'success');
+                    // The submit button used to be relabelled "Update Invoice"
+                    // here, which was untrue twice over: it still created a
+                    // Stripe payment link, and onPaymentModeChange renamed it
+                    // straight back to "Create Payment Link" moments later. Give
+                    // saving its own button and leave submit saying what it does.
+                    const saveBtn = document.getElementById('saveBtn');
+                    if (saveBtn) saveBtn.hidden = false;
                 } else {
                     showStatus('Could not load ' + invNum +
                         (data && data.message ? ' — ' + data.message : ''),
@@ -2658,6 +2756,7 @@
             // Internal supplier/warranty URL: seed from the invoice if present,
             // then fetch the authoritative value (getInvoice may not carry it).
             document.getElementById('supplierUrl').value     = inv.supplierUrl || '';
+            currentPaymentLink = inv.paymentLink || '';
             if (typeof syncSupplierOpenBtn === 'function') syncSupplierOpenBtn();
             if (inv.invoiceNumber) loadSupplierUrl(inv.invoiceNumber);
             // Payment mode — radio. Fires the onchange handler so dependent
@@ -3094,7 +3193,22 @@
                     loadSupplierUrl(inv.invoiceNumber || invNum);
                 }
                 updateInvoicePreview();
-                showStatus('Loaded invoice ' + (inv.invoiceNumber || invNum) + '.', 'success');
+
+                // Keep the link this invoice already has, so saving an edit
+                // does not blank it and strand a customer holding it.
+                currentPaymentLink = inv.paymentLink || '';
+
+                // An existing invoice can now be saved without going through
+                // Stripe. Not in view-only mode, where nothing is meant to be
+                // written back.
+                var saveBtn = document.getElementById('saveBtn');
+                if (saveBtn) saveBtn.hidden = !!isViewOnly;
+
+                showStatus(isViewOnly
+                    ? 'Viewing invoice ' + (inv.invoiceNumber || invNum) + '.'
+                    : 'Editing ' + (inv.invoiceNumber || invNum) +
+                      ' — use Save Changes to update it without creating a new payment link.',
+                    'success');
 
                 if (isViewOnly) {
                     var previewEl = document.getElementById('invoicePreview');
