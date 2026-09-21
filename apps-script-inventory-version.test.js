@@ -15,6 +15,7 @@
 const fs = require('fs');
 const src = fs.readFileSync('apps-script-inventory.snippet.gs', 'utf8');
 let fails = 0;
+const INV_VERSION = (src.match(/INV_HANDLERS_VERSION\s*=\s*'([^']+)'/) || [])[1];
 const ok = (n, c, e = '') => { console.log((c ? 'PASS  ' : 'FAIL  ') + n + (e ? '  ' + e : '')); if (!c) fails++; };
 
 // The sheet's REAL headers, verbatim, parenthesised suffixes and all.
@@ -141,7 +142,7 @@ ok('inventoryVersion writes nothing', JSON.stringify(sh.data) === snapshot);
 ok('inventoryVersion reports a version string',
    typeof json.version === 'string' && json.version.length > 0, String(json.version));
 ok('version matches the constant in the file',
-   json.version === (src.match(/INV_HANDLERS_VERSION\s*=\s*'([^']+)'/) || [])[1], String(json.version));
+   json.version === INV_VERSION, String(json.version));
 ok('confirms _headerIndex_ is present', json.hasHeaderIndex === true);
 ok('resolves the colours column', json.columns.colors === REAL_HEADERS.indexOf('Colors (JSON)'),
    String(json.columns.colors));
@@ -168,6 +169,122 @@ ok('writesWillWork goes false when a column is missing', json.writesWillWork ===
 ok('reports a sheet failure instead of throwing', json.ok === false && /boom/.test(json.error));
 ok('still reports the deployed version when the sheet fails',
    typeof json.version === 'string' && json.version.length > 0);
+
+// ---------------------------------------------------------------
+// The trap the first version of this endpoint could NOT see.
+//
+// Apps Script evaluates every .gs file into ONE global scope, so pasting the
+// fixed code into a NEW file while the old file survives changes nothing --
+// the last handleSaveColors evaluated wins, silently. The sheet is healthy,
+// the new file IS deployed, and saves still fail. Reporting only the column
+// indexes made that look like success.
+// ---------------------------------------------------------------
+sh = makeSheet();
+({ json } = call('handleInventoryVersion', sh, {}));
+ok('reports which body won for each handler',
+   json.handlers && json.handlers.saveColors && json.handlers.saveColors.present === true,
+   JSON.stringify(json.handlers));
+ok('sees the fixed saveColors calling _headerIndex_',
+   json.handlers.saveColors.usesHeaderIndex === true);
+ok('sees the fixed saveColors NOT using a bare indexOf',
+   json.handlers.saveColors.usesBareIndexOf === false);
+ok('all four handlers report as current', json.handlersAreCurrent === true,
+   String(json.staleHandlers));
+ok('nothing listed as stale', json.staleHandlers.length === 0, String(json.staleHandlers));
+
+// Simulate the shadowing: append the OLD buggy handleSaveColors after the
+// file, exactly as a leftover .gs file would. The later declaration wins.
+const SHADOW = `
+function handleSaveColors(e) {
+  try {
+    var p = (e && e.parameter) || {};
+    var rowIndex = parseInt(p.rowIndex, 10);
+    var json = String(p.json || '').trim();
+    if (!rowIndex || rowIndex < 2) throw new Error('Invalid rowIndex: ' + p.rowIndex);
+    JSON.parse(json);
+    var inv = _openInventorySheet_();
+    var col = inv.headers.indexOf('colors');
+    if (col === -1) throw new Error('"colors" column not found.');
+    inv.sheet.getRange(rowIndex, col + 1).setValue(json);
+    return ContentService.createTextOutput(JSON.stringify({ ok: true, rowIndex: rowIndex }))
+      .setMimeType(ContentService.MimeType.JSON);
+  } catch (err) {
+    return ContentService.createTextOutput(JSON.stringify({ ok: false, error: String(err) }))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+}
+`;
+function callShadowed(fn, sheet, params) {
+  let body = null;
+  const ContentService = {
+    MimeType: { JSON: 'application/json' },
+    createTextOutput: t => ({ setMimeType: () => { body = t; } })
+  };
+  const sb = {
+    SpreadsheetApp: { openById: () => ({ getSheetByName: () => sheet }), flush() {} },
+    ContentService, Logger: { log() {} },
+    JSON, String, Object, Array, Number, Error, parseInt, parseFloat, isFinite, Date
+  };
+  const keys = Object.keys(sb);
+  new Function(...keys, src + SHADOW + `\nreturn ${fn}(${JSON.stringify({ parameter: params || {} })});`)(...keys.map(k => sb[k]));
+  return JSON.parse(body);
+}
+
+// First prove the shadow really does reproduce the original bug.
+sh = makeSheet();
+let shadowed = callShadowed('handleSaveColors', sh, { rowIndex: 2, json: NEW_COLORS });
+ok('a shadowing old handler reproduces the original failure',
+   shadowed.ok === false && /column not found/.test(shadowed.error), JSON.stringify(shadowed));
+
+// Now the point: the endpoint must SEE it.
+sh = makeSheet();
+shadowed = callShadowed('handleInventoryVersion', sh, {});
+ok('the endpoint detects the shadowed saveColors',
+   shadowed.handlers.saveColors.usesHeaderIndex === false,
+   JSON.stringify(shadowed.handlers.saveColors));
+ok('and spots its bare indexOf', shadowed.handlers.saveColors.usesBareIndexOf === true);
+ok('handlersAreCurrent goes false', shadowed.handlersAreCurrent === false);
+ok('saveColors is named as stale', shadowed.staleHandlers.indexOf('saveColors') !== -1,
+   String(shadowed.staleHandlers));
+ok('the untouched handlers are NOT accused',
+   shadowed.staleHandlers.length === 1, String(shadowed.staleHandlers));
+
+// The headline boolean must not stay green while a handler is shadowed --
+// this is the exact false-positive that sent us chasing a redeploy.
+ok('writesWillWork goes false even though every column resolves',
+   shadowed.writesWillWork === false && shadowed.missingColumns.length === 0,
+   'writesWillWork=' + shadowed.writesWillWork + ' missing=' + shadowed.missingColumns);
+
+// ---------------------------------------------------------------
+// The error text must say WHICH code raised it.
+//
+// Old and new handlers both threw the identical string
+// '"colors" column not found.', so the message could not distinguish a
+// stale deployment from a genuine lookup failure. Reading it as proof of
+// old code sent this debug down a wrong path twice.
+// ---------------------------------------------------------------
+sh = makeSheet(REAL_HEADERS.map(h => h === 'Colors (JSON)' ? 'Swatches' : h));
+({ json } = call('handleSaveColors', sh, { rowIndex: 2, json: NEW_COLORS }));
+ok('a genuine miss still fails', json.ok === false, JSON.stringify(json));
+ok('the error carries the deployed version',
+   json.error.indexOf(INV_VERSION) !== -1, json.error);
+ok('the error lists the headers it actually read',
+   /Swatches/.test(json.error) && /Colors \(JSON\)/.test(json.error) === false, json.error);
+ok('the error names the tab it read them from', /Inventory/.test(json.error), json.error);
+ok('it does NOT end at "not found." like the old code did',
+   !/not found\.$/.test(json.error), json.error);
+
+// The same distinguishing detail on the other three handlers.
+for (const [fn, key, params] of [
+  ['handleUpdatePrice',     'price',        { rowIndex: 2, price: 1 }],
+  ['handleSetDiscontinued', 'discontinued', { rowIndex: 2, discontinued: 'Yes' }],
+  ['handleSaveSizeGuide',   'sizeGuide',    { rowIndex: 2, json: '{}' }],
+]) {
+  const bare = makeSheet(REAL_HEADERS.filter(h => !new RegExp('^' + key, 'i').test(h)));
+  const r = call(fn, bare, params);
+  ok(`${fn} reports the version when its column is missing`,
+     r.json.ok === false && r.json.error.indexOf(INV_VERSION) !== -1, r.json.error);
+}
 
 console.log(fails ? `\n${fails} FAILED` : '\nAll passed');
 process.exit(fails ? 1 : 0);
