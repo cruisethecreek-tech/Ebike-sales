@@ -137,11 +137,24 @@ main{flex:1;max-width:880px;margin:0 auto;padding:32px 24px 56px;width:100%}
 @keyframes bphoto{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
 .b-photo img{width:100%;height:auto;aspect-ratio:4/3;object-fit:contain;
   background:var(--cream-w);border-radius:8px;display:block}
-.b-order{display:inline-flex;align-items:center;gap:7px;margin-top:10px;
+/* Same hierarchy as the section CTAs below: the test ride is the filled
+   button because it is the free, low-commitment one. */
+.b-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.b-order{display:inline-flex;align-items:center;gap:7px;
   background:var(--forest);color:#fff;padding:9px 16px;border-radius:4px;
-  font-weight:700;font-size:.82rem;letter-spacing:.03em;transition:background .2s ease}
+  font-weight:700;font-size:.82rem;letter-spacing:.03em;
+  transition:background .2s ease,color .2s ease}
 .b-order:hover{background:var(--dark)}
 .b-order svg{width:13px;height:13px}
+/* Inset shadow rather than a border, so both buttons keep identical box
+   sizes and sit level — same reason as .book-alt. */
+.b-order-alt{background:#fff;color:var(--forest);box-shadow:inset 0 0 0 2px var(--forest)}
+.b-order-alt:hover{background:var(--forest);color:#fff}
+/* One per row on a phone, where two of these get cramped side by side. */
+@media(max-width:480px){
+  .b-actions{display:grid;grid-template-columns:1fr}
+  .b-actions .b-order{justify-content:center}
+}
 @media(prefers-reduced-motion:reduce){
   .b-photo.open{animation:none}
   .b-toggle span{transition:none}
@@ -441,6 +454,8 @@ main{flex:1;max-width:880px;margin:0 auto;padding:32px 24px 56px;width:100%}
    * a row that opens onto an empty box is worse than one that does not open
    * at all, so those keep the flat layout.
    */
+
+  var ARROW_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>';
   function addPreview(li, bike) {
     if (li.classList.contains('has-preview')) return;
     var src = firstBikeImage(bike && bike.colors);
@@ -486,6 +501,37 @@ main{flex:1;max-width:880px;margin:0 auto;padding:32px 24px 56px;width:100%}
     big.dataset.src = src;          // only fetched the first time it opens
     panel.appendChild(big);
 
+    var actions = document.createElement('div');
+    actions.className = 'b-actions';
+
+    // The test ride link for THIS bike is the booking link of the section it
+    // is listed in, read straight off that section's own button. Taken from
+    // the DOM rather than from a bike-to-location map because a bike can be
+    // at both shops — the Venus is listed under Kirk Road and Bears Den — so
+    // the only correct answer is "whichever list this row is in", and a map
+    // would have to pick one and be wrong half the time. It also means the
+    // two links can never drift apart: there is one URL per location, in the
+    // markup, and this reuses it.
+    var section = li.closest('section.loc');
+    var locBook = section && section.querySelector('.loc-cta a.book[href]');
+    if (locBook && locBook.href) {
+      var ride = document.createElement('a');
+      ride.className = 'b-order';
+      ride.href = locBook.href;
+      ride.target = '_blank';
+      ride.rel = 'noopener';
+      var where = section.querySelector('.loc-title');
+      ride.innerHTML = 'Test ride this bike' + ARROW_SVG;
+      // Name the shop for screen readers and on hover: two identical "Test
+      // ride this bike" links on one page mean different places.
+      if (where) {
+        var place = where.textContent.trim();
+        ride.title = 'Book a test ride at ' + place;
+        ride.setAttribute('aria-label', 'Test ride the ' + name + ' at ' + place);
+      }
+      actions.appendChild(ride);
+    }
+
     // Straight through to this bike's own order form. ?bike= lands on the
     // matching card on the brand page, where SUBMIT ORDER REQUEST fills the
     // form with the style, size and colour the customer picks there — which
@@ -493,13 +539,16 @@ main{flex:1;max-width:880px;margin:0 auto;padding:32px 24px 56px;width:100%}
     var page = brandOrderPage(bike && bike.brand);
     if (page && bike && bike.id) {
       var order = document.createElement('a');
-      order.className = 'b-order';
+      // Outlined: ordering is the bigger commitment, so the free test ride
+      // keeps the visual lead, matching the section CTAs.
+      order.className = 'b-order' + (locBook ? ' b-order-alt' : '');
       order.href = page + '?bike=' + encodeURIComponent(bike.id);
-      order.innerHTML = 'Order this bike' +
-        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" ' +
-        'stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>';
-      panel.appendChild(order);
+      order.setAttribute('aria-label', 'Order the ' + name);
+      order.innerHTML = 'Order this bike' + ARROW_SVG;
+      actions.appendChild(order);
     }
+
+    if (actions.children.length) panel.appendChild(actions);
 
     row.addEventListener('click', function () {
       var open = row.getAttribute('aria-expanded') === 'true';
