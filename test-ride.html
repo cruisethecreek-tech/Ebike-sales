@@ -137,15 +137,36 @@ main{flex:1;max-width:880px;margin:0 auto;padding:32px 24px 56px;width:100%}
 @keyframes bphoto{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
 .b-photo img{width:100%;height:auto;aspect-ratio:4/3;object-fit:contain;
   background:var(--cream-w);border-radius:8px;display:block}
+.b-order{display:inline-flex;align-items:center;gap:7px;margin-top:10px;
+  background:var(--forest);color:#fff;padding:9px 16px;border-radius:4px;
+  font-weight:700;font-size:.82rem;letter-spacing:.03em;transition:background .2s ease}
+.b-order:hover{background:var(--dark)}
+.b-order svg{width:13px;height:13px}
 @media(prefers-reduced-motion:reduce){
   .b-photo.open{animation:none}
   .b-toggle span{transition:none}
 }
 
-.book{display:inline-flex;align-items:center;gap:9px;margin-top:20px;background:var(--forest);color:#fff;
-  padding:14px 26px;border-radius:4px;font-weight:800;font-size:.92rem;letter-spacing:.04em;transition:background .2s ease}
+/* Both CTAs share a row. The test ride stays the filled button: it is the
+   free, low-commitment one and should keep the visual lead. */
+.loc-cta{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-top:20px}
+.book{display:inline-flex;align-items:center;gap:9px;background:var(--forest);color:#fff;
+  padding:14px 26px;border-radius:4px;font-weight:800;font-size:.92rem;letter-spacing:.04em;
+  transition:background .2s ease,border-color .2s ease,color .2s ease}
 .book:hover{background:var(--dark)}
 .book svg{width:15px;height:15px}
+/* The border is an inset shadow rather than a real border so both buttons
+   keep identical box sizes and sit level. */
+.book-alt{background:#fff;color:var(--forest);box-shadow:inset 0 0 0 2px var(--forest)}
+.book-alt:hover{background:var(--forest);color:#fff}
+/* display:inline-flex above outranks the hidden attribute's own display:none,
+   so say it explicitly or an unconfigured CTA renders anyway. */
+.book[hidden]{display:none}
+/* Stacked full-width on a phone, where two side-by-side buttons get cramped. */
+@media(max-width:480px){
+  .loc-cta{display:grid;grid-template-columns:1fr}
+  .loc-cta .book{justify-content:center}
+}
 .confirm-note{margin-top:26px;padding:16px 18px;background:var(--cream-w);border:1px solid rgba(0,0,0,.07);
   border-radius:8px;font-size:.9rem;color:var(--ink-2);line-height:1.6}
 .confirm-note b{color:var(--forest)}
@@ -226,7 +247,10 @@ main{flex:1;max-width:880px;margin:0 auto;padding:32px 24px 56px;width:100%}
       <li data-bike="tarmac" data-name="Mokwheel Tarmac"><span class="b-main"><span class="b-name">Mokwheel Tarmac</span><span class="b-kind">Cruiser</span></span><span class="b-price">$1,699</span></li>
       <li data-bike="flint-pro" data-name="Mokwheel Flint Pro"><span class="b-main"><span class="b-name">Mokwheel Flint Pro</span><span class="b-kind">Ultra-lightweight</span></span><span class="b-price">$1,399</span></li>
     </ul>
-    <a class="book" href="https://book.peek.com/s/57e3b62e-4f48-4cc4-8876-7b79f4c11baa/wqwLA" target="_blank" rel="noopener">Book a Kirk Road test ride <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg></a>
+    <div class="loc-cta">
+      <a class="book" href="https://book.peek.com/s/57e3b62e-4f48-4cc4-8876-7b79f4c11baa/wqwLA" target="_blank" rel="noopener">Book a Kirk Road test ride <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg></a>
+      <a class="book book-alt" data-order-cta hidden>Submit Order Request <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg></a>
+    </div>
   </section>
 
   <!-- BEARS DEN -->
@@ -242,7 +266,10 @@ main{flex:1;max-width:880px;margin:0 auto;padding:32px 24px 56px;width:100%}
       <li data-bike="alpha" data-name="Heybike Alpha"><span class="b-main"><span class="b-name">Heybike Alpha</span><span class="b-kind">Mid-drive</span></span><span class="b-price">$1,299</span></li>
       <li data-bike="venus" data-name="Heybike Venus"><span class="b-main"><span class="b-name">Heybike Venus</span><span class="b-kind">Lightweight</span></span><span class="b-price">$1,499</span></li>
     </ul>
-    <a class="book" href="https://book.peek.com/s/57e3b62e-4f48-4cc4-8876-7b79f4c11baa/Y2l4w" target="_blank" rel="noopener">Book a Bears Den test ride <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg></a>
+    <div class="loc-cta">
+      <a class="book" href="https://book.peek.com/s/57e3b62e-4f48-4cc4-8876-7b79f4c11baa/Y2l4w" target="_blank" rel="noopener">Book a Bears Den test ride <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg></a>
+      <a class="book book-alt" data-order-cta hidden>Submit Order Request <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg></a>
+    </div>
   </section>
 
   <div class="confirm-note">
@@ -348,6 +375,26 @@ main{flex:1;max-width:880px;margin:0 auto;padding:32px 24px 56px;width:100%}
   }
 
   /**
+   * Where "Submit Order Request" sends people.
+   *
+   * Set this to the URL and both buttons appear. Left empty the buttons stay
+   * hidden, because a CTA that goes nowhere is worse on a live page than no
+   * CTA at all — the whole point of the row is that a customer who has just
+   * picked a bike has somewhere to go next.
+   */
+  var ORDER_URL = '';
+
+  (function showOrderCta() {
+    if (!ORDER_URL) return;
+    var external = /^https?:/i.test(ORDER_URL);
+    document.querySelectorAll('[data-order-cta]').forEach(function (a) {
+      a.href = ORDER_URL;
+      if (external) { a.target = '_blank'; a.rel = 'noopener'; }
+      a.hidden = false;
+    });
+  })();
+
+  /**
    * The same photo the shop grid uses: first swatch image in the Colors
    * JSON, whatever shape that column happens to be in.
    */
@@ -369,6 +416,21 @@ main{flex:1;max-width:880px;margin:0 auto;padding:32px 24px 56px;width:100%}
       }
     }
     return '';
+  }
+
+  /**
+   * The five brands with their own page, and therefore their own
+   * "Request Your Order" form at #order-section. A bike from anywhere else
+   * gets no order link rather than a link to a page that does not exist.
+   */
+  var BRAND_PAGES = {
+    heybike: 'heybike.html', velotric: 'velotric.html', jasion: 'jasion.html',
+    mooncool: 'mooncool.html', mokwheel: 'mokwheel.html'
+  };
+
+  function brandOrderPage(brand) {
+    var key = String(brand || '').toLowerCase().replace(/[^a-z]/g, '');
+    return BRAND_PAGES[key] || '';
   }
 
   var previewSeq = 0;
@@ -423,6 +485,21 @@ main{flex:1;max-width:880px;margin:0 auto;padding:32px 24px 56px;width:100%}
     big.loading = 'lazy';
     big.dataset.src = src;          // only fetched the first time it opens
     panel.appendChild(big);
+
+    // Straight through to this bike's own order form. ?bike= lands on the
+    // matching card on the brand page, where SUBMIT ORDER REQUEST fills the
+    // form with the style, size and colour the customer picks there — which
+    // is why this points at the card and not at #order-section directly.
+    var page = brandOrderPage(bike && bike.brand);
+    if (page && bike && bike.id) {
+      var order = document.createElement('a');
+      order.className = 'b-order';
+      order.href = page + '?bike=' + encodeURIComponent(bike.id);
+      order.innerHTML = 'Order this bike' +
+        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" ' +
+        'stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>';
+      panel.appendChild(order);
+    }
 
     row.addEventListener('click', function () {
       var open = row.getAttribute('aria-expanded') === 'true';
