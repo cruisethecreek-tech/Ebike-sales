@@ -17,8 +17,25 @@
 //        if (action === 'saveColors')          return handleSaveColors(e);
 //        if (action === 'saveSizeGuide')       return handleSaveSizeGuide(e);
 //        if (action === 'getStock')            return handleGetStock(e);
+//        if (action === 'inventoryVersion')    return handleInventoryVersion(e);
 //
-//   5. Deploy -> Manage deployments -> Edit -> New version -> Deploy.
+//   5. Deploy -> Manage deployments -> pencil -> New version -> Deploy.
+//      NOT "New deployment" — that mints a second /exec URL and leaves the
+//      one the site uses untouched.
+//
+// IF A SAVE STILL DOES NOT STICK AFTER DEPLOYING:
+//   a. Open <your /exec URL>?action=inventoryVersion in a browser.
+//      - "version" must equal INV_HANDLERS_VERSION below. If it is older or
+//        the response is an error page, the deployment did not take: repeat
+//        step 5 and make sure you picked New version, not New deployment.
+//      - "writesWillWork" must be true. If "missingColumns" lists anything,
+//        the sheet's headers were renamed and the handlers cannot find them.
+//   b. Apps Script shares ONE global namespace across every .gs file in the
+//      project. If an older copy of handleSaveColors still exists in another
+//      file, whichever definition loads last wins and the fix below may never
+//      run. Search the project for "handleSaveColors" and make sure exactly
+//      one definition survives. This is the failure mode that makes a correct
+//      paste look like it changed nothing.
 //
 // SHEET STRUCTURE (tab named "Inventory" — see INV_TAB_NAME below):
 //   id           stable slug, e.g. "rangers"
@@ -69,6 +86,11 @@
 // Find it between /d/ and /edit in the spreadsheet URL.
 var INV_SHEET_ID = '1R3pDFG_sO81bKS6dEAa-k5F-OdD5OAbe4hQ-Oc0_T-E';
 var INV_TAB_NAME = 'Inventory';
+
+// Bump this string whenever you paste a new copy of this file into the editor.
+// ?action=inventoryVersion echoes it back, so you can tell at a glance whether
+// the /exec URL is serving the code you just saved or an older deployment.
+var INV_HANDLERS_VERSION = '2026-09-21a';
 
 
 // -- HELPERS ------------------------------------------------
@@ -415,6 +437,63 @@ function handleSaveSizeGuide(e) {
       .createTextOutput(JSON.stringify({ ok: false, error: String(err) }))
       .setMimeType(ContentService.MimeType.JSON);
   }
+}
+
+
+// -- DIAGNOSTIC HANDLER: inventoryVersion -------------------
+/**
+ * Reports which copy of this file the /exec URL is actually running.
+ *
+ * Apps Script serves the DEPLOYED version, not whatever is saved in the
+ * editor, and every write handler here used to fail silently because the
+ * front end sent its saves with mode:'no-cors' — an opaque response looks
+ * identical whether the server accepted the write or threw. So "I saved it"
+ * and "I deployed it" were both unfalsifiable from the browser.
+ *
+ * This endpoint makes them falsifiable. It needs no arguments, writes
+ * nothing, and answers the two questions that actually matter:
+ *
+ *   version      — the INV_HANDLERS_VERSION baked into the DEPLOYED code.
+ *                  If this is not the string at the top of the file you just
+ *                  pasted, you are looking at an older deployment: go to
+ *                  Deploy -> Manage deployments -> pencil -> New version.
+ *   colorsColumn — the resolved column index for the colours blob. Anything
+ *                  other than -1 means saveColors can find its column. -1 is
+ *                  the bug that ate every colour save: the real header reads
+ *                  "Colors (JSON)", so a bare headers.indexOf('colors')
+ *                  misses it and the handler throws.
+ *
+ * GET ?action=inventoryVersion
+ */
+function handleInventoryVersion(e) {
+  var out = {
+    ok: true,
+    version: INV_HANDLERS_VERSION,
+    hasHeaderIndex: (typeof _headerIndex_ === 'function')
+  };
+  try {
+    var inv = _openInventorySheet_();
+    out.headers = inv.headers;
+    out.rowCount = inv.rows.length;
+    out.columns = {
+      colors:        _headerIndex_(inv.headers, 'colors'),
+      price:         _headerIndex_(inv.headers, 'price'),
+      sizeGuide:     _headerIndex_(inv.headers, 'sizeGuide'),
+      discontinued:  _headerIndex_(inv.headers, 'discontinued')
+    };
+    var missing = [];
+    for (var k in out.columns) {
+      if (out.columns[k] === -1) missing.push(k);
+    }
+    out.missingColumns = missing;
+    out.writesWillWork = (missing.length === 0);
+  } catch (err) {
+    out.ok = false;
+    out.error = String(err);
+  }
+  return ContentService
+    .createTextOutput(JSON.stringify(out))
+    .setMimeType(ContentService.MimeType.JSON);
 }
 
 
