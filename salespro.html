@@ -2132,7 +2132,7 @@ function syncBikeToSheet(d, isNew) {
 
 function syncDiscontinuedToSheet(d) {
   // Find matching bike in sheet inventory by name+brand to get rowIndex
-  fetch(AS_URL + '?action=getSidebarInventory', {redirect:'follow'})
+  fetch(AS_URL + '?action=getSidebarInventory&_=' + Date.now(), {redirect:'follow', cache:'no-store'})
     .then(r => r.text())
     .then(text => {
       const s = text.indexOf('['), e = text.lastIndexOf(']');
@@ -3343,8 +3343,11 @@ function edSetStatus(type, msg) {
 }
 
 function edLoadBikes() {
+  // Cache-busted on purpose. This runs right after a save, and a cached
+  // answer here shows the row as it was BEFORE the write — which is
+  // indistinguishable from the sheet having rejected it.
   edSetStatus('info', 'Loading inventory from sheet...');
-  fetch(AS_URL + '?action=getSidebarInventory', {redirect:'follow'})
+  fetch(AS_URL + '?action=getSidebarInventory&_=' + Date.now(), {redirect:'follow', cache:'no-store'})
     .then(r => r.text())
     .then(function(text) {
       var s = text.indexOf('['), e = text.lastIndexOf(']');
@@ -3370,6 +3373,12 @@ function edSelectBike() {
   const idx = document.getElementById('edBikeSelect').value;
   if (idx === '') { edActiveBike = null; document.getElementById('edPriceCard').style.display = 'none'; document.getElementById('edSwatches').innerHTML = ''; return; }
   edActiveBike = edBikes[parseInt(idx)];
+  // getSidebarInventory returns `price`; everything in this editor reads
+  // `basePrice`, which nothing ever set. That is why the base price read
+  // "$NaN" and every swatch showed a NaN price-override placeholder.
+  if (edActiveBike.basePrice === undefined) {
+    edActiveBike.basePrice = Number(edActiveBike.price) || 0;
+  }
   // getSidebarInventory returns colorsObj — fall back to colors for compatibility
   var colorSource = edActiveBike.colorsObj || edActiveBike.colors || {};
   try { edSwatchData = JSON.parse(JSON.stringify(colorSource)); } catch(e) { edSwatchData = {}; }
@@ -3378,7 +3387,9 @@ function edSelectBike() {
 
   // Show price card
   document.getElementById('edPriceCard').style.display = 'block';
-  document.getElementById('edBaseDisplay').textContent = '$' + Number(edActiveBike.basePrice).toLocaleString();
+  var edBase = Number(edActiveBike.basePrice);
+  document.getElementById('edBaseDisplay').textContent =
+    isFinite(edBase) && edBase > 0 ? '$' + edBase.toLocaleString() : '— not set —';
   document.getElementById('edRowInfo').textContent = 'Row ' + edActiveBike.rowIndex + ' · ID: ' + edActiveBike.id;
   document.getElementById('edPriceEdit').style.display = 'none';
 
@@ -3522,6 +3533,7 @@ function edRenderSwatches() {
 
 function edSwatchRow(sw, idx, groupName, sizeName) {
   var base = Number(edActiveBike.basePrice);
+  if (!isFinite(base)) base = 0;   // never render placeholder="NaN"
   var swPrice = sw.price !== undefined ? Number(sw.price) : null;
   var hasDiff = swPrice !== null && swPrice !== base;
   var cheaper = hasDiff && swPrice < base;
@@ -3728,7 +3740,7 @@ function edVerifySaved(rowIndex, compare) {
   return new Promise(function (resolve) {
     // The sheet write is not instant; re-reading immediately races it.
     setTimeout(function () {
-      fetch(AS_URL + '?action=getSidebarInventory&_=' + Date.now(), { redirect: 'follow' })
+      fetch(AS_URL + '?action=getSidebarInventory&_=' + Date.now(), { redirect: 'follow', cache: 'no-store' })
         .then(function (r) { return r.text(); })
         .then(function (text) {
           var a = text.indexOf('['), b = text.lastIndexOf(']');
@@ -4103,7 +4115,7 @@ syncBikesFromSheet();
 checkChangelogBadge();  // fetch sheet and add any missing bikes
 
 function syncBikesFromSheet() {
-  fetch(AS_URL + '?action=getBikeInventory', {redirect:'follow'})
+  fetch(AS_URL + '?action=getBikeInventory&_=' + Date.now(), {redirect:'follow', cache:'no-store'})
     .then(r => r.json())
     .then(sheetBikes => {
       let added = 0;
