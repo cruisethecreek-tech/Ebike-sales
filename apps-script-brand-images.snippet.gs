@@ -37,7 +37,7 @@
  * the old images until 6 AM UTC.
  */
 
-var BIMG_VERSION = '2026-09-16a';
+var BIMG_VERSION = '2026-09-21a';
 
 /** Lowercase, strip punctuation. "Alpine Blue" and "alpine-blue" match. */
 function _bimgNorm_(s) {
@@ -112,7 +112,7 @@ function _bimgFindProduct_(index, sheetName, brand) {
  * every colour would then get the same picture, which looks deliberate and is
  * wrong.
  */
-function _bimgVariantImages_(product) {
+function _bimgVariantImages_(product, outLabels) {
   var optIdx = -1;
   (product.options || []).forEach(function (o, i) {
     if (optIdx === -1 && /colou?r/i.test(String(o.name || ''))) optIdx = i;
@@ -127,7 +127,12 @@ function _bimgVariantImages_(product) {
     var src = v.featured_image && v.featured_image.src;
     if (!src) return;
     var k = _bimgNorm_(label);
-    if (!map[k]) map[k] = src;
+    if (!map[k]) {
+      map[k] = src;
+      // Kept in vendor spelling, not normalised: the point of collecting these
+      // is to show a human what to type into the sheet.
+      if (outLabels) outLabels.push(label);
+    }
   });
   return map;
 }
@@ -396,7 +401,8 @@ function refreshBrandImages(brandName, baseUrl, apply) {
     var product = _bimgFindProduct_(index, title, brandName);
     if (!product) { noProduct.push(title); continue; }
 
-    var map = _bimgVariantImages_(product);
+    var vendorLabels = [];
+    var map = _bimgVariantImages_(product, vendorLabels);
     if (!Object.keys(map).length) {
       // Distinct from "colour not matched": the vendor publishes no per-variant
       // photo at all for this product, so there is nothing here to copy.
@@ -408,7 +414,10 @@ function refreshBrandImages(brandName, baseUrl, apply) {
     _bimgWalkSwatches_(colors, function (sw) {
       swatchesSeen++;
       var hit = _bimgLookup_(map, sw.name);
-      if (!hit) { unmatched.push(title + ' / ' + sw.name); return; }
+      if (!hit) {
+        unmatched.push({ row: title + ' / ' + sw.name, offers: vendorLabels.slice() });
+        return;
+      }
       if (sw.img === hit.src) { totalIdentical++; return; }
       changes.push({ name: sw.name, from: sw.img, to: hit.src, how: hit.how });
       sw.img = hit.src;
@@ -441,8 +450,12 @@ function refreshBrandImages(brandName, baseUrl, apply) {
     Logger.log('');
   }
   if (unmatched.length) {
-    Logger.log('NO VENDOR COLOUR MATCH (' + unmatched.length + ') — image left as it was:');
-    unmatched.forEach(function (t) { Logger.log('  ' + t); });
+    Logger.log('NO VENDOR COLOUR MATCH (' + unmatched.length + ') — image left as it was.');
+    Logger.log('Rename the swatch in the sheet to one of the vendor names below and re-run:');
+    unmatched.forEach(function (u) {
+      Logger.log('  ' + u.row);
+      Logger.log('      vendor offers: ' + (u.offers.length ? u.offers.join(' | ') : '(no named colours)'));
+    });
     Logger.log('');
   }
   if (skipped.length) {

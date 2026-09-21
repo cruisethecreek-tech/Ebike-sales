@@ -46,6 +46,29 @@ const noOpt = { options: [{ name: 'Title' }], variants: [
   { title: 'Stealth Black', featured_image: { src: 'https://cdn/stealth.jpg' } } ] };
 eq('falls back to variant title', _bimgVariantImages_(noOpt)['stealth black'], 'https://cdn/stealth.jpg');
 
+// -- vendor colour labels, for the "no colour match" report ---------------
+// A real Heybike dry run reported "Venus / Pink" and "Hybrid / Emarald Green"
+// as unmatched without saying what the vendor calls those colours, which is
+// the one thing needed to fix it.
+const labels = [];
+_bimgVariantImages_(product, labels);
+// Vendor spelling and capitalisation preserved, one entry per colour: the
+// duplicate Merlot Red size variant must not produce a duplicate label, and
+// the imageless Shark Grey must not appear at all.
+eq('collects vendor labels in vendor spelling', labels.join(' | '), 'Merlot Red | Stone Blue');
+eq('optional arg leaves the map untouched', Object.keys(_bimgVariantImages_(product)).length, labels.length);
+
+// The misspelling that actually broke Hybrid: one letter out, so neither an
+// exact hit nor a containment hit, and the tool correctly refuses to guess.
+const emerald = { options:[{name:'Color'}], variants:[
+  { option1:'Emerald Green', featured_image:{src:'https://cdn/emerald.jpg'} },
+  { option1:'Black',         featured_image:{src:'https://cdn/black.jpg'} } ] };
+eq('typo does not match', _bimgLookup_(_bimgVariantImages_(emerald), 'Emarald Green'), null);
+eq('correct spelling does match', _bimgLookup_(_bimgVariantImages_(emerald), 'Emerald Green').how, 'exact');
+const emLabels = [];
+_bimgVariantImages_(emerald, emLabels);
+eq('report would name the real colour', emLabels.indexOf('Emerald Green') > -1, true);
+
 // -- _bimgLookup_ --------------------------------------------------------
 const m = { 'merlot red': 'A', 'stone blue': 'B', 'artic blue': 'D' };
 eq('exact match', (_bimgLookup_(m, 'Merlot Red') || {}).src, 'A');
