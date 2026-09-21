@@ -3694,6 +3694,56 @@ function edValidate() {
   }
 }
 
+/**
+ * Key-order-insensitive comparison of two colour structures. A round trip
+ * through the sheet can reorder object keys, and that is not a difference
+ * worth failing a save over.
+ */
+function edCanonical(v) {
+  if (Array.isArray(v)) return '[' + v.map(edCanonical).join(',') + ']';
+  if (v && typeof v === 'object') {
+    return '{' + Object.keys(v).sort().map(function (k) {
+      return JSON.stringify(k) + ':' + edCanonical(v[k]);
+    }).join(',') + '}';
+  }
+  return JSON.stringify(v === undefined ? null : v);
+}
+
+/**
+ * Read the row back and say whether the write actually landed.
+ *
+ * Every write action here is sent with mode:'no-cors', which makes the
+ * response opaque — fetch resolves identically whether the sheet took the
+ * write or the handler threw. A save therefore cannot be trusted from its own
+ * promise, and reporting success from it is how a swatch edit could report
+ * "synced" and still be gone on reload.
+ *
+ * getSidebarInventory is an ordinary readable GET, which is what makes an
+ * honest answer possible at all.
+ *
+ * Resolves true (confirmed), false (the sheet does not hold it) or null
+ * (could not check — do not claim either way).
+ */
+function edVerifySaved(rowIndex, compare) {
+  return new Promise(function (resolve) {
+    // The sheet write is not instant; re-reading immediately races it.
+    setTimeout(function () {
+      fetch(AS_URL + '?action=getSidebarInventory&_=' + Date.now(), { redirect: 'follow' })
+        .then(function (r) { return r.text(); })
+        .then(function (text) {
+          var a = text.indexOf('['), b = text.lastIndexOf(']');
+          var rows = JSON.parse(a > -1 ? text.slice(a, b + 1) : text);
+          var row = null;
+          for (var i = 0; i < rows.length; i++) {
+            if (Number(rows[i].rowIndex) === Number(rowIndex)) { row = rows[i]; break; }
+          }
+          resolve(row ? compare(row) : false);
+        })
+        .catch(function () { resolve(null); });
+    }, 1500);
+  });
+}
+
 function edSaveColors() {
   if (!edActiveBike) { edSetStatus('err', 'No bike selected.'); return; }
   const pass = prompt('Enter admin password to save changes:');
@@ -3725,8 +3775,24 @@ function edSaveColors() {
   // Sheet never got the write (Pat's swatches kept disappearing). The
   // request DOES land server-side with no-cors; we just can't read the
   // response, so trust the write and update local state.
-  fetch(AS_URL + '?action=saveColors&rowIndex=' + edActiveBike.rowIndex + '&json=' + encodeURIComponent(jsonStr), {redirect:'follow', mode:'no-cors'})
-    .then(() => edSetStatus('ok', '✅ Colors synced to Sheet — live on brand pages within ~5 min.'))
+  var savedRow = edActiveBike.rowIndex;
+  var want = edCanonical(JSON.parse(jsonStr));
+  fetch(AS_URL + '?action=saveColors&rowIndex=' + savedRow + '&json=' + encodeURIComponent(jsonStr), {redirect:'follow', mode:'no-cors'})
+    .then(function () {
+      edSetStatus('info', 'Sent — reading the row back to confirm...');
+      return edVerifySaved(savedRow, function (row) {
+        return edCanonical(row.colors || {}) === want;
+      });
+    })
+    .then(function (confirmed) {
+      if (confirmed === true) {
+        edSetStatus('ok', '✅ Saved and confirmed in the Sheet. Run the sync action to put it on the site.');
+      } else if (confirmed === null) {
+        edSetStatus('err', '⚠️ Sent, but the sheet could not be read back to confirm. Reload this editor before relying on it.');
+      } else {
+        edSetStatus('err', '❌ NOT saved — the sheet still holds the old colours. Most often the Apps Script deployment is serving an older version: open the project, Deploy > Manage deployments > pencil > New version.');
+      }
+    })
     .catch(e => edSetStatus('err', 'Network error — swatches NOT saved to Sheet: ' + e.message));
 }
 
