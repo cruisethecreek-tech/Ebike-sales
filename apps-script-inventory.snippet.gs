@@ -96,7 +96,7 @@ var INV_TAB_NAME = 'Inventory';
 // Bump this string whenever you paste a new copy of this file into the editor.
 // ?action=inventoryVersion echoes it back, so you can tell at a glance whether
 // the /exec URL is serving the code you just saved or an older deployment.
-var INV_HANDLERS_VERSION = '2026-09-21b';
+var INV_HANDLERS_VERSION = '2026-09-21c';
 
 
 // -- HELPERS ------------------------------------------------
@@ -168,6 +168,25 @@ function _headerIndex_(headers, key) {
     if (_rowNormKey_(headers[i]) === want) return i;
   }
   return -1;
+}
+
+/**
+ * Throw a "column not found" that says which code threw it.
+ *
+ * The old handlers and these ones raise the identical string
+ * '"colors" column not found.', so the error was useless for telling a
+ * fixed deployment from a stale one — it looked the same either way, and
+ * reading it as proof of old code sent this debug down a wrong path twice.
+ *
+ * Include the version and the headers actually read. An error ending at
+ * "not found." came from the OLD code; one carrying a version and a header
+ * list came from here, which means the lookup genuinely failed and the
+ * header list shows why.
+ */
+function _throwNoColumn_(key, headers) {
+  throw new Error('"' + key + '" column not found. [' + INV_HANDLERS_VERSION + '] ' +
+                  'Headers read from "' + INV_TAB_NAME + '": ' +
+                  (headers && headers.length ? headers.join(' | ') : '(none)'));
 }
 
 function _rowGet_(row, key) {
@@ -342,7 +361,7 @@ function handleSetDiscontinued(e) {
 
     var inv = _openInventorySheet_();
     var col = _headerIndex_(inv.headers, 'discontinued');
-    if (col === -1) throw new Error('"discontinued" column not found.');
+    if (col === -1) _throwNoColumn_('discontinued', inv.headers);
 
     inv.sheet.getRange(rowIndex, col + 1).setValue(value);
     return ContentService
@@ -372,7 +391,7 @@ function handleUpdatePrice(e) {
 
     var inv = _openInventorySheet_();
     var col = _headerIndex_(inv.headers, 'price');
-    if (col === -1) throw new Error('"price" column not found.');
+    if (col === -1) _throwNoColumn_('price', inv.headers);
 
     inv.sheet.getRange(rowIndex, col + 1).setValue(price);
     return ContentService
@@ -402,7 +421,7 @@ function handleSaveColors(e) {
 
     var inv = _openInventorySheet_();
     var col = _headerIndex_(inv.headers, 'colors');
-    if (col === -1) throw new Error('"colors" column not found.');
+    if (col === -1) _throwNoColumn_('colors', inv.headers);
 
     inv.sheet.getRange(rowIndex, col + 1).setValue(json);
     return ContentService
@@ -432,7 +451,7 @@ function handleSaveSizeGuide(e) {
 
     var inv = _openInventorySheet_();
     var col = _headerIndex_(inv.headers, 'sizeGuide');
-    if (col === -1) throw new Error('"sizeGuide" column not found.');
+    if (col === -1) _throwNoColumn_('sizeGuide', inv.headers);
 
     inv.sheet.getRange(rowIndex, col + 1).setValue(json);
     return ContentService

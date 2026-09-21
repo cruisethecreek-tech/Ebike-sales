@@ -3894,6 +3894,56 @@ function edVerifyRowPresent(match) {
   });
 }
 
+/**
+ * Ask the SAME /exec URL the writes use what it is running.
+ *
+ * Checking the deployment by pasting a URL into a browser tab proves
+ * something about whatever URL got pasted. This page has its own AS_URL
+ * baked in, and there is more than one Apps Script deployment in this
+ * project, so "the deployment is fine" and "this page's saves fail" were
+ * never actually about the same endpoint. Run the check from here and that
+ * ambiguity is gone.
+ *
+ * Resolves the parsed report, or {ok:false, error} if it could not be read.
+ */
+function edDeploymentReport() {
+  return fetch(AS_URL + '?action=inventoryVersion&_=' + Date.now(),
+               { redirect: 'follow', cache: 'no-store' })
+    .then(function (r) { return r.text(); })
+    .then(function (text) {
+      var a = text.indexOf('{'), b = text.lastIndexOf('}');
+      var parsed = null;
+      if (a !== -1) { try { parsed = JSON.parse(text.slice(a, b + 1)); } catch (e) {} }
+      // A readable reply that is not this report means the endpoint answered
+      // but has never heard of the action — an older deployment. That is a
+      // different fact from no answer at all, and conflating the two is how
+      // "which URL is this page even talking to" stayed unanswered.
+      if (!parsed || parsed.version === undefined) return { ok: false, noSuchAction: true };
+      return parsed;
+    })
+    .catch(function (e) {
+      return { ok: false, unreachable: true, error: (e && e.message) || String(e) };
+    });
+}
+
+/** One line summarising a deployment report, for appending to an error. */
+function edDeploymentSummary(rep) {
+  if (!rep) return '';
+  if (rep.unreachable) return ' — could not reach this page\'s AS_URL at all (' + rep.error + ').';
+  if (rep.noSuchAction) {
+    return ' — this page\'s AS_URL answered but has NO inventoryVersion action, so it is serving an OLDER deployment than whatever you checked in a browser tab. Deploy a New version to THIS url.';
+  }
+  var bits = ['version ' + rep.version];
+  if (rep.handlersAreCurrent === false) {
+    bits.push('running OLD code for: ' + (rep.staleHandlers || []).join(', '));
+  }
+  if (rep.missingColumns && rep.missingColumns.length) {
+    bits.push('columns missing from the sheet: ' + rep.missingColumns.join(', '));
+  }
+  if (rep.headers) bits.push('headers: ' + rep.headers.join(' | '));
+  return ' — this page\'s AS_URL reports: ' + bits.join('; ') + '.';
+}
+
 function edSheetWrite(url) {
   function opaque(why) {
     return fetch(url, { redirect: 'follow', mode: 'no-cors' })
@@ -3982,6 +4032,14 @@ function edSaveColors() {
       } else if (out.status === 'refused') {
         // The server's own words. This is the message no-cors was swallowing.
         edSetStatus('err', '❌ The sheet refused this write: ' + out.error + '   [row ' + savedRow + ']');
+        // A refusal on its own cannot say whether the handler is old, the
+        // sheet changed, or this page is talking to a different deployment
+        // than the one that was checked. Ask this page's own endpoint and
+        // append the answer, so the next message is not another guess.
+        return edDeploymentReport().then(function (rep) {
+          edSetStatus('err', '❌ The sheet refused this write: ' + out.error +
+                             '   [row ' + savedRow + ']' + edDeploymentSummary(rep));
+        });
       } else if (out.status === 'unknown') {
         edSetStatus('err', '⚠️ Sent, but the sheet could not be read back to confirm. Reload this editor before relying on it.');
       } else {

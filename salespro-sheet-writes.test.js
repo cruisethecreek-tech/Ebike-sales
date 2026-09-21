@@ -44,7 +44,7 @@ const FILE = 'file://' + path.resolve('salespro.html');
 
 // What the fake Apps Script should do on the next write.
 // mode: 'ok' | 'refuse' | 'opaque-and-wrote' | 'opaque-and-lost' | 'dead'
-async function boot(browser, mode) {
+async function boot(browser, mode, versionReply) {
   const page = await browser.newPage();
   const calls = [];
   // One row, so read-back has something to find.
@@ -63,6 +63,26 @@ async function boot(browser, mode) {
     if (action === 'getSidebarInventory') {
       return route.fulfill({ status: 200, contentType: 'application/json',
         body: JSON.stringify([sheet]) });
+    }
+
+    // The deployment self-check runs against this same fake, which is the
+    // whole point of it: the check and the failing write share one URL.
+    if (action === 'inventoryVersion') {
+      if (versionReply === 'absent') {
+        // An older deployment that has never heard of this action.
+        return route.fulfill({ status: 200, contentType: 'text/html',
+          body: '<html>unknown action</html>' });
+      }
+      if (versionReply === 'stale') {
+        return route.fulfill({ status: 200, contentType: 'application/json',
+          body: JSON.stringify({ ok: true, version: '2026-09-21c',
+            handlersAreCurrent: false, staleHandlers: ['saveColors'],
+            missingColumns: [], headers: ['Brand', 'Colors (JSON)'] }) });
+      }
+      return route.fulfill({ status: 200, contentType: 'application/json',
+        body: JSON.stringify({ ok: true, version: '2026-09-21c',
+          handlersAreCurrent: true, staleHandlers: [],
+          missingColumns: [], headers: ['Brand', 'Colors (JSON)'] }) });
     }
 
     // Apply the write to our fake sheet when the scenario says it landed.
@@ -217,6 +237,45 @@ async function statusAfter(page, fn) {
     ok('a refused size guide does NOT claim success', !/✅/.test(status), status);
     const local = await page.evaluate(() => JSON.stringify(edActiveBike.sizeGuide));
     ok('a refused size guide leaves local state empty', local === '{}', local);
+    await page.close();
+  }
+
+  // ---- A refusal diagnoses itself, on this page's own AS_URL -------
+  {
+    const { page, calls } = await boot(browser, 'refuse', 'stale');
+    const status = await statusAfter(page, () => {
+      window.prompt = () => ADMIN_PASS;
+      edActiveBike = { rowIndex: 33, name: 'Mesa Lite', basePrice: 1299 };
+      edSwatchData = { 'One Size': { 'One Size': [{ name: 'Sand', hex: '#D9C7A3' }] } };
+      edSaveColors();
+    });
+    // Wait for the follow-up report to land on the status line.
+    await page.waitForFunction(() =>
+      /AS_URL reports|could not reach|older deployment/.test(
+        document.getElementById('edStatus').textContent), null, { timeout: 8000 }).catch(() => {});
+    const full = await page.evaluate(() => document.getElementById('edStatus').textContent);
+    ok('a refusal checks the deployment on the SAME url the write used',
+       calls.includes('inventoryVersion'), calls.join(','));
+    ok('and names the handler running old code', /saveColors/.test(full), full);
+    ok('while keeping the original refusal reason', /column not found/.test(full), full);
+    await page.close();
+  }
+  {
+    // The case that has been invisible: this page points at a DIFFERENT
+    // deployment than the one that was checked in a browser tab.
+    const { page } = await boot(browser, 'refuse', 'absent');
+    await statusAfter(page, () => {
+      window.prompt = () => ADMIN_PASS;
+      edActiveBike = { rowIndex: 33, name: 'Mesa Lite', basePrice: 1299 };
+      edSwatchData = { 'One Size': { 'One Size': [{ name: 'Sand', hex: '#D9C7A3' }] } };
+      edSaveColors();
+    });
+    await page.waitForFunction(() =>
+      /older deployment/i.test(document.getElementById('edStatus').textContent),
+      null, { timeout: 8000 }).catch(() => {});
+    const full = await page.evaluate(() => document.getElementById('edStatus').textContent);
+    ok('an endpoint with no inventoryVersion is called out as an older deployment',
+       /older deployment/i.test(full), full);
     await page.close();
   }
 
