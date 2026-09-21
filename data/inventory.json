@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2026-09-21T00:52:05Z",
+  "lastUpdated": "2026-09-21T01:22:12Z",
   "bikes": [
     {
       "brand": "Heybike",
@@ -135,14 +135,14 @@
         "Step-Thru": {
           "One Size": [
             {
+              "name": "Blue",
+              "hex": "#9ECAD6",
+              "img": "images/Venus Blue.png"
+            },
+            {
               "name": "Pink",
               "hex": "#FFDCDC",
               "img": "images/Venus Pink Badge Black.png"
-            },
-            {
-              "name": "Blue",
-              "hex": "#9ECAD6",
-              "img": "images/venusblueblack.png"
             },
             {
               "name": "White",
