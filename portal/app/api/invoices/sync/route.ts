@@ -184,8 +184,25 @@ export async function POST(req: NextRequest) {
     }
 
     // 4. Create or update invoice
+    //
+    // Keep the line items. They were already being read above to work out
+    // which bikes to register, then thrown away — so the admin invoice list
+    // could show a customer and an amount but nothing about what was sold,
+    // and the only way to find out was to reopen the invoice in the
+    // generator. Store exactly what came in, normalised to
+    // {description, qty, price} so the UI can rely on the shape.
+    const lineItems = Array.isArray(items)
+      ? items
+          .map((it: any) => ({
+            description: String(it?.description ?? '').trim(),
+            qty: Number(it?.qty) || 1,
+            price: Number(it?.price) || 0,
+          }))
+          .filter((it: { description: string }) => it.description)
+      : []
+
     if (invoiceNumber) {
-      await supabase.from('invoices').upsert({
+      const { error: invErr } = await supabase.from('invoices').upsert({
         customer_id: userId,
         invoice_number: invoiceNumber,
         total_amount: total,
@@ -193,7 +210,21 @@ export async function POST(req: NextRequest) {
         issued_at: new Date(invoiceDate).toISOString(),
         paid_at: status === 'paid' ? new Date(invoiceDate).toISOString() : null,
         pdf_url: paymentLink || null,
+        // Only overwrite with something. A re-sync that arrives without
+        // items should not wipe the items an earlier sync stored.
+        ...(lineItems.length ? { items: lineItems } : {}),
       }, { onConflict: 'invoice_number' })
+
+      // The upsert used to be fire-and-forget. A failure here means the
+      // portal silently disagrees with the Sheet about what was invoiced,
+      // so say so in the response rather than reporting a clean sync.
+      if (invErr) {
+        return NextResponse.json(
+          { ok: false, userId, invoiceNumber, invited, bikesAdded,
+            error: 'Customer synced but the invoice did not save: ' + invErr.message },
+          { status: 500, headers: corsHeaders }
+        )
+      }
     }
 
     return NextResponse.json(
@@ -205,6 +236,7 @@ export async function POST(req: NextRequest) {
         invoiceNumber,
         invited,
         bikesAdded,
+        itemsSaved: lineItems.length,
       },
       { status: 200, headers: corsHeaders }
     )

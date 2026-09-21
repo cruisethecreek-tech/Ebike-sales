@@ -85,6 +85,40 @@ export default async function AdminInvoiceDetail({ params }: { params: Promise<{
           </div>
         </div>
 
+        {/* What was sold. The list view shows only the first line; this is
+            the place to see the whole invoice without reopening it in the
+            generator. */}
+        {Array.isArray(invoice.items) && invoice.items.length > 0 ? (
+          <div className="border-t pt-4 border-[#E5E5E5]">
+            <h3 className="text-xs font-bold text-[#4A4A4A] mb-3 uppercase tracking-wider">Items</h3>
+            <ul className="divide-y divide-[#E5E5E5]">
+              {invoice.items.map((it: any, i: number) => {
+                const qty = Number(it?.qty) || 1
+                const price = Number(it?.price) || 0
+                return (
+                  <li key={i} className="py-2 flex items-baseline justify-between gap-4">
+                    <span className="text-sm text-[#1A2E1C]">
+                      {qty > 1 && <span className="text-[#4A4A4A]">{qty}× </span>}
+                      {String(it?.description || 'Item')}
+                    </span>
+                    <span className="text-sm font-semibold text-[#1A1A1A] whitespace-nowrap">
+                      ${(qty * price).toFixed(2)}
+                    </span>
+                  </li>
+                )
+              })}
+            </ul>
+          </div>
+        ) : (
+          <div className="border-t pt-4 border-[#E5E5E5]">
+            <h3 className="text-xs font-bold text-[#4A4A4A] mb-2 uppercase tracking-wider">Items</h3>
+            <p className="text-sm text-[#4A4A4A]">
+              Not recorded. This invoice synced before line items were stored —
+              open it in the generator and hit Save Changes to fill this in.
+            </p>
+          </div>
+        )}
+
         {invoice.description && (
           <div>
             <span className="text-xs text-[#4A4A4A] block mb-1 font-medium">Description</span>

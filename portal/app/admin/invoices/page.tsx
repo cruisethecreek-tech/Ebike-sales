@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { StatusBadge } from '@/app/components/status-badge'
 import { STORE_URL } from '@/lib/constants'
 import { DeleteInvoiceButton } from './delete-invoice-button'
+import { InvoiceItems } from './invoice-items'
 import Link from 'next/link'
 
 export default async function AdminInvoices() {
@@ -11,6 +12,22 @@ export default async function AdminInvoices() {
     .from('invoices')
     .select('*, customers(first_name, last_name)')
     .order('issued_at', { ascending: false })
+
+  // Invoices synced before the items column existed have none. A bike
+  // registered against the same invoice number is the same line item,
+  // recovered from the record it created, so use it rather than showing a
+  // blank cell that reads like a bug.
+  const { data: bikes } = await supabase
+    .from('bikes')
+    .select('brand, model, receipt_number')
+    .not('receipt_number', 'is', null)
+
+  const bikesByReceipt = new Map<string, Array<{ brand: string; model: string }>>()
+  for (const b of bikes || []) {
+    const key = String(b.receipt_number)
+    if (!bikesByReceipt.has(key)) bikesByReceipt.set(key, [])
+    bikesByReceipt.get(key)!.push({ brand: b.brand, model: b.model })
+  }
 
   return (
     <div className="space-y-6">
@@ -40,6 +57,7 @@ export default async function AdminInvoices() {
             <tr>
               <th className="p-3 sm:p-4 border-b font-semibold text-xs uppercase tracking-wider">Invoice #</th>
               <th className="p-3 sm:p-4 border-b font-semibold text-xs uppercase tracking-wider">Customer</th>
+              <th className="p-3 sm:p-4 border-b font-semibold text-xs uppercase tracking-wider">Item</th>
               <th className="p-3 sm:p-4 border-b font-semibold text-xs uppercase tracking-wider">Amount</th>
               <th className="p-3 sm:p-4 border-b font-semibold text-xs uppercase tracking-wider">Status</th>
               <th className="p-3 sm:p-4 border-b font-semibold text-xs uppercase tracking-wider">Issued Date</th>
@@ -73,7 +91,13 @@ export default async function AdminInvoices() {
                       ? inv.customers.last_name
                       : ''}
                   </td>
-                  <td className="p-3 sm:p-4 font-semibold text-[#1A1A1A]">
+                  <td className="p-3 sm:p-4 text-sm max-w-[240px]">
+                    <InvoiceItems
+                      items={inv.items}
+                      fallbackBikes={bikesByReceipt.get(String(inv.invoice_number)) || []}
+                    />
+                  </td>
+                  <td className="p-3 sm:p-4 font-semibold text-[#1A1A1A] whitespace-nowrap">
                     ${Number(inv.total_amount).toFixed(2)}
                   </td>
                   <td className="p-3 sm:p-4">
