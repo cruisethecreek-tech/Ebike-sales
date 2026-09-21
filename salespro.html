@@ -2132,7 +2132,7 @@ function syncBikeToSheet(d, isNew) {
 
 function syncDiscontinuedToSheet(d) {
   // Find matching bike in sheet inventory by name+brand to get rowIndex
-  fetch(AS_URL + '?action=getSidebarInventory', {redirect:'follow'})
+  fetch(AS_URL + '?action=getSidebarInventory&_=' + Date.now(), {redirect:'follow', cache:'no-store'})
     .then(r => r.text())
     .then(text => {
       const s = text.indexOf('['), e = text.lastIndexOf(']');
@@ -3343,8 +3343,11 @@ function edSetStatus(type, msg) {
 }
 
 function edLoadBikes() {
+  // Cache-busted on purpose. This runs right after a save, and a cached
+  // answer here shows the row as it was BEFORE the write — which is
+  // indistinguishable from the sheet having rejected it.
   edSetStatus('info', 'Loading inventory from sheet...');
-  fetch(AS_URL + '?action=getSidebarInventory', {redirect:'follow'})
+  fetch(AS_URL + '?action=getSidebarInventory&_=' + Date.now(), {redirect:'follow', cache:'no-store'})
     .then(r => r.text())
     .then(function(text) {
       var s = text.indexOf('['), e = text.lastIndexOf(']');
@@ -3728,7 +3731,7 @@ function edVerifySaved(rowIndex, compare) {
   return new Promise(function (resolve) {
     // The sheet write is not instant; re-reading immediately races it.
     setTimeout(function () {
-      fetch(AS_URL + '?action=getSidebarInventory&_=' + Date.now(), { redirect: 'follow' })
+      fetch(AS_URL + '?action=getSidebarInventory&_=' + Date.now(), { redirect: 'follow', cache: 'no-store' })
         .then(function (r) { return r.text(); })
         .then(function (text) {
           var a = text.indexOf('['), b = text.lastIndexOf(']');
@@ -4103,7 +4106,7 @@ syncBikesFromSheet();
 checkChangelogBadge();  // fetch sheet and add any missing bikes
 
 function syncBikesFromSheet() {
-  fetch(AS_URL + '?action=getBikeInventory', {redirect:'follow'})
+  fetch(AS_URL + '?action=getBikeInventory&_=' + Date.now(), {redirect:'follow', cache:'no-store'})
     .then(r => r.json())
     .then(sheetBikes => {
       let added = 0;
