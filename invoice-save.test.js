@@ -170,6 +170,37 @@ const INVOICE = {
   ok('it did not roll on to the next invoice number',
      (await page.inputValue('#invoiceNumber')) === 'CTR-068');
 
+  // --- a $0 total must not overwrite a real invoice -----------------------
+  //
+  // CTR-066 loads with no line items and a $0 total. Saving would write an
+  // empty invoice over a real $1,585.19 one in the Sheet, which bills. The
+  // guard is correct; what it said was not, so the message now names which
+  // of the two problems it is.
+  {
+    // Reuse the page already wired to the fake Apps Script; clear the writes
+    // so this assertion is about THIS attempt only.
+    writes.length = 0; portalCalls.length = 0; stripeCalls.length = 0;
+    await page.evaluate(() => {
+      window.prompt = () => ADMIN_PASS;
+      document.getElementById('invoiceNumber').value = 'CTR-066';
+      document.getElementById('lineItemsContainer').innerHTML = '';
+      document.getElementById('saveBtn').hidden = false;
+      saveInvoiceChanges();
+    });
+    await page.waitForFunction(
+      () => /Not saving CTR-066/.test(document.getElementById('statusMessage').textContent),
+      null, { timeout: 8000 }).catch(() => {});
+    const status = await page.evaluate(
+      () => document.getElementById('statusMessage').textContent.trim());
+    ok('a $0 total is refused', /Not saving CTR-066/.test(status), status);
+    ok('it says the line items did not load', /line items did not load/.test(status), status);
+    ok('it warns that saving would overwrite the real invoice',
+       /overwrite the real invoice/.test(status), status);
+    ok('and NOTHING was written to the Sheet',
+       writes.length === 0, writes.map(w => w.action).join(','));
+    ok('and nothing was sent to the portal', portalCalls.length === 0, String(portalCalls.length));
+  }
+
   // --- a blank form has nothing to save ----------------------------------
   const fresh = await browser.newPage();
   await fresh.goto(base + '/invoice.html');
