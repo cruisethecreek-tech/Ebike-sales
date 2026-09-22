@@ -91,6 +91,13 @@ export async function POST(req: NextRequest) {
     const paymentMode = String(body.paymentMode || 'full')
     const paymentLink = String(body.paymentLink || '')
     const invoiceDate = String(body.invoiceDate || new Date().toISOString().split('T')[0])
+
+    // Opt-in silence. Default stays false so a real sale still invites the
+    // customer the moment their invoice is created — that is the point of the
+    // portal. Set when back-filling historical invoices during an audit,
+    // where mailing someone a "set your password" link months after the fact
+    // is an unexplained email from a shop they may barely remember.
+    const quiet = body.quiet === true || body.quiet === 'true'
     const status = (paymentMode === 'paidInFullCash' || body.status === 'paid') ? 'paid' : 'pending'
 
     // Deliberately reads undefined and '' differently. An older cached copy
@@ -126,6 +133,29 @@ export async function POST(req: NextRequest) {
 
     const portalUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://portal.cruisethecreek.com'
     const redirectUrl = `${portalUrl}/auth/callback`
+
+    let createdQuietly = false
+
+    if (!user && quiet) {
+      // Create the account WITHOUT inviteUserByEmail, which is the only call
+      // on this path that sends mail. The customer exists, their invoice shows
+      // up, and nothing lands in their inbox. They can be invited later, on
+      // purpose, by syncing the invoice again without quiet.
+      //
+      // email_confirm: true so the address is not left pending; the random
+      // password is never used or returned — they will set their own via the
+      // invite or a reset when that day comes.
+      const randomPwd = Math.random().toString(36).slice(2) + 'Aa1!Quiet'
+      const { data: madeUser, error: makeErr } = await supabase.auth.admin.createUser({
+        email,
+        password: randomPwd,
+        email_confirm: true,
+        user_metadata: { first_name: firstName, last_name: lastName },
+      })
+      if (makeErr) throw makeErr
+      user = madeUser.user
+      createdQuietly = true
+    }
 
     if (!user) {
       // Send official portal invite email
@@ -245,6 +275,8 @@ export async function POST(req: NextRequest) {
         email,
         invoiceNumber,
         invited,
+        createdQuietly,
+        emailSent: invited,
         bikesAdded,
         itemsSaved: lineItems.length,
         supplierUrlSaved: supplierUrl === undefined ? null : supplierUrl !== '',
