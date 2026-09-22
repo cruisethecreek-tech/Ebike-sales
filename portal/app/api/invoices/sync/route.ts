@@ -93,6 +93,15 @@ export async function POST(req: NextRequest) {
     const invoiceDate = String(body.invoiceDate || new Date().toISOString().split('T')[0])
     const status = (paymentMode === 'paidInFullCash' || body.status === 'paid') ? 'paid' : 'pending'
 
+    // Deliberately reads undefined and '' differently. An older cached copy
+    // of invoice.html sends no supplierUrl at all; that must not be recorded
+    // as "confirmed none", or the invoice list would tell staff to redo
+    // warranty paperwork that is already done.
+    const supplierUrl =
+      body.supplierUrl === undefined || body.supplierUrl === null
+        ? undefined
+        : String(body.supplierUrl).trim()
+
     let items = body.items || []
     if (typeof items === 'string') {
       try { items = JSON.parse(items) } catch (_) { items = [] }
@@ -213,6 +222,7 @@ export async function POST(req: NextRequest) {
         // Only overwrite with something. A re-sync that arrives without
         // items should not wipe the items an earlier sync stored.
         ...(lineItems.length ? { items: lineItems } : {}),
+        ...(supplierUrl === undefined ? {} : { supplier_url: supplierUrl }),
       }, { onConflict: 'invoice_number' })
 
       // The upsert used to be fire-and-forget. A failure here means the
@@ -237,6 +247,7 @@ export async function POST(req: NextRequest) {
         invited,
         bikesAdded,
         itemsSaved: lineItems.length,
+        supplierUrlSaved: supplierUrl === undefined ? null : supplierUrl !== '',
       },
       { status: 200, headers: corsHeaders }
     )

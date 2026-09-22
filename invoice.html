@@ -2100,6 +2100,10 @@
                     customerEmail : invoiceData.customerEmail || '',
                     customerPhone : invoiceData.customerPhone || '',
                     items         : invoiceData.items || [],
+                    // Staff-only, and never sent before. The portal's invoice
+                    // list needs it to show which invoices still need warranty
+                    // paperwork; it is not shown to customers anywhere.
+                    supplierUrl   : invoiceData.supplierUrl || '',
                     total         : parseFloat(invoiceData.total) || 0,
                     balanceDue    : parseFloat(invoiceData.balanceDue) || 0,
                     paymentMode   : invoiceData.paymentMode || 'full',
