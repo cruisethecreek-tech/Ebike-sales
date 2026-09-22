@@ -1,7 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { StatusBadge } from '@/app/components/status-badge'
 import { STORE_URL } from '@/lib/constants'
-import { updateInvoiceStatus } from '../actions'
+import { StatusButtons } from '../status-buttons'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { SyncNowViewing } from '@/app/admin/sync-now-viewing'
@@ -129,25 +129,7 @@ export default async function AdminInvoiceDetail({ params }: { params: Promise<{
         {/* Status Update */}
         <div className="border-t pt-4 border-[#E5E5E5]">
           <h3 className="text-xs font-bold text-[#4A4A4A] mb-3 uppercase tracking-wider">Update Status</h3>
-          <div className="flex flex-wrap gap-2">
-            {['pending', 'paid', 'overdue', 'cancelled'].map((status) => (
-              <form key={status} action={updateInvoiceStatus}>
-                <input type="hidden" name="invoice_id" value={invoice.id} />
-                <input type="hidden" name="status" value={status} />
-                <button
-                  type="submit"
-                  disabled={invoice.status === status}
-                  className="px-4 py-2 rounded-lg text-sm font-medium transition-colors disabled:opacity-40"
-                  style={{
-                    backgroundColor: invoice.status === status ? '#2D4A32' : '#F5F0E8',
-                    color: invoice.status === status ? '#fff' : '#2D4A32',
-                  }}
-                >
-                  {status === 'paid' ? '✅ Paid' : status === 'pending' ? '⏳ Pending' : status === 'overdue' ? '⚠️ Overdue' : '❌ Cancelled'}
-                </button>
-              </form>
-            ))}
-          </div>
+          <StatusButtons invoiceId={invoice.id} current={invoice.status} />
         </div>
       </div>
     </div>
