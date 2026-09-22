@@ -26,6 +26,10 @@ export default function HomePage() {
             Get outside. Explore more. Slow down. Reconnect.
             <br className="hidden sm:block" />
             Your customer portal for bikes, invoices, service, and more.
+            <br className="hidden sm:block" />
+            <span className="text-base opacity-80">
+              Accounts are created when you buy a bike from us — we&rsquo;ll email you an invite.
+            </span>
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link
@@ -35,13 +39,18 @@ export default function HomePage() {
             >
               Sign In to Your Portal
             </Link>
-            <Link
-              href="/auth"
+            {/* NOT "Create Account". It linked to /auth, which has no sign-up
+                of any kind — the button promised an account and delivered a
+                login form. Accounts are created by the shop when someone buys
+                a bike, which is what the storefront's portal page explains and
+                what /auth already tells people at the bottom of the form. */}
+            <a
+              href="https://www.cruisethecreek.com/portal.html"
               className="px-8 py-3 rounded-lg font-semibold text-lg border-2 transition-colors"
               style={{ borderColor: 'rgba(255,255,255,0.3)', color: 'rgba(255,255,255,0.9)' }}
             >
-              Create Account
-            </Link>
+              How do I get access?
+            </a>
           </div>
         </div>
         {/* Decorative elements */}

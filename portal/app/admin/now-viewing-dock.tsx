@@ -41,6 +41,13 @@ function getGoogleVoiceUrls(phone?: string | null) {
 
 interface NowViewingDockProps {
   customers: CustomerWithData[]
+  /**
+   * Set when the layout's queries failed. Without it an empty customers list
+   * is indistinguishable from a shop with no customers, which is how a bad
+   * column name in the select turned the whole dock into a dead search box
+   * with nothing to say for itself.
+   */
+  dataError?: string | null
 }
 
 function cleanName(firstName?: string | null, lastName?: string | null): string {
@@ -58,7 +65,7 @@ function cleanName(firstName?: string | null, lastName?: string | null): string 
   return full || 'Customer'
 }
 
-export function NowViewingDock({ customers }: NowViewingDockProps) {
+export function NowViewingDock({ customers, dataError }: NowViewingDockProps) {
   const [isOpen, setIsOpen] = useState(false)
   // What the user pinned in this dock. Persisted, and survives navigation.
   const [selectedId, setSelectedId] = useState<string | null>(null)
@@ -205,13 +212,21 @@ export function NowViewingDock({ customers }: NowViewingDockProps) {
                 {selectedCustomer ? '👤' : '🔍'}
               </span>
               <div className="text-left min-w-0">
-                <div className="text-[10px] uppercase font-bold tracking-widest text-[#C9A96E]">
-                  {viewingLabel}
+                <div
+                  className={
+                    'text-[10px] uppercase font-bold tracking-widest ' +
+                    (dataError ? 'text-[#E8A0A0]' : 'text-[#C9A96E]')
+                  }
+                  title={dataError || undefined}
+                >
+                  {dataError ? 'Error' : viewingLabel}
                 </div>
                 <div className="text-sm font-bold truncate text-[#F5F0E8]">
-                  {selectedCustomer
-                    ? cleanName(selectedCustomer.first_name, selectedCustomer.last_name)
-                    : 'Search Customers, Bikes, Invoices…'}
+                  {dataError
+                    ? 'Customer data failed to load'
+                    : selectedCustomer
+                      ? cleanName(selectedCustomer.first_name, selectedCustomer.last_name)
+                      : 'Search Customers, Bikes, Invoices…'}
                 </div>
               </div>
             </div>
