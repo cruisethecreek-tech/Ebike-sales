@@ -3,6 +3,7 @@ import { StatusBadge } from '@/app/components/status-badge'
 import { STORE_URL } from '@/lib/constants'
 import { DeleteInvoiceButton } from './delete-invoice-button'
 import { InvoiceItems } from './invoice-items'
+import { ShopLinkBadge } from './shop-link-badge'
 import Link from 'next/link'
 
 export default async function AdminInvoices() {
@@ -61,6 +62,7 @@ export default async function AdminInvoices() {
               <th className="p-3 sm:p-4 border-b font-semibold text-xs uppercase tracking-wider">Amount</th>
               <th className="p-3 sm:p-4 border-b font-semibold text-xs uppercase tracking-wider">Status</th>
               <th className="p-3 sm:p-4 border-b font-semibold text-xs uppercase tracking-wider">Issued Date</th>
+              <th className="p-3 sm:p-4 border-b font-semibold text-xs uppercase tracking-wider text-center" title="Shop.com order / warranty tracking link">Shop</th>
               <th className="p-3 sm:p-4 border-b font-semibold text-xs uppercase tracking-wider text-right">Actions</th>
             </tr>
           </thead>
@@ -103,8 +105,11 @@ export default async function AdminInvoices() {
                   <td className="p-3 sm:p-4">
                     <StatusBadge status={inv.status} />
                   </td>
-                  <td className="p-3 sm:p-4 text-xs text-[#4A4A4A]">
+                  <td className="p-3 sm:p-4 text-xs text-[#4A4A4A] whitespace-nowrap">
                     {dateStr}
+                  </td>
+                  <td className="p-3 sm:p-4 text-center">
+                    <ShopLinkBadge supplierUrl={inv.supplier_url} />
                   </td>
                   <td className="p-3 sm:p-4 text-right">
                     <div className="inline-flex items-center gap-2">
