@@ -29,21 +29,32 @@ export default async function AdminLayout({ children }: { children: React.ReactN
     redirect('/dashboard')
   }
 
-  // Fetch all customers with bikes and invoices for the persistent Now Viewing search dock
-  const { data: customers } = await supabase
-    .from('customers')
-    .select('*')
-    .order('created_at', { ascending: false })
-
-  const { data: bikes } = await supabase
-    .from('bikes')
-    .select('*')
-    .order('created_at', { ascending: false })
-
-  const { data: invoices } = await supabase
-    .from('invoices')
-    .select('*')
-    .order('issued_at', { ascending: false })
+  // Everything the Now Viewing dock needs, in ONE round trip instead of three.
+  //
+  // These three reads do not depend on each other, but awaiting them in
+  // sequence made them additive: every admin page paid all three latencies
+  // back to back, on top of the middleware's auth check, this layout's own
+  // getUser, the is_admin lookup, and whatever the page itself fetches. The
+  // data is tiny — all three tables together are about 32 kB — so the cost
+  // was never the rows, it was the number of times we stopped and waited.
+  //
+  // Columns are named rather than '*' for the same reason: the dock only uses
+  // the fields in CustomerWithData, and invoices now carry a line-items blob
+  // that nothing in the dock reads.
+  const [{ data: customers }, { data: bikes }, { data: invoices }] = await Promise.all([
+    supabase
+      .from('customers')
+      .select('id, first_name, last_name, phone, email, referral_code, is_admin, created_at')
+      .order('created_at', { ascending: false }),
+    supabase
+      .from('bikes')
+      .select('id, customer_id, brand, model, serial_number, receipt_number, purchase_date')
+      .order('created_at', { ascending: false }),
+    supabase
+      .from('invoices')
+      .select('id, customer_id, invoice_number, total_amount, status, issued_at')
+      .order('issued_at', { ascending: false }),
+  ])
 
   const customersData = (customers || []).map((c) => ({
     ...c,
