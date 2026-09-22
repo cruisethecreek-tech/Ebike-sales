@@ -4,6 +4,7 @@ import { STORE_URL } from '@/lib/constants'
 import { DeleteInvoiceButton } from './delete-invoice-button'
 import { InvoiceItems } from './invoice-items'
 import { ShopLinkBadge } from './shop-link-badge'
+import { BulkResync } from './bulk-resync'
 import Link from 'next/link'
 
 export default async function AdminInvoices() {
@@ -48,14 +49,25 @@ export default async function AdminInvoices() {
           </h1>
           <p className="text-xs text-[#4A4A4A]">Manage & edit all customer invoices</p>
         </div>
-        <a
-          href={`${STORE_URL}/invoice.html`}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="btn-primary text-xs px-3.5 py-2 flex items-center gap-1.5 shadow-sm"
-        >
-          ⚡ Open Invoice Generator ↗
-        </a>
+        <div className="flex flex-col items-end gap-1">
+          <a
+            href={`${STORE_URL}/invoice.html`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="btn-primary text-xs px-3.5 py-2 flex items-center gap-1.5 shadow-sm"
+          >
+            ⚡ Open Invoice Generator ↗
+          </a>
+          {/* For the audit: push every portal status to the Sheet in one pass
+              rather than opening 50-odd invoices one at a time. */}
+          <BulkResync
+            targets={(invoices || []).map((inv: any) => ({
+              id: inv.id,
+              invoiceNumber: inv.invoice_number || '',
+              status: inv.status || '',
+            }))}
+          />
+        </div>
       </div>
 
       <div className="bg-white rounded-xl shadow-sm border border-[#E5E5E5] overflow-x-auto">
