@@ -24,7 +24,9 @@ ok('page context is separate from the pinned selection',
    /pageCustomerId/.test(dock) && /selectedId/.test(dock))
 ok('page context is NOT persisted',
    !/localStorage[^\n]*pageCustomer/i.test(dock))
-ok('the label is computed, not hardcoded', /\{viewingLabel\}/.test(dock))
+ok('the label is computed, not hardcoded', /viewingLabel\}/.test(dock))
+ok('and a data failure outranks it, so a broken dock cannot say Now Viewing',
+   /dataError \? 'Error' : viewingLabel/.test(dock))
 ok('a pin on an unrelated page is labelled as a pin', /Pinned Customer/.test(dock))
 
 ok('the sync component clears context on unmount', /id: null/.test(sync))

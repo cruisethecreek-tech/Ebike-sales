@@ -79,6 +79,22 @@ export default function AuthPage() {
           })
 
           if (error) {
+            // This is the browser's SAVED password being rejected, not
+            // anything the person just typed — so "Invalid login credentials"
+            // on its own is unactionable and reads like their fingerprint was
+            // refused. Say whose login it was and what to do about it.
+            //
+            // preventSilentAccess stops the same stale credential being handed
+            // straight back on the next tap, which otherwise makes the button
+            // look permanently broken.
+            try { await navigator.credentials.preventSilentAccess?.() } catch (_) {}
+            if (/invalid login credentials/i.test(error.message)) {
+              throw new Error(
+                `The saved login for ${email} is out of date — the password has changed since ` +
+                `your browser stored it. Sign in on the Password tab once and it will save the ` +
+                `new one for next time.`
+              )
+            }
             throw new Error(error.message)
           }
 

@@ -41,10 +41,14 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   // Columns are named rather than '*' for the same reason: the dock only uses
   // the fields in CustomerWithData, and invoices now carry a line-items blob
   // that nothing in the dock reads.
-  const [{ data: customers }, { data: bikes }, { data: invoices }] = await Promise.all([
+  const [customersRes, bikesRes, invoicesRes] = await Promise.all([
     supabase
+      // No `email` here: public.customers has no such column — addresses live
+      // on auth.users. Naming it made PostgREST reject the whole query, and
+      // because the error was discarded the dock simply rendered with nobody
+      // in it. That is what the check below exists to prevent.
       .from('customers')
-      .select('id, first_name, last_name, phone, email, referral_code, is_admin, created_at')
+      .select('id, first_name, last_name, phone, referral_code, is_admin, created_at')
       .order('created_at', { ascending: false }),
     supabase
       .from('bikes')
@@ -55,6 +59,22 @@ export default async function AdminLayout({ children }: { children: React.ReactN
       .select('id, customer_id, invoice_number, total_amount, status, issued_at')
       .order('issued_at', { ascending: false }),
   ])
+
+  // A failed query returns data: null, and `|| []` then turns a broken dock
+  // into an empty one — silently. Naming columns is worth doing, but it only
+  // takes one typo to select a column that does not exist, and the failure
+  // looks exactly like "this shop has no customers". Surface it instead.
+  const dockError = [
+    customersRes.error && `customers: ${customersRes.error.message}`,
+    bikesRes.error && `bikes: ${bikesRes.error.message}`,
+    invoicesRes.error && `invoices: ${invoicesRes.error.message}`,
+  ].filter(Boolean).join(' · ') || null
+
+  if (dockError) console.error('[admin dock] query failed —', dockError)
+
+  const customers = customersRes.data
+  const bikes = bikesRes.data
+  const invoices = invoicesRes.data
 
   const customersData = (customers || []).map((c) => ({
     ...c,
@@ -152,7 +172,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
       </div>
 
       {/* ── Persistent 'Now Viewing' Bottom Search Dock ── */}
-      <NowViewingDock customers={customersData} />
+      <NowViewingDock customers={customersData} dataError={dockError} />
     </div>
   )
 }
