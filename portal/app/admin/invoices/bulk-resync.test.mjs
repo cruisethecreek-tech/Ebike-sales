@@ -64,8 +64,50 @@ ok('stopped early => reports only what landed', r.ok === 2 && r.stopped === true
 r = run([false, false])
 ok('all failed => zero claimed as written', r.ok === 0 && r.failed === 2)
 
-ok('a run with failures is not shown as success',
-   /finished\.failed \? 'text-\[#B3261E\]' : 'text-\[#2D4A32\]'/.test(ui))
+ok('a run with failures is not shown as success, and unknowns get their own colour',
+   /finished\.failed \? 'text-\[#B3261E\]' : finished\.unknown \? 'text-\[#8A6D1F\]' : 'text-\[#2D4A32\]'/.test(ui))
+
+// --- a timeout is not a failure -----------------------------------------
+//
+// 16 of 55 in the first real run came back "The operation was aborted due to
+// timeout". That says the answer never arrived, NOT that the Sheet refused
+// the write — Apps Script may well have saved the row and been slow to say
+// so. Reporting it as "could not write" is as wrong as reporting success.
+const actions = readFileSync(join(here, 'actions.ts'), 'utf8')
+
+ok('a timed-out write is marked unknown, not failed', /unknown: true/.test(actions))
+ok('and says plainly that it may or may not have saved',
+   /may or may not have been saved/.test(actions))
+ok('the timeout is long enough for a cold Apps Script', /25_000/.test(actions))
+ok('it retries once, with more room', /40_000/.test(actions))
+ok('a refusal is NOT retried — that is an answer',
+   /A refusal is an answer, not a transport problem/.test(actions))
+ok('only transport errors retry', /if \(!timedOut\) break/.test(actions))
+
+ok('the bulk run counts unknowns separately', /let unknown = 0/.test(ui))
+ok('and does not fold them into the failed count',
+   /failed: failed\.length - unknown/.test(ui))
+ok('the summary names them', /unconfirmed/.test(ui))
+ok('and says what to do about them', /Run it again/.test(ui))
+ok('unknown reads as a warning, not an error',
+   /finished\.unknown \? '⚠️ '/.test(ui))
+ok('the loop paces itself between writes', /setTimeout\(r, 250\)/.test(ui))
+
+// The three-way tally, exercised.
+const tally = (rs) => rs.reduce((a, r) => {
+  if (r === 'ok') a.ok++
+  else if (r === 'unknown') a.unknown++
+  else a.failed++
+  return a
+}, { ok: 0, failed: 0, unknown: 0 })
+
+let t = tally(['ok','ok','unknown','refused'])
+ok('ok / unknown / refused are counted apart',
+   t.ok === 2 && t.unknown === 1 && t.failed === 1, JSON.stringify(t))
+t = tally(['ok','unknown'])
+ok('an unknown alone is not reported as a clean run', t.unknown === 1 && t.failed === 0)
+t = tally(['ok','ok'])
+ok('a clean run has no unknowns and no failures', t.unknown === 0 && t.failed === 0)
 
 console.log(fails ? `\n${fails} FAILED` : '\nAll passed')
 process.exit(fails ? 1 : 0)

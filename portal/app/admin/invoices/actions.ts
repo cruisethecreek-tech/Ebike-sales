@@ -5,7 +5,13 @@ import { requireAdminUser } from '@/lib/require-admin'
 import { revalidatePath } from 'next/cache'
 import { APPS_SCRIPT_CMS_URL } from '@/lib/constants'
 
-export type StatusResult = { ok: boolean; message?: string; sheetSynced?: boolean }
+export type StatusResult = {
+  ok: boolean
+  message?: string
+  sheetSynced?: boolean
+  /** The Sheet never answered. The change may or may not have landed. */
+  unknown?: boolean
+}
 
 /**
  * Push a status change to the Google Sheet.
@@ -26,7 +32,7 @@ export type StatusResult = { ok: boolean; message?: string; sheetSynced?: boolea
 async function syncStatusToSheet(
   invoiceNumber: string,
   status: string
-): Promise<{ ok: boolean; error?: string }> {
+): Promise<{ ok: boolean; error?: string; unknown?: boolean }> {
   if (!invoiceNumber) return { ok: false, error: 'this invoice has no number, so the Sheet row cannot be found' }
 
   const url =
@@ -35,13 +41,16 @@ async function syncStatusToSheet(
     `&status=${encodeURIComponent(status)}` +
     `&method=${encodeURIComponent('portal')}`
 
+  // Apps Script is slow to start and gets slower under a run of back-to-back
+  // requests: at 10s, 16 of 55 in one bulk pass ran out of time. Give it room,
+  // and try once more before giving up — the retry usually lands.
+  let lastErr = 'unknown'
+  for (let attempt = 0; attempt < 2; attempt++) {
   try {
-    // Apps Script answers a redirect; follow it and read the body. A timeout
-    // rather than an open-ended wait: a hung script must not hang the action.
     const res = await fetch(url, {
       redirect: 'follow',
       cache: 'no-store',
-      signal: AbortSignal.timeout(10_000),
+      signal: AbortSignal.timeout(attempt === 0 ? 25_000 : 40_000),
     })
     const text = await res.text()
 
@@ -53,10 +62,24 @@ async function syncStatusToSheet(
 
     const data = JSON.parse(text.slice(a, b + 1))
     if (data.status === 'ok' || data.ok === true) return { ok: true }
+    // A refusal is an answer, not a transport problem — do not retry it.
     return { ok: false, error: String(data.message || data.error || 'the Sheet refused the change') }
   } catch (err: any) {
-    return { ok: false, error: err?.message || String(err) }
+    lastErr = err?.message || String(err)
+    const timedOut = /timeout|aborted/i.test(lastErr)
+    if (!timedOut) break
+    // Fall through and retry once.
   }
+  }
+
+  // A timeout means the answer never came back. It does NOT mean the write
+  // failed — Apps Script may well have saved the row and simply been slow to
+  // say so. Reporting that as "could not write" is as wrong as reporting it
+  // as success, so say what is actually known.
+  if (/timeout|aborted/i.test(lastErr)) {
+    return { ok: false, unknown: true, error: 'the Sheet did not answer in time — the change may or may not have been saved' }
+  }
+  return { ok: false, error: lastErr }
 }
 
 export async function updateInvoiceStatus(
@@ -154,7 +177,8 @@ export async function resyncStatusToSheet(
     return {
       ok: false,
       sheetSynced: false,
-      message: `Could not write ${invoiceNumber || 'this invoice'} to the Sheet: ${sheet.error}`,
+      unknown: sheet.unknown === true,
+      message: `${invoiceNumber || 'This invoice'}: ${sheet.error}`,
     }
   }
 

@@ -30,8 +30,10 @@ export function BulkResync({ targets }: { targets: ResyncTarget[] }) {
   const [armed, setArmed] = useState(false)
   const [running, setRunning] = useState(false)
   const [done, setDone] = useState(0)
-  const [failures, setFailures] = useState<Array<{ n: string; why: string }>>([])
-  const [finished, setFinished] = useState<null | { ok: number; failed: number; stopped: boolean }>(null)
+  const [failures, setFailures] = useState<Array<{ n: string; why: string; unknown?: boolean }>>([])
+  const [finished, setFinished] = useState<
+    null | { ok: number; failed: number; unknown: number; stopped: boolean }
+  >(null)
   const stopRef = useRef(false)
 
   const total = targets.length
@@ -45,11 +47,12 @@ export function BulkResync({ targets }: { targets: ResyncTarget[] }) {
     setFinished(null)
 
     let ok = 0
-    const failed: Array<{ n: string; why: string }> = []
+    let unknown = 0
+    const failed: Array<{ n: string; why: string; unknown?: boolean }> = []
 
     for (let i = 0; i < targets.length; i++) {
       if (stopRef.current) {
-        setFinished({ ok, failed: failed.length, stopped: true })
+        setFinished({ ok, failed: failed.length - unknown, unknown, stopped: true })
         setRunning(false)
         return
       }
@@ -64,15 +67,20 @@ export function BulkResync({ targets }: { targets: ResyncTarget[] }) {
       }
       if (res.ok) ok++
       else {
-        failed.push({ n: t.invoiceNumber || t.id, why: res.message || 'unknown' })
+        if (res.unknown) unknown++
+        failed.push({ n: t.invoiceNumber || t.id, why: res.message || 'unknown', unknown: res.unknown })
         // Show failures as they happen. Finding out at the end which of 55
         // invoices did not land is worse than watching them appear.
         setFailures([...failed])
       }
       setDone(i + 1)
+      // Apps Script slows down under a run of back-to-back calls — this is
+      // what pushed 16 of 55 past the timeout. A short breath between writes
+      // costs half a minute and saves a second pass.
+      if (i < targets.length - 1) await new Promise((r) => setTimeout(r, 250))
     }
 
-    setFinished({ ok, failed: failed.length, stopped: false })
+    setFinished({ ok, failed: failed.length - unknown, unknown, stopped: false })
     setRunning(false)
   }
 
@@ -144,20 +152,24 @@ export function BulkResync({ targets }: { targets: ResyncTarget[] }) {
           role="alert"
           className={
             'mt-2 text-xs font-semibold ' +
-            (finished.failed ? 'text-[#B3261E]' : 'text-[#2D4A32]')
+            (finished.failed ? 'text-[#B3261E]' : finished.unknown ? 'text-[#8A6D1F]' : 'text-[#2D4A32]')
           }
         >
-          {finished.failed ? '❌ ' : '✅ '}
-          {finished.ok} of {total} written to the Sheet
-          {finished.failed ? `, ${finished.failed} failed` : ''}
+          {finished.failed ? '❌ ' : finished.unknown ? '⚠️ ' : '✅ '}
+          {finished.ok} of {total} confirmed written to the Sheet
+          {finished.failed ? `, ${finished.failed} refused` : ''}
+          {finished.unknown ? `, ${finished.unknown} unconfirmed` : ''}
           {finished.stopped ? ' (stopped early)' : ''}.
+          {finished.unknown
+            ? ' Unconfirmed means the Sheet never answered — those may have saved anyway. Run it again; anything already correct is rewritten harmlessly.'
+            : ''}
         </p>
       )}
 
       {failures.length > 0 && (
         <ul className="mt-1 text-[11px] text-[#B3261E] space-y-0.5">
           {failures.map((f) => (
-            <li key={f.n}>
+            <li key={f.n} className={f.unknown ? 'text-[#8A6D1F]' : undefined}>
               <b>{f.n}</b> — {f.why}
             </li>
           ))}
