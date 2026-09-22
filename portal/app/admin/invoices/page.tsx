@@ -9,19 +9,25 @@ import Link from 'next/link'
 export default async function AdminInvoices() {
   const supabase = await createClient()
 
-  const { data: invoices } = await supabase
-    .from('invoices')
-    .select('*, customers(first_name, last_name)')
-    .order('issued_at', { ascending: false })
-
+  // Both in one round trip. The bikes read does not depend on the invoices
+  // read, and awaiting it separately just added its latency to a page that
+  // already waits on the middleware, the layout's auth check and the layout's
+  // own three reads.
+  //
   // Invoices synced before the items column existed have none. A bike
   // registered against the same invoice number is the same line item,
   // recovered from the record it created, so use it rather than showing a
   // blank cell that reads like a bug.
-  const { data: bikes } = await supabase
-    .from('bikes')
-    .select('brand, model, receipt_number')
-    .not('receipt_number', 'is', null)
+  const [{ data: invoices }, { data: bikes }] = await Promise.all([
+    supabase
+      .from('invoices')
+      .select('id, invoice_number, total_amount, status, issued_at, created_at, items, supplier_url, customers(first_name, last_name)')
+      .order('issued_at', { ascending: false }),
+    supabase
+      .from('bikes')
+      .select('brand, model, receipt_number')
+      .not('receipt_number', 'is', null),
+  ])
 
   const bikesByReceipt = new Map<string, Array<{ brand: string; model: string }>>()
   for (const b of bikes || []) {
