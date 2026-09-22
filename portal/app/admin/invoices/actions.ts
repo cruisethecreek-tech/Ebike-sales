@@ -111,6 +111,66 @@ export async function updateInvoiceStatus(
 }
 
 /**
+ * Push the status the portal ALREADY holds to the Sheet, changing nothing here.
+ *
+ * Needed because the status buttons disable the option that is already
+ * current, so an invoice the portal calls paid while the Sheet still calls it
+ * pending could only be fixed by toggling to another status and back — which
+ * writes a wrong status to the Sheet, however briefly, and leaves two
+ * misleading lines in paymentNotes.
+ *
+ * This is the repair for every invoice that was marked paid before the portal
+ * started telling the Sheet anything. It is idempotent: pushing a status the
+ * Sheet already holds just rewrites the same value.
+ *
+ * Reads from Supabase, writes only to the Sheet. Sends no email, for the same
+ * reason updateInvoiceStatus does not.
+ */
+export async function resyncStatusToSheet(
+  _prev: StatusResult | null,
+  formData: FormData
+): Promise<StatusResult> {
+  await requireAdminUser()
+
+  const invoiceId = String(formData.get('invoice_id') || '').trim()
+  if (!invoiceId) return { ok: false, message: 'No invoice was specified.' }
+
+  const supabase = await createClient()
+  const { data, error } = await supabase
+    .from('invoices')
+    .select('invoice_number, status')
+    .eq('id', invoiceId)
+    .single()
+
+  if (error) return { ok: false, message: error.message }
+  if (!data) return { ok: false, message: 'That invoice is no longer in the portal.' }
+
+  const invoiceNumber = String(data.invoice_number || '')
+  const status = String(data.status || '')
+  if (!status) return { ok: false, message: 'This invoice has no status to push.' }
+
+  const sheet = await syncStatusToSheet(invoiceNumber, status)
+  if (!sheet.ok) {
+    return {
+      ok: false,
+      sheetSynced: false,
+      message: `Could not write ${invoiceNumber || 'this invoice'} to the Sheet: ${sheet.error}`,
+    }
+  }
+
+  // Nothing in Supabase changed, so only the views that show Sheet-derived
+  // state need refreshing — but revalidate anyway so the page reflects a
+  // known-good state rather than a stale render.
+  revalidatePath(`/admin/invoices/${invoiceId}`)
+
+  return {
+    ok: true,
+    sheetSynced: true,
+    message: `Pushed "${status}" to the Sheet for ${invoiceNumber}. Nothing in the portal changed.`,
+  }
+}
+
+/**
  * Delete an invoice from the portal.
  *
  * Returns a result instead of void, because the previous version could not

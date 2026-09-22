@@ -64,7 +64,8 @@ ok('the request cannot hang the action', /AbortSignal\.timeout/.test(actions))
 ok('the UI surfaces the result', /result\.message/.test(ui) && /role="alert"/.test(ui))
 ok('the UI distinguishes success from failure by colour',
    /result\.ok \? 'text-\[#2D4A32\]' : 'text-\[#B3261E\]'/.test(ui))
-ok('buttons are disabled while in flight', /disabled=\{current === status \|\| pending\}/.test(ui))
+ok('the current status stays disabled, and all of them while a request is in flight',
+   /disabled=\{current === status \|\| busy\}/.test(ui))
 ok('the detail page uses the new control', /<StatusButtons /.test(page))
 ok('and no longer posts straight to the raw action',
    !/action=\{updateInvoiceStatus\}/.test(page))
@@ -79,6 +80,45 @@ ok('portal ok + sheet ok => success', decide(true, 1, true) === 'ok')
 ok('portal ok + sheet failed => NOT success', decide(true, 1, false) === 'sheet-failed')
 ok('portal refused => not success', decide(true, 0, true) === 'db-refused')
 ok('portal errored => not success', decide(false, 0, true) === 'db-error')
+
+// --- Re-sync: push the status the portal already holds -------------------
+//
+// The status buttons disable whatever is already current, so an invoice the
+// portal calls paid while the Sheet calls it pending could otherwise only be
+// fixed by toggling to another status and back — which writes a WRONG status
+// to the thing that bills, however briefly, and leaves two misleading lines
+// in paymentNotes.
+ok('a re-sync action exists', /export async function resyncStatusToSheet/.test(actions))
+
+const resync = actions.slice(actions.indexOf('export async function resyncStatusToSheet'),
+                             actions.indexOf('export type DeleteInvoiceResult'))
+ok('it reads the invoice rather than writing it',
+   /\.select\('invoice_number, status'\)/.test(resync) && !/\.update\(/.test(resync))
+ok('it pushes the status already stored, not one from the form',
+   /syncStatusToSheet\(invoiceNumber, status\)/.test(resync) && !/formData\.get\('status'\)/.test(resync))
+ok('it refuses an invoice with no status', /no status to push/.test(resync))
+ok('it refuses an invoice that is gone', /no longer in the portal/.test(resync))
+ok('a Sheet failure is still a failure', /ok: false,\s*\n\s*sheetSynced: false/.test(resync))
+ok('it says the portal was left alone', /Nothing in the portal changed/.test(resync))
+ok('it sends no email either',
+   !/mail|stripe|invite/i.test(resync))
+
+ok('the button is wired to it', /action=\{resubmit\}/.test(ui))
+ok('it carries the invoice id', /name="invoice_id"/.test(ui))
+ok('its result has its own slot, not shared with the status result',
+   /resync && !resyncing/.test(ui) && /result && !pending/.test(ui))
+ok('every button is disabled while either request is in flight',
+   /const busy = pending \|\| resyncing/.test(ui) && /disabled=\{busy\}/.test(ui))
+ok('the hover text explains it changes nothing in the portal',
+   /without changing anything here/.test(ui))
+ok('the no-email promise now covers both buttons',
+   /Both buttons write the Google Sheet\. No email is sent/.test(ui))
+
+// Idempotence is the property that makes it safe to click during an audit.
+const push = (sheetStatus, portalStatus) => portalStatus
+ok('pushing a status the Sheet already has is a no-op in effect',
+   push('paid', 'paid') === 'paid')
+ok('pushing corrects a stale Sheet', push('pending', 'paid') === 'paid')
 
 console.log(fails ? `\n${fails} FAILED` : '\nAll passed')
 process.exit(fails ? 1 : 0)
