@@ -154,6 +154,12 @@ const INVOICE = {
      writes.map(w => w.action).join(', '));
   ok('and it carries the value that was just typed',
      meta && /55155678466/.test(meta.url), meta && meta.url);
+  // Save Changes is the audit tool: it must not mail a customer a
+  // "set your password" link because staff corrected a typo months later.
+  ok('the save asks the portal NOT to email the customer',
+     sent.quiet === true, JSON.stringify(sent.quiet));
+  ok('and the status line says so', /no email was sent to the customer/i.test(status), status);
+
   ok('the saved payload carries the line items',
      Array.isArray(sent.items) && sent.items.length === 1, JSON.stringify(sent.items));
   ok('the line item keeps its description',

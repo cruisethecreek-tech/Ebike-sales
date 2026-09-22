@@ -1812,9 +1812,9 @@
                 // No notifyInvoiceCreated here: this invoice already exists,
                 // and announcing it again would read as a second sale.
                 logOrderToSheet(invoiceData, existingLink, '');
-                syncInvoiceToPortal(invoiceData, existingLink);
+                syncInvoiceToPortal(invoiceData, existingLink, true);
                 showStatus('Saved ' + invNum + ' — the Sheet row and the portal were updated. ' +
-                           'No payment link was created.', 'success');
+                           'No payment link was created, and no email was sent to the customer.', 'success');
             } catch (err) {
                 showStatus('Could not save ' + invNum + ': ' + (err && err.message ? err.message : err), 'error');
             } finally {
@@ -2090,7 +2090,16 @@
         // Automatically sync customer, invoice, and registered bikes to
         // Cruise the Creek Customer Portal (portal.cruisethecreek.com).
         // Dispatches official Supabase email invite to customer.
-        function syncInvoiceToPortal(invoiceData, paymentLink) {
+        /**
+         * @param quiet  true = create a missing portal account WITHOUT emailing
+         *               the customer. Used by Save Changes, which exists to
+         *               correct and back-fill existing invoices; mailing
+         *               someone a "set your password" link months after their
+         *               purchase, because staff fixed a typo, is not something
+         *               the person who clicked Save is asking for.
+         *               New invoices leave it off and invite as before.
+         */
+        function syncInvoiceToPortal(invoiceData, paymentLink, quiet) {
             if (!invoiceData.customerEmail || !invoiceData.customerEmail.trim()) return;
             try {
                 const payload = {
@@ -2108,6 +2117,7 @@
                     balanceDue    : parseFloat(invoiceData.balanceDue) || 0,
                     paymentMode   : invoiceData.paymentMode || 'full',
                     paymentLink   : paymentLink || '',
+                    quiet         : quiet === true,
                     status        : (invoiceData.paymentMode === 'paidInFullCash' || (parseFloat(invoiceData.balanceDue) || 0) <= 0) ? 'paid' : 'pending'
                 };
                 fetch('https://portal.cruisethecreek.com/api/invoices/sync', {
