@@ -3,6 +3,7 @@
 import { useState, useActionState, useEffect } from 'react'
 import { signIn, sendMagicLink } from './actions'
 import { createClient } from '@/lib/supabase/client'
+import { startAuthentication } from '@simplewebauthn/browser'
 import Link from 'next/link'
 
 export default function AuthPage() {
@@ -25,101 +26,65 @@ export default function AuthPage() {
     } catch (_) {}
   }, [])
 
-  // Handle WebAuthn / Passkey / Android Fingerprint / Apple Touch ID & Face ID
+  // Sign in with a real passkey.
+  //
+  // What was here before could not work. It called
+  // navigator.credentials.get({ password: true }) — a Chromium-only API that
+  // returns a password the browser saved, which iPhones do not implement at
+  // all — and then a bare WebAuthn get() whose assertion nothing on the
+  // server ever verified. Meanwhile "Activate Biometrics" on the dashboard
+  // never stored a key anywhere. So there was no key to find, and nothing
+  // that could have checked one.
+  //
+  // Now: the server issues a challenge, the phone signs it with the key held
+  // in its secure element (released by Face ID / Touch ID / fingerprint), and
+  // the server verifies that signature against the public key it stored at
+  // registration before issuing a session.
   async function handleBiometricLogin() {
     setBioError(null)
     setBioLoading(true)
 
     try {
+      if (typeof window === 'undefined' || !window.PublicKeyCredential) {
+        throw new Error(
+          'This browser does not support passkeys. Use the Email Link tab to sign in.'
+        )
+      }
+
+      const optionsRes = await fetch('/api/webauthn/authenticate/options', { method: 'POST' })
+      const optionsJson = await optionsRes.json()
+      if (!optionsRes.ok) throw new Error(optionsJson.error || 'Could not start passkey sign-in.')
+
+      const assertion = await startAuthentication({ optionsJSON: optionsJson.options })
+
+      const verifyRes = await fetch('/api/webauthn/authenticate/verify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ response: assertion }),
+      })
+      const verifyJson = await verifyRes.json()
+      if (!verifyRes.ok || !verifyJson.tokenHash) {
+        throw new Error(verifyJson.error || 'Passkey sign-in failed.')
+      }
+
+      // Redeem the one-time token the server just issued for this verified
+      // passkey. This is what actually puts a session in the browser.
       const supabase = createClient()
+      const { data, error } = await supabase.auth.verifyOtp({
+        type: 'magiclink',
+        token_hash: verifyJson.tokenHash,
+      })
+      if (error) throw error
+      if (!data?.session) throw new Error('Passkey verified, but no session was created.')
 
-      // Step 1: Check for Credential Management API support
-      if (!navigator.credentials || !navigator.credentials.get) {
-        throw new Error('Credential Management / Biometrics is not supported in this browser.')
-      }
-
-      // Try password credential retrieval first (Google Password Manager / Samsung Pass / Apple Keychain)
-      let credential: any = null
-
-      try {
-        credential = await navigator.credentials.get({
-          password: true,
-          mediation: 'optional',
-        } as any)
-      } catch (getErr) {
-        console.log('[auth] password credential get failed, trying WebAuthn:', getErr)
-      }
-
-      // If no password credential, try WebAuthn passkey assertion
-      if (!credential && window.PublicKeyCredential) {
-        try {
-          const challenge = new Uint8Array(32)
-          window.crypto.getRandomValues(challenge)
-          credential = await navigator.credentials.get({
-            publicKey: {
-              challenge,
-              timeout: 60000,
-              userVerification: 'preferred',
-            },
-          })
-        } catch (pkErr: any) {
-          console.log('[auth] WebAuthn get failed:', pkErr)
-        }
-      }
-
-      // Handle PasswordCredential returned from Google Password Manager / Android Passkey prompt
-      if (credential && (credential.password || credential.id)) {
-        const email = credential.id
-        const password = credential.password
-
-        if (email && password) {
-          const { data, error } = await supabase.auth.signInWithPassword({
-            email,
-            password,
-          })
-
-          if (error) {
-            // This is the browser's SAVED password being rejected, not
-            // anything the person just typed — so "Invalid login credentials"
-            // on its own is unactionable and reads like their fingerprint was
-            // refused. Say whose login it was and what to do about it.
-            //
-            // preventSilentAccess stops the same stale credential being handed
-            // straight back on the next tap, which otherwise makes the button
-            // look permanently broken.
-            try { await navigator.credentials.preventSilentAccess?.() } catch (_) {}
-            if (/invalid login credentials/i.test(error.message)) {
-              throw new Error(
-                `The saved login for ${email} is out of date — the password has changed since ` +
-                `your browser stored it. Sign in on the Password tab once and it will save the ` +
-                `new one for next time.`
-              )
-            }
-            throw new Error(error.message)
-          }
-
-          if (data?.session) {
-            setBioSuccess(true)
-            window.location.href = '/dashboard'
-            return
-          }
-        }
-      }
-
-      // If biometric/credential returned without a readable password (e.g. raw WebAuthn assertion):
-      // Check if user is already authenticated in Supabase
-      const { data: { user } } = await supabase.auth.getUser()
-      if (user) {
-        setBioSuccess(true)
-        window.location.href = '/dashboard'
-        return
-      }
-
-      // If no saved credential was found or selected
-      setBioError('No active passkey or saved login found for this device. Please sign in with your Password or Email link once to save biometric access.')
+      setBioSuccess(true)
+      window.location.href = '/dashboard'
     } catch (err: any) {
-      console.error('[auth] Biometric error:', err)
-      setBioError(err?.message || 'Biometric authentication was cancelled or failed. Please use Password or Email Link.')
+      if (err?.name === 'NotAllowedError') {
+        setBioError('The prompt was dismissed. Tap the button again when you are ready.')
+      } else {
+        setBioError(err?.message || 'Passkey sign-in failed. Use the Email Link tab instead.')
+      }
     } finally {
       setBioLoading(false)
     }
@@ -241,10 +206,11 @@ export default function AuthPage() {
               <div className="p-6 rounded-2xl bg-[#F5F0E8] space-y-3">
                 <span className="text-4xl block">📱 🔐</span>
                 <h3 className="font-bold text-base text-[#1A2E1C]">
-                  Sign In with Device Biometrics
+                  Sign In with Face ID or Fingerprint
                 </h3>
                 <p className="text-xs text-[#4A4A4A]">
-                  Use Face ID, Touch ID, Android Fingerprint, or Google Passkeys for instant 1-tap sign-in.
+                  Works once you have turned it on for this device. Your fingerprint never leaves
+                  your phone — it only unlocks the key stored there.
                 </p>
               </div>
 
@@ -254,16 +220,20 @@ export default function AuthPage() {
                 disabled={bioLoading || bioSuccess}
                 className="btn-primary w-full flex justify-center items-center gap-2 py-3 px-4 font-bold text-sm shadow-md"
               >
-                {bioLoading ? 'Verifying with Device…' : '🔐 Authenticate with Biometrics'}
+                {bioLoading ? 'Waiting for your device…' : '🔐 Use Face ID / Fingerprint'}
               </button>
 
-              <div className="pt-2">
+              <div className="pt-2 space-y-1">
+                <p className="text-xs text-[#4A4A4A]">
+                  First time on this device? Sign in with the Email Link tab, then open your
+                  dashboard and turn on Face ID &amp; Fingerprint Sign-In.
+                </p>
                 <button
                   type="button"
-                  onClick={() => setMode('password')}
+                  onClick={() => setMode('magic')}
                   className="text-xs text-[#2D4A32] font-semibold underline hover:text-[#C9A96E]"
                 >
-                  Need to save your password for 1-tap entry? Sign in with Password →
+                  Email me a sign-in link →
                 </button>
               </div>
             </div>

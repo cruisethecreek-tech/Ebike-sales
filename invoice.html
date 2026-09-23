@@ -1792,8 +1792,24 @@
                 showStatus('This invoice has no number yet, so there is nothing to update.', 'error');
                 return;
             }
+            // A $0 total on an EXISTING invoice almost never means the invoice
+            // is worth nothing — it means the line items did not load into this
+            // form. Saving then would write an empty invoice over a real one in
+            // the Sheet, which bills, and in the portal. So refuse, and say
+            // which of the two it is rather than just quoting the rule.
             if (totals.total <= 0) {
-                showStatus('Total must be greater than $0', 'error');
+                var rowCount = document.querySelectorAll('.line-item').length;
+                var priced = Array.prototype.filter.call(
+                    document.querySelectorAll('.line-item'),
+                    function (li) { return parseFloat((li.querySelector('.price') || {}).value) > 0; }
+                ).length;
+                if (!rowCount || !priced) {
+                    showStatus('Not saving ' + invNum + ': the line items did not load, so the total is $0. ' +
+                               'Saving now would overwrite the real invoice in the Sheet with an empty one. ' +
+                               'Re-enter the items from the Sheet first, then Save Changes.', 'error');
+                } else {
+                    showStatus('Not saving ' + invNum + ': the total is $0. Check the prices and discounts.', 'error');
+                }
                 return;
             }
 

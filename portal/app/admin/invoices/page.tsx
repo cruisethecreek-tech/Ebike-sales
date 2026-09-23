@@ -7,6 +7,14 @@ import { ShopLinkBadge } from './shop-link-badge'
 import { BulkResync } from './bulk-resync'
 import Link from 'next/link'
 
+function customerName(inv: any) {
+  const first = inv.customers?.first_name || 'Customer'
+  const last = inv.customers?.last_name
+  const usableLast =
+    last && !['(none)', 'none', 'null'].includes(String(last).toLowerCase()) ? last : ''
+  return `${first} ${usableLast}`.trim()
+}
+
 export default async function AdminInvoices() {
   const supabase = await createClient()
 
@@ -22,7 +30,7 @@ export default async function AdminInvoices() {
   const [{ data: invoices }, { data: bikes }] = await Promise.all([
     supabase
       .from('invoices')
-      .select('id, invoice_number, total_amount, status, issued_at, created_at, items, supplier_url, customers(first_name, last_name)')
+      .select('id, invoice_number, customer_id, total_amount, status, issued_at, created_at, items, supplier_url, customers(first_name, last_name)')
       .order('issued_at', { ascending: false }),
     supabase
       .from('bikes')
@@ -106,10 +114,20 @@ export default async function AdminInvoices() {
                     </a>
                   </td>
                   <td className="p-3 sm:p-4 font-medium text-[#1A2E1C]">
-                    {inv.customers?.first_name || 'Customer'}{' '}
-                    {inv.customers?.last_name && !['(none)', 'none', 'null'].includes(inv.customers.last_name.toLowerCase())
-                      ? inv.customers.last_name
-                      : ''}
+                    {/* The name is the way into the rest of the story: bikes,
+                        every other invoice, referral code. Without this the
+                        only route was scrolling the directory by hand. */}
+                    {inv.customer_id ? (
+                      <Link
+                        href={`/admin/customers?customer=${inv.customer_id}`}
+                        className="underline decoration-dotted underline-offset-2 hover:text-[#2D4A32]"
+                        title="Open this customer's profile"
+                      >
+                        {customerName(inv)}
+                      </Link>
+                    ) : (
+                      customerName(inv)
+                    )}
                   </td>
                   <td className="p-3 sm:p-4 text-sm max-w-[240px]">
                     <InvoiceItems

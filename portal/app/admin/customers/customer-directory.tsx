@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useMemo, useEffect } from 'react'
+import { useState, useMemo, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { STORE_URL } from '@/lib/constants'
 import { adminUpdateBike, adminAddBike, adminDeleteBike } from './actions'
@@ -27,7 +27,12 @@ interface CustomerData {
   lastSignInAt?: string | null
   invitedAt?: string | null
   invoiceCount: number
+  /** Everything this customer has been billed, whatever the status. */
   totalSpent: number
+  totalInvoiced?: number
+  totalPaid?: number
+  /** Billed but not yet marked paid. */
+  totalOutstanding?: number
   bikes: Bike[]
   latestPurchaseDate?: string | null
 }
@@ -209,6 +214,8 @@ export function CustomerDirectory({ customers }: { customers: CustomerData[] }) 
   const [selectedCustomerId, setSelectedCustomerId] = useState<string | null>(null)
   const [copiedCode, setCopiedCode] = useState(false)
   const [showAddBike, setShowAddBike] = useState(false)
+  const drawerRef = useRef<HTMLDivElement | null>(null)
+  const scrollOnArrival = useRef(false)
 
   const alphabet = ['ALL', ...'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('')]
 
@@ -221,16 +228,47 @@ export function CustomerDirectory({ customers }: { customers: CustomerData[] }) 
     }
     window.addEventListener('ctc-select-customer', handleSelect)
 
-    // Check localStorage initial
+    // Arriving from another screen — e.g. a customer's name on the invoices
+    // list — carries the person in the URL. That beats whoever happened to be
+    // left in localStorage, because it is the choice just made.
+    let fromUrl: string | null = null
     try {
-      const saved = localStorage.getItem('ctc_selected_customer_id')
-      if (saved && customers.some((c) => c.id === saved)) {
-        setSelectedCustomerId(saved)
-      }
+      fromUrl = new URLSearchParams(window.location.search).get('customer')
     } catch (_) {}
+
+    if (fromUrl && customers.some((c) => c.id === fromUrl)) {
+      setSelectedCustomerId(fromUrl)
+      scrollOnArrival.current = true
+      try {
+        // Keep the dock's "Now viewing" in step with the drawer.
+        localStorage.setItem('ctc_selected_customer_id', fromUrl)
+        window.dispatchEvent(new CustomEvent('ctc-select-customer', { detail: { id: fromUrl } }))
+        // Drop the parameter so closing the drawer and reloading does not
+        // re-open the same person forever.
+        const url = new URL(window.location.href)
+        url.searchParams.delete('customer')
+        window.history.replaceState({}, '', url.pathname + url.search + url.hash)
+      } catch (_) {}
+    } else {
+      // Check localStorage initial
+      try {
+        const saved = localStorage.getItem('ctc_selected_customer_id')
+        if (saved && customers.some((c) => c.id === saved)) {
+          setSelectedCustomerId(saved)
+        }
+      } catch (_) {}
+    }
 
     return () => window.removeEventListener('ctc-select-customer', handleSelect)
   }, [customers])
+
+  // Only scroll when the customer came in from a link; scrolling the page on
+  // every dock click would yank it out from under whoever clicked.
+  useEffect(() => {
+    if (!scrollOnArrival.current || !selectedCustomerId) return
+    scrollOnArrival.current = false
+    drawerRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  }, [selectedCustomerId])
 
   function selectCustomer(id: string) {
     setSelectedCustomerId(id)
@@ -380,7 +418,10 @@ export function CustomerDirectory({ customers }: { customers: CustomerData[] }) 
 
       {/* ── Selected Customer Actionable Drawer ── */}
       {selectedCustomer && (
-        <div className="p-5 rounded-2xl bg-white border-2 border-[#2D4A32] shadow-lg space-y-4 animate-fadeIn">
+        <div
+          ref={drawerRef}
+          className="p-5 rounded-2xl bg-white border-2 border-[#2D4A32] shadow-lg space-y-4 animate-fadeIn"
+        >
           <div className="flex justify-between items-start flex-wrap gap-2">
             <div>
               <div className="flex items-center gap-2">
@@ -499,8 +540,13 @@ export function CustomerDirectory({ customers }: { customers: CustomerData[] }) 
               <span className="font-semibold text-[#1A1A1A]">{selectedCustomer.phone || '—'}</span>
             </div>
             <div className="p-2.5 rounded-lg bg-[#FAF8F2] border border-[#E5E5E5]">
-              <span className="text-gray-500 block text-[10px] font-bold uppercase">Total Spent</span>
+              <span className="text-gray-500 block text-[10px] font-bold uppercase">Total Invoiced</span>
               <span className="font-bold text-[#2D4A32]">${selectedCustomer.totalSpent.toFixed(2)}</span>
+              {!!selectedCustomer.totalOutstanding && (
+                <span className="block text-[10px] font-semibold text-[#8A6D1F]">
+                  ${selectedCustomer.totalOutstanding.toFixed(2)} not marked paid
+                </span>
+              )}
             </div>
             <div className="p-2.5 rounded-lg bg-[#FAF8F2] border border-[#E5E5E5]">
               <span className="text-gray-500 block text-[10px] font-bold uppercase">Invoices</span>
@@ -611,7 +657,7 @@ export function CustomerDirectory({ customers }: { customers: CustomerData[] }) 
               <th className="p-3.5 border-b font-semibold text-xs uppercase tracking-wider">Phone</th>
               <th className="p-3.5 border-b font-semibold text-xs uppercase tracking-wider">Bikes Owned & Purchase Date</th>
               <th className="p-3.5 border-b font-semibold text-xs uppercase tracking-wider">Invoices</th>
-              <th className="p-3.5 border-b font-semibold text-xs uppercase tracking-wider">Total Spent</th>
+              <th className="p-3.5 border-b font-semibold text-xs uppercase tracking-wider">Total Invoiced</th>
               <th className="p-3.5 border-b font-semibold text-xs uppercase tracking-wider">Ref Code</th>
               <th className="p-3.5 border-b font-semibold text-xs uppercase tracking-wider text-right">Action</th>
             </tr>
