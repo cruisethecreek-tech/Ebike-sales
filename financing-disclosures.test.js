@@ -138,6 +138,27 @@ ok(
   /snapfinance\.com[^"]*"[^>]*rel="[^"]*noopener/.test(visible)
 );
 
+// The first version of this page used Snap's generic table-tent QR URL, which
+// carries no merchant token: an application started from it was not credited
+// to this shop. The merchant-specific origination link is not an optimisation,
+// it is the difference between getting paid for the referral and not.
+ok(
+  'the apply button uses the merchant-specific origination link',
+  /href="https:\/\/bk\.snapfinance\.com\/origination\?paramId=[^"]+"/.test(visible),
+  'a generic snapfinance.com landing URL credits the application to nobody'
+);
+
+ok(
+  'the superseded generic QR link is gone',
+  !/utm_campaign=b2b_gwth_lto_table_tent/.test(visible)
+);
+
+ok(
+  'the page no longer tells riders the link needs a merchant ID added',
+  !/this link doesn't carry it/i.test(visible),
+  'that caveat was true of the generic link and is false of this one'
+);
+
 // ── Every entry point reaches the page ───────────────────────────────────
 const entryPoints = [
   'shop.html', 'jasion.html', 'heybike.html',
