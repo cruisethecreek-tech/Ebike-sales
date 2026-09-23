@@ -37,7 +37,7 @@
  * the old images until 6 AM UTC.
  */
 
-var BIMG_VERSION = '2026-09-21a';
+var BIMG_VERSION = '2026-09-23a';
 
 /** Lowercase, strip punctuation. "Alpine Blue" and "alpine-blue" match. */
 function _bimgNorm_(s) {
@@ -157,20 +157,73 @@ function _bimgWalkSwatches_(node, fn) {
 }
 
 /**
+ * Sheet spelling -> vendor spelling, for colours the matcher cannot reach.
+ *
+ * The sheet is hand-typed and the vendor feed is not, so a single wrong letter
+ * strands a swatch on its old image forever: Heybike's Hybrid says "Emarald
+ * Green" where the vendor says "Emerald Green", which is neither an exact match
+ * nor a containment match, so that one swatch kept its Wix photo through every
+ * run of this script while its siblings moved to the vendor CDN.
+ *
+ * Add to this from the "vendor colours for this product" list the dry run
+ * prints whenever a swatch does not match. Both sides are normalised, so type
+ * them however they read.
+ */
+var BIMG_COLOR_ALIASES = {
+  'emarald green': 'emerald green'   // Heybike Hybrid — misspelt in the sheet
+};
+
+/** Levenshtein distance, capped: we only care whether it is 0, 1, or "more". */
+function _bimgEditDistance_(a, b) {
+  if (a === b) return 0;
+  if (Math.abs(a.length - b.length) > 1) return 2;
+  var prev = [], cur = [], i, j;
+  for (j = 0; j <= b.length; j++) prev[j] = j;
+  for (i = 1; i <= a.length; i++) {
+    cur[0] = i;
+    for (j = 1; j <= b.length; j++) {
+      cur[j] = Math.min(prev[j] + 1, cur[j - 1] + 1,
+                        prev[j - 1] + (a.charAt(i - 1) === b.charAt(j - 1) ? 0 : 1));
+    }
+    for (j = 0; j <= b.length; j++) prev[j] = cur[j];
+  }
+  return prev[b.length] > 1 ? 2 : prev[b.length];
+}
+
+/**
  * Find the vendor image for a swatch name. Exact normalized match first; then
- * a containment match, but ONLY when exactly one vendor colour contains the
- * swatch name (or vice versa). Two candidates means we cannot tell them apart,
- * and guessing puts the wrong bike on the page.
+ * an explicit alias; then a containment match, but ONLY when exactly one vendor
+ * colour contains the swatch name (or vice versa). Two candidates means we
+ * cannot tell them apart, and guessing puts the wrong bike on the page.
+ *
+ * Last resort is a one-character difference, and only when exactly one vendor
+ * colour is that close — enough for a typo, not enough to confuse two real
+ * colours, which differ by far more than a letter. It reports itself as
+ * "typo?" so the dry run shows it before anything is written.
  */
 function _bimgLookup_(map, swatchName) {
   var want = _bimgNorm_(swatchName);
   if (!want) return null;
   if (map[want]) return { src: map[want], how: 'exact' };
 
+  var alias = BIMG_COLOR_ALIASES[want];
+  if (alias) {
+    var aliasKey = _bimgNorm_(alias);
+    if (map[aliasKey]) return { src: map[aliasKey], how: 'alias -> "' + alias + '"' };
+  }
+
   var hits = Object.keys(map).filter(function (k) {
     return k.indexOf(want) !== -1 || want.indexOf(k) !== -1;
   });
   if (hits.length === 1) return { src: map[hits[0]], how: 'matched "' + hits[0] + '"' };
+  if (hits.length > 1) return null;   // ambiguous: never guess
+
+  var near = Object.keys(map).filter(function (k) {
+    return _bimgEditDistance_(want, k) === 1;
+  });
+  if (near.length === 1) {
+    return { src: map[near[0]], how: 'typo? "' + swatchName + '" -> "' + near[0] + '"' };
+  }
   return null;
 }
 
@@ -514,3 +567,96 @@ function step3_velotricSeedColorsDryRun() { return seedEmptyColors('Velotric', '
 function step4_velotricSeedColorsApply()  { return seedEmptyColors('Velotric', 'https://www.velotricbike.com', true); }
 function step3_jasionSeedColorsDryRun()   { return seedEmptyColors('Jasion',   'https://www.jasionbike.com'); }
 function step4_jasionSeedColorsApply()    { return seedEmptyColors('Jasion',   'https://www.jasionbike.com', true); }
+
+
+/**
+ * Where is every swatch photo actually hosted?
+ *
+ * Run this before and after an image pass. "I want everything on the vendor
+ * CDN" is not something you can tell by clicking through the site — a Wix
+ * image and a Shopify image both just look like a bike. This counts them.
+ *
+ * It reads only. It writes nothing, ever.
+ *
+ *   auditSwatchImageHosts()
+ */
+function auditSwatchImageHosts() {
+  var sh = SpreadsheetApp.openById(INV_SHEET_ID).getSheetByName(INV_TAB_NAME);
+  if (!sh) { Logger.log('Tab "' + INV_TAB_NAME + '" not found.'); return { ok: false }; }
+
+  var data = sh.getDataRange().getValues();
+  var headers = data[0] || [];
+  var col = {};
+  headers.forEach(function (h, i) {
+    var k = String(h || '').toLowerCase().replace(/\s*\(json\)/, '').replace(/[^a-z]/g, '');
+    if (k) col[k] = i;
+  });
+  if (col.brand == null || col.name == null || col.colors == null) {
+    Logger.log('Sheet needs Brand, Name and Colors columns. Found: ' + headers.join(' | '));
+    return { ok: false };
+  }
+
+  /* Anything that is not the vendor's own CDN still has to be maintained by
+     hand, so they are all reported, not just the Wix leftovers. */
+  function classify(url) {
+    var u = String(url || '').trim();
+    if (!u) return 'MISSING (no image at all)';
+    if (/^https?:\/\/cdn\.shopify\.com/i.test(u)) return 'vendor CDN (Shopify)';
+    if (/wixstatic\.com/i.test(u)) return 'Wix (old site)';
+    if (/pages\.dev/i.test(u)) return 'pages.dev (our own upload)';
+    if (/^https?:\/\//i.test(u)) return 'other host';
+    return 'repo file (our own upload)';
+  }
+
+  var totals = {}, byBrand = {}, offenders = [];
+
+  for (var r = 1; r < data.length; r++) {
+    var brand = String(data[r][col.brand] || '').trim();
+    var title = String(data[r][col.name] || '').trim();
+    if (!brand && !title) continue;
+
+    var colors = {};
+    var raw = String(data[r][col.colors] || '').trim();
+    if (raw) { try { colors = JSON.parse(raw); } catch (e) { continue; } }
+
+    _bimgWalkSwatches_(colors, function (sw) {
+      var kind = classify(sw.img);
+      totals[kind] = (totals[kind] || 0) + 1;
+      if (!byBrand[brand]) byBrand[brand] = {};
+      byBrand[brand][kind] = (byBrand[brand][kind] || 0) + 1;
+      if (kind !== 'vendor CDN (Shopify)') {
+        offenders.push(brand + '  ' + title + '  [' + sw.name + ']  ' + kind);
+      }
+    });
+  }
+
+  Logger.log('=== Swatch image hosts  (BrandImages.gs ' + BIMG_VERSION + ') ===\n');
+
+  var grand = 0;
+  Object.keys(totals).forEach(function (k) { grand += totals[k]; });
+  Object.keys(totals).sort(function (a, b) { return totals[b] - totals[a]; })
+    .forEach(function (k) {
+      Logger.log('  ' + totals[k] + '\t' + Math.round(totals[k] / grand * 100) + '%\t' + k);
+    });
+  Logger.log('  ' + grand + '\t\tswatches in total\n');
+
+  Object.keys(byBrand).sort().forEach(function (b) {
+    var parts = [];
+    Object.keys(byBrand[b]).sort().forEach(function (k) { parts.push(byBrand[b][k] + ' ' + k); });
+    Logger.log('  ' + b + ': ' + parts.join(' | '));
+  });
+
+  if (offenders.length) {
+    Logger.log('\nNot on the vendor CDN (' + offenders.length + '):');
+    offenders.forEach(function (o) { Logger.log('  ' + o); });
+    Logger.log('\nFor each of these, run that brand\'s dry run and read the');
+    Logger.log('"vendor colours for this product" list. If the vendor spells the');
+    Logger.log('colour differently, add it to BIMG_COLOR_ALIASES and run again.');
+    Logger.log('If the vendor no longer lists the bike at all, no amount of');
+    Logger.log('re-running will help — that photo has to stay or be re-uploaded.');
+  } else {
+    Logger.log('\nEvery swatch is on the vendor CDN.');
+  }
+
+  return { ok: true, totals: totals, byBrand: byBrand, offenders: offenders };
+}

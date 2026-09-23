@@ -59,11 +59,26 @@ eq('collects vendor labels in vendor spelling', labels.join(' | '), 'Merlot Red 
 eq('optional arg leaves the map untouched', Object.keys(_bimgVariantImages_(product)).length, labels.length);
 
 // The misspelling that actually broke Hybrid: one letter out, so neither an
-// exact hit nor a containment hit, and the tool correctly refuses to guess.
+// exact hit nor a containment hit.
+//
+// This used to assert null — "the tool correctly refuses to guess". That
+// refusal was the safe call in isolation, but it had a cost nobody was
+// counting: the swatch kept its old Wix photo through every run of the image
+// pass, silently, while every sibling swatch moved to the vendor CDN. A
+// refusal that nothing acts on is not caution, it is a permanent stall.
+//
+// The rule now is narrower than "guess": an explicit alias, or a single
+// candidate exactly one character away. Real colour names differ by far more
+// than a letter (asserted below), the match labels itself "typo?", and the
+// dry run shows it before anything is written. The ambiguity guards are
+// unchanged and still assert refusal — those are what stop a wrong photo.
 const emerald = { options:[{name:'Color'}], variants:[
   { option1:'Emerald Green', featured_image:{src:'https://cdn/emerald.jpg'} },
   { option1:'Black',         featured_image:{src:'https://cdn/black.jpg'} } ] };
-eq('typo does not match', _bimgLookup_(_bimgVariantImages_(emerald), 'Emarald Green'), null);
+eq('the misspelling now resolves to the vendor photo',
+   _bimgLookup_(_bimgVariantImages_(emerald), 'Emarald Green').src, 'https://cdn/emerald.jpg');
+ok('and it is reported as an alias or typo, never as an exact match',
+   /alias|typo/.test(_bimgLookup_(_bimgVariantImages_(emerald), 'Emarald Green').how));
 eq('correct spelling does match', _bimgLookup_(_bimgVariantImages_(emerald), 'Emerald Green').how, 'exact');
 const emLabels = [];
 _bimgVariantImages_(emerald, emLabels);
@@ -193,4 +208,66 @@ eq('soldOut flag survives', heybikeShape['1000W']['One Size'][0].soldOut, true);
 eq('structure unchanged', Object.keys(heybikeShape), Object.keys(before));
 
 console.log('\n' + pass + ' passed, ' + fail + ' failed');
+
+// -- Aliases and near-miss matching -------------------------------------
+//
+// Heybike's Hybrid says "Emarald Green"; the vendor says "Emerald Green". That
+// is neither an exact nor a containment match, so that one swatch kept its Wix
+// photo through every run of the image pass while its siblings moved to the
+// vendor CDN. One wrong letter, invisible in a log full of successes.
+{
+  const vendor = { 'onyx black': 'A.jpg', 'ruby red': 'B.jpg', 'emerald green': 'C.jpg' };
+
+  eq('a correct spelling still matches exactly',
+     _bimgLookup_(vendor, 'Onyx Black'), { src: 'A.jpg', how: 'exact' });
+
+  ok('the misspelling that stranded Hybrid on Wix now resolves',
+     (_bimgLookup_(vendor, 'Emarald Green') || {}).src === 'C.jpg');
+
+  ok('an aliased match says so, so the dry run can be read',
+     /alias/.test((_bimgLookup_(vendor, 'Emarald Green') || {}).how || ''));
+
+  // A typo with no alias entry: one letter out, exactly one candidate.
+  ok('a one-letter typo resolves when only one colour is that close',
+     (_bimgLookup_(vendor, 'Onix Black') || {}).src === 'A.jpg');
+
+  ok('a near-miss labels itself a typo rather than claiming certainty',
+     /typo\?/.test((_bimgLookup_(vendor, 'Onix Black') || {}).how || ''));
+
+  ok('a colour the vendor simply does not have stays unmatched',
+     _bimgLookup_(vendor, 'Bronze') === null);
+}
+
+// The ambiguity guards matter more than the matches. Putting the wrong photo
+// on a bike is worse than leaving an old one in place.
+{
+  ok('two colours one letter apart are never collapsed',
+     _bimgLookup_({ mint: 'M.jpg', mind: 'N.jpg' }, 'minx') === null);
+
+  ok('two real colours that both contain the name are refused',
+     _bimgLookup_({ 'sky blue': 'S.jpg', 'sky blue pro': 'T.jpg' }, 'sky blue').how === 'exact');
+
+  ok('...and a genuinely ambiguous containment is refused',
+     _bimgLookup_({ 'deep blue': 'S.jpg', 'blue steel': 'T.jpg' }, 'blue') === null);
+
+  // Real colours differ by much more than a letter, which is what makes the
+  // distance-1 rule safe. If this ever stops holding, the rule must go.
+  ok('distinct real colour names are further than one edit apart',
+     _bimgEditDistance_('sky blue', 'sea blue') === 2 &&
+     _bimgEditDistance_('phantom black', 'crystal black') === 2);
+}
+
+// -- Every alias must be reachable --------------------------------------
+{
+  const norm = (x) => String(x).toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
+  const badKeys = Object.keys(BIMG_COLOR_ALIASES).filter((k) => norm(k) !== k);
+  ok('alias keys are already normalised, or the lookup never sees them',
+     badKeys.length === 0);
+
+  const selfRef = Object.keys(BIMG_COLOR_ALIASES)
+    .filter((k) => norm(BIMG_COLOR_ALIASES[k]) === norm(k));
+  ok('no alias points at itself', selfRef.length === 0);
+}
+
+console.log(`${pass} passing, ${fail} failing`);
 process.exit(fail ? 1 : 0);
