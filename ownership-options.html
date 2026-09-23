@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ownership Options | Cruise the Creek</title>
+<meta name="description" content="Lease-to-own financing from Snap at Cruise the Creek in Youngstown, Ohio. Apply in minutes and get a decision in seconds.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --sage:#6B8F71;--forest:#2D4A32;--dark:#1a2e1c;
+  --tan:#C9A96E;--cream:#F5F0E8;--cream-w:#fbf7ef;
+  --ink:#1a1a1a;--ink-2:#4a4a4a;
+}
+html,body{height:100%}
+html{scroll-behavior:smooth}
+body{font-family:'DM Sans',sans-serif;color:var(--ink);background:var(--cream);
+  min-height:100vh;display:flex;flex-direction:column;line-height:1.75}
+a{text-decoration:none;color:inherit}
+
+.topbar{background:rgba(255,255,255,.95);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+  color:var(--dark);padding:16px 24px;display:flex;align-items:center;justify-content:space-between;
+  position:sticky;top:0;z-index:100;border-bottom:1px solid rgba(0,0,0,.05)}
+.brand-logo{height:38px;width:auto;display:block}
+
+/* HERO */
+.hero{position:relative;min-height:34vh;padding:64px 24px 48px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;
+  color:#fff;background:var(--forest);overflow:hidden;isolation:isolate}
+.hero-topo{position:absolute;inset:0;z-index:-1;opacity:.18;pointer-events:none;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 600 400' preserveAspectRatio='none'><g fill='none' stroke='%23F5F0E8' stroke-width='1.2'><path d='M0,80 Q150,60 300,90 T600,80'/><path d='M0,140 Q150,120 300,150 T600,140'/><path d='M0,200 Q150,180 300,210 T600,200'/><path d='M0,260 Q150,240 300,270 T600,260'/></g></svg>");
+  background-size:cover}
+.hero-eyebrow{display:inline-block;font-size:.75rem;font-weight:700;letter-spacing:.2em;
+  text-transform:uppercase;color:var(--tan);margin-bottom:16px;
+  padding:6px 14px;border:1px solid rgba(201,169,110,.3);border-radius:4px;
+  background:rgba(26,46,28,.2)}
+.hero h1{font-family:'Bebas Neue',sans-serif;font-size:clamp(2.4rem,7vw,4rem);
+  letter-spacing:.02em;line-height:1;margin-bottom:14px}
+.hero p{font-size:clamp(1rem,2.4vw,1.1rem);color:rgba(255,255,255,.9);
+  max-width:520px;line-height:1.6}
+
+/* BREADCRUMB */
+.crumb{max-width:880px;margin:0 auto;padding:24px 24px 0;
+  font-size:.75rem;letter-spacing:.1em;text-transform:uppercase;font-weight:700;color:var(--sage)}
+.crumb a{color:var(--ink-2)}
+.crumb a:hover{color:var(--forest)}
+.crumb .sep{color:rgba(0,0,0,.2);margin:0 8px}
+
+main{flex:1;max-width:880px;margin:0 auto;padding:32px 24px 56px;width:100%}
+
+/* SIGN IN */
+.signin{background:#fff;border-radius:10px;padding:32px 30px;text-align:center;
+  box-shadow:0 4px 14px rgba(0,0,0,.05);border:1px solid rgba(0,0,0,.05)}
+.signin h2{font-family:'Bebas Neue',sans-serif;font-size:1.9rem;letter-spacing:.02em;
+  color:var(--forest);line-height:1.1;margin-bottom:10px}
+.signin p{color:var(--ink-2);max-width:520px;margin:0 auto;font-size:1rem}
+.btn{display:inline-flex;align-items:center;gap:9px;background:var(--forest);color:#fff;
+  padding:15px 30px;border-radius:4px;font-weight:800;font-size:.95rem;letter-spacing:.04em;
+  margin-top:22px;transition:background .2s ease}
+.btn:hover{background:var(--dark)}
+.btn svg{width:15px;height:15px}
+
+/* INVITE-ONLY NOTICE — the thing most visitors are here to find out. */
+.invite{margin-top:16px;background:var(--cream-w);border:1px solid rgba(201,169,110,.45);
+  border-left:4px solid var(--tan);border-radius:8px;padding:20px 22px;font-size:.96rem;color:var(--ink-2)}
+.invite b{color:var(--forest)}
+.invite p+p{margin-top:10px}
+
+h2.sec{font-family:'Bebas Neue',sans-serif;font-size:1.7rem;letter-spacing:.02em;
+  color:var(--forest);line-height:1.1;margin:44px 0 6px}
+.sec-sub{color:var(--ink-2);font-size:.98rem;margin-bottom:18px}
+
+/* CARD GRIDS */
+.grid{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
+.card{background:#fff;border:1px solid rgba(0,0,0,.06);border-radius:8px;padding:20px 20px;
+  box-shadow:0 2px 8px rgba(0,0,0,.03)}
+.card h3{font-size:1rem;font-weight:800;color:var(--forest);margin-bottom:6px;line-height:1.35}
+.card p{font-size:.92rem;color:var(--ink-2);line-height:1.6}
+.card .ico{font-size:1.3rem;line-height:1;margin-bottom:10px;display:block}
+
+/* DEALER SECTION */
+.dealer{margin-top:14px;background:var(--forest);color:#fff;border-radius:10px;padding:30px 28px}
+.dealer h2{font-family:'Bebas Neue',sans-serif;font-size:1.7rem;letter-spacing:.02em;
+  line-height:1.1;margin-bottom:8px}
+.dealer>p{color:rgba(255,255,255,.88);font-size:.98rem;max-width:640px}
+.dealer ul{list-style:none;margin-top:18px;display:grid;gap:12px}
+.dealer li{display:flex;gap:11px;align-items:flex-start;font-size:.95rem;
+  color:rgba(255,255,255,.92);line-height:1.6}
+.dealer li svg{width:17px;height:17px;flex:0 0 17px;margin-top:4px;color:var(--tan)}
+.dealer .more{display:inline-flex;align-items:center;gap:8px;margin-top:22px;
+  background:#fff;color:var(--forest);padding:12px 22px;border-radius:4px;
+  font-weight:700;font-size:.88rem;letter-spacing:.03em;transition:background .2s ease,color .2s ease}
+.dealer .more:hover{background:var(--tan);color:var(--dark)}
+.dealer .more svg{width:14px;height:14px;color:inherit}
+
+/* HELP */
+.help{margin-top:34px;padding:20px 22px;background:#fff;border:1px solid rgba(0,0,0,.07);
+  border-radius:8px;font-size:.95rem;color:var(--ink-2);line-height:1.7}
+.help b{color:var(--forest)}
+.help a{color:var(--forest);font-weight:700;text-decoration:underline}
+
+footer{background:var(--dark);color:rgba(255,255,255,.65);padding:32px 24px;
+  text-align:center;font-size:.85rem;letter-spacing:.02em}
+footer a{color:var(--tan);font-weight:500}
+footer a:hover{color:#fff}
+
+@media(max-width:560px){
+  .hero{padding:48px 16px 36px}
+  main{padding:24px 16px 40px}
+  .signin{padding:26px 20px}
+  .dealer{padding:24px 20px}
+  .btn{width:100%;justify-content:center}
+}
+
+/* ── SNAP-SPECIFIC ───────────────────────────────── */
+.apply{background:#fff;border-radius:10px;padding:30px 28px;
+  box-shadow:0 4px 14px rgba(0,0,0,.05);border:1px solid rgba(0,0,0,.05)}
+.apply h2{font-family:'Bebas Neue',sans-serif;font-size:1.9rem;letter-spacing:.02em;
+  color:var(--forest);line-height:1.1;margin-bottom:8px}
+.apply>p{color:var(--ink-2);font-size:1rem;max-width:560px}
+
+.ways{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));margin-top:22px}
+.way{border:1px solid rgba(0,0,0,.08);border-radius:8px;padding:20px 20px;background:var(--cream-w)}
+.way .step{display:inline-block;font-size:.68rem;font-weight:800;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--sage);margin-bottom:8px}
+.way h3{font-size:1.02rem;font-weight:800;color:var(--forest);margin-bottom:6px}
+.way p{font-size:.92rem;color:var(--ink-2);line-height:1.6}
+.way .mid{display:block;font-family:'Bebas Neue',sans-serif;font-size:1.9rem;letter-spacing:.06em;
+  color:var(--dark);margin:10px 0 2px;line-height:1}
+.way .btn{margin-top:14px}
+
+/* Merchant ID — has to be findable, because the generic apply link does not
+   carry it and the application is not credited to us without it. */
+.mid-box{margin-top:18px;background:var(--forest);color:#fff;border-radius:8px;
+  padding:18px 20px;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.mid-box .label{font-size:.7rem;font-weight:800;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--tan)}
+.mid-box .val{font-family:'Bebas Neue',sans-serif;font-size:2.1rem;letter-spacing:.1em;line-height:1}
+.mid-box p{font-size:.88rem;color:rgba(255,255,255,.85);line-height:1.6;flex:1 1 260px}
+
+.steps{list-style:none;counter-reset:s;margin-top:18px;display:grid;gap:12px}
+.steps li{counter-increment:s;display:flex;gap:13px;align-items:flex-start;
+  font-size:.95rem;color:var(--ink-2);line-height:1.65}
+.steps li::before{content:counter(s);flex:0 0 26px;height:26px;border-radius:50%;
+  background:var(--forest);color:#fff;font-weight:800;font-size:.8rem;
+  display:flex;align-items:center;justify-content:center;margin-top:2px}
+.steps b{color:var(--forest)}
+
+/* Plain-language cost warning. A lease-to-own agreement is not a loan and
+   costs more than the cash price; burying that would be a disservice to the
+   rider and would put our copy out of step with Snap's own disclosures. */
+.truth{margin-top:16px;background:var(--cream-w);border:1px solid rgba(201,169,110,.45);
+  border-left:4px solid var(--tan);border-radius:8px;padding:20px 22px;
+  font-size:.96rem;color:var(--ink-2);line-height:1.7}
+.truth b{color:var(--forest)}
+.truth p+p{margin-top:10px}
+
+.alt{margin-top:14px;background:var(--sage);color:#fff;border-radius:10px;padding:26px 26px}
+.alt h2{font-family:'Bebas Neue',sans-serif;font-size:1.6rem;letter-spacing:.02em;
+  line-height:1.1;margin-bottom:8px}
+.alt p{color:rgba(255,255,255,.93);font-size:.96rem;max-width:620px;line-height:1.65}
+.alt .more{display:inline-flex;align-items:center;gap:8px;margin-top:18px;background:#fff;
+  color:var(--forest);padding:12px 22px;border-radius:4px;font-weight:700;font-size:.88rem;
+  letter-spacing:.03em;transition:background .2s ease,color .2s ease}
+.alt .more:hover{background:var(--tan);color:var(--dark)}
+.alt .more svg{width:14px;height:14px}
+
+/* Snap's required disclosures, verbatim from the merchant material. */
+.legal{margin-top:34px;padding:20px 22px;background:#fff;border:1px solid rgba(0,0,0,.07);
+  border-radius:8px;font-size:.82rem;color:var(--ink-2);line-height:1.7}
+.legal b{color:var(--forest)}
+.legal p+p{margin-top:8px}
+
+@media(max-width:560px){
+  .apply{padding:24px 20px}
+  .alt{padding:22px 18px}
+  .mid-box{flex-direction:column;align-items:flex-start;gap:8px}
+}
+</style>
+<script src="site-enhance.js?v=20260911a"></script>
+<meta property="og:title" content="Ownership Options">
+<meta property="og:description" content="Lease-to-own financing from Snap at Cruise the Creek in Youngstown, Ohio. Apply in minutes and get a decision in seconds.">
+<meta property="og:image" content="https://www.cruisethecreek.com/cityrunblackblack.jpg">
+<meta property="og:url" content="https://www.cruisethecreek.com/ownership-options.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Cruise the Creek">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Ownership Options">
+<meta name="twitter:description" content="Lease-to-own financing from Snap at Cruise the Creek in Youngstown, Ohio. Apply in minutes and get a decision in seconds.">
+<meta name="twitter:image" content="https://www.cruisethecreek.com/cityrunblackblack.jpg">
+<link rel="canonical" href="https://www.cruisethecreek.com/ownership-options.html">
+</head>
+<body>
+
+<header class="topbar">
+  <a href="index.html" aria-label="Cruise the Creek home"><img class="brand-logo" src="BlackonTransparent.png" alt="Cruise the Creek"></a>
+</header>
+
+<section class="hero">
+  <div class="hero-topo"></div>
+  <span class="hero-eyebrow">Lease-To-Own Financing From Snap</span>
+  <h1>Ownership Options</h1>
+  <p>Apply in minutes, get a decision in seconds. Approvals from $300 to $5,000 through Snap &mdash; enough for any bike we sell.</p>
+</section>
+
+<nav class="crumb"><a href="index.html">Home</a><span class="sep">/</span><a href="shop.html">Shop</a><span class="sep">/</span>Ownership Options</nav>
+
+<main>
+
+  <div class="apply">
+    <h2>Two ways to apply</h2>
+    <p>Both take a few minutes and give you an answer on the spot. Do it at home before you come in,
+    or here in the shop while you're picking a bike &mdash; either works.</p>
+
+    <div class="ways">
+      <div class="way">
+        <span class="step">Fastest</span>
+        <h3>Text us your application</h3>
+        <p>Send this code as a text message. Snap replies with a link to your application.</p>
+        <span class="mid">120580</span>
+        <p>Text that to <b>48078</b>.</p>
+        <a class="btn" href="sms:48078?&amp;body=120580">
+          Text 120580 to 48078
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+        </a>
+      </div>
+
+      <div class="way">
+        <span class="step">Or</span>
+        <h3>Apply online right now</h3>
+        <p>Opens our application with Snap. It already knows you're shopping with Cruise the
+        Creek, so there's nothing for you to look up.</p>
+        <a class="btn" href="https://bk.snapfinance.com/origination?paramId=3w%2FEWVFzVGcQioSdKn1vuqdr2hNr3A1xiMt4CtG%2BqOWpG74Jm6JVFq2lEkK1hZ0tog9ZSjNG2GyQln5HQrzShOzYiaK%2FnFnEZXfXtyBXVEw%3D" target="_blank" rel="noopener nofollow">
+          Apply with Snap
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+        </a>
+      </div>
+    </div>
+
+    <div class="mid-box">
+      <div>
+        <span class="label">Our Snap Merchant ID</span>
+        <span class="val">120580</span>
+      </div>
+      <p>This is the code you text to apply, and the one to quote if you're ever asked which
+      store you're shopping with. The Apply button above already has it built in.</p>
+    </div>
+  </div>
+
+  <h2 class="sec">How it works</h2>
+  <p class="sec-sub">Snap decides; we hand you the bike.</p>
+
+  <ol class="steps">
+    <li><span><b>Apply.</b> Text the code or use the link above. Snap runs the application &mdash; approval is subject to their underwriting, not ours.</span></li>
+    <li><span><b>Get your decision.</b> It comes back in seconds, with the amount you've been approved for.</span></li>
+    <li><span><b>Pick your bike.</b> Bring the approval to either location, or tell us over text. Every bike we sell falls inside Snap's range.</span></li>
+    <li><span><b>Sign with Snap.</b> The agreement is between you and Snap RTO LLC. Read the payment schedule and the total cost before you sign it.</span></li>
+    <li><span><b>Ride out on it.</b> We build it, safety-check it and set it up the same as any other sale &mdash; Creek Ready, warranty registered, nothing different because you leased.</span></li>
+  </ol>
+
+
+  <h2 class="sec">Three ways to acquire ownership</h2>
+  <p class="sec-sub">You are enrolled in the Maximum-Term Plan by default. The other two cost less.</p>
+  <div class="grid">
+    <div class="card">
+      <span class="ico" aria-hidden="true">📅</span>
+      <h3>Maximum-Term Plan</h3>
+      <p><b>The default.</b> Regular lease payments scheduled around your paydays &mdash; weekly,
+      biweekly, semimonthly or monthly &mdash; over a maximum term of 12 to 18 months, after which
+      you own the bike. Over the full term you will usually pay more than twice the cash price,
+      plus applicable taxes and fees.</p>
+    </div>
+    <div class="card">
+      <span class="ico" aria-hidden="true">⏱️</span>
+      <h3>100-Day Option</h3>
+      <p><b>The lowest cost to acquire ownership.</b> Pay the cash price plus sales tax, processing
+      fees and any applicable cost of lease within 100 days of delivery. You are not put on this
+      automatically &mdash; you have to arrange it with Snap.</p>
+    </div>
+    <div class="card">
+      <span class="ico" aria-hidden="true">🔓</span>
+      <h3>Early Buyout Option</h3>
+      <p>Acquire ownership at any point by paying the lease payments not yet due, at a discount
+      on those payments. Arranged with Snap, the same way.</p>
+    </div>
+  </div>
+
+  <div class="truth">
+    <p><b>To use either early option you must contact Snap yourself.</b> Go to
+    <a href="https://customer.snapfinance.com" target="_blank" rel="noopener nofollow">customer.snapfinance.com</a>
+    or call Snap Customer Care on <a href="tel:+18775573769">1-877-557-3769</a>. We cannot do it
+    for you, and nothing happens automatically.</p>
+  </div>
+
+  <h2 class="sec">What you need to apply</h2>
+  <p class="sec-sub">Snap sets these, not us.</p>
+  <ul class="steps" style="counter-reset:none">
+    <li><span>Be of minimum legal age to enter a contract.</span></li>
+    <li><span>Earn at least $750 a month.</span></li>
+    <li><span>Have an active checking account. You may need a credit or debit card to apply.</span></li>
+    <li><span>Have an active email address and a smartphone number.</span></li>
+  </ul>
+  <p class="sec-sub" style="margin-top:12px"><b>All credit types are welcome to apply.</b>
+  Not all applicants are approved. While no credit history is required, Snap obtains information
+  from consumer reporting agencies in connection with applications, and your score with those
+  agencies may be affected.</p>
+
+  <div class="truth">
+    <p><b>Know what you're agreeing to.</b> This is a lease-to-own agreement, not credit and
+    not a loan. Snap buys the bike and leases it to you; once you have made the payments the
+    agreement requires, you own it.</p>
+    <p>You are set up by default on the Maximum-Term Plan, which runs over the full term of
+    the lease &mdash; and over that full term you will usually pay <b>more than twice the cash
+    price</b> of the bike, plus applicable taxes and fees. The 100-Day Option and the Early
+    Buyout Option below cost less. Read your agreement before you sign it, and ask us anything
+    you are unsure about.</p>
+    <p>You can end the lease at any time by telling Snap and returning the bike to them in
+    good condition. That is your right of surrender, and it is separate from our own returns
+    policy.</p>
+  </div>
+
+  <h2 class="sec">What you can put it toward</h2>
+  <p class="sec-sub">Approval amounts run from $300 to $5,000, and apply to the cash price of what you're leasing.</p>
+  <div class="grid">
+    <div class="card">
+      <span class="ico" aria-hidden="true">🚲</span>
+      <h3>Any bike we stock</h3>
+      <p>Our range runs from $599 to $3,299, so every bike on the site sits inside what Snap approves. Velotric, Heybike, Jasion, Mooncool and Mokwheel.</p>
+    </div>
+    <div class="card">
+      <span class="ico" aria-hidden="true">🧰</span>
+      <h3>The gear that goes with it</h3>
+      <p>Helmet, lock, rack, panniers, lights &mdash; the things that make a bike usable for commuting instead of just fun.</p>
+    </div>
+  </div>
+
+  <div class="alt">
+    <h2>Not approved? Ask us about Bridge the Gap.</h2>
+    <p>Snap's decision is theirs, and not every application clears it. Bridge the Gap is our own
+    separate rent-to-own program, run by Cruise the Creek and nothing to do with Snap. Its terms
+    are set out on its own page.</p>
+    <a class="more" href="bridge-the-gap.html">
+      See Bridge the Gap
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+    </a>
+  </div>
+
+  <div class="help">
+    <b>Questions before you apply?</b> Text <a href="tel:+13304069686">330-406-9686</a> and we'll walk
+    you through it. Want to sit on the bike first? Book a <a href="test-ride.html">free test ride</a>
+    &mdash; applying and riding are separate, and there's no reason to do them in that order.
+  </div>
+
+  <div class="legal">
+    <p><b>Snap leasing &mdash; a Snap Finance solution.</b></p>
+    <p>The advertised service is a lease-to-own agreement provided by Snap RTO LLC. Lease-to-own
+    financing is not available to residents of Minnesota, New Jersey and Wisconsin. Standard
+    maximum lease term is 12-18 months. To exercise the 100-Day Option, consumers must ensure the
+    full 100-day amount is paid within 100 days by contacting Customer Care at 1-877-557-3769 or
+    scheduling payments in the customer portal. The 100-Day Option includes a cost of lease above
+    the merchandise price.</p>
+    <p>Approval amounts vary from $300 to $5,000, subject to underwriting, and apply only to the
+    cash price of leased items.</p>
+    <p>Not all applicants are approved. While no credit history is required, Snap obtains
+    information from consumer reporting agencies in connection with applications, and your score
+    with those agencies may be affected.</p>
+    <p>Cruise the Creek is a participating merchant, not the lender or lessor. All approval
+    decisions, payment terms and agreement details are set by Snap RTO LLC.</p>
+  </div>
+
+</main>
+
+<footer>
+  &copy; 2026 Cruise the Creek &middot; <a href="index.html">Home</a> &middot; <a href="shop.html">Shop</a> &middot; <a href="bridge-the-gap.html">Bridge the Gap</a>
+</footer>
+
+</body>
+</html>
