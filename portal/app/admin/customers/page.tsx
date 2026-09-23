@@ -26,9 +26,19 @@ export default async function AdminCustomers() {
   const customersData = (customers || []).map((c) => {
     const custInvoices = (invoices || []).filter((i) => i.customer_id === c.id)
     const custBikes = (bikes || []).filter((b) => b.customer_id === c.id)
-    const totalSpent = custInvoices
+    // "Total Spent" counted only invoices marked paid, and most invoices in
+    // this shop are still marked pending — so a customer with a $2,000 bike
+    // read $0.00. That is not a cautious number, it is a wrong one, and it
+    // makes the column useless for the thing it is there for.
+    //
+    // Invoiced is what the customer was billed; paid is what has been marked
+    // settled. Keep both, and let the UI show the gap rather than hiding the
+    // whole figure behind a status flag that is often just out of date.
+    const totalInvoiced = custInvoices
+      .reduce((sum, i) => sum + Number(i.total_amount || 0), 0)
+    const totalPaid = custInvoices
       .filter((i) => i.status === 'paid')
-      .reduce((sum, i) => sum + Number(i.total_amount), 0)
+      .reduce((sum, i) => sum + Number(i.total_amount || 0), 0)
 
     const latestPurchaseDate = custBikes[0]?.purchase_date || custInvoices[0]?.issued_at || null
 
@@ -41,7 +51,10 @@ export default async function AdminCustomers() {
       lastSignInAt: account?.lastSignInAt ?? null,
       invitedAt: account?.invitedAt ?? null,
       invoiceCount: custInvoices.length,
-      totalSpent,
+      totalSpent: totalInvoiced,
+      totalInvoiced,
+      totalPaid,
+      totalOutstanding: Math.max(0, totalInvoiced - totalPaid),
       bikes: custBikes,
       latestPurchaseDate,
     }
