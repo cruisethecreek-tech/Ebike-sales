@@ -332,7 +332,7 @@ const SITE_CONFIG = {
 
         @keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
 </style>
-<script src="site-enhance.js?v=5159512ead"></script>
+<script src="site-enhance.js?v=b83ba263dd"></script>
 <meta property="og:title" content="Jasion - Cruise The Creek">
 <meta property="og:description" content="Cruise the Creek — e-bike sales, rentals, and trailside adventures in Youngstown, Ohio.">
 <meta property="og:image" content="https://www.cruisethecreek.com/cityrunblackblack.jpg">
@@ -581,6 +581,13 @@ window.ctcNextImage = function (img) {
                 });
         });
 
+        // site-enhance.js owns how a swatch is painted, so the two-tone and
+        // no-hex cases are handled the same way on all five brand pages. The
+        // fallback keeps swatches rendering if that script ever fails to load.
+        var ctcSwatch = window.ctcSwatchStyle || function (s) {
+          return 'background-color:' + ((s && s.hex) || '#D2CCC0');
+        };
+
         function buildBikeCards(inventory) {
             if(window._hideOverlay) window._hideOverlay(); // overlay gone as soon as data renders
             globalInventory = inventory;
@@ -674,9 +681,9 @@ window.ctcNextImage = function (img) {
                                 const active = i === 0 && isFirst ? 'active' : '';
                                 const price = swatch.price ? swatch.price : bike.price;
                                 if (swatch.soldOut) {
-                                    html += `<div class="swatch sold-out-swatch" style="background-color:${swatch.hex};opacity:0.35;cursor:not-allowed;position:relative;" title="${swatch.name} — Sold Out"><div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%) rotate(-45deg);width:130%;height:2px;background:#e53935;border-radius:2px;"></div></div>`;
+                                    html += `<div class="swatch sold-out-swatch" style="${ctcSwatch(swatch)};opacity:0.35;cursor:not-allowed;position:relative;" title="${swatch.name} — Sold Out"><div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%) rotate(-45deg);width:130%;height:2px;background:#e53935;border-radius:2px;"></div></div>`;
                                 } else {
-                                    html += `<div class="swatch ${active}" style="background-color:${swatch.hex};" data-image="${swatch.img}" data-color="${swatch.name}" data-price="${price}" title="${swatch.name}" onclick="updateImageAndSwatch(this)"></div>`;
+                                    html += `<div class="swatch ${active}" style="${ctcSwatch(swatch)};" data-image="${swatch.img}" data-color="${swatch.name}" data-price="${price}" title="${swatch.name}" onclick="updateImageAndSwatch(this)"></div>`;
                                 }
                             });
                             html += `</div></div>`;
@@ -957,9 +964,9 @@ function buildNestedColorGroups(bike, html) {
                 const isActive = idx === 0 && si === 0 ? 'active' : '';
                 const price = swatch.price ? swatch.price : bike.price;
                 if (swatch.soldOut) {
-                    html += `<div class="swatch sold-out-swatch" style="background-color:${swatch.hex};opacity:0.35;cursor:not-allowed;position:relative;" title="${swatch.name} — Sold Out"><div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%) rotate(-45deg);width:130%;height:2px;background:#e53935;border-radius:2px;"></div></div>`;
+                    html += `<div class="swatch sold-out-swatch" style="${ctcSwatch(swatch)};opacity:0.35;cursor:not-allowed;position:relative;" title="${swatch.name} — Sold Out"><div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%) rotate(-45deg);width:130%;height:2px;background:#e53935;border-radius:2px;"></div></div>`;
                 } else {
-                    html += `<div class="swatch ${isActive}" style="background-color:${swatch.hex};" data-image="${swatch.img}" data-color="${swatch.name}" data-price="${price}" title="${swatch.name}" onclick="updateImageAndSwatch(this)"></div>`;
+                    html += `<div class="swatch ${isActive}" style="${ctcSwatch(swatch)};" data-image="${swatch.img}" data-color="${swatch.name}" data-price="${price}" title="${swatch.name}" onclick="updateImageAndSwatch(this)"></div>`;
                 }
             });
             html += `</div></div>`;
