@@ -135,6 +135,7 @@
       { label: 'E-Bike Quiz',      url: 'quiz.html' },
       { label: 'Shop Accessories', url: 'accessories.html' },
       { label: 'Shop Apparel',     url: 'apparel.html' },
+      { label: 'Financing',        url: 'financing.html' },
     ]},
     { label: 'Services', items: [
       { label: 'Creek Ready Package',  url: 'creek-ready.html' },
