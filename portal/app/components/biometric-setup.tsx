@@ -34,6 +34,7 @@ export function BiometricSetup() {
       const json = await res.json()
       if (!res.ok) throw new Error(json.error || 'Could not read your devices.')
       setPasskeys(json.credentials || [])
+      return json.credentials || []
     } catch (err: any) {
       setPasskeys([])
       setStatusMsg({ text: err?.message || 'Could not read your devices.', isError: true })
@@ -97,8 +98,10 @@ export function BiometricSetup() {
       }
 
       await refresh()
+      // Lets the sign-in page open on the Face ID tab for this device.
+      try { localStorage.setItem('ctc_has_passkey', '1') } catch {}
       setStatusMsg({
-        text: `✅ Saved. Next time, tap "Use Face ID / Fingerprint" on the sign-in screen — no password, no email.`,
+        text: `✅ Saved. Next time, tap "Use Face ID / Fingerprint" on the sign-in screen — no email link needed.`,
         isError: false,
       })
     } catch (err: any) {
@@ -132,7 +135,10 @@ export function BiometricSetup() {
       })
       const json = await res.json()
       if (!res.ok) throw new Error(json.error || 'Could not remove that device.')
-      await refresh()
+      const left = await refresh()
+      if (!left || left.length === 0) {
+        try { localStorage.removeItem('ctc_has_passkey') } catch {}
+      }
       setStatusMsg({ text: 'Device removed. It can no longer open your account.', isError: false })
     } catch (err: any) {
       setStatusMsg({ text: err?.message || 'Could not remove that device.', isError: true })

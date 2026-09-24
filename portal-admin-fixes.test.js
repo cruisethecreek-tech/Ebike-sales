@@ -240,5 +240,80 @@ ok(
     !/on public\.webauthn_challenges for/.test(migration)
 );
 
+
+// ─────────────────────────────────────────────────────────────────────────
+// 4. Password sign-in, removed
+// ─────────────────────────────────────────────────────────────────────────
+// The Password tab could not work for a single one of the 60 accounts. 55 were
+// created by scripts/import-invoices.ts, which sets a random password and
+// throws it away ("they'll use magic link to sign in"); the other 5 were
+// invited, and the callback sends them straight to /dashboard without ever
+// asking for one. So every customer was shown a form guaranteed to fail — the
+// same shape of bug as the biometrics card that reported success while storing
+// nothing.
+const authActions = read('portal/app/auth/actions.ts')
+
+ok(
+  'the sign-in page offers no password field',
+  !/type="password"/.test(authPage),
+  'nobody has a password to type into it'
+)
+
+ok(
+  'the password mode is gone from the tab state',
+  !/'magic' \| 'password' \| 'biometric'/.test(authPage) &&
+    !/mode === 'password'/.test(authPage)
+)
+
+ok(
+  'signInWithPassword is no longer called anywhere in the portal',
+  !/signInWithPassword/.test(codeOnly(authPage)) &&
+    !/signInWithPassword/.test(codeOnly(authActions)),
+  'the only mention left is the comment telling the next person not to re-add it'
+)
+
+ok(
+  'the dead signIn and signUp server actions were removed, not left orphaned',
+  !/export async function signIn\b/.test(authActions) &&
+    !/export async function signUp\b/.test(authActions)
+)
+
+ok(
+  'the email link and sign-out actions still exist',
+  /export async function sendMagicLink\b/.test(authActions) &&
+    /export async function signOut\b/.test(authActions)
+)
+
+ok(
+  'why it was removed is written down where someone would re-add it',
+  /Password sign-in was removed/.test(authActions) &&
+    /import-invoices\.ts/.test(authActions),
+  'otherwise the next person rebuilds the same dead end'
+)
+
+// A passkey belongs to one device. Opening every visitor on the Biometrics tab
+// when none of them has registered one is the same trap the password tab was.
+ok(
+  'the page opens on the email link tab by default',
+  /useState<'magic' \| 'biometric'>\('magic'\)/.test(authPage)
+)
+
+ok(
+  '...and only opens on Biometrics where a passkey was actually set up',
+  /localStorage\.getItem\('ctc_has_passkey'\) === '1'/.test(authPage) &&
+    /setMode\('biometric'\)/.test(authPage)
+)
+
+ok(
+  'registering a passkey records it for this device',
+  /localStorage\.setItem\('ctc_has_passkey', '1'\)/.test(setup)
+)
+
+ok(
+  'removing the last passkey clears that flag',
+  /left\.length === 0[\s\S]{0,120}removeItem\('ctc_has_passkey'\)/.test(setup),
+  'otherwise sign-in keeps opening on a tab that no longer works here'
+)
+
 console.log(fails ? `\n${fails} failing` : '\nall passing');
 process.exit(fails ? 1 : 0);

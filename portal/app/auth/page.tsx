@@ -1,18 +1,16 @@
 'use client'
 
 import { useState, useActionState, useEffect } from 'react'
-import { signIn, sendMagicLink } from './actions'
+import { sendMagicLink } from './actions'
 import { createClient } from '@/lib/supabase/client'
 import { startAuthentication } from '@simplewebauthn/browser'
 import Link from 'next/link'
 
 export default function AuthPage() {
-  const [mode, setMode] = useState<'magic' | 'password' | 'biometric'>('biometric')
+  const [mode, setMode] = useState<'magic' | 'biometric'>('magic')
   const [magicState, magicAction, isMagicPending] = useActionState(sendMagicLink, null)
-  const [signInState, signInAction, isSignInPending] = useActionState(signIn, null)
   
   const [emailInput, setEmailInput] = useState('')
-  const [passwordInput, setPasswordInput] = useState('')
   const [bioError, setBioError] = useState<string | null>(null)
   const [bioLoading, setBioLoading] = useState(false)
   const [bioSuccess, setBioSuccess] = useState(false)
@@ -23,6 +21,14 @@ export default function AuthPage() {
       const p = new URLSearchParams(window.location.search);
       const emailParam = p.get('email');
       if (emailParam) setEmailInput(emailParam);
+    } catch (_) {}
+
+    // A passkey belongs to one device, so only open on the Face ID tab where
+    // one actually exists. Opening there by default would put everyone else in
+    // front of a button that cannot work for them — which is exactly what the
+    // password tab did.
+    try {
+      if (localStorage.getItem('ctc_has_passkey') === '1') setMode('biometric');
     } catch (_) {}
   }, [])
 
@@ -77,6 +83,7 @@ export default function AuthPage() {
       if (error) throw error
       if (!data?.session) throw new Error('Passkey verified, but no session was created.')
 
+      try { localStorage.setItem('ctc_has_passkey', '1') } catch (_) {}
       setBioSuccess(true)
       window.location.href = '/dashboard'
     } catch (err: any) {
@@ -86,48 +93,6 @@ export default function AuthPage() {
         setBioError(err?.message || 'Passkey sign-in failed. Use the Email Link tab instead.')
       }
     } finally {
-      setBioLoading(false)
-    }
-  }
-
-  // Handle client-side password sign in with credential saving for future biometric 1-tap logins
-  async function handlePasswordSubmit(e: React.FormEvent) {
-    e.preventDefault()
-    if (!emailInput || !passwordInput) return
-
-    setBioLoading(true)
-    setBioError(null)
-
-    try {
-      const supabase = createClient()
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email: emailInput.trim(),
-        password: passwordInput,
-      })
-
-      if (error) {
-        setBioError(error.message)
-        setBioLoading(false)
-        return
-      }
-
-      // Store in Google Password Manager / Apple Keychain for 1-tap biometrics next time
-      if (typeof window !== 'undefined' && (window as any).PasswordCredential && navigator.credentials?.store) {
-        try {
-          const pCred = new (window as any).PasswordCredential({
-            id: emailInput.trim(),
-            password: passwordInput,
-            name: emailInput.trim(),
-          })
-          await navigator.credentials.store(pCred)
-        } catch (_) {}
-      }
-
-      if (data?.session) {
-        window.location.href = '/dashboard'
-      }
-    } catch (err: any) {
-      setBioError(err?.message || 'Sign in failed')
       setBioLoading(false)
     }
   }
@@ -165,16 +130,6 @@ export default function AuthPage() {
               }}
             >
               🔐 Biometrics
-            </button>
-            <button
-              onClick={() => { setMode('password'); setBioError(null); }}
-              className="flex-1 py-2 text-center text-xs font-bold rounded-lg transition-all"
-              style={{
-                backgroundColor: mode === 'password' ? '#2D4A32' : 'transparent',
-                color: mode === 'password' ? '#fff' : '#4A4A4A',
-              }}
-            >
-              🔒 Password
             </button>
             <button
               onClick={() => { setMode('magic'); setBioError(null); }}
@@ -237,68 +192,6 @@ export default function AuthPage() {
                 </button>
               </div>
             </div>
-          )}
-
-          {/* ── Password Sign In ── */}
-          {mode === 'password' && (
-            <form onSubmit={handlePasswordSubmit} className="space-y-5">
-              {bioError && (
-                <div className="p-3 rounded-lg text-sm" style={{ backgroundColor: '#fef2f2', color: '#dc2626' }}>
-                  {bioError}
-                </div>
-              )}
-              {signInState?.error && (
-                <div className="p-3 rounded-lg text-sm" style={{ backgroundColor: '#fef2f2', color: '#dc2626' }}>
-                  {signInState.error}
-                </div>
-              )}
-              
-              <div>
-                <label htmlFor="signin-email" className="block text-sm font-medium mb-1" style={{ color: '#2D4A32' }}>
-                  Email address
-                </label>
-                <input
-                  id="signin-email"
-                  name="email"
-                  type="email"
-                  value={emailInput}
-                  onChange={(e) => setEmailInput(e.target.value)}
-                  autoComplete="username webauthn"
-                  required
-                  className="input w-full"
-                  placeholder="your@email.com"
-                />
-              </div>
-
-              <div>
-                <label htmlFor="signin-password" className="block text-sm font-medium mb-1" style={{ color: '#2D4A32' }}>
-                  Password
-                </label>
-                <input
-                  id="signin-password"
-                  name="password"
-                  type="password"
-                  value={passwordInput}
-                  onChange={(e) => setPasswordInput(e.target.value)}
-                  autoComplete="current-password webauthn"
-                  required
-                  className="input w-full"
-                />
-              </div>
-
-              <div className="p-2.5 rounded-lg bg-[#FAF8F2] border border-[#E5E5E5] text-[11px] text-[#4A4A4A] flex items-center gap-2">
-                <span>🔐</span>
-                <span>Signing in saves your credentials securely so you can use 1-tap biometric login next time.</span>
-              </div>
-
-              <button
-                type="submit"
-                disabled={bioLoading || isSignInPending}
-                className="btn-primary w-full flex justify-center py-2.5 px-4 font-bold shadow-sm"
-              >
-                {bioLoading || isSignInPending ? 'Signing in...' : 'Sign In & Enable Biometrics'}
-              </button>
-            </form>
           )}
 
           {/* ── Magic Link ── */}

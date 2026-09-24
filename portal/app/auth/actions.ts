@@ -4,47 +4,23 @@ import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { revalidatePath } from 'next/cache'
 
-export async function signIn(prevState: any, formData: FormData) {
-  const email = formData.get('email') as string
-  const password = formData.get('password') as string
-
-  if (!email || !password) {
-    return { error: 'Email and password are required' }
-  }
-
-  const supabase = await createClient()
-
-  const { error } = await supabase.auth.signInWithPassword({
-    email,
-    password,
-  })
-
-  if (error) {
-    return { error: error.message }
-  }
-
-  // On first sign-in, create the customer profile if it doesn't exist yet.
-  const { data: { user } } = await supabase.auth.getUser()
-  if (user) {
-    const { data: existing } = await supabase
-      .from('customers')
-      .select('id')
-      .eq('id', user.id)
-      .single()
-
-    if (!existing) {
-      const meta = user.user_metadata
-      await supabase.from('customers').insert({
-        id: user.id,
-        first_name: meta?.first_name || 'Customer',
-        last_name: meta?.last_name || '',
-      })
-    }
-  }
-
-  revalidatePath('/', 'layout')
-  redirect('/dashboard')
-}
+/*
+ * Password sign-in was removed on 2026-09-24.
+ *
+ * It could not work for a single account. 55 of the 60 auth users were made by
+ * scripts/import-invoices.ts, which sets a random password and discards it
+ * ("they'll use magic link to sign in"); the other 5 were invited and the
+ * callback sends them straight to /dashboard without ever asking for one. So
+ * the Password tab offered every customer a form that was guaranteed to fail.
+ *
+ * Sign-in is now the email link, or a passkey (Face ID / Touch ID / fingerprint)
+ * once one is registered from the dashboard.
+ *
+ * To bring passwords back you need all of: a set-password step after the invite
+ * link, a change-password screen, a forgot-password flow, and Supabase's leaked
+ * password protection turned on (it is currently off). Re-adding
+ * signInWithPassword on its own would only rebuild the same dead end.
+ */
 
 export async function sendMagicLink(prevState: any, formData: FormData) {
   const email = formData.get('email') as string
@@ -76,36 +52,6 @@ export async function sendMagicLink(prevState: any, formData: FormData) {
   } catch (e: any) {
     return { error: e?.message || 'Something went wrong. Please try again.' }
   }
-}
-
-export async function signUp(prevState: any, formData: FormData) {
-  const email = formData.get('email') as string
-  const password = formData.get('password') as string
-  const firstName = formData.get('firstName') as string
-  const lastName = formData.get('lastName') as string
-
-  if (!email || !password || !firstName || !lastName) {
-    return { error: 'All fields are required' }
-  }
-
-  const supabase = await createClient()
-
-  const { error: signUpError } = await supabase.auth.signUp({
-    email,
-    password,
-    options: {
-      data: {
-        first_name: firstName,
-        last_name: lastName,
-      },
-    },
-  })
-
-  if (signUpError) {
-    return { error: signUpError.message }
-  }
-
-  return { success: 'Check your email to confirm your account, then sign in!' }
 }
 
 export async function signOut() {
