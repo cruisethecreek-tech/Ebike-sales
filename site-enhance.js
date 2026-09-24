@@ -159,6 +159,138 @@
     ]},
   ];
 
+
+  /* ── Swatch rendering ──────────────────────────────────────────────
+     The brand pages built a swatch with `background-color:${swatch.hex}`.
+     A blank hex makes that `background-color:;` — invalid, ignored, and the
+     swatch renders as an empty ring. 105 of 239 swatches had no hex, so the
+     Heybike Saturn showed "Leather Black" as a blank circle over a photo of a
+     black bike, and the Jasion Patrol drew "White Sprite" and "Black Knight"
+     identically.
+
+     The hexes are missing at source: the supplier feeds give a colour NAME and
+     a PHOTO but never a hex, so apps-script-brand-import.snippet.gs:270 writes
+     an empty hex and leaves it for a human. The table below fills that gap by
+     name.
+
+     It lives HERE, in the renderer, and not in data/inventory.json — that file
+     is regenerated from the Google Sheet by the sync workflow every day, so
+     anything written into it is gone within 24 hours. A hex set in the Sheet
+     still wins: this only ever applies when the Sheet has none.
+
+     These are deliberate approximations of a paint name, not measured values.
+     The swatch is a cue; the photo it swaps in is the authority. Where a name
+     has no honest single colour — camo, or "Standard" — nothing is invented.
+
+     Corrections go in this table, or in the Sheet via salespro, which wins. */
+
+  const SWATCH_COLORS = {
+    // ── Neutrals ──────────────────────────────────────────────────────────
+    'black': '#1A1A1A',
+    'phantom black': '#141414',
+    'stealth black': '#17181A',
+    'crystal black': '#202124',
+    'obsidian black': '#15171A',
+    'cool black': '#1F2124',
+    'leather black': '#23211F',   // Heybike Saturn — black with a tan saddle
+    'black knight': '#181818',
+    'white': '#F2F2EF',           // off-white: pure #FFF disappears on a white card
+    'arctic white': '#F4F6F7',
+    'polar white': '#F3F5F6',
+    'pearl white': '#F0EEE8',
+    'white sprite': '#F2F3F1',
+    'grey': '#8A8D90',
+    'gray': '#8A8D90',
+    'smoke grey': '#77797C',
+    'stone gray': '#8E8C87',
+    'brown gray': '#7A6E63',
+    'shadow steel': '#5F6469',
+    'silver': '#C2C5C8',
+    'platinum': '#CFD2D4',
+
+    // ── Blues ─────────────────────────────────────────────────────────────
+    'steel blue': '#4A6D8C',
+    'dark blue': '#26364F',
+    'darkblue': '#26364F',
+    'marine blue': '#2C4A6E',
+    'electric blue': '#1F6FD0',
+    'frozen blue': '#8FB6CE',
+    'sky blue': '#8FC4DE',
+    'skyblue': '#8FC4DE',
+    'lapis': '#2A4C8F',
+    'denim': '#4C6280',
+    'cyan': '#2BB3C0',
+
+    // ── Greens ────────────────────────────────────────────────────────────
+    'green': '#3E7A4E',
+    'olive green': '#6B7042',
+    'pine green': '#28503C',
+    'sage': '#9CA88C',
+    'mint': '#A8D8C2',
+    'mint green': '#A8D8C2',
+    'aqua green': '#6FB4A3',
+    'cyan green': '#3FB39A',
+    'venom green': '#7BC043',     // Jasion RetroVolt Max — bright acid green
+
+    // ── Reds, pinks, oranges, yellows ─────────────────────────────────────
+    'crimson red': '#A62231',
+    'cherry crimson': '#9E1F33',
+    'firebrick': '#9C3028',
+    'orange': '#D9702A',
+    'vibrant orange': '#E8701A',
+    'hazelnut yellow': '#C99A3E',
+    'crystal pink': '#E8B4C0',
+    'purple': '#6B4C8A',
+
+    // ── Browns and tans ───────────────────────────────────────────────────
+    'mocha': '#6E5647',
+    'tan': '#C4A484',
+    'khaki': '#A3956B',
+
+    // ── Two-tone: [primary, secondary], rendered as a split chip ──────────
+    'black and red': ['#1A1A1A', '#A62231'],
+    'black and blue': ['#1A1A1A', '#2C4A6E'],
+    'blue and grey': ['#3E5C7E', '#8A8D90'],
+    'yellow and black': ['#D8B23A', '#1A1A1A'],
+    'panda': ['#1A1A1A', '#F2F2EF'],
+
+    // ── Deliberately absent ───────────────────────────────────────────────
+    // 'jungle camo', 'desert camo' — a pattern, not a colour. A single hex
+    //   would misrepresent it and a two-stop split still would.
+    // 'standard'  — Heybike Villain. Not a colour name at all.
+    // These fall through to the renderer's "see photo" chip.
+  };
+
+  function ctcNormalizeColorName(name) {
+    return String(name || '').toLowerCase()
+      .replace(/[^a-z0-9 ]+/g, ' ').replace(/\s+/g, ' ').trim();
+  }
+
+  window.ctcSwatchStyle = function (swatch) {
+    var s = swatch || {};
+    var hex = (s.hex || '').trim();
+    var hex2 = (s.hex2 || '').trim();
+
+    /* The Sheet is authoritative. Only fall back to the table when it is silent. */
+    if (!hex) {
+      var hit = SWATCH_COLORS[ctcNormalizeColorName(s.name)];
+      if (hit) {
+        if (Object.prototype.toString.call(hit) === '[object Array]') {
+          hex = hit[0]; hex2 = hit[1];
+        } else {
+          hex = hit;
+        }
+      }
+    }
+
+    if (hex && hex2) {
+      return 'background:linear-gradient(135deg,' + hex + ' 0 50%,' + hex2 + ' 50% 100%)';
+    }
+    if (hex) return 'background-color:' + hex;
+    /* Unknown, and not guessed at: a hatched chip means "see the photo". */
+    return 'background:repeating-linear-gradient(135deg,#E8E4DC 0 5px,#D2CCC0 5px 10px)';
+  };
+
   function currentPageFile() {
     var p = (location.pathname || '').split('/').pop();
     return (p && p.indexOf('.') !== -1) ? p.toLowerCase() : 'index.html';
