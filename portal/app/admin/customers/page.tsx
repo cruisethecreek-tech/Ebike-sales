@@ -1,6 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { listAuthAccounts } from '@/lib/auth-accounts'
-import { inviteCustomer } from './actions'
+import { InviteCustomerForm } from './invite-form'
 import { CustomerDirectory } from './customer-directory'
 
 export default async function AdminCustomers() {
@@ -61,6 +61,11 @@ export default async function AdminCustomers() {
   })
 
   const registeredCount = customersData.filter((c) => c.registered).length
+  // Counted separately because they are different facts. "Invited but never
+  // arrived" describes someone who got an email and ignored it; most of this
+  // list never got one, and saying otherwise hid that entirely.
+  const invitedCount = customersData.filter((c) => !c.registered && c.invitedAt).length
+  const notInvitedCount = customersData.filter((c) => !c.registered && !c.invitedAt).length
 
   return (
     <div className="space-y-6 w-full max-w-full">
@@ -75,10 +80,23 @@ export default async function AdminCustomers() {
           <p className="text-xs text-[#4A4A4A]">
             {accountsError
               ? 'Riders, bike inventory & purchase dates'
-              : `${registeredCount} signed in \u00b7 ${customersData.length - registeredCount} invited but never arrived`}
+              : `${registeredCount} signed in \u00b7 ${invitedCount} invited, never arrived \u00b7 ${notInvitedCount} never invited`}
           </p>
         </div>
       </div>
+
+      {/* The number that should prompt an action, stated once and plainly. */}
+      {!accountsError && notInvitedCount > 0 && (
+        <div className="rounded-xl border border-[#F0B4B4] bg-[#FDECEC] p-3 text-xs text-[#9B2C2C]">
+          <strong className="font-bold">
+            {notInvitedCount} customer{notInvitedCount === 1 ? ' has' : 's have'} never been sent an
+            invite.
+          </strong>{' '}
+          Their accounts were created in bulk when invoices were imported, which writes the account
+          but sends no email — so they do not know the portal exists. Use ✉️ Invite New Customer
+          above with their existing email address to send them one.
+        </div>
+      )}
 
       {accountsError && (
         <div className="rounded-xl border border-amber-300 bg-amber-50 p-3 text-xs text-amber-900">
@@ -95,29 +113,7 @@ export default async function AdminCustomers() {
         >
           ✉️ Invite New Customer
         </h2>
-        <form action={inviteCustomer} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 items-end">
-          <div>
-            <label className="block text-xs font-semibold text-[#4A4A4A] mb-1">Email *</label>
-            <input name="email" type="email" required placeholder="rider@email.com" className="input w-full text-xs" />
-          </div>
-          <div>
-            <label className="block text-xs font-semibold text-[#4A4A4A] mb-1">First Name *</label>
-            <input name="first_name" type="text" required placeholder="Danielle" className="input w-full text-xs" />
-          </div>
-          <div>
-            <label className="block text-xs font-semibold text-[#4A4A4A] mb-1">Last Name</label>
-            <input name="last_name" type="text" placeholder="Smith" className="input w-full text-xs" />
-          </div>
-          <div>
-            <label className="block text-xs font-semibold text-[#4A4A4A] mb-1">Phone</label>
-            <input name="phone" type="tel" placeholder="(330) 555-1234" className="input w-full text-xs" />
-          </div>
-          <div>
-            <button type="submit" className="btn-primary w-full h-10 text-xs font-bold shadow-sm">
-              Send Invite
-            </button>
-          </div>
-        </form>
+        <InviteCustomerForm />
       </div>
 
       {/* Interactive Alphabetical Directory */}

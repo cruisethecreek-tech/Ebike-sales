@@ -13,7 +13,28 @@ function createAdminClient() {
   )
 }
 
-export async function inviteCustomer(formData: FormData): Promise<void> {
+export interface InviteResult {
+  ok: boolean
+  message: string
+}
+
+/**
+ * Send someone their way into the portal.
+ *
+ * The existing-user branch used to call admin.generateLink, which GENERATES a
+ * link and sends nothing — it is the call used elsewhere in this codebase
+ * precisely because it does not email anybody. It then revalidated and
+ * returned, so the page refreshed and the invite looked sent. 53 of 61
+ * accounts have never received any email, and this was the one tool for
+ * fixing that.
+ *
+ * signInWithOtp actually delivers. shouldCreateUser is false so a typo in the
+ * address fails loudly instead of quietly creating a second empty account.
+ */
+export async function inviteCustomer(
+  _prev: InviteResult | null,
+  formData: FormData,
+): Promise<InviteResult> {
   await requireAdminUser()
 
   const email = formData.get('email') as string
@@ -21,7 +42,9 @@ export async function inviteCustomer(formData: FormData): Promise<void> {
   const lastName = formData.get('last_name') as string
   const phone = formData.get('phone') as string
 
-  if (!email || !firstName) return
+  if (!email || !firstName) {
+    return { ok: false, message: 'An email address and a first name are both required.' }
+  }
 
   const supabase = createAdminClient()
 
@@ -30,16 +53,30 @@ export async function inviteCustomer(formData: FormData): Promise<void> {
   const exists = existingUsers?.users?.some(u => u.email === email)
 
   if (exists) {
-    // User already has an account — just send them a magic link
-    await supabase.auth.admin.generateLink({
-      type: 'magiclink',
+    // Already has an account — send a sign-in link that actually leaves the
+    // building. This runs on the anon client because signInWithOtp is not an
+    // admin call; the service-role client cannot send it.
+    const { createClient: createAnonClient } = await import('@supabase/supabase-js')
+    const anon = createAnonClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      { auth: { autoRefreshToken: false, persistSession: false } },
+    )
+
+    const { error: otpError } = await anon.auth.signInWithOtp({
       email,
       options: {
-        redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://portal.cruisethecreek.com'}/auth/callback`,
+        shouldCreateUser: false,
+        emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://portal.cruisethecreek.com'}/auth/callback`,
       },
     })
+
+    if (otpError) {
+      return { ok: false, message: `Could not email ${email}: ${otpError.message}` }
+    }
+
     revalidatePath('/admin/customers')
-    return
+    return { ok: true, message: `Sign-in link sent to ${email}. They already had an account.` }
   }
 
   // Create auth user and send invite email
@@ -52,8 +89,9 @@ export async function inviteCustomer(formData: FormData): Promise<void> {
   })
 
   if (authError) {
-    console.error('Error inviting user:', authError)
-    return
+    // Reported, not swallowed. A failed invite that looks successful is how a
+    // whole customer list ends up believing it has been contacted.
+    return { ok: false, message: `Could not invite ${email}: ${authError.message}` }
   }
 
   if (authData?.user) {
@@ -72,6 +110,7 @@ export async function inviteCustomer(formData: FormData): Promise<void> {
   }
 
   revalidatePath('/admin/customers')
+  return { ok: true, message: `Invite emailed to ${email}.` }
 }
 
 export async function adminUpdateBike(formData: FormData): Promise<void> {
