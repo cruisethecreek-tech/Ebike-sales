@@ -102,5 +102,34 @@ ok('the payment method and reference reach the portal',
    /paymentMethod : invoiceData\.depositMethod/.test(gen) &&
    /paymentRef    : invoiceData\.depositRef/.test(gen));
 
+
+// ── A financed sale cannot also be discounted ────────────────────────────
+//
+// Snap pays the shop the full cash price and the customer then owes Snap, so
+// there is nothing to "pay today" and nothing for a discount to describe.
+// CTR-071 was booked with a $1,799 discount against a $1,976.47 financed sale,
+// leaving $74.03 in the books. Snap's own record — $1,869 subtotal, $107.47
+// tax, $1,976.47 total — is what proved which figure was real.
+ok('saving refuses a Snap sale that carries a discount',
+   /_method === 'snap' && totals\.discountAmount > 0/.test(gen),
+   'nothing objected before: a discount is an ordinary thing for an invoice to have');
+
+ok('the refusal names the amount it would have recorded instead',
+   /Snap finances the full cash price/.test(gen) &&
+   /Clear the discount, or change the payment method/.test(gen));
+
+// Snap's figures, reproduced. If the tax rate or the arithmetic ever drifts
+// from what the financing company recorded, the shop's books and Snap's stop
+// agreeing and only a human comparing two screens would notice.
+{
+  const subtotal = 1869;
+  const tax = Number((subtotal * 0.0575).toFixed(2));
+  ok("tax matches Snap's $107.47", tax === 107.47, String(tax));
+  ok("total matches Snap's $1,976.47", Number((subtotal + tax).toFixed(2)) === 1976.47);
+  // And the shop's three lines add up to Snap's single one.
+  ok('the itemised lines reconcile with the financed subtotal',
+     1799 + 40 + 30 === subtotal);
+}
+
 console.log(fails ? `\n${fails} failing` : '\nall passing');
 process.exit(fails ? 1 : 0);

@@ -1814,6 +1814,30 @@
                 return;
             }
 
+
+            // A financed sale is paid IN FULL. Snap pays the shop the cash
+            // price; the customer then owes Snap. So a discount on a Snap
+            // invoice reduces what Snap is financing — it does not describe
+            // "what the customer hands over today", and there is nothing to
+            // hand over today.
+            //
+            // This is the mistake CTR-071 was booked with: a $1,799 discount
+            // turned a $1,976.47 financed sale into a $74.03 invoice. Snap's
+            // own record said $1,869 + $107.47 tax = $1,976.47, and the shop's
+            // books said $74.03. Nothing objected, because a discount is a
+            // perfectly ordinary thing for an invoice to have.
+            var _method = (document.getElementById('depositMethod') || {}).value || '';
+            if (_method === 'snap' && totals.discountAmount > 0) {
+                showStatus(
+                    'Not saving ' + invNum + ': this is marked as financed by Snap but carries a $' +
+                    totals.discountAmount.toFixed(2) + ' discount. Snap finances the full cash price, ' +
+                    'so a financed sale is recorded at its full amount — $' +
+                    (totals.subtotal + (totals.noTax ? 0 : totals.subtotal * TAX_RATE)).toFixed(2) +
+                    ' here. Clear the discount, or change the payment method if a real ' +
+                    'price reduction was actually given.', 'error');
+                return;
+            }
+
             const paymentModeEl = document.querySelector('input[name="paymentMode"]:checked');
             const paymentMode = paymentModeEl ? paymentModeEl.value : 'full';
             const depositMethod = (document.getElementById('depositMethod') || {}).value || '';
