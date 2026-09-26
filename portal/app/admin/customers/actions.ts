@@ -3,6 +3,7 @@
 import { createClient } from '@supabase/supabase-js'
 import { requireAdminUser } from '@/lib/require-admin'
 import { revalidatePath } from 'next/cache'
+import { canonicalInvoiceNumber } from '@/lib/invoice-number'
 
 // Admin-only: uses service role key to send invite emails
 function createAdminClient() {
@@ -81,7 +82,7 @@ export async function adminUpdateBike(formData: FormData): Promise<void> {
   const rawReceipt = formData.get('receipt_number') as string
 
   const serial_number = rawSerial && rawSerial.trim() ? rawSerial.trim().toUpperCase() : null
-  const receipt_number = rawReceipt && rawReceipt.trim() ? rawReceipt.trim().toUpperCase() : null
+  const receipt_number = canonicalInvoiceNumber(rawReceipt)
 
   if (!bikeId) return
 
@@ -103,16 +104,20 @@ export async function adminAddBike(formData: FormData): Promise<void> {
   await requireAdminUser()
 
   const customerId = (formData.get('customer_id') as string || '').trim()
-  const brand = (formData.get('brand') as string || 'Velotric').trim()
+  // Never default the brand. This used to fall back to 'Velotric', which
+  // combined with Velotric being the first <option> meant a missing or
+  // unlisted brand was recorded as a Velotric rather than rejected — that is
+  // how a Mokwheel Basalt ended up on file as a Velotric.
+  const brand = (formData.get('brand') as string || '').trim()
   const model = (formData.get('model') as string || '').trim()
   const rawSerial = formData.get('serial_number') as string
   const rawReceipt = formData.get('receipt_number') as string
   const purchaseDate = (formData.get('purchase_date') as string || '').trim() || null
 
   const serial_number = rawSerial && rawSerial.trim() ? rawSerial.trim().toUpperCase() : null
-  const receipt_number = rawReceipt && rawReceipt.trim() ? rawReceipt.trim().toUpperCase() : null
+  const receipt_number = canonicalInvoiceNumber(rawReceipt)
 
-  if (!customerId || !model) return
+  if (!customerId || !model || !brand) return
 
   const supabase = createAdminClient()
   const { error } = await supabase

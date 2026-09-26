@@ -42,13 +42,17 @@ function detectBike(itemDesc: string): { brand: string; model: string } | null {
     return null
   }
 
+  // These must be values of the bike_brand enum and nothing else. The previous
+  // list returned 'Aventon', 'Lectric' and 'Custom / Other', none of which
+  // exist in that type, so any bike matching them failed to insert instead of
+  // being recorded — which is why `other` appears on none of the 34 bikes on
+  // file. Mokwheel, the largest range in the shop, was missing entirely.
   let brand = 'other'
   if (lower.includes('heybike')) brand = 'Heybike'
   else if (lower.includes('velotric')) brand = 'Velotric'
   else if (lower.includes('jasion')) brand = 'Jasion'
   else if (lower.includes('mooncool')) brand = 'Mooncool'
-  else if (lower.includes('aventon')) brand = 'Aventon'
-  else if (lower.includes('lectric')) brand = 'Lectric'
+  else if (lower.includes('mokwheel')) brand = 'Mokwheel'
 
   // If marked as trike or bike
   const isBikeOrTrike =
@@ -66,8 +70,11 @@ function detectBike(itemDesc: string): { brand: string; model: string } | null {
   }
   if (!model) model = d
 
+  // 'other' verbatim — it is the enum value. The maker's name stays in the
+  // model, so an Aventon trade-in reads "other / Aventon Level 2" rather than
+  // being lost to a failed insert.
   return {
-    brand: brand === 'other' ? 'Custom / Other' : brand,
+    brand,
     model: model.replace(/^[-–—:\s]+/, '').trim(),
   }
 }
@@ -88,6 +95,27 @@ export async function POST(req: NextRequest) {
     const email = String(body.customerEmail || '').trim().toLowerCase()
     const phone = String(body.customerPhone || '').trim()
     const total = parseFloat(body.total) || 0
+
+    // The money broken into its parts. Older senders do not include these, so
+    // `undefined` means "not told" and must leave the stored value alone —
+    // writing 0 would turn a silent omission into a confident wrong number,
+    // which is the failure this breakdown exists to prevent.
+    const num = (v: any): number | undefined => {
+      if (v === undefined || v === null || v === '') return undefined
+      const n = parseFloat(v)
+      return Number.isFinite(n) ? n : undefined
+    }
+    const subtotal = num(body.subtotal)
+    const discountAmount = num(body.discountAmt)
+    const discountPercent = num(body.discountPct)
+    const taxAmount = num(body.tax)
+    const processingFee = num(body.processingFee)
+    const amountPaid = num(body.amountPaid)
+    const balanceDue = num(body.balanceDue)
+    const paymentMethod = body.paymentMethod === undefined
+      ? undefined : String(body.paymentMethod || '').trim().toLowerCase()
+    const paymentReference = body.paymentRef === undefined
+      ? undefined : String(body.paymentRef || '').trim()
     const paymentMode = String(body.paymentMode || 'full')
     const paymentLink = String(body.paymentLink || '')
     const invoiceDate = String(body.invoiceDate || new Date().toISOString().split('T')[0])
@@ -253,6 +281,15 @@ export async function POST(req: NextRequest) {
         // items should not wipe the items an earlier sync stored.
         ...(lineItems.length ? { items: lineItems } : {}),
         ...(supplierUrl === undefined ? {} : { supplier_url: supplierUrl }),
+        ...(subtotal === undefined ? {} : { subtotal }),
+        ...(discountAmount === undefined ? {} : { discount_amount: discountAmount }),
+        ...(discountPercent === undefined ? {} : { discount_percent: discountPercent }),
+        ...(taxAmount === undefined ? {} : { tax_amount: taxAmount }),
+        ...(processingFee === undefined ? {} : { processing_fee: processingFee }),
+        ...(amountPaid === undefined ? {} : { amount_paid: amountPaid }),
+        ...(balanceDue === undefined ? {} : { balance_due: balanceDue }),
+        ...(paymentMethod === undefined ? {} : { payment_method: paymentMethod || null }),
+        ...(paymentReference === undefined ? {} : { payment_reference: paymentReference || null }),
       }, { onConflict: 'invoice_number' })
 
       // The upsert used to be fire-and-forget. A failure here means the

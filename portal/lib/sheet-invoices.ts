@@ -25,6 +25,9 @@ export interface SheetInvoice {
   discountPct: number
   discountAmt: number
   tax: number
+  /** Added after tax and untaxed — absent on rows written before the Sheet had
+      the column, which is why it is optional rather than defaulted to 0. */
+  processingFee?: number
   total: number
   deposit: number
   balanceDue: number

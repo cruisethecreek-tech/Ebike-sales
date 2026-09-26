@@ -1232,6 +1232,13 @@
                             <label for="discountFixed">Discount $ (Fixed)</label>
                             <input type="number" id="discountFixed" step="0.01" placeholder="0" min="0">
                         </div>
+                        <div class="form-group">
+                            <label for="processingFee">Processing Fee $</label>
+                            <input type="number" id="processingFee" step="0.01" placeholder="0" min="0">
+                            <small style="display:block;margin-top:.3rem;color:var(--op-muted,#6b6b6b);font-size:.78rem;">
+                                Charged after tax, the way Snap states it. Leave blank if the customer is not paying one.
+                            </small>
+                        </div>
                     </div>
                     <div class="payment-mode-toggle">
                         <span class="payment-mode-label">Payment Type</span>
@@ -1266,6 +1273,7 @@
                             <option value="cash">Cash</option>
                             <option value="check">Check</option>
                             <option value="credit_card">Credit Card</option>
+                            <option value="snap">Snap (lease-to-own)</option>
                             <option value="zelle">Zelle</option>
                             <option value="venmo">Venmo</option>
                             <option value="cashapp">Cash App</option>
@@ -1383,6 +1391,10 @@
                             <span class="total-label">Tax (5.75%)</span>
                             <span class="total-amount" id="previewTax">$0.00</span>
                         </div>
+                        <div class="total-row" id="processingFeeRow" style="display: none;">
+                            <span class="total-label">Processing Fee</span>
+                            <span class="total-amount" id="previewProcessingFee">$0.00</span>
+                        </div>
                         <div class="total-row grand-total">
                             <span class="total-label">Total Due</span>
                             <span class="total-amount" id="previewTotal">$0.00</span>
@@ -1478,7 +1490,13 @@
             const noTaxEl = document.getElementById('noTaxToggle');
             const noTax = !!(noTaxEl && noTaxEl.checked);
             const tax = noTax ? 0 : subtotalAfterDiscount * TAX_RATE;
-            const total = subtotalAfterDiscount + tax;
+            // Snap states its Cash Price as subtotal + tax and lists the
+            // processing fee separately beneath it, so the fee is added after
+            // tax and is not itself taxed. That mirrors the financing record
+            // rather than making a tax determination — if your accountant says
+            // Ohio treats it differently, this is the line to change.
+            const processingFee = parseFloat(document.getElementById('processingFee').value) || 0;
+            const total = subtotalAfterDiscount + tax + processingFee;
             const modeEl = document.querySelector('input[name="paymentMode"]:checked');
             const paymentMode = modeEl ? modeEl.value : 'full';
             // For paidInFullCash, the deposit input is hidden — the whole
@@ -1488,7 +1506,7 @@
             if (paymentMode === 'paidInFullCash') deposit = total;
             const balance = total - deposit;
 
-            return { subtotal, discountPercent, discountFixed, discountAmount, subtotalAfterDiscount, tax, total, deposit, balance, noTax, paymentMode };
+            return { subtotal, discountPercent, discountFixed, discountAmount, subtotalAfterDiscount, tax, processingFee, total, deposit, balance, noTax, paymentMode };
         }
 
         function updateInvoicePreview() {
@@ -1524,7 +1542,7 @@
                 });
             }
 
-            const { subtotal, discountAmount, subtotalAfterDiscount, tax, total, deposit, balance } = calculateTotals();
+            const { subtotal, discountAmount, subtotalAfterDiscount, tax, processingFee, total, deposit, balance } = calculateTotals();
 
             document.getElementById('previewSubtotal').textContent = '$' + subtotal.toFixed(2);
 
@@ -1538,6 +1556,17 @@
             } else {
                 discountRow.style.display = 'none';
                 afterDiscountRow.style.display = 'none';
+            }
+
+            // The processing fee only appears when there is one. A "$0.00
+            // Processing Fee" line on a cash sale reads like a charge the
+            // customer is being asked to check.
+            const feeRow = document.getElementById('processingFeeRow');
+            if (processingFee > 0) {
+                feeRow.style.display = 'flex';
+                document.getElementById('previewProcessingFee').textContent = '$' + processingFee.toFixed(2);
+            } else {
+                feeRow.style.display = 'none';
             }
 
             // Hide tax row entirely when zero (tax-exempt invoice or
@@ -1745,6 +1774,7 @@
                 discountPct: totals.discountPercent,
                 discountAmt: totals.discountAmount,
                 tax: totals.tax,
+                processingFee: totals.processingFee,
                 total: totals.total,
                 deposit: totals.deposit,
                 balanceDue: totals.balance,
@@ -1810,6 +1840,31 @@
                 } else {
                     showStatus('Not saving ' + invNum + ': the total is $0. Check the prices and discounts.', 'error');
                 }
+                return;
+            }
+
+
+            // A financed sale is paid IN FULL. Snap pays the shop the cash
+            // price; the customer then owes Snap. So a discount on a Snap
+            // invoice reduces what Snap is financing — it does not describe
+            // "what the customer hands over today", and there is nothing to
+            // hand over today.
+            //
+            // This is the mistake CTR-071 was booked with: a $1,799 discount
+            // turned a $1,976.47 financed sale into a $74.03 invoice. Snap's
+            // own record said $1,869 + $107.47 tax = $1,976.47, and the shop's
+            // books said $74.03. Nothing objected, because a discount is a
+            // perfectly ordinary thing for an invoice to have.
+            var _method = (document.getElementById('depositMethod') || {}).value || '';
+            if (_method === 'snap' && totals.discountAmount > 0) {
+                showStatus(
+                    'Not saving ' + invNum + ': this is marked as financed by Snap but carries a $' +
+                    totals.discountAmount.toFixed(2) + ' discount. Snap finances the full cash price, ' +
+                    'so a financed sale is recorded at its full amount — $' +
+                    (totals.subtotal + (totals.noTax ? 0 : totals.subtotal * TAX_RATE) +
+                     totals.processingFee).toFixed(2) +
+                    ' here. Clear the discount, or change the payment method if a real ' +
+                    'price reduction was actually given.', 'error');
                 return;
             }
 
@@ -2131,6 +2186,18 @@
                     supplierUrl   : invoiceData.supplierUrl || '',
                     total         : parseFloat(invoiceData.total) || 0,
                     balanceDue    : parseFloat(invoiceData.balanceDue) || 0,
+                    // The parts, not just the answer. The portal used to keep
+                    // total_amount alone, so a stale total was indistinguishable
+                    // from a discounted one — CTR-071 read $1,976.47 against an
+                    // invoice of $74.03 and nothing could tell.
+                    subtotal      : parseFloat(invoiceData.subtotal) || 0,
+                    discountAmt   : parseFloat(invoiceData.discountAmt) || 0,
+                    discountPct   : parseFloat(invoiceData.discountPct) || 0,
+                    tax           : parseFloat(invoiceData.tax) || 0,
+                    processingFee : parseFloat(invoiceData.processingFee) || 0,
+                    amountPaid    : parseFloat(invoiceData.deposit) || 0,
+                    paymentMethod : invoiceData.depositMethod || '',
+                    paymentRef    : invoiceData.depositRef || '',
                     paymentMode   : invoiceData.paymentMode || 'full',
                     paymentLink   : paymentLink || '',
                     quiet         : quiet === true,
@@ -2206,6 +2273,7 @@
                 discountPct     : (invoiceData.discountPct || 0).toFixed(2),
                 discountAmt     : (invoiceData.discountAmt || 0).toFixed(2),
                 tax             : (invoiceData.tax || 0).toFixed(2),
+                processingFee   : (invoiceData.processingFee || 0).toFixed(2),
                 total           : (invoiceData.total || 0).toFixed(2),
                 deposit         : (invoiceData.deposit || 0).toFixed(2),
                 balanceDue      : (invoiceData.balanceDue || 0).toFixed(2),
@@ -2779,6 +2847,8 @@
             // Discount + deposit + notes
             document.getElementById('discountPercent').value = inv.discountPct || '';
             document.getElementById('discountFixed').value   = inv.discountAmt || '';
+            var _feeEl = document.getElementById('processingFee');
+            if (_feeEl) _feeEl.value = inv.processingFee || '';
             document.getElementById('depositAmount').value   = inv.deposit || '';
             document.getElementById('depositMethod').value   = inv.depositMethod || 'cash';
             document.getElementById('depositRef').value      = inv.depositRef || '';
@@ -3189,6 +3259,7 @@
 
                 if (inv.discountPct && document.getElementById('discountPercent')) document.getElementById('discountPercent').value = inv.discountPct;
                 if (inv.discountAmt && document.getElementById('discountFixed')) document.getElementById('discountFixed').value = inv.discountAmt;
+                if (inv.processingFee && document.getElementById('processingFee')) document.getElementById('processingFee').value = inv.processingFee;
                 if (inv.paymentNotes && document.getElementById('paymentNotes')) document.getElementById('paymentNotes').value = inv.paymentNotes;
 
                 // Clear & populate line items

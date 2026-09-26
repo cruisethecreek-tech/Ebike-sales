@@ -57,7 +57,12 @@ function _ensureInvoicesTab(ss) {
     'subtotal','discountPct','discountAmt','tax','total','deposit','balanceDue',
     'paymentMode','depositMethod','depositRef','paymentNotes',
     'paymentLink',
-    'createdAt','status'
+    'createdAt','status',
+    // APPEND ONLY, NEVER INSERT. addOrder writes a positional array, so a new
+    // name placed anywhere but the end shifts every value after it into the
+    // wrong column — while the header row stays as it was, because the check
+    // below only looks at A1. Reads are by header name and so are unaffected.
+    'processingFee'
   ];
   var sh = ss.getSheetByName(INVOICES_TAB);
   if (!sh) {
@@ -70,7 +75,35 @@ function _ensureInvoicesTab(ss) {
   if (firstCell !== EXPECTED[0]) {
     sh.getRange(1, 1, 1, EXPECTED.length).setValues([EXPECTED]);
     sh.setFrozenRows(1);
+    return sh;
   }
+
+  // A tab that predates a new field is missing only trailing columns. Fill in
+  // the tail and touch nothing else: rewriting the whole header would relabel
+  // columns whose data is already laid out underneath them.
+  var width = Math.max(sh.getLastColumn(), 1);
+  var current = sh.getRange(1, 1, 1, width).getValues()[0]
+                  .map(function (h) { return String(h == null ? '' : h).trim(); });
+
+  if (current.length < EXPECTED.length) {
+    // Only safe if what is there is a prefix of what we expect. If the columns
+    // have been rearranged by hand, appending would put values under the wrong
+    // headings, so say so and change nothing.
+    var diverged = -1;
+    for (var i = 0; i < current.length; i++) {
+      if (current[i] !== EXPECTED[i]) { diverged = i; break; }
+    }
+    if (diverged !== -1) {
+      Logger.log('Invoices header differs from expected at column ' + (diverged + 1) +
+                 ' ("' + current[diverged] + '" vs "' + EXPECTED[diverged] + '"). ' +
+                 'Leaving the header alone — fix it by hand before new fields can be added.');
+      return sh;
+    }
+    var missing = EXPECTED.slice(current.length);
+    sh.getRange(1, current.length + 1, 1, missing.length).setValues([missing]);
+    Logger.log('Invoices tab: added column(s) ' + missing.join(', '));
+  }
+  sh.setFrozenRows(1);
   return sh;
 }
 
@@ -111,7 +144,8 @@ function addOrder(e) {
       p.paymentNotes    || '',
       p.paymentLink     || '',
       new Date().toISOString(),
-      balance > 0 ? 'sent' : 'paid'
+      balance > 0 ? 'sent' : 'paid',
+      parseFloat(p.processingFee) || 0
     ];
     var lastRow = sh.getLastRow();
     var targetRow = -1;
@@ -243,6 +277,8 @@ function getInvoice(e) {
           discountPct:     Number(rows[r][col('discountPct')]) || 0,
           discountAmt:     Number(rows[r][col('discountAmt')]) || 0,
           tax:             Number(rows[r][col('tax')])         || 0,
+          processingFee:   col('processingFee') >= 0
+                             ? Number(rows[r][col('processingFee')]) || 0 : 0,
           total:           Number(rows[r][col('total')])       || 0,
           deposit:         Number(rows[r][col('deposit')])     || 0,
           balanceDue:      Number(rows[r][col('balanceDue')])  || 0,
