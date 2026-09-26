@@ -42,13 +42,17 @@ function detectBike(itemDesc: string): { brand: string; model: string } | null {
     return null
   }
 
+  // These must be values of the bike_brand enum and nothing else. The previous
+  // list returned 'Aventon', 'Lectric' and 'Custom / Other', none of which
+  // exist in that type, so any bike matching them failed to insert instead of
+  // being recorded — which is why `other` appears on none of the 34 bikes on
+  // file. Mokwheel, the largest range in the shop, was missing entirely.
   let brand = 'other'
   if (lower.includes('heybike')) brand = 'Heybike'
   else if (lower.includes('velotric')) brand = 'Velotric'
   else if (lower.includes('jasion')) brand = 'Jasion'
   else if (lower.includes('mooncool')) brand = 'Mooncool'
-  else if (lower.includes('aventon')) brand = 'Aventon'
-  else if (lower.includes('lectric')) brand = 'Lectric'
+  else if (lower.includes('mokwheel')) brand = 'Mokwheel'
 
   // If marked as trike or bike
   const isBikeOrTrike =
@@ -66,8 +70,11 @@ function detectBike(itemDesc: string): { brand: string; model: string } | null {
   }
   if (!model) model = d
 
+  // 'other' verbatim — it is the enum value. The maker's name stays in the
+  // model, so an Aventon trade-in reads "other / Aventon Level 2" rather than
+  // being lost to a failed insert.
   return {
-    brand: brand === 'other' ? 'Custom / Other' : brand,
+    brand,
     model: model.replace(/^[-–—:\s]+/, '').trim(),
   }
 }

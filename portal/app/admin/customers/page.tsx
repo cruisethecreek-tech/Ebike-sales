@@ -13,7 +13,7 @@ export default async function AdminCustomers() {
 
   const { data: invoices } = await supabase
     .from('invoices')
-    .select('customer_id, total_amount, status, issued_at')
+    .select('customer_id, invoice_number, total_amount, status, issued_at')
 
   const { data: bikes } = await supabase
     .from('bikes')
@@ -121,7 +121,14 @@ export default async function AdminCustomers() {
       </div>
 
       {/* Interactive Alphabetical Directory */}
-      <CustomerDirectory customers={customersData} />
+      {/* Every invoice number there is, so a bike card can tell a receipt
+          that resolves from one that points at nothing. */}
+      <CustomerDirectory
+        customers={customersData}
+        knownInvoiceNumbers={(invoices || [])
+          .map((i) => i.invoice_number)
+          .filter((n): n is string => !!n)}
+      />
     </div>
   )
 }

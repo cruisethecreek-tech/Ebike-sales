@@ -3,6 +3,7 @@
 import { useState, useMemo, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { STORE_URL } from '@/lib/constants'
+import { canonicalInvoiceNumber } from '@/lib/invoice-number'
 import { adminUpdateBike, adminAddBike, adminDeleteBike } from './actions'
 
 interface Bike {
@@ -109,7 +110,7 @@ export function SignupWhen({ customer }: { customer: CustomerData }) {
   )
 }
 
-function BikeAdminCard({ bike }: { bike: Bike }) {
+function BikeAdminCard({ bike, knownInvoiceNumbers }: { bike: Bike; knownInvoiceNumbers?: Set<string> }) {
   const [serial, setSerial] = useState(bike.serial_number || '')
   const [receipt, setReceipt] = useState(bike.receipt_number || '')
   const [saved, setSaved] = useState(false)
@@ -164,15 +165,29 @@ function BikeAdminCard({ bike }: { bike: Bike }) {
             <label className="block text-[10px] font-bold uppercase text-[#2D4A32] tracking-wider">
               🧾 Receipt / Invoice #
             </label>
-            {receipt && (
+            {/* Only link to an invoice that exists. Earl's bike said CTR-71
+                where the invoice is CTR-071, and the link went to a 404 with
+                nothing to explain it — the bike looked registered and the
+                invoice was right there. A link that cannot resolve is worse
+                than no link, so say so instead. */}
+            {receipt && (knownInvoiceNumbers
+              ? knownInvoiceNumbers.has(canonicalInvoiceNumber(receipt) || '')
+              : true) ? (
               <Link
-                href={`/dashboard/invoices/${receipt}`}
+                href={`/dashboard/invoices/${canonicalInvoiceNumber(receipt)}`}
                 target="_blank"
                 className="text-[10px] text-[#2D4A32] font-bold hover:underline"
               >
                 View Receipt ↗
               </Link>
-            )}
+            ) : receipt ? (
+              <span
+                className="text-[10px] font-bold text-[#8A6D1F]"
+                title="No invoice with this number. Check it against the invoices list."
+              >
+                ⚠ No matching invoice
+              </span>
+            ) : null}
           </div>
           <input
             type="text"
@@ -207,7 +222,19 @@ function BikeAdminCard({ bike }: { bike: Bike }) {
   )
 }
 
-export function CustomerDirectory({ customers }: { customers: CustomerData[] }) {
+export function CustomerDirectory({
+  customers,
+  knownInvoiceNumbers,
+}: {
+  customers: CustomerData[]
+  /** Every invoice number that exists, canonicalised. Lets a bike card tell a
+      real receipt from one that points at nothing. */
+  knownInvoiceNumbers?: string[]
+}) {
+  const invoiceNumberSet = useMemo(
+    () => new Set((knownInvoiceNumbers || []).map((n) => canonicalInvoiceNumber(n) || '')),
+    [knownInvoiceNumbers],
+  )
   const [activeLetter, setActiveLetter] = useState<string>('ALL')
   const [signupFilter, setSignupFilter] = useState<'ALL' | 'REGISTERED' | 'INVITED'>('ALL')
   const [searchQuery, setSearchQuery] = useState('')
@@ -597,12 +624,19 @@ export function CustomerDirectory({ customers }: { customers: CustomerData[] }) 
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-2 text-xs">
                   <div>
                     <label className="block text-[10px] font-bold text-gray-500 uppercase mb-0.5">Brand *</label>
-                    <select name="brand" required className="w-full p-2 border border-[#C9A96E] rounded-lg bg-[#FAF8F2] font-semibold">
-                      <option value="Velotric">Velotric</option>
+                    {/* Mokwheel was missing, and Velotric sat first — so a
+                        Mokwheel was silently registered as a Velotric. The
+                        empty first option means the brand has to be chosen:
+                        `required` then blocks the form instead of letting
+                        whatever happens to be first stand in for an answer. */}
+                    <select name="brand" required defaultValue="" className="w-full p-2 border border-[#C9A96E] rounded-lg bg-[#FAF8F2] font-semibold">
+                      <option value="" disabled>Choose a brand…</option>
                       <option value="Heybike">Heybike</option>
-                      <option value="Mooncool">Mooncool</option>
                       <option value="Jasion">Jasion</option>
-                      <option value="other">Other</option>
+                      <option value="Mokwheel">Mokwheel</option>
+                      <option value="Mooncool">Mooncool</option>
+                      <option value="Velotric">Velotric</option>
+                      <option value="other">Other (trade-in / not sold here)</option>
                     </select>
                   </div>
                   <div>
@@ -636,7 +670,7 @@ export function CustomerDirectory({ customers }: { customers: CustomerData[] }) 
             {selectedCustomer.bikes.length > 0 ? (
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-2.5">
                 {selectedCustomer.bikes.map((b) => (
-                  <BikeAdminCard key={b.id} bike={b} />
+                  <BikeAdminCard key={b.id} bike={b} knownInvoiceNumbers={invoiceNumberSet} />
                 ))}
               </div>
             ) : (
