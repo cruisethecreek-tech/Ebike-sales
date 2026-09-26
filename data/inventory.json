@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2026-09-26T15:46:45Z",
+  "lastUpdated": "2026-09-26T15:46:54Z",
   "bikes": [
     {
       "brand": "Heybike",
@@ -309,9 +309,9 @@
       "brand": "Heybike",
       "id": "titan",
       "name": "Titan",
-      "subtitle": "",
+      "subtitle": "MNoped",
       "price": 1399,
-      "testRide": "",
+      "testRide": "Class 4 Needs Registration",
       "testRideLoc": "",
       "styles": [
         "Standard"
