@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2026-09-26T15:48:26Z",
+  "lastUpdated": "2026-09-26T15:50:15Z",
   "bikes": [
     {
       "brand": "Heybike",
@@ -1230,7 +1230,7 @@
       "brand": "Mokwheel",
       "id": "flint-pro-st",
       "name": "FLINT PRO ST Ebike",
-      "subtitle": "",
+      "subtitle": "Ultra Light Weight",
       "price": 1599,
       "testRide": "Test Ride Available",
       "testRideLoc": "",
