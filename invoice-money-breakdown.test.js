@@ -131,5 +131,77 @@ ok('the refusal names the amount it would have recorded instead',
      1799 + 40 + 30 === subtotal);
 }
 
+
+// ── Processing fee ───────────────────────────────────────────────────────
+//
+// Snap states it outside the cash price: $1,869.00 + $107.47 tax = $1,976.47
+// Cash Price, then $39.00 processing fee. So it is added after tax and is not
+// itself taxed. The customer absorbs it, so it belongs on the invoice.
+ok('the generator has a processing fee field',
+   /id="processingFee"/.test(gen));
+
+ok('the fee is added after tax and is not taxed',
+   /const total = subtotalAfterDiscount \+ tax \+ processingFee;/.test(gen),
+   'taxing it would disagree with the financing record');
+
+ok('it reaches the Sheet, the portal and the invoice data',
+   /processingFee   : \(invoiceData\.processingFee \|\| 0\)\.toFixed\(2\)/.test(gen) &&
+   /processingFee : parseFloat\(invoiceData\.processingFee\)/.test(gen) &&
+   /processingFee: totals\.processingFee/.test(gen));
+
+ok('editing an existing invoice restores the fee',
+   /_feeEl\.value = inv\.processingFee/.test(gen),
+   'otherwise re-saving a financed invoice would silently drop it');
+
+ok('the row is hidden when there is no fee',
+   /processingFee > 0[\s\S]{0,160}feeRow\.style\.display = 'flex'/.test(gen));
+
+// Earl's invoice, end to end.
+{
+  const subtotal = 1869, fee = 39;
+  const tax = Number((subtotal * 0.0575).toFixed(2));
+  ok('the financed invoice comes to $2,015.47 once the fee is absorbed',
+     Number((subtotal + tax + fee).toFixed(2)) === 2015.47,
+     String(Number((subtotal + tax + fee).toFixed(2))));
+  ok('...and the fee did not change the tax',
+     tax === 107.47);
+}
+
+// ── The Sheet column must be appended, never inserted ────────────────────
+//
+// addOrder writes a positional array into a tab whose header is only rewritten
+// when cell A1 differs. A new name placed anywhere but the end would shift
+// every later value into the wrong column while the header stayed as it was —
+// silently mis-filing money on every invoice written afterwards.
+{
+  const cms = read('apps-script-cms-invoices.snippet.gs');
+  const expected = cms.slice(cms.indexOf('var EXPECTED = ['), cms.indexOf('];', cms.indexOf('var EXPECTED = [')));
+  const names = [...expected.matchAll(/'([a-zA-Z]+)'/g)].map((m) => m[1]);
+
+  ok('processingFee is the LAST expected column',
+     names[names.length - 1] === 'processingFee',
+     names.slice(-4).join(', '));
+
+  // The order the row array is built in must match the header exactly.
+  const rowBlock = cms.slice(cms.indexOf('var row = ['), cms.indexOf('];', cms.indexOf('var row = [')));
+  const rowFields = [...rowBlock.matchAll(/p\.([a-zA-Z]+)/g)].map((m) => m[1]);
+  ok('the row array ends with processingFee too',
+     rowFields[rowFields.length - 1] === 'processingFee',
+     rowFields.slice(-3).join(', '));
+
+  ok('a short header gains only its missing tail',
+     /current\.length < EXPECTED\.length/.test(cms) &&
+     /EXPECTED\.slice\(current\.length\)/.test(cms));
+
+  ok('a header that diverged is left alone rather than appended to',
+     /diverged !== -1/.test(cms) && /Leaving the header alone/.test(cms),
+     'appending past rearranged columns would file values under wrong headings');
+}
+
+const detailFee = read('portal/app/dashboard/invoices/[id]/page.tsx');
+ok('the portal shows the fee and counts it in the reconciliation',
+   /processing_fee/.test(detailFee) &&
+   /subtotal - discountAmt \+ tax \+ processingFee\)\.toFixed\(2\)/.test(detailFee));
+
 console.log(fails ? `\n${fails} failing` : '\nall passing');
 process.exit(fails ? 1 : 0);

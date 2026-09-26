@@ -109,6 +109,7 @@ export async function POST(req: NextRequest) {
     const discountAmount = num(body.discountAmt)
     const discountPercent = num(body.discountPct)
     const taxAmount = num(body.tax)
+    const processingFee = num(body.processingFee)
     const amountPaid = num(body.amountPaid)
     const balanceDue = num(body.balanceDue)
     const paymentMethod = body.paymentMethod === undefined
@@ -284,6 +285,7 @@ export async function POST(req: NextRequest) {
         ...(discountAmount === undefined ? {} : { discount_amount: discountAmount }),
         ...(discountPercent === undefined ? {} : { discount_percent: discountPercent }),
         ...(taxAmount === undefined ? {} : { tax_amount: taxAmount }),
+        ...(processingFee === undefined ? {} : { processing_fee: processingFee }),
         ...(amountPaid === undefined ? {} : { amount_paid: amountPaid }),
         ...(balanceDue === undefined ? {} : { balance_due: balanceDue }),
         ...(paymentMethod === undefined ? {} : { payment_method: paymentMethod || null }),

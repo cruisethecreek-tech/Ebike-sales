@@ -120,7 +120,9 @@ export default async function CustomerInvoiceDetailPage({ params }: PageProps) {
   const discountPct = num(sheet?.discountPct) ?? num(invoice.discount_percent) ?? 0
   const tax = num(sheet?.tax) ?? num(invoice.tax_amount)
     ?? Number(((subtotal - discountAmt) * 0.0575).toFixed(2))
-  const finalTotal = invoiceTotal || (subtotal - discountAmt + tax)
+  // After tax and untaxed, the way the financing company states it.
+  const processingFee = num(sheet?.processingFee) ?? num(invoice.processing_fee) ?? 0
+  const finalTotal = invoiceTotal || (subtotal - discountAmt + tax + processingFee)
 
   const paymentMethod: string | null = invoice.payment_method || null
   const paymentReference: string | null = invoice.payment_reference || null
@@ -128,7 +130,7 @@ export default async function CustomerInvoiceDetailPage({ params }: PageProps) {
   // Do the parts actually make the total? If not, say so rather than printing
   // a confident breakdown that does not add up — the whole reason these
   // columns exist is that nothing used to notice.
-  const reconciled = Number((subtotal - discountAmt + tax).toFixed(2))
+  const reconciled = Number((subtotal - discountAmt + tax + processingFee).toFixed(2))
   const totalsDisagree = Math.abs(reconciled - Number(finalTotal)) > 0.02
   const isPaid = invoice.status === 'paid' || sheet?.status === 'paid'
 
@@ -313,6 +315,13 @@ export default async function CustomerInvoiceDetailPage({ params }: PageProps) {
                 <span>Tax (5.75%)</span>
                 <span className="font-medium text-[#1A1A1A]">${Number(tax).toFixed(2)}</span>
               </div>
+
+              {processingFee > 0 && (
+                <div className="flex justify-between text-gray-600">
+                  <span>Processing Fee</span>
+                  <span className="font-medium text-[#1A1A1A]">${processingFee.toFixed(2)}</span>
+                </div>
+              )}
 
               <div className="border-t-2 border-[#2D4A32] pt-2 flex justify-between items-baseline">
                 <span className="font-bold text-base text-[#1A1A1A]">Total Due</span>
