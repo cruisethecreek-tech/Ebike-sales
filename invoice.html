@@ -1266,6 +1266,7 @@
                             <option value="cash">Cash</option>
                             <option value="check">Check</option>
                             <option value="credit_card">Credit Card</option>
+                            <option value="snap">Snap (lease-to-own)</option>
                             <option value="zelle">Zelle</option>
                             <option value="venmo">Venmo</option>
                             <option value="cashapp">Cash App</option>
@@ -2131,6 +2132,17 @@
                     supplierUrl   : invoiceData.supplierUrl || '',
                     total         : parseFloat(invoiceData.total) || 0,
                     balanceDue    : parseFloat(invoiceData.balanceDue) || 0,
+                    // The parts, not just the answer. The portal used to keep
+                    // total_amount alone, so a stale total was indistinguishable
+                    // from a discounted one — CTR-071 read $1,976.47 against an
+                    // invoice of $74.03 and nothing could tell.
+                    subtotal      : parseFloat(invoiceData.subtotal) || 0,
+                    discountAmt   : parseFloat(invoiceData.discountAmt) || 0,
+                    discountPct   : parseFloat(invoiceData.discountPct) || 0,
+                    tax           : parseFloat(invoiceData.tax) || 0,
+                    amountPaid    : parseFloat(invoiceData.deposit) || 0,
+                    paymentMethod : invoiceData.depositMethod || '',
+                    paymentRef    : invoiceData.depositRef || '',
                     paymentMode   : invoiceData.paymentMode || 'full',
                     paymentLink   : paymentLink || '',
                     quiet         : quiet === true,

@@ -95,6 +95,26 @@ export async function POST(req: NextRequest) {
     const email = String(body.customerEmail || '').trim().toLowerCase()
     const phone = String(body.customerPhone || '').trim()
     const total = parseFloat(body.total) || 0
+
+    // The money broken into its parts. Older senders do not include these, so
+    // `undefined` means "not told" and must leave the stored value alone —
+    // writing 0 would turn a silent omission into a confident wrong number,
+    // which is the failure this breakdown exists to prevent.
+    const num = (v: any): number | undefined => {
+      if (v === undefined || v === null || v === '') return undefined
+      const n = parseFloat(v)
+      return Number.isFinite(n) ? n : undefined
+    }
+    const subtotal = num(body.subtotal)
+    const discountAmount = num(body.discountAmt)
+    const discountPercent = num(body.discountPct)
+    const taxAmount = num(body.tax)
+    const amountPaid = num(body.amountPaid)
+    const balanceDue = num(body.balanceDue)
+    const paymentMethod = body.paymentMethod === undefined
+      ? undefined : String(body.paymentMethod || '').trim().toLowerCase()
+    const paymentReference = body.paymentRef === undefined
+      ? undefined : String(body.paymentRef || '').trim()
     const paymentMode = String(body.paymentMode || 'full')
     const paymentLink = String(body.paymentLink || '')
     const invoiceDate = String(body.invoiceDate || new Date().toISOString().split('T')[0])
@@ -260,6 +280,14 @@ export async function POST(req: NextRequest) {
         // items should not wipe the items an earlier sync stored.
         ...(lineItems.length ? { items: lineItems } : {}),
         ...(supplierUrl === undefined ? {} : { supplier_url: supplierUrl }),
+        ...(subtotal === undefined ? {} : { subtotal }),
+        ...(discountAmount === undefined ? {} : { discount_amount: discountAmount }),
+        ...(discountPercent === undefined ? {} : { discount_percent: discountPercent }),
+        ...(taxAmount === undefined ? {} : { tax_amount: taxAmount }),
+        ...(amountPaid === undefined ? {} : { amount_paid: amountPaid }),
+        ...(balanceDue === undefined ? {} : { balance_due: balanceDue }),
+        ...(paymentMethod === undefined ? {} : { payment_method: paymentMethod || null }),
+        ...(paymentReference === undefined ? {} : { payment_reference: paymentReference || null }),
       }, { onConflict: 'invoice_number' })
 
       // The upsert used to be fire-and-forget. A failure here means the

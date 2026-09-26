@@ -99,10 +99,37 @@ export default async function CustomerInvoiceDetailPage({ params }: PageProps) {
     }
   }
 
-  // Determine Subtotal & Tax
-  const subtotal = sheet?.subtotal || lineItems.reduce((acc, it) => acc + (it.amount || it.price * it.qty), 0)
-  const tax = sheet?.tax ?? Number((subtotal * 0.0575).toFixed(2))
-  const finalTotal = invoiceTotal || (subtotal + tax)
+  // Three sources, in order of authority:
+  //   1. the Sheet, which is the system of record for invoicing
+  //   2. the columns stored on the invoice, which the Sheet wrote here
+  //   3. arithmetic over the line items
+  //
+  // Only (3) can be wrong about a discount, because line items carry no notion
+  // of one. That is what showed CTR-071 as $1,976.47 against a real total of
+  // $74.03: subtotal + tax, with a $1,799 discount nowhere in the sum, and
+  // perfectly self-consistent.
+  const num = (v: any): number | null => {
+    if (v === undefined || v === null || v === '') return null
+    const n = Number(v)
+    return Number.isFinite(n) ? n : null
+  }
+
+  const itemsSubtotal = lineItems.reduce((acc, it) => acc + (it.amount || it.price * it.qty), 0)
+  const subtotal = num(sheet?.subtotal) ?? num(invoice.subtotal) ?? itemsSubtotal
+  const discountAmt = num(sheet?.discountAmt) ?? num(invoice.discount_amount) ?? 0
+  const discountPct = num(sheet?.discountPct) ?? num(invoice.discount_percent) ?? 0
+  const tax = num(sheet?.tax) ?? num(invoice.tax_amount)
+    ?? Number(((subtotal - discountAmt) * 0.0575).toFixed(2))
+  const finalTotal = invoiceTotal || (subtotal - discountAmt + tax)
+
+  const paymentMethod: string | null = invoice.payment_method || null
+  const paymentReference: string | null = invoice.payment_reference || null
+
+  // Do the parts actually make the total? If not, say so rather than printing
+  // a confident breakdown that does not add up — the whole reason these
+  // columns exist is that nothing used to notice.
+  const reconciled = Number((subtotal - discountAmt + tax).toFixed(2))
+  const totalsDisagree = Math.abs(reconciled - Number(finalTotal)) > 0.02
   const isPaid = invoice.status === 'paid' || sheet?.status === 'paid'
 
   // Format Date
@@ -275,10 +302,10 @@ export default async function CustomerInvoiceDetailPage({ params }: PageProps) {
                 <span className="font-medium text-[#1A1A1A]">${Number(subtotal).toFixed(2)}</span>
               </div>
 
-              {sheet && sheet.discountAmt > 0 && (
+              {discountAmt > 0 && (
                 <div className="flex justify-between text-emerald-700">
-                  <span>Discount {sheet.discountPct > 0 ? `(${sheet.discountPct}%)` : ''}</span>
-                  <span className="font-medium">-${Number(sheet.discountAmt).toFixed(2)}</span>
+                  <span>Discount {discountPct > 0 ? `(${discountPct}%)` : ''}</span>
+                  <span className="font-medium">-${discountAmt.toFixed(2)}</span>
                 </div>
               )}
 
@@ -293,6 +320,27 @@ export default async function CustomerInvoiceDetailPage({ params }: PageProps) {
                   ${Number(finalTotal).toFixed(2)}
                 </span>
               </div>
+
+              {totalsDisagree && (
+                <div className="rounded-lg border border-amber-300 bg-amber-50 p-2 text-[11px] text-amber-900 leading-snug">
+                  <strong className="font-bold">These figures do not add up.</strong> The lines above
+                  come to ${reconciled.toFixed(2)}, but this invoice is recorded as $
+                  {Number(finalTotal).toFixed(2)}. The invoice generator is the system of record —
+                  re-save it there to settle which is right.
+                </div>
+              )}
+
+              {paymentMethod && (
+                <div className="flex justify-between text-gray-600 pt-1">
+                  <span>Paid by</span>
+                  <span className="font-medium text-[#1A1A1A]">
+                    {paymentMethod === 'snap'
+                      ? 'Snap (lease-to-own)'
+                      : paymentMethod.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())}
+                    {paymentReference ? ` · ${paymentReference}` : ''}
+                  </span>
+                </div>
+              )}
             </div>
           </div>
 
