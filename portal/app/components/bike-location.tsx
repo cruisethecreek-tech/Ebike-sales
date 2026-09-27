@@ -33,7 +33,7 @@ export function BikeLocation({ status }: { status: TrackerStatus }) {
         loading="lazy"
       />
 
-      <div className="flex justify-between items-center text-[11px] text-gray-500">
+      <div className="flex flex-wrap justify-between items-center gap-x-3 gap-y-1 text-[11px] text-gray-500">
         <span>
           {latest.speed_kmh != null && latest.speed_kmh > 1
             ? `Moving · ${Math.round(latest.speed_kmh * 0.621371)} mph`
