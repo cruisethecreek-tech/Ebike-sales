@@ -26,6 +26,13 @@ not a Supabase JWT. The function rejects any request without the secret.
 <entry key='event.forward.header'>x-traccar-secret: SAME_SECRET</entry>
 ```
 
+Optional, and it keeps Traccar's own web UI from flapping a parked bike
+between online and offline after each upload:
+
+```xml
+<entry key='status.ignoreOffline'>teltonika</entry>
+```
+
 ## Registering a tracker
 
 Positions from an IMEI that has no active row in `trackers` are dropped (202),

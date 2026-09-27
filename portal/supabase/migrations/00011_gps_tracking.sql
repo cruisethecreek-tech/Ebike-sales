@@ -99,7 +99,8 @@ create index positions_tracker_time_idx on public.positions (tracker_id, fix_tim
 --
 -- The Traccar events worth a person's attention: alarms (kind is the alarm
 -- name, e.g. 'powerCut' when the bike battery is pulled), geofence enter and
--- exit, and a tracker going offline. The ingest function drops the rest.
+-- exit. The ingest function drops the rest, including Traccar's deviceOffline,
+-- which fires every time a Teltonika closes its connection between uploads.
 -- ─────────────────────────────────────────────────────────────
 
 create table public.tracker_alerts (

@@ -25,11 +25,16 @@ const KNOTS_TO_KMH = 1.852;
 
 // Everything else Traccar emits (moving/stopped, ignition, online, …) is
 // either derivable from positions or noise for a person watching alerts.
+//
+// deviceOffline is deliberately not kept. Traccar raises it whenever the
+// tracker's TCP session closes, and Teltonika closes the link after every
+// upload once the open-link timeout passes, so a parked bike would raise one
+// on every heartbeat. A tracker that has really gone quiet shows up as a
+// stale last check-in in the portal instead (isStale in lib/gps.ts).
 const KEPT_EVENT_TYPES = new Set([
   "alarm",
   "geofenceEnter",
   "geofenceExit",
-  "deviceOffline",
 ]);
 
 type TraccarPosition = {
