@@ -70,21 +70,51 @@ function formatWhen(iso?: string | null): string {
 }
 
 /** Registered = has signed in. Everyone else was invited and never arrived. */
+/**
+ * Three states, not two.
+ *
+ * This badge used to read "⏳ Invited" for anyone who had not signed in, which
+ * is not the same question. 53 of 61 accounts were created in bulk by
+ * scripts/import-invoices.ts using admin.createUser — which writes a user and
+ * sends nothing. Only inviteUserByEmail sends an invite, and only it sets
+ * invited_at. So the directory told the shop it had invited 53 customers who
+ * had never been contacted, and their silence looked like people ignoring an
+ * email rather than an email that was never sent.
+ *
+ * invitedAt was already being read from auth.users. It just was not consulted.
+ */
 export function SignupBadge({ customer, size = 'sm' }: { customer: CustomerData; size?: 'sm' | 'md' }) {
   const pad = size === 'md' ? 'px-2.5 py-0.5 text-[11px]' : 'px-1.5 py-0.5 text-[10px]'
-  return customer.registered ? (
+  const base = `${pad} rounded font-bold uppercase tracking-wide whitespace-nowrap`
+
+  if (customer.registered) {
+    return (
+      <span
+        title={customer.lastSignInAt ? `Last signed in ${formatWhen(customer.lastSignInAt)}` : 'Signed in'}
+        className={`${base} bg-[#2D4A32] text-white`}
+      >
+        ✓ Registered
+      </span>
+    )
+  }
+
+  if (customer.invitedAt) {
+    return (
+      <span
+        title={`Invited ${formatWhen(customer.invitedAt)} \u2014 never signed in`}
+        className={`${base} bg-[#C9A96E]/25 text-[#8a6d2f] border border-[#C9A96E]`}
+      >
+        ⏳ Invited
+      </span>
+    )
+  }
+
+  return (
     <span
-      title={customer.lastSignInAt ? `Last signed in ${formatWhen(customer.lastSignInAt)}` : 'Signed in'}
-      className={`${pad} rounded bg-[#2D4A32] text-white font-bold uppercase tracking-wide whitespace-nowrap`}
+      title="This account exists but no invite email has ever been sent to it. They cannot know the portal is there."
+      className={`${base} bg-[#FDECEC] text-[#9B2C2C] border border-[#F0B4B4]`}
     >
-      ✓ Registered
-    </span>
-  ) : (
-    <span
-      title={customer.invitedAt ? `Invited ${formatWhen(customer.invitedAt)} \u2014 never signed in` : 'Never signed in'}
-      className={`${pad} rounded bg-[#C9A96E]/25 text-[#8a6d2f] border border-[#C9A96E] font-bold uppercase tracking-wide whitespace-nowrap`}
-    >
-      ⏳ Invited
+      ✉ Not invited
     </span>
   )
 }
@@ -103,9 +133,17 @@ export function SignupWhen({ customer }: { customer: CustomerData }) {
       </span>
     )
   }
+  if (customer.invitedAt) {
+    return (
+      <span className="text-[11px] text-[#8a6d2f]">
+        Invited {formatWhen(customer.invitedAt)} · never signed in
+      </span>
+    )
+  }
+  // "Never signed in" was true but misleading: it reads as a choice they made.
   return (
-    <span className="text-[11px] text-[#8a6d2f]">
-      {customer.invitedAt ? `Invited ${formatWhen(customer.invitedAt)} · never signed in` : 'Never signed in'}
+    <span className="text-[11px] text-[#9B2C2C]">
+      No invite sent — they have never been told the portal exists
     </span>
   )
 }

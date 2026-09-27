@@ -315,5 +315,82 @@ ok(
   'otherwise sign-in keeps opening on a tab that no longer works here'
 )
 
+
+// ─────────────────────────────────────────────────────────────────────────
+// 5. "Invited" must mean invited
+// ─────────────────────────────────────────────────────────────────────────
+// 49 of 61 accounts have never received any email: no invited_at, no
+// confirmation_sent_at, no recovery_sent_at, no sign-in. They were written in
+// bulk by scripts/import-invoices.ts via admin.createUser, which creates an
+// account and sends nothing — only inviteUserByEmail sends, and only it sets
+// invited_at.
+//
+// The directory badged nearly all of them "⏳ Invited" anyway, because it
+// asked "have they signed in?" and reported the answer as if it were "were
+// they invited?". So their silence looked like customers ignoring an email
+// rather than an email that was never sent.
+const inviteActions = read('portal/app/admin/customers/actions.ts')
+const inviteForm = read('portal/app/admin/customers/invite-form.tsx')
+
+ok(
+  'the badge distinguishes invited from never-invited',
+  /if \(customer\.invitedAt\)/.test(directory) && /Not invited/.test(directory),
+  'invitedAt was already being read; it just was not consulted'
+)
+
+ok(
+  'an account nobody emailed does not claim to have been invited',
+  /No invite sent/.test(directory)
+)
+
+ok(
+  'the header counts the three states separately',
+  /notInvitedCount/.test(customersPage) && /never invited/.test(customersPage)
+)
+
+ok(
+  'the page says plainly how many were never contacted',
+  /never been sent an\s*\n?\s*invite/.test(customersPage) ||
+    /never been sent an/.test(customersPage)
+)
+
+// The tool for fixing it was itself a no-op that reported success.
+ok(
+  'inviting an existing customer actually sends mail',
+  /signInWithOtp/.test(inviteActions),
+  'generateLink generates a link and emails nobody'
+)
+
+ok(
+  'generateLink is no longer used to "invite" anyone',
+  !/generateLink\(\{[\s\S]{0,120}type: 'magiclink'[\s\S]{0,200}\}\)[\s\S]{0,120}revalidatePath/.test(
+    codeOnly(inviteActions),
+  ),
+  'it returns a link to the caller; nothing is delivered'
+)
+
+ok(
+  'a typo cannot silently create a second empty account',
+  /shouldCreateUser: false/.test(inviteActions)
+)
+
+ok(
+  'the invite action reports success or failure instead of returning void',
+  /Promise<InviteResult>/.test(inviteActions) &&
+    /return \{ ok: false/.test(inviteActions) &&
+    /return \{ ok: true/.test(inviteActions)
+)
+
+ok(
+  'a failed invite is surfaced, not written to the console and forgotten',
+  !/console\.error\('Error inviting user:'/.test(inviteActions)
+)
+
+ok(
+  'the form shows the outcome',
+  /useActionState/.test(inviteForm) && /state\.ok/.test(inviteForm),
+  'a bare form action refreshed the page whatever happened'
+)
+
 console.log(fails ? `\n${fails} failing` : '\nall passing');
 process.exit(fails ? 1 : 0);
