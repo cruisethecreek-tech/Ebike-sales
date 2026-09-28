@@ -203,5 +203,66 @@ ok('the portal shows the fee and counts it in the reconciliation',
    /processing_fee/.test(detailFee) &&
    /subtotal - discountAmt \+ tax \+ processingFee\)\.toFixed\(2\)/.test(detailFee));
 
+
+// ── Marking paid must survive a re-save ──────────────────────────────────
+//
+// CTR-025 read "Paid" in the portal and "Pay in Full" in the generator, and
+// the database said pending. The loop: the portal writes status to the Sheet,
+// the generator loads paymentMode but never loaded status, and the save
+// payload recomputes status from the payment type alone — so opening a paid
+// invoice and pressing Save Changes wrote it back to pending, silently.
+ok('the generator reads the status it is editing',
+   /currentSheetStatus = String\(inv\.status/.test(gen),
+   'it loaded paymentMode and ignored status entirely');
+
+ok('one function decides what status the form implies',
+   /function computedStatusFromForm\(\)/.test(gen),
+   'the guard and the payload must not drift apart');
+
+ok('saving refuses to turn a paid invoice back to pending',
+   /currentSheetStatus === 'paid' && computedStatusFromForm\(\) !== 'paid'/.test(gen));
+
+ok('the refusal says what to do about it',
+   /Paid in Full \(Cash\/Check\)" and/.test(gen) ||
+   /choose "Paid in Full/.test(gen));
+
+ok('the disagreement is shown on the form, not only on save',
+   /function showPaidNotice\(\)/.test(gen) && /paidStatusNotice/.test(gen),
+   'both facts were already on screen with nothing connecting them');
+
+// The rule itself, on the real numbers.
+{
+  const computed = (mode, balance) =>
+    mode === 'paidInFullCash' || balance <= 0 ? 'paid' : 'pending';
+  const refused = (sheet, mode, balance) => sheet === 'paid' && computed(mode, balance) !== 'paid';
+
+  ok('CTR-025 as it stands would be refused', refused('paid', 'full', 2457.63));
+  ok('...and saves once Paid in Full is chosen', !refused('paid', 'paidInFullCash', 0));
+  ok('a genuinely unpaid invoice still saves', !refused('pending', 'full', 2457.63));
+  ok('a deposit that covers the total still saves', !refused('paid', 'cashDeposit', 0));
+}
+
+
+// ── A 500 must say which 500 ─────────────────────────────────────────────
+//
+// The sync route answers a failure with { ok:false, error } and the real
+// message. The browser threw on the status code before reading the body, so
+// all that reached the screen was "HTTP 500" — a number that says a failure
+// happened and nothing about which one. Chasing CTR-011 took a dig through
+// updated_at timestamps and column nullness to work out what the server had
+// already said out loud.
+ok('the failure body is read before throwing',
+   /return r\.text\(\)\.then\(function \(body\)/.test(gen));
+
+ok('the server message is put in front of the person',
+   /'HTTP ' \+ r\.status \+ \(detail \? ' — ' \+ detail : ''\)/.test(gen));
+
+ok('a body that is not JSON is still shown, truncated',
+   /String\(body \|\| ''\)\.slice\(0, 200\)/.test(gen));
+
+ok('a body that cannot be read at all still reports the status',
+   /function \(\) \{\s*\n?\s*throw new Error\('HTTP ' \+ r\.status\);/.test(gen),
+   'never let the error handler become the error');
+
 console.log(fails ? `\n${fails} failing` : '\nall passing');
 process.exit(fails ? 1 : 0);
