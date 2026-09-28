@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { STORE_URL } from '@/lib/constants'
 import { canonicalInvoiceNumber } from '@/lib/invoice-number'
 import { adminUpdateBike, adminAddBike, adminDeleteBike } from './actions'
+import { SendInviteButton } from './send-invite-button'
 
 interface Bike {
   id: string
@@ -274,7 +275,7 @@ export function CustomerDirectory({
     [knownInvoiceNumbers],
   )
   const [activeLetter, setActiveLetter] = useState<string>('ALL')
-  const [signupFilter, setSignupFilter] = useState<'ALL' | 'REGISTERED' | 'INVITED'>('ALL')
+  const [signupFilter, setSignupFilter] = useState<'ALL' | 'REGISTERED' | 'INVITED' | 'NOT_INVITED'>('ALL')
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedCustomerId, setSelectedCustomerId] = useState<string | null>(null)
   const [copiedCode, setCopiedCode] = useState(false)
@@ -367,7 +368,8 @@ export function CustomerDirectory({
 
       // Sign-up state filter
       if (signupFilter === 'REGISTERED' && !c.registered) return false
-      if (signupFilter === 'INVITED' && c.registered) return false
+      if (signupFilter === 'INVITED' && (c.registered || !c.invitedAt)) return false
+      if (signupFilter === 'NOT_INVITED' && (c.registered || c.invitedAt)) return false
 
       // Search query filter
       if (!searchQuery.trim()) return true
@@ -390,7 +392,13 @@ export function CustomerDirectory({
 
   const signupCounts = useMemo(() => {
     const registered = customers.filter((c) => c.registered).length
-    return { ALL: customers.length, REGISTERED: registered, INVITED: customers.length - registered }
+    const invited = customers.filter((c) => !c.registered && c.invitedAt).length
+    return {
+      ALL: customers.length,
+      REGISTERED: registered,
+      INVITED: invited,
+      NOT_INVITED: customers.length - registered - invited,
+    }
   }, [customers])
 
   const selectedCustomer = useMemo(() => {
@@ -417,6 +425,7 @@ export function CustomerDirectory({
             { key: 'ALL', label: 'Everyone' },
             { key: 'REGISTERED', label: '✓ Registered' },
             { key: 'INVITED', label: '⏳ Invited, never signed in' },
+            { key: 'NOT_INVITED', label: '✉ Never invited' },
           ] as const).map(({ key, label }) => {
             const isOn = signupFilter === key
             return (
@@ -520,6 +529,17 @@ export function CustomerDirectory({
             <span className="text-[11px] font-bold uppercase tracking-wider text-[#2D4A32] block">
               ⚡ Quick Actions for {selectedCustomer.first_name}:
             </span>
+
+            {/* The badge above says whether they have ever been written to.
+                Until now there was nothing here to act on it with. */}
+            {!selectedCustomer.registered && (
+              <SendInviteButton
+                email={selectedCustomer.email}
+                firstName={selectedCustomer.first_name}
+                lastName={selectedCustomer.last_name}
+                alreadyInvited={!!selectedCustomer.invitedAt}
+              />
+            )}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 text-xs">
               {/* 1. Open Invoice Generator pre-filled */}
               <a
@@ -625,14 +645,30 @@ export function CustomerDirectory({
               <span className="text-gray-500 block text-[10px] font-bold uppercase">Email</span>
               <span className="font-semibold text-[#1A1A1A] break-all">{selectedCustomer.email || '—'}</span>
             </div>
+            {/* Labelled for the state it is actually in. This tile always said
+                "Invited" and printed formatWhen(null) — an em-dash — so beside
+                a NOT INVITED badge it read "Invited: —", two answers to the
+                same question on one screen. */}
             <div className="p-2.5 rounded-lg bg-[#FAF8F2] border border-[#E5E5E5]">
               <span className="text-gray-500 block text-[10px] font-bold uppercase">
-                {selectedCustomer.registered ? 'Last Signed In' : 'Invited'}
+                {selectedCustomer.registered
+                  ? 'Last Signed In'
+                  : selectedCustomer.invitedAt
+                    ? 'Invited'
+                    : 'Portal Invite'}
               </span>
-              <span className="font-semibold text-[#1A1A1A]">
+              <span
+                className={`font-semibold ${
+                  !selectedCustomer.registered && !selectedCustomer.invitedAt
+                    ? 'text-[#9B2C2C]'
+                    : 'text-[#1A1A1A]'
+                }`}
+              >
                 {selectedCustomer.registered
                   ? formatWhen(selectedCustomer.lastSignInAt)
-                  : `${formatWhen(selectedCustomer.invitedAt)} · never signed in`}
+                  : selectedCustomer.invitedAt
+                    ? `${formatWhen(selectedCustomer.invitedAt)} · never signed in`
+                    : 'Never sent'}
               </span>
             </div>
           </div>

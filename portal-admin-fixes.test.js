@@ -392,5 +392,54 @@ ok(
   'a bare form action refreshed the page whatever happened'
 )
 
+
+// The badge was fixed and the drawer was not, so one screen gave two answers:
+// a "✉ NOT INVITED" badge beside a tile reading "Invited: —". The em-dash was
+// formatWhen(null); the label was hard-coded. Both had to know the same three
+// states, and now a button exists to act on the answer.
+const inviteButton = read('portal/app/admin/customers/send-invite-button.tsx')
+
+ok(
+  'the drawer tile is labelled for the state it is in',
+  /\? 'Invited'\s*\n?\s*: 'Portal Invite'/.test(directory),
+  'it always said "Invited", even next to a NOT INVITED badge'
+)
+
+ok(
+  'a customer nobody wrote to reads "Never sent", not an em-dash',
+  /'Never sent'/.test(directory)
+)
+
+ok(
+  'the filter can show the never-invited on their own',
+  /'NOT_INVITED'/.test(directory) && /Never invited/.test(directory)
+)
+
+ok(
+  'the invited count no longer means "everyone who has not signed in"',
+  /const invited = customers\.filter\(\(c\) => !c\.registered && c\.invitedAt\)\.length/.test(directory)
+)
+
+ok(
+  'the drawer offers a way to send the invite it says is missing',
+  /<SendInviteButton/.test(directory) && /inviteCustomer/.test(inviteButton),
+  'an honest badge with nothing to click is still a dead end'
+)
+
+ok(
+  'the button distinguishes a first invite from a repeat',
+  /Send Portal Invite/.test(inviteButton) && /Send Sign-In Link Again/.test(inviteButton)
+)
+
+ok(
+  'a customer with no email is told why they cannot be invited',
+  /No email on file/.test(inviteButton)
+)
+
+ok(
+  'the result of sending is shown next to the button',
+  /state\.ok/.test(inviteButton) && /state\.message/.test(inviteButton)
+)
+
 console.log(fails ? `\n${fails} failing` : '\nall passing');
 process.exit(fails ? 1 : 0);
