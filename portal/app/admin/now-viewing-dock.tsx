@@ -3,6 +3,13 @@
 import { useState, useMemo, useEffect } from 'react'
 import Link from 'next/link'
 import { STORE_URL } from '@/lib/constants'
+import { ViewAsButton } from '@/app/admin/view-as-button'
+import {
+  SELECTED_CARD,
+  UNSELECTED_CARD,
+  SELECTED_PANEL,
+  SELECTED_BADGE,
+} from '@/lib/selection-style'
 
 interface CustomerWithData {
   id: string
@@ -323,11 +330,11 @@ export function NowViewingDock({ customers, dataError }: NowViewingDockProps) {
             {/* Content area: Selected customer detail card OR results list */}
             <div className="flex-1 overflow-y-auto p-4 sm:p-5 space-y-4">
               {selectedCustomer && (
-                <div className="p-4 sm:p-5 rounded-2xl bg-white border-2 border-[#2D4A32] shadow-md space-y-4">
+                <div className={`p-4 sm:p-5 rounded-2xl space-y-4 ${SELECTED_PANEL}`}>
                   <div className="flex items-start justify-between flex-wrap gap-2">
                     <div>
                       <div className="flex items-center gap-2">
-                        <span className="text-xs px-2.5 py-0.5 rounded bg-[#2D4A32] text-[#F5F0E8] font-bold uppercase tracking-wider">
+                        <span className={`text-xs px-2.5 py-0.5 rounded ${SELECTED_BADGE}`}>
                           Currently Viewing Customer
                         </span>
                         {selectedCustomer.is_admin && (
@@ -357,7 +364,7 @@ export function NowViewingDock({ customers, dataError }: NowViewingDockProps) {
                     <span className="text-[11px] font-bold uppercase tracking-wider text-[#2D4A32] block">
                       ⚡ Action Hub for {selectedCustomer.first_name}:
                     </span>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 text-xs">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-2 text-xs">
                       {/* 1. Open Invoice Generator */}
                       <a
                         href={`${STORE_URL}/invoice.html?customer=${encodeURIComponent(
@@ -418,7 +425,13 @@ export function NowViewingDock({ customers, dataError }: NowViewingDockProps) {
                         </div>
                       )}
 
-                      {/* 4. Copy Ref Link */}
+                      {/* 4. Open their portal as they see it */}
+                      <ViewAsButton
+                        customerId={selectedCustomer.id}
+                        firstName={selectedCustomer.first_name}
+                      />
+
+                      {/* 5. Copy Ref Link */}
                       {selectedCustomer.referral_code ? (
                         <button
                           type="button"
@@ -614,8 +627,8 @@ export function NowViewingDock({ customers, dataError }: NowViewingDockProps) {
                           onClick={() => selectCustomer(c.id)}
                           className={`p-3 rounded-xl border cursor-pointer transition-all ${
                             isCurrent
-                              ? 'bg-[#2D4A32]/10 border-[#2D4A32] ring-2 ring-[#2D4A32]'
-                              : 'bg-white border-[#E5E5E5] hover:border-[#2D4A32]'
+                              ? SELECTED_CARD
+                              : UNSELECTED_CARD
                           }`}
                         >
                           <div className="flex justify-between items-start">

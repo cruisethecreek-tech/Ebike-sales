@@ -6,6 +6,18 @@ import { STORE_URL } from '@/lib/constants'
 import { canonicalInvoiceNumber } from '@/lib/invoice-number'
 import { adminUpdateBike, adminAddBike, adminDeleteBike } from './actions'
 import { SendInviteButton } from './send-invite-button'
+import { ViewAsButton } from '@/app/admin/view-as-button'
+import { RemoveCustomer } from './remove-customer'
+import {
+  SELECTED_ROW,
+  UNSELECTED_ROW,
+  SELECTED_CARD,
+  UNSELECTED_CARD,
+  SELECTED_PANEL,
+  SELECTED_BADGE,
+  SELECTED_BUTTON,
+  UNSELECTED_BUTTON,
+} from '@/lib/selection-style'
 
 interface Bike {
   id: string
@@ -37,6 +49,8 @@ interface CustomerData {
   totalOutstanding?: number
   bikes: Bike[]
   latestPurchaseDate?: string | null
+  /** Set when hidden from the directory. Their data is untouched. */
+  archived_at?: string | null
 }
 
 export function getGoogleVoiceUrls(phone?: string | null) {
@@ -280,6 +294,8 @@ export function CustomerDirectory({
   const [selectedCustomerId, setSelectedCustomerId] = useState<string | null>(null)
   const [copiedCode, setCopiedCode] = useState(false)
   const [showAddBike, setShowAddBike] = useState(false)
+  // Archived customers are out of the directory, not out of the database.
+  const [showArchived, setShowArchived] = useState(false)
   const drawerRef = useRef<HTMLDivElement | null>(null)
   const scrollOnArrival = useRef(false)
 
@@ -355,6 +371,11 @@ export function CustomerDirectory({
   // Filter customers by selected letter or search
   const filteredCustomers = useMemo(() => {
     return customers.filter((c) => {
+      // Archived people are hidden unless the archive is open. Showing them
+      // mixed into the list would defeat the point of archiving; leaving them
+      // unreachable would mean nobody could undo it.
+      if (Boolean(c.archived_at) !== showArchived) return false
+
       const cleanName = formatCustomerName(c.first_name, c.last_name).toUpperCase()
       const firstName = (c.first_name || '').trim().toUpperCase()
 
@@ -388,18 +409,26 @@ export function CustomerDirectory({
         bikeMatch
       )
     })
-  }, [customers, activeLetter, signupFilter, searchQuery])
+  }, [customers, activeLetter, signupFilter, searchQuery, showArchived])
+
+  const archivedCount = useMemo(
+    () => customers.filter((c) => c.archived_at).length,
+    [customers],
+  )
 
   const signupCounts = useMemo(() => {
-    const registered = customers.filter((c) => c.registered).length
-    const invited = customers.filter((c) => !c.registered && c.invitedAt).length
+    // Counted over what the list is currently showing, so the badge numbers
+    // and the rows underneath agree.
+    const inScope = customers.filter((c) => Boolean(c.archived_at) === showArchived)
+    const registered = inScope.filter((c) => c.registered).length
+    const invited = inScope.filter((c) => !c.registered && c.invitedAt).length
     return {
-      ALL: customers.length,
+      ALL: inScope.length,
       REGISTERED: registered,
       INVITED: invited,
-      NOT_INVITED: customers.length - registered - invited,
+      NOT_INVITED: inScope.length - registered - invited,
     }
-  }, [customers])
+  }, [customers, showArchived])
 
   const selectedCustomer = useMemo(() => {
     if (!selectedCustomerId) return null
@@ -445,7 +474,33 @@ export function CustomerDirectory({
               </button>
             )
           })}
+
+          {/* The archive. Hidden behind a toggle rather than a separate page,
+              because the only way to undo an archive is to be able to find it. */}
+          {(archivedCount > 0 || showArchived) && (
+            <button
+              type="button"
+              aria-pressed={showArchived}
+              onClick={() => setShowArchived((v) => !v)}
+              className={`px-3 py-1.5 rounded-lg font-bold transition-all ml-auto ${
+                showArchived
+                  ? 'bg-[#8A6D1F] text-white shadow-xs'
+                  : 'bg-white border border-[#C9A96E] text-[#8A6D1F] hover:bg-[#FAF3E4]'
+              }`}
+            >
+              🗄 {showArchived ? 'Back to the directory' : 'Archive'}{' '}
+              <span className={showArchived ? 'opacity-70' : 'opacity-60'}>{archivedCount}</span>
+            </button>
+          )}
         </div>
+
+        {showArchived && (
+          <p className="text-[11px] text-[#8A6D1F] font-semibold">
+            Showing archived customers. They are hidden from the directory and from the search
+            dock; nothing of theirs has been deleted. Select one to restore it — or to delete it
+            permanently.
+          </p>
+        )}
       </div>
 
       {/* ── Alphabetical Quick-Filter Bar ── */}
@@ -494,12 +549,12 @@ export function CustomerDirectory({
       {selectedCustomer && (
         <div
           ref={drawerRef}
-          className="p-5 rounded-2xl bg-white border-2 border-[#2D4A32] shadow-lg space-y-4 animate-fadeIn"
+          className={`p-5 rounded-2xl space-y-4 animate-fadeIn ${SELECTED_PANEL}`}
         >
           <div className="flex justify-between items-start flex-wrap gap-2">
             <div>
               <div className="flex items-center gap-2">
-                <span className="text-[10px] px-2.5 py-0.5 rounded bg-[#2D4A32] text-[#F5F0E8] font-bold uppercase tracking-wider">
+                <span className={`text-[10px] px-2.5 py-0.5 rounded ${SELECTED_BADGE}`}>
                   👤 Currently Viewing & Active Customer
                 </span>
                 <SignupBadge customer={selectedCustomer} size="md" />
@@ -540,7 +595,7 @@ export function CustomerDirectory({
                 alreadyInvited={!!selectedCustomer.invitedAt}
               />
             )}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 text-xs">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-2 text-xs">
               {/* 1. Open Invoice Generator pre-filled */}
               <a
                 href={`${STORE_URL}/invoice.html?customer=${encodeURIComponent(
@@ -601,7 +656,13 @@ export function CustomerDirectory({
                 </div>
               )}
 
-              {/* 4. Referral link copy */}
+              {/* 4. Open their portal as they see it */}
+              <ViewAsButton
+                customerId={selectedCustomer.id}
+                firstName={selectedCustomer.first_name}
+              />
+
+              {/* 5. Referral link copy */}
               {selectedCustomer.referral_code ? (
                 <button
                   type="button"
@@ -753,6 +814,19 @@ export function CustomerDirectory({
               </p>
             )}
           </div>
+
+          {/* ── Removing them ── */}
+          <div className="border-t border-[#E5E5E5] pt-3">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-[#9B2C2C] block mb-2">
+              Remove {selectedCustomer.first_name}
+            </span>
+            <RemoveCustomer
+              customerId={selectedCustomer.id}
+              name={formatCustomerName(selectedCustomer.first_name, selectedCustomer.last_name)}
+              archived={!!selectedCustomer.archived_at}
+              isAdmin={selectedCustomer.is_admin}
+            />
+          </div>
         </div>
       )}
 
@@ -779,7 +853,7 @@ export function CustomerDirectory({
                   key={c.id}
                   onClick={() => selectCustomer(c.id)}
                   className={`border-b last:border-0 transition-colors cursor-pointer ${
-                    isSelected ? 'bg-[#2D4A32]/10 font-medium' : 'hover:bg-[#FBF7EF]'
+                    isSelected ? SELECTED_ROW : UNSELECTED_ROW
                   }`}
                 >
                   <td className="p-3.5 font-bold text-sm text-[#1A2E1C]">
@@ -828,9 +902,11 @@ export function CustomerDirectory({
                         e.stopPropagation()
                         selectCustomer(c.id)
                       }}
-                      className="px-3 py-1 rounded-md bg-[#2D4A32] text-white text-xs font-bold hover:bg-[#1A2E1C] shadow-xs"
+                      className={`px-3 py-1 rounded-md text-xs font-bold shadow-xs ${
+                        isSelected ? SELECTED_BUTTON : UNSELECTED_BUTTON
+                      }`}
                     >
-                      {isSelected ? '✓ Active' : 'Select & Actions →'}
+                      {isSelected ? '✓ Viewing' : 'Select & Actions →'}
                     </button>
                   </td>
                 </tr>
@@ -850,9 +926,7 @@ export function CustomerDirectory({
               key={c.id}
               onClick={() => selectCustomer(c.id)}
               className={`p-3.5 rounded-xl border shadow-xs space-y-2 cursor-pointer transition-all ${
-                isSelected
-                  ? 'bg-[#2D4A32]/10 border-[#2D4A32] ring-2 ring-[#2D4A32]'
-                  : 'bg-white border-[#E5E5E5] hover:border-[#2D4A32]'
+                isSelected ? SELECTED_CARD : UNSELECTED_CARD
               }`}
             >
               <div className="flex justify-between items-start">

@@ -197,3 +197,182 @@ export async function adminDeleteBike(formData: FormData): Promise<void> {
   revalidatePath('/dashboard/bikes')
 }
 
+
+// ── Archiving and deleting ───────────────────────────────────────────────
+
+export interface RemovalResult {
+  ok: boolean
+  message: string
+}
+
+/**
+ * Who this customer is, and what deleting them would destroy.
+ *
+ * Shown before the confirmation, not after, because the counts are the whole
+ * decision: "remove Jay buttram" and "remove Jay buttram, his two bikes and
+ * $3,773 of invoice history" are different sentences, and the directory row
+ * only ever showed the first one.
+ */
+export async function getRemovalImpact(customerId: string): Promise<{
+  name: string
+  email: string | null
+  isAdmin: boolean
+  isYou: boolean
+  archived: boolean
+  bikes: number
+  invoices: number
+  invoiceTotal: number
+  invoiceNumbers: string[]
+}> {
+  const adminId = await requireAdminUser()
+  const admin = createAdminClient()
+
+  const { data: customer, error } = await admin
+    .from('customers')
+    .select('id, first_name, last_name, is_admin, archived_at')
+    .eq('id', customerId)
+    .single()
+  if (error || !customer) throw new Error('That customer no longer exists.')
+
+  const [{ data: bikes }, { data: invoices }, account] = await Promise.all([
+    admin.from('bikes').select('id').eq('customer_id', customerId),
+    admin.from('invoices').select('invoice_number, total_amount').eq('customer_id', customerId),
+    admin.auth.admin.getUserById(customerId).catch(() => null),
+  ])
+
+  return {
+    name: [customer.first_name, customer.last_name].filter(Boolean).join(' ').trim() || 'this customer',
+    email: account?.data?.user?.email ?? null,
+    isAdmin: Boolean(customer.is_admin),
+    isYou: customerId === adminId,
+    archived: Boolean(customer.archived_at),
+    bikes: bikes?.length || 0,
+    invoices: invoices?.length || 0,
+    invoiceTotal: (invoices || []).reduce((sum, i: any) => sum + (Number(i.total_amount) || 0), 0),
+    invoiceNumbers: (invoices || []).map((i: any) => i.invoice_number).filter(Boolean).sort(),
+  }
+}
+
+/** Hide a customer from the directory. Nothing of theirs is touched. */
+export async function archiveCustomer(customerId: string): Promise<RemovalResult> {
+  const adminId = await requireAdminUser()
+  if (customerId === adminId) {
+    return { ok: false, message: 'You cannot archive your own account.' }
+  }
+
+  const admin = createAdminClient()
+  const { error } = await admin
+    .from('customers')
+    .update({ archived_at: new Date().toISOString() })
+    .eq('id', customerId)
+
+  if (error) return { ok: false, message: 'Could not archive: ' + error.message }
+
+  revalidatePath('/admin/customers')
+  return { ok: true, message: 'Archived. They are hidden from the directory; nothing was deleted.' }
+}
+
+/** Put an archived customer back in the directory. */
+export async function restoreCustomer(customerId: string): Promise<RemovalResult> {
+  await requireAdminUser()
+
+  const admin = createAdminClient()
+  const { error } = await admin
+    .from('customers')
+    .update({ archived_at: null })
+    .eq('id', customerId)
+
+  if (error) return { ok: false, message: 'Could not restore: ' + error.message }
+
+  revalidatePath('/admin/customers')
+  return { ok: true, message: 'Restored to the directory.' }
+}
+
+/**
+ * Delete a customer and everything of theirs in the portal. Cannot be undone.
+ *
+ * Four things have to be true before anything is removed, and each one is a
+ * different mistake being guarded against:
+ *
+ *   - they must already be archived, so nobody arrives here from a list row;
+ *   - `confirm` must match their name exactly, so it cannot be a stray click;
+ *   - they must not be an admin, so the shop cannot lock itself out;
+ *   - they must not be you, for the same reason.
+ *
+ * What it does NOT touch: the Google Sheet. The Sheet is the system of record
+ * for invoicing and the portal holds a mirror of it, so deleting here removes
+ * the customer's copy and leaves the shop's books intact. If the Sheet row
+ * should go too, that is a separate, deliberate edit there — and this returns
+ * the invoice numbers so it can be done.
+ */
+export async function deleteCustomerForever(
+  customerId: string,
+  confirm: string,
+): Promise<RemovalResult & { removed?: { bikes: number; invoices: number } }> {
+  const adminId = await requireAdminUser()
+  const admin = createAdminClient()
+
+  const { data: customer, error: readErr } = await admin
+    .from('customers')
+    .select('id, first_name, last_name, is_admin, archived_at')
+    .eq('id', customerId)
+    .single()
+  if (readErr || !customer) return { ok: false, message: 'That customer no longer exists.' }
+
+  if (customerId === adminId) {
+    return { ok: false, message: 'You cannot delete your own account.' }
+  }
+  if (customer.is_admin) {
+    return {
+      ok: false,
+      message: 'This is an admin account. Remove their admin rights first, then delete.',
+    }
+  }
+  if (!customer.archived_at) {
+    return { ok: false, message: 'Archive them first. Permanent deletion is only offered from the archive.' }
+  }
+
+  const name = [customer.first_name, customer.last_name].filter(Boolean).join(' ').trim()
+  const typed = String(confirm || '').trim().toLowerCase()
+  if (!typed || typed !== name.toLowerCase()) {
+    return { ok: false, message: `Type “${name}” exactly to confirm. Nothing was deleted.` }
+  }
+
+  // Children first: invoices and bikes both point at the customer row.
+  const { data: bikes } = await admin.from('bikes').select('id').eq('customer_id', customerId)
+  const { data: invoices } = await admin.from('invoices').select('id').eq('customer_id', customerId)
+
+  const { error: bikeErr } = await admin.from('bikes').delete().eq('customer_id', customerId)
+  if (bikeErr) return { ok: false, message: 'Could not delete their bikes: ' + bikeErr.message }
+
+  const { error: invErr } = await admin.from('invoices').delete().eq('customer_id', customerId)
+  if (invErr) return { ok: false, message: 'Could not delete their invoices: ' + invErr.message }
+
+  // Referral credits and anyone they referred point here too. Null out the
+  // referrer rather than deleting the people they brought in.
+  await admin.from('referral_credits').delete().eq('customer_id', customerId)
+  await admin.from('customers').update({ referred_by: null }).eq('referred_by', customerId)
+
+  const { error: custErr } = await admin.from('customers').delete().eq('id', customerId)
+  if (custErr) return { ok: false, message: 'Could not delete the customer record: ' + custErr.message }
+
+  // Last, because without the customer row there is nothing left pointing at
+  // it, and a login with no record behind it is the worse thing to leave.
+  const { error: authErr } = await admin.auth.admin.deleteUser(customerId)
+  if (authErr) {
+    return {
+      ok: false,
+      message:
+        'Their records were deleted but the login could not be removed: ' +
+        authErr.message +
+        '. Delete it in Supabase → Authentication.',
+    }
+  }
+
+  revalidatePath('/admin/customers')
+  return {
+    ok: true,
+    message: `${name} was permanently deleted.`,
+    removed: { bikes: bikes?.length || 0, invoices: invoices?.length || 0 },
+  }
+}
