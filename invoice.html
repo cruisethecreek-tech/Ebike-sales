@@ -2574,6 +2574,69 @@
             }
         }
 
+        /**
+         * The catalogue the site already publishes, as a second source.
+         *
+         * /data/inventory.json is written by the daily sync from the same
+         * Google Sheet the Apps Script reads, and every brand page on the site
+         * already loads it; /data/catalog.json is the Catalog tab's
+         * accessories and apparel. Both are static files on this origin, so
+         * they are there whenever the page is.
+         *
+         * Without this, one failed call to the Apps Script emptied the item
+         * picker down to Installation, Delivery and Custom — 67 bikes, 9
+         * accessories and 25 t-shirts gone, and the only way to invoice any of
+         * them was to type the name and price by hand. A slightly stale
+         * catalogue beats no catalogue.
+         */
+        function loadStaticCatalog(reason) {
+            const statusEl = document.getElementById('pickerStatus');
+
+            return Promise.all([
+                fetch('/data/inventory.json', { cache: 'no-store' })
+                    .then(r => r.ok ? r.json() : null).catch(() => null),
+                fetch('/data/catalog.json', { cache: 'no-store' })
+                    .then(r => r.ok ? r.json() : null).catch(() => null),
+            ]).then(function (results) {
+                const inv = results[0] || {};
+                const cat = results[1] || {};
+
+                const bikes = (inv.bikes || []).map(function (b) {
+                    return {
+                        name: [b.brand, b.name].filter(Boolean).join(' ').trim() || b.name,
+                        price: Number(b.price) || 0,
+                        brand: b.brand || '',
+                    };
+                }).filter(function (b) { return b.name; });
+
+                const accessories = cat.accessories || [];
+                const apparel = cat.apparel || [];
+
+                if (!bikes.length && !accessories.length && !apparel.length) {
+                    markCatalogOffline(reason);
+                    return false;
+                }
+
+                catalogCache.bikes = bikes;
+                catalogCache.accessories = accessories;
+                catalogCache.apparel = apparel;
+
+                // Say which source is being used. Staff need to know the prices
+                // came from last night's copy rather than the Sheet as it is
+                // right now, because that is the difference that bites.
+                statusEl.textContent = bikes.length + ' bikes  ·  ' + accessories.length +
+                    ' accessories  ·  ' + apparel.length + ' apparel  —  from the daily snapshot' +
+                    (inv.lastUpdated ? ' (' + String(inv.lastUpdated).slice(0, 10) + ')' : '') +
+                    ', not live. ' + reason + '.';
+                statusEl.classList.add('has-data');
+                console.warn('[invoice] catalog served from the static snapshot:', reason);
+                return true;
+            }).catch(function () {
+                markCatalogOffline(reason);
+                return false;
+            });
+        }
+
         function loadCatalog() {
             const statusEl = document.getElementById('pickerStatus');
             statusEl.textContent = 'Loading catalog…';
@@ -2583,7 +2646,7 @@
             const timeoutMs = 10000;
 
             const timeoutId = setTimeout(() => {
-                markCatalogOffline('Inventory catalog timed out');
+                loadStaticCatalog('the live catalogue timed out');
                 cleanup();
             }, timeoutMs);
 
@@ -2609,10 +2672,10 @@
                     } else {
                         // Handler responded but with no usable data — same
                         // user-visible result as offline (no items to pick).
-                        markCatalogOffline('Inventory catalog returned no items');
+                        loadStaticCatalog('the live catalogue returned no items');
                     }
                 } catch (err) {
-                    markCatalogOffline('Inventory catalog parse error');
+                    loadStaticCatalog('the live catalogue could not be read');
                 }
                 cleanup();
             };
@@ -2621,7 +2684,7 @@
             script.src = AS_URL + '?action=getInvoiceCatalog&callback=' + encodeURIComponent(callbackName);
             script.onerror = () => {
                 clearTimeout(timeoutId);
-                markCatalogOffline('Inventory catalog unavailable');
+                loadStaticCatalog('the live catalogue could not be reached');
                 cleanup();
             };
             document.head.appendChild(script);

@@ -1,0 +1,179 @@
+{
+  "_comment": "Fallback copy of the Catalog tab of the E-Bike Inventory Price Manager sheet. invoice.html prefers the live Apps Script; this is what it falls back to when that call fails, so staff keep a working item picker. Refresh it by re-exporting the Catalog tab when accessories or apparel change.",
+  "source": "E-Bike Inventory Price Manager \u2014 Catalog tab",
+  "lastUpdated": "2026-09-28",
+  "accessories": [
+    {
+      "name": "Standard Helmet",
+      "price": 30.0,
+      "sku": "ACC-HEL-001"
+    },
+    {
+      "name": "Mirror",
+      "price": 25.0,
+      "sku": "ACC-MIR-001"
+    },
+    {
+      "name": "Rear Bag",
+      "price": 40.0,
+      "sku": "ACC-BAG-001"
+    },
+    {
+      "name": "Saddle Bag",
+      "price": 45.0,
+      "sku": "ACC-SDL-001"
+    },
+    {
+      "name": "Bike Lock",
+      "price": 20.0,
+      "sku": "ACC-LOC-001"
+    },
+    {
+      "name": "Phone Holder",
+      "price": 25.0,
+      "sku": "ACC-PHO-001"
+    },
+    {
+      "name": "Water Bottle Holder",
+      "price": 20.0,
+      "sku": "ACC-WAT-001"
+    },
+    {
+      "name": "Magnet",
+      "price": 2.0,
+      "sku": "ACC-MAG-001"
+    },
+    {
+      "name": "Coaster",
+      "price": 1.0,
+      "sku": "ACC-COA-001"
+    }
+  ],
+  "apparel": [
+    {
+      "name": "Cruise the Creek T-Shirt \u2014 Premium Black, S",
+      "price": 25.0,
+      "sku": "APP-TEE-BLK-S"
+    },
+    {
+      "name": "Cruise the Creek T-Shirt \u2014 Premium Black, M",
+      "price": 25.0,
+      "sku": "APP-TEE-BLK-M"
+    },
+    {
+      "name": "Cruise the Creek T-Shirt \u2014 Premium Black, L",
+      "price": 25.0,
+      "sku": "APP-TEE-BLK-L"
+    },
+    {
+      "name": "Cruise the Creek T-Shirt \u2014 Premium Black, XL",
+      "price": 25.0,
+      "sku": "APP-TEE-BLK-XL"
+    },
+    {
+      "name": "Cruise the Creek T-Shirt \u2014 Premium Black, 2XL",
+      "price": 25.0,
+      "sku": "APP-TEE-BLK-2XL"
+    },
+    {
+      "name": "Cruise the Creek T-Shirt \u2014 Black, S",
+      "price": 20.0,
+      "sku": "APP-TEE-BLK-S"
+    },
+    {
+      "name": "Cruise the Creek T-Shirt \u2014 Black, M",
+      "price": 20.0,
+      "sku": "APP-TEE-BLK-M"
+    },
+    {
+      "name": "Cruise the Creek T-Shirt \u2014 Black, L",
+      "price": 20.0,
+      "sku": "APP-TEE-BLK-L"
+    },
+    {
+      "name": "Cruise the Creek T-Shirt \u2014 Black, XL",
+      "price": 20.0,
+      "sku": "APP-TEE-BLK-XL"
+    },
+    {
+      "name": "Cruise the Creek T-Shirt \u2014 Black, 2XL",
+      "price": 20.0,
+      "sku": "APP-TEE-BLK-2XL"
+    },
+    {
+      "name": "Cruise the Creek T-Shirt \u2014 Sand, S",
+      "price": 20.0,
+      "sku": "APP-TEE-SND-S"
+    },
+    {
+      "name": "Cruise the Creek T-Shirt \u2014 Sand, M",
+      "price": 20.0,
+      "sku": "APP-TEE-SND-M"
+    },
+    {
+      "name": "Cruise the Creek T-Shirt \u2014 Sand, L",
+      "price": 20.0,
+      "sku": "APP-TEE-SND-L"
+    },
+    {
+      "name": "Cruise the Creek T-Shirt \u2014 Sand, XL",
+      "price": 20.0,
+      "sku": "APP-TEE-SND-XL"
+    },
+    {
+      "name": "Cruise the Creek T-Shirt \u2014 Sand, 2XL",
+      "price": 20.0,
+      "sku": "APP-TEE-SND-2XL"
+    },
+    {
+      "name": "Cruise the Creek T-Shirt \u2014 GREEN, S",
+      "price": 20.0,
+      "sku": "APP-TEE-GRN-S"
+    },
+    {
+      "name": "Cruise the Creek T-Shirt \u2014 GREEN, M",
+      "price": 20.0,
+      "sku": "APP-TEE-GRN-M"
+    },
+    {
+      "name": "Cruise the Creek T-Shirt \u2014 GREEN, L",
+      "price": 20.0,
+      "sku": "APP-TEE-GRN-L"
+    },
+    {
+      "name": "Cruise the Creek T-Shirt \u2014 GREEN, XL",
+      "price": 20.0,
+      "sku": "APP-TEE-GRN-XL"
+    },
+    {
+      "name": "Cruise the Creek T-Shirt \u2014 GREEN, 2XL",
+      "price": 20.0,
+      "sku": "APP-TEE-GRN-2XL"
+    },
+    {
+      "name": "Cruise the Creek T-Shirt \u2014 WHITE, S",
+      "price": 20.0,
+      "sku": "APP-TEE-WTE-S"
+    },
+    {
+      "name": "Cruise the Creek T-Shirt \u2014 WHITE, M",
+      "price": 20.0,
+      "sku": "APP-TEE-WTE-M"
+    },
+    {
+      "name": "Cruise the Creek T-Shirt \u2014 WHITE, L",
+      "price": 20.0,
+      "sku": "APP-TEE-WTE-L"
+    },
+    {
+      "name": "Cruise the Creek T-Shirt \u2014 WHITE, XL",
+      "price": 20.0,
+      "sku": "APP-TEE-WTE-XL"
+    },
+    {
+      "name": "Cruise the Creek T-Shirt \u2014 WHITE, 2XL",
+      "price": 20.0,
+      "sku": "APP-TEE-WTE-2XL"
+    }
+  ]
+}
