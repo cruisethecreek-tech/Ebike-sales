@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { requireAdminKey, corsFor } from '@/lib/api-auth'
+import { findAuthUserByEmail, isAlreadyRegistered } from '@/lib/find-auth-user'
 import { createClient } from '@supabase/supabase-js'
 
 function getAdminClient() {
@@ -155,8 +156,13 @@ export async function POST(req: NextRequest) {
     const lastName = parts.slice(1).join(' ') || ''
 
     // 1. Check or invite user
-    const { data: usersData } = await supabase.auth.admin.listUsers()
-    let user = usersData?.users?.find((u) => u.email?.toLowerCase() === email)
+    //
+    // Paginated. listUsers() returns 50 by default and the shop has 61, so the
+    // eleven oldest customers were invisible here — the route then tried to
+    // create an account that already existed and threw "A user with this email
+    // address has already been registered", which the browser showed as a bare
+    // HTTP 500 on an invoice that had in fact saved.
+    let user: any = await findAuthUserByEmail(supabase, email)
     let invited = false
 
     const portalUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://portal.cruisethecreek.com'
@@ -180,9 +186,16 @@ export async function POST(req: NextRequest) {
         email_confirm: true,
         user_metadata: { first_name: firstName, last_name: lastName },
       })
-      if (makeErr) throw makeErr
-      user = madeUser.user
-      createdQuietly = true
+      if (makeErr) {
+        // The lookup missed it, or another save created it a moment ago.
+        // Either way the account exists, which is what we wanted.
+        if (!isAlreadyRegistered(makeErr)) throw makeErr
+        user = await findAuthUserByEmail(supabase, email)
+        if (!user) throw makeErr
+      } else {
+        user = madeUser.user
+        createdQuietly = true
+      }
     }
 
     if (!user) {
@@ -205,7 +218,14 @@ export async function POST(req: NextRequest) {
           email_confirm: true,
           user_metadata: { first_name: firstName, last_name: lastName },
         })
-        if (createErr) throw createErr
+        if (createErr) {
+          // Same story on the non-quiet path: an invite that fails because the
+          // account exists is not a reason to fail the invoice.
+          if (!isAlreadyRegistered(createErr)) throw createErr
+          const existing = await findAuthUserByEmail(supabase, email)
+          if (!existing) throw createErr
+          user = existing
+        }
         user = createdUser.user
       } else {
         user = inviteData.user
