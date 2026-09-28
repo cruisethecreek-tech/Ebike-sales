@@ -68,6 +68,14 @@ export default async function AdminInvoices() {
           </a>
           {/* For the audit: push every portal status to the Sheet in one pass
               rather than opening 50-odd invoices one at a time. */}
+          {/* Nothing used to compare the Sheet with the portal, so an invoice
+              that failed to sync was simply absent. */}
+          <Link
+            href="/admin/invoices/reconcile"
+            className="text-[11px] font-bold text-[#2D4A32] underline hover:opacity-80"
+          >
+            Check the Sheet for missing invoices →
+          </Link>
           <BulkResync
             targets={(invoices || []).map((inv: any) => ({
               id: inv.id,
