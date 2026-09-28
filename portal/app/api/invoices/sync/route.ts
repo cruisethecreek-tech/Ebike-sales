@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { requireAdminKey, corsFor } from '@/lib/api-auth'
 import { findAuthUserByEmail, isAlreadyRegistered } from '@/lib/find-auth-user'
+import { canonicalInvoiceNumber, sameInvoiceNumber } from '@/lib/invoice-number'
+import { bikesOnInvoice, bikeModelKey } from '@/lib/detect-bike'
 import { createClient } from '@supabase/supabase-js'
 
 function getAdminClient() {
@@ -16,70 +18,6 @@ export async function OPTIONS(req: Request) {
   return NextResponse.json({}, { headers: corsFor(req) })
 }
 
-function detectBike(itemDesc: string): { brand: string; model: string } | null {
-  const d = String(itemDesc || '').trim()
-  const lower = d.toLowerCase()
-
-  // Exclude non-bike parts & services
-  if (
-    lower.includes('tune-up') ||
-    lower.includes('service') ||
-    lower.includes('installation') ||
-    lower.includes('assembly') ||
-    lower.includes('delivery') ||
-    lower.includes('lock') ||
-    lower.includes('helmet') ||
-    lower.includes('mirror') ||
-    lower.includes('basket') ||
-    lower.includes('bag') ||
-    lower.includes('battery') ||
-    lower.includes('throttle') ||
-    lower.includes('tire') ||
-    lower.includes('tube') ||
-    lower.includes('pedal') ||
-    lower.includes('shipping') ||
-    lower.includes('freight')
-  ) {
-    return null
-  }
-
-  // These must be values of the bike_brand enum and nothing else. The previous
-  // list returned 'Aventon', 'Lectric' and 'Custom / Other', none of which
-  // exist in that type, so any bike matching them failed to insert instead of
-  // being recorded — which is why `other` appears on none of the 34 bikes on
-  // file. Mokwheel, the largest range in the shop, was missing entirely.
-  let brand = 'other'
-  if (lower.includes('heybike')) brand = 'Heybike'
-  else if (lower.includes('velotric')) brand = 'Velotric'
-  else if (lower.includes('jasion')) brand = 'Jasion'
-  else if (lower.includes('mooncool')) brand = 'Mooncool'
-  else if (lower.includes('mokwheel')) brand = 'Mokwheel'
-
-  // If marked as trike or bike
-  const isBikeOrTrike =
-    brand !== 'other' ||
-    lower.includes('trike') ||
-    lower.includes('bike') ||
-    lower.includes('cruiser') ||
-    lower.includes('step-thru')
-
-  if (!isBikeOrTrike) return null
-
-  let model = d
-  if (brand !== 'other') {
-    model = d.replace(new RegExp(brand, 'i'), '').trim()
-  }
-  if (!model) model = d
-
-  // 'other' verbatim — it is the enum value. The maker's name stays in the
-  // model, so an Aventon trade-in reads "other / Aventon Level 2" rather than
-  // being lost to a failed insert.
-  return {
-    brand,
-    model: model.replace(/^[-–—:\s]+/, '').trim(),
-  }
-}
-
 export async function POST(req: NextRequest) {
   // These routes run with the service-role key and return/write customer
   // records. Reject anything without the shared admin key.
@@ -91,7 +29,12 @@ export async function POST(req: NextRequest) {
     const body = await req.json().catch(() => ({}))
     const supabase = getAdminClient()
 
-    const invoiceNumber = String(body.invoiceNumber || '').trim()
+    // CTR-71 and CTR-071 are the same invoice. /dashboard/invoices/[id] matches
+    // invoice_number exactly, so storing whichever spelling was typed is what
+    // produced a receipt link that 404s. Canonicalise on the way in, on both
+    // the invoice row and the bike's receipt_number that links to it.
+    const invoiceNumber = canonicalInvoiceNumber(body.invoiceNumber) || ''
+    const receiptNumber = invoiceNumber || null
     const customerName = String(body.customerName || '').trim()
     const email = String(body.customerEmail || '').trim().toLowerCase()
     const phone = String(body.customerPhone || '').trim()
@@ -144,8 +87,20 @@ export async function POST(req: NextRequest) {
     }
 
     if (!email) {
+      // A legitimate skip — a portal invoice belongs to a login and a login is
+      // an email address — but it answered 200 with the reason in `message`,
+      // and every caller checked `res.ok`. So five real sales were declined
+      // with the word "success" on the screen. Name it in `error` too, which is
+      // the field callers read, and keep the 200: this is a decision, not a
+      // fault.
       return NextResponse.json(
-        { ok: false, message: 'No customer email provided — portal account skipped' },
+        {
+          ok: false,
+          skipped: 'no_email',
+          invoiceNumber,
+          message: 'No customer email provided — portal account skipped',
+          error: `${invoiceNumber || 'This invoice'} has no customer email, so it cannot go in the portal. It is in the Sheet only.`,
+        },
         { status: 200, headers: corsHeaders }
       )
     }
@@ -225,14 +180,30 @@ export async function POST(req: NextRequest) {
           const existing = await findAuthUserByEmail(supabase, email)
           if (!existing) throw createErr
           user = existing
+        } else {
+          // This assignment used to run unconditionally, one line below the
+          // recovery above. When the create had failed, `createdUser` is null,
+          // so reading `.user` off it threw a TypeError — and the invoice the
+          // shop had just written was lost to a bare HTTP 500 on the very path
+          // that had just worked out who the customer was.
+          user = createdUser?.user ?? null
         }
-        user = createdUser.user
       } else {
         user = inviteData.user
         invited = true
       }
     }
 
+    // Never read `.id` off nothing. Every branch above is meant to end with an
+    // account, and if one ever does not, say which invoice and which customer
+    // rather than reporting "Cannot read properties of null".
+    if (!user?.id) {
+      return NextResponse.json(
+        { ok: false, invoiceNumber,
+          error: `Could not find or create a portal account for ${email}. The invoice was not saved to the portal.` },
+        { status: 500, headers: corsHeaders }
+      )
+    }
     const userId = user.id
 
     // 2. Create or update customer record
@@ -248,25 +219,61 @@ export async function POST(req: NextRequest) {
 
     // 3. Register any bikes from line items
     let bikesAdded = 0
-    const { data: existingBikes } = await supabase.from('bikes').select('*').eq('customer_id', userId)
+    const bikeErrors: string[] = []
+    const { data: existingBikeRows } = await supabase.from('bikes').select('*').eq('customer_id', userId)
 
-    for (const it of items) {
-      const desc = it.description || ''
-      const bikeInfo = detectBike(desc)
-      if (bikeInfo) {
-        const alreadyExists = existingBikes?.some(
-          (b) => b.brand.toLowerCase() === bikeInfo.brand.toLowerCase() && b.model.toLowerCase() === bikeInfo.model.toLowerCase()
-        )
-        if (!alreadyExists) {
-          const { error: bikeErr } = await supabase.from('bikes').insert({
-            customer_id: userId,
-            brand: bikeInfo.brand,
-            model: bikeInfo.model,
-            purchase_date: invoiceDate,
-            receipt_number: invoiceNumber || null,
-          })
-          if (!bikeErr) bikesAdded++
+    // Rows this invoice could already have produced. Each one can account for
+    // at most one bike, so it is removed from the pool once claimed — otherwise
+    // an invoice selling two different Velotrics would see the one row on file
+    // as covering both of them.
+    const pool = (existingBikeRows || []).map((b: any) => ({
+      brand: String(b.brand || ''),
+      key: bikeModelKey(b.model),
+      receipt: String(b.receipt_number || '').trim(),
+      claimed: false,
+    }))
+
+    for (const bike of bikesOnInvoice(items)) {
+      const wantKey = bikeModelKey(bike.model)
+      const sameBrand = (r: typeof pool[number]) =>
+        !r.claimed && r.brand.toLowerCase() === bike.brand.toLowerCase()
+
+      let already = 0
+      for (let pass = 0; pass < 2; pass++) {
+        for (const row of pool) {
+          if (already >= bike.count) break
+          if (!sameBrand(row)) continue
+          // First pass: the model matches, ignoring any note in brackets.
+          // Second pass: the model was typed differently by hand, but the row
+          // carries this invoice's number, which ties it to this sale anyway —
+          // Earl Boylen's Mokwheel is on file as "Basalt 2.0 camo" where the
+          // invoice line reads "Mokwheel Basalt ST 2.0 Ebike".
+          const hit = pass === 0
+            ? row.key === wantKey
+            : !!receiptNumber && sameInvoiceNumber(row.receipt, receiptNumber)
+          if (!hit) continue
+          row.claimed = true
+          already++
         }
+      }
+
+      for (let n = already; n < bike.count; n++) {
+        const { error: bikeErr } = await supabase.from('bikes').insert({
+          customer_id: userId,
+          brand: bike.brand,
+          model: bike.model,
+          purchase_date: invoiceDate,
+          receipt_number: receiptNumber,
+        })
+
+        if (bikeErr) {
+          // Silence here is how the Aventon and Mokwheel bikes disappeared: the
+          // enum rejected the brand, the counter simply did not go up, and the
+          // response still said the sync had worked. Report it instead.
+          bikeErrors.push(`${bike.brand} ${bike.model}: ${bikeErr.message}`)
+          break
+        }
+        bikesAdded++
       }
     }
 
@@ -318,6 +325,7 @@ export async function POST(req: NextRequest) {
       if (invErr) {
         return NextResponse.json(
           { ok: false, userId, invoiceNumber, invited, bikesAdded,
+            ...(bikeErrors.length ? { bikeErrors } : {}),
             error: 'Customer synced but the invoice did not save: ' + invErr.message },
           { status: 500, headers: corsHeaders }
         )
@@ -335,6 +343,10 @@ export async function POST(req: NextRequest) {
         createdQuietly,
         emailSent: invited,
         bikesAdded,
+        // A bike that could not be recorded is not a clean sync. Saying so in
+        // the same breath as ok:true is deliberate — the invoice itself did
+        // save, and the shop needs to know the garage will be short.
+        ...(bikeErrors.length ? { bikeErrors, warning: `${bikeErrors.length} bike(s) could not be registered.` } : {}),
         itemsSaved: lineItems.length,
         supplierUrlSaved: supplierUrl === undefined ? null : supplierUrl !== '',
       },

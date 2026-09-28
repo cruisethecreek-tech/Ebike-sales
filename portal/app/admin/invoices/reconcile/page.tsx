@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { fetchAllSheetInvoices, type SheetInvoice } from '@/lib/sheet-invoices'
 import { canonicalInvoiceNumber } from '@/lib/invoice-number'
 import { ImportMissing } from './import-missing'
+import { ImportAll } from './import-all'
 import Link from 'next/link'
 
 export const dynamic = 'force-dynamic'
@@ -94,6 +95,7 @@ export default async function ReconcileInvoices() {
             <p className="text-[11px] text-[#4A4A4A] mt-0.5">
               Importing creates the portal account quietly. Nobody is emailed.
             </p>
+            <ImportAll invoices={importable} />
           </div>
           <table className="w-full text-left text-xs">
             <thead className="text-[#4A4A4A]">
