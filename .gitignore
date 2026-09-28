@@ -1,3 +1,8 @@
 .vercel
 .DS_Store
 Thumbs.db
+
+# Customer reconciliation working files. Real names, addresses and purchase
+# history — useful to have on disk while sorting the Wix import out, and not
+# something to put in a git history where it cannot be taken back out.
+reconciliation/
