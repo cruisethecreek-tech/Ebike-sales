@@ -436,6 +436,9 @@ function listInvoices(e) {
   }
 }
 
+/** What may be written to depositMethod. Anything else is provenance, not a method. */
+var PAYMENT_METHODS = ['cash', 'check', 'credit_card', 'zelle', 'venmo', 'cashapp', 'snap', 'other'];
+
 function setInvoiceStatus(e) {
   var cb = (e && e.parameter && e.parameter.callback) || 'callback';
   function jsonp(obj) {
@@ -472,10 +475,62 @@ function setInvoiceStatus(e) {
     var note = 'Status → ' + status + (method ? ' (' + method + ')' : '') + ' on ' + when;
 
     setIf('status', status);
-    if (status === 'paid') setIf('balanceDue', 0);
     setIf('paymentNotes', existing ? (existing + ' | ' + note) : note);
 
-    return jsonp({ status: 'ok', invoiceNumber: num, newStatus: status, row: target });
+    /*
+     * Setting the status column alone was not enough, and looked like it was.
+     *
+     * The invoice generator rebuilds the balance from paymentMode and deposit
+     * every time it loads a row: balance = total - deposit. Marking an invoice
+     * paid used to write status='paid' and balanceDue=0 while leaving
+     * paymentMode='full' and deposit=0, so the generator recomputed the full
+     * balance, showed "Pay in Full", and wrote status back to pending on the
+     * next save. CTR-025 read Paid in the portal, Pay in Full here, and
+     * pending in the database — all three were this.
+     *
+     * So the payment type has to move with the status, or the status does not
+     * survive the next save.
+     */
+    var cTotal = col('total');
+    var rowTotal = cTotal >= 0 ? (Number(sh.getRange(target, cTotal + 1).getValue()) || 0) : 0;
+    var cMode = col('paymentMode');
+    var currentMode = cMode >= 0
+      ? String(sh.getRange(target, cMode + 1).getValue() || '').trim() : '';
+
+    if (status === 'paid') {
+      setIf('paymentMode', 'paidInFullCash');
+      setIf('deposit', rowTotal);
+      setIf('balanceDue', 0);
+      /*
+       * `method` doubles as provenance — the portal sends "portal" to say who
+       * changed it — so only a real payment method may land in depositMethod.
+       * Writing "portal" there would put the name of a screen where cash,
+       * check or snap belongs, and it would print on the invoice.
+       */
+      if (PAYMENT_METHODS.indexOf(String(method).toLowerCase()) !== -1) {
+        setIf('depositMethod', String(method).toLowerCase());
+      }
+    } else if (currentMode === 'paidInFullCash') {
+      /*
+       * Un-paying reverses only what marking paid did. A row on a genuine
+       * deposit arrangement keeps its own paymentMode, deposit and balance —
+       * resetting those would destroy a real payment record to correct a
+       * status click.
+       */
+      setIf('paymentMode', 'full');
+      setIf('deposit', 0);
+      setIf('balanceDue', rowTotal);
+    }
+
+    return jsonp({
+      status: 'ok',
+      invoiceNumber: num,
+      newStatus: status,
+      row: target,
+      paymentMode: status === 'paid' ? 'paidInFullCash'
+                 : (currentMode === 'paidInFullCash' ? 'full' : currentMode),
+      deposit: status === 'paid' ? rowTotal : (currentMode === 'paidInFullCash' ? 0 : null)
+    });
   } catch (err) {
     return jsonp({ status: 'error', message: String(err) });
   }
