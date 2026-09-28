@@ -143,7 +143,7 @@ for (const [a, b] of SAME) {
 ok('different bikes stay different', bikeModelKey('Discover M') !== bikeModelKey('Discover 3'));
 
 // ── The route must not lose an insert failure ─────────────────────────────
-const route = read('portal/app/api/invoices/sync/route.ts');
+const route = read('portal/lib/sync-invoice.ts');
 const codeOnly = route
   .replace(/\/\*[\s\S]*?\*\//g, '')
   .split('\n')
@@ -153,7 +153,7 @@ const codeOnly = route
 ok('the swallowed-error line is gone', !/if \(!bikeErr\) bikesAdded\+\+/.test(codeOnly));
 ok('a failed bike insert is collected', /bikeErrors\.push/.test(codeOnly));
 ok('bike failures reach the response', /\{ bikeErrors/.test(codeOnly));
-ok('the route uses the shared detector', /from '@\/lib\/detect-bike'/.test(codeOnly));
+ok('the sync uses the shared detector', /from '@\/lib\/detect-bike'/.test(codeOnly));
 ok('an existing row can only be claimed once', /row\.claimed = true/.test(codeOnly));
 ok('a hand-typed model still matches by receipt',
   /sameInvoiceNumber\(row\.receipt, receiptNumber\)/.test(codeOnly));

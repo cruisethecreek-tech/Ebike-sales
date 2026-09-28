@@ -24,7 +24,7 @@ for (const col of ['subtotal', 'discount_amount', 'discount_percent', 'tax_amoun
   ok(`invoices gains ${col}`, new RegExp(`add column if not exists\\s+${col}\\b`).test(migration));
 }
 
-const sync = read('portal/app/api/invoices/sync/route.ts');
+const sync = read('portal/lib/sync-invoice.ts');
 const syncCode = sync.replace(/\/\*[\s\S]*?\*\//g, '').replace(/^[ \t]*\/\/.*$/gm, '');
 
 // The rule this whole feature rests on. A sender that omits a field must leave

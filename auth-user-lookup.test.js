@@ -132,14 +132,14 @@ function fakeSupabase(totalUsers, { defaultPerPage = 50 } = {}) {
      'only the collision may be treated as success');
 
   // ── No unpaginated lookup left ─────────────────────────────────────────
-  for (const f of ['portal/app/api/invoices/sync/route.ts',
+  for (const f of ['portal/lib/sync-invoice.ts',
                    'portal/app/admin/customers/actions.ts',
                    'portal/app/api/customers/route.ts']) {
     ok(`${f.split('/').pop()} no longer calls listUsers() unpaginated`,
        !/admin\.listUsers\(\s*\)/.test(read(f)));
   }
 
-  const sync = read('portal/app/api/invoices/sync/route.ts');
+  const sync = read('portal/lib/sync-invoice.ts');
   ok('a create that collides falls back to the existing account',
      /isAlreadyRegistered\(makeErr\)/.test(sync) && /isAlreadyRegistered\(createErr\)/.test(sync),
      'two saves of one new customer can race');

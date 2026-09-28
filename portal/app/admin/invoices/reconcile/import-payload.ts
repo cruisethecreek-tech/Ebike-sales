@@ -1,4 +1,9 @@
 import type { SheetInvoice } from '@/lib/sheet-invoices'
+import { importSheetInvoice } from './actions'
+
+export type ImportResult =
+  | { ok: true; bikeErrors?: string[] }
+  | { ok: false; error: string }
 
 /**
  * The body /api/invoices/sync expects for a back-fill.
@@ -40,24 +45,17 @@ export function importPayload(invoice: SheetInvoice) {
   }
 }
 
-/** Import one invoice. Resolves with what to tell the person. */
-export async function runImport(
-  invoice: SheetInvoice,
-): Promise<{ ok: true; bikeErrors?: string[] } | { ok: false; error: string }> {
+/**
+ * Import one invoice through the admin server action.
+ *
+ * Not a fetch to /api/invoices/sync: that route wants the shared admin key
+ * that invoice.html keeps in localStorage, which no admin page has, so every
+ * press of this button returned 401 — silently, because the failure text was
+ * the generic "Unauthorized".
+ */
+export async function runImport(invoice: SheetInvoice): Promise<ImportResult> {
   try {
-    const res = await fetch('/api/invoices/sync', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(importPayload(invoice)),
-    })
-    const json = await res.json().catch(() => ({}))
-    // The endpoint answers 200 with ok:false when it declines, so the status
-    // code alone is not the answer. This is the check whose absence let five
-    // skipped invoices report as successes.
-    if (!res.ok || json.ok === false) {
-      return { ok: false, error: json.error || json.message || `HTTP ${res.status}` }
-    }
-    return { ok: true, ...(json.bikeErrors?.length ? { bikeErrors: json.bikeErrors } : {}) }
+    return await importSheetInvoice(importPayload(invoice))
   } catch (err: any) {
     return { ok: false, error: err?.message || 'Import failed' }
   }

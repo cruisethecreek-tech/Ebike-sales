@@ -33,23 +33,23 @@ const codeOnly = (src) =>
     .join('\n');
 
 // ── The skip says why, in the field callers read ──────────────────────────
-const route = codeOnly(read('portal/app/api/invoices/sync/route.ts'));
-ok('a no-email skip is labelled', /skipped: 'no_email'/.test(route));
+const sync = codeOnly(read('portal/lib/sync-invoice.ts'));
+ok('a no-email skip is labelled', /skipped: 'no_email'/.test(sync));
 ok('a no-email skip carries an error, not only a message',
-  /skipped: 'no_email'[\s\S]{0,400}error:/.test(route));
+  /skipped: 'no_email'[\s\S]{0,400}error:/.test(sync));
 ok('it still answers 200 — a decision, not a fault',
-  /skipped: 'no_email'[\s\S]{0,500}status: 200/.test(route));
+  /skipped: 'no_email'[\s\S]{0,500}, 200\)/.test(sync));
 
 // ── Nothing reads .id off nothing ─────────────────────────────────────────
-ok('the null user is caught before userId', /if \(!user\?\.id\)/.test(route));
-ok('and it names the customer', /Could not find or create a portal account for \$\{email\}/.test(route));
+ok('the null user is caught before userId', /if \(!user\?\.id\)/.test(sync));
+ok('and it names the customer', /Could not find or create a portal account for \$\{email\}/.test(sync));
 
 // The assignment below the invite-failure recovery used to run unconditionally.
 // When the create had failed, createdUser is null, so reading .user off it threw
 // a TypeError — losing the invoice on the very path that had just recovered.
 ok('createdUser.user is only read when the create worked',
-  !/^\s*user = createdUser\.user$/m.test(route), 'unguarded assignment still present');
-ok('the recovery has an else branch', /user = createdUser\?\.user \?\? null/.test(route));
+  !/^\s*user = createdUser\.user$/m.test(sync), 'unguarded assignment still present');
+ok('the recovery has an else branch', /user = createdUser\?\.user \?\? null/.test(sync));
 
 // ── The generator stops claiming an invite it cannot send ─────────────────
 const gen = read('invoice.html');
@@ -63,12 +63,42 @@ ok('a no-email save is not shown as a success',
 ok('the sync still returns early without an email',
   /function syncInvoiceToPortal[\s\S]{0,200}if \(!hasCustomerEmail\(invoiceData\)\) return;/.test(genCode));
 
+// ── The Import button was answering 401 ──────────────────────────────────
+//
+// /api/invoices/sync is guarded by the shared admin key that invoice.html
+// keeps in localStorage. The reconcile page's Import button was a browser
+// fetch to that route with no key on it, so it answered 401 every single time.
+// The page built to find the missing invoices could not put one back — which
+// is why they were still missing after it shipped, and why nobody could tell
+// the button was broken rather than the invoices being unimportable.
+const guard = codeOnly(read('portal/lib/api-auth.ts'));
+ok('the route really does require the shared key', /x-ctc-admin-key/.test(guard));
+
+const action = codeOnly(read('portal/app/admin/invoices/reconcile/actions.ts'));
+ok('importing is a server action', /'use server'/.test(read('portal/app/admin/invoices/reconcile/actions.ts')));
+ok('it authenticates with the staff session', /await requireAdminUser\(\)/.test(action));
+ok('it calls the sync directly, not over HTTP', /await syncInvoice\(/.test(action));
+ok('it cannot be talked out of being quiet', /quiet: true/.test(action));
+ok('a decline is a failure even at status 200', /result\?\.ok === false/.test(action));
+
+const payload = read('portal/app/admin/invoices/reconcile/import-payload.ts');
+ok('no browser fetch to the key-guarded route is left',
+  !/fetch\(['"]\/api\/invoices\/sync/.test(payload),
+  'a fetch from an admin page carries no admin key');
+ok('the buttons go through the action', /importSheetInvoice\(importPayload\(invoice\)\)/.test(payload));
+
+// One implementation, two doors: the storefront page with the shared key, and
+// staff pages with a session. They must not drift apart.
+const route = codeOnly(read('portal/app/api/invoices/sync/route.ts'));
+ok('the route still demands the key', /requireAdminKey\(req\)/.test(route));
+ok('and shares the one implementation', /syncInvoice\(body\)/.test(route));
+
 // ── Reconciling is one click, and reports every outcome ──────────────────
 const shared = codeOnly(read('portal/app/admin/invoices/reconcile/import-payload.ts'));
 ok('one payload builder for both import buttons', /export function importPayload/.test(shared));
 ok('back-filling never emails the customer', /quiet: true/.test(shared));
 ok('ok:false is treated as a failure, not just a bad status code',
-  /!res\.ok \|\| json\.ok === false/.test(shared));
+  /result\?\.ok === false/.test(action));
 
 const all = codeOnly(read('portal/app/admin/invoices/reconcile/import-all.tsx'));
 ok('there is an import-all', /Import all \$\{invoices\.length\}/.test(all));
