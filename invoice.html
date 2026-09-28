@@ -2011,7 +2011,20 @@
                     logOrderToSheet(invoiceData, '', '');
                     notifyInvoiceCreated(invoiceData, '', '');
                     syncInvoiceToPortal(invoiceData, '');
-                    showStatus('Invoice saved as paid (' + (depositMethod || 'cash') + ') for ' + invoiceData.customerName + ' · Invited to Customer Portal', 'success');
+                    // Say what actually happened. This read "· Invited to
+                    // Customer Portal" on every save, including the ones with
+                    // no email address — and an invoice with no email cannot
+                    // reach the portal at all, because a portal invoice belongs
+                    // to a login and a login needs an address. Five real sales
+                    // (CTR-016, 019, 022, 030, 035 — $2,272 between them) were
+                    // missing from the portal for months with nothing anywhere
+                    // saying so, because the screen said they had gone in.
+                    showStatus('Invoice saved as paid (' + (depositMethod || 'cash') + ') for ' +
+                        invoiceData.customerName +
+                        (hasCustomerEmail(invoiceData)
+                            ? ' · Invited to Customer Portal'
+                            : ' · NO EMAIL — this invoice is in the Sheet only, not the customer portal'),
+                        hasCustomerEmail(invoiceData) ? 'success' : 'error');
                     document.getElementById('paymentLinkBox').classList.remove('active');
                     setTimeout(loadNextInvoiceNumber, 1500);
                 } finally {
@@ -2232,8 +2245,20 @@
          *               the person who clicked Save is asking for.
          *               New invoices leave it off and invite as before.
          */
+        /**
+         * Whether this invoice can reach the portal at all.
+         *
+         * A portal invoice hangs off a login, and a login is an email address.
+         * No address means the Sheet is the only record of the sale — which is
+         * a legitimate thing for a walk-in cash sale to be, as long as the
+         * person saving it is told.
+         */
+        function hasCustomerEmail(invoiceData) {
+            return !!(invoiceData && invoiceData.customerEmail && String(invoiceData.customerEmail).trim());
+        }
+
         function syncInvoiceToPortal(invoiceData, paymentLink, quiet) {
-            if (!invoiceData.customerEmail || !invoiceData.customerEmail.trim()) return;
+            if (!hasCustomerEmail(invoiceData)) return;
             try {
                 const payload = {
                     invoiceNumber : invoiceData.invoiceNumber || '',

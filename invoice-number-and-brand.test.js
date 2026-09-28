@@ -74,7 +74,10 @@ const migration = read('portal/supabase/migrations/00008_bike_brand_mokwheel.sql
 ok('a migration adds Mokwheel to the enum',
    /add value if not exists 'Mokwheel'/.test(migration));
 
-const syncRoute = read('portal/app/api/invoices/sync/route.ts');
+// detectBike moved out of the sync route into its own module, so the same
+// rules apply to the admin add-bike form and to a bulk import, not only to the
+// one caller that happened to own the code.
+const syncRoute = read('portal/lib/detect-bike.ts');
 const code = syncRoute.replace(/\/\*[\s\S]*?\*\//g, '').replace(/^[ \t]*\/\/.*$/gm, '');
 
 ok('detectBike recognises Mokwheel',

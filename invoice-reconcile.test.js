@@ -19,7 +19,10 @@ const ok = (n, c, e = '') => {
 const read = (p) => fs.readFileSync(path.join(__dirname, p), 'utf8');
 
 const page = read('portal/app/admin/invoices/reconcile/page.tsx');
-const importer = read('portal/app/admin/invoices/reconcile/import-missing.tsx');
+const importer = read('portal/app/admin/invoices/reconcile/import-payload.ts');
+// The import itself moved to a server action: a browser fetch from an admin
+// page carries no admin key, so the old one answered 401 every time.
+const importAction = read('portal/app/admin/invoices/reconcile/actions.ts');
 const lib = read('portal/lib/sheet-invoices.ts');
 
 // ── Reading the whole Sheet ──────────────────────────────────────────────
@@ -71,11 +74,16 @@ ok('the whole money breakdown is carried over, not just the total',
 // so checking res.ok alone would report a skip as a success — which is the
 // same blindness that produced the 15.
 ok('a skip is treated as a failure, not a success',
-   /json\.ok === false/.test(importer),
-   'the endpoint returns 200 with ok:false when it declines');
+   /result\?\.ok === false/.test(importAction),
+   'the sync returns 200 with ok:false when it declines');
 
+// The reason now comes back from the shared runImport, which prefers the
+// endpoint's `error` over its `message` — a no-email skip fills in both, and
+// `error` is the one that names the invoice.
 ok('a failed import shows why',
-   /setMessage\(json\.message/.test(importer));
+   /result\?\.error \|\| result\?\.message/.test(importAction));
+ok('and the buttons show it',
+   /setMessage\(r\.error\)/.test(read('portal/app/admin/invoices/reconcile/import-missing.tsx')));
 
 ok('the invoices page links to the check',
    /admin\/invoices\/reconcile/.test(read('portal/app/admin/invoices/page.tsx')));
