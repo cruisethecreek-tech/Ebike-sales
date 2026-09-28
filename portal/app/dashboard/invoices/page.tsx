@@ -2,6 +2,11 @@ import { createClient } from '@/lib/supabase/server'
 import { EmptyState } from '@/app/components/empty-state'
 import { StatusBadge } from '@/app/components/status-badge'
 import Link from 'next/link'
+import { getViewerContext } from '@/lib/view-as'
+
+// Per-customer data, and now also per-preview: an admin viewing as someone
+// else must never be served a page cached for anybody. Never static.
+export const dynamic = 'force-dynamic'
 
 export const metadata = {
   title: 'Invoices | Cruise the Creek Portal',
@@ -13,13 +18,13 @@ export default async function InvoicesPage() {
 
   try {
     const supabase = await createClient()
-    const { data: { user } } = await supabase.auth.getUser()
+    const { userId } = await getViewerContext()
 
-    if (user) {
+    if (userId) {
       const { data, error } = await supabase
         .from('invoices')
         .select('*')
-        .eq('customer_id', user.id)
+        .eq('customer_id', userId)
         .order('issued_at', { ascending: false })
       
       if (error) throw error

@@ -5,20 +5,25 @@ import { CopyButton } from './copy-button'
 import { QRCodeCard } from '@/app/components/qr-code'
 import { GoogleReviewCard } from '@/app/components/google-review-card'
 import { redirect } from 'next/navigation'
+import { getViewerContext } from '@/lib/view-as'
+
+// Per-customer data, and now also per-preview: an admin viewing as someone
+// else must never be served a page cached for anybody. Never static.
+export const dynamic = 'force-dynamic'
 
 export default async function ReferralsPage() {
   const supabase = await createClient()
 
-  const { data: { user } } = await supabase.auth.getUser()
+  const { userId, email } = await getViewerContext()
 
-  if (!user) {
+  if (!userId) {
     redirect('/auth')
   }
 
   const { data: customer } = await supabase
     .from('customers')
     .select('id, referral_code, first_name, last_name, phone')
-    .eq('id', user.id)
+    .eq('id', userId)
     .single()
 
   if (!customer) {
@@ -57,7 +62,7 @@ export default async function ReferralsPage() {
   const custFirst = encodeURIComponent(customer.first_name || '')
   const custLast  = encodeURIComponent(customer.last_name || '')
   const custPhone = encodeURIComponent(customer.phone || '')
-  const custEmail = encodeURIComponent(user.email || '')
+  const custEmail = encodeURIComponent(email || '')
   const encRef    = encodeURIComponent(refCode)
 
   const tuneupDiscountUrl = `${STORE_URL}/repair-intake.html?service=tuneup&discount=20&promo=20OFF&ref=${encRef}&firstName=${custFirst}&lastName=${custLast}&phone=${custPhone}&email=${custEmail}`

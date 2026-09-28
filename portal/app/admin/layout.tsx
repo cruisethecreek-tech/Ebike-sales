@@ -49,6 +49,9 @@ export default async function AdminLayout({ children }: { children: React.ReactN
       // in it. That is what the check below exists to prevent.
       .from('customers')
       .select('id, first_name, last_name, phone, referral_code, is_admin, created_at')
+      // Archived customers stay out of the search dock as well as the
+      // directory, or archiving would only half work.
+      .is('archived_at', null)
       .order('created_at', { ascending: false }),
     supabase
       .from('bikes')

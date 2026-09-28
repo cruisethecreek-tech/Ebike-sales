@@ -3,10 +3,19 @@ import { BiometricSetup } from '@/app/components/biometric-setup'
 import { GoogleReviewCard } from '@/app/components/google-review-card'
 import { calculateBikeWarranties } from '@/lib/warranty'
 import Link from 'next/link'
+import { getViewerContext } from '@/lib/view-as'
+
+// Per-customer data, and now also per-preview: an admin viewing as someone
+// else must never be served a page cached for anybody. Never static.
+export const dynamic = 'force-dynamic'
 
 export default async function DashboardPage() {
   const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+
+  // Whose portal this is. Normally the signed-in user; while an admin is
+  // previewing, the customer they chose. Everything below reads from `viewerId`
+  // so the preview shows the real page rather than an approximation of it.
+  const { userId: viewerId, viewingAs } = await getViewerContext()
 
   // Fetch customer profile
   let customer: any = null
@@ -17,21 +26,21 @@ export default async function DashboardPage() {
     const { data: c } = await supabase
       .from('customers')
       .select('*')
-      .eq('id', user?.id)
+      .eq('id', viewerId)
       .single()
     customer = c
 
     const { data: b } = await supabase
       .from('bikes')
       .select('*')
-      .eq('customer_id', user?.id)
+      .eq('customer_id', viewerId)
       .order('purchase_date', { ascending: false })
     bikes = b || []
 
     const { data: i } = await supabase
       .from('invoices')
       .select('*')
-      .eq('customer_id', user?.id)
+      .eq('customer_id', viewerId)
       .order('issued_at', { ascending: false })
     invoices = i || []
   } catch {
@@ -45,13 +54,13 @@ export default async function DashboardPage() {
     const { count } = await supabase
       .from('customers')
       .select('*', { count: 'exact', head: true })
-      .eq('referred_by', user?.id)
+      .eq('referred_by', viewerId)
     referralCount = count || 0
 
     const { data: rc } = await supabase
       .from('referral_credits')
       .select('*')
-      .eq('customer_id', user?.id)
+      .eq('customer_id', viewerId)
     referralCredits = rc || []
   } catch {
     // graceful fallback
@@ -165,7 +174,10 @@ export default async function DashboardPage() {
       )}
 
       {/* ── Biometrics Activation Setup ── */}
-      <BiometricSetup />
+      {/* Hidden while previewing. Passkey registration talks to the API as
+          whoever is signed in, so pressing it here would quietly add a passkey
+          to the admin's own account under the customer's name on screen. */}
+      {!viewingAs && <BiometricSetup />}
 
       {/* ── Referral Program Card ── */}
       {customer?.referral_code && (

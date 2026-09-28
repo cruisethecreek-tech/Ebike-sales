@@ -417,7 +417,9 @@ ok(
 
 ok(
   'the invited count no longer means "everyone who has not signed in"',
-  /const invited = customers\.filter\(\(c\) => !c\.registered && c\.invitedAt\)\.length/.test(directory)
+  // Counted over whatever the list is currently showing — the directory or the
+  // archive — but still only the people who were actually written to.
+  /const invited = inScope\.filter\(\(c\) => !c\.registered && c\.invitedAt\)\.length/.test(directory)
 )
 
 ok(
