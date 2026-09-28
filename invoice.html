@@ -1240,6 +1240,9 @@
                             </small>
                         </div>
                     </div>
+                    <div id="paidStatusNotice" style="display:none;margin-bottom:.85rem;padding:.75rem .9rem;
+                         border:1px solid #E0B85C;border-left:4px solid #C9A96E;border-radius:6px;
+                         background:#FDF6E3;color:#6B5518;font-size:.84rem;line-height:1.55;"></div>
                     <div class="payment-mode-toggle">
                         <span class="payment-mode-label">Payment Type</span>
                         <label class="payment-mode-option">
@@ -1509,6 +1512,37 @@
             return { subtotal, discountPercent, discountFixed, discountAmount, subtotalAfterDiscount, tax, processingFee, total, deposit, balance, noTax, paymentMode };
         }
 
+
+        /**
+         * What status this form would write, from the payment type alone.
+         * Kept in one place so the guard and the payload cannot drift apart.
+         */
+        function computedStatusFromForm() {
+            var t = calculateTotals();
+            return (t.paymentMode === 'paidInFullCash' || t.balance <= 0) ? 'paid' : 'pending';
+        }
+
+        /**
+         * Say, on the form itself, when the invoice is already marked paid but
+         * the payment type does not agree. Both facts were on screen before —
+         * "Paid" in the portal, "Pay in Full" here — with nothing to connect
+         * them, so the disagreement read as two unrelated details.
+         */
+        function showPaidNotice() {
+            var box = document.getElementById('paidStatusNotice');
+            if (!box) return;
+            if (currentSheetStatus !== 'paid' || computedStatusFromForm() === 'paid') {
+                box.style.display = 'none';
+                return;
+            }
+            box.style.display = 'block';
+            box.innerHTML =
+                '<b>This invoice is already marked PAID.</b> The payment type below says a balance ' +
+                'is still owed, so saving now would mark it unpaid again. If the money was received, ' +
+                'choose <b>Paid in Full (Cash/Check)</b> and pick the method. If it genuinely is not ' +
+                'paid, change the status from the portal instead.';
+        }
+
         function updateInvoicePreview() {
             document.getElementById('previewCustomerName').textContent = document.getElementById('customerName').value || 'Customer Name';
             document.getElementById('previewCustomerAddress').textContent = document.getElementById('customerAddress').value || 'Address';
@@ -1561,6 +1595,8 @@
             // The processing fee only appears when there is one. A "$0.00
             // Processing Fee" line on a cash sale reads like a charge the
             // customer is being asked to check.
+            if (typeof showPaidNotice === 'function') showPaidNotice();
+
             const feeRow = document.getElementById('processingFeeRow');
             if (processingFee > 0) {
                 feeRow.style.display = 'flex';
@@ -1750,6 +1786,15 @@
          */
         var currentPaymentLink = '';
 
+        // What the Sheet says this invoice's status is, as loaded.
+        //
+        // The generator reads paymentMode but never read status, and the save
+        // payload recomputes status from paymentMode and balanceDue alone. So
+        // an invoice marked Paid in the portal, opened here and re-saved, was
+        // silently written back to pending — the payment type still said "Pay
+        // in Full", meaning a link is owed, and nothing reconciled the two.
+        var currentSheetStatus = '';
+
         /**
          * Collect the form into the invoice payload.
          *
@@ -1855,6 +1900,23 @@
             // own record said $1,869 + $107.47 tax = $1,976.47, and the shop's
             // books said $74.03. Nothing objected, because a discount is a
             // perfectly ordinary thing for an invoice to have.
+
+            // Refuse to quietly un-pay an invoice.
+            //
+            // The payload computes status from the payment type alone, so an
+            // invoice marked Paid in the portal, opened here and re-saved,
+            // went back to pending with nothing said. That is how CTR-025
+            // showed Paid on one screen and Pay in Full on another.
+            if (currentSheetStatus === 'paid' && computedStatusFromForm() !== 'paid') {
+                showStatus(
+                    'Not saving ' + invNum + ': it is marked PAID, but the payment type says a ' +
+                    'balance of $' + totals.balance.toFixed(2) + ' is still owed, so saving would ' +
+                    'mark it unpaid. If the money came in, choose "Paid in Full (Cash/Check)" and ' +
+                    'pick the method. If it really is not paid, change the status from the portal.',
+                    'error');
+                return;
+            }
+
             var _method = (document.getElementById('depositMethod') || {}).value || '';
             if (_method === 'snap' && totals.discountAmount > 0) {
                 showStatus(
@@ -2867,6 +2929,8 @@
                 radio.checked = true;
                 if (typeof onPaymentModeChange === 'function') onPaymentModeChange();
             }
+            currentSheetStatus = String(inv.status || '').toLowerCase().trim();
+            if (typeof showPaidNotice === 'function') showPaidNotice();
             // Line items — stored as JSON string. Wipe whatever placeholder
             // rows are in the container and re-add each saved item.
             document.getElementById('lineItemsContainer').innerHTML = '';
