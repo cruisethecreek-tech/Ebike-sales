@@ -2269,9 +2269,23 @@
                     method: 'POST',
                     headers: portalHeaders({ 'Content-Type': 'application/json' }),
                     body: JSON.stringify(payload)
-                }).then(r => {
+                }).then(function (r) {
                     if (portalAuthFailed(r)) return null;
-                    if (!r.ok) throw new Error('HTTP ' + r.status);
+                    if (!r.ok) {
+                        // The route answers a 500 with { ok:false, error }, naming
+                        // exactly what threw. Throwing on the status code alone
+                        // discarded that and left "HTTP 500" — a number that says
+                        // a failure happened and nothing about which one, which is
+                        // why this took a database archaeology dig to chase.
+                        return r.text().then(function (body) {
+                            var detail = '';
+                            try { detail = (JSON.parse(body) || {}).error || ''; }
+                            catch (e) { detail = String(body || '').slice(0, 200); }
+                            throw new Error('HTTP ' + r.status + (detail ? ' — ' + detail : ''));
+                        }, function () {
+                            throw new Error('HTTP ' + r.status);
+                        });
+                    }
                     return r.json();
                 }).then(data => {
                     if (!data) return;

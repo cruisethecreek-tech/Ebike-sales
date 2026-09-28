@@ -242,5 +242,27 @@ ok('the disagreement is shown on the form, not only on save',
   ok('a deposit that covers the total still saves', !refused('paid', 'cashDeposit', 0));
 }
 
+
+// ── A 500 must say which 500 ─────────────────────────────────────────────
+//
+// The sync route answers a failure with { ok:false, error } and the real
+// message. The browser threw on the status code before reading the body, so
+// all that reached the screen was "HTTP 500" — a number that says a failure
+// happened and nothing about which one. Chasing CTR-011 took a dig through
+// updated_at timestamps and column nullness to work out what the server had
+// already said out loud.
+ok('the failure body is read before throwing',
+   /return r\.text\(\)\.then\(function \(body\)/.test(gen));
+
+ok('the server message is put in front of the person',
+   /'HTTP ' \+ r\.status \+ \(detail \? ' — ' \+ detail : ''\)/.test(gen));
+
+ok('a body that is not JSON is still shown, truncated',
+   /String\(body \|\| ''\)\.slice\(0, 200\)/.test(gen));
+
+ok('a body that cannot be read at all still reports the status',
+   /function \(\) \{\s*\n?\s*throw new Error\('HTTP ' \+ r\.status\);/.test(gen),
+   'never let the error handler become the error');
+
 console.log(fails ? `\n${fails} failing` : '\nall passing');
 process.exit(fails ? 1 : 0);
