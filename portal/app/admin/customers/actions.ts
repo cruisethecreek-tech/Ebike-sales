@@ -4,6 +4,7 @@ import { createClient } from '@supabase/supabase-js'
 import { requireAdminUser } from '@/lib/require-admin'
 import { revalidatePath } from 'next/cache'
 import { canonicalInvoiceNumber } from '@/lib/invoice-number'
+import { findAuthUserByEmail } from '@/lib/find-auth-user'
 
 // Admin-only: uses service role key to send invite emails
 function createAdminClient() {
@@ -48,9 +49,14 @@ export async function inviteCustomer(
 
   const supabase = createAdminClient()
 
-  // Check if user already exists
-  const { data: existingUsers } = await supabase.auth.admin.listUsers()
-  const exists = existingUsers?.users?.some(u => u.email === email)
+  // Check if user already exists.
+  //
+  // Paginated, and case-insensitively. The previous check read only the first
+  // 50 accounts and compared addresses exactly, so for the eleven oldest
+  // customers — and anyone whose address was stored in a different case — it
+  // reported "no account" and sent them down the invite-a-new-customer path,
+  // which Supabase refuses because the account is right there.
+  const exists = !!(await findAuthUserByEmail(supabase, email))
 
   if (exists) {
     // Already has an account — send a sign-in link that actually leaves the

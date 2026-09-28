@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { requireAdminKey, corsFor } from '@/lib/api-auth'
 import { createClient } from '@supabase/supabase-js'
+import { listAuthAccounts } from '@/lib/auth-accounts'
 
 function getAdminClient() {
   return createClient(
@@ -68,11 +69,16 @@ export async function GET(req: NextRequest) {
 
     // 1. Fetch Supabase customers + auth users
     const { data: customers } = await supabase.from('customers').select('*')
-    const { data: usersData } = await supabase.auth.admin.listUsers()
+
+    // listAuthAccounts paginates. A bare listUsers() returns 50, the shop has
+    // 61, and the eleven it omits are the oldest customers — who would have
+    // come back from this endpoint with no email address at all, silently.
+    const { accounts, error: accountsErr } = await listAuthAccounts()
+    if (accountsErr) console.warn('Auth account lookup degraded:', accountsErr)
 
     const emailMap = new Map<string, string>()
-    usersData?.users?.forEach((u) => {
-      if (u.email) emailMap.set(u.id, u.email)
+    accounts.forEach((acct, id) => {
+      if (acct.email) emailMap.set(id, acct.email)
     })
 
     const customerMap = new Map<
