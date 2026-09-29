@@ -22,6 +22,7 @@ export interface ImportRow {
   bike?: string
   purchaseDate?: string
   orderNumber?: string
+  total?: string
 }
 
 export type RowOutcome = {
@@ -29,6 +30,15 @@ export type RowOutcome = {
   status: 'created' | 'matched' | 'skipped' | 'failed'
   detail: string
   bikeAdded?: string
+  invoiceAdded?: string
+}
+
+/** "$1,234.50", "1234.5 USD" → 1234.5; null when there is no amount. */
+function parseMoney(raw?: string): number | null {
+  const s = String(raw || '').replace(/[^0-9.\-]/g, '')
+  if (!s) return null
+  const n = Number(s)
+  return Number.isFinite(n) && n >= 0 ? Math.round(n * 100) / 100 : null
 }
 
 /** Whatever the export called a date, as YYYY-MM-DD, or null if it is not one. */
@@ -82,12 +92,14 @@ export async function importCustomers(rows: ImportRow[]): Promise<{
   skipped: number
   failed: number
   bikesAdded: number
+  invoicesAdded: number
 }> {
   await requireAdminUser()
   const supabase = admin()
 
   const outcomes: RowOutcome[] = []
   let bikesAdded = 0
+  let invoicesAdded = 0
 
   // Within one file the same person often appears on several order lines.
   // Remember who has been handled so the second line matches rather than
@@ -206,7 +218,48 @@ export async function importCustomers(rows: ImportRow[]): Promise<{
         }
       }
 
-      outcomes.push({ email, status, detail, bikeAdded })
+      // The order itself, as a paid invoice on their account. Wix takes
+      // payment at checkout, so there is no balance to chase. Before this,
+      // the import kept the order number only on the bike, so a Wix order
+      // never appeared in the customer's invoices or the shop's totals.
+      let invoiceAdded: string | undefined
+      const orderNo = raw.orderNumber?.trim().replace(/^WIX-/i, '')
+      if (orderNo) {
+        const invoiceNumber = `WIX-${orderNo}`
+        const amount = parseMoney(raw.total)
+        const day = normaliseDate(raw.purchaseDate)
+        const { data: existingInv } = await supabase
+          .from('invoices')
+          .select('id')
+          .eq('invoice_number', invoiceNumber)
+          .maybeSingle()
+        if (existingInv) {
+          // Already imported, or a second line of the same order. Left alone.
+        } else if (amount === null) {
+          detail += ` Order ${invoiceNumber} not added: no total in that row.`
+        } else {
+          const when = day ? new Date(`${day}T12:00:00Z`).toISOString() : new Date().toISOString()
+          const { error: invErr } = await supabase.from('invoices').insert({
+            customer_id: userId!,
+            invoice_number: invoiceNumber,
+            total_amount: amount,
+            amount_paid: amount,
+            balance_due: 0,
+            status: 'paid',
+            issued_at: when,
+            paid_at: when,
+            payment_method: 'Wix',
+          })
+          if (invErr) {
+            detail += ` Order ${invoiceNumber} not added: ${invErr.message}.`
+          } else {
+            invoicesAdded++
+            invoiceAdded = invoiceNumber
+          }
+        }
+      }
+
+      outcomes.push({ email, status, detail, bikeAdded, invoiceAdded })
     } catch (err: any) {
       outcomes.push({
         email,
@@ -217,6 +270,7 @@ export async function importCustomers(rows: ImportRow[]): Promise<{
   }
 
   revalidatePath('/admin/customers')
+  revalidatePath('/admin/invoices')
 
   return {
     outcomes,
@@ -225,5 +279,6 @@ export async function importCustomers(rows: ImportRow[]): Promise<{
     skipped: outcomes.filter((o) => o.status === 'skipped').length,
     failed: outcomes.filter((o) => o.status === 'failed').length,
     bikesAdded,
+    invoicesAdded,
   }
 }

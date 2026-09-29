@@ -8,6 +8,7 @@ import { adminUpdateBike, adminAddBike, adminDeleteBike } from './actions'
 import { SendInviteButton } from './send-invite-button'
 import { ViewAsButton } from '@/app/admin/view-as-button'
 import { RemoveCustomer } from './remove-customer'
+import { BulkActions, type BulkCustomer } from './bulk-actions'
 import {
   SELECTED_ROW,
   UNSELECTED_ROW,
@@ -289,13 +290,17 @@ export function CustomerDirectory({
     [knownInvoiceNumbers],
   )
   const [activeLetter, setActiveLetter] = useState<string>('ALL')
-  const [signupFilter, setSignupFilter] = useState<'ALL' | 'REGISTERED' | 'INVITED' | 'NOT_INVITED'>('ALL')
+  const [signupFilter, setSignupFilter] = useState<'ALL' | 'REGISTERED' | 'INVITED' | 'NOT_INVITED' | 'DUPLICATES'>('ALL')
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedCustomerId, setSelectedCustomerId] = useState<string | null>(null)
   const [copiedCode, setCopiedCode] = useState(false)
   const [showAddBike, setShowAddBike] = useState(false)
   // Archived customers are out of the directory, not out of the database.
   const [showArchived, setShowArchived] = useState(false)
+  // Ticked rows, for the bulk bar. Separate from the one selected customer
+  // whose drawer is open: ticking is "do this to all of them", selecting is
+  // "show me this one".
+  const [checked, setChecked] = useState<Set<string>>(new Set())
   const drawerRef = useRef<HTMLDivElement | null>(null)
   const scrollOnArrival = useRef(false)
 
@@ -368,6 +373,29 @@ export function CustomerDirectory({
     } catch (_) {}
   }
 
+  function toggleChecked(id: string) {
+    setChecked((prev) => {
+      const next = new Set(prev)
+      if (next.has(id)) next.delete(id)
+      else next.add(id)
+      return next
+    })
+  }
+
+  // People who are probably in here twice: the same name, whatever the
+  // capitalisation or spacing. Usually one account from an invoice import and
+  // one the customer made themselves, which is what Merge is for.
+  const duplicateIds = useMemo(() => {
+    const byName = new Map<string, string[]>()
+    for (const c of customers) {
+      if (Boolean(c.archived_at) !== showArchived) continue
+      const key = formatCustomerName(c.first_name, c.last_name).toLowerCase().replace(/\s+/g, ' ').trim()
+      if (!key) continue
+      byName.set(key, [...(byName.get(key) || []), c.id])
+    }
+    return new Set([...byName.values()].filter((ids) => ids.length > 1).flat())
+  }, [customers, showArchived])
+
   // Filter customers by selected letter or search
   const filteredCustomers = useMemo(() => {
     return customers.filter((c) => {
@@ -391,6 +419,7 @@ export function CustomerDirectory({
       if (signupFilter === 'REGISTERED' && !c.registered) return false
       if (signupFilter === 'INVITED' && (c.registered || !c.invitedAt)) return false
       if (signupFilter === 'NOT_INVITED' && (c.registered || c.invitedAt)) return false
+      if (signupFilter === 'DUPLICATES' && !duplicateIds.has(c.id)) return false
 
       // Search query filter
       if (!searchQuery.trim()) return true
@@ -409,7 +438,7 @@ export function CustomerDirectory({
         bikeMatch
       )
     })
-  }, [customers, activeLetter, signupFilter, searchQuery, showArchived])
+  }, [customers, activeLetter, signupFilter, searchQuery, showArchived, duplicateIds])
 
   const archivedCount = useMemo(
     () => customers.filter((c) => c.archived_at).length,
@@ -427,8 +456,42 @@ export function CustomerDirectory({
       REGISTERED: registered,
       INVITED: invited,
       NOT_INVITED: inScope.length - registered - invited,
+      DUPLICATES: duplicateIds.size,
     }
-  }, [customers, showArchived])
+  }, [customers, showArchived, duplicateIds])
+
+  const checkedCustomers: BulkCustomer[] = useMemo(
+    () =>
+      customers
+        .filter((c) => checked.has(c.id))
+        .map((c) => ({
+          id: c.id,
+          name: formatCustomerName(c.first_name, c.last_name),
+          first_name: c.first_name,
+          last_name: c.last_name,
+          phone: c.phone,
+          email: c.email,
+          registered: c.registered,
+          lastSignInAt: c.lastSignInAt,
+          is_admin: c.is_admin,
+          bikeCount: c.bikes.length,
+          invoiceCount: c.invoiceCount,
+          totalInvoiced: c.totalInvoiced ?? c.totalSpent,
+        })),
+    [customers, checked],
+  )
+
+  const allVisibleChecked =
+    filteredCustomers.length > 0 && filteredCustomers.every((c) => checked.has(c.id))
+
+  function toggleAllVisible() {
+    setChecked((prev) => {
+      const next = new Set(prev)
+      if (allVisibleChecked) filteredCustomers.forEach((c) => next.delete(c.id))
+      else filteredCustomers.forEach((c) => next.add(c.id))
+      return next
+    })
+  }
 
   const selectedCustomer = useMemo(() => {
     if (!selectedCustomerId) return null
@@ -455,6 +518,7 @@ export function CustomerDirectory({
             { key: 'REGISTERED', label: '✓ Registered' },
             { key: 'INVITED', label: '⏳ Invited, never signed in' },
             { key: 'NOT_INVITED', label: '✉ Never invited' },
+            { key: 'DUPLICATES', label: '👯 Possible duplicates' },
           ] as const).map(({ key, label }) => {
             const isOn = signupFilter === key
             return (
@@ -481,7 +545,11 @@ export function CustomerDirectory({
             <button
               type="button"
               aria-pressed={showArchived}
-              onClick={() => setShowArchived((v) => !v)}
+              onClick={() => {
+                // Different lists; ticks never carry from one to the other.
+                setChecked(new Set())
+                setShowArchived((v) => !v)
+              }}
               className={`px-3 py-1.5 rounded-lg font-bold transition-all ml-auto ${
                 showArchived
                   ? 'bg-[#8A6D1F] text-white shadow-xs'
@@ -830,11 +898,27 @@ export function CustomerDirectory({
         </div>
       )}
 
+      {/* ── Bulk actions on the ticked rows ── */}
+      <BulkActions
+        selected={checkedCustomers}
+        inArchive={showArchived}
+        onDone={() => setChecked(new Set())}
+      />
+
       {/* ── Desktop Table ── */}
       <div className="hidden md:block bg-white rounded-xl shadow-sm border border-[#E5E5E5] overflow-x-auto">
         <table className="w-full text-left border-collapse">
           <thead className="bg-[#F5F0E8] text-[#1A2E1C]">
             <tr>
+              <th className="p-3.5 pr-0 border-b w-8">
+                <input
+                  type="checkbox"
+                  aria-label="Tick everyone shown"
+                  checked={allVisibleChecked}
+                  onChange={toggleAllVisible}
+                  className="h-4 w-4 accent-[#2D4A32] cursor-pointer"
+                />
+              </th>
               <th className="p-3.5 border-b font-semibold text-xs uppercase tracking-wider">Customer Name</th>
               <th className="p-3.5 border-b font-semibold text-xs uppercase tracking-wider">Phone</th>
               <th className="p-3.5 border-b font-semibold text-xs uppercase tracking-wider">Bikes Owned & Purchase Date</th>
@@ -856,6 +940,15 @@ export function CustomerDirectory({
                     isSelected ? SELECTED_ROW : UNSELECTED_ROW
                   }`}
                 >
+                  <td className="p-3.5 pr-0" onClick={(e) => e.stopPropagation()}>
+                    <input
+                      type="checkbox"
+                      aria-label={`Tick ${cleanName}`}
+                      checked={checked.has(c.id)}
+                      onChange={() => toggleChecked(c.id)}
+                      className="h-4 w-4 accent-[#2D4A32] cursor-pointer"
+                    />
+                  </td>
                   <td className="p-3.5 font-bold text-sm text-[#1A2E1C]">
                     <div className="flex items-center gap-1.5 flex-wrap">
                       <span>{cleanName}</span>
@@ -932,6 +1025,14 @@ export function CustomerDirectory({
               <div className="flex justify-between items-start">
                 <div>
                   <p className="font-bold text-base text-[#1A2E1C] flex items-center gap-1.5 flex-wrap">
+                    <input
+                      type="checkbox"
+                      aria-label={`Tick ${cleanName}`}
+                      checked={checked.has(c.id)}
+                      onClick={(e) => e.stopPropagation()}
+                      onChange={() => toggleChecked(c.id)}
+                      className="h-4 w-4 accent-[#2D4A32]"
+                    />
                     <span>{cleanName}</span>
                     {c.is_admin && (
                       <span className="text-[10px] px-1.5 py-0.5 rounded bg-[#C9A96E] font-bold text-[#1A2E1C]">

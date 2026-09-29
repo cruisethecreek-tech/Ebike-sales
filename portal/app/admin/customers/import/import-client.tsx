@@ -14,6 +14,7 @@ const FIELDS = [
   { key: 'bike', label: 'Bike / item bought', help: 'Optional. Registers it to their garage if it names a bike rather than an accessory.' },
   { key: 'purchaseDate', label: 'Purchase date', help: 'Optional. Used for warranty dates.' },
   { key: 'orderNumber', label: 'Order number', help: 'Optional. Stored as WIX-… so it cannot be confused with a CTR- invoice.' },
+  { key: 'total', label: 'Order total', help: 'Optional. With an order number, the order shows on their account as a paid WIX-… invoice.' },
 ] as const
 
 const NONE = '—'
@@ -66,6 +67,7 @@ export function ImportClient() {
         bike: m.bike ? r[m.bike] : '',
         purchaseDate: m.purchaseDate ? r[m.purchaseDate] : '',
         orderNumber: m.orderNumber ? r[m.orderNumber] : '',
+        total: m.total ? r[m.total] : '',
       }
     })
   }, [parsed.rows, effectiveMapping])
@@ -257,7 +259,8 @@ export function ImportClient() {
 
 function Outcome({ result }: { result: Awaited<ReturnType<typeof importCustomers>> }) {
   const notes = result.outcomes.filter(
-    (o: RowOutcome) => o.status === 'failed' || o.status === 'skipped',
+    (o: RowOutcome) =>
+      o.status === 'failed' || o.status === 'skipped' || o.detail.includes('not added') || o.detail.includes('not registered'),
   )
   return (
     <section className="bg-white rounded-xl border-2 border-[#2D4A32] p-4 space-y-2">
@@ -271,6 +274,9 @@ function Outcome({ result }: { result: Awaited<ReturnType<typeof importCustomers
         </span>
         <span className="px-2.5 py-1 rounded-lg bg-[#F5F0E8] font-bold text-[#2D4A32]">
           {result.bikesAdded} bikes registered
+        </span>
+        <span className="px-2.5 py-1 rounded-lg bg-[#F5F0E8] font-bold text-[#2D4A32]">
+          {result.invoicesAdded} Wix orders added
         </span>
         {result.skipped > 0 && (
           <span className="px-2.5 py-1 rounded-lg bg-[#FDECEC] font-bold text-[#9B2C2C]">
