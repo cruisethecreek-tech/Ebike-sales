@@ -217,15 +217,23 @@ export async function syncInvoice(body: any): Promise<SyncResult> {
     // had already shared stopped matching anybody.
     const { data: existingCustomer } = await supabase
       .from('customers')
-      .select('id, referred_by')
+      .select('id, referred_by, first_name, last_name, phone, details_edited_at')
       .eq('id', userId)
       .maybeSingle()
     if (existingCustomer) {
-      await supabase.from('customers').update({
-        first_name: firstName,
-        last_name: lastName,
-        phone: phone || null,
-      }).eq('id', userId)
+      // Once staff have corrected this customer in the admin portal, that is
+      // the record: an invoice save (often of an old invoice, carrying the
+      // old spelling) only fills in what is blank.
+      const patch = existingCustomer.details_edited_at
+        ? {
+            ...(!String(existingCustomer.first_name || '').trim() && firstName ? { first_name: firstName } : {}),
+            ...(!String(existingCustomer.last_name || '').trim() && lastName ? { last_name: lastName } : {}),
+            ...(!existingCustomer.phone && phone ? { phone } : {}),
+          }
+        : { first_name: firstName, last_name: lastName, phone: phone || null }
+      if (Object.keys(patch).length) {
+        await supabase.from('customers').update(patch).eq('id', userId)
+      }
     } else {
       const refCode = firstName.toUpperCase().replace(/[^A-Z]/g, '') + '-' + Math.random().toString(36).substring(2, 5).toUpperCase()
       await supabase.from('customers').insert({
