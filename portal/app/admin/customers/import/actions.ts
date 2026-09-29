@@ -249,6 +249,8 @@ export async function importCustomers(rows: ImportRow[]): Promise<{
             issued_at: when,
             paid_at: when,
             payment_method: 'Wix',
+            // What was bought, so the invoice list can say so.
+            items: raw.bike?.trim() ? [{ description: raw.bike.trim(), qty: 1, price: amount }] : null,
           })
           if (invErr) {
             detail += ` Order ${invoiceNumber} not added: ${invErr.message}.`

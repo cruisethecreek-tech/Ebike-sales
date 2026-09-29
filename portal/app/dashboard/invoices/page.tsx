@@ -3,6 +3,7 @@ import { EmptyState } from '@/app/components/empty-state'
 import { StatusBadge } from '@/app/components/status-badge'
 import Link from 'next/link'
 import { getViewerContext } from '@/lib/view-as'
+import { summarise, type InvoiceItem } from '@/app/admin/invoices/invoice-items'
 
 // Per-customer data, and now also per-preview: an admin viewing as someone
 // else must never be served a page cached for anybody. Never static.
@@ -10,6 +11,21 @@ export const dynamic = 'force-dynamic'
 
 export const metadata = {
   title: 'Invoices | Cruise the Creek Portal',
+}
+
+/**
+ * What was bought, in a few words: the first line item, and how many more.
+ * A number and a total alone make the customer open every invoice to find
+ * the one for their bike.
+ */
+function purchasedLabel(items: InvoiceItem[] | null | undefined): { main: string; more: string } | null {
+  const { first, rest } = summarise(items)
+  if (!first) return null
+  const qty = Number(first.qty) || 1
+  return {
+    main: `${qty > 1 ? `${qty}× ` : ''}${String(first.description).trim()}`,
+    more: rest > 0 ? `+${rest} more item${rest === 1 ? '' : 's'}` : '',
+  }
 }
 
 export default async function InvoicesPage() {
@@ -60,6 +76,7 @@ export default async function InvoicesPage() {
               const dateStr = invoice.issued_at
                 ? new Date(invoice.issued_at).toLocaleDateString('en-US', { month: 'numeric', day: 'numeric', year: 'numeric' })
                 : '—'
+              const purchased = purchasedLabel(invoice.items)
 
               return (
                 <Link
@@ -76,6 +93,14 @@ export default async function InvoicesPage() {
                       <div className="text-xs text-gray-500 mt-0.5">
                         {dateStr}
                       </div>
+                      {purchased && (
+                        <div className="text-sm text-[#1A2E1C] mt-1.5">
+                          {purchased.main}
+                          {purchased.more && (
+                            <span className="block text-xs text-gray-500">{purchased.more}</span>
+                          )}
+                        </div>
+                      )}
                     </div>
                     <StatusBadge status={invoice.status} />
                   </div>
@@ -100,6 +125,7 @@ export default async function InvoicesPage() {
                 <tr className="border-b border-gray-200 bg-[#FAF7F2] text-xs uppercase tracking-wider text-gray-600 font-semibold">
                   <th className="p-4">Invoice #</th>
                   <th className="p-4">Date</th>
+                  <th className="p-4">Purchased</th>
                   <th className="p-4">Amount</th>
                   <th className="p-4">Status</th>
                   <th className="p-4 text-right">Action</th>
@@ -112,6 +138,7 @@ export default async function InvoicesPage() {
                   const dateStr = invoice.issued_at
                     ? new Date(invoice.issued_at).toLocaleDateString('en-US', { month: 'numeric', day: 'numeric', year: 'numeric' })
                     : '—'
+                  const purchased = purchasedLabel(invoice.items)
 
                   return (
                     <tr
@@ -124,6 +151,16 @@ export default async function InvoicesPage() {
                         </Link>
                       </td>
                       <td className="p-4 text-gray-600">{dateStr}</td>
+                      <td className="p-4 max-w-xs">
+                        {purchased ? (
+                          <>
+                            <div className="text-[#1A2E1C] truncate" title={purchased.main}>{purchased.main}</div>
+                            {purchased.more && <div className="text-xs text-gray-500">{purchased.more}</div>}
+                          </>
+                        ) : (
+                          <span className="text-gray-400">—</span>
+                        )}
+                      </td>
                       <td className="p-4 font-bold text-[#2D4A32]">${total.toFixed(2)}</td>
                       <td className="p-4">
                         <StatusBadge status={invoice.status} />
