@@ -56,3 +56,31 @@ export async function setBikeLook(
     message: pick.kind === 'clear' ? 'Colour cleared.' : `Saved: ${patch.color_name}.`,
   }
 }
+
+/**
+ * Set or clear a bike's shop invoice link (the Shop.com order or warranty
+ * page). Staff only, same field as the bike card in Admin > Customers, so a
+ * rental or test bike on an admin's own My Bikes can be filled in there too.
+ */
+export async function setBikeShopInvoice(bikeId: string, url: string): Promise<LookResult> {
+  await requireAdminUser()
+  if (!bikeId) return { ok: false, message: 'No bike given.' }
+
+  const raw = String(url || '').trim()
+  if (raw && !(/^https?:\/\/\S+$/i.test(raw) && raw.length <= 1000)) {
+    return { ok: false, message: 'Paste a full web link starting with https://' }
+  }
+
+  const supabase = await createClient()
+  const { data, error } = await supabase
+    .from('bikes')
+    .update({ shop_invoice_url: raw || null })
+    .eq('id', bikeId)
+    .select('id')
+  if (error) return { ok: false, message: error.message }
+  if (!data?.length) return { ok: false, message: 'Nothing changed. The bike may have been removed.' }
+
+  revalidatePath('/dashboard/bikes')
+  revalidatePath('/admin/customers')
+  return { ok: true, message: raw ? 'Shop invoice link saved.' : 'Shop invoice link cleared.' }
+}
