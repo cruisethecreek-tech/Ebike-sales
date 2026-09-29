@@ -6,6 +6,7 @@ import { revalidatePath } from 'next/cache'
 import { canonicalInvoiceNumber } from '@/lib/invoice-number'
 import { findAuthUserByEmail } from '@/lib/find-auth-user'
 import { RIDE_PHOTOS_BUCKET } from '@/lib/ride-photos'
+import { cleanCustomerDetails, type CustomerDetailsInput } from '@/lib/customer-details'
 
 // Admin-only: uses service role key to send invite emails
 function createAdminClient() {
@@ -118,6 +119,97 @@ export async function inviteCustomer(
 
   revalidatePath('/admin/customers')
   return { ok: true, message: `Invite emailed to ${email}.` }
+}
+
+export interface CustomerDetailsResult {
+  ok: boolean
+  message: string
+  /** Generator invoices still filed under the old email, when it changed. */
+  invoiceNumbers?: string[]
+}
+
+/**
+ * Change a customer's name, email, phone and preferred contact from the admin
+ * card. Until now the only way was to re-save one of their invoices in the
+ * generator, and a customer with no generator invoice (the Wix orders) could
+ * not be corrected at all.
+ *
+ * The email is their login, so it changes on the auth user, and only to an
+ * address no other login has.
+ */
+export async function adminUpdateCustomerDetails(
+  customerId: string,
+  input: CustomerDetailsInput,
+): Promise<CustomerDetailsResult> {
+  await requireAdminUser()
+  const clean = cleanCustomerDetails(input)
+  if (!clean.ok) return { ok: false, message: clean.message }
+  const d = clean.value
+
+  const admin = createAdminClient()
+  const { data: current } = await admin
+    .from('customers')
+    .select('id')
+    .eq('id', customerId)
+    .maybeSingle()
+  if (!current) return { ok: false, message: 'That customer no longer exists.' }
+
+  const { data: authData, error: authErr } = await admin.auth.admin.getUserById(customerId)
+  if (authErr || !authData?.user) return { ok: false, message: 'Could not read their login. Nothing was changed.' }
+  const oldEmail = (authData.user.email || '').toLowerCase()
+  const emailChanged = d.email !== oldEmail
+
+  if (emailChanged) {
+    const taken = await findAuthUserByEmail(admin, d.email)
+    if (taken && taken.id !== customerId) {
+      return {
+        ok: false,
+        message: `${d.email} already belongs to another customer. Merge the two records instead. Nothing was changed.`,
+      }
+    }
+  }
+
+  const { error: custErr } = await admin
+    .from('customers')
+    .update({
+      first_name: d.firstName,
+      last_name: d.lastName,
+      phone: d.phone,
+      preferred_contact: d.preferredContact,
+      details_edited_at: new Date().toISOString(),
+    })
+    .eq('id', customerId)
+  if (custErr) return { ok: false, message: 'Nothing was changed: ' + custErr.message }
+
+  const { error: updErr } = await admin.auth.admin.updateUserById(customerId, {
+    ...(emailChanged ? { email: d.email, email_confirm: true } : {}),
+    user_metadata: { ...(authData.user.user_metadata || {}), first_name: d.firstName, last_name: d.lastName },
+  })
+
+  revalidatePath('/admin/customers')
+  revalidatePath('/dashboard')
+
+  if (updErr && emailChanged) {
+    return {
+      ok: false,
+      message: `Name and phone saved, but the email could not be changed to ${d.email}: ${updErr.message}.`,
+    }
+  }
+  if (!emailChanged) return { ok: true, message: 'Saved.' }
+
+  // Generator invoices find their customer by email. Any still carrying the
+  // old address would, on their next save, be filed under a new customer
+  // with that address, so staff are told which ones to update there.
+  const { data: invs } = await admin.from('invoices').select('invoice_number').eq('customer_id', customerId)
+  const invoiceNumbers = (invs || [])
+    .map((i) => i.invoice_number)
+    .filter((n): n is string => !!n && !/^WIX-/i.test(n))
+    .sort()
+  return {
+    ok: true,
+    message: `Saved. They now sign in with ${d.email}.`,
+    invoiceNumbers,
+  }
 }
 
 export async function adminUpdateBike(formData: FormData): Promise<void> {

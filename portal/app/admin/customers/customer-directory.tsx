@@ -7,6 +7,7 @@ import { canonicalInvoiceNumber } from '@/lib/invoice-number'
 import { adminUpdateBike, adminAddBike, adminDeleteBike } from './actions'
 import { DeleteInvoiceButton } from '../invoices/delete-invoice-button'
 import { SendInviteButton } from './send-invite-button'
+import { EditCustomerDetails } from './edit-customer-details'
 import { ViewAsButton } from '@/app/admin/view-as-button'
 import { RemoveCustomer } from './remove-customer'
 import { BulkActions, type BulkCustomer } from './bulk-actions'
@@ -37,6 +38,7 @@ interface CustomerData {
   last_name: string
   phone?: string | null
   email?: string | null
+  preferred_contact?: string | null
   referral_code?: string | null
   is_admin?: boolean
   /** Has signed into the portal at least once (from auth.users). */
@@ -752,6 +754,17 @@ export function CustomerDirectory({
               ✕ Close
             </button>
           </div>
+
+          {/* Keyed by customer so switching cards resets the form. */}
+          <EditCustomerDetails
+            key={selectedCustomer.id}
+            customerId={selectedCustomer.id}
+            firstName={selectedCustomer.first_name}
+            lastName={selectedCustomer.last_name}
+            email={selectedCustomer.email}
+            phone={selectedCustomer.phone}
+            preferredContact={selectedCustomer.preferred_contact}
+          />
 
           {/* ── Direct Action Buttons Suite ── */}
           <div className="p-3.5 rounded-xl bg-[#F5F0E8] border border-[#C9A96E]/50 space-y-2.5">
