@@ -13,7 +13,7 @@ const navItems = [
   { href: '/support', label: 'Support', icon: '🛠️' },
 ]
 
-export function Sidebar() {
+export function Sidebar({ isAdmin = false }: { isAdmin?: boolean }) {
   const pathname = usePathname()
   const { season } = useSeasonalTheme()
 
@@ -69,6 +69,18 @@ export function Sidebar() {
             </Link>
           )
         })}
+
+        {/* Staff only: the way back from the customer view. */}
+        {isAdmin && (
+          <Link
+            href="/admin"
+            className="flex items-center gap-3 px-3 py-2.5 mt-3 rounded-lg text-sm font-semibold transition-all border"
+            style={{ color: season.accentColor, borderColor: 'rgba(255,255,255,0.15)', borderLeft: '4px solid transparent' }}
+          >
+            <span className="text-base">👑</span>
+            <span>Admin Panel</span>
+          </Link>
+        )}
       </nav>
 
       {/* Footer */}

@@ -161,14 +161,24 @@ export default async function AdminLayout({ children }: { children: React.ReactN
             >
               Admin Dashboard
             </h1>
-            <a
-              href={`${STORE_URL}/invoice.html`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="btn-primary text-xs px-3.5 py-1.5 flex items-center gap-1 font-bold shadow-xs"
-            >
-              ⚡ Open Invoice Generator ↗
-            </a>
+            <div className="flex items-center gap-2">
+              <a
+                href={`${STORE_URL}/salespro.html`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-xs px-3.5 py-1.5 flex items-center gap-1 font-bold shadow-xs rounded-lg bg-[#2D4A32] text-white hover:bg-[#1A2E1C]"
+              >
+                📈 Open SalesPro ↗
+              </a>
+              <a
+                href={`${STORE_URL}/invoice.html`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn-primary text-xs px-3.5 py-1.5 flex items-center gap-1 font-bold shadow-xs"
+              >
+                ⚡ Open Invoice Generator ↗
+              </a>
+            </div>
           </header>
           <div className="p-3 sm:p-6 lg:p-8 max-w-7xl mx-auto w-full">
             {children}
