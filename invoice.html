@@ -3387,11 +3387,64 @@
         function showLoadedInvoicePortal(invNum) {
             var box = document.getElementById('loadedInvoicePortal');
             if (!box) return;
-            box.innerHTML = '';
+            box.innerHTML = '<strong>' + invEsc(invNum) + ':</strong> <span data-portal-slot></span> ' +
+                '<span data-delete-slot style="margin-left:.6rem"></span>';
+            renderDeleteInvoice(box.querySelector('[data-delete-slot]'), invNum, false);
             lookupPortalInvoices([invNum], function (found) {
                 if (!found) return;
-                box.innerHTML = '<strong>' + invEsc(invNum) + ':</strong> ' + portalInvoiceBadge(found[invNum]);
+                var slot = box.querySelector('[data-portal-slot]');
+                if (slot) slot.innerHTML = portalInvoiceBadge(found[invNum]);
             });
+        }
+
+        // Delete a test or mistaken invoice from the Google Sheet and the
+        // portal. Two clicks, and the second names the invoice.
+        var DELETE_BTN_STYLE = 'font-size:.75rem;padding:.2rem .55rem;border-radius:6px;cursor:pointer;';
+        function renderDeleteInvoice(slot, invNum, armed, message) {
+            if (!slot) return;
+            var n = invEsc(invNum);
+            var enc = encodeURIComponent(invNum);
+            if (!armed) {
+                slot.innerHTML = '<button type="button" onclick="armDeleteInvoice(this, \'' + enc + '\')" ' +
+                    'style="' + DELETE_BTN_STYLE + 'background:none;border:1px solid #b23b2e;color:#b23b2e">Delete invoice</button>' +
+                    (message ? ' <span style="color:#b23b2e;font-size:.75rem">' + invEsc(message) + '</span>' : '');
+                return;
+            }
+            slot.innerHTML = '<span style="font-size:.75rem;color:#b23b2e">Delete ' + n + ' from the Sheet and the portal? This cannot be undone.</span> ' +
+                '<button type="button" onclick="confirmDeleteInvoice(this, \'' + enc + '\')" ' +
+                'style="' + DELETE_BTN_STYLE + 'background:#b23b2e;border:1px solid #b23b2e;color:#fff;font-weight:700">Delete ' + n + '</button> ' +
+                '<button type="button" onclick="cancelDeleteInvoice(this, \'' + enc + '\')" ' +
+                'style="' + DELETE_BTN_STYLE + 'background:none;border:1px solid #999;color:inherit">Cancel</button>';
+        }
+        function armDeleteInvoice(btn, enc) { renderDeleteInvoice(btn.parentNode, decodeURIComponent(enc), true); }
+        function cancelDeleteInvoice(btn, enc) { renderDeleteInvoice(btn.parentNode, decodeURIComponent(enc), false); }
+        function confirmDeleteInvoice(btn, enc) {
+            var invNum = decodeURIComponent(enc);
+            var slot = btn.parentNode;
+            slot.innerHTML = '<span style="font-size:.75rem;color:#666">Deleting ' + invEsc(invNum) + '…</span>';
+            fetch(PORTAL_URL + '/api/invoices/delete', {
+                method: 'POST',
+                headers: portalHeaders({ 'Content-Type': 'application/json' }),
+                body: JSON.stringify({ invoiceNumber: invNum })
+            })
+                .then(function (res) {
+                    if (portalAuthFailed(res)) return { ok: false, message: 'The portal key was refused. Enter it again and retry.' };
+                    return res.json();
+                })
+                .then(function (data) {
+                    var fullyGone = data && data.ok && data.sheetRemoved !== null;
+                    if (!fullyGone) {
+                        renderDeleteInvoice(slot, invNum, false, (data && data.message) || 'Delete failed.');
+                        return;
+                    }
+                    // Gone: start a fresh invoice so the deleted one cannot be saved back.
+                    showStatus(data.message + ' The form has been cleared.', 'success');
+                    if (window.history && window.history.replaceState) window.history.replaceState(null, '', window.location.pathname);
+                    setTimeout(function () { window.location.reload(); }, 1200);
+                })
+                .catch(function (err) {
+                    renderDeleteInvoice(slot, invNum, false, 'Delete failed (' + (err && err.message || err) + ').');
+                });
         }
 
         function invEsc(s) {
