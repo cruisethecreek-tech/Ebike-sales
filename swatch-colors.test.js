@@ -85,6 +85,13 @@ ok('a hex from the Sheet beats the table',
    ctcSwatchStyle({ name: 'Leather Black', hex: '#00FF00' }) === 'background-color:#00FF00',
    'salespro must always be able to correct a colour');
 
+// salespro's "add colour" placeholder is not a colour choice.
+ok('the #888888 placeholder falls back to the name',
+   ctcSwatchStyle({ name: 'Pink', hex: '#888888' }) === 'background-color:#E58FB0',
+   'the Mooncool CD1 showed five colours as identical grey dots');
+ok('a placeholder on an unknown name is the hatched chip, not grey',
+   /repeating-linear-gradient/.test(ctcSwatchStyle({ name: 'Jungle Camo', hex: '#888' })));
+
 // ── Coverage against the real catalogue ──────────────────────────────────
 {
   const inv = JSON.parse(read('data/inventory.json'));
@@ -97,7 +104,7 @@ ok('a hex from the Sheet beats the table',
       for (const s of v) {
         if (!s || s.name === undefined) continue;
         total++;
-        if (String(s.hex || '').trim()) continue;
+        if (String(s.hex || '').trim() && !/^#8{3}(8{3})?$/.test(String(s.hex).trim())) continue;
         blank++;
         if (/repeating-linear-gradient/.test(ctcSwatchStyle(s))) {
           unresolved[s.name] = (unresolved[s.name] || 0) + 1;

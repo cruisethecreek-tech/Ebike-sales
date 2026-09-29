@@ -205,10 +205,13 @@
     'stone gray': '#8E8C87',
     'brown gray': '#7A6E63',
     'shadow steel': '#5F6469',
+    'slate gray': '#6D7780',
+    'slate grey': '#6D7780',
     'silver': '#C2C5C8',
     'platinum': '#CFD2D4',
 
     // ── Blues ─────────────────────────────────────────────────────────────
+    'blue': '#2F5DA8',
     'steel blue': '#4A6D8C',
     'dark blue': '#26364F',
     'darkblue': '#26364F',
@@ -233,12 +236,14 @@
     'venom green': '#7BC043',     // Jasion RetroVolt Max — bright acid green
 
     // ── Reds, pinks, oranges, yellows ─────────────────────────────────────
+    'red': '#B3262E',
     'crimson red': '#A62231',
     'cherry crimson': '#9E1F33',
     'firebrick': '#9C3028',
     'orange': '#D9702A',
     'vibrant orange': '#E8701A',
     'hazelnut yellow': '#C99A3E',
+    'pink': '#E58FB0',
     'crystal pink': '#E8B4C0',
     'purple': '#6B4C8A',
 
@@ -270,6 +275,11 @@
     var s = swatch || {};
     var hex = (s.hex || '').trim();
     var hex2 = (s.hex2 || '').trim();
+
+    /* #888888 is what salespro's "add colour" fills in before anyone picks
+       one, so it means "not set", not grey. Left as is, the Mooncool CD1
+       offered Cyan, Pink, Blue, Green and Red as five identical grey dots. */
+    if (/^#8{3}(8{3})?$/.test(hex)) hex = '';
 
     /* The Sheet is authoritative. Only fall back to the table when it is silent. */
     if (!hex) {
