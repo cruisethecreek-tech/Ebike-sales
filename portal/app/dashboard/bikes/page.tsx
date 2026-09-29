@@ -93,7 +93,7 @@ export default async function BikesPage() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {bikes.map((bike) => {
-            const warranty = calculateBikeWarranties(bike.brand, bike.purchase_date)
+            const warranty = calculateBikeWarranties(bike.brand, bike.purchase_date, bike.warranty_expires_at)
 
             return (
               <div
@@ -113,7 +113,13 @@ export default async function BikesPage() {
                           : 'bg-amber-100 text-amber-800'
                       }`}
                     >
-                      {warranty.isManufacturerWarrantyActive ? '🛡️ Warranty Active' : 'Warranty Expired'}
+                      {!warranty.manufacturerWarrantyEndDate
+                        ? warranty.hasPurchaseDate
+                          ? 'Check warranty terms'
+                          : 'Purchase date needed'
+                        : warranty.isManufacturerWarrantyActive
+                          ? '🛡️ Warranty Active'
+                          : 'Warranty Expired'}
                     </span>
                   </div>
 
@@ -139,12 +145,14 @@ export default async function BikesPage() {
                   <div className="p-4 bg-[#F5F0E8] rounded-xl space-y-2 border border-[#E5E5E5]">
                     <div className="flex justify-between items-center text-xs">
                       <span className="font-bold text-[#1A2E1C] flex items-center gap-1">
-                        🛡️ Manufacturer Warranty:
+                        🛡️ {bike.brand} Warranty · {warranty.headlineLabel}:
                       </span>
                       <span className="font-bold text-[#2D4A32]">
-                        {warranty.isManufacturerWarrantyActive
-                          ? `${warranty.manufacturerWarrantyDaysLeft} Days Left`
-                          : 'Expired'}
+                        {!warranty.manufacturerWarrantyEndDate
+                          ? '—'
+                          : warranty.isManufacturerWarrantyActive
+                            ? `${warranty.manufacturerWarrantyDaysLeft} Days Left`
+                            : 'Expired'}
                       </span>
                     </div>
 
@@ -156,9 +164,41 @@ export default async function BikesPage() {
                       />
                     </div>
 
-                    <p className="text-[11px] text-gray-500">
-                      Expires: {warranty.manufacturerWarrantyEndDate.toLocaleDateString()} · Covers frame, battery, motor & controller.
-                    </p>
+                    {!warranty.hasPurchaseDate ? (
+                      <p className="text-[11px] text-gray-500">
+                        We don&apos;t have a purchase date for this bike yet, so the countdown can&apos;t start. Contact us and we&apos;ll add it.
+                      </p>
+                    ) : !warranty.hasKnownTerms ? (
+                      <p className="text-[11px] text-gray-500">
+                        {warranty.manufacturerWarrantyEndDate
+                          ? `Expires: ${warranty.manufacturerWarrantyEndDate.toLocaleDateString()}. `
+                          : ''}
+                        Check the manufacturer&apos;s warranty for this bike, or ask us.
+                      </p>
+                    ) : (
+                      <>
+                        <ul className="text-[11px] text-gray-600 space-y-1 pt-1">
+                          {warranty.coverage.map((c) => (
+                            <li key={c.label} className="flex justify-between gap-3">
+                              <span>
+                                {c.label} <span className="text-gray-400">({c.term})</span>
+                              </span>
+                              <span className={`shrink-0 font-bold ${c.isActive ? 'text-[#2D4A32]' : 'text-gray-400'}`}>
+                                {c.days == null
+                                  ? 'Lifetime'
+                                  : c.isActive
+                                    ? `${c.daysLeft}d left · ${c.endDate!.toLocaleDateString()}`
+                                    : `Ended ${c.endDate!.toLocaleDateString()}`}
+                              </span>
+                            </li>
+                          ))}
+                        </ul>
+                        {warranty.note && <p className="text-[11px] text-gray-500">{warranty.note}</p>}
+                        <p className="text-[11px] text-gray-400">
+                          Wear items (tires, tubes, brake pads, chain, cables, grips) are not covered by any brand.
+                        </p>
+                      </>
+                    )}
                   </div>
 
                   {/* ── 2. Creek Ready Service Plan Countdown ── */}
@@ -168,9 +208,11 @@ export default async function BikesPage() {
                         🌲 Creek Ready Service Plan:
                       </span>
                       <span className="font-bold text-[#B45309]">
-                        {warranty.isCreekReadyActive
-                          ? `Tune-Up in ${warranty.creekReadyDaysLeft} Days`
-                          : 'Tune-Up Due Now'}
+                        {!warranty.creekReadyDueDate
+                          ? 'Schedule Pending'
+                          : warranty.isCreekReadyActive
+                            ? `Tune-Up in ${warranty.creekReadyDaysLeft} Days`
+                            : 'Tune-Up Due Now'}
                       </span>
                     </div>
 
@@ -183,7 +225,7 @@ export default async function BikesPage() {
                     </div>
 
                     <p className="text-[11px] text-gray-500">
-                      Annual 28-point certified service due: {warranty.creekReadyDueDate.toLocaleDateString()}
+                      Annual 28-point certified service due: {warranty.creekReadyDueDate?.toLocaleDateString() ?? 'once we have your purchase date'}
                     </p>
                   </div>
                 </div>
