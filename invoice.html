@@ -3337,6 +3337,24 @@
             return PORTAL_URL + '/admin/invoices/' + encodeURIComponent(id);
         }
 
+        function showWixOrderNotice(num) {
+            showStatus(num + ' is a Wix shop order. It was paid at checkout and lives in the portal only, so it cannot be edited here. The form below is a new invoice.', 'error');
+            // Look up its portal page so staff can open it in one click.
+            lookupPortalInvoices([num], function (found) {
+                var hit = found && found[num];
+                if (!hit || !hit.id) return;
+                var el = document.getElementById('statusMessage');
+                if (!el || el.textContent.indexOf(num) === -1) return;
+                var a = document.createElement('a');
+                a.href = portalInvoiceHref(hit.id);
+                a.target = '_blank';
+                a.rel = 'noopener';
+                a.textContent = ' Open ' + num + ' in the portal ↗';
+                a.setAttribute('style', PORTAL_LINK_STYLE);
+                el.appendChild(a);
+            });
+        }
+
         function showCustomerPortalLink(c) {
             var box = document.getElementById('custPortalLink');
             if (!box) return;
@@ -3880,7 +3898,14 @@
         syncThemeButton();
         loadCatalog();
         loadExistingCustomers();
-        if (viewParam) {
+        // Wix shop orders (WIX-…) were imported into the portal only and have
+        // no Sheet row, so there is nothing here to open. Say so and link the
+        // portal copy, rather than falling through to a blank new invoice.
+        var openParam = viewParam || editParam;
+        if (openParam && /^WIX-/i.test(String(openParam).trim())) {
+            loadNextInvoiceNumber();
+            showWixOrderNotice(String(openParam).trim().toUpperCase());
+        } else if (viewParam) {
             loadInvoiceForEdit(viewParam, true);
         } else if (editParam) {
             loadInvoiceForEdit(editParam, false);

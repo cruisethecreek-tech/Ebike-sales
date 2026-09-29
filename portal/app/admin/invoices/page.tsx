@@ -6,6 +6,7 @@ import { InvoiceItems } from './invoice-items'
 import { ShopLinkBadge } from './shop-link-badge'
 import { BulkResync } from './bulk-resync'
 import Link from 'next/link'
+import { isWixOrder } from '@/lib/invoice-source'
 
 function customerName(inv: any) {
   const first = inv.customers?.first_name || 'Customer'
@@ -109,17 +110,30 @@ export default async function AdminInvoices() {
               return (
                 <tr key={inv.id} className="border-b last:border-0 hover:bg-[#FBF7EF] transition-colors">
                   <td className="p-3 sm:p-4">
-                    {/* Direct link to Invoice Generator in new tab */}
-                    <a
-                      href={`${STORE_URL}/invoice.html?edit=${inv.invoice_number}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="font-mono text-sm font-bold underline hover:opacity-80 inline-flex items-center gap-1"
-                      style={{ color: '#2D4A32' }}
-                      title="Open in Invoice Generator"
-                    >
-                      {inv.invoice_number} ↗
-                    </a>
+                    {/* Direct link to Invoice Generator in new tab. A Wix order
+                        is not in the Sheet the generator reads, so it opens
+                        here instead. */}
+                    {isWixOrder(inv.invoice_number) ? (
+                      <Link
+                        href={`/admin/invoices/${inv.id}`}
+                        className="font-mono text-sm font-bold underline hover:opacity-80"
+                        style={{ color: '#2D4A32' }}
+                        title="Wix shop order: kept in the portal only"
+                      >
+                        {inv.invoice_number}
+                      </Link>
+                    ) : (
+                      <a
+                        href={`${STORE_URL}/invoice.html?edit=${inv.invoice_number}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="font-mono text-sm font-bold underline hover:opacity-80 inline-flex items-center gap-1"
+                        style={{ color: '#2D4A32' }}
+                        title="Open in Invoice Generator"
+                      >
+                        {inv.invoice_number} ↗
+                      </a>
+                    )}
                   </td>
                   <td className="p-3 sm:p-4 font-medium text-[#1A2E1C]">
                     {/* The name is the way into the rest of the story: bikes,
@@ -157,14 +171,23 @@ export default async function AdminInvoices() {
                   </td>
                   <td className="p-3 sm:p-4 text-right">
                     <div className="inline-flex items-center gap-2">
-                      <a
-                        href={`${STORE_URL}/invoice.html?edit=${inv.invoice_number}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="px-2.5 py-1 rounded bg-[#2D4A32] text-white text-xs font-bold hover:bg-[#1A2E1C]"
-                      >
-                        ⚡ Edit in Tool ↗
-                      </a>
+                      {isWixOrder(inv.invoice_number) ? (
+                        <span
+                          className="px-2 py-1 rounded bg-[#F4F1EA] text-[#4A4A4A] text-xs font-semibold"
+                          title="Paid at the old Wix shop. It is not in the invoice generator."
+                        >
+                          Wix order
+                        </span>
+                      ) : (
+                        <a
+                          href={`${STORE_URL}/invoice.html?edit=${inv.invoice_number}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="px-2.5 py-1 rounded bg-[#2D4A32] text-white text-xs font-bold hover:bg-[#1A2E1C]"
+                        >
+                          ⚡ Edit in Tool ↗
+                        </a>
+                      )}
                       <Link
                         href={`/admin/invoices/${inv.id}`}
                         className="px-2 py-1 rounded border border-[#C9A96E] text-[#2D4A32] text-xs font-semibold hover:bg-white"
