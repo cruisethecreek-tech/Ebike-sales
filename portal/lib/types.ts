@@ -32,6 +32,7 @@ export interface Customer {
   preferred_contact: ContactMethod;
   referral_code: string | null;
   referred_by: string | null;
+  referral_notified_at?: string | null;
   is_admin: boolean;
   created_at: string;
   updated_at: string;

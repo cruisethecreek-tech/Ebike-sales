@@ -3,6 +3,8 @@
 import { createClient } from '@/lib/supabase/server'
 import { requireAdminUser } from '@/lib/require-admin'
 import { revalidatePath } from 'next/cache'
+import { createClient as createServiceClient } from '@supabase/supabase-js'
+import { notifyCreditIssued } from '@/lib/referral-email'
 
 export async function redeemCredit(formData: FormData): Promise<void> {
   await requireAdminUser()
@@ -36,7 +38,7 @@ export async function approveAndIssueCredit(formData: FormData): Promise<void> {
   if (!customerId) return
 
   const supabase = await createClient()
-  await supabase
+  const { error } = await supabase
     .from('referral_credits')
     .insert({
       customer_id: customerId,
@@ -45,6 +47,17 @@ export async function approveAndIssueCredit(formData: FormData): Promise<void> {
       status: 'Available',
       redeemed: false,
     })
+
+  // Tell them it's ready. Only once the credit really exists.
+  if (!error) {
+    const service = createServiceClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!,
+      { auth: { autoRefreshToken: false, persistSession: false } }
+    )
+    const outcome = await notifyCreditIssued(service, customerId, amount)
+    if (outcome !== 'sent') console.warn(`[referral credit email] ${outcome}`)
+  }
 
   revalidatePath('/admin/referrals')
   revalidatePath('/dashboard/referrals')

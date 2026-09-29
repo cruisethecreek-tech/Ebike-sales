@@ -2,6 +2,7 @@ import { findAuthUserByEmail, isAlreadyRegistered } from '@/lib/find-auth-user'
 import { canonicalInvoiceNumber, sameInvoiceNumber } from '@/lib/invoice-number'
 import { bikesOnInvoice, bikeModelKey } from '@/lib/detect-bike'
 import { createClient } from '@supabase/supabase-js'
+import { notifyReferrerOfPaidPurchase } from '@/lib/referral-email'
 
 /**
  * Put one invoice into the portal: find or make the customer's login, keep
@@ -371,6 +372,12 @@ export async function syncInvoice(body: any): Promise<SyncResult> {
       }
     }
 
+    // 5. A referred customer's first paid purchase: tell whoever sent them.
+    // Does nothing for anyone else, and only ever once per customer.
+    const referralEmail = status === 'paid'
+      ? await notifyReferrerOfPaidPurchase(supabase, userId)
+      : undefined
+
     return jsonResult({
         ok: true,
         userId,
@@ -388,6 +395,7 @@ export async function syncInvoice(body: any): Promise<SyncResult> {
         itemsSaved: lineItems.length,
         supplierUrlSaved: supplierUrl === undefined ? null : supplierUrl !== '',
         ...(referredBy ? { referredBy } : {}),
+        ...(referralEmail && referralEmail !== 'none' ? { referralEmail } : {}),
       }, 200)
   } catch (err: any) {
     console.error('Invoice portal sync failed:', err)
