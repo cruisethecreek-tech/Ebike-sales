@@ -14,7 +14,7 @@ export default async function AdminCustomers() {
 
   const { data: invoices } = await supabase
     .from('invoices')
-    .select('customer_id, invoice_number, id, total_amount, status, issued_at')
+    .select('customer_id, invoice_number, id, total_amount, status, issued_at, supplier_url')
     .order('issued_at', { ascending: false })
 
   const { data: bikes } = await supabase
@@ -143,6 +143,11 @@ export default async function AdminCustomers() {
         knownInvoiceNumbers={(invoices || [])
           .map((i) => i.invoice_number)
           .filter((n): n is string => !!n)}
+        shopInvoiceByNumber={Object.fromEntries(
+          (invoices || [])
+            .filter((i) => i.invoice_number && i.supplier_url && String(i.supplier_url).trim())
+            .map((i) => [String(i.invoice_number), String(i.supplier_url).trim()]),
+        )}
       />
     </div>
   )
