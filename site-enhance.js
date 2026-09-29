@@ -1036,7 +1036,7 @@
     bar.setAttribute('role', 'status');
     bar.style.cssText =
       'position:relative;z-index:50;background:#2D4A32;color:#fff;font:600 14px/1.4 system-ui,sans-serif;' +
-      'padding:10px 16px 10px 44px;text-align:center';
+      'padding:10px 64px 10px 44px;text-align:center';
     bar.innerHTML =
       'A Cruise the Creek rider sent you here. Your referral code <strong style="font-family:monospace;color:#C9A96E">' +
       arrived.replace(/[^A-Z0-9-]/g, '') +
