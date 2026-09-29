@@ -64,6 +64,16 @@
     return null;
   }
 
+  // Same key and lifetime as site-enhance.js, read directly so the cart
+  // does not depend on which script loaded first.
+  function savedReferralCode() {
+    try {
+      const r = JSON.parse(localStorage.getItem('ctc_referral_v1') || 'null');
+      if (r && r.code && Date.now() - r.ts < 60 * 24 * 60 * 60 * 1000) return String(r.code);
+    } catch (e) {}
+    return '';
+  }
+
   function clearActivePromo() {
     try { localStorage.removeItem(PROMO_KEY); } catch (e) {}
     renderItems();
@@ -580,6 +590,10 @@
 
     const subtotal = cart.items.reduce((s, i) => s + (parseFloat(i.price) || 0) * (parseInt(i.qty, 10) || 1), 0);
     let customerNotes = String(data.notes || '');
+    // The friend's referral code saved by site-enhance.js, on the draft
+    // invoice's notes where the portal looks for it when the invoice syncs.
+    const referralCode = savedReferralCode();
+    if (referralCode) customerNotes = (customerNotes ? customerNotes + ' | ' : '') + 'Referred by: ' + referralCode;
 
     const btn = checkoutForm.querySelector('.ctc-cart-submit');
     btn.disabled = true;

@@ -209,15 +209,55 @@ export async function syncInvoice(body: any): Promise<SyncResult> {
     const userId = user.id
 
     // 2. Create or update customer record
-    const refCode = firstName.toUpperCase().replace(/[^A-Z]/g, '') + '-' + Math.random().toString(36).substring(2, 5).toUpperCase()
-    await supabase.from('customers').upsert({
-      id: userId,
-      first_name: firstName,
-      last_name: lastName,
-      phone: phone || null,
-      preferred_contact: 'email',
-      referral_code: refCode,
-    }, { onConflict: 'id' })
+    //
+    // The referral code is made once, when the record is. This used to upsert
+    // a freshly generated code on every sync, so each time any of a
+    // customer's invoices was saved their code changed and the QR code they
+    // had already shared stopped matching anybody.
+    const { data: existingCustomer } = await supabase
+      .from('customers')
+      .select('id, referred_by')
+      .eq('id', userId)
+      .maybeSingle()
+    if (existingCustomer) {
+      await supabase.from('customers').update({
+        first_name: firstName,
+        last_name: lastName,
+        phone: phone || null,
+      }).eq('id', userId)
+    } else {
+      const refCode = firstName.toUpperCase().replace(/[^A-Z]/g, '') + '-' + Math.random().toString(36).substring(2, 5).toUpperCase()
+      await supabase.from('customers').insert({
+        id: userId,
+        first_name: firstName,
+        last_name: lastName,
+        phone: phone || null,
+        preferred_contact: 'email',
+        referral_code: refCode,
+      })
+    }
+
+    // 2b. Who referred them. The storefront's cart and the invoice generator
+    // write "Referred by: CODE" into the notes; the code is another
+    // customer's referral_code. Set once and never overwritten, and never to
+    // the customer themselves.
+    let referredBy: string | null = null
+    const referralCode = referralCodeFromNotes(body.paymentNotes)
+    if (referralCode && !existingCustomer?.referred_by) {
+      const { data: referrer } = await supabase
+        .from('customers')
+        .select('id')
+        .ilike('referral_code', referralCode)
+        .maybeSingle()
+      if (referrer && referrer.id !== userId) {
+        const { error: refErr } = await supabase
+          .from('customers')
+          .update({ referred_by: referrer.id })
+          .eq('id', userId)
+          .is('referred_by', null)
+        if (!refErr) referredBy = referrer.id
+      }
+    }
 
     // 3. Register any bikes from line items
     let bikesAdded = 0
@@ -347,9 +387,23 @@ export async function syncInvoice(body: any): Promise<SyncResult> {
         ...(bikeErrors.length ? { bikeErrors, warning: `${bikeErrors.length} bike(s) could not be registered.` } : {}),
         itemsSaved: lineItems.length,
         supplierUrlSaved: supplierUrl === undefined ? null : supplierUrl !== '',
+        ...(referredBy ? { referredBy } : {}),
       }, 200)
   } catch (err: any) {
     console.error('Invoice portal sync failed:', err)
     return jsonResult({ ok: false, error: err.message }, 500)
   }
+}
+
+/**
+ * The referral code in an invoice's notes, if there is one.
+ *
+ * "Referred by: ANNA-I1T" is what the cart and the invoice generator write.
+ * "Referral / Promo Code: ANNA-I1T" is what the generator used to write, so
+ * older invoices read the same way. A bare promo like 20OFF will not match
+ * anybody's referral_code and is ignored by the lookup.
+ */
+export function referralCodeFromNotes(notes: unknown): string | null {
+  const m = String(notes || '').match(/(?:referred\s+by|referral(?:\s*\/\s*promo)?\s*code)\s*:\s*([A-Za-z0-9-]{3,24})/i)
+  return m ? m[1].toUpperCase() : null
 }

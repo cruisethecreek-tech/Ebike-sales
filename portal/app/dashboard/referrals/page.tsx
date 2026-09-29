@@ -56,7 +56,7 @@ export default async function ReferralsPage() {
 
   const refCode = customer.referral_code || 'CTC-REF'
   const customerFullName = `${customer.first_name} ${customer.last_name}`
-  const referralUrl = `https://portal.cruisethecreek.com/auth?ref=${encodeURIComponent(refCode)}`
+  const referralUrl = `${STORE_URL}/?ref=${encodeURIComponent(refCode)}`
 
   // Links for service (20% discount) and shop (standard) with prefilled customer details
   const custFirst = encodeURIComponent(customer.first_name || '')
@@ -230,7 +230,9 @@ export default async function ReferralsPage() {
                   2
                 </span>
                 <p>
-                  <strong>Friend makes an e-bike or service purchase</strong> with Cruise the Creek.
+                  <strong>Friend makes an e-bike or service purchase</strong> with Cruise the Creek. Your
+                  link opens our shop with your code saved, so it goes on their order automatically; in the
+                  store, they can just give us your code.
                 </p>
               </div>
               <div className="flex items-start gap-2.5">

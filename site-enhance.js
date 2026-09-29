@@ -984,3 +984,71 @@
   root.hideCmsLoader   = hideCmsLoader;
 
 })(typeof window !== 'undefined' ? window : this);
+
+/* ── Referral codes ──────────────────────────────────────────────
+ * A rider's referral QR code and link land here as ?ref=CODE. Before
+ * this, they went to the portal's sign-in page, which a new customer
+ * has no account for, and the code went nowhere: no page kept it and
+ * no order carried it, so nobody ever earned a referral.
+ *
+ * Now the code is kept in this browser for 60 days, so it survives the
+ * friend browsing around and coming back later. cart.js and the repair
+ * intake read it and put "Referred by: CODE" on the order, and the
+ * portal credits the referrer when that invoice syncs.
+ *
+ * Links a customer opens for themselves from the portal carry their own
+ * code plus their email, so an email in the URL means "this is me", not
+ * "a friend sent me", and is not saved.
+ * ──────────────────────────────────────────────────────────────── */
+(function (root) {
+  'use strict';
+  if (typeof window === 'undefined' || !window.localStorage) return;
+
+  var KEY = 'ctc_referral_v1';
+  var MAX_AGE_MS = 60 * 24 * 60 * 60 * 1000;
+
+  function saved() {
+    try {
+      var r = JSON.parse(localStorage.getItem(KEY) || 'null');
+      if (r && r.code && Date.now() - r.ts < MAX_AGE_MS) return r.code;
+    } catch (e) {}
+    return '';
+  }
+
+  var arrived = '';
+  try {
+    var p = new URLSearchParams(window.location.search);
+    var code = String(p.get('ref') || p.get('referral') || '').trim().toUpperCase();
+    if (code && !p.get('email') && /^[A-Z0-9-]{3,24}$/.test(code)) {
+      localStorage.setItem(KEY, JSON.stringify({ code: code, ts: Date.now() }));
+      arrived = code;
+    }
+  } catch (e) {}
+
+  root.ctcReferralCode = saved;
+
+  if (!arrived) return;
+
+  function banner() {
+    if (document.getElementById('ctc-referral-banner')) return;
+    var bar = document.createElement('div');
+    bar.id = 'ctc-referral-banner';
+    bar.setAttribute('role', 'status');
+    bar.style.cssText =
+      'position:relative;z-index:50;background:#2D4A32;color:#fff;font:600 14px/1.4 system-ui,sans-serif;' +
+      'padding:10px 16px 10px 44px;text-align:center';
+    bar.innerHTML =
+      'A Cruise the Creek rider sent you here. Your referral code <strong style="font-family:monospace;color:#C9A96E">' +
+      arrived.replace(/[^A-Z0-9-]/g, '') +
+      '</strong> is saved and goes on your order automatically. ' +
+      '<a href="shop.html" style="color:#C9A96E;text-decoration:underline;margin-left:6px">Shop e-bikes</a>' +
+      '<a href="repair-intake.html?service=tuneup" style="color:#C9A96E;text-decoration:underline;margin-left:12px">Book a tune-up</a>' +
+      '<button type="button" aria-label="Dismiss" style="position:absolute;left:10px;top:50%;transform:translateY(-50%);' +
+      'background:none;border:0;color:#fff;font-size:20px;cursor:pointer">×</button>';
+    bar.querySelector('button').addEventListener('click', function () { bar.remove(); });
+    document.body.insertBefore(bar, document.body.firstChild);
+  }
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', banner);
+  else banner();
+})(typeof window !== 'undefined' ? window : this);
