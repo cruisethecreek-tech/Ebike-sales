@@ -499,7 +499,7 @@ export function CustomerDirectory({
   }, [selectedCustomerId, customers])
 
   function copyReferralLink(code: string) {
-    const url = `https://portal.cruisethecreek.com/auth?ref=${encodeURIComponent(code)}`
+    const url = `${STORE_URL}/?ref=${encodeURIComponent(code)}`
     navigator.clipboard.writeText(url)
     setCopiedCode(true)
     setTimeout(() => setCopiedCode(false), 2000)
@@ -670,7 +670,7 @@ export function CustomerDirectory({
                   formatCustomerName(selectedCustomer.first_name, selectedCustomer.last_name)
                 )}&phone=${encodeURIComponent(selectedCustomer.phone || '')}&email=${encodeURIComponent(
                   selectedCustomer.email || ''
-                )}&ref=${encodeURIComponent(selectedCustomer.referral_code || '')}`}
+                )}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="p-2.5 rounded-lg bg-[#2D4A32] text-white font-bold flex items-center justify-center gap-1.5 hover:bg-[#1A2E1C] shadow-xs text-center"
