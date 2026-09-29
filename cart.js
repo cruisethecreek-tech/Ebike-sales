@@ -179,6 +179,9 @@
 
 .ctc-cart-footer{border-top:1px solid rgba(0,0,0,.1);padding:14px 18px;
   background:var(--cream,#F5F0E8)}
+/* display:flex beats the hidden attribute, so without this the member
+   discount banner and a "-$0" line showed on every cart, e-bikes included. */
+.ctc-cart-promo-banner[hidden],.ctc-cart-ship-line[hidden],.ctc-cart-discount-line[hidden]{display:none}
 .ctc-cart-row,.ctc-cart-ship-line,.ctc-cart-discount-line{display:flex;
   justify-content:space-between;align-items:center;font-size:.88rem;padding:3px 0}
 .ctc-cart-subtotal,.ctc-cart-totals{display:flex;justify-content:space-between;
