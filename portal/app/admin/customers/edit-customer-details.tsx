@@ -40,10 +40,17 @@ export function EditCustomerDetails(props: Props) {
   async function save(e: React.FormEvent) {
     e.preventDefault()
     setPending(true)
-    const r = await adminUpdateCustomerDetails(props.customerId, form)
-    setPending(false)
-    setResult(r)
-    if (r.ok && !r.invoiceNumbers?.length) setOpen(false)
+    try {
+      const r = await adminUpdateCustomerDetails(props.customerId, form)
+      setResult(r)
+      if (r.ok && !r.invoiceNumbers?.length) setOpen(false)
+    } catch {
+      // A dropped connection or an expired session: say so rather than
+      // leaving the button on "Saving…".
+      setResult({ ok: false, message: 'Could not reach the portal. Nothing was saved; try again.' })
+    } finally {
+      setPending(false)
+    }
   }
 
   if (!open) {
