@@ -185,17 +185,34 @@ export async function adminAddBike(formData: FormData): Promise<void> {
   revalidatePath('/dashboard/bikes')
 }
 
-export async function adminDeleteBike(formData: FormData): Promise<void> {
+/**
+ * Remove one bike from a customer, for test entries and mistakes.
+ *
+ * Its service tickets, ride photos and GPS tracker stay and just stop
+ * pointing at it. Tickets are unlinked here first: their foreign key to the
+ * bike is (bike_id, customer_id), and Postgres's "on delete set null" on a
+ * two-column key nulls both columns, which the not-null customer_id refuses,
+ * so any bike with a ticket could never be deleted.
+ */
+export async function adminDeleteBike(bikeId: string): Promise<{ ok: boolean; message: string }> {
   await requireAdminUser()
-
-  const bikeId = (formData.get('bike_id') as string || '').trim()
-  if (!bikeId) return
+  const id = (bikeId || '').trim()
+  if (!id) return { ok: false, message: 'No bike was specified.' }
 
   const supabase = createAdminClient()
-  await supabase.from('bikes').delete().eq('id', bikeId)
+  const { error: ticketErr } = await supabase
+    .from('service_tickets')
+    .update({ bike_id: null })
+    .eq('bike_id', id)
+  if (ticketErr) return { ok: false, message: 'Nothing was removed: ' + ticketErr.message }
+
+  const { data, error } = await supabase.from('bikes').delete().eq('id', id).select('id')
+  if (error) return { ok: false, message: 'Nothing was removed: ' + error.message }
+  if (!data || data.length === 0) return { ok: false, message: 'That bike was already removed.' }
 
   revalidatePath('/admin/customers')
   revalidatePath('/dashboard/bikes')
+  return { ok: true, message: 'Bike removed.' }
 }
 
 

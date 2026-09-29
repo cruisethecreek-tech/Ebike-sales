@@ -6,6 +6,7 @@ import { revalidatePath } from 'next/cache'
 import { APPS_SCRIPT_CMS_URL } from '@/lib/constants'
 import { createClient as createServiceClient } from '@supabase/supabase-js'
 import { notifyReferrerOfPaidPurchase } from '@/lib/referral-email'
+import { removeInvoiceFromSheet } from '@/lib/invoice-removal'
 
 export type StatusResult = {
   ok: boolean
@@ -221,11 +222,11 @@ export async function resyncStatusToSheet(
  * So: ask for the deleted rows back. Zero rows with no error is the signature
  * of an RLS refusal, and it is reported as one rather than swallowed.
  *
- * This removes the Supabase row only. The Google Sheet is the system of
- * record for invoicing — invoice.html and the CMS Apps Script read and write
- * it, and nothing here touches it. To retire an invoice completely, delete
- * the Sheet row too, or it will be re-synced the next time that invoice is
- * edited and saved.
+ * Once the portal copy is gone, the Google Sheet row goes too. Deleting only
+ * the portal copy left the invoice in the generator, where the next save of
+ * it synced it straight back, so a test invoice could never be got rid of.
+ * If the Sheet cannot be reached the portal delete still stands and the
+ * message says which row is left.
  */
 export type DeleteInvoiceResult = { ok: boolean; message?: string }
 
@@ -239,6 +240,11 @@ export async function adminDeleteInvoice(
   if (!invoiceId) return { ok: false, message: 'No invoice was specified.' }
 
   const supabase = await createClient()
+  const { data: before } = await supabase
+    .from('invoices')
+    .select('invoice_number')
+    .eq('id', invoiceId)
+    .maybeSingle()
   const { data, error } = await supabase
     .from('invoices')
     .delete()
@@ -258,6 +264,20 @@ export async function adminDeleteInvoice(
   }
 
   revalidatePath('/admin/invoices')
+  revalidatePath('/admin/customers')
   revalidatePath('/dashboard/invoices')
+
+  const num = String(before?.invoice_number || '').trim()
+  // WIX- orders were imported from a CSV and have no Sheet row.
+  if (!num || /^WIX-/i.test(num)) return { ok: true }
+  const sheet = await removeInvoiceFromSheet(APPS_SCRIPT_CMS_URL, num)
+  if (!sheet.ok) {
+    return {
+      ok: true,
+      message:
+        `${num} was removed from the portal, but its Google Sheet row could not be removed ` +
+        `(${sheet.error}). Delete that row by hand, or the invoice generator will keep listing it.`,
+    }
+  }
   return { ok: true }
 }

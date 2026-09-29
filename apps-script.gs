@@ -118,6 +118,7 @@ function doPost(e) {
     var action = String(p.action || (e && e.parameter && e.parameter.action) || '').trim();
     if (action === 'repairIntake') return handleRepairIntake(p);
     if (action === 'referralEmail') return handleReferralEmail(p);
+    if (action === 'deleteInvoice') return handleDeleteInvoice(p);
     return json({ ok: false, error: 'Unknown POST action: ' + action });
   } catch (err) {
     console.error('doPost failed: ' + err);
@@ -213,6 +214,49 @@ function generateRepairWaiverDoc_(row) {
  * photo save. Reuses the Drive scope the agreement generator already
  * authorized — no new permissions.
  */
+/**
+ * Delete an invoice's row(s) from the Invoices tab, when the portal asks
+ * (portal/lib/invoice-removal.ts). For test invoices and mistakes: staff
+ * confirm in the portal or the generator first.
+ *
+ * Only the portal may call this, with the PORTAL_ADMIN_KEY script property
+ * (the same value as ADMIN_API_KEY on Vercel). It is a POST, never a GET
+ * action, so it cannot be reached by the public JSONP routes.
+ */
+function handleDeleteInvoice(p) {
+  var json = function(obj) {
+    return ContentService.createTextOutput(JSON.stringify(obj))
+      .setMimeType(ContentService.MimeType.JSON);
+  };
+  var expected = '';
+  try {
+    expected = String(PropertiesService.getScriptProperties().getProperty('PORTAL_ADMIN_KEY') || '').trim();
+  } catch (propErr) {
+    expected = '';
+  }
+  if (!expected || String(p.key || '').trim() !== expected) {
+    return json({ ok: false, error: 'not authorized' });
+  }
+  var num = String(p.invoiceNumber || '').trim().toUpperCase();
+  if (!/^[A-Z0-9][A-Z0-9-]{1,29}$/.test(num)) {
+    return json({ ok: false, error: 'not an invoice number' });
+  }
+
+  var sh = SpreadsheetApp.openById(INVOICES_SHEET_ID).getSheetByName(INVOICES_TAB);
+  if (!sh || sh.getLastRow() < 2) return json({ ok: true, removed: 0 });
+  var rows = sh.getDataRange().getValues();
+  var cNum = _invCol(rows[0].map(String), ['invoiceNumber', 'invoice #', 'invoice number', 'invoiceNo'], 0);
+  var removed = 0;
+  // Bottom up, so deleting a row does not shift the ones still to check.
+  for (var r = rows.length - 1; r >= 1; r--) {
+    if (String(rows[r][cNum]).trim().toUpperCase() === num) {
+      sh.deleteRow(r + 1);
+      removed++;
+    }
+  }
+  return json({ ok: true, removed: removed });
+}
+
 /**
  * Referral emails, sent when the customer portal asks (portal/lib/referral-email.ts):
  *   referralPaid  a friend this customer referred has made a paid purchase

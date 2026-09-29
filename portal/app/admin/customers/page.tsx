@@ -14,7 +14,8 @@ export default async function AdminCustomers() {
 
   const { data: invoices } = await supabase
     .from('invoices')
-    .select('customer_id, invoice_number, total_amount, status, issued_at')
+    .select('customer_id, invoice_number, id, total_amount, status, issued_at')
+    .order('issued_at', { ascending: false })
 
   const { data: bikes } = await supabase
     .from('bikes')
@@ -57,6 +58,13 @@ export default async function AdminCustomers() {
       totalPaid,
       totalOutstanding: Math.max(0, totalInvoiced - totalPaid),
       bikes: custBikes,
+      invoices: custInvoices.map((i) => ({
+        id: i.id,
+        invoice_number: i.invoice_number,
+        total_amount: Number(i.total_amount || 0),
+        status: i.status,
+        issued_at: i.issued_at,
+      })),
       latestPurchaseDate,
     }
   })

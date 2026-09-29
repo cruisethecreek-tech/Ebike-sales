@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { STORE_URL } from '@/lib/constants'
 import { canonicalInvoiceNumber } from '@/lib/invoice-number'
 import { adminUpdateBike, adminAddBike, adminDeleteBike } from './actions'
+import { DeleteInvoiceButton } from '../invoices/delete-invoice-button'
 import { SendInviteButton } from './send-invite-button'
 import { ViewAsButton } from '@/app/admin/view-as-button'
 import { RemoveCustomer } from './remove-customer'
@@ -49,6 +50,8 @@ interface CustomerData {
   /** Billed but not yet marked paid. */
   totalOutstanding?: number
   bikes: Bike[]
+  /** This customer's invoices in the portal, newest first. */
+  invoices?: { id: string; invoice_number: string | null; total_amount: number; status: string; issued_at: string | null }[]
   latestPurchaseDate?: string | null
   /** Set when hidden from the directory. Their data is untouched. */
   archived_at?: string | null
@@ -164,6 +167,55 @@ export function SignupWhen({ customer }: { customer: CustomerData }) {
   )
 }
 
+/** Two clicks, like deleting an invoice: a stray tap must not remove a bike. */
+function RemoveBikeButton({ bikeId, label }: { bikeId: string; label: string }) {
+  const [armed, setArmed] = useState(false)
+  const [pending, setPending] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  async function remove() {
+    setPending(true)
+    const r = await adminDeleteBike(bikeId)
+    setPending(false)
+    if (!r.ok) { setError(r.message); setArmed(false) }
+  }
+
+  if (!armed) {
+    return (
+      <span className="inline-flex items-center gap-1.5">
+        <button
+          type="button"
+          onClick={() => { setArmed(true); setError(null) }}
+          className="px-2 py-1 rounded border border-[#B3261E] text-[#B3261E] text-[11px] font-semibold hover:bg-[#FDECEA]"
+        >
+          Remove bike
+        </button>
+        {error && <span role="alert" className="text-[10px] font-semibold text-[#B3261E]">{error}</span>}
+      </span>
+    )
+  }
+  return (
+    <span className="inline-flex items-center gap-1.5 flex-wrap">
+      <button
+        type="button"
+        onClick={remove}
+        disabled={pending}
+        className="px-2 py-1 rounded bg-[#B3261E] text-white text-[11px] font-bold hover:bg-[#8C1D18] disabled:opacity-60"
+      >
+        {pending ? 'Removing…' : `Remove ${label}`}
+      </button>
+      <button
+        type="button"
+        onClick={() => setArmed(false)}
+        disabled={pending}
+        className="px-2 py-1 rounded border border-[#C9A96E] text-[#2D4A32] text-[11px] font-semibold hover:bg-white disabled:opacity-60"
+      >
+        Cancel
+      </button>
+    </span>
+  )
+}
+
 function BikeAdminCard({ bike, knownInvoiceNumbers }: { bike: Bike; knownInvoiceNumbers?: Set<string> }) {
   const [serial, setSerial] = useState(bike.serial_number || '')
   const [receipt, setReceipt] = useState(bike.receipt_number || '')
@@ -271,6 +323,9 @@ function BikeAdminCard({ bike, knownInvoiceNumbers }: { bike: Bike; knownInvoice
         >
           {isSaving ? 'Saving...' : '💾 Save Bike Slots'}
         </button>
+      </div>
+      <div className="flex justify-end pt-1 border-t border-[#E5E5E5]">
+        <RemoveBikeButton bikeId={bike.id} label={`${bike.brand} ${bike.model}`.trim()} />
       </div>
     </form>
   )
@@ -879,6 +934,40 @@ export function CustomerDirectory({
             ) : (
               <p className="text-xs text-gray-500 italic bg-[#FAF8F2] p-3 rounded-lg border border-dashed border-[#C9A96E]">
                 No bikes registered for this customer yet. Use the "+ Add Bike for Customer" button above or generate an invoice with an e-bike.
+              </p>
+            )}
+          </div>
+
+          {/* ── Their invoices, with delete for test invoices and mistakes ── */}
+          <div className="pt-3 border-t border-gray-100 space-y-2">
+            <h4 className="text-xs font-bold text-[#4A4A4A] uppercase tracking-wider">
+              🧾 Invoices ({selectedCustomer.invoices?.length || 0}):
+            </h4>
+            {selectedCustomer.invoices && selectedCustomer.invoices.length > 0 ? (
+              <ul className="space-y-1.5">
+                {selectedCustomer.invoices.map((inv) => (
+                  <li
+                    key={inv.id}
+                    className="flex flex-wrap items-center gap-x-3 gap-y-1 p-2.5 rounded-lg bg-[#FAF8F2] border border-[#E5E5E5] text-xs"
+                  >
+                    <Link href={`/admin/invoices/${inv.id}`} className="font-mono font-bold text-[#2D4A32] hover:underline">
+                      {inv.invoice_number || 'No number'}
+                    </Link>
+                    <span className="text-gray-500">
+                      {inv.issued_at ? new Date(inv.issued_at).toLocaleDateString() : ''}
+                    </span>
+                    <span className="font-semibold">${inv.total_amount.toFixed(2)}</span>
+                    <span className="uppercase text-[10px] font-bold text-gray-500">{inv.status}</span>
+                    <span className="ml-auto">
+                      <DeleteInvoiceButton invoiceId={inv.id} invoiceNumber={inv.invoice_number || ''} />
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="text-xs text-gray-500 italic">
+                No invoices in the portal. Invoices that are only in the Google Sheet can be deleted from the invoice
+                generator: open the invoice there and use Delete invoice.
               </p>
             )}
           </div>

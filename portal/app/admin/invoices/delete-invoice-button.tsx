@@ -35,14 +35,14 @@ export function DeleteInvoiceButton({
         <button
           type="button"
           onClick={() => setArmed(true)}
-          title={`Remove ${invoiceNumber} from the portal`}
+          title={`Delete ${invoiceNumber} from the portal and the Google Sheet`}
           className="px-2 py-1 rounded border border-[#B3261E] text-[#B3261E] text-xs font-semibold hover:bg-[#FDECEA]"
         >
           Delete
         </button>
         {/* A failure has to outlive the armed state, or disarming the button
             would hide the only evidence that nothing happened. */}
-        {result && !result.ok && (
+        {result?.message && (
           <span role="alert" className="text-[11px] font-semibold text-[#B3261E]">
             {result.message}
           </span>
