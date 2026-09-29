@@ -28,6 +28,7 @@ interface Bike {
   serial_number?: string | null
   receipt_number?: string | null
   purchase_date?: string | null
+  shop_invoice_url?: string | null
 }
 
 interface CustomerData {
@@ -216,9 +217,22 @@ function RemoveBikeButton({ bikeId, label }: { bikeId: string; label: string }) 
   )
 }
 
-function BikeAdminCard({ bike, knownInvoiceNumbers }: { bike: Bike; knownInvoiceNumbers?: Set<string> }) {
+function BikeAdminCard({
+  bike,
+  knownInvoiceNumbers,
+  shopInvoiceByNumber,
+}: {
+  bike: Bike
+  knownInvoiceNumbers?: Set<string>
+  /** Shop invoice links on invoices, by canonical invoice number. */
+  shopInvoiceByNumber?: Map<string, string>
+}) {
   const [serial, setSerial] = useState(bike.serial_number || '')
   const [receipt, setReceipt] = useState(bike.receipt_number || '')
+  const [shopUrl, setShopUrl] = useState(bike.shop_invoice_url || '')
+  // The bike's own link wins; otherwise borrow the matching invoice's.
+  const fromInvoice = shopInvoiceByNumber?.get(canonicalInvoiceNumber(receipt) || '') || ''
+  const shopLink = /^https?:\/\//i.test(shopUrl.trim()) ? shopUrl.trim() : fromInvoice
   const [saved, setSaved] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
 
@@ -306,6 +320,36 @@ function BikeAdminCard({ bike, knownInvoiceNumbers }: { bike: Bike; knownInvoice
         </div>
       </div>
 
+      {/* Shop invoice (Shop.com order / warranty link). Bikes with no invoice
+          in the generator keep it here, so it is one click from the card. */}
+      <div className="text-xs">
+        <div className="flex justify-between items-center mb-0.5">
+          <label className="block text-[10px] font-bold uppercase text-[#2D4A32] tracking-wider">
+            🔗 Shop invoice link
+          </label>
+          {shopLink ? (
+            <a
+              href={shopLink}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-[10px] text-[#2D4A32] font-bold hover:underline"
+            >
+              Open shop invoice ↗{!shopUrl.trim() && fromInvoice ? ` (from ${canonicalInvoiceNumber(receipt)})` : ''}
+            </a>
+          ) : (
+            <span className="text-[10px] text-gray-500">None on file</span>
+          )}
+        </div>
+        <input
+          type="url"
+          name="shop_invoice_url"
+          value={shopUrl}
+          onChange={(e) => setShopUrl(e.target.value)}
+          placeholder={fromInvoice ? 'Using the link on the invoice' : 'Paste the Shop.com order link'}
+          className="w-full px-2.5 py-1.5 rounded-lg border border-[#C9A96E] bg-white text-xs placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#2D4A32]"
+        />
+      </div>
+
       <div className="flex justify-between items-center pt-1">
         {saved ? (
           <span className="text-xs font-bold text-green-700 animate-fadeIn">
@@ -334,15 +378,22 @@ function BikeAdminCard({ bike, knownInvoiceNumbers }: { bike: Bike; knownInvoice
 export function CustomerDirectory({
   customers,
   knownInvoiceNumbers,
+  shopInvoiceByNumber,
 }: {
   customers: CustomerData[]
   /** Every invoice number that exists, canonicalised. Lets a bike card tell a
       real receipt from one that points at nothing. */
   knownInvoiceNumbers?: string[]
+  /** Invoice number → that invoice's shop invoice link, where it has one. */
+  shopInvoiceByNumber?: Record<string, string>
 }) {
   const invoiceNumberSet = useMemo(
     () => new Set((knownInvoiceNumbers || []).map((n) => canonicalInvoiceNumber(n) || '')),
     [knownInvoiceNumbers],
+  )
+  const shopInvoiceMap = useMemo(
+    () => new Map(Object.entries(shopInvoiceByNumber || {}).map(([n, u]) => [canonicalInvoiceNumber(n) || '', u])),
+    [shopInvoiceByNumber],
   )
   const [activeLetter, setActiveLetter] = useState<string>('ALL')
   const [signupFilter, setSignupFilter] = useState<'ALL' | 'REGISTERED' | 'INVITED' | 'NOT_INVITED' | 'DUPLICATES'>('ALL')
@@ -928,7 +979,7 @@ export function CustomerDirectory({
             {selectedCustomer.bikes.length > 0 ? (
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-2.5">
                 {selectedCustomer.bikes.map((b) => (
-                  <BikeAdminCard key={b.id} bike={b} knownInvoiceNumbers={invoiceNumberSet} />
+                  <BikeAdminCard key={b.id} bike={b} knownInvoiceNumbers={invoiceNumberSet} shopInvoiceByNumber={shopInvoiceMap} />
                 ))}
               </div>
             ) : (
