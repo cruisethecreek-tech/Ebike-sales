@@ -3022,7 +3022,9 @@
         // Staff pick the referrer here instead of typing that into the notes;
         // the two are joined on save and split apart again when an invoice is
         // opened for editing. Same pattern the portal matches.
-        var REFERRAL_IN_NOTES = /(?:referred\s+by|referral(?:\s*\/\s*promo)?\s*code)\s*:\s*([A-Za-z0-9-]{3,24})/i;
+        // The optional "(Name)" after the code is for people reading the
+        // invoice; the portal only reads the code.
+        var REFERRAL_IN_NOTES = /(?:referred\s+by|referral(?:\s*\/\s*promo)?\s*code)\s*:\s*([A-Za-z0-9-]{3,24})(?:\s*\([^()|]*\))?/i;
         var referrerByCode = {};
 
         function referralCodeFromField() {
@@ -3045,7 +3047,9 @@
             var notes = document.getElementById('notes').value.trim();
             var code = referralCodeFromField();
             if (!code) return notes;
-            return (notes ? notes + ' | ' : '') + 'Referred by: ' + code;
+            var who = referrerByCode[code];
+            var label = 'Referred by: ' + code + (who && who.name ? ' (' + who.name + ')' : '');
+            return (notes ? notes + ' | ' : '') + label;
         }
 
         function setNotesAndReferral(paymentNotes) {
@@ -3616,7 +3620,7 @@
         }
 
         // A referral code handed over in the link (?ref=CODE) fills the
-        // Referred By field; it is saved into the notes as "Referred by: CODE".
+        // Referred By field; it is saved into the notes as "Referred by: CODE (Name)".
         if (refParam && document.getElementById('referredBy')) {
             document.getElementById('referredBy').value = refParam.trim().toUpperCase();
             onReferredByInput();
