@@ -8,11 +8,13 @@
 -- of what she owns.
 --
 -- A merge moves everything onto the account being kept, then archives the
--- other. Where the two records disagree on name or phone, staff pick which
--- value survives (p_first_name, p_last_name, p_phone); left null, the kept
--- record's value stays and only its blanks are filled. The login email is not
--- a column here — the server action swaps it in auth after this returns. It does not delete it: the login is left in place, and permanent
+-- other. It does not delete it: the login is left in place, and permanent
 -- deletion stays a separate, deliberate step from the archive.
+--
+-- Where the two records disagree on name or phone, staff pick which value
+-- survives (p_first_name, p_last_name, p_phone); left null, the kept record's
+-- value stays and only its blanks are filled. The login email is not a column
+-- here: the server action swaps it in auth after this returns.
 --
 -- Why this is a database function and not a few updates from the server:
 -- service_tickets carries a composite foreign key to bikes (id, customer_id),
