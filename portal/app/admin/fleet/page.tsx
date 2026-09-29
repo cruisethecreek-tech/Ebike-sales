@@ -49,6 +49,22 @@ export default async function AdminFleet({
   const bikeById = new Map(bikes.map((b) => [b.id, b]))
   const trackedBikeIds = new Set(gps.statuses.map((s) => s.tracker.bike_id))
   const untrackedBikes = bikes.filter((b) => !trackedBikeIds.has(b.id))
+
+  // The register form's bike picker, grouped by owner and sorted by last name,
+  // so a bike is found by who owns it rather than by when it was added.
+  const ownerKey = (b: BikeRow) =>
+    b.customers ? `${b.customers.last_name} ${b.customers.first_name}`.trim().toLowerCase() : '\uffff'
+  const bikeGroups = new Map<string, { label: string; bikes: BikeRow[] }>()
+  for (const b of [...untrackedBikes].sort(
+    (x, y) =>
+      ownerKey(x).localeCompare(ownerKey(y)) ||
+      `${x.brand} ${x.model}`.localeCompare(`${y.brand} ${y.model}`),
+  )) {
+    const key = ownerKey(b)
+    const label = b.customers ? `${b.customers.first_name} ${b.customers.last_name}`.trim() : 'No owner'
+    if (!bikeGroups.has(key)) bikeGroups.set(key, { label, bikes: [] })
+    bikeGroups.get(key)!.bikes.push(b)
+  }
   const openAlerts = (alertsRes.data ?? []) as TrackerAlert[]
   const trackerById = new Map(gps.statuses.map((s) => [s.tracker.id, s.tracker]))
 
@@ -217,12 +233,15 @@ export default async function AdminFleet({
             <span className="text-xs font-bold text-gray-600">Bike</span>
             <select name="bike_id" required className="w-full border rounded-lg px-3 py-2 bg-white" defaultValue="">
               <option value="" disabled>Choose a bike…</option>
-              {untrackedBikes.map((b) => (
-                <option key={b.id} value={b.id}>
-                  {b.brand} {b.model}
-                  {b.customers ? ` — ${b.customers.first_name} ${b.customers.last_name}` : ''}
-                  {b.serial_number ? ` (${b.serial_number})` : ''}
-                </option>
+              {[...bikeGroups.entries()].map(([key, group]) => (
+                <optgroup key={key} label={group.label}>
+                  {group.bikes.map((b) => (
+                    <option key={b.id} value={b.id}>
+                      {b.brand} {b.model}
+                      {b.serial_number ? ` (${b.serial_number})` : ''}
+                    </option>
+                  ))}
+                </optgroup>
               ))}
             </select>
           </label>
