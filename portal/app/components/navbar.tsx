@@ -18,6 +18,7 @@ export function Navbar() {
     { href: '/dashboard', label: 'Dashboard' },
     { href: '/dashboard/bikes', label: 'My Bikes' },
     { href: '/dashboard/invoices', label: 'Invoices' },
+    { href: '/dashboard/photos', label: 'My Photos' },
     { href: '/dashboard/referrals', label: 'Referrals' },
     { href: '/support', label: 'Support' },
   ]
