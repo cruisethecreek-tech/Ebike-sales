@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { listAuthAccounts } from '@/lib/auth-accounts'
 import { InviteCustomerForm } from './invite-form'
 import { CustomerDirectory } from './customer-directory'
+import Link from 'next/link'
 
 export default async function AdminCustomers() {
   const supabase = await createClient()
@@ -107,12 +108,22 @@ export default async function AdminCustomers() {
 
       {/* Invite Customer Form */}
       <div className="bg-white rounded-xl shadow-sm p-4 sm:p-6 border border-[#6B8F71]/20">
-        <h2
-          className="uppercase tracking-wide text-xl text-[#2D4A32] mb-3"
-          style={{ fontFamily: "'Bebas Neue', sans-serif" }}
-        >
-          ✉️ Invite New Customer
-        </h2>
+        <div className="flex items-start justify-between gap-3 flex-wrap mb-3">
+          <h2
+            className="uppercase tracking-wide text-xl text-[#2D4A32]"
+            style={{ fontFamily: "'Bebas Neue', sans-serif" }}
+          >
+            ✉️ Invite New Customer
+          </h2>
+          {/* One at a time is right for a walk-in and wrong for a shop's whole
+              back catalogue. */}
+          <Link
+            href="/admin/customers/import"
+            className="text-xs font-bold px-3 py-1.5 rounded-lg bg-white border border-[#C9A96E] text-[#2D4A32] hover:bg-[#FAF3E4]"
+          >
+            ⬆ Import a list (CSV) →
+          </Link>
+        </div>
         <InviteCustomerForm />
       </div>
 

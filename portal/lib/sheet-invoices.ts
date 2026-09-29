@@ -91,29 +91,55 @@ function parseCurrency(val: any): number {
   return isNaN(num) ? 0 : num
 }
 
+/**
+ * Every invoice row in the Sheet.
+ *
+ * The Sheet is the system of record; the portal is a mirror. Nothing compared
+ * the two, so an invoice that failed to sync was simply absent — 15 of them,
+ * found by a human scrolling two lists side by side. This is what lets the
+ * portal answer "what is missing" itself.
+ *
+ * Throws rather than returning [], because an empty list and a failed fetch
+ * would otherwise look identical, and "nothing is missing" is exactly the
+ * wrong thing to report when the Sheet could not be read.
+ */
+export async function fetchAllSheetInvoices(): Promise<SheetInvoice[]> {
+  const rows = await fetchSheetRows()
+  return rows
+    .filter((r) => String(r.invoiceNumber || '').trim())
+    .map((r) => rowToSheetInvoice(r, String(r.invoiceNumber).trim()))
+}
+
+async function fetchSheetRows(): Promise<Record<string, string>[]> {
+  const csvUrl = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(SHEET_TAB)}`
+  const resp = await fetch(csvUrl, { next: { revalidate: 30 } })
+  if (!resp.ok) {
+    throw new Error(`Could not read the Sheet: ${resp.status} ${resp.statusText}`)
+  }
+  return parseCSV(await resp.text())
+}
+
 export async function fetchSheetInvoice(invoiceNumber: string): Promise<SheetInvoice | null> {
   if (!invoiceNumber) return null
   const normalizedTarget = invoiceNumber.trim().toUpperCase()
 
   try {
-    const csvUrl = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(SHEET_TAB)}`
-    const resp = await fetch(csvUrl, {
-      next: { revalidate: 30 }, // Cache for 30s in Next.js
-    })
-
-    if (!resp.ok) {
-      console.warn('Google Sheet invoice fetch failed:', resp.status, resp.statusText)
-      return null
-    }
-
-    const csvText = await resp.text()
-    const rows = parseCSV(csvText)
+    const rows = await fetchSheetRows()
 
     const row = rows.find(
       (r) => String(r.invoiceNumber || '').trim().toUpperCase() === normalizedTarget
     )
 
     if (!row) return null
+    return rowToSheetInvoice(row, invoiceNumber)
+  } catch (err) {
+    console.warn('Google Sheet invoice fetch failed:', err)
+    return null
+  }
+}
+
+function rowToSheetInvoice(row: Record<string, string>, invoiceNumber: string): SheetInvoice {
+  {
 
     // Parse line items
     let lineItems: InvoiceLineItem[] = []
@@ -181,9 +207,7 @@ export async function fetchSheetInvoice(invoiceNumber: string): Promise<SheetInv
       paymentLink: row.paymentLink || '',
       createdAt: row.createdAt || '',
       status: String(row.status || '').toLowerCase().trim(),
+      processingFee: parseCurrency(row.processingFee) || 0,
     }
-  } catch (err) {
-    console.error('Error in fetchSheetInvoice:', err)
-    return null
   }
 }

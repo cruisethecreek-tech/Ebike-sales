@@ -8,6 +8,11 @@ import { BikeLocation } from '@/app/components/bike-location'
 import { GpsLiveRefresh } from '@/app/components/gps-live-refresh'
 import { loadTrackerStatuses, type TrackerStatus } from '@/lib/gps'
 import Link from 'next/link'
+import { getViewerContext } from '@/lib/view-as'
+
+// Per-customer data, and now also per-preview: an admin viewing as someone
+// else must never be served a page cached for anybody. Never static.
+export const dynamic = 'force-dynamic'
 
 export const metadata = {
   title: 'My Bikes & Warranty — Cruise the Creek',
@@ -20,13 +25,13 @@ export default async function BikesPage() {
 
   try {
     const supabase = await createClient()
-    const { data: { user } } = await supabase.auth.getUser()
+    const { userId } = await getViewerContext()
 
-    if (user) {
+    if (userId) {
       const { data, error } = await supabase
         .from('bikes')
         .select('*')
-        .eq('customer_id', user.id)
+        .eq('customer_id', userId)
         .order('purchase_date', { ascending: false })
       
       if (error) throw error
