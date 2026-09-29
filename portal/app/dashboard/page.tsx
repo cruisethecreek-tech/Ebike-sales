@@ -160,7 +160,11 @@ export default async function DashboardPage() {
                     <div className="flex justify-between text-xs text-[#4A4A4A]">
                       <span>Creek Ready Service Plan:</span>
                       <span className="font-bold text-[#B45309]">
-                        {warranty.isCreekReadyActive ? `Due in ${warranty.creekReadyDaysLeft}d` : 'Due Now'}
+                        {!warranty.creekReadyDueDate
+                          ? 'Pending'
+                          : warranty.isCreekReadyActive
+                            ? `Due in ${warranty.creekReadyDaysLeft}d`
+                            : 'Due Now'}
                       </span>
                     </div>
                     <div className="h-2 bg-gray-200 rounded-full overflow-hidden">

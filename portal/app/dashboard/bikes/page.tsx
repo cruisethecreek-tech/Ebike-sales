@@ -113,8 +113,10 @@ export default async function BikesPage() {
                           : 'bg-amber-100 text-amber-800'
                       }`}
                     >
-                      {!warranty.hasPurchaseDate
-                        ? 'Purchase date needed'
+                      {!warranty.manufacturerWarrantyEndDate
+                        ? warranty.hasPurchaseDate
+                          ? 'Check warranty terms'
+                          : 'Purchase date needed'
                         : warranty.isManufacturerWarrantyActive
                           ? '🛡️ Warranty Active'
                           : 'Warranty Expired'}
@@ -206,9 +208,11 @@ export default async function BikesPage() {
                         🌲 Creek Ready Service Plan:
                       </span>
                       <span className="font-bold text-[#B45309]">
-                        {warranty.isCreekReadyActive
-                          ? `Tune-Up in ${warranty.creekReadyDaysLeft} Days`
-                          : 'Tune-Up Due Now'}
+                        {!warranty.creekReadyDueDate
+                          ? 'Schedule Pending'
+                          : warranty.isCreekReadyActive
+                            ? `Tune-Up in ${warranty.creekReadyDaysLeft} Days`
+                            : 'Tune-Up Due Now'}
                       </span>
                     </div>
 
