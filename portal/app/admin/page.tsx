@@ -1,6 +1,8 @@
 import { createClient } from '@/lib/supabase/server'
 import { StatusBadge } from '@/app/components/status-badge'
-import { BrandBreakdownChart } from './brand-breakdown-chart'
+import { BrandBreakdownChart, type ModelBuyer } from './brand-breakdown-chart'
+import { KpiStats, type PendingInvoice } from './pending-revenue'
+import { isWixOrder } from '@/lib/invoice-source'
 import { STORE_URL } from '@/lib/constants'
 import Link from 'next/link'
 
@@ -16,11 +18,21 @@ export default async function AdminOverview() {
 
   const { data: bikes } = await supabase
     .from('bikes')
-    .select('brand, model')
+    .select('brand, model, customer_id, purchase_date, customers(first_name, last_name)')
   
   const totalInvoices = invoices?.length || 0
   const totalRevenue = invoices?.filter(i => i.status === 'paid').reduce((sum, i) => sum + Number(i.total_amount), 0) || 0
   const pendingRevenue = invoices?.filter(i => i.status === 'pending').reduce((sum, i) => sum + Number(i.total_amount), 0) || 0
+  const pendingInvoices: PendingInvoice[] = (invoices || [])
+    .filter((i) => i.status === 'pending')
+    .map((i) => ({
+      id: i.id,
+      invoiceNumber: i.invoice_number,
+      customerId: i.customer_id,
+      customerName: personName(i.customers),
+      amount: Number(i.total_amount),
+      date: new Date(i.issued_at || i.created_at).toLocaleDateString(),
+    }))
 
   const { count: referralsCount } = await supabase.from('customers').select('*', { count: 'exact', head: true }).not('referred_by', 'is', null)
 
@@ -39,7 +51,7 @@ export default async function AdminOverview() {
     other: '#8A948E',    // Slate/Gray
   }
 
-  const brandGroups = new Map<string, Array<{ model: string; count: number }>>()
+  const brandGroups = new Map<string, Array<{ model: string; count: number; buyers: ModelBuyer[] }>>()
   const brandCounts = new Map<string, number>()
 
   ;(bikes || []).forEach((b) => {
@@ -52,11 +64,17 @@ export default async function AdminOverview() {
       brandGroups.set(brand, [])
     }
     const modelList = brandGroups.get(brand)!
+    const buyer: ModelBuyer = {
+      customerId: b.customer_id,
+      name: personName(b.customers),
+      date: b.purchase_date ? new Date(`${b.purchase_date}T00:00:00`).toLocaleDateString() : '',
+    }
     const existing = modelList.find((m) => m.model.toLowerCase() === model.toLowerCase())
     if (existing) {
       existing.count++
+      existing.buyers.push(buyer)
     } else {
-      modelList.push({ model, count: 1 })
+      modelList.push({ model, count: 1, buyers: [buyer] })
     }
   })
 
@@ -91,15 +109,16 @@ export default async function AdminOverview() {
         </a>
       </div>
 
-      {/* KPI Stat Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
-        <StatCard title="Total Customers" value={customersCount?.toString() || '0'} />
-        <StatCard title="Total Revenue" value={`$${totalRevenue.toFixed(2)}`} />
-        <StatCard title="Pending Revenue" value={`$${pendingRevenue.toFixed(2)}`} />
-        <StatCard title="Total Invoices" value={totalInvoices.toString()} />
-        <StatCard title="Total Referrals" value={referralsCount?.toString() || '0'} />
-        <StatCard title="Unredeemed Credits" value={`$${unredeemedCredits.toFixed(2)}`} />
-      </div>
+      {/* KPI Stat Cards (Pending Revenue opens the pending invoice list) */}
+      <KpiStats
+        customers={customersCount?.toString() || '0'}
+        totalRevenue={`$${totalRevenue.toFixed(2)}`}
+        pendingRevenue={`$${pendingRevenue.toFixed(2)}`}
+        totalInvoices={totalInvoices.toString()}
+        referrals={referralsCount?.toString() || '0'}
+        unredeemedCredits={`$${unredeemedCredits.toFixed(2)}`}
+        pending={pendingInvoices}
+      />
 
       {/* ── Interactive Brand & Model Breakdown Chart ── */}
       {brandStats.length > 0 && (
@@ -146,8 +165,8 @@ export default async function AdminOverview() {
                     </td>
                     <td className="p-3.5">
                       <a
-                        href={`${STORE_URL}/invoice.html?edit=${inv.invoice_number}`}
-                        target="_blank"
+                        href={isWixOrder(inv.invoice_number) ? `/admin/invoices/${inv.id}` : `${STORE_URL}/invoice.html?edit=${inv.invoice_number}`}
+                        target={isWixOrder(inv.invoice_number) ? undefined : '_blank'}
                         rel="noopener noreferrer"
                         className="font-mono text-sm font-bold underline hover:opacity-80 inline-flex items-center gap-1"
                         style={{ color: '#2D4A32' }}
@@ -192,8 +211,8 @@ export default async function AdminOverview() {
                 <div className="flex justify-between items-start">
                   <div>
                     <a
-                      href={`${STORE_URL}/invoice.html?edit=${inv.invoice_number}`}
-                      target="_blank"
+                      href={isWixOrder(inv.invoice_number) ? `/admin/invoices/${inv.id}` : `${STORE_URL}/invoice.html?edit=${inv.invoice_number}`}
+                      target={isWixOrder(inv.invoice_number) ? undefined : '_blank'}
                       rel="noopener noreferrer"
                       className="font-mono font-bold text-sm underline inline-flex items-center gap-1"
                       style={{ color: '#2D4A32' }}
@@ -228,16 +247,10 @@ export default async function AdminOverview() {
   )
 }
 
-function StatCard({ title, value }: { title: string; value: string }) {
-  return (
-    <div className="bg-white p-3.5 sm:p-5 rounded-xl shadow-sm border border-[#E5E5E5]">
-      <h3 className="text-xs font-semibold text-[#4A4A4A] uppercase tracking-wider">{title}</h3>
-      <p
-        className="uppercase tracking-wide text-2xl sm:text-4xl mt-1 text-[#2D4A32]"
-        style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '0.04em' }}
-      >
-        {value}
-      </p>
-    </div>
-  )
+type NameParts = { first_name?: string | null; last_name?: string | null }
+
+function personName(joined: NameParts | NameParts[] | null | undefined): string {
+  const c = Array.isArray(joined) ? joined[0] : joined
+  const name = `${c?.first_name || ''} ${c?.last_name || ''}`.trim()
+  return name || 'Unknown customer'
 }
