@@ -45,6 +45,9 @@ export interface Bike {
   model: string;
   serial_number: string | null;
   receipt_number?: string | null;
+  color_name?: string | null;
+  color_hex?: string | null;
+  image_url?: string | null;
   purchase_date: string | null; // ISO date
   warranty_expires_at: string | null; // ISO date
   created_at: string;
@@ -101,8 +104,15 @@ export interface LeaderboardEntry {
 export interface CommunityPhoto {
   id: string;
   customer_id: string;
-  image_url: string;
+  image_url: string | null;
+  storage_path: string | null;
+  bike_id: string | null;
   caption: string | null;
+  marketing_consent: boolean;
+  consent_text: string | null;
+  consented_at: string | null;
+  consent_withdrawn_at: string | null;
+  review_status: "new" | "approved" | "hidden";
   created_at: string;
   // Joined
   customers?: Pick<Customer, "first_name" | "last_name"> | null;

@@ -9,6 +9,8 @@ import { GpsLiveRefresh } from '@/app/components/gps-live-refresh'
 import { loadTrackerStatuses, type TrackerStatus } from '@/lib/gps'
 import Link from 'next/link'
 import { getViewerContext } from '@/lib/view-as'
+import { loadCatalog, matchCatalogModel, colorNamedIn, type CatalogModel } from '@/lib/bike-catalog'
+import { BikeLookEditor } from './bike-look-editor'
 
 // Per-customer data, and now also per-preview: an admin viewing as someone
 // else must never be served a page cached for anybody. Never static.
@@ -22,10 +24,18 @@ export default async function BikesPage() {
   let bikes: any[] = []
   let errorMsg = null
   let trackerByBike = new Map<string, TrackerStatus>()
+  let isStaff = false
+  let catalog: CatalogModel[] = []
 
   try {
     const supabase = await createClient()
-    const { userId } = await getViewerContext()
+    const { userId, realUserId } = await getViewerContext()
+
+    // Staff get a colour picker on each bike. The customer never does.
+    if (realUserId) {
+      const { data: me } = await supabase.from('customers').select('is_admin').eq('id', realUserId).maybeSingle()
+      isStaff = !!me?.is_admin
+    }
 
     if (userId) {
       const { data, error } = await supabase
@@ -41,6 +51,8 @@ export default async function BikesPage() {
       const gps = await loadTrackerStatuses(supabase, { bikeIds: bikes.map((b) => b.id) })
       if (gps.error) console.error('Error fetching GPS trackers:', gps.error)
       trackerByBike = new Map(gps.statuses.map((s) => [s.tracker.bike_id!, s]))
+
+      if (isStaff && bikes.length) catalog = await loadCatalog()
     }
   } catch (err: any) {
     console.error('Error fetching bikes:', err)
@@ -94,6 +106,11 @@ export default async function BikesPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {bikes.map((bike) => {
             const warranty = calculateBikeWarranties(bike.brand, bike.purchase_date, bike.warranty_expires_at)
+            const brandModels = isStaff
+              ? catalog.filter((m) => m.brand.toLowerCase() === String(bike.brand).toLowerCase())
+              : []
+            const guess = isStaff ? matchCatalogModel(brandModels, bike.brand, bike.model) : null
+            const guessColor = guess ? colorNamedIn(bike.model, guess.colors) : null
 
             return (
               <div
@@ -101,6 +118,18 @@ export default async function BikesPage() {
                 className="bg-white rounded-2xl p-6 shadow-sm border border-[#E5E5E5] flex flex-col justify-between hover:border-[#2D4A32] transition-all space-y-5"
               >
                 <div className="space-y-4">
+                  {/* ── What the bike looks like: the catalogue photo for its colour ── */}
+                  {bike.image_url && (
+                    <div className="-mx-6 -mt-6 mb-2 rounded-t-2xl bg-[#F5F0E8] flex items-center justify-center h-48 overflow-hidden">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={bike.image_url}
+                        alt={`${bike.brand} ${bike.model}${bike.color_name ? ' in ' + bike.color_name : ''}`}
+                        className="max-h-full max-w-full object-contain p-3"
+                      />
+                    </div>
+                  )}
+
                   {/* Top Header */}
                   <div className="flex justify-between items-start">
                     <span className="px-3 py-1 rounded-full bg-[#2D4A32] text-white text-xs font-bold uppercase tracking-wider">
@@ -130,10 +159,29 @@ export default async function BikesPage() {
                     >
                       {bike.model}
                     </h3>
+                    {bike.color_name && (
+                      <p className="flex items-center gap-1.5 text-xs text-[#1A2E1C] font-bold mb-0.5">
+                        <span
+                          className="inline-block w-3.5 h-3.5 rounded-full border border-black/20"
+                          style={bike.color_hex ? { backgroundColor: bike.color_hex } : undefined}
+                        />
+                        {bike.color_name}
+                      </p>
+                    )}
                     <p className="text-xs text-gray-500">
                       Purchased: {bike.purchase_date ? new Date(bike.purchase_date).toLocaleDateString() : 'Recorded on file'}
                     </p>
                   </div>
+
+                  {isStaff && (
+                    <BikeLookEditor
+                      bikeId={bike.id}
+                      models={brandModels}
+                      suggestedModelKey={guess?.key ?? null}
+                      suggestedColor={guessColor?.name ?? null}
+                      current={{ name: bike.color_name ?? null, hex: bike.color_hex ?? null }}
+                    />
+                  )}
 
                   {/* ── Frame Serial Number & Receipt ── */}
                   <SerialNumberEditor bike={bike} />

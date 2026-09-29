@@ -5,6 +5,7 @@ import { requireAdminUser } from '@/lib/require-admin'
 import { revalidatePath } from 'next/cache'
 import { canonicalInvoiceNumber } from '@/lib/invoice-number'
 import { findAuthUserByEmail } from '@/lib/find-auth-user'
+import { RIDE_PHOTOS_BUCKET } from '@/lib/ride-photos'
 
 // Admin-only: uses service role key to send invite emails
 function createAdminClient() {
@@ -371,6 +372,12 @@ async function removeCustomerRecords(
   // referrer rather than deleting the people they brought in.
   await admin.from('referral_credits').delete().eq('customer_id', customerId)
   await admin.from('customers').update({ referred_by: null }).eq('referred_by', customerId)
+
+  // Their ride photos: the rows go with the customer (cascade), the files
+  // would not. Deleting someone means deleting their pictures too.
+  const { data: photos } = await admin.from('community_photos').select('storage_path').eq('customer_id', customerId)
+  const paths = (photos || []).map((p) => p.storage_path).filter(Boolean) as string[]
+  if (paths.length) await admin.storage.from(RIDE_PHOTOS_BUCKET).remove(paths)
 
   const { error: custErr } = await admin.from('customers').delete().eq('id', customerId)
   if (custErr) return { ok: false as const, message: 'Could not delete the customer record: ' + custErr.message }
