@@ -9,6 +9,7 @@ const adminNav = [
   { href: '/admin/customers', label: 'Customers', icon: '👥' },
   { href: '/admin/invoices', label: 'Invoices', icon: '🧾' },
   { href: '/admin/referrals', label: 'Referrals', icon: '🎁' },
+  { href: '/admin/fleet', label: 'Fleet GPS', icon: '📍' },
 ]
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {

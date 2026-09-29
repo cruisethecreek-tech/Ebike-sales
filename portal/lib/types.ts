@@ -117,3 +117,45 @@ export interface ReferralCredit {
   redeemed_note: string | null;
   created_at: string;
 }
+
+// ── GPS tracking (migration 00012) ───────────────────────────
+
+export interface Tracker {
+  id: string;
+  imei: string;
+  bike_id: string | null;
+  label: string | null;
+  sim_iccid: string | null;
+  active: boolean;
+  assigned_at: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface Position {
+  id: number;
+  tracker_id: string;
+  traccar_position_id: number | null;
+  fix_time: string;
+  latitude: number;
+  longitude: number;
+  speed_kmh: number | null;
+  course: number | null;
+  valid: boolean | null;
+  attributes: Record<string, unknown>;
+  received_at: string;
+}
+
+export interface TrackerAlert {
+  id: number;
+  tracker_id: string;
+  traccar_event_id: number | null;
+  kind: string; // Traccar alarm name (e.g. "powerCut") or event type
+  occurred_at: string;
+  latitude: number | null;
+  longitude: number | null;
+  geofence_name: string | null;
+  attributes: Record<string, unknown>;
+  acknowledged_at: string | null;
+  created_at: string;
+}

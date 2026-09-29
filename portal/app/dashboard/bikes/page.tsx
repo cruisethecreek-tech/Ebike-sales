@@ -4,6 +4,9 @@ import { calculateBikeWarranties } from '@/lib/warranty'
 import { GoogleReviewCard } from '@/app/components/google-review-card'
 import { SerialNumberEditor } from './serial-number-editor'
 import BikeForm from './bike-form'
+import { BikeLocation } from '@/app/components/bike-location'
+import { GpsLiveRefresh } from '@/app/components/gps-live-refresh'
+import { loadTrackerStatuses, type TrackerStatus } from '@/lib/gps'
 import Link from 'next/link'
 import { getViewerContext } from '@/lib/view-as'
 
@@ -18,6 +21,7 @@ export const metadata = {
 export default async function BikesPage() {
   let bikes: any[] = []
   let errorMsg = null
+  let trackerByBike = new Map<string, TrackerStatus>()
 
   try {
     const supabase = await createClient()
@@ -32,6 +36,11 @@ export default async function BikesPage() {
       
       if (error) throw error
       bikes = data || []
+
+      // GPS is optional: a failure here must not hide the bikes themselves.
+      const gps = await loadTrackerStatuses(supabase, { bikeIds: bikes.map((b) => b.id) })
+      if (gps.error) console.error('Error fetching GPS trackers:', gps.error)
+      trackerByBike = new Map(gps.statuses.map((s) => [s.tracker.bike_id!, s]))
     }
   } catch (err: any) {
     console.error('Error fetching bikes:', err)
@@ -123,6 +132,9 @@ export default async function BikesPage() {
                   {/* ── Frame Serial Number & Receipt ── */}
                   <SerialNumberEditor bike={bike} />
 
+                  {/* ── GPS location, only on bikes with a tracker ── */}
+                  {trackerByBike.has(bike.id) && <BikeLocation status={trackerByBike.get(bike.id)!} />}
+
                   {/* ── 1. Manufacturer Warranty Countdown ── */}
                   <div className="p-4 bg-[#F5F0E8] rounded-xl space-y-2 border border-[#E5E5E5]">
                     <div className="flex justify-between items-center text-xs">
@@ -189,6 +201,8 @@ export default async function BikesPage() {
           })}
         </div>
       )}
+
+      {trackerByBike.size > 0 && <GpsLiveRefresh />}
 
       {/* Register Another Bike Form */}
       <div className="mt-8">
