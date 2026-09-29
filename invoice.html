@@ -1490,6 +1490,23 @@
             syncReferralInstallDiscount();
         }
 
+        // A saved invoice stores the discount as one dollar total (the % part
+        // plus any fixed amount) alongside the %. Putting both straight back
+        // counted the % twice on every reopen-and-save. Call this after the
+        // line items are loaded: it takes the % part back out of the total.
+        function restoreDiscountFields(inv) {
+            var pct = parseFloat(inv && inv.discountPct) || 0;
+            var total = parseFloat(inv && inv.discountAmt) || 0;
+            var subtotal = 0;
+            document.querySelectorAll('.line-item').forEach(function (item) {
+                subtotal += (parseFloat(item.querySelector('.quantity').value) || 0) *
+                            (parseFloat(item.querySelector('.price').value) || 0);
+            });
+            var fixed = Math.round((total - subtotal * pct / 100) * 100) / 100;
+            document.getElementById('discountPercent').value = pct || '';
+            document.getElementById('discountFixed').value = fixed >= 0.01 ? fixed.toFixed(2) : '';
+        }
+
         function calculateTotals() {
             const items = document.querySelectorAll('.line-item');
             let subtotal = 0;
@@ -3005,6 +3022,7 @@
             } catch (e) {
                 console.warn('[edit-mode] could not parse lineItems:', e);
             }
+            restoreDiscountFields(inv);
             // Reveal + prime the status control (edit mode only).
             if (editingInvoiceNumber) {
                 var _sc = document.getElementById('statusControl');
@@ -3607,7 +3625,6 @@
                 }
 
                 if (inv.discountPct && document.getElementById('discountPercent')) document.getElementById('discountPercent').value = inv.discountPct;
-                if (inv.discountAmt && document.getElementById('discountFixed')) document.getElementById('discountFixed').value = inv.discountAmt;
                 if (inv.processingFee && document.getElementById('processingFee')) document.getElementById('processingFee').value = inv.processingFee;
                 if (inv.paymentNotes) setNotesAndReferral(inv.paymentNotes);
 
@@ -3638,6 +3655,8 @@
                         if (typeof onPaymentModeChange === 'function') onPaymentModeChange();
                     }
                 }
+
+                restoreDiscountFields(inv);
 
                 if (typeof loadSupplierUrl === 'function') {
                     loadSupplierUrl(inv.invoiceNumber || invNum);
