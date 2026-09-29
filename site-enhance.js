@@ -1050,7 +1050,7 @@
     bar.innerHTML =
       'A Cruise the Creek rider sent you here. Your referral code <strong style="font-family:monospace;color:#C9A96E">' +
       arrived.replace(/[^A-Z0-9-]/g, '') +
-      '</strong> is saved and goes on your order automatically. ' +
+      '</strong> is saved and goes on your order automatically, and it gets you 25% off installation. ' +
       '<a href="shop.html" style="color:#C9A96E;text-decoration:underline;margin-left:6px">Shop e-bikes</a>' +
       '<a href="repair-intake.html?service=tuneup" style="color:#C9A96E;text-decoration:underline;margin-left:12px">Book a tune-up</a>' +
       '<button type="button" aria-label="Dismiss" style="position:absolute;left:10px;top:50%;transform:translateY(-50%);' +

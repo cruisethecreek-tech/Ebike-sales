@@ -1141,7 +1141,7 @@
                         <div class="form-group">
                             <label for="referredBy">Referred By (optional)</label>
                             <input type="text" id="referredBy" list="referrerOptions" autocomplete="off"
-                                   placeholder="Type the friend's name or their code" oninput="onReferredByInput()">
+                                   placeholder="Type the friend's name or their code" oninput="onReferredByInput(); syncReferralInstallDiscount()">
                             <datalist id="referrerOptions"></datalist>
                             <small id="referredByHint" style="display:block;margin-top:.3rem;color:var(--op-muted,#6b6b6b);font-size:.78rem;">
                                 Whoever sent them in gets credit toward their $100 reward when this invoice saves.
@@ -1487,7 +1487,24 @@
 
         function removeLineItem(btn) {
             btn.parentElement.remove();
-            updateInvoicePreview();
+            syncReferralInstallDiscount();
+        }
+
+        // A saved invoice stores the discount as one dollar total (the % part
+        // plus any fixed amount) alongside the %. Putting both straight back
+        // counted the % twice on every reopen-and-save. Call this after the
+        // line items are loaded: it takes the % part back out of the total.
+        function restoreDiscountFields(inv) {
+            var pct = parseFloat(inv && inv.discountPct) || 0;
+            var total = parseFloat(inv && inv.discountAmt) || 0;
+            var subtotal = 0;
+            document.querySelectorAll('.line-item').forEach(function (item) {
+                subtotal += (parseFloat(item.querySelector('.quantity').value) || 0) *
+                            (parseFloat(item.querySelector('.price').value) || 0);
+            });
+            var fixed = Math.round((total - subtotal * pct / 100) * 100) / 100;
+            document.getElementById('discountPercent').value = pct || '';
+            document.getElementById('discountFixed').value = fixed >= 0.01 ? fixed.toFixed(2) : '';
         }
 
         function calculateTotals() {
@@ -1556,6 +1573,11 @@
                 'paid, change the status from the portal instead.';
         }
 
+        // "-$25.00", not "$-25.00", for the referral discount line.
+        function money(n) {
+            return (n < 0 ? '-$' : '$') + Math.abs(n).toFixed(2);
+        }
+
         function updateInvoicePreview() {
             document.getElementById('previewCustomerName').textContent = document.getElementById('customerName').value || 'Customer Name';
             document.getElementById('previewCustomerAddress').textContent = document.getElementById('customerAddress').value || 'Address';
@@ -1582,8 +1604,8 @@
                     row.innerHTML = `
                         <td>${desc}</td>
                         <td class="qty">${qty}</td>
-                        <td class="amount">$${price.toFixed(2)}</td>
-                        <td class="amount">$${amount}</td>
+                        <td class="amount">${money(price)}</td>
+                        <td class="amount">${money(Number(amount))}</td>
                     `;
                     itemsContainer.appendChild(row);
                 });
@@ -2807,6 +2829,7 @@
                 addLineItem('Installation', 1, 100);
                 const rows = document.querySelectorAll('.line-item');
                 const lastRow = rows[rows.length - 1];
+                syncReferralInstallDiscount();
                 if (lastRow) {
                     const priceInput = lastRow.querySelector('.price');
                     if (priceInput) {
@@ -2999,6 +3022,7 @@
             } catch (e) {
                 console.warn('[edit-mode] could not parse lineItems:', e);
             }
+            restoreDiscountFields(inv);
             // Reveal + prime the status control (edit mode only).
             if (editingInvoiceNumber) {
                 var _sc = document.getElementById('statusControl');
@@ -3084,6 +3108,61 @@
             onReferredByInput();
         }
 
+        // ─── REFERRAL PERK: 25% OFF INSTALLATION ─────────────────────────
+        // A customer referred by an existing customer gets 25% off any
+        // Installation line. It is its own line so the customer sees it and
+        // the books show it; the amount follows the installation lines.
+        // Only a code that belongs to a real customer counts, so a typo
+        // cannot give the discount away.
+        //
+        // It is kept in step only when staff change something (the Referred
+        // By field, a line item, the picker), never when an invoice is merely
+        // opened, so opening an old invoice never changes its total.
+        var REF_INSTALL_PCT = 25;
+        var REF_INSTALL_LABEL = 'Referral discount: 25% off installation';
+
+        function syncReferralInstallDiscount() {
+            var code = referralCodeFromField();
+            var eligible = !!(code && referrerByCode[code]);
+            var rows = Array.prototype.slice.call(document.querySelectorAll('.line-item'));
+            var descOf = function (r) { return (r.querySelector('.description').value || '').trim(); };
+            var discountRow = rows.filter(function (r) { return descOf(r).indexOf(REF_INSTALL_LABEL) === 0; })[0];
+            var installTotal = rows.reduce(function (sum, r) {
+                if (r === discountRow || !/^install/i.test(descOf(r))) return sum;
+                var qty = parseFloat(r.querySelector('.quantity').value) || 0;
+                var price = parseFloat(r.querySelector('.price').value) || 0;
+                return sum + Math.max(0, qty * price);
+            }, 0);
+            var amount = eligible ? Math.round(installTotal * REF_INSTALL_PCT) / 100 : 0;
+            var label = REF_INSTALL_LABEL + ' (' + code + ')';
+
+            if (amount > 0 && !discountRow) {
+                addLineItem(label, 1, -amount);
+                return;
+            }
+            if (amount > 0) {
+                discountRow.querySelector('.description').value = label;
+                discountRow.querySelector('.quantity').value = 1;
+                discountRow.querySelector('.price').value = (-amount).toFixed(2);
+            } else if (discountRow) {
+                discountRow.remove();
+            }
+            updateInvoicePreview();
+        }
+
+        // Editing an installation line's price or quantity moves the discount
+        // with it. Edits to the discount line itself are left alone.
+        document.addEventListener('DOMContentLoaded', function () {
+            var box = document.getElementById('lineItemsContainer');
+            if (!box) return;
+            box.addEventListener('input', function (e) {
+                var row = e.target.closest && e.target.closest('.line-item');
+                var d = row && row.querySelector('.description');
+                if (d && d.value.indexOf(REF_INSTALL_LABEL) === 0) return;
+                syncReferralInstallDiscount();
+            });
+        });
+
         function onReferredByInput() {
             var hint = document.getElementById('referredByHint');
             var el = document.getElementById('referredBy');
@@ -3096,7 +3175,8 @@
                 hint.textContent = 'Whoever sent them in gets credit toward their $100 reward when this invoice saves.';
             } else if (who) {
                 hint.style.color = 'var(--op-ok-text,#2D4A32)';
-                hint.textContent = '✓ ' + who.name + ' (' + code + ') gets the credit.';
+                hint.textContent = '✓ ' + who.name + ' (' + code + ') gets the credit, and this customer gets ' +
+                    REF_INSTALL_PCT + '% off installation.';
             } else if (code && Object.keys(referrerByCode).length) {
                 hint.style.color = '#b47850';
                 hint.textContent = 'No customer has the code ' + code + '. Check it, or pick a name from the list.';
@@ -3545,7 +3625,6 @@
                 }
 
                 if (inv.discountPct && document.getElementById('discountPercent')) document.getElementById('discountPercent').value = inv.discountPct;
-                if (inv.discountAmt && document.getElementById('discountFixed')) document.getElementById('discountFixed').value = inv.discountAmt;
                 if (inv.processingFee && document.getElementById('processingFee')) document.getElementById('processingFee').value = inv.processingFee;
                 if (inv.paymentNotes) setNotesAndReferral(inv.paymentNotes);
 
@@ -3576,6 +3655,8 @@
                         if (typeof onPaymentModeChange === 'function') onPaymentModeChange();
                     }
                 }
+
+                restoreDiscountFields(inv);
 
                 if (typeof loadSupplierUrl === 'function') {
                     loadSupplierUrl(inv.invoiceNumber || invNum);
