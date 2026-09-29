@@ -1,13 +1,20 @@
 'use client'
 
 import { useState } from 'react'
+import Link from 'next/link'
+
+export interface ModelBuyer {
+  customerId: string | null
+  name: string
+  date: string
+}
 
 interface BrandStats {
   brand: string
   count: number
   percentage: number
   color: string
-  models: Array<{ model: string; count: number }>
+  models: Array<{ model: string; count: number; buyers: ModelBuyer[] }>
 }
 
 interface BrandBreakdownChartProps {
@@ -17,6 +24,7 @@ interface BrandBreakdownChartProps {
 
 export function BrandBreakdownChart({ stats, totalBikes }: BrandBreakdownChartProps) {
   const [selectedBrand, setSelectedBrand] = useState<string | null>(stats[0]?.brand || null)
+  const [openModel, setOpenModel] = useState<string | null>(null)
 
   const activeStats = stats.find(s => s.brand === selectedBrand) || stats[0]
 
@@ -85,7 +93,7 @@ export function BrandBreakdownChart({ stats, totalBikes }: BrandBreakdownChartPr
                     transform: selectedBrand === slice.brand ? 'scale(1.05)' : 'scale(1)',
                     filter: selectedBrand === slice.brand ? 'drop-shadow(0 4px 6px rgba(0,0,0,0.2))' : 'none'
                   }}
-                  onClick={() => setSelectedBrand(slice.brand)}
+                  onClick={() => { setSelectedBrand(slice.brand); setOpenModel(null) }}
                 />
               ))}
               {/* Inner Cutout for Donut */}
@@ -114,7 +122,7 @@ export function BrandBreakdownChart({ stats, totalBikes }: BrandBreakdownChartPr
               return (
                 <button
                   key={s.brand}
-                  onClick={() => setSelectedBrand(s.brand)}
+                  onClick={() => { setSelectedBrand(s.brand); setOpenModel(null) }}
                   className={`p-2.5 rounded-xl text-left border transition-all text-xs flex items-center justify-between ${
                     isSelected
                       ? 'border-[#2D4A32] bg-[#2D4A32]/10 ring-2 ring-[#2D4A32]'
@@ -143,18 +151,49 @@ export function BrandBreakdownChart({ stats, totalBikes }: BrandBreakdownChartPr
                 </span>
               </div>
 
-              <div className="space-y-1.5 max-h-40 overflow-y-auto pr-1">
-                {activeStats.models.map((m, idx) => (
-                  <div
-                    key={idx}
-                    className="p-2 rounded-lg bg-white flex items-center justify-between text-xs border border-gray-100 shadow-2xs"
-                  >
-                    <span className="font-medium text-[#1A1A1A]">{m.model}</span>
-                    <span className="font-bold px-2 py-0.5 rounded bg-[#2D4A32] text-white text-[11px]">
-                      {m.count} sold
-                    </span>
-                  </div>
-                ))}
+              <div className="space-y-1.5 max-h-80 overflow-y-auto pr-1">
+                {activeStats.models.map((m) => {
+                  const key = `${activeStats.brand}::${m.model}`
+                  const isOpen = openModel === key
+                  return (
+                    <div key={key} className="rounded-lg bg-white border border-gray-100 shadow-2xs text-xs">
+                      <button
+                        type="button"
+                        onClick={() => setOpenModel(isOpen ? null : key)}
+                        aria-expanded={isOpen}
+                        className="w-full p-2 flex items-center justify-between gap-2 text-left hover:bg-[#FBF7EF] rounded-lg"
+                        title="Show who bought this model"
+                      >
+                        <span className="flex items-center gap-2 font-medium text-[#1A1A1A]">
+                          <span className="text-[#2D4A32] text-sm leading-none" aria-hidden="true">☰</span>
+                          {m.model}
+                        </span>
+                        <span className="font-bold px-2 py-0.5 rounded bg-[#2D4A32] text-white text-[11px] whitespace-nowrap">
+                          {m.count} sold {isOpen ? '▲' : '▼'}
+                        </span>
+                      </button>
+                      {isOpen && (
+                        <ul className="px-3 pb-2 pt-1 space-y-1 border-t border-gray-100">
+                          {m.buyers.map((b, i) => (
+                            <li key={`${b.customerId}-${i}`} className="flex items-center justify-between gap-2">
+                              {b.customerId ? (
+                                <Link
+                                  href={`/admin/customers?customer=${b.customerId}`}
+                                  className="font-semibold text-[#1A2E1C] underline hover:opacity-80"
+                                >
+                                  {b.name}
+                                </Link>
+                              ) : (
+                                <span className="font-semibold text-[#1A2E1C]">{b.name}</span>
+                              )}
+                              <span className="text-gray-500 whitespace-nowrap">{b.date || 'No purchase date'}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                    </div>
+                  )
+                })}
               </div>
             </div>
           )}
