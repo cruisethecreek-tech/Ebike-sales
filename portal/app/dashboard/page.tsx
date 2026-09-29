@@ -137,7 +137,7 @@ export default async function DashboardPage() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {bikes.slice(0, 2).map((bike) => {
-              const warranty = calculateBikeWarranties(bike.brand, bike.purchase_date)
+              const warranty = calculateBikeWarranties(bike.brand, bike.purchase_date, bike.warranty_expires_at)
               return (
                 <div key={bike.id} className="p-4 rounded-xl bg-[#F5F0E8] border border-[#E5E5E5] space-y-2.5">
                   <div className="flex justify-between items-start">
@@ -148,7 +148,11 @@ export default async function DashboardPage() {
                       <h3 className="font-bold text-base text-[#1A1A1A] mt-1">{bike.model}</h3>
                     </div>
                     <span className="text-xs font-bold text-[#2D4A32] bg-white px-2 py-0.5 rounded border border-[#86EFAC]">
-                      🛡️ {warranty.manufacturerWarrantyDaysLeft} Days Warranty
+                      🛡️ {!warranty.manufacturerWarrantyEndDate
+                        ? 'Warranty date pending'
+                        : warranty.isManufacturerWarrantyActive
+                          ? `${warranty.manufacturerWarrantyDaysLeft} Days Warranty`
+                          : 'Warranty Expired'}
                     </span>
                   </div>
 
