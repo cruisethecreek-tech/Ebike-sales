@@ -1013,6 +1013,7 @@
                         </div>
                     </div>
                     <div id="invoiceSearchResults" style="margin-top:.6rem"></div>
+                    <div id="loadedInvoicePortal" style="margin-top:.4rem;font-size:.8rem"></div>
                 </div>
 
                 <!-- Status control — only shown when an existing invoice is loaded -->
@@ -1087,6 +1088,7 @@
                         <div id="custAutofillNotice" style="display: none; margin-top: 6px; font-size: 0.75rem; color: var(--op-ok-text); font-weight: 600;">
                             ✓ Details auto-filled! You can edit any field below.
                         </div>
+                        <div id="custPortalLink" style="margin-top: 6px; font-size: 0.78rem;"></div>
                     </div>
 
                     <div id="newCustNotice" style="display: none; margin-bottom: 0.85rem; padding: 8px 12px; border-radius: 6px; background: rgba(134, 239, 172, 0.1); border: 1px solid rgba(134, 239, 172, 0.3); font-size: 0.75rem; color: var(--op-ok-text);">
@@ -3186,6 +3188,7 @@
             var notice = document.getElementById('custAutofillNotice');
             if (isNaN(idx) || !existingCustomersList[idx]) {
                 if (notice) notice.style.display = 'none';
+                showCustomerPortalLink(null);
                 return;
             }
 
@@ -3196,6 +3199,7 @@
             document.getElementById('customerAddress').value = c.address || '';
 
             if (notice) notice.style.display = 'block';
+            showCustomerPortalLink(c);
             updateInvoicePreview();
         }
 
@@ -3233,11 +3237,83 @@
                 document.getElementById('customerAddress').value = '';
                 if (select) select.value = '';
                 if (notice) notice.style.display = 'none';
+                showCustomerPortalLink(null);
                 updateInvoicePreview();
             }
         }
 
         // ── Existing-invoice search + status change (Project C) ───────────
+        // ─── OPEN IN ADMIN PORTAL ────────────────────────────────────────
+        // The picker and the invoice list are built from the portal and the
+        // Sheet together. These link each one to its admin page, and say so
+        // when the portal does not have it (never synced, or deleted there).
+        var PORTAL_URL = 'https://portal.cruisethecreek.com';
+        var PORTAL_LINK_STYLE = 'color: var(--op-gold-text);font-weight:700;text-decoration:underline;white-space:nowrap';
+
+        function portalCustomerHref(id) {
+            return PORTAL_URL + '/admin/customers?customer=' + encodeURIComponent(id);
+        }
+        function portalInvoiceHref(id) {
+            return PORTAL_URL + '/admin/invoices/' + encodeURIComponent(id);
+        }
+
+        function showCustomerPortalLink(c) {
+            var box = document.getElementById('custPortalLink');
+            if (!box) return;
+            // Entries from the Sheet fallback carry no id at all: the portal
+            // was not reached, so say nothing either way.
+            if (!c || c.id === undefined) { box.innerHTML = ''; return; }
+            box.innerHTML = c.id
+                ? '<a href="' + portalCustomerHref(c.id) + '" target="_blank" rel="noopener" style="' + PORTAL_LINK_STYLE + '">Open in admin portal ↗</a>'
+                : '<span style="color:#888">Not in the portal yet. Saving an invoice for them adds them.</span>';
+        }
+
+        // Ask the portal which of these invoice numbers it has.
+        function lookupPortalInvoices(numbers, cb) {
+            numbers = numbers.filter(Boolean);
+            if (!numbers.length) { cb({}); return; }
+            fetch(PORTAL_URL + '/api/invoices/lookup?numbers=' + encodeURIComponent(numbers.join(',')), { headers: portalHeaders() })
+                .then(function (res) {
+                    if (portalAuthFailed(res)) return null;
+                    return res.json();
+                })
+                .then(function (data) { cb(data && data.ok ? data.invoices || {} : null); })
+                .catch(function () { cb(null); });
+        }
+
+        function portalInvoiceBadge(found) {
+            if (!found) {
+                return '<span title="The portal has no copy of this invoice. It was deleted there, or has not synced yet. Saving it here adds it back." ' +
+                    'style="font-size:.72rem;color:#8a6d3b;white-space:nowrap">Not in portal</span>';
+            }
+            return '<a href="' + portalInvoiceHref(found.id) + '" target="_blank" rel="noopener" style="font-size:.78rem;' + PORTAL_LINK_STYLE + '">' +
+                'Open in admin portal ↗</a>' +
+                (found.customerArchived ? ' <span title="This invoice belongs to an archived customer in the portal." style="font-size:.72rem;color:#8a6d3b">archived customer</span>' : '');
+        }
+
+        // Fill each listed row's portal slot. If the lookup fails (no key,
+        // offline) the slots stay empty rather than claiming anything.
+        function markPortalInvoices(box) {
+            var slots = box.querySelectorAll('[data-portal-inv]');
+            var nums = Array.prototype.map.call(slots, function (el) { return el.getAttribute('data-portal-inv'); });
+            lookupPortalInvoices(nums, function (found) {
+                if (!found) return;
+                Array.prototype.forEach.call(slots, function (el) {
+                    el.innerHTML = portalInvoiceBadge(found[el.getAttribute('data-portal-inv')]);
+                });
+            });
+        }
+
+        function showLoadedInvoicePortal(invNum) {
+            var box = document.getElementById('loadedInvoicePortal');
+            if (!box) return;
+            box.innerHTML = '';
+            lookupPortalInvoices([invNum], function (found) {
+                if (!found) return;
+                box.innerHTML = '<strong>' + invEsc(invNum) + ':</strong> ' + portalInvoiceBadge(found[invNum]);
+            });
+        }
+
         function invEsc(s) {
             return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
                 return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
@@ -3387,16 +3463,20 @@
                 var when = inv.invoiceDate ? String(inv.invoiceDate).slice(0, 10) : '';
                 var desc = inv.productDesc || '';
                 var meta = [when, desc].filter(Boolean).join(' · ');
-                return '<button type="button" onclick="openInvoiceForEdit(\'' + encodeURIComponent(inv.invoiceNumber || '') + '\')" ' +
-                    'style="display:flex;width:100%;gap:.6rem;align-items:center;text-align:left;background:#fff;color:#1a2e1c;border:1px solid #ddd;border-radius:8px;padding:.55rem .7rem;margin-bottom:.4rem;cursor:pointer">' +
+                return '<div style="display:flex;flex-wrap:wrap;gap:.2rem .5rem;align-items:center;margin-bottom:.4rem">' +
+                    '<button type="button" onclick="openInvoiceForEdit(\'' + encodeURIComponent(inv.invoiceNumber || '') + '\')" ' +
+                    'style="display:flex;flex:1 1 100%;min-width:0;gap:.6rem;align-items:center;text-align:left;background:#fff;color:#1a2e1c;border:1px solid #ddd;border-radius:8px;padding:.55rem .7rem;cursor:pointer">' +
                     '<span style="font-weight:700;min-width:82px;color:#1a2e1c">' + invEsc(inv.invoiceNumber || '') + '</span>' +
                     '<span style="flex:1;color:#1a2e1c">' + invEsc(inv.customerName || inv.customerEmail || '(no name)') +
                         (meta ? '<span style="color:#666;font-size:.75rem;margin-left:.4rem;"> · ' + invEsc(meta) + '</span>' : '') + '</span>' +
                     '<span style="color:#444">$' + (parseFloat(inv.total) || 0).toFixed(2) + '</span>' +
                     '<span style="font-size:.72rem;text-transform:uppercase;letter-spacing:.05em;padding:.15rem .45rem;border-radius:999px;' +
                         (paidish ? 'background:#e3f2e6;color:#1e7d34' : 'background:#fdecea;color:#b23b2e') + '">' + invEsc(st) + '</span>' +
-                '</button>';
+                '</button>' +
+                '<span data-portal-inv="' + invEsc(inv.invoiceNumber || '') + '" style="margin-left:auto"></span>' +
+                '</div>';
             }).join('');
+            markPortalInvoices(box);
         }
 
         function runInvoiceSearch() {
@@ -3500,6 +3580,7 @@
                 if (typeof loadSupplierUrl === 'function') {
                     loadSupplierUrl(inv.invoiceNumber || invNum);
                 }
+                showLoadedInvoicePortal(inv.invoiceNumber || invNum);
                 updateInvoicePreview();
 
                 // Keep the link this invoice already has, so saving an edit

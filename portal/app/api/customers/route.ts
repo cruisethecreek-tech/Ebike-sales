@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { requireAdminKey, corsFor } from '@/lib/api-auth'
 import { createClient } from '@supabase/supabase-js'
 import { listAuthAccounts } from '@/lib/auth-accounts'
+import { buildCustomerDirectory } from '@/lib/customer-directory'
 
 function getAdminClient() {
   return createClient(
@@ -68,7 +69,9 @@ export async function GET(req: NextRequest) {
     const supabase = getAdminClient()
 
     // 1. Fetch Supabase customers + auth users
-    const { data: customers } = await supabase.from('customers').select('*')
+    const { data: customers } = await supabase
+      .from('customers')
+      .select('id, first_name, last_name, phone, referral_code, archived_at')
 
     // listAuthAccounts paginates. A bare listUsers() returns 50, the shop has
     // 61, and the eleven it omits are the oldest customers — who would have
@@ -81,85 +84,20 @@ export async function GET(req: NextRequest) {
       if (acct.email) emailMap.set(id, acct.email)
     })
 
-    const customerMap = new Map<
-      string,
-      {
-        id: string
-        name: string
-        firstName: string
-        lastName: string
-        email: string
-        phone: string
-        address: string
-        // Lets the invoice generator's Referred By field offer customers by
-        // name and save their code. Sheet-only customers have none.
-        referralCode: string
-      }
-    >()
-
-    // Seed from Supabase
-    customers?.forEach((c) => {
-      const email = emailMap.get(c.id) || ''
-      const name = `${c.first_name || ''} ${c.last_name || ''}`.trim()
-      const key = (email || name).toLowerCase()
-      if (key) {
-        customerMap.set(key, {
-          id: c.id,
-          name: name || email,
-          firstName: c.first_name || '',
-          lastName: c.last_name || '',
-          email: email,
-          phone: c.phone || '',
-          address: '',
-          referralCode: c.referral_code || '',
-        })
-      }
-    })
-
-    // 2. Supplement / enrich with Google Sheet Invoices tab (carries addresses and all invoice customers)
+    // 2. The Sheet's Invoices tab carries addresses and every invoice
+    // customer, including walk-ins the portal never saw.
+    let sheetRows: Record<string, string>[] = []
     try {
       const csvUrl = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(SHEET_TAB)}`
       const resp = await fetch(csvUrl, { next: { revalidate: 60 } })
-      if (resp.ok) {
-        const csvText = await resp.text()
-        const rows = parseCSV(csvText)
-        rows.forEach((row) => {
-          const email = (row.customerEmail || '').trim().toLowerCase()
-          const name = (row.customerName || '').trim()
-          const phone = (row.customerPhone || '').trim()
-          const address = (row.customerAddress || '').trim()
-
-          const key = (email || name).toLowerCase()
-          if (!key) return
-
-          if (customerMap.has(key)) {
-            const existing = customerMap.get(key)!
-            if (!existing.address && address) existing.address = address
-            if (!existing.phone && phone) existing.phone = phone
-            if (!existing.name && name) existing.name = name
-          } else {
-            const parts = name.split(/\s+/)
-            customerMap.set(key, {
-              id: '',
-              name: name || email,
-              firstName: parts[0] || '',
-              lastName: parts.slice(1).join(' ') || '',
-              email: email,
-              phone: phone,
-              address: address,
-              referralCode: '',
-            })
-          }
-        })
-      }
+      if (resp.ok) sheetRows = parseCSV(await resp.text())
     } catch (sheetErr) {
       console.warn('Google Sheet fetch fallback in api/customers:', sheetErr)
     }
 
-    // Convert map to sorted array
-    const list = Array.from(customerMap.values())
-      .filter((c) => c.name || c.email)
-      .sort((a, b) => a.name.localeCompare(b.name))
+    // Archived and merged-away customers are left out here, and so are their
+    // Sheet rows, so the generator shows what the portal shows.
+    const list = buildCustomerDirectory(customers || [], emailMap, sheetRows)
 
     return NextResponse.json(
       { ok: true, count: list.length, customers: list },
