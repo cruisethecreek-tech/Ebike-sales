@@ -34,17 +34,10 @@ const YEAR = 365
 // Brand keys are lowercase, matched against bikes.brand (public.bike_brand).
 export const BRAND_WARRANTIES: Record<string, BrandWarranty> = {
   heybike: {
-    headlineLabel: 'Battery & bike',
+    headlineLabel: 'Whole bike',
     headlineDays: 2 * YEAR,
-    coverage: [
-      { label: 'Battery & bike (excluding wear items)', days: 2 * YEAR, term: '2 years' },
-      {
-        label: 'Frame, fork, motor, controller, display, wiring & other listed parts',
-        days: 7,
-        term: '7 days',
-      },
-    ],
-    note: 'Heybike lists frame, motor, controller, display and most components as covered for one week after delivery; later damage is charged. Transferable with proof of the original order.',
+    coverage: [{ label: 'Bike & battery (excluding wear items)', days: 2 * YEAR, term: '2 years' }],
+    note: 'Transferable to a later owner with the original owner\'s name and order number.',
   },
   velotric: {
     headlineLabel: 'Electrical & battery',
