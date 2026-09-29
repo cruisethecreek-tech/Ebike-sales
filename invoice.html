@@ -1132,7 +1132,18 @@
                         </div>
                         <div class="form-group">
                             <label for="notes">Payment Notes</label>
-                            <input type="text" id="notes" placeholder="e.g., Balance due at pickup · Referred by: ANNA-I1T">
+                            <input type="text" id="notes" placeholder="e.g., Balance due at pickup">
+                        </div>
+                    </div>
+                    <div class="form-grid" style="margin-top: 0.85rem;">
+                        <div class="form-group">
+                            <label for="referredBy">Referred By (optional)</label>
+                            <input type="text" id="referredBy" list="referrerOptions" autocomplete="off"
+                                   placeholder="Type the friend's name or their code" oninput="onReferredByInput()">
+                            <datalist id="referrerOptions"></datalist>
+                            <small id="referredByHint" style="display:block;margin-top:.3rem;color:var(--op-muted,#6b6b6b);font-size:.78rem;">
+                                Whoever sent them in gets credit toward their $100 reward when this invoice saves.
+                            </small>
                         </div>
                     </div>
 
@@ -1641,7 +1652,7 @@
                 if (previewBalanceRow) previewBalanceRow.style.display = '';
             }
 
-            const notes = document.getElementById('notes').value;
+            const notes = notesWithReferral();
             const notesDiv = document.getElementById('previewNotes');
             if (notes) {
                 notesDiv.innerHTML = '<strong>Notes:</strong> ' + notes;
@@ -1814,7 +1825,7 @@
                 invoiceNumber: document.getElementById('invoiceNumber').value,
                 invoiceDate: document.getElementById('invoiceDate').value,
                 dueDate: document.getElementById('dueDate').value,
-                paymentNotes: document.getElementById('notes').value,
+                paymentNotes: notesWithReferral(),
                 subtotal: totals.subtotal,
                 discountPct: totals.discountPercent,
                 discountAmt: totals.discountAmount,
@@ -2953,7 +2964,7 @@
             document.getElementById('depositAmount').value   = inv.deposit || '';
             document.getElementById('depositMethod').value   = inv.depositMethod || 'cash';
             document.getElementById('depositRef').value      = inv.depositRef || '';
-            document.getElementById('notes').value           = inv.paymentNotes || '';
+            setNotesAndReferral(inv.paymentNotes || '');
             // Internal supplier/warranty URL: seed from the invoice if present,
             // then fetch the authoritative value (getInvoice may not carry it).
             document.getElementById('supplierUrl').value     = inv.supplierUrl || '';
@@ -3005,6 +3016,94 @@
             updateInvoicePreview();
         }
 
+        // ─── REFERRED BY ─────────────────────────────────────────────────
+        // The portal credits a referral by reading "Referred by: CODE" from the
+        // invoice's payment notes when it syncs (portal/lib/sync-invoice.ts).
+        // Staff pick the referrer here instead of typing that into the notes;
+        // the two are joined on save and split apart again when an invoice is
+        // opened for editing. Same pattern the portal matches.
+        var REFERRAL_IN_NOTES = /(?:referred\s+by|referral(?:\s*\/\s*promo)?\s*code)\s*:\s*([A-Za-z0-9-]{3,24})/i;
+        var referrerByCode = {};
+
+        function referralCodeFromField() {
+            var el = document.getElementById('referredBy');
+            var raw = el ? el.value.trim() : '';
+            if (!raw) return '';
+            // A picked suggestion is the code itself. A typed full name that
+            // matches exactly one customer resolves to their code. Anything
+            // else shaped like a code is kept as typed.
+            var upper = raw.toUpperCase();
+            if (referrerByCode[upper]) return upper;
+            var matches = Object.keys(referrerByCode).filter(function(code) {
+                return referrerByCode[code].name.toLowerCase() === raw.toLowerCase();
+            });
+            if (matches.length === 1) return matches[0];
+            return /^[A-Z0-9-]{3,24}$/.test(upper) ? upper : '';
+        }
+
+        function notesWithReferral() {
+            var notes = document.getElementById('notes').value.trim();
+            var code = referralCodeFromField();
+            if (!code) return notes;
+            return (notes ? notes + ' | ' : '') + 'Referred by: ' + code;
+        }
+
+        function setNotesAndReferral(paymentNotes) {
+            var code = '';
+            var rest = String(paymentNotes || '').split('|').map(function(part) {
+                var m = part.match(REFERRAL_IN_NOTES);
+                if (m && !code) code = m[1].toUpperCase();
+                return m ? part.replace(REFERRAL_IN_NOTES, ' ').trim() : part.trim();
+            }).filter(Boolean);
+            var ref = document.getElementById('referredBy');
+            if (ref) ref.value = code;
+            document.getElementById('notes').value = rest.join(' | ');
+            onReferredByInput();
+        }
+
+        function renderReferrerOptions(list) {
+            var dl = document.getElementById('referrerOptions');
+            if (!dl) return;
+            referrerByCode = {};
+            dl.innerHTML = '';
+            list.forEach(function(c) {
+                var code = String(c.referralCode || '').toUpperCase();
+                if (!code || referrerByCode[code]) return;
+                referrerByCode[code] = { name: c.name || c.email || '', email: c.email || '' };
+                var opt = document.createElement('option');
+                opt.value = code;
+                opt.label = (c.name || c.email || '') + (c.phone ? ' · ' + c.phone : '');
+                dl.appendChild(opt);
+            });
+            onReferredByInput();
+        }
+
+        function onReferredByInput() {
+            var hint = document.getElementById('referredByHint');
+            var el = document.getElementById('referredBy');
+            if (!hint || !el) return;
+            var raw = el.value.trim();
+            var code = referralCodeFromField();
+            var who = code && referrerByCode[code];
+            if (!raw) {
+                hint.style.color = 'var(--op-muted,#6b6b6b)';
+                hint.textContent = 'Whoever sent them in gets credit toward their $100 reward when this invoice saves.';
+            } else if (who) {
+                hint.style.color = 'var(--op-ok-text,#2D4A32)';
+                hint.textContent = '✓ ' + who.name + ' (' + code + ') gets the credit.';
+            } else if (code && Object.keys(referrerByCode).length) {
+                hint.style.color = '#b47850';
+                hint.textContent = 'No customer has the code ' + code + '. Check it, or pick a name from the list.';
+            } else if (code) {
+                hint.style.color = 'var(--op-muted,#6b6b6b)';
+                hint.textContent = 'Saved as Referred by: ' + code + '.';
+            } else {
+                hint.style.color = '#b47850';
+                hint.textContent = 'Pick the person from the list so their code is used. A name alone cannot be credited.';
+            }
+            updateInvoicePreview();
+        }
+
         // ─── EXISTING CUSTOMER DIRECTORY & AUTO-FILL ─────────────────────
         var existingCustomersList = [];
 
@@ -3022,6 +3121,7 @@
                     if (data && data.ok && Array.isArray(data.customers)) {
                         existingCustomersList = data.customers;
                         renderCustomerSelectOptions(existingCustomersList);
+                        renderReferrerOptions(existingCustomersList);
                         if (badge) badge.textContent = existingCustomersList.length + ' customers';
                     }
                 })
@@ -3363,7 +3463,7 @@
                 if (inv.discountPct && document.getElementById('discountPercent')) document.getElementById('discountPercent').value = inv.discountPct;
                 if (inv.discountAmt && document.getElementById('discountFixed')) document.getElementById('discountFixed').value = inv.discountAmt;
                 if (inv.processingFee && document.getElementById('processingFee')) document.getElementById('processingFee').value = inv.processingFee;
-                if (inv.paymentNotes && document.getElementById('paymentNotes')) document.getElementById('paymentNotes').value = inv.paymentNotes;
+                if (inv.paymentNotes) setNotesAndReferral(inv.paymentNotes);
 
                 // Clear & populate line items
                 var container = document.getElementById('lineItemsContainer');
@@ -3515,13 +3615,11 @@
             document.getElementById('discountPercent').value = discountParam;
         }
 
-        // The notes field's id is "notes"; this looked for "paymentNotes",
-        // found nothing, and dropped every referral code it was handed. The
-        // portal reads "Referred by: CODE" from the notes when the invoice
-        // syncs and credits whoever owns the code.
-        if (refParam && document.getElementById('notes')) {
-            const currentNotes = document.getElementById('notes').value;
-            document.getElementById('notes').value = (currentNotes ? currentNotes + ' | ' : '') + 'Referred by: ' + refParam.trim().toUpperCase();
+        // A referral code handed over in the link (?ref=CODE) fills the
+        // Referred By field; it is saved into the notes as "Referred by: CODE".
+        if (refParam && document.getElementById('referredBy')) {
+            document.getElementById('referredBy').value = refParam.trim().toUpperCase();
+            onReferredByInput();
         }
 
         if (serviceParam === 'creek-ready') {

@@ -91,6 +91,9 @@ export async function GET(req: NextRequest) {
         email: string
         phone: string
         address: string
+        // Lets the invoice generator's Referred By field offer customers by
+        // name and save their code. Sheet-only customers have none.
+        referralCode: string
       }
     >()
 
@@ -108,6 +111,7 @@ export async function GET(req: NextRequest) {
           email: email,
           phone: c.phone || '',
           address: '',
+          referralCode: c.referral_code || '',
         })
       }
     })
@@ -143,6 +147,7 @@ export async function GET(req: NextRequest) {
               email: email,
               phone: phone,
               address: address,
+              referralCode: '',
             })
           }
         })
