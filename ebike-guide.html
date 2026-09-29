@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Youngstown &amp; Mill Creek Park E-Bike Guide | Cruise the Creek</title>
+<meta name="description" content="Rules, routes and rider essentials for e-biking in Youngstown, Mill Creek Park and the MetroParks Bikeway: Ohio e-bike classes, the 15 mph limit, trailheads, parking, rentals and battery safety.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --sage:#6B8F71;--forest:#2D4A32;--forest-l:#3a5d40;--dark:#1a2e1c;
+  --tan:#C9A96E;--tan-d:#a98843;--cream:#F5F0E8;--cream-w:#fbf7ef;
+  --ink:#1a1a1a;--ink-2:#4a4a4a;--ink-3:#7a7a7a;
+  --no:#9b3b2e;--no-bg:#fbeeea;
+}
+html,body{height:100%}
+html{scroll-behavior:smooth}
+body{font-family:'DM Sans',sans-serif;color:var(--ink);background:var(--cream);
+  min-height:100vh;display:flex;flex-direction:column;line-height:1.6}
+a{color:inherit;text-decoration:none;transition:color .2s ease}
+
+.topbar{background:rgba(255,255,255,.95);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+  color:var(--dark);padding:16px 24px;display:flex;align-items:center;justify-content:space-between;
+  position:sticky;top:0;z-index:100;border-bottom:1px solid rgba(0,0,0,.05)}
+.brand-logo{height:38px;width:auto;display:block}
+
+/* HERO */
+.post-hero{position:relative;min-height:42vh;padding:80px 24px 60px;
+  display:flex;flex-direction:column;align-items:center;justify-content:flex-end;text-align:center;
+  color:#fff;background:var(--forest);overflow:hidden;isolation:isolate}
+.post-hero-bg{position:absolute;inset:0;z-index:-2;background-size:cover;background-position:center 40%;filter:brightness(.55);
+  background-image:url('media/Bikeway.jpg')}
+.post-hero-overlay{position:absolute;inset:0;z-index:-1;
+  background:linear-gradient(180deg,rgba(26,46,28,.4) 0%,rgba(26,46,28,.85) 100%)}
+.post-hero-meta{font-size:.72rem;letter-spacing:.18em;text-transform:uppercase;font-weight:700;
+  color:var(--tan);margin-bottom:12px}
+.post-hero h1{font-family:'Bebas Neue',sans-serif;font-size:clamp(2.2rem,6vw,3.6rem);
+  letter-spacing:.02em;line-height:1.05;max-width:780px;margin:0 auto 10px}
+.post-hero-sub{font-size:1rem;color:rgba(255,255,255,.85);letter-spacing:.04em}
+
+main{flex:1;width:100%;max-width:780px;margin:0 auto;padding:28px 24px 64px}
+
+/* CONTENTS */
+.toc{background:#fff;border:1px solid rgba(45,74,50,.12);border-radius:10px;padding:16px 18px;margin-bottom:28px}
+.toc-title{font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;font-weight:800;color:var(--sage);margin-bottom:8px}
+.toc ol{list-style:none;display:grid;gap:2px;counter-reset:toc}
+.toc li{counter-increment:toc}
+.toc a{display:flex;gap:10px;align-items:center;padding:9px 4px;font-weight:700;color:var(--forest);border-bottom:1px solid rgba(0,0,0,.05)}
+.toc li:last-child a{border-bottom:0}
+.toc a::before{content:counter(toc,decimal-leading-zero);font-family:'Bebas Neue',sans-serif;font-size:1.2rem;color:var(--tan-d);min-width:24px}
+
+/* SECTIONS */
+.guide section{scroll-margin-top:80px;margin-bottom:40px}
+.sec-num{font-family:'Bebas Neue',sans-serif;font-size:1rem;letter-spacing:.12em;color:var(--tan-d)}
+.guide h2{font-family:'Bebas Neue',sans-serif;font-size:clamp(1.9rem,6vw,2.4rem);letter-spacing:.02em;
+  line-height:1.05;color:var(--forest);margin-bottom:14px}
+.guide h3{font-size:1.1rem;font-weight:800;color:var(--forest-l);margin:20px 0 8px}
+.guide p{font-size:1.02rem;color:var(--ink-2);margin-bottom:1em}
+.guide ul{margin:0 0 1em 1.2em;color:var(--ink-2)}
+.guide li{margin-bottom:.45em}
+.guide strong{color:var(--ink)}
+.guide p a,.guide li a,.card a.inline{color:var(--tan-d);font-weight:700;border-bottom:1px solid rgba(169,136,67,.35)}
+
+/* CARDS */
+.cards{display:grid;gap:12px;margin:14px 0 18px}
+.card{background:#fff;border:1px solid rgba(45,74,50,.12);border-radius:10px;padding:16px 18px}
+.card-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:6px}
+.card-title{font-weight:800;font-size:1.05rem;color:var(--forest)}
+.card p{margin-bottom:.5em;font-size:.97rem}
+.card p:last-child{margin-bottom:0}
+.card ul{margin-bottom:0;font-size:.97rem}
+.pill{flex-shrink:0;font-size:.7rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;
+  padding:4px 10px;border-radius:99px;background:#e6efe7;color:var(--forest)}
+.pill.no{background:var(--no-bg);color:var(--no)}
+.pill.ask{background:#f6eedd;color:var(--tan-d)}
+.meta{font-size:.85rem;color:var(--ink-3);margin-bottom:6px}
+
+/* CALLOUTS */
+.callout{background:var(--forest);color:#fff;border-radius:10px;padding:16px 18px;margin:16px 0}
+.callout-title{font-family:'Bebas Neue',sans-serif;font-size:1.4rem;letter-spacing:.04em;color:var(--tan);margin-bottom:4px}
+.callout p,.callout li{color:rgba(255,255,255,.9);font-size:.97rem}
+.callout ul{margin:0 0 0 1.1em;color:rgba(255,255,255,.9)}
+.callout strong{color:#fff}
+
+/* BIG STAT */
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:6px 0 18px}
+.stat{background:#fff;border:1px solid rgba(45,74,50,.12);border-radius:10px;padding:14px 8px;text-align:center}
+.stat-num{font-family:'Bebas Neue',sans-serif;font-size:2rem;line-height:1;color:var(--forest)}
+.stat-label{font-size:.74rem;color:var(--ink-2);margin-top:4px;line-height:1.3}
+
+/* TAP BUTTONS */
+.btn-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.btn{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:10px 16px;border-radius:6px;
+  font-weight:800;font-size:.84rem;letter-spacing:.04em;text-transform:uppercase;background:var(--forest);color:#fff}
+.btn:hover{background:var(--dark)}
+.btn.alt{background:#fff;color:var(--forest);border:1.5px solid var(--forest)}
+.btn.alt:hover{background:var(--cream-w)}
+
+.links{list-style:none;margin:0!important;display:grid;gap:8px}
+.links a{display:block;background:#fff;border:1px solid rgba(45,74,50,.12);border-radius:8px;padding:12px 14px;
+  font-weight:700;color:var(--forest)}
+.links a span{display:block;font-weight:500;font-size:.82rem;color:var(--ink-3)}
+.fine{font-size:.82rem!important;color:var(--ink-3)!important;margin-top:28px}
+
+footer{background:var(--dark);color:rgba(255,255,255,.7);padding:32px 24px;
+  text-align:center;font-size:.85rem;letter-spacing:.02em;border-top:2px solid var(--tan)}
+footer a{color:var(--tan);font-weight:500}footer a:hover{color:#fff}
+
+@media(max-width:480px){
+  .topbar{padding:12px 16px}.brand-logo{height:32px}
+  .post-hero{padding:62px 18px 44px;min-height:34vh}
+  main{padding:20px 16px 48px}
+  .stat-num{font-size:1.7rem}
+}
+@media print{
+  .topbar,footer,.btn-row,.toc{display:none}
+  body{background:#fff}
+  .post-hero{min-height:0;padding:24px;color:var(--forest);background:#fff}
+  .post-hero-bg,.post-hero-overlay{display:none}
+  .post-hero-sub{color:var(--ink-2)}
+  .guide section{break-inside:avoid-page}
+  .card,.callout{break-inside:avoid}
+  .callout{background:#fff;color:var(--ink);border:2px solid var(--forest)}
+  .callout p,.callout li,.callout ul{color:var(--ink-2)}
+  .callout strong{color:var(--ink)}
+}
+</style>
+<script src="site-enhance.js?v=b089d021b8"></script>
+<meta property="og:title" content="Youngstown &amp; Mill Creek Park E-Bike Guide">
+<meta property="og:description" content="Rules, routes and rider essentials for e-biking in Youngstown, Mill Creek Park and the MetroParks Bikeway.">
+<meta property="og:image" content="https://www.cruisethecreek.com/media/Bikeway.jpg">
+<meta property="og:url" content="https://www.cruisethecreek.com/ebike-guide.html">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Cruise the Creek">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Youngstown &amp; Mill Creek Park E-Bike Guide">
+<meta name="twitter:description" content="Rules, routes and rider essentials for e-biking in Youngstown, Mill Creek Park and the MetroParks Bikeway.">
+<meta name="twitter:image" content="https://www.cruisethecreek.com/media/Bikeway.jpg">
+<link rel="canonical" href="https://www.cruisethecreek.com/ebike-guide.html">
+</head>
+<body>
+
+<header class="topbar">
+  <a href="index.html" aria-label="Cruise the Creek home"><img class="brand-logo" src="BlackonTransparent.png" alt="Cruise the Creek"></a>
+</header>
+
+<section class="post-hero">
+  <div class="post-hero-bg"></div>
+  <div class="post-hero-overlay"></div>
+  <div class="post-hero-meta">Mahoning County Rider Guide</div>
+  <h1>Youngstown &amp; Mill Creek Park E-Bike Guide</h1>
+  <div class="post-hero-sub">Rules, Routes &amp; Rider Essentials</div>
+</section>
+
+<main class="guide">
+
+  <nav class="toc" aria-label="Contents">
+    <div class="toc-title">In this guide</div>
+    <ol>
+      <li><a href="#welcome">Welcome</a></li>
+      <li><a href="#rules">E-Bike Classes &amp; Local Rules</a></li>
+      <li><a href="#rides">Best Rides &amp; Routes</a></li>
+      <li><a href="#trailheads">Trailheads, Parking &amp; Rentals</a></li>
+      <li><a href="#battery">Charging &amp; Battery Safety</a></li>
+      <li><a href="#links">Links, Phone Numbers &amp; Resources</a></li>
+    </ol>
+  </nav>
+
+  <!-- 1 -->
+  <section id="welcome">
+    <div class="sec-num">01</div>
+    <h2>Welcome</h2>
+    <p>Welcome to the mobile e-bike guide for Youngstown, the 2,600+ acre Mill Creek Park, and the 11-mile MetroParks Bikeway.</p>
+    <p>E-bikes turn steep hills into molehills and let you explore further with less strain. Whether you're commuting, running errands or out for a weekend spin, this guide covers what you need to ride legally, safely and smoothly in Mahoning County.</p>
+    <div class="stats">
+      <div class="stat"><div class="stat-num">15</div><div class="stat-label">mph limit on the Bikeway</div></div>
+      <div class="stat"><div class="stat-num">11</div><div class="stat-label">paved Bikeway miles</div></div>
+      <div class="stat"><div class="stat-num">7+</div><div class="stat-label">miles of paved park trail</div></div>
+    </div>
+  </section>
+
+  <!-- 2 -->
+  <section id="rules">
+    <div class="sec-num">02</div>
+    <h2>E-Bike Classes &amp; Local Rules</h2>
+    <p>Ohio law defines an e-bike as a bike with working pedals and a motor under 750 watts, sorted into three classes. Mill Creek MetroParks adds its own rules for the Bikeway.</p>
+
+    <div class="cards">
+      <div class="card">
+        <div class="card-head"><div class="card-title">Class 1 · Pedal-assist, 20 mph</div><span class="pill">Bikeway OK</span></div>
+        <p>The motor helps only while you pedal and cuts out at 20 mph.</p>
+      </div>
+      <div class="card">
+        <div class="card-head"><div class="card-title">Class 2 · Throttle, 20 mph</div><span class="pill">Bikeway OK</span></div>
+        <p>Has a throttle that can move the bike without pedaling, up to 20 mph.</p>
+      </div>
+      <div class="card">
+        <div class="card-head"><div class="card-title">Class 3 · Pedal-assist, 28 mph</div><span class="pill no">Not on Bikeway</span></div>
+        <p>Faster pedal-assist with a speedometer. <strong>Not allowed on the MetroParks Bikeway.</strong> Every Class 3 rider and passenger must wear a helmet, and riders under 16 may not operate one.</p>
+      </div>
+    </div>
+
+    <div class="callout">
+      <div class="callout-title">15 mph on the Bikeway</div>
+      <p>The 15 mph limit applies to <strong>every</strong> rider on the MetroParks Bikeway, whether you're on a throttle, pedal assist or pure leg power. The "no motorized vehicles" signs are aimed at gas-powered machines; legal Class 1 and 2 e-bikes follow the same rules as regular bikes.</p>
+    </div>
+
+    <h3>Know the rules</h3>
+    <ul>
+      <li><strong>No license, registration or insurance</strong> needed for a legal e-bike in Ohio.</li>
+      <li><strong>Helmets</strong> are strongly recommended for everyone and required on Class 3.</li>
+      <li><strong>Foot trails are for walkers only.</strong> In the park, bikes belong on park drives, paved hike &amp; bike trails and trails marked for bikes.</li>
+      <li><strong>Sidewalks:</strong> motor off. Ohio only allows an e-bike on a sidewalk with the motor not engaged.</li>
+      <li><strong>Hours:</strong> the Bikeway is open 5 am to 10 pm. The rest of the park closes half an hour after sunset.</li>
+      <li><strong>After dark:</strong> use a white front light and a red rear light.</li>
+      <li><strong>On the road</strong> you have the same rights and duties as any cyclist: ride with traffic and obey signs and signals.</li>
+    </ul>
+    <p><strong>Rule reminder:</strong> check the trail signs, yield to people on foot and give an audible signal before you pass.</p>
+  </section>
+
+  <!-- 3 -->
+  <section id="rides">
+    <div class="sec-num">03</div>
+    <h2>Best Rides &amp; Routes</h2>
+
+    <div class="cards">
+      <div class="card">
+        <div class="card-head"><div class="card-title">MetroParks Bikeway</div><span class="pill">Easy</span></div>
+        <div class="meta">11 miles · paved · gentle grades</div>
+        <p>A fully paved multi-use trail from Western Reserve Road in Canfield Township north to the Mahoning/Trumbull county line in Austintown Township. You'll pass MetroParks Farm, Sawmill Creek Preserve and the trestle-style Mahoning Avenue overpass, and ride a tunnel under the Ohio Turnpike. It's part of the Great Ohio Lake-to-River Greenway.</p>
+      </div>
+      <div class="card">
+        <div class="card-head"><div class="card-title">Mill Creek Park Hike &amp; Bike Trails</div><span class="pill ask">Hilly</span></div>
+        <div class="meta">7+ miles · paved · Route 224 to Ford Nature Center</div>
+        <p>A chain of paved trails through the gorge, past the lakes and Lanterman's Mill:</p>
+        <ul>
+          <li><strong>East Golf Hike &amp; Bike Trail:</strong> 1.5 mi, closed to cars, Route 224 to Shields Rd. Parking at both ends, restrooms and a drinking fountain.</li>
+          <li><strong>East Newport Hike &amp; Bike Trail:</strong> 1.75 mi bike lane on a one-way park road, with views of Lake Newport and the wetlands.</li>
+          <li><strong>East Cohasset Hike &amp; Bike Trail:</strong> 1.5 mi, closed to cars, above Lake Cohasset.</li>
+          <li><strong>Old Mill Hike &amp; Bike Trail:</strong> a quarter mile overlooking the gorge, connecting to Lanterman's Mill.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <div class="card-head"><div class="card-title">Connecting Greenways</div><span class="pill">Longer rides</span></div>
+        <p>The Bikeway runs straight into the 4.5-mile <strong>Niles Greenway</strong> at its north end. Warren is about 5 to 6 miles further by road, where you can pick up the Western Reserve Greenway.</p>
+      </div>
+      <div class="card">
+        <div class="card-head"><div class="card-title">Downtown Youngstown</div><span class="pill">On-street</span></div>
+        <p>Bike lanes on Fifth Avenue, Federal Street and Front Street link downtown with YSU and Wean Park.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4 -->
+  <section id="trailheads">
+    <div class="sec-num">04</div>
+    <h2>Trailheads, Parking &amp; Rentals</h2>
+
+    <div class="cards">
+      <div class="card">
+        <div class="card-title">Kirk Road Trailhead · Bikeway</div>
+        <div class="meta">6685 Kirk Road, Canfield, OH 44406</div>
+        <p>The main Bikeway hub: 50-car parking lot, restrooms, water fountains, picnic pavilion and Cruise the Creek e-bike rentals on site.</p>
+        <div class="btn-row">
+          <a class="btn" href="trailside.html">Book Kirk Road</a>
+          <a class="btn alt" href="https://www.google.com/maps/search/?api=1&amp;query=6685+Kirk+Road+Canfield+OH+44406" target="_blank" rel="noopener">Directions</a>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">Bears Den · Mill Creek Park</div>
+        <div class="meta">Scholl Recreation Pavilion, Bears Den Road, Youngstown, OH 44511</div>
+        <p>Cruise the Creek's Youngstown pickup for hilly, wooded rides to the Lily Pond, Lanterman's Mill and the covered bridge. Lower Bears Den has accessible restrooms and picnic tables. Reservations required.</p>
+        <div class="btn-row">
+          <a class="btn" href="adventures.html">Book Bears Den</a>
+          <a class="btn alt" href="https://www.google.com/maps/search/?api=1&amp;query=Scholl+Recreation+Pavilion+Bears+Den+Road+Youngstown+OH" target="_blank" rel="noopener">Directions</a>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">MetroParks Farm Trailhead · Bikeway</div>
+        <div class="meta">7574 Columbiana-Canfield Rd, Canfield, OH 44406</div>
+        <p>Parking, restrooms, water and a natural playground beside a 400-acre working farm.</p>
+        <div class="btn-row">
+          <a class="btn alt" href="https://www.google.com/maps/search/?api=1&amp;query=7574+Columbiana-Canfield+Rd+Canfield+OH+44406" target="_blank" rel="noopener">Directions</a>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">Mahoning Avenue Trailhead · Bikeway</div>
+        <div class="meta">Small gravel lot on Harold Street, Austintown</div>
+        <p>Next to the Mahoning Avenue overpass, built to look like a historic railway trestle. No restrooms listed here, so plan a stop at Kirk Road or the Farm.</p>
+        <div class="btn-row">
+          <a class="btn alt" href="https://www.google.com/maps/search/?api=1&amp;query=41.099635,-80.790376" target="_blank" rel="noopener">Directions</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout">
+      <div class="callout-title">Rent an e-bike</div>
+      <p>Cruise the Creek rents e-bikes at Kirk Road and Bears Den: <strong><span data-price="ebike.note">$25 for the first hour, then $10 for each additional hour.</span></strong> Every rental includes a helmet, eyewear and a quick tutorial. Kirk Road bikes are set to the Bikeway's 15 mph limit.</p>
+    </div>
+  </section>
+
+  <!-- 5 -->
+  <section id="battery">
+    <div class="sec-num">05</div>
+    <h2>Charging &amp; Battery Safety</h2>
+    <ul>
+      <li><strong>Look for UL 2849.</strong> It certifies the e-bike's whole electrical system (battery, motor and charger) against overheating and fire.</li>
+      <li><strong>Use the charger made for your bike.</strong> Never charge a battery that is cracked, leaking or bulging.</li>
+      <li><strong>Don't charge unattended</strong>, and don't block doorways or exits with your bike or battery.</li>
+      <li><strong>Store batteries at room temperature</strong>, out of the rain, ideally between 30% and 60% charge.</li>
+      <li><strong>Recycle old batteries</strong> through a bike shop or <a href="https://www.call2recycle.org/e-bikes" target="_blank" rel="noopener">Call2Recycle</a>, never the trash.</li>
+    </ul>
+    <div class="callout">
+      <div class="callout-title">Plan your range</div>
+      <p>There are no public e-bike charging outlets along the trails. Charge at home before you ride and plan your route around your battery.</p>
+    </div>
+  </section>
+
+  <!-- 6 -->
+  <section id="links">
+    <div class="sec-num">06</div>
+    <h2>Links, Phone Numbers &amp; Resources</h2>
+    <ul class="links">
+      <li><a href="https://www.millcreekmetroparks.org/" target="_blank" rel="noopener">Mill Creek MetroParks<span>Official website</span></a></li>
+      <li><a href="https://www.millcreekmetroparks.org/metroparks-bikeway/" target="_blank" rel="noopener">MetroParks Bikeway Trail Guide<span>Trailheads, hours and rules</span></a></li>
+      <li><a href="https://www.millcreekmetroparks.org/biking/" target="_blank" rel="noopener">Mill Creek Park Biking<span>Hike &amp; bike trails in the park</span></a></li>
+      <li><a href="https://codes.ohio.gov/ohio-revised-code/section-4511.522" target="_blank" rel="noopener">Ohio Revised Code §4511.522<span>Electric bicycle classes and rules</span></a></li>
+      <li><a href="rentals.html">Cruise the Creek E-Bike Rentals<span>Book Kirk Road or Bears Den</span></a></li>
+      <li><a href="tel:+13307023000">MetroParks Office · 330-702-3000<span>Weekdays 8 am to 3:30 pm</span></a></li>
+      <li><a href="tel:+13307443848">MetroParks Police · 330-744-3848<span>24/7, to report a problem on the trail</span></a></li>
+      <li><a href="sms:+13304069686">Cruise the Creek · 330-406-9686<span>Text Pat</span></a></li>
+    </ul>
+    <p class="fine">Rules checked against Mill Creek MetroParks and the Ohio Revised Code in September 2026. Trail rules can change, so always follow posted signs. Ride safe and enjoy the MetroParks!</p>
+  </section>
+
+</main>
+
+<footer>
+  &copy; 2026 <a href="index.html">Cruise the Creek</a> &middot; <a href="rentals.html">Rentals</a> &middot; <a href="creek-life-blog.html">Creek Life Blog</a>
+</footer>
+
+<script src="pricing-data.js"></script>
+<script src="chatbot.js" defer></script>
+</body>
+</html>
