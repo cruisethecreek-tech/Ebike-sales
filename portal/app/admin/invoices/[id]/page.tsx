@@ -5,6 +5,7 @@ import { StatusButtons } from '../status-buttons'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { SyncNowViewing } from '@/app/admin/sync-now-viewing'
+import { isWixOrder } from '@/lib/invoice-source'
 
 export default async function AdminInvoiceDetail({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
@@ -39,14 +40,21 @@ export default async function AdminInvoiceDetail({ params }: { params: Promise<{
           >
             📄 View Customer Receipt ↗
           </Link>
-          <a
-            href={`${STORE_URL}/invoice.html?edit=${invoice.invoice_number}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="btn-primary text-xs px-3.5 py-1.5 flex items-center gap-1.5 shadow-sm font-bold"
-          >
-            ⚡ Open in Generator ↗
-          </a>
+          {isWixOrder(invoice.invoice_number) ? (
+            // Wix orders are not in the Sheet, so the generator cannot open them.
+            <span className="text-xs px-3 py-1.5 rounded-lg bg-[#F4F1EA] text-[#4A4A4A] font-semibold">
+              Wix shop order · paid at checkout
+            </span>
+          ) : (
+            <a
+              href={`${STORE_URL}/invoice.html?edit=${invoice.invoice_number}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn-primary text-xs px-3.5 py-1.5 flex items-center gap-1.5 shadow-sm font-bold"
+            >
+              ⚡ Open in Generator ↗
+            </a>
+          )}
         </div>
       </div>
 
