@@ -118,7 +118,7 @@ export interface ReferralCredit {
   created_at: string;
 }
 
-// ── GPS tracking (migration 00011) ───────────────────────────
+// ── GPS tracking (migration 00012) ───────────────────────────
 
 export interface Tracker {
   id: string;

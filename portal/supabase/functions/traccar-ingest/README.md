@@ -1,7 +1,7 @@
 # traccar-ingest
 
 Receives positions and events forwarded by the Traccar server and writes them to
-`positions` and `tracker_alerts` (migration `00011_gps_tracking.sql`).
+`positions` and `tracker_alerts` (migration `00012_gps_tracking.sql`).
 
 ## Deploy
 

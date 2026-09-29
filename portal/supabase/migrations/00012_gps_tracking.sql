@@ -1,5 +1,5 @@
 -- ============================================================================
--- Migration 00011: GPS tracking
+-- Migration 00012: GPS tracking
 --
 -- Tables: trackers, positions, tracker_alerts
 --
