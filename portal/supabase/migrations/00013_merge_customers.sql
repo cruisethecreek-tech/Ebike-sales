@@ -8,7 +8,10 @@
 -- of what she owns.
 --
 -- A merge moves everything onto the account being kept, then archives the
--- other. It does not delete it: the login is left in place, and permanent
+-- other. Where the two records disagree on name or phone, staff pick which
+-- value survives (p_first_name, p_last_name, p_phone); left null, the kept
+-- record's value stays and only its blanks are filled. The login email is not
+-- a column here — the server action swaps it in auth after this returns. It does not delete it: the login is left in place, and permanent
 -- deletion stays a separate, deliberate step from the archive.
 --
 -- Why this is a database function and not a few updates from the server:
@@ -17,7 +20,13 @@
 -- first update is rejected. One function call is also one transaction, so a
 -- merge that fails halfway leaves both customers exactly as they were.
 
-create or replace function public.merge_customers(p_keep uuid, p_merge uuid)
+create or replace function public.merge_customers(
+  p_keep uuid,
+  p_merge uuid,
+  p_first_name text default null,
+  p_last_name text default null,
+  p_phone text default null
+)
 returns jsonb
 language plpgsql
 set search_path = public
@@ -75,9 +84,12 @@ begin
    where referred_by = p_merge and id <> p_keep;
   get diagnostics v_referred = row_count;
 
-  -- Fill the kept record's blanks from the merged one; never overwrite.
+  -- Staff's choice where they made one; otherwise fill the kept record's
+  -- blanks from the merged one and never overwrite.
   update public.customers
-     set phone = coalesce(nullif(trim(phone), ''), v_merge.phone),
+     set first_name = coalesce(nullif(trim(p_first_name), ''), first_name),
+         last_name = coalesce(nullif(trim(p_last_name), ''), last_name),
+         phone = coalesce(nullif(trim(p_phone), ''), nullif(trim(phone), ''), v_merge.phone),
          referred_by = case
            when referred_by is not null then referred_by
            when v_merge.referred_by = p_keep then null
@@ -105,10 +117,10 @@ begin
 end;
 $$;
 
-comment on function public.merge_customers(uuid, uuid) is
+comment on function public.merge_customers(uuid, uuid, text, text, text) is
   'Moves everything owned by p_merge onto p_keep and archives p_merge. Server-only (service role).';
 
 -- Called only from the admin server action with the service-role key, after
 -- it has checked the caller is staff. Nobody signed in calls it directly.
-revoke all on function public.merge_customers(uuid, uuid) from public, anon, authenticated;
-grant execute on function public.merge_customers(uuid, uuid) to service_role;
+revoke all on function public.merge_customers(uuid, uuid, text, text, text) from public, anon, authenticated;
+grant execute on function public.merge_customers(uuid, uuid, text, text, text) to service_role;

@@ -467,6 +467,9 @@ export function CustomerDirectory({
         .map((c) => ({
           id: c.id,
           name: formatCustomerName(c.first_name, c.last_name),
+          first_name: c.first_name,
+          last_name: c.last_name,
+          phone: c.phone,
           email: c.email,
           registered: c.registered,
           lastSignInAt: c.lastSignInAt,

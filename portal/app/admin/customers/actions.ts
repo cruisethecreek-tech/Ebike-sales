@@ -506,21 +506,33 @@ export async function deleteCustomersForever(
   return { ok: deleted > 0, message: `${deleted} permanently deleted.`, problems }
 }
 
+export interface MergeChoices {
+  firstName?: string
+  lastName?: string
+  phone?: string
+  /** The login email the kept account should end up with. */
+  email?: string
+}
+
 /**
  * Merge a duplicate customer into the account being kept.
  *
  * Bikes, invoices, service tickets, rides, photos, referral credits and
- * referrals all move to `keepId`, blanks on the kept record are filled from
- * the other, and the other is archived — not deleted. Its login stays, so the
- * merge is undone by moving things back, and deletion is still a separate
- * choice from the archive.
+ * referrals all move to `keepId`, and the other record is archived — not
+ * deleted. Where the two disagree, `choices` says which name, phone and login
+ * email survive; anything not chosen keeps the kept record's value, with its
+ * blanks filled from the other.
  *
- * The work happens in one database function (migration 00013) so that it is
- * one transaction: a merge that fails partway changes nothing.
+ * The data moves in one database function (migration 00013) so that it is
+ * one transaction: a merge that fails partway changes nothing. The email is
+ * a login, not a column, so it is swapped in auth afterwards: the archived
+ * duplicate is parked on an address nobody receives mail at, which frees its
+ * real one for the kept account.
  */
 export async function mergeCustomers(
   keepId: string,
   mergeId: string,
+  choices: MergeChoices = {},
 ): Promise<RemovalResult & { invoiceNumbers?: string[] }> {
   await requireAdminUser()
   if (!keepId || !mergeId || keepId === mergeId) {
@@ -528,15 +540,48 @@ export async function mergeCustomers(
   }
 
   const admin = createAdminClient()
-  const [{ data: keep }, { data: other }, { data: moving }] = await Promise.all([
+  const [{ data: keep }, { data: other }, { data: moving }, { data: staying }, keepAuth, otherAuth] = await Promise.all([
     admin.from('customers').select('first_name, last_name').eq('id', keepId).single(),
     admin.from('customers').select('first_name, last_name').eq('id', mergeId).single(),
     admin.from('invoices').select('invoice_number').eq('customer_id', mergeId),
+    admin.from('invoices').select('invoice_number').eq('customer_id', keepId),
+    admin.auth.admin.getUserById(keepId),
+    admin.auth.admin.getUserById(mergeId),
   ])
   if (!keep || !other) return { ok: false, message: 'One of those customers no longer exists.' }
 
-  const { data, error } = await admin.rpc('merge_customers', { p_keep: keepId, p_merge: mergeId })
+  const keepEmail = keepAuth.data?.user?.email?.toLowerCase() || null
+  const otherEmail = otherAuth.data?.user?.email?.toLowerCase() || null
+  const wantEmail = choices.email?.trim().toLowerCase() || keepEmail
+  // Only the two addresses on screen are offered, so anything else is a
+  // stale form rather than a choice.
+  if (wantEmail && wantEmail !== keepEmail && wantEmail !== otherEmail) {
+    return { ok: false, message: 'That email is not on either record. Nothing was merged.' }
+  }
+
+  const { data, error } = await admin.rpc('merge_customers', {
+    p_keep: keepId,
+    p_merge: mergeId,
+    p_first_name: choices.firstName?.trim() || null,
+    p_last_name: choices.lastName?.trim() || null,
+    p_phone: choices.phone?.trim() || null,
+  })
   if (error) return { ok: false, message: 'Nothing was merged: ' + error.message }
+
+  let emailNote = ''
+  if (wantEmail && wantEmail !== keepEmail) {
+    const parked = `merged-${mergeId}@noreply.cruisethecreek.com`
+    const { error: parkErr } = await admin.auth.admin.updateUserById(mergeId, {
+      email: parked,
+      email_confirm: true,
+    })
+    const { error: swapErr } = parkErr
+      ? { error: parkErr }
+      : await admin.auth.admin.updateUserById(keepId, { email: wantEmail, email_confirm: true })
+    emailNote = swapErr
+      ? ` Their records merged, but the login email could not be changed to ${wantEmail}: ${swapErr.message}.`
+      : ` They now sign in with ${wantEmail}.`
+  }
 
   const moved = data as Record<string, number>
   const parts = [
@@ -552,14 +597,24 @@ export async function mergeCustomers(
   revalidatePath('/admin/customers')
   revalidatePath('/dashboard')
   revalidatePath('/dashboard/bikes')
+
+  // Invoices synced from the Sheet find their customer by email, so any
+  // invoice filed under an address that is no longer this login's needs its
+  // email changed in the generator, or the next save of it goes astray.
+  // WIX- orders are not in the Sheet and never re-sync.
+  const finalEmail = emailNote.startsWith(' They now') ? wantEmail : keepEmail
+  const numbers = (rows: { invoice_number: string | null }[] | null) =>
+    (rows || []).map((i) => i.invoice_number).filter((n): n is string => !!n && !/^WIX-/i.test(n))
+  const toFix = [
+    ...(finalEmail !== otherEmail ? numbers(moving) : []),
+    ...(finalEmail !== keepEmail ? numbers(staying) : []),
+  ].sort()
   return {
     ok: true,
     message:
       `Merged into ${displayName(keep)}: ${parts.length ? parts.join(', ') : 'nothing to move'}. ` +
-      `The other ${displayName(other)} is in the archive.`,
-    invoiceNumbers: (moving || [])
-      .map((i: { invoice_number: string | null }) => i.invoice_number)
-      .filter((n): n is string => !!n)
-      .sort(),
+      `The other record is in the archive.` +
+      emailNote,
+    invoiceNumbers: toFix,
   }
 }

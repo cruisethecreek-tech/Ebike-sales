@@ -3,11 +3,13 @@
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { STORE_URL } from '@/lib/constants'
+import { isPlaceholderEmail } from '@/lib/placeholder-email'
 import {
   archiveCustomers,
   restoreCustomers,
   deleteCustomersForever,
   mergeCustomers,
+  type MergeChoices,
 } from './actions'
 
 type Outcome = { ok: boolean; message: string; problems?: string[]; invoiceNumbers?: string[] }
@@ -15,6 +17,9 @@ type Outcome = { ok: boolean; message: string; problems?: string[]; invoiceNumbe
 export interface BulkCustomer {
   id: string
   name: string
+  first_name: string
+  last_name: string
+  phone?: string | null
   email?: string | null
   registered?: boolean
   lastSignInAt?: string | null
@@ -44,6 +49,7 @@ export function BulkActions({
   const [mode, setMode] = useState<'idle' | 'delete' | 'merge'>('idle')
   const [typed, setTyped] = useState('')
   const [keepId, setKeepId] = useState<string | null>(null)
+  const [picks, setPicks] = useState<Required<MergeChoices>>({ firstName: '', lastName: '', phone: '', email: '' })
   const [result, setResult] = useState<Outcome | null>(null)
   const [pending, start] = useTransition()
   const router = useRouter()
@@ -62,14 +68,36 @@ export function BulkActions({
   }
 
   // Default to keeping the account the customer actually signs in with, then
-  // the one with more history. That is almost always the right one; the
-  // choice is still shown.
+  // the one with a real email over a shop placeholder, then the one with more
+  // history. That is almost always the right one; the choice is still shown.
   function suggestedKeep(pair: BulkCustomer[]) {
     const [a, b] = pair
     if (a.is_admin !== b.is_admin) return a.is_admin ? a.id : b.id
     if (!!a.registered !== !!b.registered) return a.registered ? a.id : b.id
+    const fake = (c: BulkCustomer) => !c.email || isPlaceholderEmail(c.email)
+    if (fake(a) !== fake(b)) return fake(a) ? b.id : a.id
     const score = (c: BulkCustomer) => c.invoiceCount + c.bikeCount
     return score(a) >= score(b) ? a.id : b.id
+  }
+
+  // What survives where the two records disagree. The kept record's value by
+  // default, except where it is blank, or the email is the shop's own
+  // placeholder and the other record has a real one.
+  function defaultPicks(k: BulkCustomer, o: BulkCustomer): Required<MergeChoices> {
+    const realEmail = (c: BulkCustomer) => !!c.email && !isPlaceholderEmail(c.email)
+    return {
+      firstName: k.first_name?.trim() || o.first_name || '',
+      lastName: k.last_name?.trim() || o.last_name || '',
+      phone: k.phone?.trim() || o.phone || '',
+      email: (!realEmail(k) && realEmail(o) ? o.email : k.email || o.email) || '',
+    }
+  }
+
+  function chooseKeep(id: string) {
+    setKeepId(id)
+    const k = selected.find((c) => c.id === id)
+    const o = selected.find((c) => c.id !== id)
+    if (k && o) setPicks(defaultPicks(k, o))
   }
 
   const keep = selected.find((c) => c.id === keepId)
@@ -123,7 +151,7 @@ export function BulkActions({
           title={n === 2 ? 'Combine these two records into one' : 'Check exactly two customers to merge them'}
           onClick={() => {
             setMode(mode === 'merge' ? 'idle' : 'merge')
-            setKeepId(suggestedKeep(selected))
+            chooseKeep(suggestedKeep(selected))
             setResult(null)
           }}
           className="px-3 py-1.5 rounded-lg bg-white/10 border border-white/40 font-bold hover:bg-white/20 disabled:opacity-40"
@@ -186,12 +214,17 @@ export function BulkActions({
                     type="radio"
                     name="keep"
                     checked={keepId === c.id}
-                    onChange={() => setKeepId(c.id)}
+                    onChange={() => chooseKeep(c.id)}
                   />
                   <span className="font-bold text-sm">{c.name}</span>
                   {c.is_admin && <span className="px-1 rounded bg-[#C9A96E] text-[10px] font-bold">ADMIN</span>}
                 </span>
-                <span className="block text-gray-600 break-all">{c.email || 'No email'}</span>
+                <span className="block text-gray-600 break-all">
+                  {c.email || 'No email'}
+                  {isPlaceholderEmail(c.email) && (
+                    <span className="ml-1 px-1 rounded bg-amber-200 text-amber-900 text-[10px] font-bold">SHOP PLACEHOLDER</span>
+                  )}
+                </span>
                 <span className="block text-gray-600">
                   {c.registered ? '✓ Signs in to the portal' : 'Has never signed in'} · {c.bikeCount}{' '}
                   {c.bikeCount === 1 ? 'bike' : 'bikes'} · {c.invoiceCount}{' '}
@@ -203,23 +236,16 @@ export function BulkActions({
 
           {keep && other && (
             <>
+              <MergeFields keep={keep} other={other} picks={picks} setPicks={setPicks} />
               <p className="text-[11px]">
-                Everything on <strong>{other.name}</strong>
-                {other.email ? ` (${other.email})` : ''} moves to <strong>{keep.name}</strong>
-                {keep.email ? ` (${keep.email})` : ''}. {other.name} then goes to the archive, where it can
-                be deleted once you are happy.
+                Everything on the other record (bikes, invoices, tickets, rides, referrals) moves to the
+                one you keep. The other record then goes to the archive, where it can be deleted once you
+                are happy.
               </p>
-              {other.invoiceCount > 0 && (
-                <p className="text-[11px] text-[#8A6D1F]">
-                  Their invoices still carry {other.email || 'the old email'} in the Sheet. Change it to{' '}
-                  {keep.email || 'the kept email'} in the invoice generator, or the next save of that
-                  invoice moves it back.
-                </p>
-              )}
               <button
                 type="button"
                 disabled={pending || (other.is_admin && !keep.is_admin)}
-                onClick={() => start(async () => finish(await mergeCustomers(keep.id, other.id)))}
+                onClick={() => start(async () => finish(await mergeCustomers(keep.id, other.id, picks)))}
                 className="px-3 py-1.5 rounded-lg bg-[#2D4A32] text-white text-[11px] font-bold hover:bg-[#1A2E1C] disabled:opacity-40"
               >
                 {pending ? 'Merging…' : `Merge into ${keep.name}`}
@@ -260,6 +286,75 @@ export function BulkActions({
           )}
         </div>
       )}
+    </div>
+  )
+}
+
+const FIELD_ROWS: { key: keyof MergeChoices; label: string; value: (c: BulkCustomer) => string }[] = [
+  { key: 'firstName', label: 'First name', value: (c) => c.first_name || '' },
+  { key: 'lastName', label: 'Last name', value: (c) => c.last_name || '' },
+  { key: 'phone', label: 'Phone', value: (c) => c.phone || '' },
+  { key: 'email', label: 'Sign-in email', value: (c) => c.email || '' },
+]
+
+/**
+ * One row per detail the two records disagree on, with both values to pick
+ * from. Details that already match are not shown; there is nothing to decide.
+ */
+function MergeFields({
+  keep,
+  other,
+  picks,
+  setPicks,
+}: {
+  keep: BulkCustomer
+  other: BulkCustomer
+  picks: Required<MergeChoices>
+  setPicks: (p: Required<MergeChoices>) => void
+}) {
+  const norm = (v: string) => v.trim().toLowerCase().replace(/\s+/g, ' ')
+  const rows = FIELD_ROWS.filter((f) => {
+    const a = f.value(keep)
+    const b = f.value(other)
+    // A blank on one side is filled automatically; only real conflicts ask.
+    return a.trim() && b.trim() && norm(a) !== norm(b)
+  })
+  if (!rows.length) return null
+
+  return (
+    <div className="bg-white rounded-lg p-2.5 space-y-2">
+      <p className="text-[11px] font-bold text-[#1A2E1C]">Where they differ, keep which?</p>
+      {rows.map((f) => (
+        <div key={f.key} className="text-[11px]">
+          <span className="block font-semibold text-gray-600 mb-0.5">{f.label}</span>
+          <div className="flex flex-wrap gap-x-4 gap-y-1">
+            {[keep, other].map((c) => {
+              const v = f.value(c)
+              return (
+                <label key={c.id} className="inline-flex items-center gap-1.5 cursor-pointer break-all">
+                  <input
+                    type="radio"
+                    name={`pick-${f.key}`}
+                    checked={norm(picks[f.key]) === norm(v)}
+                    onChange={() => setPicks({ ...picks, [f.key]: v })}
+                  />
+                  <span>{v}</span>
+                  {f.key === 'email' && isPlaceholderEmail(v) && (
+                    <span className="px-1 rounded bg-amber-200 text-amber-900 text-[10px] font-bold">
+                      SHOP PLACEHOLDER
+                    </span>
+                  )}
+                </label>
+              )
+            })}
+          </div>
+          {f.key === 'email' && norm(picks.email) !== norm(keep.email || '') && (
+            <p className="text-[10px] text-[#8A6D1F] mt-0.5">
+              The kept account will sign in with this address from now on.
+            </p>
+          )}
+        </div>
+      ))}
     </div>
   )
 }
