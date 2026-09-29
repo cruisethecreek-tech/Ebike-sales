@@ -117,6 +117,7 @@ function doPost(e) {
     }
     var action = String(p.action || (e && e.parameter && e.parameter.action) || '').trim();
     if (action === 'repairIntake') return handleRepairIntake(p);
+    if (action === 'referralEmail') return handleReferralEmail(p);
     return json({ ok: false, error: 'Unknown POST action: ' + action });
   } catch (err) {
     console.error('doPost failed: ' + err);
@@ -212,6 +213,85 @@ function generateRepairWaiverDoc_(row) {
  * photo save. Reuses the Drive scope the agreement generator already
  * authorized — no new permissions.
  */
+/**
+ * Referral emails, sent when the customer portal asks (portal/lib/referral-email.ts):
+ *   referralPaid  a friend this customer referred has made a paid purchase
+ *   creditIssued  staff issued this customer's referral credit
+ *
+ * Only the portal may call this: it must send the PORTAL_ADMIN_KEY script
+ * property (the same value as ADMIN_API_KEY on Vercel). The wording is fixed
+ * here and the caller supplies only names and numbers, so even a leaked key
+ * cannot be used to send arbitrary mail from the shop's address.
+ */
+function handleReferralEmail(p) {
+  var json = function(obj) {
+    return ContentService.createTextOutput(JSON.stringify(obj))
+      .setMimeType(ContentService.MimeType.JSON);
+  };
+  var expected = '';
+  try {
+    expected = String(PropertiesService.getScriptProperties().getProperty('PORTAL_ADMIN_KEY') || '').trim();
+  } catch (propErr) {
+    expected = '';
+  }
+  if (!expected || String(p.key || '').trim() !== expected) {
+    return json({ ok: false, error: 'not authorized' });
+  }
+
+  var to = String(p.to || '').trim();
+  if (!/^[^\s@,;]+@[^\s@,;]+\.[^\s@,;]+$/.test(to)) {
+    return json({ ok: false, error: 'not a single email address' });
+  }
+  // Names only: letters, spaces, apostrophes and hyphens, kept short.
+  var name = function(v) {
+    return String(v || '').replace(/[^A-Za-z\u00C0-\u024F' -]/g, '').trim().slice(0, 40);
+  };
+  var first = name(p.firstName) || 'there';
+  var portal = 'https://portal.cruisethecreek.com/dashboard/referrals';
+  var subject, body;
+
+  if (p.type === 'referralPaid') {
+    var friend = name(p.friendFirstName) || 'A friend of yours';
+    var per = Math.max(1, parseInt(p.perCredit, 10) || 2);
+    var count = Math.max(1, parseInt(p.paidCount, 10) || 1);
+    var left = per - (count % per);
+    var progress = (count % per === 0)
+      ? "That makes " + count + " friends you've sent our way, so you've earned a $100 credit. " +
+        "We'll let you know as soon as it's on your account."
+      : "You're " + left + " more referral" + (left === 1 ? '' : 's') + " away from a $100 credit.";
+    subject = 'Thanks for the referral, ' + first + '!';
+    body = 'Hi ' + first + ',\n\n' +
+      friend + ' just made a purchase at Cruise the Creek using your referral code. ' +
+      'Thank you for sending them our way!\n\n' +
+      progress + '\n\n' +
+      'See your referrals any time: ' + portal + '\n\n' +
+      'Cruise the Creek\n6685 Kirk Road, Canfield, OH 44406';
+  } else if (p.type === 'creditIssued') {
+    var amount = Math.max(0, Math.round(Number(p.amount) || 100));
+    subject = 'Your $' + amount + ' Cruise the Creek credit is ready';
+    body = 'Hi ' + first + ',\n\n' +
+      'Thanks for spreading the word! Your $' + amount + ' referral credit is now on your account. ' +
+      'Just mention it next time you buy a bike, gear or a service and we will take it off.\n\n' +
+      'See your credit and referrals: ' + portal + '\n\n' +
+      'Cruise the Creek\n6685 Kirk Road, Canfield, OH 44406';
+  } else {
+    return json({ ok: false, error: 'unknown referral email type' });
+  }
+
+  try {
+    MailApp.sendEmail({
+      to: to,
+      replyTo: 'salesteam@cruisethecreek.com',
+      subject: subject,
+      name: 'Cruise the Creek',
+      body: body,
+    });
+  } catch (mailErr) {
+    return json({ ok: false, error: 'send failed: ' + mailErr });
+  }
+  return json({ ok: true });
+}
+
 function handleRepairIntake(p) {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
   var json = function(obj) {

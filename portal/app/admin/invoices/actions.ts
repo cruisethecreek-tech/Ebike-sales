@@ -4,6 +4,8 @@ import { createClient } from '@/lib/supabase/server'
 import { requireAdminUser } from '@/lib/require-admin'
 import { revalidatePath } from 'next/cache'
 import { APPS_SCRIPT_CMS_URL } from '@/lib/constants'
+import { createClient as createServiceClient } from '@supabase/supabase-js'
+import { notifyReferrerOfPaidPurchase } from '@/lib/referral-email'
 
 export type StatusResult = {
   ok: boolean
@@ -102,11 +104,23 @@ export async function updateInvoiceStatus(
     .from('invoices')
     .update(updateData)
     .eq('id', invoiceId)
-    .select('invoice_number')
+    .select('invoice_number, customer_id')
 
   if (error) return { ok: false, message: error.message }
   if (!rows || rows.length === 0) {
     return { ok: false, message: 'Nothing changed — the database refused the update for this account.' }
+  }
+
+  // Marked paid here rather than in the generator: if this customer was
+  // referred, this may be the purchase their referrer should hear about.
+  if (status === 'paid' && rows[0].customer_id) {
+    const service = createServiceClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!,
+      { auth: { autoRefreshToken: false, persistSession: false } }
+    )
+    const outcome = await notifyReferrerOfPaidPurchase(service, String(rows[0].customer_id))
+    if (outcome.startsWith('email failed')) console.warn(`[referral email] ${outcome}`)
   }
 
   const invoiceNumber = String(rows[0].invoice_number || '')
