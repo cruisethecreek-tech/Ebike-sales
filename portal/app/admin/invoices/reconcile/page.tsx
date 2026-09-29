@@ -1,8 +1,8 @@
 import { createClient } from '@/lib/supabase/server'
 import { fetchAllSheetInvoices, type SheetInvoice } from '@/lib/sheet-invoices'
 import { canonicalInvoiceNumber } from '@/lib/invoice-number'
-import { ImportMissing } from './import-missing'
-import { ImportAll } from './import-all'
+import { ImportableTable } from './importable-table'
+import { STORE_URL } from '@/lib/constants'
 import Link from 'next/link'
 
 export const dynamic = 'force-dynamic'
@@ -88,41 +88,15 @@ export default async function ReconcileInvoices() {
 
       {importable.length > 0 && (
         <div className="bg-white rounded-xl border border-[#E5E5E5] overflow-x-auto">
-          <div className="p-3 border-b bg-[#F5F0E8]">
+          <div className="p-3 pb-2 bg-[#F5F0E8]">
             <h2 className="font-bold text-sm text-[#1A2E1C]">
               Can be imported ({importable.length})
             </h2>
             <p className="text-[11px] text-[#4A4A4A] mt-0.5">
               Importing creates the portal account quietly. Nobody is emailed.
             </p>
-            <ImportAll invoices={importable} />
           </div>
-          <table className="w-full text-left text-xs">
-            <thead className="text-[#4A4A4A]">
-              <tr>
-                <th className="p-2 font-semibold">Invoice</th>
-                <th className="p-2 font-semibold">Customer</th>
-                <th className="p-2 font-semibold">Email</th>
-                <th className="p-2 font-semibold">Date</th>
-                <th className="p-2 font-semibold text-right">Total</th>
-                <th className="p-2"></th>
-              </tr>
-            </thead>
-            <tbody>
-              {importable.map((inv) => (
-                <tr key={inv.invoiceNumber} className="border-t">
-                  <td className="p-2 font-mono font-bold">{inv.invoiceNumber}</td>
-                  <td className="p-2">{inv.customerName || '—'}</td>
-                  <td className="p-2 text-[#4A4A4A]">{inv.customerEmail}</td>
-                  <td className="p-2 text-[#4A4A4A] whitespace-nowrap">{inv.invoiceDate || '—'}</td>
-                  <td className="p-2 text-right font-semibold">${inv.total.toFixed(2)}</td>
-                  <td className="p-2 text-right">
-                    <ImportMissing invoice={inv} />
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <ImportableTable invoices={importable} />
         </div>
       )}
 
@@ -144,6 +118,7 @@ export default async function ReconcileInvoices() {
                 <th className="p-2 font-semibold">Customer</th>
                 <th className="p-2 font-semibold">Date</th>
                 <th className="p-2 font-semibold text-right">Total</th>
+                <th className="p-2"></th>
               </tr>
             </thead>
             <tbody>
@@ -153,6 +128,17 @@ export default async function ReconcileInvoices() {
                   <td className="p-2">{inv.customerName || '—'}</td>
                   <td className="p-2 text-[#4A4A4A] whitespace-nowrap">{inv.invoiceDate || '—'}</td>
                   <td className="p-2 text-right font-semibold">${inv.total.toFixed(2)}</td>
+                  <td className="p-2 text-right">
+                    {/* The fix happens in the generator, so the row goes there. */}
+                    <a
+                      href={`${STORE_URL}/invoice.html?edit=${encodeURIComponent(inv.invoiceNumber)}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="px-2.5 py-1 rounded bg-white border border-[#9B2C2C] text-[#9B2C2C] text-[11px] font-bold hover:bg-[#FDECEC] whitespace-nowrap"
+                    >
+                      Add email ↗
+                    </a>
+                  </td>
                 </tr>
               ))}
             </tbody>

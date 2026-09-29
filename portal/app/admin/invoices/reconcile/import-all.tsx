@@ -16,7 +16,7 @@ import { runImport } from './import-payload'
  * action that says "done" and leaves three behind is the shape of the bug that
  * made this page necessary.
  */
-export function ImportAll({ invoices }: { invoices: SheetInvoice[] }) {
+export function ImportAll({ invoices, label = 'all' }: { invoices: SheetInvoice[]; label?: string }) {
   const [busy, setBusy] = useState(false)
   const [done, setDone] = useState(0)
   const [results, setResults] = useState<{ invoiceNumber: string; error?: string; bikeErrors?: string[] }[]>([])
@@ -51,7 +51,7 @@ export function ImportAll({ invoices }: { invoices: SheetInvoice[] }) {
         disabled={busy || invoices.length === 0}
         className="px-3 py-1.5 rounded bg-[#2D4A32] text-white text-[11px] font-bold hover:bg-[#1A2E1C] disabled:opacity-60"
       >
-        {busy ? `Importing ${done} of ${invoices.length}…` : `Import all ${invoices.length}`}
+        {busy ? `Importing ${done} of ${invoices.length}…` : `Import ${label} ${invoices.length}`}
       </button>
 
       {!busy && results.length > 0 && (

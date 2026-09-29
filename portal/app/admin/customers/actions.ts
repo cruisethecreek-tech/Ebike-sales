@@ -338,15 +338,34 @@ export async function deleteCustomerForever(
     return { ok: false, message: `Type “${name}” exactly to confirm. Nothing was deleted.` }
   }
 
+  const removed = await removeCustomerRecords(admin, customerId)
+  if (!removed.ok) return { ok: false, message: removed.message }
+
+  revalidatePath('/admin/customers')
+  return {
+    ok: true,
+    message: `${name} was permanently deleted.`,
+    removed: removed.removed,
+  }
+}
+
+/**
+ * The deletion itself, once every check has passed. Shared by the single
+ * delete and the bulk one so the two can never disagree about what goes.
+ */
+async function removeCustomerRecords(
+  admin: ReturnType<typeof createAdminClient>,
+  customerId: string,
+): Promise<{ ok: true; removed: { bikes: number; invoices: number } } | { ok: false; message: string }> {
   // Children first: invoices and bikes both point at the customer row.
   const { data: bikes } = await admin.from('bikes').select('id').eq('customer_id', customerId)
   const { data: invoices } = await admin.from('invoices').select('id').eq('customer_id', customerId)
 
   const { error: bikeErr } = await admin.from('bikes').delete().eq('customer_id', customerId)
-  if (bikeErr) return { ok: false, message: 'Could not delete their bikes: ' + bikeErr.message }
+  if (bikeErr) return { ok: false as const, message: 'Could not delete their bikes: ' + bikeErr.message }
 
   const { error: invErr } = await admin.from('invoices').delete().eq('customer_id', customerId)
-  if (invErr) return { ok: false, message: 'Could not delete their invoices: ' + invErr.message }
+  if (invErr) return { ok: false as const, message: 'Could not delete their invoices: ' + invErr.message }
 
   // Referral credits and anyone they referred point here too. Null out the
   // referrer rather than deleting the people they brought in.
@@ -354,14 +373,14 @@ export async function deleteCustomerForever(
   await admin.from('customers').update({ referred_by: null }).eq('referred_by', customerId)
 
   const { error: custErr } = await admin.from('customers').delete().eq('id', customerId)
-  if (custErr) return { ok: false, message: 'Could not delete the customer record: ' + custErr.message }
+  if (custErr) return { ok: false as const, message: 'Could not delete the customer record: ' + custErr.message }
 
   // Last, because without the customer row there is nothing left pointing at
   // it, and a login with no record behind it is the worse thing to leave.
   const { error: authErr } = await admin.auth.admin.deleteUser(customerId)
   if (authErr) {
     return {
-      ok: false,
+      ok: false as const,
       message:
         'Their records were deleted but the login could not be removed: ' +
         authErr.message +
@@ -369,10 +388,178 @@ export async function deleteCustomerForever(
     }
   }
 
+  return { ok: true, removed: { bikes: bikes?.length || 0, invoices: invoices?.length || 0 } }
+}
+
+
+// ── Bulk actions and merging ─────────────────────────────────────────────
+
+export interface BulkResult {
+  ok: boolean
+  message: string
+  /** Names that were skipped or failed, each with the reason. */
+  problems: string[]
+}
+
+function displayName(c: { first_name?: string | null; last_name?: string | null }) {
+  return [c.first_name, c.last_name].filter(Boolean).join(' ').trim() || 'Unnamed customer'
+}
+
+/**
+ * Archive every checked customer. Admins and your own account are skipped
+ * and named, rather than failing the whole batch.
+ */
+export async function archiveCustomers(customerIds: string[]): Promise<BulkResult> {
+  const adminId = await requireAdminUser()
+  const admin = createAdminClient()
+  const ids = [...new Set(customerIds)].filter(Boolean)
+  if (!ids.length) return { ok: false, message: 'Nobody is checked.', problems: [] }
+
+  const { data: rows, error } = await admin
+    .from('customers')
+    .select('id, first_name, last_name, is_admin')
+    .in('id', ids)
+  if (error) return { ok: false, message: 'Could not read those customers: ' + error.message, problems: [] }
+
+  const problems: string[] = []
+  const archivable = (rows || []).filter((c) => {
+    if (c.id === adminId) problems.push(`${displayName(c)}: that is your own account.`)
+    else if (c.is_admin) problems.push(`${displayName(c)}: admin accounts are not archived from here.`)
+    else return true
+    return false
+  })
+
+  if (archivable.length) {
+    const { error: upErr } = await admin
+      .from('customers')
+      .update({ archived_at: new Date().toISOString() })
+      .in('id', archivable.map((c) => c.id))
+    if (upErr) return { ok: false, message: 'Could not archive: ' + upErr.message, problems }
+  }
+
   revalidatePath('/admin/customers')
   return {
+    ok: archivable.length > 0,
+    message: `${archivable.length} archived. Nothing of theirs was deleted.`,
+    problems,
+  }
+}
+
+/** Put every checked archived customer back in the directory. */
+export async function restoreCustomers(customerIds: string[]): Promise<BulkResult> {
+  await requireAdminUser()
+  const admin = createAdminClient()
+  const ids = [...new Set(customerIds)].filter(Boolean)
+  if (!ids.length) return { ok: false, message: 'Nobody is checked.', problems: [] }
+
+  const { data, error } = await admin
+    .from('customers')
+    .update({ archived_at: null })
+    .in('id', ids)
+    .select('id')
+  if (error) return { ok: false, message: 'Could not restore: ' + error.message, problems: [] }
+
+  revalidatePath('/admin/customers')
+  return { ok: true, message: `${data?.length || 0} restored to the directory.`, problems: [] }
+}
+
+/**
+ * Permanently delete every checked customer. Same rules as deleting one —
+ * archived first, never an admin, never you — and the confirmation is the
+ * count typed out ("delete 3"), because typing six names is not a safeguard
+ * anybody would keep using.
+ */
+export async function deleteCustomersForever(
+  customerIds: string[],
+  confirm: string,
+): Promise<BulkResult> {
+  const adminId = await requireAdminUser()
+  const admin = createAdminClient()
+  const ids = [...new Set(customerIds)].filter(Boolean)
+  if (!ids.length) return { ok: false, message: 'Nobody is checked.', problems: [] }
+
+  const expected = `delete ${ids.length}`
+  if (String(confirm || '').trim().toLowerCase() !== expected) {
+    return { ok: false, message: `Type “${expected}” to confirm. Nothing was deleted.`, problems: [] }
+  }
+
+  const { data: rows, error } = await admin
+    .from('customers')
+    .select('id, first_name, last_name, is_admin, archived_at')
+    .in('id', ids)
+  if (error) return { ok: false, message: 'Could not read those customers: ' + error.message, problems: [] }
+
+  const problems: string[] = []
+  let deleted = 0
+  for (const c of rows || []) {
+    const name = displayName(c)
+    if (c.id === adminId) { problems.push(`${name}: that is your own account.`); continue }
+    if (c.is_admin) { problems.push(`${name}: admin account, not deleted.`); continue }
+    if (!c.archived_at) { problems.push(`${name}: not archived, so not deleted.`); continue }
+
+    const r = await removeCustomerRecords(admin, c.id)
+    if (r.ok) deleted++
+    else problems.push(`${name}: ${r.message}`)
+  }
+
+  revalidatePath('/admin/customers')
+  return { ok: deleted > 0, message: `${deleted} permanently deleted.`, problems }
+}
+
+/**
+ * Merge a duplicate customer into the account being kept.
+ *
+ * Bikes, invoices, service tickets, rides, photos, referral credits and
+ * referrals all move to `keepId`, blanks on the kept record are filled from
+ * the other, and the other is archived — not deleted. Its login stays, so the
+ * merge is undone by moving things back, and deletion is still a separate
+ * choice from the archive.
+ *
+ * The work happens in one database function (migration 00013) so that it is
+ * one transaction: a merge that fails partway changes nothing.
+ */
+export async function mergeCustomers(
+  keepId: string,
+  mergeId: string,
+): Promise<RemovalResult & { invoiceNumbers?: string[] }> {
+  await requireAdminUser()
+  if (!keepId || !mergeId || keepId === mergeId) {
+    return { ok: false, message: 'Pick two different customers to merge.' }
+  }
+
+  const admin = createAdminClient()
+  const [{ data: keep }, { data: other }, { data: moving }] = await Promise.all([
+    admin.from('customers').select('first_name, last_name').eq('id', keepId).single(),
+    admin.from('customers').select('first_name, last_name').eq('id', mergeId).single(),
+    admin.from('invoices').select('invoice_number').eq('customer_id', mergeId),
+  ])
+  if (!keep || !other) return { ok: false, message: 'One of those customers no longer exists.' }
+
+  const { data, error } = await admin.rpc('merge_customers', { p_keep: keepId, p_merge: mergeId })
+  if (error) return { ok: false, message: 'Nothing was merged: ' + error.message }
+
+  const moved = data as Record<string, number>
+  const parts = [
+    moved.bikes && `${moved.bikes} ${moved.bikes === 1 ? 'bike' : 'bikes'}`,
+    moved.invoices && `${moved.invoices} ${moved.invoices === 1 ? 'invoice' : 'invoices'}`,
+    moved.tickets && `${moved.tickets} service ${moved.tickets === 1 ? 'ticket' : 'tickets'}`,
+    moved.rides && `${moved.rides} ride ${moved.rides === 1 ? 'log' : 'logs'}`,
+    moved.photos && `${moved.photos} ${moved.photos === 1 ? 'photo' : 'photos'}`,
+    moved.credits && `${moved.credits} referral ${moved.credits === 1 ? 'credit' : 'credits'}`,
+    moved.referred && `${moved.referred} ${moved.referred === 1 ? 'referral' : 'referrals'}`,
+  ].filter(Boolean)
+
+  revalidatePath('/admin/customers')
+  revalidatePath('/dashboard')
+  revalidatePath('/dashboard/bikes')
+  return {
     ok: true,
-    message: `${name} was permanently deleted.`,
-    removed: { bikes: bikes?.length || 0, invoices: invoices?.length || 0 },
+    message:
+      `Merged into ${displayName(keep)}: ${parts.length ? parts.join(', ') : 'nothing to move'}. ` +
+      `The other ${displayName(other)} is in the archive.`,
+    invoiceNumbers: (moving || [])
+      .map((i: { invoice_number: string | null }) => i.invoice_number)
+      .filter((n): n is string => !!n)
+      .sort(),
   }
 }
