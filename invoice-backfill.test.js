@@ -101,7 +101,10 @@ ok('ok:false is treated as a failure, not just a bad status code',
   /result\?\.ok === false/.test(action));
 
 const all = codeOnly(read('portal/app/admin/invoices/reconcile/import-all.tsx'));
-ok('there is an import-all', /Import all \$\{invoices\.length\}/.test(all));
+// The button's wording gained a label ("Import all 9" / "Import checked 3")
+// when the table learned to import a selection, so this checks that a bulk
+// import exists and counts what it will do — not the exact string.
+ok('there is an import-all', /Import \$\{label\} \$\{invoices\.length\}/.test(all));
 ok('it imports one at a time', /for \(const inv of invoices\)/.test(all));
 ok('it names each failure', /\{r\.error\}/.test(all));
 ok('it does not hide a bike that failed to register', /bikeErrors/.test(all));
@@ -109,8 +112,11 @@ ok('it does not hide a bike that failed to register', /bikeErrors/.test(all));
 const single = codeOnly(read('portal/app/admin/invoices/reconcile/import-missing.tsx'));
 ok('the single-row button shares the same import', /runImport\(invoice\)/.test(single));
 
+// It moved out of page.tsx into the table that lists the importable invoices.
 const page = codeOnly(read('portal/app/admin/invoices/reconcile/page.tsx'));
-ok('import-all is on the page', /<ImportAll invoices=\{importable\}/.test(page));
+const table = codeOnly(read('portal/app/admin/invoices/reconcile/importable-table.tsx'));
+ok('import-all is on the page',
+  /<ImportableTable invoices=\{importable\}/.test(page) && /<ImportAll invoices=\{invoices\}/.test(table));
 
 console.log(fails ? '\n' + fails + ' FAILED' : '\nAll passed');
 process.exit(fails ? 1 : 0);
