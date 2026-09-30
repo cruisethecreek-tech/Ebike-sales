@@ -3761,16 +3761,86 @@
                 }
             }
 
-            // 1. Try Apps Script getInvoice endpoint
+            // 1. Apps Script getInvoice (the Sheet). 2. The portal's copy.
+            // 3. The Sheet's public CSV. The portal comes before the CSV
+            // because the CSV path could not read line items, so a failed
+            // Apps Script call used to open every invoice as an empty
+            // "Sales Order" for $0.00 even though the portal had the bike.
+            function fromPortalThenCsv() {
+                loadPortalInvoiceDetail(invNum, function (portalInv) {
+                    if (portalInv) {
+                        applyInvoiceData(portalInv);
+                        showStatus('Loaded ' + invNum + ' from the portal (the Google Sheet did not answer). ' +
+                            'Address and payment notes are only in the Sheet, so check them before saving.', 'error');
+                    } else {
+                        fetchSheetFallback(invNum, applyInvoiceData);
+                    }
+                });
+            }
+
             invoiceJsonp({ action: 'getInvoice', invoiceNumber: invNum }, function(data) {
                 if (data && data.status === 'ok' && data.invoice) {
-                    applyInvoiceData(data.invoice);
+                    var inv = data.invoice;
+                    // A Sheet row with no readable line items: borrow them
+                    // from the portal rather than showing "Sales Order".
+                    if (!hasLineItems(inv.lineItems)) {
+                        loadPortalInvoiceDetail(invNum, function (portalInv) {
+                            if (portalInv && hasLineItems(portalInv.lineItems)) inv.lineItems = portalInv.lineItems;
+                            applyInvoiceData(inv);
+                        });
+                    } else {
+                        applyInvoiceData(inv);
+                    }
                 } else {
-                    fetchSheetFallback(invNum, applyInvoiceData);
+                    fromPortalThenCsv();
                 }
             }, function(err) {
-                fetchSheetFallback(invNum, applyInvoiceData);
+                fromPortalThenCsv();
             });
+        }
+
+        function hasLineItems(raw) {
+            var items = raw;
+            if (typeof raw === 'string') {
+                try { items = JSON.parse(raw); } catch (e) { return false; }
+            }
+            return Array.isArray(items) && items.length > 0;
+        }
+
+        // The portal's copy of one invoice (customer, line items, totals), or
+        // null when it has none or cannot be reached.
+        function loadPortalInvoiceDetail(invNum, cb) {
+            fetch(PORTAL_URL + '/api/invoices/lookup?detail=1&numbers=' + encodeURIComponent(invNum), { headers: portalHeaders() })
+                .then(function (res) {
+                    if (portalAuthFailed(res)) return null;
+                    return res.json();
+                })
+                .then(function (data) {
+                    var found = data && data.ok && data.invoices ? data.invoices[invNum] : null;
+                    cb(found && found.invoice ? found.invoice : null);
+                })
+                .catch(function () { cb(null); });
+        }
+
+        // RFC 4180 CSV: quoted fields may hold commas, newlines and "" quotes
+        // (the lineItems JSON has all three).
+        function parseCsvRows(txt) {
+            var rows = [], row = [], field = '', q = false;
+            for (var i = 0; i < txt.length; i++) {
+                var c = txt[i];
+                if (q) {
+                    if (c === '"') {
+                        if (txt[i + 1] === '"') { field += '"'; i++; } else { q = false; }
+                    } else { field += c; }
+                } else if (c === '"') { q = true; }
+                else if (c === ',') { row.push(field); field = ''; }
+                else if (c === '\n' || c === '\r') {
+                    if (c === '\r' && txt[i + 1] === '\n') i++;
+                    row.push(field); rows.push(row); row = []; field = '';
+                } else { field += c; }
+            }
+            if (field !== '' || row.length) { row.push(field); rows.push(row); }
+            return rows;
         }
 
         function fetchSheetFallback(invNum, cb) {
@@ -3778,25 +3848,32 @@
             fetch(url)
                 .then(function(r) { return r.text(); })
                 .then(function(txt) {
-                    var lines = txt.split('\n');
-                    for (var i = 1; i < lines.length; i++) {
-                        if (lines[i].indexOf(invNum) !== -1) {
-                            var m = lines[i].match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g) || [];
-                            var clean = function(s){ return String(s || '').replace(/^"|"$/g, '').trim(); };
-                            cb({
-                                invoiceNumber: clean(m[0]),
-                                invoiceDate: clean(m[1]),
-                                dueDate: clean(m[2]),
-                                customerName: clean(m[3]),
-                                customerEmail: clean(m[4]),
-                                customerPhone: clean(m[5]),
-                                customerAddress: clean(m[6]),
-                                lineItems: clean(m[7]),
-                                total: clean(m[12]),
-                                paymentMode: clean(m[15])
-                            });
-                            return;
+                    var rows = parseCsvRows(txt);
+                    var hdr = (rows[0] || []).map(function (h) { return String(h).toLowerCase().replace(/[^a-z0-9]/g, ''); });
+                    function at(r, names, fallbackIdx) {
+                        for (var k = 0; k < names.length; k++) {
+                            var idx = hdr.indexOf(names[k]);
+                            if (idx >= 0) return String(r[idx] || '').trim();
                         }
+                        return fallbackIdx === undefined ? '' : String(r[fallbackIdx] || '').trim();
+                    }
+                    for (var i = 1; i < rows.length; i++) {
+                        var r = rows[i];
+                        if (at(r, ['invoicenumber', 'invoice'], 0) !== invNum) continue;
+                        cb({
+                            invoiceNumber: at(r, ['invoicenumber', 'invoice'], 0),
+                            invoiceDate: at(r, ['invoicedate', 'date'], 1),
+                            dueDate: at(r, ['duedate'], 2),
+                            customerName: at(r, ['customername', 'customer', 'name'], 3),
+                            customerEmail: at(r, ['customeremail', 'email'], 4),
+                            customerPhone: at(r, ['customerphone', 'phone'], 5),
+                            customerAddress: at(r, ['customeraddress', 'address'], 6),
+                            lineItems: at(r, ['lineitems', 'items'], 7),
+                            total: at(r, ['total', 'grandtotal', 'amount'], 12).replace(/[$,]/g, ''),
+                            paymentMode: at(r, ['paymentmode'], 15),
+                            paymentNotes: at(r, ['paymentnotes', 'notes'])
+                        });
+                        return;
                     }
                     showStatus('Invoice ' + invNum + ' not found in sheet.', 'error');
                 })
