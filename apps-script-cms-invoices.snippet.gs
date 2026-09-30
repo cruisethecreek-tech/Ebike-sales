@@ -62,6 +62,12 @@ function _ensureInvoicesTab(ss) {
     // name placed anywhere but the end shifts every value after it into the
     // wrong column — while the header row stays as it was, because the check
     // below only looks at A1. Reads are by header name and so are unaffected.
+    //
+    // supplierUrl belongs here even though setInvoiceMeta is what fills it.
+    // The live sheet has carried it in column W for months; leaving it out of
+    // this list put processingFee at position 23 — which IS column W — so
+    // every save wrote the fee straight over the supplier link.
+    'supplierUrl',
     'processingFee'
   ];
   var sh = ss.getSheetByName(INVOICES_TAB);
@@ -145,8 +151,10 @@ function addOrder(e) {
       p.paymentLink     || '',
       new Date().toISOString(),
       balance > 0 ? 'sent' : 'paid',
+      '',                                  // supplierUrl — filled in below
       parseFloat(p.processingFee) || 0
     ];
+    var SUPPLIER_SLOT = 22;                // 0-based, matches EXPECTED above
     var lastRow = sh.getLastRow();
     var targetRow = -1;
     if (lastRow > 1 && p.invoiceNumber) {
@@ -158,6 +166,20 @@ function addOrder(e) {
         }
       }
     }
+    // The invoice generator never sends supplierUrl — it is staff-only and set
+    // from a different screen — so writing whatever came in would blank it on
+    // every re-save, and the warranty paperwork it points at would have to be
+    // redone. Carry the value already in the row across unless a new one was
+    // actually supplied. Located by header name, not by counting, so a sheet
+    // whose columns differ is left alone rather than scrambled.
+    var hdrNow = sh.getRange(1, 1, 1, Math.max(sh.getLastColumn(), row.length)).getValues()[0].map(String);
+    var cSupplier = _invCol(hdrNow, ['supplierUrl', 'supplier url', 'trackingUrl', 'tracking url', 'shopUrl']);
+    var supplierUrl = String(p.supplierUrl || '').trim();
+    if (!supplierUrl && targetRow > 0 && cSupplier >= 0) {
+      supplierUrl = String(sh.getRange(targetRow, cSupplier + 1).getValue() || '');
+    }
+    row[SUPPLIER_SLOT] = supplierUrl;
+
     if (targetRow > 0) {
       sh.getRange(targetRow, 1, 1, row.length).setValues([row]);
     } else {
