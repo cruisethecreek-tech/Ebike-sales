@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { BiometricSetup } from '@/app/components/biometric-setup'
+import { BreakInCountdown } from '@/app/components/break-in-countdown'
 import { GoogleReviewCard } from '@/app/components/google-review-card'
 import { calculateBikeWarranties } from '@/lib/warranty'
 import Link from 'next/link'
@@ -15,7 +16,7 @@ export default async function DashboardPage() {
   // Whose portal this is. Normally the signed-in user; while an admin is
   // previewing, the customer they chose. Everything below reads from `viewerId`
   // so the preview shows the real page rather than an approximation of it.
-  const { userId: viewerId, viewingAs } = await getViewerContext()
+  const { userId: viewerId, viewingAs, email } = await getViewerContext()
 
   // Fetch customer profile
   let customer: any = null
@@ -71,6 +72,15 @@ export default async function DashboardPage() {
 
   return (
     <div className="space-y-6 max-w-5xl mx-auto pb-12">
+      {/* Above everything, because it expires. Renders nothing once it has. */}
+      <BreakInCountdown
+        bikes={bikes}
+        firstName={customer?.first_name}
+        lastName={customer?.last_name}
+        phone={customer?.phone}
+        email={email}
+      />
+
       {/* Greeting */}
       <div className="flex justify-between items-start flex-wrap gap-3">
         <div>

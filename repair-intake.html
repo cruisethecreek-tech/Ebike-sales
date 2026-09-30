@@ -332,6 +332,10 @@ function compressImage(file){
 /* ── URL Parameter Prefill & Live Pricing Breakdown ────── */
 let activeDiscountCode = '';
 let isMemberDiscount = false;
+// The free 30-day break-in tune-up, arriving as promo=BREAKIN from the portal
+// countdown. Separate from the member discount because it is 100%, not 20%,
+// and the two must never stack.
+let isBreakInTuneup = false;
 
 function updatePricingSection() {
   const box = document.getElementById('price-breakdown-box');
@@ -345,7 +349,12 @@ function updatePricingSection() {
 
   // If tune-up is checked (or default if service=tuneup)
   const basePrice = (tuneupChecked || (!otherIssues.length)) ? 125.00 : 0.00;
-  const discountAmount = isMemberDiscount ? (basePrice * 0.20) : 0.00;
+  // The free 30-day break-in tune-up takes the whole thing off, not a fifth of
+  // it. Sending someone here from a portal banner that says "free" and then
+  // quoting them $125 would be worse than never offering it.
+  const discountAmount = isBreakInTuneup ? basePrice
+                       : isMemberDiscount ? (basePrice * 0.20)
+                       : 0.00;
   const finalPrice = Math.max(0, basePrice - discountAmount);
 
   let html = `
@@ -370,7 +379,17 @@ function updatePricingSection() {
     `;
   }
 
-  if (isMemberDiscount) {
+  if (isBreakInTuneup) {
+    html += `
+        <div style="display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px solid #eee; color:#15803D; font-size:0.92rem;">
+          <div>
+            <strong>🌲 Free 30-Day Break-In Tune-Up</strong>
+            <div style="font-size:0.75rem; color:#2D4A32;">Cruise the Creek Care — included with your new bike</div>
+          </div>
+          <strong style="font-size:1rem;">-$${discountAmount.toFixed(2)}</strong>
+        </div>
+    `;
+  } else if (isMemberDiscount) {
     html += `
         <div style="display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px solid #eee; color:#15803D; font-size:0.92rem;">
           <div>
@@ -392,7 +411,7 @@ function updatePricingSection() {
             <span style="font-size:0.75rem; color:#666;">Pay at completion upon test ride</span>
           </div>
           <div style="text-align:right;">
-            ${isMemberDiscount ? `<s style="color:#888; font-size:0.9rem; margin-right:6px;">$125.00</s>` : ''}
+            ${(isBreakInTuneup || isMemberDiscount) ? `<s style="color:#888; font-size:0.9rem; margin-right:6px;">$125.00</s>` : ''}
             <strong style="font-size:1.6rem; color:#2D4A32; font-family:'DM Sans', sans-serif;">$${finalPrice.toFixed(2)}</strong>
           </div>
         </div>
@@ -400,7 +419,14 @@ function updatePricingSection() {
   `;
 
   // Status Badge or Promo Entry
-  if (isMemberDiscount) {
+  if (isBreakInTuneup) {
+    html += `
+      <div style="background:#DCFCE7; border:1px solid #86EFAC; border-radius:8px; padding:10px 14px; font-size:0.82rem; color:#15803D; font-weight:700; display:flex; align-items:center; gap:8px;">
+        <span style="font-size:1.2rem;">🌲</span>
+        <span>Your free break-in tune-up is applied — this service costs you nothing.</span>
+      </div>
+    `;
+  } else if (isMemberDiscount) {
     html += `
       <div style="background:#DCFCE7; border:1px solid #86EFAC; border-radius:8px; padding:10px 14px; font-size:0.82rem; color:#15803D; font-weight:700; display:flex; align-items:center; gap:8px;">
         <span style="font-size:1.2rem;">✅</span>
@@ -481,8 +507,13 @@ function updatePricingSection() {
       }
     }
 
-    // Check discount flags
-    if (promo === '20OFF' || promo === '25OFF' || discount === '20' || discount === '25' || ref) {
+    // The free break-in tune-up, sent from the portal countdown. Checked
+    // before the member discount because it is the larger of the two and they
+    // must not stack into a negative total.
+    if (promo === 'BREAKIN' || promo === 'BREAKIN30' || discount === '100') {
+      isBreakInTuneup = true;
+      activeDiscountCode = 'Free 30-Day Break-In';
+    } else if (promo === '20OFF' || promo === '25OFF' || discount === '20' || discount === '25' || ref) {
       isMemberDiscount = true;
       activeDiscountCode = ref || promo || '20% Member Referral';
     }
@@ -541,7 +572,10 @@ form.addEventListener('submit', async e => {
     brand: v('f-brand'), model: v('f-model'),
     ebikeClass: ebikeClass, issues: issues, description: descriptionText,
     referralCode: activeDiscountCode,
-    discountPercent: isMemberDiscount ? '20%' : '',
+    // Say which it was. "$0.00" on a work order with nothing explaining it is
+    // how a free service turns into a question three weeks later.
+    discountPercent: isBreakInTuneup ? '100% — free 30-day break-in tune-up'
+                   : isMemberDiscount ? '20%' : '',
     serviceEstimate: servicePriceString,
     waiverAgreed: true, waiverSignature: waiverSignature,
     waiverVersion: WAIVER_VERSION, waiverDate: WAIVER_DATE,
