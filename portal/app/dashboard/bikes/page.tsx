@@ -11,6 +11,7 @@ import Link from 'next/link'
 import { getViewerContext } from '@/lib/view-as'
 import { loadCatalog, matchCatalogModel, colorNamedIn, type CatalogModel } from '@/lib/bike-catalog'
 import { BikeLookEditor } from './bike-look-editor'
+import { ShopInvoiceEditor } from './shop-invoice-editor'
 
 // Per-customer data, and now also per-preview: an admin viewing as someone
 // else must never be served a page cached for anybody. Never static.
@@ -185,6 +186,8 @@ export default async function BikesPage() {
 
                   {/* ── Frame Serial Number & Receipt ── */}
                   <SerialNumberEditor bike={bike} />
+
+                  {isStaff && <ShopInvoiceEditor bikeId={bike.id} current={bike.shop_invoice_url ?? null} />}
 
                   {/* ── GPS location, only on bikes with a tracker ── */}
                   {trackerByBike.has(bike.id) && <BikeLocation status={trackerByBike.get(bike.id)!} />}
