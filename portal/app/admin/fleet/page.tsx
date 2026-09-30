@@ -2,7 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { GpsLiveRefresh } from '@/app/components/gps-live-refresh'
 import { alertLabel, bikeBatteryVolts, isStale, loadTrackerStatuses, mapLinks, timeAgo } from '@/lib/gps'
 import type { TrackerAlert } from '@/lib/types'
-import { acknowledgeAlert, registerTracker } from './actions'
+import { acknowledgeAlert, registerTracker, transferTracker } from './actions'
 
 export const metadata = {
   title: 'Fleet GPS — Cruise the Creek Admin',
@@ -19,9 +19,9 @@ type BikeRow = {
 export default async function AdminFleet({
   searchParams,
 }: {
-  searchParams: Promise<{ error?: string; added?: string }>
+  searchParams: Promise<{ error?: string; added?: string; moved?: string }>
 }) {
-  const { error: formError, added } = await searchParams
+  const { error: formError, added, moved } = await searchParams
   const supabase = await createClient()
 
   const [gps, bikesRes, alertsRes] = await Promise.all([
@@ -65,6 +65,23 @@ export default async function AdminFleet({
     if (!bikeGroups.has(key)) bikeGroups.set(key, { label, bikes: [] })
     bikeGroups.get(key)!.bikes.push(b)
   }
+  // One list of choosable bikes, used by both the register form and every
+  // transfer control, so the two can never disagree about what is available.
+  // Each option repeats the owner's name: the optgroup heading says it once,
+  // but on a phone the closed select shows only the chosen line, and "Discover
+  // 3" alone is not enough to know whose tracker you just moved.
+  const bikeOptions = [...bikeGroups.entries()].map(([key, group]) => ({
+    key,
+    label: group.label,
+    bikes: group.bikes.map((b) => ({
+      id: b.id,
+      text:
+        `${b.brand} ${b.model}` +
+        (b.serial_number ? ` (${b.serial_number})` : '') +
+        ` — ${group.label}`,
+    })),
+  }))
+
   const openAlerts = (alertsRes.data ?? []) as TrackerAlert[]
   const trackerById = new Map(gps.statuses.map((s) => [s.tracker.id, s.tracker]))
 
@@ -169,7 +186,8 @@ export default async function AdminFleet({
                   <th className="py-2 pr-3">Last Check-in</th>
                   <th className="py-2 pr-3">Status</th>
                   <th className="py-2 pr-3">Battery</th>
-                  <th className="py-2">Map</th>
+                  <th className="py-2 pr-3">Map</th>
+                  <th className="py-2">Move</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
@@ -192,7 +210,7 @@ export default async function AdminFleet({
                           : 'Parked'}
                       </td>
                       <td className="py-2.5 pr-3">{volts != null ? `${volts.toFixed(1)} V` : '—'}</td>
-                      <td className="py-2.5">
+                      <td className="py-2.5 pr-3">
                         {latest ? (
                           <a
                             href={mapLinks(latest.latitude, latest.longitude).open}
@@ -203,6 +221,39 @@ export default async function AdminFleet({
                             Open ↗
                           </a>
                         ) : '—'}
+                      </td>
+                      {/* Moving the tracker, not re-registering it. Deleting and
+                          adding it again was the only way before, and that threw
+                          away everywhere the bike had been. */}
+                      <td className="py-2.5">
+                        <form action={transferTracker} className="flex flex-wrap items-center gap-1.5">
+                          <input type="hidden" name="tracker_id" value={tracker.id} />
+                          <select
+                            name="bike_id"
+                            defaultValue=""
+                            className="border rounded-lg px-2 py-1 text-xs bg-white max-w-[190px]"
+                          >
+                            <option value="" disabled>Move to…</option>
+                            {bikeOptions.map((group) => (
+                              <optgroup key={group.key} label={group.label}>
+                                {group.bikes.map((b) => (
+                                  <option key={b.id} value={b.id}>{b.text}</option>
+                                ))}
+                              </optgroup>
+                            ))}
+                            {/* The shelf is a real place a tracker lives between
+                                bikes, and the column is nullable for it. */}
+                            <optgroup label="Not on a bike">
+                              <option value="__shelf__">Back on the shelf</option>
+                            </optgroup>
+                          </select>
+                          <button
+                            type="submit"
+                            className="px-2.5 py-1 rounded-lg bg-[#2D4A32] text-white text-[11px] font-bold hover:bg-[#1A2E1C]"
+                          >
+                            Move
+                          </button>
+                        </form>
                       </td>
                     </tr>
                   )
@@ -224,6 +275,16 @@ export default async function AdminFleet({
         </p>
         {formError && <div className="p-3 bg-red-50 text-red-700 rounded-lg text-sm">{formError}</div>}
         {added && <div className="p-3 bg-[#DCFCE7] text-[#15803D] rounded-lg text-sm">Tracker registered.</div>}
+        {/* Says what the move means for the customer, because that is the part
+            that is not obvious: the new owner starts seeing the bike on their
+            My Bikes page, and sees nothing from before today. */}
+        {moved && (
+          <div className="p-3 bg-[#DCFCE7] text-[#15803D] rounded-lg text-sm">
+            {moved === 'shelf'
+              ? 'Tracker taken off that bike. It is on the shelf now, and nobody can see its location.'
+              : 'Tracker moved. Its new owner sees the bike on their My Bikes page from now on — and nothing from before the move.'}
+          </div>
+        )}
         <form action={registerTracker} className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
           <label className="space-y-1">
             <span className="text-xs font-bold text-gray-600">IMEI (15 digits, on the tracker label)</span>
@@ -233,13 +294,10 @@ export default async function AdminFleet({
             <span className="text-xs font-bold text-gray-600">Bike</span>
             <select name="bike_id" required className="w-full border rounded-lg px-3 py-2 bg-white" defaultValue="">
               <option value="" disabled>Choose a bike…</option>
-              {[...bikeGroups.entries()].map(([key, group]) => (
-                <optgroup key={key} label={group.label}>
+              {bikeOptions.map((group) => (
+                <optgroup key={group.key} label={group.label}>
                   {group.bikes.map((b) => (
-                    <option key={b.id} value={b.id}>
-                      {b.brand} {b.model}
-                      {b.serial_number ? ` (${b.serial_number})` : ''}
-                    </option>
+                    <option key={b.id} value={b.id}>{b.text}</option>
                   ))}
                 </optgroup>
               ))}
