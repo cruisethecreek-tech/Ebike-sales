@@ -89,11 +89,21 @@ export interface WarrantyStatus {
   manufacturerWarrantyEndDate: Date | null
   manufacturerWarrantyPercent: number
   isManufacturerWarrantyActive: boolean
+  /** The next Creek Ready service: the free break-in tune for the first
+   *  30 days after purchase, then the annual service. */
+  creekReadyKind: 'break-in' | 'annual'
   creekReadyDaysLeft: number
   creekReadyDueDate: Date | null
   creekReadyPercent: number
   isCreekReadyActive: boolean
+  /** Last day of the free 30-day break-in tune window. */
+  breakInDueDate: Date | null
+  /** The annual service date, one year after purchase. */
+  annualServiceDueDate: Date | null
 }
+
+/** Days after pickup the free break-in tune-up is offered (creek-ready.html, assembly.html). */
+export const BREAK_IN_DAYS = 30
 
 const DAY_MS = 1000 * 60 * 60 * 24
 
@@ -158,11 +168,19 @@ export function calculateBikeWarranties(
     ? Math.min(100, Math.max(0, ((totalDays - manufacturerWarrantyDaysLeft) / totalDays) * 100))
     : 100
 
-  // Creek Ready: annual service, due one year after purchase.
-  const creekReadyDueDate = purchaseDate ? addDays(purchaseDate, YEAR) : null
+  // Creek Ready: the free break-in tune within 30 days of pickup comes
+  // first, then the annual service one year after purchase. We don't record
+  // whether the break-in tune happened, so the card moves on to the annual
+  // service once the 30-day window has passed.
+  const breakInDueDate = purchaseDate ? addDays(purchaseDate, BREAK_IN_DAYS) : null
+  const annualServiceDueDate = purchaseDate ? addDays(purchaseDate, YEAR) : null
+  const inBreakIn = breakInDueDate != null && daysUntil(breakInDueDate, now) > 0
+  const creekReadyKind: 'break-in' | 'annual' = inBreakIn ? 'break-in' : 'annual'
+  const creekReadyDueDate = inBreakIn ? breakInDueDate : annualServiceDueDate
+  const creekReadyTerm = inBreakIn ? BREAK_IN_DAYS : YEAR
   const creekReadyDaysLeft = creekReadyDueDate ? daysUntil(creekReadyDueDate, now) : 0
   const creekReadyPercent = creekReadyDueDate
-    ? Math.min(100, Math.max(0, ((YEAR - creekReadyDaysLeft) / YEAR) * 100))
+    ? Math.min(100, Math.max(0, ((creekReadyTerm - creekReadyDaysLeft) / creekReadyTerm) * 100))
     : 100
 
   return {
@@ -175,9 +193,12 @@ export function calculateBikeWarranties(
     manufacturerWarrantyEndDate,
     manufacturerWarrantyPercent,
     isManufacturerWarrantyActive: manufacturerWarrantyDaysLeft > 0,
+    creekReadyKind,
     creekReadyDaysLeft,
     creekReadyDueDate,
     creekReadyPercent,
     isCreekReadyActive: creekReadyDaysLeft > 0,
+    breakInDueDate,
+    annualServiceDueDate,
   }
 }

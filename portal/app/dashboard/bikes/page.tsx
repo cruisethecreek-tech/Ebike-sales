@@ -256,13 +256,15 @@ export default async function BikesPage() {
                   <div className="p-4 bg-[#FBF7EF] rounded-xl space-y-2 border border-[#C9A96E]/40">
                     <div className="flex justify-between items-center text-xs">
                       <span className="font-bold text-[#2D4A32] flex items-center gap-1">
-                        🌲 Creek Ready Service Plan:
+                        🌲 {warranty.creekReadyKind === 'break-in' ? 'Free 30-Day Break-In Tune-Up:' : 'Creek Ready Service Plan:'}
                       </span>
                       <span className="font-bold text-[#B45309]">
                         {!warranty.creekReadyDueDate
                           ? 'Schedule Pending'
                           : warranty.isCreekReadyActive
-                            ? `Tune-Up in ${warranty.creekReadyDaysLeft} Days`
+                            ? warranty.creekReadyKind === 'break-in'
+                              ? `${warranty.creekReadyDaysLeft} Days Left to Book`
+                              : `Tune-Up in ${warranty.creekReadyDaysLeft} Days`
                             : 'Tune-Up Due Now'}
                       </span>
                     </div>
@@ -276,7 +278,9 @@ export default async function BikesPage() {
                     </div>
 
                     <p className="text-[11px] text-gray-500">
-                      Annual 28-point certified service due: {warranty.creekReadyDueDate?.toLocaleDateString() ?? 'once we have your purchase date'}
+                      {warranty.creekReadyKind === 'break-in' && warranty.breakInDueDate
+                        ? <>Free break-in tune (bolts re-torqued, brakes and gears adjusted): book by {warranty.breakInDueDate.toLocaleDateString()}. Then annual 28-point service: {warranty.annualServiceDueDate?.toLocaleDateString()}.</>
+                        : <>Annual 28-point certified service due: {warranty.creekReadyDueDate?.toLocaleDateString() ?? 'once we have your purchase date'}</>}
                     </p>
                   </div>
                 </div>
@@ -286,7 +290,9 @@ export default async function BikesPage() {
                     href={`/support?bikeId=${bike.id}`}
                     className="flex-1 text-center py-2.5 px-4 rounded-xl bg-[#2D4A32] text-white text-xs font-bold hover:bg-[#1A2E1C] transition-colors shadow-xs"
                   >
-                    🛠️ Book Creek Ready Tune-Up ($100.00 Member Rate)
+                    {warranty.creekReadyKind === 'break-in'
+                      ? '🛠️ Book Free 30-Day Tune-Up'
+                      : '🛠️ Book Creek Ready Tune-Up ($100.00 Member Rate)'}
                   </Link>
                 </div>
               </div>
