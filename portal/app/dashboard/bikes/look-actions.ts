@@ -84,3 +84,29 @@ export async function setBikeShopInvoice(bikeId: string, url: string): Promise<L
   revalidatePath('/admin/customers')
   return { ok: true, message: raw ? 'Shop invoice link saved.' : 'Shop invoice link cleared.' }
 }
+
+/**
+ * Record (or clear) the day the customer received the bike. Staff only.
+ * The free break-in tune-up window counts 30 days from this date.
+ */
+export async function setBikeDeliveredOn(bikeId: string, date: string): Promise<LookResult> {
+  await requireAdminUser()
+  if (!bikeId) return { ok: false, message: 'No bike given.' }
+
+  const raw = String(date || '').trim()
+  if (raw && !/^\d{4}-\d{2}-\d{2}$/.test(raw)) return { ok: false, message: 'Pick a date.' }
+
+  const supabase = await createClient()
+  const { data, error } = await supabase
+    .from('bikes')
+    .update({ delivered_on: raw || null })
+    .eq('id', bikeId)
+    .select('id')
+  if (error) return { ok: false, message: error.message }
+  if (!data?.length) return { ok: false, message: 'Nothing changed. The bike may have been removed.' }
+
+  revalidatePath('/dashboard/bikes')
+  revalidatePath('/dashboard')
+  revalidatePath('/admin/customers')
+  return { ok: true, message: raw ? 'Delivery date saved.' : 'Delivery date cleared.' }
+}

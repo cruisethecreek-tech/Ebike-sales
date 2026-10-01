@@ -137,7 +137,7 @@ export default async function DashboardPage() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {bikes.slice(0, 2).map((bike) => {
-              const warranty = calculateBikeWarranties(bike.brand, bike.purchase_date, bike.warranty_expires_at)
+              const warranty = calculateBikeWarranties(bike.brand, bike.purchase_date, bike.warranty_expires_at, { deliveredOn: bike.delivered_on })
               return (
                 <div key={bike.id} className="p-4 rounded-xl bg-[#F5F0E8] border border-[#E5E5E5] space-y-2.5">
                   <div className="flex justify-between items-start">
@@ -159,7 +159,7 @@ export default async function DashboardPage() {
                   <div className="space-y-1">
                     <div className="flex justify-between text-xs text-[#4A4A4A]">
                       <span>
-                        {warranty.creekReadyKind === 'break-in' ? 'Free 30-Day Tune-Up:' : 'Creek Ready Service Plan:'}
+                        {warranty.creekReadyKind === 'break-in' ? 'Free Break-In Tune-Up:' : 'Creek Ready Service Plan:'}
                       </span>
                       <span className="font-bold text-[#B45309]">
                         {!warranty.creekReadyDueDate
