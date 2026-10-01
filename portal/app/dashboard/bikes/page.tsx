@@ -12,6 +12,7 @@ import { getViewerContext } from '@/lib/view-as'
 import { loadCatalog, matchCatalogModel, colorNamedIn, type CatalogModel } from '@/lib/bike-catalog'
 import { BikeLookEditor } from './bike-look-editor'
 import { ShopInvoiceEditor } from './shop-invoice-editor'
+import { DeliveryDateEditor } from './delivery-date-editor'
 
 // Per-customer data, and now also per-preview: an admin viewing as someone
 // else must never be served a page cached for anybody. Never static.
@@ -106,7 +107,7 @@ export default async function BikesPage() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {bikes.map((bike) => {
-            const warranty = calculateBikeWarranties(bike.brand, bike.purchase_date, bike.warranty_expires_at)
+            const warranty = calculateBikeWarranties(bike.brand, bike.purchase_date, bike.warranty_expires_at, { deliveredOn: bike.delivered_on })
             const brandModels = isStaff
               ? catalog.filter((m) => m.brand.toLowerCase() === String(bike.brand).toLowerCase())
               : []
@@ -188,6 +189,7 @@ export default async function BikesPage() {
                   <SerialNumberEditor bike={bike} />
 
                   {isStaff && <ShopInvoiceEditor bikeId={bike.id} current={bike.shop_invoice_url ?? null} />}
+                  {isStaff && <DeliveryDateEditor bikeId={bike.id} current={bike.delivered_on ?? null} />}
 
                   {/* ── GPS location, only on bikes with a tracker ── */}
                   {trackerByBike.has(bike.id) && <BikeLocation status={trackerByBike.get(bike.id)!} />}
@@ -256,13 +258,15 @@ export default async function BikesPage() {
                   <div className="p-4 bg-[#FBF7EF] rounded-xl space-y-2 border border-[#C9A96E]/40">
                     <div className="flex justify-between items-center text-xs">
                       <span className="font-bold text-[#2D4A32] flex items-center gap-1">
-                        🌲 Creek Ready Service Plan:
+                        🌲 {warranty.creekReadyKind === 'break-in' ? 'Free Break-In Tune-Up:' : 'Creek Ready Service Plan:'}
                       </span>
                       <span className="font-bold text-[#B45309]">
                         {!warranty.creekReadyDueDate
                           ? 'Schedule Pending'
                           : warranty.isCreekReadyActive
-                            ? `Tune-Up in ${warranty.creekReadyDaysLeft} Days`
+                            ? warranty.creekReadyKind === 'break-in'
+                              ? `${warranty.creekReadyDaysLeft} Days Left to Book`
+                              : `Tune-Up in ${warranty.creekReadyDaysLeft} Days`
                             : 'Tune-Up Due Now'}
                       </span>
                     </div>
@@ -276,7 +280,9 @@ export default async function BikesPage() {
                     </div>
 
                     <p className="text-[11px] text-gray-500">
-                      Annual 28-point certified service due: {warranty.creekReadyDueDate?.toLocaleDateString() ?? 'once we have your purchase date'}
+                      {warranty.creekReadyKind === 'break-in' && warranty.breakInDueDate
+                        ? <>Free break-in tune (bolts re-torqued, brakes and gears adjusted): book by {warranty.breakInDueDate.toLocaleDateString()} ({warranty.breakInFromDelivery ? '30 days from delivery' : '40 days from purchase, allowing for shipping'}). Then annual 28-point service: {warranty.annualServiceDueDate?.toLocaleDateString()}.</>
+                        : <>Annual 28-point certified service due: {warranty.creekReadyDueDate?.toLocaleDateString() ?? 'once we have your purchase date'}</>}
                     </p>
                   </div>
                 </div>
@@ -286,7 +292,9 @@ export default async function BikesPage() {
                     href={`/support?bikeId=${bike.id}`}
                     className="flex-1 text-center py-2.5 px-4 rounded-xl bg-[#2D4A32] text-white text-xs font-bold hover:bg-[#1A2E1C] transition-colors shadow-xs"
                   >
-                    🛠️ Book Creek Ready Tune-Up ($100.00 Member Rate)
+                    {warranty.creekReadyKind === 'break-in'
+                      ? '🛠️ Book Free Break-In Tune-Up'
+                      : '🛠️ Book Creek Ready Tune-Up ($100.00 Member Rate)'}
                   </Link>
                 </div>
               </div>

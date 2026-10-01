@@ -89,11 +89,25 @@ export interface WarrantyStatus {
   manufacturerWarrantyEndDate: Date | null
   manufacturerWarrantyPercent: number
   isManufacturerWarrantyActive: boolean
+  /** The next Creek Ready service: the free break-in tune for the first
+   *  30 days after purchase, then the annual service. */
+  creekReadyKind: 'break-in' | 'annual'
   creekReadyDaysLeft: number
   creekReadyDueDate: Date | null
   creekReadyPercent: number
   isCreekReadyActive: boolean
+  /** Last day of the free break-in tune window. */
+  breakInDueDate: Date | null
+  /** True when the window counts from a recorded delivery date. */
+  breakInFromDelivery: boolean
+  /** The annual service date, one year after purchase. */
+  annualServiceDueDate: Date | null
 }
+
+/** Days after pickup the free break-in tune-up is offered (creek-ready.html, assembly.html). */
+export const BREAK_IN_DAYS = 30
+/** Shipping can take about 10 days, so without a delivery date the window runs 40 days from purchase. */
+export const SHIPPING_ALLOWANCE_DAYS = 10
 
 const DAY_MS = 1000 * 60 * 60 * 24
 
@@ -127,8 +141,10 @@ export function calculateBikeWarranties(
   brand: string,
   purchaseDateStr: string | null | undefined,
   warrantyExpiresAt?: string | null,
-  now: Date = new Date(),
+  opts: { deliveredOn?: string | null; now?: Date } = {},
 ): WarrantyStatus {
+  const now = opts.now ?? new Date()
+  const deliveredOn = parseDate(opts.deliveredOn)
   const terms = BRAND_WARRANTIES[(brand || '').toLowerCase()] ?? null
   const purchaseDate = parseDate(purchaseDateStr)
   const override = parseDate(warrantyExpiresAt)
@@ -158,11 +174,23 @@ export function calculateBikeWarranties(
     ? Math.min(100, Math.max(0, ((totalDays - manufacturerWarrantyDaysLeft) / totalDays) * 100))
     : 100
 
-  // Creek Ready: annual service, due one year after purchase.
-  const creekReadyDueDate = purchaseDate ? addDays(purchaseDate, YEAR) : null
+  // Creek Ready: the free break-in tune comes first, then the annual
+  // service one year after purchase. The break-in window is 30 days from
+  // delivery when staff recorded it, otherwise 40 days from purchase to
+  // allow for shipping. We don't record whether the tune happened, so the
+  // card moves on to the annual service once the window has passed.
+  const breakInFromDelivery = deliveredOn != null
+  const breakInStart = deliveredOn ?? purchaseDate
+  const breakInTerm = breakInFromDelivery ? BREAK_IN_DAYS : BREAK_IN_DAYS + SHIPPING_ALLOWANCE_DAYS
+  const breakInDueDate = breakInStart ? addDays(breakInStart, breakInTerm) : null
+  const annualServiceDueDate = purchaseDate ? addDays(purchaseDate, YEAR) : null
+  const inBreakIn = breakInDueDate != null && daysUntil(breakInDueDate, now) > 0
+  const creekReadyKind: 'break-in' | 'annual' = inBreakIn ? 'break-in' : 'annual'
+  const creekReadyDueDate = inBreakIn ? breakInDueDate : annualServiceDueDate
+  const creekReadyTerm = inBreakIn ? breakInTerm : YEAR
   const creekReadyDaysLeft = creekReadyDueDate ? daysUntil(creekReadyDueDate, now) : 0
   const creekReadyPercent = creekReadyDueDate
-    ? Math.min(100, Math.max(0, ((YEAR - creekReadyDaysLeft) / YEAR) * 100))
+    ? Math.min(100, Math.max(0, ((creekReadyTerm - creekReadyDaysLeft) / creekReadyTerm) * 100))
     : 100
 
   return {
@@ -175,9 +203,13 @@ export function calculateBikeWarranties(
     manufacturerWarrantyEndDate,
     manufacturerWarrantyPercent,
     isManufacturerWarrantyActive: manufacturerWarrantyDaysLeft > 0,
+    creekReadyKind,
     creekReadyDaysLeft,
     creekReadyDueDate,
     creekReadyPercent,
     isCreekReadyActive: creekReadyDaysLeft > 0,
+    breakInDueDate,
+    breakInFromDelivery,
+    annualServiceDueDate,
   }
 }

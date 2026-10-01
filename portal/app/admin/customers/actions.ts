@@ -225,13 +225,15 @@ export async function adminUpdateBike(formData: FormData): Promise<void> {
   // rather than failing the whole save of serial and receipt.
   const rawShop = ((formData.get('shop_invoice_url') as string) || '').trim()
   const shop_invoice_url = /^https?:\/\/\S+$/i.test(rawShop) && rawShop.length <= 1000 ? rawShop : null
+  const rawDelivered = ((formData.get('delivered_on') as string) || '').trim()
+  const delivered_on = /^\d{4}-\d{2}-\d{2}$/.test(rawDelivered) ? rawDelivered : null
 
   if (!bikeId) return
 
   const supabase = createAdminClient()
   const { error } = await supabase
     .from('bikes')
-    .update({ serial_number, receipt_number, shop_invoice_url })
+    .update({ serial_number, receipt_number, shop_invoice_url, delivered_on })
     .eq('id', bikeId)
 
   if (error) {

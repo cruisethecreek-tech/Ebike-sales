@@ -30,6 +30,7 @@ interface Bike {
   receipt_number?: string | null
   purchase_date?: string | null
   shop_invoice_url?: string | null
+  delivered_on?: string | null
 }
 
 interface CustomerData {
@@ -320,6 +321,20 @@ function BikeAdminCard({
             className="w-full px-2.5 py-1.5 rounded-lg border border-[#C9A96E] bg-white text-xs font-mono font-bold uppercase placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#2D4A32]"
           />
         </div>
+      </div>
+
+      {/* Delivery date: starts the free 30-day break-in tune-up. Blank
+          means the portal allows 40 days from purchase for shipping. */}
+      <div className="text-xs">
+        <label className="block text-[10px] font-bold uppercase text-[#2D4A32] tracking-wider mb-0.5">
+          🚚 Delivered on
+        </label>
+        <input
+          type="date"
+          name="delivered_on"
+          defaultValue={bike.delivered_on || ''}
+          className="w-full px-2.5 py-1.5 rounded-lg border border-[#C9A96E] bg-white text-xs focus:outline-none focus:ring-2 focus:ring-[#2D4A32]"
+        />
       </div>
 
       {/* Shop invoice (Shop.com order / warranty link). Bikes with no invoice
