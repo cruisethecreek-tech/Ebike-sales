@@ -11,6 +11,7 @@ export type TrackerStatus = {
 // listed is shown as-is rather than hidden.
 const ALERT_LABELS: Record<string, string> = {
   powerCut: 'Bike battery disconnected',
+  movedWhileLocked: 'Moved while locked',
   geofenceExit: 'Left area',
   geofenceEnter: 'Entered area',
   deviceOffline: 'Tracker went offline',

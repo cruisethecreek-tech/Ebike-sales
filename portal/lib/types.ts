@@ -139,6 +139,9 @@ export interface Tracker {
   sim_iccid: string | null;
   active: boolean;
   assigned_at: string;
+  locked_at: string | null;
+  lock_latitude: number | null;
+  lock_longitude: number | null;
   created_at: string;
   updated_at: string;
 }
