@@ -3,6 +3,7 @@
 import { useState, useMemo, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { STORE_URL } from '@/lib/constants'
+import { newInvoiceUrl } from '@/lib/generator-link'
 import { canonicalInvoiceNumber } from '@/lib/invoice-number'
 import { adminUpdateBike, adminAddBike, adminDeleteBike } from './actions'
 import { DeleteInvoiceButton } from '../invoices/delete-invoice-button'
@@ -800,11 +801,11 @@ export function CustomerDirectory({
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-2 text-xs">
               {/* 1. Open Invoice Generator pre-filled */}
               <a
-                href={`${STORE_URL}/invoice.html?customer=${encodeURIComponent(
-                  formatCustomerName(selectedCustomer.first_name, selectedCustomer.last_name)
-                )}&phone=${encodeURIComponent(selectedCustomer.phone || '')}&email=${encodeURIComponent(
-                  selectedCustomer.email || ''
-                )}`}
+                href={newInvoiceUrl(STORE_URL, {
+                  name: formatCustomerName(selectedCustomer.first_name, selectedCustomer.last_name),
+                  email: selectedCustomer.email,
+                  phone: selectedCustomer.phone,
+                })}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="p-2.5 rounded-lg bg-[#2D4A32] text-white font-bold flex items-center justify-center gap-1.5 hover:bg-[#1A2E1C] shadow-xs text-center"

@@ -3,6 +3,7 @@
 import { useState, useMemo, useEffect } from 'react'
 import Link from 'next/link'
 import { STORE_URL } from '@/lib/constants'
+import { newInvoiceUrl } from '@/lib/generator-link'
 import { ViewAsButton } from '@/app/admin/view-as-button'
 import {
   SELECTED_CARD,
@@ -367,11 +368,11 @@ export function NowViewingDock({ customers, dataError }: NowViewingDockProps) {
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-2 text-xs">
                       {/* 1. Open Invoice Generator */}
                       <a
-                        href={`${STORE_URL}/invoice.html?customer=${encodeURIComponent(
-                          cleanName(selectedCustomer.first_name, selectedCustomer.last_name)
-                        )}&phone=${encodeURIComponent(selectedCustomer.phone || '')}&email=${encodeURIComponent(
-                          selectedCustomer.email || ''
-                        )}`}
+                        href={newInvoiceUrl(STORE_URL, {
+                  name: cleanName(selectedCustomer.first_name, selectedCustomer.last_name),
+                  email: selectedCustomer.email,
+                  phone: selectedCustomer.phone,
+                })}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="p-2.5 rounded-lg bg-[#2D4A32] text-white font-bold flex items-center justify-center gap-1.5 hover:bg-[#1A2E1C] shadow-xs text-center"
@@ -587,11 +588,11 @@ export function NowViewingDock({ customers, dataError }: NowViewingDockProps) {
                       <div className="text-xs text-gray-500 italic flex items-center justify-between">
                         <span>No invoices on file yet.</span>
                         <a
-                          href={`${STORE_URL}/invoice.html?customer=${encodeURIComponent(
-                            cleanName(selectedCustomer.first_name, selectedCustomer.last_name)
-                          )}&phone=${encodeURIComponent(selectedCustomer.phone || '')}&email=${encodeURIComponent(
-                            selectedCustomer.email || ''
-                          )}`}
+                          href={newInvoiceUrl(STORE_URL, {
+                  name: cleanName(selectedCustomer.first_name, selectedCustomer.last_name),
+                  email: selectedCustomer.email,
+                  phone: selectedCustomer.phone,
+                })}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="font-bold text-[#2D4A32] underline"
