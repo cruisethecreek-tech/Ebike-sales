@@ -1,8 +1,15 @@
 import { createClient } from '@/lib/supabase/server'
 import { GpsLiveRefresh } from '@/app/components/gps-live-refresh'
 import { alertLabel, bikeBatteryVolts, isStale, loadTrackerStatuses, mapLinks, timeAgo } from '@/lib/gps'
-import type { TrackerAlert } from '@/lib/types'
-import { acknowledgeAlert, registerTracker } from './actions'
+import type { Tracker, TrackerAlert } from '@/lib/types'
+import {
+  acknowledgeAlert,
+  deleteTracker,
+  registerTracker,
+  restoreTracker,
+  retireTracker,
+  updateTracker,
+} from './actions'
 
 export const metadata = {
   title: 'Fleet GPS — Cruise the Creek Admin',
@@ -19,12 +26,12 @@ type BikeRow = {
 export default async function AdminFleet({
   searchParams,
 }: {
-  searchParams: Promise<{ error?: string; added?: string }>
+  searchParams: Promise<{ error?: string; added?: string; notice?: string; manage_error?: string }>
 }) {
-  const { error: formError, added } = await searchParams
+  const { error: formError, added, notice, manage_error: manageError } = await searchParams
   const supabase = await createClient()
 
-  const [gps, bikesRes, alertsRes] = await Promise.all([
+  const [gps, bikesRes, alertsRes, retiredRes] = await Promise.all([
     loadTrackerStatuses(supabase, { alertDays: 30 }),
     supabase
       .from('bikes')
@@ -36,12 +43,18 @@ export default async function AdminFleet({
       .is('acknowledged_at', null)
       .order('occurred_at', { ascending: false })
       .limit(50),
+    supabase
+      .from('trackers')
+      .select('*')
+      .eq('active', false)
+      .order('updated_at', { ascending: false }),
   ])
 
   const loadError = [
     gps.error && `trackers: ${gps.error}`,
     bikesRes.error && `bikes: ${bikesRes.error.message}`,
     alertsRes.error && `alerts: ${alertsRes.error.message}`,
+    retiredRes.error && `retired trackers: ${retiredRes.error.message}`,
   ].filter(Boolean).join(' · ') || null
   if (loadError) console.error('[admin fleet] query failed —', loadError)
 
@@ -50,20 +63,41 @@ export default async function AdminFleet({
   const trackedBikeIds = new Set(gps.statuses.map((s) => s.tracker.bike_id))
   const untrackedBikes = bikes.filter((b) => !trackedBikeIds.has(b.id))
 
-  // The register form's bike picker, grouped by owner and sorted by last name,
-  // so a bike is found by who owns it rather than by when it was added.
+  const retiredTrackers = (retiredRes.data ?? []) as Tracker[]
+
+  // Bike pickers are grouped by owner and sorted by last name, so a bike is
+  // found by who owns it rather than by when it was added.
   const ownerKey = (b: BikeRow) =>
     b.customers ? `${b.customers.last_name} ${b.customers.first_name}`.trim().toLowerCase() : '\uffff'
-  const bikeGroups = new Map<string, { label: string; bikes: BikeRow[] }>()
-  for (const b of [...untrackedBikes].sort(
-    (x, y) =>
-      ownerKey(x).localeCompare(ownerKey(y)) ||
-      `${x.brand} ${x.model}`.localeCompare(`${y.brand} ${y.model}`),
-  )) {
-    const key = ownerKey(b)
-    const label = b.customers ? `${b.customers.first_name} ${b.customers.last_name}`.trim() : 'No owner'
-    if (!bikeGroups.has(key)) bikeGroups.set(key, { label, bikes: [] })
-    bikeGroups.get(key)!.bikes.push(b)
+  const groupBikes = (list: BikeRow[]) => {
+    const groups = new Map<string, { label: string; bikes: BikeRow[] }>()
+    for (const b of [...list].sort(
+      (x, y) =>
+        ownerKey(x).localeCompare(ownerKey(y)) ||
+        `${x.brand} ${x.model}`.localeCompare(`${y.brand} ${y.model}`),
+    )) {
+      const key = ownerKey(b)
+      const label = b.customers ? `${b.customers.first_name} ${b.customers.last_name}`.trim() : 'No owner'
+      if (!groups.has(key)) groups.set(key, { label, bikes: [] })
+      groups.get(key)!.bikes.push(b)
+    }
+    return groups
+  }
+  const bikeOptions = (list: BikeRow[]) =>
+    [...groupBikes(list).entries()].map(([key, group]) => (
+      <optgroup key={key} label={group.label}>
+        {group.bikes.map((b) => (
+          <option key={b.id} value={b.id}>
+            {b.brand} {b.model}
+            {b.serial_number ? ` (${b.serial_number})` : ''}
+          </option>
+        ))}
+      </optgroup>
+    ))
+  // A tracker can stay on its own bike or move to any bike without one.
+  const bikeChoicesFor = (tracker: Tracker) => {
+    const current = tracker.bike_id ? bikeById.get(tracker.bike_id) : undefined
+    return current ? [current, ...untrackedBikes] : untrackedBikes
   }
   const openAlerts = (alertsRes.data ?? []) as TrackerAlert[]
   const trackerById = new Map(gps.statuses.map((s) => [s.tracker.id, s.tracker]))
@@ -213,6 +247,121 @@ export default async function AdminFleet({
         )}
       </section>
 
+      {/* ── Manage trackers ── */}
+      <section id="manage" className="bg-white rounded-2xl p-5 border border-[#E5E5E5] shadow-sm space-y-3 scroll-mt-4">
+        <h2 className="uppercase tracking-wide text-xl text-[#1A2E1C]" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>
+          🛠️ Manage Trackers
+        </h2>
+        <p className="text-xs text-gray-500">
+          Fix a label, SIM or IMEI typo, or move a tracker to another bike. A moved tracker starts fresh: the new
+          bike&apos;s owner only sees check-ins from after the move. If you fix an IMEI here, fix the Identifier in
+          Traccar too. Device settings (geofences, commands) stay in Traccar.
+        </p>
+        {manageError && <div className="p-3 bg-red-50 text-red-700 rounded-lg text-sm">{manageError}</div>}
+        {notice && <div className="p-3 bg-[#DCFCE7] text-[#15803D] rounded-lg text-sm">{notice}</div>}
+
+        {gps.statuses.length === 0 ? (
+          <p className="text-sm text-gray-500">No active trackers.</p>
+        ) : (
+          <ul className="space-y-2">
+            {gps.statuses.map(({ tracker }) => (
+              <li key={tracker.id}>
+                <details className="border border-[#E5E5E5] rounded-xl">
+                  <summary className="cursor-pointer px-4 py-3 text-sm flex justify-between gap-3">
+                    <span className="font-semibold text-[#1A2E1C]">{tracker.label || bikeName(tracker.bike_id)}</span>
+                    <span className="text-xs font-bold text-[#2D4A32] underline">Edit</span>
+                  </summary>
+                  <div className="px-4 pb-4 space-y-4">
+                    <form action={updateTracker} className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+                      <input type="hidden" name="id" value={tracker.id} />
+                      <label className="space-y-1">
+                        <span className="text-xs font-bold text-gray-600">IMEI</span>
+                        <input name="imei" required inputMode="numeric" pattern="[0-9 ]{15,}" defaultValue={tracker.imei} className="w-full border rounded-lg px-3 py-2" />
+                      </label>
+                      <label className="space-y-1">
+                        <span className="text-xs font-bold text-gray-600">Bike</span>
+                        <select name="bike_id" required defaultValue={tracker.bike_id ?? 'none'} className="w-full border rounded-lg px-3 py-2 bg-white">
+                          <option value="none">No bike (on the shelf)</option>
+                          {bikeOptions(bikeChoicesFor(tracker))}
+                        </select>
+                      </label>
+                      <label className="space-y-1">
+                        <span className="text-xs font-bold text-gray-600">Label</span>
+                        <input name="label" defaultValue={tracker.label ?? ''} className="w-full border rounded-lg px-3 py-2" />
+                      </label>
+                      <label className="space-y-1">
+                        <span className="text-xs font-bold text-gray-600">SIM ICCID</span>
+                        <input name="sim_iccid" defaultValue={tracker.sim_iccid ?? ''} className="w-full border rounded-lg px-3 py-2" />
+                      </label>
+                      <div className="sm:col-span-2">
+                        <button type="submit" className="btn-primary text-xs px-5 py-2.5 font-bold">Save Changes</button>
+                      </div>
+                    </form>
+                    <form action={retireTracker} className="border-t pt-3 flex flex-wrap items-center justify-between gap-3">
+                      <input type="hidden" name="id" value={tracker.id} />
+                      <p className="text-xs text-gray-500">
+                        Retire stops tracking and frees the bike. Its history is kept and it can be put back later.
+                      </p>
+                      <button type="submit" className="text-xs px-3 py-1.5 rounded-lg border border-amber-600 text-amber-700 font-bold hover:bg-amber-50">
+                        Retire Tracker
+                      </button>
+                    </form>
+                  </div>
+                </details>
+              </li>
+            ))}
+          </ul>
+        )}
+
+        {retiredTrackers.length > 0 && (
+          <div className="space-y-2 pt-2">
+            <h3 className="text-xs font-bold uppercase tracking-wider text-gray-500">Retired Trackers</h3>
+            <ul className="space-y-2">
+              {retiredTrackers.map((tracker) => (
+                <li key={tracker.id}>
+                  <details className="border border-[#E5E5E5] rounded-xl bg-gray-50">
+                    <summary className="cursor-pointer px-4 py-3 text-sm flex justify-between gap-3">
+                      <span>
+                        <span className="font-semibold text-gray-700">{tracker.label || 'Tracker'}</span>
+                        <span className="block text-[11px] text-gray-500">IMEI {tracker.imei}</span>
+                      </span>
+                      <span className="text-xs font-bold text-[#2D4A32] underline">Options</span>
+                    </summary>
+                    <div className="px-4 pb-4 space-y-4">
+                      <form action={restoreTracker} className="flex flex-wrap items-end gap-3 text-sm">
+                        <input type="hidden" name="id" value={tracker.id} />
+                        <label className="space-y-1 grow">
+                          <span className="text-xs font-bold text-gray-600">Put back on</span>
+                          <select name="bike_id" required defaultValue="" className="w-full border rounded-lg px-3 py-2 bg-white">
+                            <option value="" disabled>Choose a bike…</option>
+                            <option value="none">No bike (on the shelf)</option>
+                            {bikeOptions(untrackedBikes)}
+                          </select>
+                        </label>
+                        <button type="submit" className="btn-primary text-xs px-5 py-2.5 font-bold">Put Back in Service</button>
+                      </form>
+                      <form action={deleteTracker} className="border-t pt-3 space-y-2 text-sm">
+                        <input type="hidden" name="id" value={tracker.id} />
+                        <p className="text-xs text-red-700">
+                          Delete permanently removes this tracker and every check-in and alert it recorded. This cannot be
+                          undone. Type the IMEI to confirm.
+                        </p>
+                        <div className="flex flex-wrap gap-3">
+                          <input name="confirm_imei" required inputMode="numeric" placeholder={tracker.imei} className="grow border rounded-lg px-3 py-2" />
+                          <button type="submit" className="text-xs px-3 py-1.5 rounded-lg bg-red-700 text-white font-bold hover:bg-red-800">
+                            Delete Permanently
+                          </button>
+                        </div>
+                      </form>
+                    </div>
+                  </details>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+      </section>
+
       {/* ── Register a tracker ── */}
       <section className="bg-white rounded-2xl p-5 border border-[#E5E5E5] shadow-sm space-y-3">
         <h2 className="uppercase tracking-wide text-xl text-[#1A2E1C]" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>
@@ -233,16 +382,7 @@ export default async function AdminFleet({
             <span className="text-xs font-bold text-gray-600">Bike</span>
             <select name="bike_id" required className="w-full border rounded-lg px-3 py-2 bg-white" defaultValue="">
               <option value="" disabled>Choose a bike…</option>
-              {[...bikeGroups.entries()].map(([key, group]) => (
-                <optgroup key={key} label={group.label}>
-                  {group.bikes.map((b) => (
-                    <option key={b.id} value={b.id}>
-                      {b.brand} {b.model}
-                      {b.serial_number ? ` (${b.serial_number})` : ''}
-                    </option>
-                  ))}
-                </optgroup>
-              ))}
+              {bikeOptions(untrackedBikes)}
             </select>
           </label>
           <label className="space-y-1">
