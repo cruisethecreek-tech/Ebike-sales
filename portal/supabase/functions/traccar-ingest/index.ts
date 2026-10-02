@@ -12,6 +12,11 @@
 // Status codes matter: Traccar retries non-2xx position forwards (when
 // forward.retry.enable is on). A tracker we have not registered, or an event
 // we do not keep, is answered 2xx so it is dropped instead of retried forever.
+//
+// Traccar forwards a position before saving it, so position.id and event.id
+// usually arrive as 0. They are stored as null in that case, and duplicates
+// are caught on (tracker_id, fix_time) for positions and (tracker_id, kind,
+// occurred_at) for alerts (migration 00019).
 
 import { createClient } from "npm:@supabase/supabase-js@2";
 
@@ -104,14 +109,14 @@ Deno.serve(async (req) => {
 
     const { error } = await supabase.from("tracker_alerts").upsert({
       tracker_id: tracker.id,
-      traccar_event_id: event.id,
+      traccar_event_id: event.id || null,
       kind,
       occurred_at: event.eventTime,
       latitude: body.position?.latitude ?? null,
       longitude: body.position?.longitude ?? null,
       geofence_name: body.geofence?.name ?? null,
       attributes: event.attributes ?? {},
-    }, { onConflict: "traccar_event_id", ignoreDuplicates: true });
+    }, { onConflict: "tracker_id,kind,occurred_at", ignoreDuplicates: true });
     if (error) return new Response(error.message, { status: 500 });
     return new Response("ok");
   }
@@ -121,7 +126,7 @@ Deno.serve(async (req) => {
 
   const { error } = await supabase.from("positions").upsert({
     tracker_id: tracker.id,
-    traccar_position_id: p.id,
+    traccar_position_id: p.id || null,
     fix_time: p.fixTime,
     latitude: p.latitude,
     longitude: p.longitude,
@@ -129,7 +134,7 @@ Deno.serve(async (req) => {
     course: p.course ?? null,
     valid: p.valid ?? null,
     attributes: p.attributes ?? {},
-  }, { onConflict: "traccar_position_id", ignoreDuplicates: true });
+  }, { onConflict: "tracker_id,fix_time", ignoreDuplicates: true });
   if (error) return new Response(error.message, { status: 500 });
   return new Response("ok");
 });
