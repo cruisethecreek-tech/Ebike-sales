@@ -5,9 +5,11 @@ import type { Tracker, TrackerAlert } from '@/lib/types'
 import {
   acknowledgeAlert,
   deleteTracker,
+  lockTracker,
   registerTracker,
   restoreTracker,
   retireTracker,
+  unlockTracker,
   updateTracker,
 } from './actions'
 
@@ -191,6 +193,10 @@ export default async function AdminFleet({
         <h2 className="uppercase tracking-wide text-xl text-[#1A2E1C]" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>
           🚲 Tracked Bikes
         </h2>
+        <p className="text-xs text-gray-500">
+          Lock a parked bike to get a phone alert if it moves more than about 500 ft or starts riding. Unlock it before
+          it goes out on a rental.
+        </p>
         {gps.statuses.length === 0 ? (
           <p className="text-sm text-gray-500">No trackers registered yet. Add one below.</p>
         ) : (
@@ -203,7 +209,8 @@ export default async function AdminFleet({
                   <th className="py-2 pr-3">Last Check-in</th>
                   <th className="py-2 pr-3">Status</th>
                   <th className="py-2 pr-3">Battery</th>
-                  <th className="py-2">Map</th>
+                  <th className="py-2 pr-3">Map</th>
+                  <th className="py-2">Theft Lock</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
@@ -226,7 +233,7 @@ export default async function AdminFleet({
                           : 'Parked'}
                       </td>
                       <td className="py-2.5 pr-3">{volts != null ? `${volts.toFixed(1)} V` : '—'}</td>
-                      <td className="py-2.5">
+                      <td className="py-2.5 pr-3">
                         {latest ? (
                           <a
                             href={mapLinks(latest.latitude, latest.longitude).open}
@@ -237,6 +244,24 @@ export default async function AdminFleet({
                             Open ↗
                           </a>
                         ) : '—'}
+                      </td>
+                      <td className="py-2.5">
+                        {tracker.locked_at ? (
+                          <form action={unlockTracker} className="flex items-center gap-2 whitespace-nowrap">
+                            <input type="hidden" name="id" value={tracker.id} />
+                            <span className="text-xs font-bold text-red-700">🔒 Locked {timeAgo(tracker.locked_at)}</span>
+                            <button type="submit" className="text-xs px-2.5 py-1 rounded-lg border border-[#2D4A32] text-[#2D4A32] font-bold hover:bg-[#F1F5F1]">
+                              Unlock
+                            </button>
+                          </form>
+                        ) : (
+                          <form action={lockTracker}>
+                            <input type="hidden" name="id" value={tracker.id} />
+                            <button type="submit" className="text-xs px-2.5 py-1 rounded-lg bg-[#2D4A32] text-white font-bold hover:bg-[#1A2E1C] whitespace-nowrap">
+                              🔓 Lock
+                            </button>
+                          </form>
+                        )}
                       </td>
                     </tr>
                   )

@@ -155,3 +155,48 @@ export async function acknowledgeAlert(formData: FormData): Promise<void> {
 
   revalidatePath('/admin/fleet')
 }
+
+// Lock a bike: its last known position becomes the lock point, and
+// traccar-ingest raises a "Moved while locked" alert (with a phone push) once
+// a good fix puts it more than 150 m away or riding faster than 10 km/h.
+export async function lockTracker(formData: FormData): Promise<void> {
+  await requireAdminUser()
+
+  const id = String(formData.get('id') ?? '')
+  if (!id) return
+
+  const supabase = await createClient()
+  const { data: latest } = await supabase
+    .from('positions')
+    .select('latitude, longitude')
+    .eq('tracker_id', id)
+    .order('fix_time', { ascending: false })
+    .limit(1)
+    .maybeSingle()
+
+  await supabase
+    .from('trackers')
+    .update({
+      locked_at: new Date().toISOString(),
+      lock_latitude: latest?.latitude ?? null,
+      lock_longitude: latest?.longitude ?? null,
+    })
+    .eq('id', id)
+
+  revalidatePath('/admin/fleet')
+}
+
+export async function unlockTracker(formData: FormData): Promise<void> {
+  await requireAdminUser()
+
+  const id = String(formData.get('id') ?? '')
+  if (!id) return
+
+  const supabase = await createClient()
+  await supabase
+    .from('trackers')
+    .update({ locked_at: null, lock_latitude: null, lock_longitude: null })
+    .eq('id', id)
+
+  revalidatePath('/admin/fleet')
+}

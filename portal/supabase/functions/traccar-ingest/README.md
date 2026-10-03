@@ -11,6 +11,17 @@ supabase secrets set TRACCAR_SECRET=<long random string>
 supabase functions deploy traccar-ingest --no-verify-jwt
 ```
 
+Phone alerts (optional): pick a long, hard-to-guess ntfy topic name, subscribe
+to it in the ntfy app (iOS/Android) on each staff phone, then
+
+```sh
+supabase secrets set NTFY_TOPIC=<topic name>
+```
+
+Every new alert (a theft-lock trip, a Traccar alarm or geofence event) is then
+pushed to those phones. Anyone who knows the topic name can read the pushes,
+so treat it like a password.
+
 `--no-verify-jwt` is needed because Traccar sends a fixed shared-secret header,
 not a Supabase JWT. The function rejects any request without the secret.
 
