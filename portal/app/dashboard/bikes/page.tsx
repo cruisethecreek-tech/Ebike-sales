@@ -13,6 +13,9 @@ import { loadCatalog, matchCatalogModel, colorNamedIn, type CatalogModel } from 
 import { BikeLookEditor } from './bike-look-editor'
 import { ShopInvoiceEditor } from './shop-invoice-editor'
 import { DeliveryDateEditor } from './delivery-date-editor'
+import { ServiceRecorder } from './service-recorder'
+import { mileageStatus, SERVICE_INTERVAL_MILES } from '@/lib/mileage'
+import type { BikeMileage } from '@/lib/types'
 
 // Per-customer data, and now also per-preview: an admin viewing as someone
 // else must never be served a page cached for anybody. Never static.
@@ -26,6 +29,7 @@ export default async function BikesPage() {
   let bikes: any[] = []
   let errorMsg = null
   let trackerByBike = new Map<string, TrackerStatus>()
+  let mileageByBike = new Map<string, BikeMileage>()
   let isStaff = false
   let catalog: CatalogModel[] = []
 
@@ -53,6 +57,15 @@ export default async function BikesPage() {
       const gps = await loadTrackerStatuses(supabase, { bikeIds: bikes.map((b) => b.id) })
       if (gps.error) console.error('Error fetching GPS trackers:', gps.error)
       trackerByBike = new Map(gps.statuses.map((s) => [s.tracker.bike_id!, s]))
+
+      if (bikes.length) {
+        const { data: mileage, error: mileageError } = await supabase
+          .from('bike_mileage')
+          .select('*')
+          .in('bike_id', bikes.map((b) => b.id))
+        if (mileageError) console.error('Error fetching bike mileage:', mileageError)
+        mileageByBike = new Map(((mileage ?? []) as BikeMileage[]).map((m) => [m.bike_id, m]))
+      }
 
       if (isStaff && bikes.length) catalog = await loadCatalog()
     }
@@ -108,6 +121,11 @@ export default async function BikesPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {bikes.map((bike) => {
             const warranty = calculateBikeWarranties(bike.brand, bike.purchase_date, bike.warranty_expires_at, { deliveredOn: bike.delivered_on })
+            // Mileage reminders only once the break-in tune is behind the bike
+            // and a tracker is measuring it.
+            const hasTracker = trackerByBike.has(bike.id)
+            const mileage = hasTracker ? mileageStatus(mileageByBike.get(bike.id) ?? { bike_id: bike.id, distance_m: 0, service_distance_m: 0, last_serviced_on: null, updated_at: '' }) : null
+            const mileageDue = !!mileage?.due && warranty.creekReadyKind === 'annual'
             const brandModels = isStaff
               ? catalog.filter((m) => m.brand.toLowerCase() === String(bike.brand).toLowerCase())
               : []
@@ -261,7 +279,9 @@ export default async function BikesPage() {
                         🌲 {warranty.creekReadyKind === 'break-in' ? 'Free Break-In Tune-Up:' : 'Creek Ready Service Plan:'}
                       </span>
                       <span className="font-bold text-[#B45309]">
-                        {!warranty.creekReadyDueDate
+                        {mileageDue
+                          ? 'Tune-Up Due Now'
+                          : !warranty.creekReadyDueDate
                           ? 'Schedule Pending'
                           : warranty.isCreekReadyActive
                             ? warranty.creekReadyKind === 'break-in'
@@ -284,6 +304,20 @@ export default async function BikesPage() {
                         ? <>Free break-in tune (bolts re-torqued, brakes and gears adjusted): book by {warranty.breakInDueDate.toLocaleDateString()} ({warranty.breakInFromDelivery ? '30 days from delivery' : '40 days from purchase, allowing for shipping'}). Then annual 28-point service: {warranty.annualServiceDueDate?.toLocaleDateString()}.</>
                         : <>Annual 28-point certified service due: {warranty.creekReadyDueDate?.toLocaleDateString() ?? 'once we have your purchase date'}</>}
                     </p>
+
+                    {mileage && (
+                      <div className="pt-1 space-y-1">
+                        <p className="text-[11px] text-gray-600">
+                          📍 <span className="font-bold text-[#2D4A32]">{Math.round(mileage.miles).toLocaleString()} mi</span> ridden (GPS)
+                          {' · '}
+                          {mileage.due
+                            ? <span className="font-bold text-[#B45309]">{SERVICE_INTERVAL_MILES} mi since the last tune-up, time to book</span>
+                            : <>tune-up every {SERVICE_INTERVAL_MILES} mi or yearly, whichever comes first: {Math.round(mileage.milesToNext)} mi to go</>}
+                          {mileage.lastServicedOn && <> · last tune-up {new Date(mileage.lastServicedOn + 'T12:00:00').toLocaleDateString()}</>}
+                        </p>
+                        {isStaff && <ServiceRecorder bikeId={bike.id} />}
+                      </div>
+                    )}
                   </div>
                 </div>
 

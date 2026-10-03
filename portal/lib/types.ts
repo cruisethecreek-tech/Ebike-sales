@@ -146,6 +146,14 @@ export interface Tracker {
   updated_at: string;
 }
 
+export interface BikeMileage {
+  bike_id: string;
+  distance_m: number;
+  service_distance_m: number;
+  last_serviced_on: string | null;
+  updated_at: string;
+}
+
 export interface Position {
   id: number;
   tracker_id: string;

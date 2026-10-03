@@ -110,3 +110,36 @@ export async function setBikeDeliveredOn(bikeId: string, date: string): Promise<
   revalidatePath('/admin/customers')
   return { ok: true, message: raw ? 'Delivery date saved.' : 'Delivery date cleared.' }
 }
+
+/**
+ * Staff: record that the bike just had its Creek Ready tune-up, so the
+ * mileage reminder starts counting the next 500 miles from here.
+ */
+export async function recordBikeService(bikeId: string): Promise<LookResult> {
+  await requireAdminUser()
+  if (!bikeId) return { ok: false, message: 'No bike given.' }
+
+  const supabase = await createClient()
+  const { data: current, error: readError } = await supabase
+    .from('bike_mileage')
+    .select('distance_m')
+    .eq('bike_id', bikeId)
+    .maybeSingle()
+  if (readError) return { ok: false, message: readError.message }
+
+  // Only the service fields are written, never distance_m, so miles the
+  // GPS adds while this runs are not overwritten.
+  const today = new Date().toISOString().slice(0, 10)
+  const { error } = current
+    ? await supabase
+        .from('bike_mileage')
+        .update({ service_distance_m: current.distance_m, last_serviced_on: today, updated_at: new Date().toISOString() })
+        .eq('bike_id', bikeId)
+    : await supabase
+        .from('bike_mileage')
+        .insert({ bike_id: bikeId, last_serviced_on: today })
+  if (error) return { ok: false, message: error.message }
+
+  revalidatePath('/dashboard/bikes')
+  return { ok: true, message: 'Service recorded. The next reminder counts from today’s miles.' }
+}
