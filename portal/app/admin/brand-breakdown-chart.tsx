@@ -104,7 +104,9 @@ export function BrandBreakdownChart({ stats, totalBikes }: BrandBreakdownChartPr
 
             {/* Center Stat */}
             <div className="absolute inset-0 flex flex-col items-center justify-center text-center pointer-events-none">
-              <span className="text-xs text-gray-500 font-bold uppercase tracking-wider">Top Brand</span>
+              <span className="text-xs text-gray-500 font-bold uppercase tracking-wider">
+                {activeStats === stats[0] ? 'Top Brand' : 'Selected'}
+              </span>
               <span className="text-sm sm:text-base font-bold text-[#1A2E1C]">
                 {activeStats?.brand}
               </span>

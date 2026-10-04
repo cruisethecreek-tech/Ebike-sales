@@ -50,6 +50,7 @@ export default async function AdminOverview() {
     Heybike: '#C9A96E',  // Warm Gold/Tan
     Mooncool: '#6B8F71', // Sage Green
     Jasion: '#B47850',   // Copper/Rust
+    Mokwheel: '#6B4423', // Saddle Brown
     other: '#8A948E',    // Slate/Gray
   }
 
