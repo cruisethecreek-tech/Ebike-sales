@@ -108,6 +108,13 @@ ok('it does not invent a warranty length',
 
     await page.click('#ctc-menu-btn');
     await page.waitForTimeout(450);
+    // Customer Portal sits under Creek Life; open that section first.
+    await page.evaluate(() => {
+      const t = [...document.querySelectorAll('.ctc-menu-grouptoggle')]
+        .find(x => /creek life/i.test(x.textContent));
+      if (t) t.click();
+    });
+    await page.waitForTimeout(200);
     const item = await page.evaluate(() => {
       const a = [...document.querySelectorAll('.ctc-menu-panel a')]
         .find(x => /customer portal/i.test(x.textContent));
