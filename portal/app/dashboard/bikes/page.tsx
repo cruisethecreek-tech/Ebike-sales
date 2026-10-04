@@ -5,7 +5,7 @@ import { GoogleReviewCard } from '@/app/components/google-review-card'
 import { SerialNumberEditor } from './serial-number-editor'
 import BikeForm from './bike-form'
 import { BikeLocation } from '@/app/components/bike-location'
-import { CreekGuardBadge } from '@/app/components/creekguard-badge'
+import { CreekGuardAddChip, CreekGuardBadge } from '@/app/components/creekguard-badge'
 import { GpsLiveRefresh } from '@/app/components/gps-live-refresh'
 import { loadTrackerStatuses, type TrackerStatus } from '@/lib/gps'
 import Link from 'next/link'
@@ -159,7 +159,7 @@ export default async function BikesPage() {
                         <span className="px-3 py-1 rounded-full bg-[#2D4A32] text-white text-xs font-bold uppercase tracking-wider">
                           {bike.brand}
                         </span>
-                        {hasTracker && <CreekGuardBadge compact />}
+                        {hasTracker ? <CreekGuardBadge compact /> : <CreekGuardAddChip />}
                       </span>
                       <span
                         className={`text-xs font-bold px-2.5 py-0.5 rounded-full text-right ${

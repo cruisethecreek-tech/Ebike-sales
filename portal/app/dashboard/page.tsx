@@ -4,7 +4,7 @@ import { GoogleReviewCard } from '@/app/components/google-review-card'
 import { calculateBikeWarranties } from '@/lib/warranty'
 import Link from 'next/link'
 import { getViewerContext } from '@/lib/view-as'
-import { CreekGuardBadge } from '@/app/components/creekguard-badge'
+import { CreekGuardBadge, CreekGuardSignUp } from '@/app/components/creekguard-badge'
 import { creekGuardBikeIds } from '@/lib/creekguard'
 
 // Per-customer data, and now also per-preview: an admin viewing as someone
@@ -196,6 +196,9 @@ export default async function DashboardPage() {
           </div>
         </div>
       )}
+
+      {/* ── CreekGuard sign-up, until a tracker is on one of their bikes ── */}
+      {guarded.size === 0 && <CreekGuardSignUp />}
 
       {/* ── Biometrics Activation Setup ── */}
       {/* Hidden while previewing. Passkey registration talks to the API as
