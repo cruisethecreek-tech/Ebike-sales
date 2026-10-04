@@ -65,7 +65,7 @@ export default async function ReferralsPage() {
   const custEmail = encodeURIComponent(email || '')
   const encRef    = encodeURIComponent(refCode)
 
-  const tuneupDiscountUrl = `${STORE_URL}/repair-intake.html?service=tuneup&discount=20&promo=20OFF&ref=${encRef}&firstName=${custFirst}&lastName=${custLast}&phone=${custPhone}&email=${custEmail}`
+  const tuneupDiscountUrl = `${STORE_URL}/repair-intake.html?service=tuneup&discount=20&promo=20OFF&member=1&firstName=${custFirst}&lastName=${custLast}&phone=${custPhone}&email=${custEmail}`
   const accessoriesShopUrl = `${STORE_URL}/accessories.html?ref=${encRef}&firstName=${custFirst}&lastName=${custLast}&phone=${custPhone}&email=${custEmail}`
   const apparelShopUrl = `${STORE_URL}/apparel.html?ref=${encRef}&firstName=${custFirst}&lastName=${custLast}&phone=${custPhone}&email=${custEmail}`
   const creekReadyPolicyUrl = `${STORE_URL}/creek-ready.html?ref=${encRef}&firstName=${custFirst}&lastName=${custLast}&phone=${custPhone}&email=${custEmail}`

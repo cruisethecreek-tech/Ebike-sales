@@ -3069,10 +3069,19 @@
             return /^[A-Z0-9-]{3,24}$/.test(upper) ? upper : '';
         }
 
+        // A customer's own code is never a referral for them: no discount,
+        // and it is left out of the notes so nobody is credited.
+        function isOwnReferralCode(code) {
+            var who = code && referrerByCode[code];
+            var email = (document.getElementById('customerEmail') || {}).value || '';
+            return !!(who && who.email && email.trim() &&
+                who.email.trim().toLowerCase() === email.trim().toLowerCase());
+        }
+
         function notesWithReferral() {
             var notes = document.getElementById('notes').value.trim();
             var code = referralCodeFromField();
-            if (!code) return notes;
+            if (!code || isOwnReferralCode(code)) return notes;
             var who = referrerByCode[code];
             var label = 'Referred by: ' + code + (who && who.name ? ' (' + who.name + ')' : '');
             return (notes ? notes + ' | ' : '') + label;
@@ -3123,7 +3132,7 @@
 
         function syncReferralInstallDiscount() {
             var code = referralCodeFromField();
-            var eligible = !!(code && referrerByCode[code]);
+            var eligible = !!(code && referrerByCode[code]) && !isOwnReferralCode(code);
             var rows = Array.prototype.slice.call(document.querySelectorAll('.line-item'));
             var descOf = function (r) { return (r.querySelector('.description').value || '').trim(); };
             var discountRow = rows.filter(function (r) { return descOf(r).indexOf(REF_INSTALL_LABEL) === 0; })[0];
@@ -3161,6 +3170,13 @@
                 if (d && d.value.indexOf(REF_INSTALL_LABEL) === 0) return;
                 syncReferralInstallDiscount();
             });
+            // The own-code check depends on whose invoice this is.
+            var email = document.getElementById('customerEmail');
+            if (email) email.addEventListener('change', function () {
+                if (!referralCodeFromField()) return;
+                onReferredByInput();
+                syncReferralInstallDiscount();
+            });
         });
 
         function onReferredByInput() {
@@ -3173,6 +3189,9 @@
             if (!raw) {
                 hint.style.color = 'var(--op-muted,#6b6b6b)';
                 hint.textContent = 'Whoever sent them in gets credit toward their $100 reward when this invoice saves.';
+            } else if (who && isOwnReferralCode(code)) {
+                hint.style.color = '#b47850';
+                hint.textContent = code + ' is this customer\'s own code. Customers cannot refer themselves, so no credit or discount applies.';
             } else if (who) {
                 hint.style.color = 'var(--op-ok-text,#2D4A32)';
                 hint.textContent = '✓ ' + who.name + ' (' + code + ') gets the credit, and this customer gets ' +

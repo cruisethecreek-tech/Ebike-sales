@@ -814,9 +814,7 @@ export function CustomerDirectory({
 
               {/* 2. Book Creek Ready Tune-up ($100.00 with 20% Discount) */}
               <a
-                href={`${STORE_URL}/repair-intake.html?service=tuneup&discount=20&promo=20OFF&ref=${encodeURIComponent(
-                  selectedCustomer.referral_code || ''
-                )}&firstName=${encodeURIComponent(selectedCustomer.first_name)}&lastName=${encodeURIComponent(
+                href={`${STORE_URL}/repair-intake.html?service=tuneup&discount=20&promo=20OFF&member=1&firstName=${encodeURIComponent(selectedCustomer.first_name)}&lastName=${encodeURIComponent(
                   selectedCustomer.last_name && selectedCustomer.last_name.toLowerCase() !== '(none)'
                     ? selectedCustomer.last_name
                     : ''
