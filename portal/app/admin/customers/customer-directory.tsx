@@ -11,6 +11,7 @@ import { EditCustomerDetails } from './edit-customer-details'
 import { ViewAsButton } from '@/app/admin/view-as-button'
 import { RemoveCustomer } from './remove-customer'
 import { BulkActions, type BulkCustomer } from './bulk-actions'
+import { CreekGuardBadge } from '@/app/components/creekguard-badge'
 import {
   SELECTED_ROW,
   UNSELECTED_ROW,
@@ -54,6 +55,8 @@ interface CustomerData {
   /** Billed but not yet marked paid. */
   totalOutstanding?: number
   bikes: Bike[]
+  /** One of their bikes has an active GPS tracker. */
+  creekGuard?: boolean
   /** This customer's invoices in the portal, newest first. */
   invoices?: { id: string; invoice_number: string | null; total_amount: number; status: string; issued_at: string | null }[]
   latestPurchaseDate?: string | null
@@ -749,6 +752,7 @@ export function CustomerDirectory({
                   👤 Currently Viewing & Active Customer
                 </span>
                 <SignupBadge customer={selectedCustomer} size="md" />
+                {selectedCustomer.creekGuard && <CreekGuardBadge compact />}
                 {selectedCustomer.is_admin && (
                   <span className="text-[10px] px-2 py-0.5 rounded bg-[#C9A96E] text-[#1A2E1C] font-bold">
                     👑 ADMIN
@@ -1124,6 +1128,7 @@ export function CustomerDirectory({
                         </span>
                       )}
                       <SignupBadge customer={c} />
+                      {c.creekGuard && <CreekGuardBadge compact />}
                     </div>
                     <span className="block font-normal mt-0.5 space-x-2">
                       {c.email && <span className="text-[11px] text-gray-500">{c.email}</span>}
@@ -1206,6 +1211,7 @@ export function CustomerDirectory({
                       </span>
                     )}
                     <SignupBadge customer={c} />
+                    {c.creekGuard && <CreekGuardBadge compact />}
                   </p>
                   <p className="text-xs text-[#4A4A4A]">{c.phone || 'No phone'}</p>
                   {c.email && <p className="text-[11px] text-gray-500 break-all">{c.email}</p>}
