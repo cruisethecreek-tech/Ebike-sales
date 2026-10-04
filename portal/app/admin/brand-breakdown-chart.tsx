@@ -7,6 +7,8 @@ export interface ModelBuyer {
   customerId: string | null
   name: string
   date: string
+  /** What was typed on the invoice, when it says more than the model. */
+  variant: string | null
 }
 
 interface BrandStats {
@@ -102,7 +104,9 @@ export function BrandBreakdownChart({ stats, totalBikes }: BrandBreakdownChartPr
 
             {/* Center Stat */}
             <div className="absolute inset-0 flex flex-col items-center justify-center text-center pointer-events-none">
-              <span className="text-xs text-gray-500 font-bold uppercase tracking-wider">Top Brand</span>
+              <span className="text-xs text-gray-500 font-bold uppercase tracking-wider">
+                {activeStats === stats[0] ? 'Top Brand' : 'Selected'}
+              </span>
               <span className="text-sm sm:text-base font-bold text-[#1A2E1C]">
                 {activeStats?.brand}
               </span>
@@ -147,7 +151,7 @@ export function BrandBreakdownChart({ stats, totalBikes }: BrandBreakdownChartPr
                   {activeStats.brand} Models Breakdown ({activeStats.count} bikes)
                 </h4>
                 <span className="text-[11px] text-gray-500 font-medium">
-                  {activeStats.models.length} model variant{activeStats.models.length !== 1 ? 's' : ''}
+                  {activeStats.models.length} model{activeStats.models.length !== 1 ? 's' : ''}
                 </span>
               </div>
 
@@ -186,7 +190,10 @@ export function BrandBreakdownChart({ stats, totalBikes }: BrandBreakdownChartPr
                               ) : (
                                 <span className="font-semibold text-[#1A2E1C]">{b.name}</span>
                               )}
-                              <span className="text-gray-500 whitespace-nowrap">{b.date || 'No purchase date'}</span>
+                              <span className="text-gray-500 text-right">
+                                {b.variant && <span className="block text-gray-600">{b.variant}</span>}
+                                <span className="whitespace-nowrap">{b.date || 'No purchase date'}</span>
+                              </span>
                             </li>
                           ))}
                         </ul>
