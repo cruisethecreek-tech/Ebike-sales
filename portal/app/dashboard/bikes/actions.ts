@@ -76,11 +76,13 @@ export async function updateBikeSerial(prevState: any, formData: FormData) {
     return { error: 'Unauthorized.' }
   }
 
-  const { error } = await supabase
+  // Row-level security limits customers to their own bikes; staff may also
+  // fill in the shop's bikes, which sit on another admin's account.
+  const { data: updated, error } = await supabase
     .from('bikes')
     .update({ serial_number })
     .eq('id', bikeId)
-    .eq('customer_id', user.id)
+    .select('id')
 
   if (error) {
     console.error('Error updating bike serial number:', error)
@@ -88,6 +90,9 @@ export async function updateBikeSerial(prevState: any, formData: FormData) {
       return { error: 'This serial number is already registered to another bike.' }
     }
     return { error: 'Failed to update serial number. Please try again.' }
+  }
+  if (!updated?.length) {
+    return { error: 'That bike is not on your account.' }
   }
 
   revalidatePath('/dashboard/bikes')
