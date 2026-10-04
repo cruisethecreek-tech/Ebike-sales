@@ -22,6 +22,14 @@ export default async function AdminCustomers() {
     .select('*')
     .order('purchase_date', { ascending: false })
 
+  // CreekGuard: bikes with an active GPS tracker.
+  const { data: trackers } = await supabase
+    .from('trackers')
+    .select('bike_id')
+    .eq('active', true)
+    .not('bike_id', 'is', null)
+  const guardedBikes = new Set((trackers || []).map((t) => t.bike_id as string))
+
   // Who has actually signed in, and their email — neither is in `customers`.
   const { accounts, error: accountsError } = await listAuthAccounts()
 
@@ -58,6 +66,7 @@ export default async function AdminCustomers() {
       totalPaid,
       totalOutstanding: Math.max(0, totalInvoiced - totalPaid),
       bikes: custBikes,
+      creekGuard: custBikes.some((b) => guardedBikes.has(b.id)),
       invoices: custInvoices.map((i) => ({
         id: i.id,
         invoice_number: i.invoice_number,

@@ -4,6 +4,8 @@ import { GoogleReviewCard } from '@/app/components/google-review-card'
 import { calculateBikeWarranties } from '@/lib/warranty'
 import Link from 'next/link'
 import { getViewerContext } from '@/lib/view-as'
+import { CreekGuardBadge } from '@/app/components/creekguard-badge'
+import { creekGuardBikeIds } from '@/lib/creekguard'
 
 // Per-customer data, and now also per-preview: an admin viewing as someone
 // else must never be served a page cached for anybody. Never static.
@@ -66,6 +68,8 @@ export default async function DashboardPage() {
     // graceful fallback
   }
 
+  const guarded = await creekGuardBikeIds(supabase, bikes.map((b) => b.id))
+
   const pendingInvoices = invoices.filter((inv) => inv.status === 'pending')
   const firstName = customer?.first_name || 'Rider'
 
@@ -83,6 +87,11 @@ export default async function DashboardPage() {
           <p className="mt-1 text-sm text-[#4A4A4A]">
             Your Adventure, Electrified. Here&apos;s your personal portal overview.
           </p>
+          {guarded.size > 0 && (
+            <div className="mt-3">
+              <CreekGuardBadge />
+            </div>
+          )}
         </div>
 
         {customer?.is_admin && (
@@ -142,8 +151,11 @@ export default async function DashboardPage() {
                 <div key={bike.id} className="p-4 rounded-xl bg-[#F5F0E8] border border-[#E5E5E5] space-y-2.5">
                   <div className="flex justify-between items-start">
                     <div>
-                      <span className="px-2 py-0.5 rounded bg-[#2D4A32] text-white text-[10px] font-bold uppercase">
-                        {bike.brand}
+                      <span className="flex flex-wrap items-center gap-1.5">
+                        <span className="px-2 py-0.5 rounded bg-[#2D4A32] text-white text-[10px] font-bold uppercase">
+                          {bike.brand}
+                        </span>
+                        {guarded.has(bike.id) && <CreekGuardBadge compact />}
                       </span>
                       <h3 className="font-bold text-base text-[#1A1A1A] mt-1">{bike.model}</h3>
                     </div>
