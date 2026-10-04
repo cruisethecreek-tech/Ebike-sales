@@ -332,6 +332,9 @@ function compressImage(file){
 /* ── URL Parameter Prefill & Live Pricing Breakdown ────── */
 let activeDiscountCode = '';
 let isMemberDiscount = false;
+// Members get 20% off their own tune-ups; that is not a referral, so no code
+// is shown or sent for it. A friend's code is the referral case.
+let isMemberRate = false;
 
 function updatePricingSection() {
   const box = document.getElementById('price-breakdown-box');
@@ -374,8 +377,8 @@ function updatePricingSection() {
     html += `
         <div style="display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px solid #eee; color:#15803D; font-size:0.92rem;">
           <div>
-            <strong>🎁 Member Referral Discount (20% OFF)</strong>
-            <div style="font-size:0.75rem; font-family:monospace; color:#2D4A32;">Applied Code: ${activeDiscountCode || '20OFF'}</div>
+            <strong>${isMemberRate ? '🌲 Member Tune-Up Rate (20% OFF)' : '🎁 Referral Discount (20% OFF)'}</strong>
+            ${isMemberRate ? '' : `<div style="font-size:0.75rem; font-family:monospace; color:#2D4A32;">Referred by: ${activeDiscountCode || '20OFF'}</div>`}
           </div>
           <strong style="font-size:1rem;">-$${discountAmount.toFixed(2)}</strong>
         </div>
@@ -404,7 +407,7 @@ function updatePricingSection() {
     html += `
       <div style="background:#DCFCE7; border:1px solid #86EFAC; border-radius:8px; padding:10px 14px; font-size:0.82rem; color:#15803D; font-weight:700; display:flex; align-items:center; gap:8px;">
         <span style="font-size:1.2rem;">✅</span>
-        <span>20% Member Referral Pricing Confirmed: You save $${discountAmount.toFixed(2)} on this service!</span>
+        <span>${isMemberRate ? '20% Member Pricing' : '20% Referral Pricing'} Confirmed: You save $${discountAmount.toFixed(2)} on this service!</span>
       </div>
     `;
   } else {
@@ -482,7 +485,13 @@ function updatePricingSection() {
     }
 
     // Check discount flags
-    if (promo === '20OFF' || promo === '25OFF' || discount === '20' || discount === '25' || ref) {
+    // The portal's Book Tune-Up buttons send member=1 and no code: a
+    // customer's own referral code never counts as a referral for them.
+    if (p.get('member') === '1') {
+      isMemberDiscount = true;
+      isMemberRate = true;
+      activeDiscountCode = '';
+    } else if (promo === '20OFF' || promo === '25OFF' || discount === '20' || discount === '25' || ref) {
       isMemberDiscount = true;
       activeDiscountCode = ref || promo || '20% Member Referral';
     }
@@ -529,9 +538,12 @@ form.addEventListener('submit', async e => {
   }
 
   let descriptionText = v('f-desc');
-  const servicePriceString = isMemberDiscount ? '$100.00 (20% Member Referral Discount off $125.00)' : '$125.00';
+  const discountName = isMemberRate ? '20% Member Tune-Up Rate' : '20% Referral Discount';
+  const servicePriceString = isMemberDiscount ? `$100.00 (${discountName} off $125.00)` : '$125.00';
   if (isMemberDiscount) {
-    descriptionText += `\n\n[20% Member Referral Discount Applied: ${activeDiscountCode || '20OFF'} | Confirmed Service Total: $100.00]`;
+    descriptionText += isMemberRate
+      ? `\n\n[${discountName} Applied | Confirmed Service Total: $100.00]`
+      : `\n\n[${discountName} Applied: ${activeDiscountCode || '20OFF'} | Confirmed Service Total: $100.00]`;
   }
 
   btn.textContent = 'Submitting…';
