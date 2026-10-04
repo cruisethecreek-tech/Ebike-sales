@@ -17,11 +17,10 @@ export function CreekGuardBadge({ compact = false }: { compact?: boolean }) {
   return (
     <span
       title="GPS tracking and theft alerts are active on your bike"
-      className="inline-flex items-center gap-2 pl-2 pr-3.5 py-1.5 rounded-full bg-gradient-to-r from-[#1A2E1C] to-[#2D4A32] text-white shadow-sm border border-[#C9A96E]/70"
+      className="inline-flex items-center gap-2 pl-2.5 pr-3.5 py-1 rounded-full bg-gradient-to-r from-[#1A2E1C] to-[#2D4A32] text-white shadow-sm border border-[#C9A96E]/70"
     >
-      <span className="w-6 h-6 rounded-full bg-[#C9A96E] text-[#1A2E1C] flex items-center justify-center">
-        <ShieldIcon className="w-3.5 h-3.5" />
-      </span>
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src="/creekguard-badge.png" alt="" width={26} height={32} className="w-[26px] h-8 object-contain" />
       <span className="leading-tight">
         <span className="block text-[11px] font-bold uppercase tracking-[0.12em] text-[#C9A96E]">CreekGuard</span>
         <span className="block text-xs font-semibold">Protected</span>
