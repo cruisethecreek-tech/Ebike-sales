@@ -35,6 +35,9 @@ export interface SheetInvoice {
   depositMethod: string
   depositRef: string
   paymentNotes: string
+  /** "Notes for the Customer" from the invoice generator (service performed,
+      tips). Written by setInvoiceMeta into its own column; '' when absent. */
+  customerNotes: string
   paymentLink: string
   createdAt: string
   status: string
@@ -204,6 +207,7 @@ function rowToSheetInvoice(row: Record<string, string>, invoiceNumber: string): 
       depositMethod: row.depositMethod || '',
       depositRef: row.depositRef || '',
       paymentNotes: row.paymentNotes || '',
+      customerNotes: String(row.customerNotes || '').trim(),
       paymentLink: row.paymentLink || '',
       createdAt: row.createdAt || '',
       status: String(row.status || '').toLowerCase().trim(),

@@ -2287,6 +2287,9 @@ function handleInvoiceCreated(p) {
                 balanceDue: balanceDue,
                 paymentMode: paymentMode,
                 paymentLink: paymentLink,
+                // "Referred by: CODE" lives here; the portal reads it to
+                // record who referred this customer.
+                paymentNotes: notes,
                 status: (paymentMode === 'paidInFullCash' || balanceDue <= 0) ? 'paid' : 'pending'
               }),
               muteHttpExceptions: true
