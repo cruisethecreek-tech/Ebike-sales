@@ -1,6 +1,7 @@
+import { GpsMap } from '@/app/components/gps-map'
 import { alertLabel, bikeBatteryVolts, isStale, mapLinks, timeAgo, type TrackerStatus } from '@/lib/gps'
 
-/** Location panel for one tracked bike: map, last check-in, recent alerts. */
+/** Location panel for one tracked bike: live map with ride history, last check-in, recent alerts. */
 export function BikeLocation({ status }: { status: TrackerStatus }) {
   const { latest, alerts } = status
 
@@ -26,12 +27,7 @@ export function BikeLocation({ status }: { status: TrackerStatus }) {
         </span>
       </div>
 
-      <iframe
-        title="Bike location map"
-        src={links.embed}
-        className="w-full h-48 rounded-lg border border-[#E5E5E5]"
-        loading="lazy"
-      />
+      <GpsMap trackerId={status.tracker.id} latest={latest} />
 
       <div className="flex flex-wrap justify-between items-center gap-x-3 gap-y-1 text-[11px] text-gray-500">
         <span>

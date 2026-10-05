@@ -93,12 +93,7 @@ export function isStale(iso: string, now = Date.now()): boolean {
 }
 
 export function mapLinks(lat: number, lon: number) {
-  const d = 0.004
-  const bbox = [lon - d, lat - d, lon + d, lat + d].join(',')
-  return {
-    embed: `https://www.openstreetmap.org/export/embed.html?bbox=${bbox}&layer=mapnik&marker=${lat},${lon}`,
-    open: `https://www.google.com/maps?q=${lat},${lon}`,
-  }
+  return { open: `https://www.google.com/maps?q=${lat},${lon}` }
 }
 
 /** Teltonika reports external (bike battery) voltage as `power`, in volts. */
