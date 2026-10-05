@@ -4407,6 +4407,10 @@
 
             function applyInvoiceData(inv) {
                 if (!inv) return;
+                // A saved invoice keeps its own referral: turn Referred By
+                // back on in case a returning customer was picked before.
+                var refEl = document.getElementById('referredBy');
+                if (refEl) refEl.disabled = false;
                 var numEl = document.getElementById('invoiceNumber');
                 if (numEl) numEl.value = inv.invoiceNumber || invNum;
 
@@ -4463,6 +4467,9 @@
                 }
                 showLoadedInvoicePortal(inv.invoiceNumber || invNum);
                 updateInvoicePreview();
+                // Freshly opened, nothing edited yet.
+                if (typeof markInvoiceClean === 'function') markInvoiceClean();
+                onReferredByInput();
 
                 // Keep the link this invoice already has, so saving an edit
                 // does not blank it and strand a customer holding it.
