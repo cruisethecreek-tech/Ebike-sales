@@ -921,6 +921,7 @@
         }
 
         .notes.active { display: block; }
+        .notes.customer-notes { margin-top: 0.75rem; border-left-color: var(--forest-light); white-space: pre-line; }
         .notes strong { color: var(--cust-text); font-weight: 600; }
 
         .invoice-footer {
@@ -1203,13 +1204,23 @@
                     <div class="picker">
                         <select id="categoryPicker">
                             <option value="">Category…</option>
-                            <option value="bike">Bike</option>
-                            <option value="accessory">Accessory</option>
-                            <option value="apparel">Apparel</option>
-                            <option value="installation">Installation</option>
-                            <option value="creekguard">CreekGuard GPS</option>
-                            <option value="delivery">Delivery</option>
-                            <option value="custom">Custom (free text)</option>
+                            <optgroup label="Product">
+                                <option value="bike">Bike</option>
+                                <option value="accessory">Accessories</option>
+                                <option value="apparel">Apparel</option>
+                            </optgroup>
+                            <optgroup label="Install">
+                                <option value="installation">Bike Install</option>
+                                <option value="creekguard">GPS Install (CreekGuard)</option>
+                            </optgroup>
+                            <optgroup label="Service">
+                                <option value="repair">Bike Repair</option>
+                                <option value="tuneup">Bike Tune-Up</option>
+                                <option value="delivery">Delivery</option>
+                            </optgroup>
+                            <optgroup label="Other">
+                                <option value="custom">Custom (free text)</option>
+                            </optgroup>
                         </select>
                         <select id="itemPicker" disabled>
                             <option value="">Pick a category first</option>
@@ -1249,6 +1260,15 @@
 
                     <div class="line-items-wrapper" id="lineItemsContainer"></div>
                     <button type="button" class="add-line-btn" onclick="addLineItem()">+ Add empty row</button>
+                </div>
+
+                <div class="form-section">
+                    <div class="section-title">Notes for the Customer</div>
+                    <div class="form-group">
+                        <label for="customerNotes">Service performed, tips &amp; tricks (prints on the invoice)</label>
+                        <textarea id="customerNotes" rows="4" maxlength="1500"
+                            placeholder="e.g., Adjusted rear brake and trued front wheel. Tip: keep tires at 30 psi and charge the battery after every long ride."></textarea>
+                    </div>
                 </div>
 
                 <div class="form-section">
@@ -1449,6 +1469,8 @@
                 <div id="previewSpecsSection"></div>
 
                 <div id="previewNotes" class="notes"></div>
+
+                <div id="previewCustomerNotes" class="notes customer-notes"></div>
 
                 <div class="invoice-footer">
                     Thanks for choosing Cruise the Creek
@@ -1702,6 +1724,15 @@
                 notesDiv.classList.remove('active');
             }
 
+            const custNotes = (document.getElementById('customerNotes').value || '').trim();
+            const custNotesDiv = document.getElementById('previewCustomerNotes');
+            if (custNotes) {
+                custNotesDiv.innerHTML = '<strong>Service Notes &amp; Tips:</strong>\n' + escapeHtml(custNotes);
+                custNotesDiv.classList.add('active');
+            } else {
+                custNotesDiv.classList.remove('active');
+            }
+
             renderBikeSpecs();
         }
 
@@ -1879,6 +1910,7 @@
                 depositMethod: depositMethod,
                 depositRef: depositRef,
                 supplierUrl: (document.getElementById('supplierUrl').value || '').trim(),
+                customerNotes: (document.getElementById('customerNotes').value || '').trim(),
                 items: []
             };
 
@@ -2402,7 +2434,8 @@
                     // Persist the internal supplier/warranty URL onto the now-saved
                     // row (separate call so the customer-facing addOrder schema is
                     // untouched). Sends even when blank so clearing it also saves.
-                    saveSupplierUrl(resp.invoiceNumber || invoiceData.invoiceNumber, invoiceData.supplierUrl || '');
+                    saveSupplierUrl(resp.invoiceNumber || invoiceData.invoiceNumber, invoiceData.supplierUrl || '',
+                                    invoiceData.customerNotes || '');
                 } else {
                     console.warn('[addOrder] sheet write failed:', resp);
                     showStatus('Warning: invoice was generated but not saved to the Sheet. ' +
@@ -2573,6 +2606,11 @@
         // which bills it automatically. "CreekGuard" leads each name so the
         // referral 25%-off-installation perk (lines starting "Install")
         // does not stack on the already-discounted install.
+        // Tune-ups. Members get the $100 rate through the 20% discount.
+        var TUNEUP_ITEMS = [
+            { name: 'Creek Ready Tune-Up (28-Point Comprehensive Service & Diagnostics)', price: 125.00 },
+            { name: 'Creek Ready Free Break-In Tune-Up (first 30 days)', price: 0.00 }
+        ];
         var CREEKGUARD_ITEMS = [
             { name: 'CreekGuard GPS Tracker + Install', price: 199.00 },
             { name: 'CreekGuard GPS Tracker + Install (Cruise the Creek customer)', price: 149.00 },
@@ -2752,6 +2790,13 @@
                 return;
             }
 
+            if (cat === 'repair') {
+                itemPicker.disabled = true;
+                itemPicker.innerHTML = '<option value="">— Click Add, then describe the repair —</option>';
+                addBtn.disabled = false;
+                return;
+            }
+
             if (cat === 'delivery') {
                 itemPicker.disabled = true;
                 itemPicker.innerHTML = '<option value="">— Click Add to open calculator —</option>';
@@ -2764,6 +2809,7 @@
             else if (cat === 'accessory') list = catalogCache.accessories;
             else if (cat === 'apparel') list = catalogCache.apparel;
             else if (cat === 'creekguard') list = CREEKGUARD_ITEMS;
+            else if (cat === 'tuneup') list = TUNEUP_ITEMS;
 
             if (list.length === 0) {
                 itemPicker.disabled = true;
@@ -3067,6 +3113,21 @@
                 return;
             }
 
+            if (cat === 'repair') {
+                addLineItem('Repair: ', 1, 0);
+                const rows = document.querySelectorAll('.line-item');
+                const lastRow = rows[rows.length - 1];
+                if (lastRow) {
+                    const descInput = lastRow.querySelector('.description');
+                    if (descInput) {
+                        descInput.focus();
+                        descInput.setSelectionRange(descInput.value.length, descInput.value.length);
+                    }
+                }
+                resetPicker();
+                return;
+            }
+
             if (cat === 'delivery') {
                 showDeliveryCalc();
                 resetPicker();
@@ -3081,6 +3142,7 @@
             else if (cat === 'accessory') list = catalogCache.accessories;
             else if (cat === 'apparel') list = catalogCache.apparel;
             else if (cat === 'creekguard') list = CREEKGUARD_ITEMS;
+            else if (cat === 'tuneup') list = TUNEUP_ITEMS;
 
             const item = list[idx];
             if (!item) return;
@@ -3824,10 +3886,12 @@
         }
 
         // Save the URL onto the invoice's row (fire-and-forget). Blank clears it.
-        function saveSupplierUrl(invNum, url) {
+        // Notes for the customer ride along on the same call (customerNotes column).
+        function saveSupplierUrl(invNum, url, customerNotes) {
             if (!invNum) return;
             invoiceJsonp(
-                { action: 'setInvoiceMeta', invoiceNumber: invNum, supplierUrl: normalizeSupplierUrl(url) },
+                { action: 'setInvoiceMeta', invoiceNumber: invNum, supplierUrl: normalizeSupplierUrl(url),
+                  customerNotes: customerNotes || '' },
                 function () {}, function () {}
             );
         }
@@ -3837,6 +3901,10 @@
             invoiceJsonp(
                 { action: 'getInvoiceMeta', invoiceNumber: invNum },
                 function (data) {
+                    if (data && data.status === 'ok' && typeof data.customerNotes === 'string') {
+                        var cn = document.getElementById('customerNotes');
+                        if (cn && data.customerNotes) { cn.value = data.customerNotes; updateInvoicePreview(); }
+                    }
                     if (data && data.status === 'ok' && typeof data.supplierUrl === 'string') {
                         var inp = document.getElementById('supplierUrl');
                         if (inp) { inp.value = data.supplierUrl; syncSupplierOpenBtn(); }
