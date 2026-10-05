@@ -128,7 +128,13 @@
       { label: 'Book Bears Den (Youngstown)', url: 'adventures.html' },
       { label: 'Book Kirk Road (Canfield)',   url: 'trailside.html' },
       { label: 'Book Long Term',              url: 'long-term-rental.html' },
-      { label: 'Apply for Rent-to-Own',       url: 'bridge-the-gap.html' },
+      // Two separate ways to own: our own Bridge the Gap plan, and Snap's
+      // lease-to-own. Snap requires its link to be named "Ownership Options"
+      // and the two products to be presented separately (see
+      // snap-advertising-compliance.test.js), so they are sibling links,
+      // never one "rent-to-own" choice.
+      { label: 'Rent-to-Own: Bridge the Gap', url: 'bridge-the-gap.html' },
+      { label: 'Ownership Options',           url: 'ownership-options.html' },
     ]},
     { label: 'Shop', items: [
       { label: 'Shop E-Bikes',     url: 'shop.html' },
