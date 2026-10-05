@@ -99,6 +99,14 @@ h2.display{font-size:clamp(2.4rem,6vw,3.4rem);color:var(--dark);margin-top:6px}
 .compare .yes::before{content:"✓ ";color:var(--sage);font-weight:800}
 .compare .no::before{content:"✕ ";color:#b5543c;font-weight:800}
 .compare-note{margin-top:12px;font-size:.82rem;color:var(--ink-3);max-width:860px}
+.choose{margin-top:22px;max-width:860px;display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.choose>div{border-radius:18px;padding:20px 22px;border:1px solid #e6e0d4;background:#fff}
+.choose>div.cg{background:var(--dark);border-color:var(--dark);color:#f3ecdc}
+.choose h3{margin:0 0 10px;font-size:1.05rem;color:var(--dark)}
+.choose .cg h3{color:var(--tan)}
+.choose ul{margin:0;padding-left:18px;font-size:.92rem;line-height:1.55}
+.choose li+li{margin-top:6px}
+@media (max-width:640px){.choose{grid-template-columns:1fr}}
 @media (max-width:560px){.compare table{font-size:.82rem}.compare th,.compare td{padding:10px 8px}.compare tbody th{width:28%}}
 
 /* pricing */
@@ -304,6 +312,24 @@ footer a{color:#e9e4d8}
           <tr><th scope="row">Cost</th><td class="cg">$199 install ($149 for our customers), then $5.99/mo</td><td>About $30 once, no monthly fee</td></tr>
         </tbody>
       </table>
+    </div>
+    <div class="choose">
+      <div>
+        <h3>Choose a smart tag if…</h3>
+        <ul>
+          <li>Your bike is cheap enough that losing it wouldn't hurt much</li>
+          <li>It's mostly parked at home and you want to find it, not track it</li>
+          <li>You don't want a monthly fee</li>
+        </ul>
+      </div>
+      <div class="cg">
+        <h3>Choose CreekGuard if…</h3>
+        <ul>
+          <li>Your e-bike cost real money and you want it back if it's stolen</li>
+          <li>You lock it up in town, at work or on trips</li>
+          <li>You want a hidden tracker the thief can't find, and a local team to help</li>
+        </ul>
+      </div>
     </div>
     <p class="compare-note">AirTag is a trademark of Apple Inc. and SmartTag is a trademark of Samsung Electronics. Cruise the Creek is not affiliated with either.</p>
   </div>
