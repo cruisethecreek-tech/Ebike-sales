@@ -212,6 +212,26 @@
 
         .form-group { display: flex; flex-direction: column; }
 
+        /* Referred By: matches from the customer database under the field. */
+        .referrer-wrap { position: relative; display: flex; flex-direction: column; }
+        .referrer-suggest {
+            position: absolute; left: 0; right: 0; top: 100%; z-index: 30;
+            margin-top: 2px; max-height: 260px; overflow-y: auto;
+            background: var(--op-panel); border: 1px solid var(--op-border);
+            border-radius: 6px; box-shadow: 0 6px 18px rgba(0,0,0,0.18);
+        }
+        .referrer-suggest[hidden] { display: none; }
+        .referrer-suggest button {
+            display: block; width: 100%; text-align: left; background: none; border: 0;
+            border-bottom: 1px solid var(--op-border); padding: 0.6rem 0.85rem;
+            color: var(--op-text); font: inherit; font-size: 0.9rem; cursor: pointer;
+        }
+        .referrer-suggest button:last-child { border-bottom: 0; }
+        .referrer-suggest button:hover, .referrer-suggest button.active { background: var(--op-readonly); }
+        .referrer-suggest .ref-code { font-family: 'JetBrains Mono', monospace; color: var(--op-gold-text); font-weight: 600; }
+        .referrer-suggest .ref-sub { display: block; font-size: 0.75rem; color: var(--op-text-dim); }
+        .referrer-suggest .ref-empty { padding: 0.6rem 0.85rem; font-size: 0.85rem; color: var(--op-text-dim); }
+
         label {
             font-family: 'JetBrains Mono', monospace;
             font-size: 0.65rem;
@@ -1172,9 +1192,12 @@
                     <div class="form-grid" style="margin-top: 0.85rem;">
                         <div class="form-group">
                             <label for="referredBy">Referred By (optional)</label>
-                            <input type="text" id="referredBy" list="referrerOptions" autocomplete="off"
-                                   placeholder="Type the friend's name or their code" oninput="onReferredByInput(); syncReferralInstallDiscount()">
-                            <datalist id="referrerOptions"></datalist>
+                            <div class="referrer-wrap">
+                            <input type="text" id="referredBy" autocomplete="off" role="combobox" aria-autocomplete="list" aria-controls="referrerSuggest" aria-expanded="false"
+                                   placeholder="Type the friend's name, phone or code" oninput="onReferredByInput(); syncReferralInstallDiscount(); showReferrerSuggestions()"
+                                   onfocus="showReferrerSuggestions()" onkeydown="onReferrerKey(event)" onblur="setTimeout(hideReferrerSuggestions, 150)">
+                            <div id="referrerSuggest" class="referrer-suggest" role="listbox" hidden></div>
+                            </div>
                             <small id="referredByHint" style="display:block;margin-top:.3rem;color:var(--op-muted,#6b6b6b);font-size:.78rem;">
                                 Whoever sent them in gets credit toward their $100 reward when this invoice saves.
                             </small>
@@ -3535,21 +3558,120 @@
             onReferredByInput();
         }
 
+        // Every customer in the portal database has a referral code. The
+        // list under Referred By searches them by name, phone, email or code;
+        // tapping one fills in their code.
+        var referrerList = [];
+
         function renderReferrerOptions(list) {
-            var dl = document.getElementById('referrerOptions');
-            if (!dl) return;
             referrerByCode = {};
-            dl.innerHTML = '';
+            referrerList = [];
             list.forEach(function(c) {
                 var code = String(c.referralCode || '').toUpperCase();
                 if (!code || referrerByCode[code]) return;
                 referrerByCode[code] = { name: c.name || c.email || '', email: c.email || '' };
-                var opt = document.createElement('option');
-                opt.value = code;
-                opt.label = (c.name || c.email || '') + (c.phone ? ' · ' + c.phone : '');
-                dl.appendChild(opt);
+                referrerList.push({ code: code, name: c.name || c.email || '', email: c.email || '', phone: c.phone || '' });
             });
             onReferredByInput();
+        }
+
+        function referrerMatches(q) {
+            q = q.trim().toLowerCase();
+            if (!q) return [];
+            var digits = q.replace(/\D/g, '');
+            var starts = [], contains = [];
+            referrerList.forEach(function(r) {
+                var name = r.name.toLowerCase();
+                var hit = name.indexOf(q) !== -1 || r.code.toLowerCase().indexOf(q) !== -1 ||
+                    r.email.toLowerCase().indexOf(q) !== -1 ||
+                    (digits.length >= 3 && String(r.phone).replace(/\D/g, '').indexOf(digits) !== -1);
+                if (!hit) return;
+                (name.indexOf(q) === 0 || r.code.toLowerCase().indexOf(q) === 0 ? starts : contains).push(r);
+            });
+            return starts.concat(contains).slice(0, 8);
+        }
+
+        var referrerActive = -1;
+
+        function showReferrerSuggestions() {
+            var el = document.getElementById('referredBy');
+            var box = document.getElementById('referrerSuggest');
+            if (!el || !box) return;
+            var q = el.value.trim();
+            referrerActive = -1;
+            // Nothing to show when empty, or when the field already holds a
+            // real customer's code (just picked).
+            if (!q || referrerByCode[q.toUpperCase()]) { hideReferrerSuggestions(); return; }
+            var hits = referrerMatches(q);
+            box.innerHTML = '';
+            if (!hits.length) {
+                if (!referrerList.length) { hideReferrerSuggestions(); return; }
+                var none = document.createElement('div');
+                none.className = 'ref-empty';
+                none.textContent = 'No customer matches "' + q + '".';
+                box.appendChild(none);
+            }
+            hits.forEach(function(r) {
+                var b = document.createElement('button');
+                b.type = 'button';
+                b.setAttribute('role', 'option');
+                b.setAttribute('data-no-dirty', '');
+                var top = document.createElement('span');
+                top.textContent = r.name + ' ';
+                var code = document.createElement('span');
+                code.className = 'ref-code';
+                code.textContent = r.code;
+                top.appendChild(code);
+                b.appendChild(top);
+                var sub = [r.phone, r.email].filter(Boolean).join(' · ');
+                if (sub) {
+                    var s2 = document.createElement('span');
+                    s2.className = 'ref-sub';
+                    s2.textContent = sub;
+                    b.appendChild(s2);
+                }
+                // mousedown fires before the field's blur hides the list.
+                b.addEventListener('mousedown', function(e) { e.preventDefault(); pickReferrer(r.code); });
+                b.addEventListener('click', function() { pickReferrer(r.code); });
+                box.appendChild(b);
+            });
+            box.hidden = false;
+            el.setAttribute('aria-expanded', 'true');
+        }
+
+        function hideReferrerSuggestions() {
+            var box = document.getElementById('referrerSuggest');
+            var el = document.getElementById('referredBy');
+            if (box) { box.hidden = true; box.innerHTML = ''; }
+            if (el) el.setAttribute('aria-expanded', 'false');
+            referrerActive = -1;
+        }
+
+        function pickReferrer(code) {
+            var el = document.getElementById('referredBy');
+            if (!el) return;
+            el.value = code;
+            hideReferrerSuggestions();
+            onReferredByInput();
+            syncReferralInstallDiscount();
+            if (typeof markInvoiceDirty === 'function') markInvoiceDirty();
+        }
+
+        function onReferrerKey(e) {
+            var box = document.getElementById('referrerSuggest');
+            if (!box || box.hidden) return;
+            var opts = box.querySelectorAll('button');
+            if (e.key === 'Escape') { hideReferrerSuggestions(); return; }
+            if (!opts.length) return;
+            if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+                e.preventDefault();
+                referrerActive = (referrerActive + (e.key === 'ArrowDown' ? 1 : -1) + opts.length) % opts.length;
+                opts.forEach(function(o, i) { o.classList.toggle('active', i === referrerActive); });
+                opts[referrerActive].scrollIntoView({ block: 'nearest' });
+            } else if (e.key === 'Enter') {
+                e.preventDefault();
+                opts[referrerActive >= 0 ? referrerActive : 0].click();
+            }
         }
 
         // ─── REFERRAL PERK: 25% OFF INSTALLATION ─────────────────────────
