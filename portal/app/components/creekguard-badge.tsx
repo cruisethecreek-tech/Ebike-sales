@@ -8,7 +8,7 @@ export function CreekGuardBadge({ compact = false }: { compact?: boolean }) {
   if (compact) {
     return (
       <span
-        title="CreekGuard GPS tracking and theft alerts are active on this bike"
+        title="CreekGuard GPS tracking is active on this bike"
         className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#1A2E1C] text-[#C9A96E] text-[11px] font-bold uppercase tracking-wider border border-[#C9A96E]/60"
       >
         <ShieldIcon className="w-3 h-3" />
@@ -18,7 +18,7 @@ export function CreekGuardBadge({ compact = false }: { compact?: boolean }) {
   }
   return (
     <span
-      title="GPS tracking and theft alerts are active on your bike"
+      title="CreekGuard GPS tracking is active on your bike"
       className="inline-flex items-center gap-2 pl-2.5 pr-3.5 py-1 rounded-full bg-gradient-to-r from-[#1A2E1C] to-[#2D4A32] text-white shadow-sm border border-[#C9A96E]/70"
     >
       {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -63,7 +63,7 @@ export function CreekGuardSignUp() {
         <span className="block text-[11px] font-bold uppercase tracking-[0.14em] text-[#C9A96E]">New · CreekGuard GPS</span>
         <span className="block font-bold text-base sm:text-lg leading-snug">Protect your ride with CreekGuard</span>
         <span className="block text-xs text-[#d9d4c7] mt-0.5">
-          Hidden GPS tracker, theft alerts and your bike&apos;s location right here in your portal, plus a free bike lock.
+          Hidden GPS tracker, your bike&apos;s location right here in your portal, theft recovery help and a free bike lock.
           Your customer install is $149, then $5.99 a month or $64.69 a year (save 10%).
         </span>
         <div className="flex flex-wrap gap-2 mt-3">
@@ -92,7 +92,7 @@ export function CreekGuardAddChip() {
       href={SIGN_UP_URL}
       target="_blank"
       rel="noopener noreferrer"
-      title="Add CreekGuard GPS tracking and theft alerts to this bike"
+      title="Add CreekGuard GPS tracking to this bike"
       className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full border border-dashed border-[#a98843] text-[#7a5f2a] bg-[#FBF7EF] text-[11px] font-bold uppercase tracking-wider hover:bg-[#F5EBD6]"
     >
       <ShieldIcon className="w-3 h-3" />
