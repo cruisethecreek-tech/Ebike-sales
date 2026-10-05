@@ -387,7 +387,11 @@ export function NowViewingDock({ customers, dataError }: NowViewingDockProps) {
                             : ''
                         )}&phone=${encodeURIComponent(selectedCustomer.phone || '')}&email=${encodeURIComponent(
                           selectedCustomer.email || ''
-                        )}`}
+                        )}${
+                          selectedCustomer.bikes?.length === 1
+                            ? `&brand=${encodeURIComponent(selectedCustomer.bikes[0].brand || '')}&model=${encodeURIComponent(selectedCustomer.bikes[0].model || '')}`
+                            : ''
+                        }`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="p-2.5 rounded-lg bg-[#C9A96E] text-[#1A2E1C] font-bold flex items-center justify-center gap-1.5 hover:bg-[#dbb978] shadow-xs text-center"
