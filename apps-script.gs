@@ -2978,7 +2978,7 @@ function getTabDefs() {
           "Youngstown's E-Bike Experts",
           'Keep Your Ride',
           'Creek Ready',
-          "Specialized E-Bike service. Professional tune-ups, expert assembly, and remote video diagnostics — from the Mahoning Valley's authorized Heybike, Velotric & Jasion dealer.",
+          "Specialized E-Bike service. Professional tune-ups, expert assembly, and remote video diagnostics — from the Mahoning Valley's authorized Heybike, Velotric, Jasion, Mooncool & Mokwheel dealer.",
           '',
           'Explore Services',
           '#services',
@@ -3225,6 +3225,10 @@ function getTabDefs() {
         ['brand_velotric_external', false],
         ['brand_jasion_url',    'jasion.html'],
         ['brand_jasion_external', false],
+        ['brand_mooncool_url',  'mooncool.html'],
+        ['brand_mooncool_external', false],
+        ['brand_mokwheel_url',  'mokwheel.html'],
+        ['brand_mokwheel_external', false],
         // assembly.html: pipe-separated brand list drives inline mentions
         // ("factory-trained on …") + trust badges at page bottom.
         ['assembly_authorized_brands', 'Heybike|Velotric|Jasion|Mooncool|Mokwheel'],
@@ -3242,7 +3246,7 @@ function getTabDefs() {
         // Card 2 — externally purchased bikes (Stripe checkout).
         ['assembly_card2_title',       'Already Own Your Bike?'],
         ['assembly_card2_price',       '$225'],
-        ['assembly_card2_sub',         'For Heybike, Velotric, or Jasion purchased online'],
+        ['assembly_card2_sub',         'For Heybike, Velotric, Jasion, Mooncool, or Mokwheel purchased online'],
         ['assembly_card2_cta_label',   'Get Creek Ready'],
         ['assembly_card2_cta_url',     'https://buy.stripe.com/3cIeVe04M3ag7Fxbzf6Zy01'],
         ['assembly_card2_cta_external', true],
@@ -3508,7 +3512,7 @@ function getTabDefs() {
           'Learn More', 'assembly.html', false],
         [3, 'video',    'Book Online',  '',           '📹', 'Video Diagnostics',
           'Stuck on assembly or seeing an error code? Connect with our factory-trained technician via live video call — expert help from wherever you are.',
-          '1-on-1 live video with our technician|Error code diagnosis & troubleshooting|Guided assembly support|Velotric, Heybike & Jasion specialists|No travel needed — help from anywhere',
+          '1-on-1 live video with our technician|Error code diagnosis & troubleshooting|Guided assembly support|Velotric, Heybike, Jasion, Mooncool & Mokwheel specialists|No travel needed — help from anywhere',
           'Learn More', 'video-diagnostics.html', false],
       ],
     },
@@ -3624,7 +3628,7 @@ function getTabDefs() {
         [73, 'Service', '', "What is \"Creek Ready Setup\"?",
           "Our master-level new-bike build — **$100**, performed by Andrew Barret. Includes 50-point safety certification, Ohio Rust-Belt Shield corrosion treatment, a free 30-day break-in tune, and manufacturer-liaison support for any warranty issues. Don't risk a DIY build on a machine this heavy and this fast. [Setup details →](assembly.html)"],
         [74, 'Service', '', 'Do you offer remote support?',
-          "Yes — **Video Diagnostics**. Stuck on assembly or seeing an error code? Book a live video call with our factory-trained technician. 1-on-1, error-code troubleshooting, guided assembly support — Velotric, Heybike, and Jasion specialists, no travel needed. [Book a session →](video-diagnostics.html)"],
+          "Yes — **Video Diagnostics**. Stuck on assembly or seeing an error code? Book a live video call with our factory-trained technician. 1-on-1, error-code troubleshooting, guided assembly support — Velotric, Heybike, Jasion, Mooncool, and Mokwheel specialists, no travel needed. [Book a session →](video-diagnostics.html)"],
         [75, 'Service', '', 'What about warranty work?',
           "As an authorized dealer for Heybike, Velotric, Jasion, Mooncool, and Mokwheel, we handle warranty claims directly with the manufacturer. Bring the bike (and proof of purchase) to the shop and we'll get the conversation started."],
 

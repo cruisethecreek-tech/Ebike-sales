@@ -64,7 +64,7 @@ SNAPSHOT: dict = {
         {"desk": "Info", "phone": "330-406-9686", "email": "info@cruisethecreek.com",
          "covers": "Rentals, tours, sponsorships, Bridge the Gap, general questions"},
         {"desk": "Sales", "phone": "330-406-9682", "email": "salesteam@cruisethecreek.com",
-         "covers": "Test rides, e-bike purchases, repairs, tune-ups, trade-ins"},
+         "covers": "Test rides, e-bike purchases, repairs, tune-ups, trade-ins, CreekGuard GPS, Snap applications"},
     ],
     "locations": [
         {
@@ -167,7 +167,7 @@ SNAPSHOT: dict = {
          ],
          "turnaround": "2–3 business days"},
         {"name": "Creek Ready Setup", "price": "$100 (with new bike purchase) / $225 (already-owned bike)",
-         "for": "New e-bikes from CTC, or Heybike/Velotric/Jasion bought online",
+         "for": "New e-bikes from CTC, or Heybike/Velotric/Jasion/Mooncool/Mokwheel bought online",
          "includes": [
              "50-point safety certification",
              "Andrew's master assembly",
@@ -182,7 +182,7 @@ SNAPSHOT: dict = {
              "1-on-1 live video with our technician",
              "Error code diagnosis & troubleshooting",
              "Guided assembly support",
-             "Velotric / Heybike / Jasion specialists",
+             "Velotric / Heybike / Jasion / Mooncool / Mokwheel specialists",
              "No travel needed",
          ],
          "turnaround": "Same-day or next-day session"},
@@ -203,7 +203,8 @@ SNAPSHOT: dict = {
         "pet_stroller":   "Optional small-pet carrier attachment. Confirm availability before booking.",
     },
     "bridge_the_gap": {
-        "what":   "Rent-to-own program for the Mahoning Valley.",
+        "what":   ("Cruise the Creek's own rent-to-own program for bikes from our USED rental fleet. "
+                   "It is run by us and has nothing to do with Snap. For a NEW bike, see the Snap section."),
         "terms": [
             "$25–$30 per week in bi-weekly payments",
             "15 bi-weekly payments total ($750–$900 program cost), then the bike is yours",
@@ -218,6 +219,59 @@ SNAPSHOT: dict = {
         ],
         "apply": "bridge-the-gap.html → 'Apply Now', or text the info desk at 330-406-9686.",
         "early_termination": "Reach out — we'll work with you. Life happens.",
+    },
+    "creekguard": {
+        "what": ("CreekGuard (\"CreekGuard, powered by Cruise the Creek Adventures\") is GPS tracking for e-bikes. "
+                 "Our shop wires a small GPS tracker into the bike's power, mounted on the frame where it gets a good "
+                 "signal. Never describe it as hidden or out of sight: it needs a clear signal, so it is wired in, not "
+                 "stuck on, but it is not invisible."),
+        "features": [
+            "Live location and ride history (trips, distance, top speed) in the customer portal",
+            "Theft recovery help: our team helps the owner and the police locate a stolen bike",
+            "Mileage-based tune-up reminders",
+            "Free bike lock with every CreekGuard install",
+        ],
+        "pricing": [
+            "Install: $199, or $149 for bikes bought from Cruise the Creek",
+            "Plan: $5.99 a month, or $64.69 a year (10% off monthly). Cancel anytime.",
+            "The install and the plan are paid together at one secure Stripe checkout",
+        ],
+        "sign_up": [
+            "Online: cruisethecreek.com/creekguard.html has the Stripe checkout buttons ($199 install + monthly or yearly plan)",
+            "Cruise the Creek customers: the CreekGuard card in their customer portal has the $149 checkout",
+            "Ordering a new bike: tick 'Add CreekGuard GPS' on the brand page order form",
+            "Booking the install: repair-intake.html?service=creekguard, or text sales at 330-406-9682",
+        ],
+        "rules": [
+            "Payments run through Stripe's secure checkout. Never take card numbers over the phone; send the caller to the checkout link instead.",
+            "Do not promise instant theft alerts or a lock/alarm mode. Say 'theft recovery help'.",
+            "Do not promise the bike will always be recovered.",
+            "Billing questions (cancel, change card, receipts) and install scheduling go to sales at 330-406-9682.",
+        ],
+    },
+    "snap": {
+        "what": ("Lease-to-own financing from Snap, for NEW bikes from our shop. Snap RTO LLC is a separate company "
+                 "and makes every approval decision. Cruise the Creek is a participating merchant, not the lender or lessor."),
+        "apply": [
+            "Text 120580 to 48078 (Snap replies with a link to the application)",
+            "Or apply online from cruisethecreek.com/ownership-options.html (the 'Apply with Snap' button)",
+            "Merchant ID for any Snap form or call: 120580",
+        ],
+        "say": [
+            "Use the phrase 'lease-to-own financing from Snap'. Never call it a loan, credit, or plain 'financing'.",
+            "Say 'All credit types are welcome to apply. Not all applicants are approved.' Never say 'no credit check'.",
+            "Never quote weekly or monthly payment amounts, interest, a down payment, '0%', or 'pay off'.",
+            "Snap leases the bike and gear, not services. Never say Snap covers tune-ups, Creek Ready, or the CreekGuard install.",
+            "Keep Snap and Bridge the Gap separate: don't describe one program's terms while talking about the other.",
+            "For anything about an existing Snap lease (payments, the 100-Day Option, ending the lease), refer to Snap Customer Care at 1-877-557-3769.",
+        ],
+        "disclosures": [
+            "The advertised service is a lease-to-own agreement provided by Snap RTO LLC.",
+            "Lease-to-own financing is not available to residents of Minnesota, New Jersey and Wisconsin.",
+            "Standard maximum lease term is 12-18 months.",
+            "The 100-Day Option includes a cost of lease above the merchandise price.",
+            "Approval amounts vary from $300 to $5,000, subject to underwriting, and apply only to the cash price of leased items.",
+        ],
     },
     "sponsorship_packages": [
         {"name": "Trailside Journey Champion", "price": "$1,400",
@@ -353,7 +407,8 @@ SNAPSHOT["faqs"] = [
     # Sales
     ("Sales", "What brands do you sell?",
      "Heybike (original fleet since 2022, ~75% of rentals), Velotric (mid-to-premium, traditional cycling "
-     "feel), Jasion (budget-friendly value), and Mooncool (cruisers and 3-wheel e-trikes for extra stability)."),
+     "feel), Jasion (budget-friendly value), Mooncool (cruisers and 3-wheel e-trikes for extra stability), "
+     "and Mokwheel (our newest brand)."),
     ("Sales", "How much do e-bikes cost?",
      "Lineup ranges from about $650 (Jasion) to about $2,500 (Velotric). Most riders land $900–$1,500 "
      "depending on motor power, range, and frame style."),
@@ -369,8 +424,11 @@ SNAPSHOT["faqs"] = [
 
     # Bridge the Gap
     ("Bridge the Gap", "What is Bridge the Gap?",
-     "Our rent-to-own program for the Mahoning Valley. Makes e-bike ownership accessible by spreading "
-     "payments over time while you're using and enjoying the bike."),
+     "Our own rent-to-own program for bikes from our used rental fleet. Makes e-bike ownership accessible "
+     "by spreading payments over time while you're using and enjoying the bike. It is separate from Snap. "
+     "Callers who want a NEW bike should hear about lease-to-own financing from Snap instead "
+     "(cruisethecreek.com/ownership-options.html). Callers who aren't sure can start at "
+     "cruisethecreek.com/rent-to-own.html, which lets them pick."),
     ("Bridge the Gap", "How does the program work?",
      "$25–$30 per week in bi-weekly payments. 15 bi-weekly payments total, then the bike is yours. "
      "No credit checks. No driver's license required. You're riding the bike the whole time you're paying."),
@@ -380,6 +438,33 @@ SNAPSHOT["faqs"] = [
     ("Bridge the Gap", "What if I want to stop early?",
      "Reach out — we'll work with you. Life happens, and we'd rather have an honest conversation than "
      "make this complicated."),
+
+    # Ownership options
+    ("Ownership Options", "Can I pay over time for a NEW bike?",
+     "Yes. New bikes are available with lease-to-own financing from Snap. Text 120580 to 48078 or apply at "
+     "cruisethecreek.com/ownership-options.html. All credit types are welcome to apply. Not all applicants "
+     "are approved. Snap makes the decision, not us."),
+    ("Ownership Options", "Which program is right for me, Bridge the Gap or Snap?",
+     "It depends on the bike. A bike from our used rental fleet goes through Bridge the Gap, our own program. "
+     "A brand-new bike from the shop goes through Snap. cruisethecreek.com/rent-to-own.html lets you pick."),
+
+    # CreekGuard
+    ("CreekGuard GPS", "What is CreekGuard?",
+     "GPS tracking for your e-bike. We wire a small tracker into the bike so you can see where it is and "
+     "where it's been in your customer portal. If it's stolen, our team helps you and the police find it. "
+     "It also sends mileage-based tune-up reminders, and every install comes with a free bike lock."),
+    ("CreekGuard GPS", "How much is CreekGuard?",
+     "$199 to install, or $149 if you bought your bike from us. Then $5.99 a month or $64.69 a year. "
+     "Cancel anytime."),
+    ("CreekGuard GPS", "How do I get CreekGuard?",
+     "Go to cruisethecreek.com/creekguard.html and pick monthly or yearly; the secure Stripe checkout covers "
+     "the install and the plan together. If you bought your bike from us, use the CreekGuard card in your "
+     "customer portal for the $149 price. Then text 330-406-9682 to book the install."),
+    ("CreekGuard GPS", "Is the tracker hidden?",
+     "It's wired in, not stuck on, and mounted where it gets a good GPS signal. It isn't fully hidden, "
+     "because a tracker buried out of sight can lose its signal."),
+    ("CreekGuard GPS", "How do I cancel or change my card?",
+     "Text sales at 330-406-9682 and we'll take care of it. Never read card numbers over the phone."),
 
     # Safety
     ("Safety", "How old do you have to be to ride?",
@@ -421,9 +506,9 @@ SNAPSHOT["faqs"] = [
      "Ohio Rust-Belt Shield corrosion treatment, free 30-day break-in tune, manufacturer-liaison support."),
     ("Service", "Do you offer remote support?",
      "Yes — Video Diagnostics. Book a live video call with our factory-trained technician. 1-on-1, "
-     "error-code troubleshooting, guided assembly support. Velotric / Heybike / Jasion / Mooncool specialists."),
+     "error-code troubleshooting, guided assembly support. Velotric / Heybike / Jasion / Mooncool / Mokwheel specialists."),
     ("Service", "What about warranty work?",
-     "As authorized dealer for Heybike, Velotric, Jasion, and Mooncool, we handle warranty claims "
+     "As authorized dealer for Heybike, Velotric, Jasion, Mooncool, and Mokwheel, we handle warranty claims "
      "directly with the manufacturer. Bring the bike (and proof of purchase) to the shop."),
 
     # Policies
@@ -601,13 +686,15 @@ caller questions accurately and route the rest to the right human.
   <div><span class="num">6.</span> E-Bike Brands We Sell</div>
   <div><span class="num">7.</span> Services &amp; Pricing</div>
   <div><span class="num">8.</span> Rentals (What's Included)</div>
-  <div><span class="num">9.</span> Bridge the Gap (Rent-to-Own)</div>
-  <div><span class="num">10.</span> Sponsorship Packages</div>
-  <div><span class="num">11.</span> Current Sponsors</div>
-  <div><span class="num">12.</span> Trailside Journey Destinations</div>
-  <div><span class="num">13.</span> Frequently Asked Questions</div>
-  <div><span class="num">14.</span> Booking Troubleshooting</div>
-  <div><span class="num">15.</span> Recommended Accessories</div>
+  <div><span class="num">9.</span> Bridge the Gap (Rent-to-Own, Used Fleet)</div>
+  <div><span class="num">10.</span> CreekGuard GPS Tracking</div>
+  <div><span class="num">11.</span> Lease-to-Own Financing from Snap (New Bikes)</div>
+  <div><span class="num">12.</span> Sponsorship Packages</div>
+  <div><span class="num">13.</span> Current Sponsors</div>
+  <div><span class="num">14.</span> Trailside Journey Destinations</div>
+  <div><span class="num">15.</span> Frequently Asked Questions</div>
+  <div><span class="num">16.</span> Booking Troubleshooting</div>
+  <div><span class="num">17.</span> Recommended Accessories</div>
 </div>""")
 
     # ── 1. QUICK REFERENCE ──────────────────────────────────────────
@@ -735,7 +822,7 @@ caller questions accurately and route the rest to the right human.
     parts.append('</table>')
 
     # ── 7. BRIDGE THE GAP ────────────────────────────────────────────
-    parts.append('<h2>9. Bridge the Gap (Rent-to-Own)</h2>')
+    parts.append('<h2>9. Bridge the Gap (Rent-to-Own, Used Fleet)</h2>')
     btg = data["bridge_the_gap"]
     parts.append(f'<p>{esc(btg["what"])}</p>')
     parts.append('<h4>Terms</h4><ul>')
@@ -752,8 +839,30 @@ caller questions accurately and route the rest to the right human.
     parts.append(f'<p><strong>Apply:</strong> {esc(btg["apply"])}</p>')
     parts.append(f'<p><strong>Early termination:</strong> {esc(btg["early_termination"])}</p>')
 
+    # ── CREEKGUARD ───────────────────────────────────────────────────
+    cg = data["creekguard"]
+    parts.append('<h2>10. CreekGuard GPS Tracking</h2>')
+    parts.append(f'<p>{esc(cg["what"])}</p>')
+    for title, key in (("What it does", "features"), ("Pricing", "pricing"),
+                       ("How to get it", "sign_up"), ("Agent rules", "rules")):
+        parts.append(f'<h4>{title}</h4><ul>')
+        for item in cg[key]:
+            parts.append(f'<li>{esc(item)}</li>')
+        parts.append('</ul>')
+
+    # ── SNAP ─────────────────────────────────────────────────────────
+    sn = data["snap"]
+    parts.append('<h2>11. Lease-to-Own Financing from Snap (New Bikes)</h2>')
+    parts.append(f'<p>{esc(sn["what"])}</p>')
+    for title, key in (("How to apply", "apply"), ("How the agent must talk about Snap", "say"),
+                       ("Required disclosures (read verbatim if asked about terms)", "disclosures")):
+        parts.append(f'<h4>{title}</h4><ul>')
+        for item in sn[key]:
+            parts.append(f'<li>{esc(item)}</li>')
+        parts.append('</ul>')
+
     # ── 8. SPONSORSHIP PACKAGES ──────────────────────────────────────
-    parts.append('<div class="page-break"></div><h2>10. Sponsorship Packages</h2>')
+    parts.append('<div class="page-break"></div><h2>12. Sponsorship Packages</h2>')
     for p in data["sponsorship_packages"]:
         feat = ' <span class="section-tag featured-tag">Featured</span>' if p.get("featured") else ''
         parts.append(f'<h3>{esc(p["name"])} — {esc(p["price"])}{feat}</h3>')
@@ -767,7 +876,7 @@ caller questions accurately and route the rest to the right human.
         parts.append('</ul>')
 
     # ── 9. CURRENT SPONSORS ──────────────────────────────────────────
-    parts.append('<h2>11. Current Sponsors</h2>')
+    parts.append('<h2>13. Current Sponsors</h2>')
     parts.append('<p class="small">If a caller asks "who sponsors you" or wants to talk to one of your sponsors:</p>')
     parts.append('<table><tr><th>Sponsor</th><th>Contact</th><th>Bike</th><th>About</th></tr>')
     for sp in data["current_sponsors"]:
@@ -781,7 +890,7 @@ caller questions accurately and route the rest to the right human.
     parts.append('</table>')
 
     # ── 10. TRAILSIDE JOURNEYS ───────────────────────────────────────
-    parts.append('<h2>12. Trailside Journey Destinations</h2>')
+    parts.append('<h2>14. Trailside Journey Destinations</h2>')
     parts.append('<p class="small">From the Kirk Road trailhead, callers can ride these out-and-back routes:</p>')
     for direction in ("south", "north"):
         parts.append(f'<h3>Head {direction.title()}</h3>')
@@ -797,18 +906,20 @@ caller questions accurately and route the rest to the right human.
         parts.append('</table>')
 
     # ── 11. FAQS ─────────────────────────────────────────────────────
-    parts.append('<div class="page-break"></div><h2>13. Frequently Asked Questions</h2>')
+    parts.append('<div class="page-break"></div><h2>15. Frequently Asked Questions</h2>')
     parts.append('<p class="small">Organized by topic. Each is a verbatim answer the agent can use.</p>')
     current_section = None
     for section, q, a in data["faqs"]:
         if section != current_section:
             parts.append(f'<h3>{esc(section)}</h3>')
             current_section = section
+        # One answer per line, so a line-based check (portal-link.test.js)
+        # reads each answer on its own.
         parts.append(f'<div class="qa"><div class="q">Q. {esc(q)}</div>'
-                     f'<div class="a">A. {esc(a)}</div></div>')
+                     f'<div class="a">A. {esc(a)}</div></div>\n')
 
     # ── 12. BOOKING TROUBLESHOOTING ──────────────────────────────────
-    parts.append('<h2>14. Booking Troubleshooting</h2>')
+    parts.append('<h2>16. Booking Troubleshooting</h2>')
     parts.append('<p class="small">When a caller is stuck on the online booking flow, these are the '
                  'common issues and the verbatim fixes.</p>')
     for issue, fix in data["booking_troubleshooting"]:
@@ -816,7 +927,7 @@ caller questions accurately and route the rest to the right human.
                      f'<div class="a">{esc(fix)}</div></div>')
 
     # ── 13. ACCESSORIES ──────────────────────────────────────────────
-    parts.append('<h2>15. Recommended Accessories</h2>')
+    parts.append('<h2>17. Recommended Accessories</h2>')
     parts.append('<p class="small">These are the Amazon affiliate picks we point customers toward. '
                  'If a caller asks "what saddle do you recommend" the agent can name these.</p>')
     parts.append('<table><tr><th>Product</th><th>Category</th><th>Why</th></tr>')

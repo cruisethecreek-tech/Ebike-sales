@@ -44,7 +44,7 @@ function parseCSV(text: string): Record<string, string>[] {
   });
 }
 
-type BikeBrand = "Heybike" | "Velotric" | "Jasion" | "Mooncool" | "other";
+type BikeBrand = "Heybike" | "Velotric" | "Jasion" | "Mooncool" | "Mokwheel" | "other";
 
 function detectBrandAndModel(itemDesc: string): { brand: BikeBrand; model: string } | null {
   const d = itemDesc.trim();
@@ -81,6 +81,7 @@ function detectBrandAndModel(itemDesc: string): { brand: BikeBrand; model: strin
   else if (lower.includes("velotric")) brand = "Velotric";
   else if (lower.includes("jasion")) brand = "Jasion";
   else if (lower.includes("mooncool")) brand = "Mooncool";
+  else if (lower.includes("mokwheel")) brand = "Mokwheel";
 
   let model = d;
   if (brand !== "other") {

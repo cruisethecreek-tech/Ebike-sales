@@ -10,6 +10,7 @@ export type BikeBrand =
   | "Velotric"
   | "Jasion"
   | "Mooncool"
+  | "Mokwheel"
   | "other";
 
 export type InvoiceStatus = "paid" | "pending";

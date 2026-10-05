@@ -85,7 +85,7 @@ export function NowViewingDock({ customers, dataError }: NowViewingDockProps) {
   const [selectedBrand, setSelectedBrand] = useState<string>('ALL')
   const [copiedCode, setCopiedCode] = useState(false)
 
-  const brands = ['ALL', 'Heybike', 'Velotric', 'Mooncool', 'Jasion']
+  const brands = ['ALL', 'Heybike', 'Velotric', 'Mooncool', 'Jasion', 'Mokwheel']
 
   // Listen for customer selection events from other components (like directory table or cards)
   useEffect(() => {
