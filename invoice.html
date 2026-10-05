@@ -263,6 +263,7 @@
         }
 
         .picker select:disabled { opacity: 0.4; cursor: not-allowed; }
+        .picker.has-color { grid-template-columns: 130px 1fr 170px auto; }
 
         .add-from-picker-btn {
             background: var(--forest);
@@ -927,7 +928,7 @@
         @media (max-width: 640px) {
             body { padding: 1rem; }
             .form-grid { grid-template-columns: 1fr; }
-            .picker { grid-template-columns: 1fr; }
+            .picker, .picker.has-color { grid-template-columns: 1fr; }
             .line-item { grid-template-columns: 1fr; }
             .actions { grid-template-columns: 1fr; }
             .invoice-banner, .invoice-body { padding: 1.25rem 1.5rem; }
@@ -1199,6 +1200,7 @@
                         <select id="itemPicker" disabled>
                             <option value="">Pick a category first</option>
                         </select>
+                        <select id="colorPicker" hidden aria-label="Bike color"></select>
                         <button type="button" class="add-from-picker-btn" id="addFromPickerBtn" disabled onclick="addFromPicker()">Add</button>
                     </div>
 
@@ -2713,6 +2715,7 @@
             const addBtn = document.getElementById('addFromPickerBtn');
 
             itemPicker.innerHTML = '';
+            hideColorPicker();
 
             if (!cat) {
                 itemPicker.disabled = true;
@@ -2888,6 +2891,90 @@
         function onItemChange() {
             const itemPicker = document.getElementById('itemPicker');
             document.getElementById('addFromPickerBtn').disabled = (itemPicker.value === '');
+            updateColorPicker();
+        }
+
+        // ─── BIKE COLORS ──────────────────────────────────────────────────
+        // The Sheet catalog has no colors, but the storefront's
+        // data/inventory.json does (colors → style → size → [{name, hex}]).
+        // After a bike is picked, offer that bike's colors in a second
+        // dropdown; the choice is added to the line, e.g. "Heybike Venus Pink",
+        // the same way the shop already types colors into descriptions.
+        let bikeColorIndexPromise = null;
+        function colorKey(s) { return String(s || '').toLowerCase().replace(/[^a-z0-9]/g, ''); }
+        function loadBikeColorIndex() {
+            if (!bikeColorIndexPromise) {
+                bikeColorIndexPromise = fetch('data/inventory.json', { cache: 'no-cache' })
+                    .then(r => r.ok ? r.json() : { bikes: [] })
+                    .catch(() => ({ bikes: [] }))
+                    .then(inv => {
+                        const byBrandName = {}, byName = {};
+                        (inv && Array.isArray(inv.bikes) ? inv.bikes : []).forEach(b => {
+                            if (!b || !b.name || !b.colors || typeof b.colors !== 'object') return;
+                            const styles = Object.keys(b.colors);
+                            const seen = {};
+                            const options = [];
+                            styles.forEach(style => {
+                                const sizes = b.colors[style];
+                                const lists = Array.isArray(sizes) ? [sizes]
+                                    : Object.keys(sizes || {}).map(k => sizes[k]);
+                                lists.forEach(list => (Array.isArray(list) ? list : []).forEach(c => {
+                                    if (!c || !c.name) return;
+                                    // Only name the frame style when the bike comes in more than one.
+                                    const label = styles.length > 1 ? (style + ' ' + c.name) : c.name;
+                                    if (seen[label]) return;
+                                    seen[label] = true;
+                                    options.push({ label: label, hex: c.hex || '' });
+                                }));
+                            });
+                            if (!options.length) return;
+                            byBrandName[colorKey(b.brand) + '|' + colorKey(b.name)] = options;
+                            const nk = colorKey(b.name);
+                            byName[nk] = byName[nk] ? 'ambiguous' : options;
+                        });
+                        return { byBrandName, byName };
+                    });
+            }
+            return bikeColorIndexPromise;
+        }
+
+        function bikeColorsFor(index, bike) {
+            const exact = index.byBrandName[colorKey(bike.brand) + '|' + colorKey(bike.name)];
+            if (exact) return exact;
+            const byName = index.byName[colorKey(bike.name)];
+            return Array.isArray(byName) ? byName : null;
+        }
+
+        function hideColorPicker() {
+            const cp = document.getElementById('colorPicker');
+            cp.hidden = true;
+            cp.innerHTML = '';
+            cp.closest('.picker').classList.remove('has-color');
+        }
+
+        function updateColorPicker() {
+            const cat = document.getElementById('categoryPicker').value;
+            const idx = parseInt(document.getElementById('itemPicker').value);
+            const bike = cat === 'bike' && !isNaN(idx) ? catalogCache.bikes[idx] : null;
+            hideColorPicker();
+            if (!bike) return;
+            loadBikeColorIndex().then(index => {
+                // The pick may have changed while the list loaded.
+                const nowIdx = parseInt(document.getElementById('itemPicker').value);
+                if (document.getElementById('categoryPicker').value !== 'bike' || nowIdx !== idx) return;
+                const colors = bikeColorsFor(index, bike);
+                if (!colors) return;
+                const cp = document.getElementById('colorPicker');
+                cp.innerHTML = '<option value="">Color…</option>';
+                colors.forEach(c => {
+                    const opt = document.createElement('option');
+                    opt.value = c.label;
+                    opt.textContent = c.label;
+                    cp.appendChild(opt);
+                });
+                cp.hidden = false;
+                cp.closest('.picker').classList.add('has-color');
+            });
         }
 
         function addFromPicker() {
@@ -2940,9 +3027,11 @@
             const item = list[idx];
             if (!item) return;
 
-            const description = (cat === 'bike' && item.brand)
+            let description = (cat === 'bike' && item.brand)
                 ? (item.brand + ' ' + item.name)
                 : item.name;
+            const color = cat === 'bike' ? document.getElementById('colorPicker').value : '';
+            if (color) description += ' ' + color;
             const price = item.price;
             const specs = (cat === 'bike') ? item.specs : null;
 
@@ -2955,6 +3044,7 @@
             document.getElementById('itemPicker').innerHTML = '<option value="">Pick a category first</option>';
             document.getElementById('itemPicker').disabled = true;
             document.getElementById('addFromPickerBtn').disabled = true;
+            hideColorPicker();
         }
 
         document.getElementById('categoryPicker').addEventListener('change', onCategoryChange);
