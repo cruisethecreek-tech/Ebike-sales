@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { GpsLiveRefresh } from '@/app/components/gps-live-refresh'
+import { FleetMap, type FleetBike } from '@/app/components/fleet-map'
 import { alertLabel, bikeBatteryVolts, isStale, loadTrackerStatuses, mapLinks, timeAgo } from '@/lib/gps'
 import type { Tracker, TrackerAlert } from '@/lib/types'
 import {
@@ -115,6 +116,27 @@ export default async function AdminFleet({
 
   const online = gps.statuses.filter((s) => s.latest && !isStale(s.latest.fix_time)).length
 
+  const fleetBikes: FleetBike[] = gps.statuses.flatMap(({ tracker, latest }) =>
+    latest
+      ? [{
+          trackerId: tracker.id,
+          name: tracker.label || bikeName(tracker.bike_id),
+          owner: ownerName(tracker.bike_id),
+          latitude: latest.latitude,
+          longitude: latest.longitude,
+          fix_time: latest.fix_time,
+          ago: timeAgo(latest.fix_time),
+          status: tracker.locked_at
+            ? 'locked'
+            : isStale(latest.fix_time)
+              ? 'stale'
+              : latest.speed_kmh != null && latest.speed_kmh > 1
+                ? 'moving'
+                : 'parked',
+        }]
+      : [],
+  )
+
   return (
     <div className="space-y-8 w-full max-w-full">
       <GpsLiveRefresh />
@@ -187,6 +209,16 @@ export default async function AdminFleet({
           </ul>
         )}
       </section>
+
+      {/* ── Fleet map ── */}
+      {fleetBikes.length > 0 && (
+        <section className="bg-white rounded-2xl p-5 border border-[#E5E5E5] shadow-sm space-y-3">
+          <h2 className="uppercase tracking-wide text-xl text-[#1A2E1C]" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>
+            🗺️ Fleet Map
+          </h2>
+          <FleetMap bikes={fleetBikes} />
+        </section>
+      )}
 
       {/* ── Tracked bikes ── */}
       <section className="bg-white rounded-2xl p-5 border border-[#E5E5E5] shadow-sm space-y-3">
