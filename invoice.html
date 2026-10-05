@@ -178,6 +178,17 @@
             color: var(--op-text-dim);
             transition: transform 0.15s;
         }
+        /* Section check: green when every field is filled, red listing what
+           is still missing. */
+        .section-check {
+            margin-left: auto; padding: 0.15rem 0.55rem; border-radius: 999px;
+            font-family: 'Inter', sans-serif; font-size: 0.68rem; font-weight: 600;
+            letter-spacing: 0; text-transform: none; text-align: right; line-height: 1.3;
+        }
+        .section-check.ok { background: rgba(28, 122, 68, 0.12); color: var(--op-ok-text); }
+        .section-check.missing { background: rgba(192, 57, 43, 0.12); color: #c0392b; }
+        :root[data-theme="dark"] .section-check.missing { color: #ff8a80; }
+        .form-section > .section-title.has-check::after { margin-left: 0.4rem; }
         .form-section.collapsed > .section-title { margin-bottom: 0; padding-bottom: 0; border-bottom: 0; }
         .form-section.collapsed > .section-title::after { transform: rotate(-90deg); }
         .form-section.collapsed > :not(.section-title) { display: none !important; }
@@ -3265,7 +3276,8 @@
             try { saved = JSON.parse(localStorage.getItem(KEY) || 'null'); } catch (e) {}
             if (!saved || typeof saved !== 'object') saved = { 'Business Info': true };
             document.querySelectorAll('#invoiceForm .form-section > .section-title').forEach(function (t) {
-                var name = t.textContent.trim();
+                var name = t.getAttribute('data-name') || t.textContent.trim();
+                t.setAttribute('data-name', name);
                 var sec = t.parentElement;
                 if (saved[name]) sec.classList.add('collapsed');
                 t.setAttribute('role', 'button');
@@ -3334,6 +3346,98 @@
                     return r;
                 };
             });
+        })();
+
+        // ─── SECTION CHECKS ───────────────────────────────────────────────
+        // Each section title shows a green ✓ when its fields are filled in,
+        // or a red list of what is still missing. It never blocks saving;
+        // it is a reminder (a cash walk-in may have no email, for example).
+        var SECTION_CHECKS = {
+            'Business Info': function () { return []; },
+            'Bill To': function () {
+                return [['customerName', 'Name'], ['customerAddress', 'Address'],
+                        ['customerPhone', 'Phone'], ['customerEmail', 'Email']]
+                    .filter(function (f) { return !fieldValue(f[0]); })
+                    .map(function (f) { return f[1]; });
+            },
+            'Invoice Details': function () {
+                return [['invoiceNumber', 'Invoice number'], ['invoiceDate', 'Invoice date'], ['dueDate', 'Due date']]
+                    .filter(function (f) { return !fieldValue(f[0]); })
+                    .map(function (f) { return f[1]; });
+            },
+            'Items & Services': function () {
+                var rows = Array.prototype.slice.call(document.querySelectorAll('#lineItemsContainer .line-item'));
+                var missing = [];
+                var used = rows.filter(function (r) {
+                    return (r.querySelector('.description').value || '').trim() || (r.querySelector('.price').value || '').trim();
+                });
+                if (!used.length) return ['At least one item'];
+                used.forEach(function (r, i) {
+                    var d = (r.querySelector('.description').value || '').trim();
+                    if (!d) missing.push('Description on item ' + (i + 1));
+                    else if (!(r.querySelector('.price').value || '').trim()) missing.push('Price for ' + d);
+                });
+                return missing;
+            },
+            // Optional sections only get the green check once used.
+            'Notes for the Customer': function () { return fieldValue('customerNotes') ? [] : null; }
+        };
+
+        function fieldValue(id) {
+            var el = document.getElementById(id);
+            return el ? String(el.value || '').trim() : '';
+        }
+
+        function updateSectionChecks() {
+            document.querySelectorAll('#invoiceForm .form-section > .section-title').forEach(function (t) {
+                var name = t.getAttribute('data-name') || t.textContent.trim();
+                var check = SECTION_CHECKS[name];
+                var badge = t.querySelector('.section-check');
+                var missing = check ? check() : null;
+                if (!missing) {
+                    if (badge) badge.remove();
+                    t.classList.remove('has-check');
+                    return;
+                }
+                if (!badge) {
+                    badge = document.createElement('span');
+                    badge.className = 'section-check';
+                    t.appendChild(badge);
+                    t.classList.add('has-check');
+                }
+                badge.classList.toggle('ok', !missing.length);
+                badge.classList.toggle('missing', !!missing.length);
+                badge.textContent = missing.length ? 'Missing: ' + missing.join(', ') : '✓ Complete';
+            });
+        }
+
+        (function setupSectionChecks() {
+            var form = document.getElementById('invoiceForm');
+            var queued = false;
+            function later() {
+                if (queued) return;
+                queued = true;
+                setTimeout(function () { queued = false; updateSectionChecks(); }, 50);
+            }
+            form.addEventListener('input', later);
+            form.addEventListener('change', later);
+            var items = document.getElementById('lineItemsContainer');
+            if (items && window.MutationObserver) new MutationObserver(later).observe(items, { childList: true });
+            ['updateInvoicePreview', 'populateFormFromInvoice', 'resetForm'].forEach(function (fn) {
+                var orig = window[fn];
+                if (typeof orig !== 'function') return;
+                window[fn] = function () {
+                    // A loaded or fresh invoice starts with Referred By usable.
+                    if (fn !== 'updateInvoicePreview') {
+                        var ref = document.getElementById('referredBy');
+                        if (ref) ref.disabled = false;
+                    }
+                    var r = orig.apply(this, arguments);
+                    later();
+                    return r;
+                };
+            });
+            updateSectionChecks();
         })();
 
         // ─── AUTO-INCREMENT INVOICE NUMBER ────────────────────────────────
@@ -3513,7 +3617,7 @@
 
         function referralCodeFromField() {
             var el = document.getElementById('referredBy');
-            var raw = el ? el.value.trim() : '';
+            var raw = el && !el.disabled ? el.value.trim() : '';
             if (!raw) return '';
             // A picked suggestion is the code itself. A typed full name that
             // matches exactly one customer resolves to their code. Anything
@@ -3743,6 +3847,12 @@
             var raw = el.value.trim();
             var code = referralCodeFromField();
             var who = code && referrerByCode[code];
+            if (el.disabled) {
+                hint.style.color = 'var(--op-text-dim)';
+                hint.innerHTML = 'Returning customer, so no referral applies. ' +
+                    '<a href="#" onclick="setReturningCustomer(false); document.getElementById(\'referredBy\').focus(); return false;">First purchase? Allow a referral</a>';
+                return;
+            }
             if (!raw) {
                 hint.style.color = 'var(--op-muted,#6b6b6b)';
                 hint.textContent = 'Whoever sent them in gets credit toward their $100 reward when this invoice saves.';
@@ -3864,6 +3974,7 @@
             if (isNaN(idx) || !existingCustomersList[idx]) {
                 if (notice) notice.style.display = 'none';
                 showCustomerPortalLink(null);
+                setReturningCustomer(false);
                 return;
             }
 
@@ -3875,7 +3986,23 @@
 
             if (notice) notice.style.display = 'block';
             showCustomerPortalLink(c);
+            setReturningCustomer(true);
             updateInvoicePreview();
+        }
+
+        // Referrals only count on a new customer's first purchase, so picking
+        // a returning customer turns Referred By off. Staff can switch it back
+        // on when that customer really is buying for the first time.
+        function setReturningCustomer(on) {
+            var el = document.getElementById('referredBy');
+            if (!el) return;
+            el.disabled = !!on;
+            if (on) {
+                el.value = '';
+                hideReferrerSuggestions();
+            }
+            onReferredByInput();
+            syncReferralInstallDiscount();
         }
 
         function setCustomerMode(mode) {
@@ -3904,6 +4031,7 @@
                 btnExisting.style.borderColor = 'rgba(201, 169, 110, 0.3)';
                 if (tray) tray.style.display = 'none';
                 if (newNotice) newNotice.style.display = 'block';
+                setReturningCustomer(false);
 
                 // Clear fields for fresh entry
                 document.getElementById('customerName').value = '';
