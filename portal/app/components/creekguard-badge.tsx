@@ -63,7 +63,7 @@ export function CreekGuardSignUp() {
         <span className="block text-[11px] font-bold uppercase tracking-[0.14em] text-[#C9A96E]">New · CreekGuard GPS</span>
         <span className="block font-bold text-base sm:text-lg leading-snug">Protect your ride with CreekGuard</span>
         <span className="block text-xs text-[#d9d4c7] mt-0.5">
-          Hidden GPS tracker, your bike&apos;s location right here in your portal, theft recovery help and a free bike lock.
+          A GPS tracker wired into your bike, your bike&apos;s location right here in your portal, theft recovery help and a free bike lock.
           Your customer install is $149, then $5.99 a month or $64.69 a year (save 10%).
         </span>
         <div className="flex flex-wrap gap-2 mt-3">
