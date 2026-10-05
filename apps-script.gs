@@ -6317,14 +6317,17 @@ function getInvoiceMeta(e) {
     var hdr  = rows[0].map(String);
     var cNum = _invCol(hdr, ['invoiceNumber', 'invoice #', 'invoice number', 'invoiceNo'], 0);
     var cUrl = _invCol(hdr, ['supplierUrl', 'supplier url', 'trackingUrl', 'tracking url', 'shopUrl']);
-    if (cUrl < 0) return jsonp({ status: 'ok', supplierUrl: '' });
+    var cNotes = _invCol(hdr, ['customerNotes', 'customer notes']);
+    if (cUrl < 0 && cNotes < 0) return jsonp({ status: 'ok', supplierUrl: '', customerNotes: '' });
 
     for (var r = rows.length - 1; r >= 1; r--) {
       if (String(rows[r][cNum]).trim() === num) {
-        return jsonp({ status: 'ok', invoiceNumber: num, supplierUrl: String(rows[r][cUrl] || '') });
+        return jsonp({ status: 'ok', invoiceNumber: num,
+          supplierUrl:   cUrl   < 0 ? '' : String(rows[r][cUrl] || ''),
+          customerNotes: cNotes < 0 ? '' : String(rows[r][cNotes] || '') });
       }
     }
-    return jsonp({ status: 'ok', supplierUrl: '' });
+    return jsonp({ status: 'ok', supplierUrl: '', customerNotes: '' });
   } catch (err) {
     return jsonp({ status: 'error', message: String(err) });
   }
@@ -6353,6 +6356,16 @@ function setInvoiceMeta(e) {
     if (cUrl < 0) {
       cUrl = hdr.length;
       sh.getRange(1, cUrl + 1).setValue('supplierUrl');
+      hdr.push('supplierUrl');
+    }
+    // Notes for the customer (service performed, tips) printed on the invoice.
+    // Only touched when the generator sends them, so older callers leave them be.
+    var hasNotes = !!(e && e.parameter && Object.prototype.hasOwnProperty.call(e.parameter, 'customerNotes'));
+    var notes = hasNotes ? String(e.parameter.customerNotes || '').trim() : '';
+    var cNotes = _invCol(hdr, ['customerNotes', 'customer notes']);
+    if (hasNotes && cNotes < 0) {
+      cNotes = hdr.length;
+      sh.getRange(1, cNotes + 1).setValue('customerNotes');
     }
 
     var target = -1;
@@ -6362,6 +6375,7 @@ function setInvoiceMeta(e) {
     if (target < 0) return jsonp({ status: 'error', message: 'Invoice ' + num + ' not found' });
 
     sh.getRange(target, cUrl + 1).setValue(url);
+    if (hasNotes) sh.getRange(target, cNotes + 1).setValue(notes);
     return jsonp({ status: 'ok', invoiceNumber: num, supplierUrl: url, row: target });
   } catch (err) {
     return jsonp({ status: 'error', message: String(err) });
