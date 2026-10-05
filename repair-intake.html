@@ -172,6 +172,7 @@ footer a{color:var(--tan);font-weight:500}
         <label class="choice"><input type="checkbox" name="issues" value="Brakes"><span class="choice-text"><strong>Brakes</strong></span></label>
         <label class="choice"><input type="checkbox" name="issues" value="Routine tune-up"><span class="choice-text"><strong>Routine tune-up</strong></span></label>
         <label class="choice"><input type="checkbox" name="issues" value="Mechanical / Gears"><span class="choice-text"><strong>Mechanical / Gears</strong></span></label>
+        <label class="choice"><input type="checkbox" name="issues" value="CreekGuard GPS install"><span class="choice-text"><strong>CreekGuard GPS install</strong><span>GPS tracker + free bike lock</span></span></label>
       </div>
     </fieldset>
 
@@ -342,20 +343,25 @@ function updatePricingSection() {
   if (!box) return;
 
   const tuneupChecked = !!document.querySelector('input[name="issues"][value="Routine tune-up"]:checked');
+  // A CreekGuard install has its own price and is billed on its own, so it
+  // neither counts as a repair issue nor pulls in the default tune-up.
+  const creekguardChecked = !!document.querySelector('input[name="issues"][value="CreekGuard GPS install"]:checked');
   const otherIssues = Array.from(document.querySelectorAll('input[name="issues"]:checked'))
-    .filter(i => i.value !== 'Routine tune-up')
+    .filter(i => i.value !== 'Routine tune-up' && i.value !== 'CreekGuard GPS install')
     .map(i => i.value);
 
   // If tune-up is checked (or default if service=tuneup)
-  const basePrice = (tuneupChecked || (!otherIssues.length)) ? 125.00 : 0.00;
+  const basePrice = (tuneupChecked || (!otherIssues.length && !creekguardChecked)) ? 125.00 : 0.00;
+  const showTuneup = basePrice > 0 || !creekguardChecked;
   const discountAmount = isMemberDiscount ? (basePrice * 0.20) : 0.00;
-  const finalPrice = Math.max(0, basePrice - discountAmount);
+  const creekguardPrice = creekguardChecked ? 199.00 : 0.00;
+  const finalPrice = Math.max(0, basePrice - discountAmount) + creekguardPrice;
 
   let html = `
     <div style="display:flex; flex-direction:column; gap:12px;">
       <!-- Line items -->
       <div style="background:#fff; border:1px solid rgba(45,74,50,0.15); border-radius:8px; padding:14px;">
-        <div style="display:flex; justify-content:space-between; align-items:flex-start; padding-bottom:10px; border-bottom:1px solid #eee; gap:10px;">
+        <div style="display:${showTuneup ? 'flex' : 'none'}; justify-content:space-between; align-items:flex-start; padding-bottom:10px; border-bottom:1px solid #eee; gap:10px;">
           <div>
             <strong style="color:#2D4A32; font-size:0.95rem; display:block;">🌲 Creek Ready Comprehensive Tune-Up</strong>
             <div style="font-size:0.75rem; color:#666; margin-top:2px;">28-point electrical & safety check, hydraulic brake bleed, electronic shifting tune & diagnostics</div>
@@ -363,6 +369,18 @@ function updatePricingSection() {
           <span style="font-weight:700; font-size:1rem; color:#1A1A1A;">$125.00</span>
         </div>
   `;
+
+  if (creekguardChecked) {
+    html += `
+        <div style="display:flex; justify-content:space-between; align-items:flex-start; padding:10px 0; border-bottom:1px solid #eee; gap:10px;">
+          <div>
+            <strong style="color:#2D4A32; font-size:0.95rem; display:block;">📡 CreekGuard GPS Install</strong>
+            <div style="font-size:0.75rem; color:#666; margin-top:2px;">$149 if you bought your bike from us. Free bike lock included. The $5.99/mo or $64.69/yr plan is set up online.</div>
+          </div>
+          <span style="font-weight:700; font-size:1rem; color:#1A1A1A; white-space:nowrap;">$199.00</span>
+        </div>
+    `;
+  }
 
   if (otherIssues.length > 0) {
     html += `
@@ -395,7 +413,7 @@ function updatePricingSection() {
             <span style="font-size:0.75rem; color:#666;">Pay at completion upon test ride</span>
           </div>
           <div style="text-align:right;">
-            ${isMemberDiscount ? `<s style="color:#888; font-size:0.9rem; margin-right:6px;">$125.00</s>` : ''}
+            ${discountAmount > 0 ? `<s style="color:#888; font-size:0.9rem; margin-right:6px;">$${(basePrice + creekguardPrice).toFixed(2)}</s>` : ''}
             <strong style="font-size:1.6rem; color:#2D4A32; font-family:'DM Sans', sans-serif;">$${finalPrice.toFixed(2)}</strong>
           </div>
         </div>
@@ -483,6 +501,15 @@ function updatePricingSection() {
         if (parentChoice) parentChoice.classList.add('is-checked');
       }
     }
+    // ?service=creekguard books a CreekGuard GPS install (no tune-up).
+    if (service === 'creekguard') {
+      const cgCheck = document.querySelector('input[name="issues"][value="CreekGuard GPS install"]');
+      if (cgCheck) {
+        cgCheck.checked = true;
+        const parentChoice = cgCheck.closest('.choice');
+        if (parentChoice) parentChoice.classList.add('is-checked');
+      }
+    }
 
     // Check discount flags
     // The portal's Book Tune-Up buttons send member=1 and no code: a
@@ -539,8 +566,14 @@ form.addEventListener('submit', async e => {
 
   let descriptionText = v('f-desc');
   const discountName = isMemberRate ? '20% Member Tune-Up Rate' : '20% Referral Discount';
-  const servicePriceString = isMemberDiscount ? `$100.00 (${discountName} off $125.00)` : '$125.00';
-  if (isMemberDiscount) {
+  const creekguardBooked = issues.indexOf('CreekGuard GPS install') !== -1;
+  const creekguardOnly = creekguardBooked && issues.length === 1;
+  const creekguardEstimate = 'CreekGuard GPS install $199.00 ($149.00 if they bought their bike from us)';
+  const tuneupPriceString = isMemberDiscount ? `$100.00 (${discountName} off $125.00)` : '$125.00';
+  const servicePriceString = creekguardOnly
+    ? creekguardEstimate
+    : tuneupPriceString + (creekguardBooked ? ' + ' + creekguardEstimate : '');
+  if (isMemberDiscount && !creekguardOnly) {
     descriptionText += isMemberRate
       ? `\n\n[${discountName} Applied | Confirmed Service Total: $100.00]`
       : `\n\n[${discountName} Applied: ${activeDiscountCode || '20OFF'} | Confirmed Service Total: $100.00]`;
