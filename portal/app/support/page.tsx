@@ -10,7 +10,12 @@ export const metadata = {
   title: 'Support & Concierge — Cruise the Creek',
 }
 
-export default async function SupportPage() {
+export default async function SupportPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ bikeId?: string }>
+}) {
+  const { bikeId } = await searchParams
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
@@ -46,6 +51,14 @@ export default async function SupportPage() {
   const customerName = customer ? `${customer.first_name} ${customer.last_name}` : 'Rider'
   const bikeSummary = (bikes || []).map(b => `${b.brand} ${b.model}`).join(', ')
 
+  // The bike card's Book button passes ?bikeId=; a rider with one bike
+  // needs no pick. Either way the intake form opens with that bike filled
+  // in instead of asking for what we already have on file.
+  const bookBike = (bikes || []).find(b => b.id === bikeId) || (bikes?.length === 1 ? bikes[0] : null)
+  const bikeParams = bookBike
+    ? `&brand=${encodeURIComponent(bookBike.brand || '')}&model=${encodeURIComponent(bookBike.model || '')}`
+    : ''
+
   return (
     <div className="max-w-6xl mx-auto space-y-8 pb-16">
       <div>
@@ -75,7 +88,7 @@ export default async function SupportPage() {
           {/* Creek Ready Tune-Up Highlight Card — a client component so it
               can follow the seasonal theme; see tune-up-card.tsx */}
           <TuneUpCard
-            bookHref={`${STORE_URL}/repair-intake.html?service=tuneup&discount=20&promo=20OFF&firstName=${encodeURIComponent(customer?.first_name || '')}&lastName=${encodeURIComponent(customer?.last_name || '')}&phone=${encodeURIComponent(customer?.phone || '')}&email=${encodeURIComponent(user?.email || '')}`}
+            bookHref={`${STORE_URL}/repair-intake.html?service=tuneup&discount=20&promo=20OFF&firstName=${encodeURIComponent(customer?.first_name || '')}&lastName=${encodeURIComponent(customer?.last_name || '')}&phone=${encodeURIComponent(customer?.phone || '')}&email=${encodeURIComponent(user?.email || '')}${bikeParams}`}
             policyHref={`${STORE_URL}/creek-ready.html`}
           />
 

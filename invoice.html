@@ -152,8 +152,22 @@
         .form-wrapper::-webkit-scrollbar-track { background: var(--op-bg); }
         .form-wrapper::-webkit-scrollbar-thumb { background: var(--op-border); border-radius: 4px; }
 
-        .form-section { margin-bottom: 1.75rem; }
+        /* Each part of the form sits in its own box so Business Info,
+           Bill To, Items and so on read as separate steps. */
+        .form-section {
+            margin-bottom: 1.25rem;
+            padding: 1.1rem 1.15rem 1.2rem;
+            background: var(--op-readonly);
+            border: 1px solid var(--op-border);
+            border-left: 4px solid var(--forest-light);
+            border-radius: 10px;
+        }
         .form-section:last-of-type { margin-bottom: 0; }
+        .form-section > .section-title {
+            margin: -0.15rem 0 1rem;
+            padding-bottom: 0.65rem;
+            border-bottom: 1px dashed var(--op-border);
+        }
 
         .section-title {
             font-family: 'JetBrains Mono', monospace;
@@ -2900,6 +2914,27 @@
         // After a bike is picked, offer that bike's colors in a second
         // dropdown; the choice is added to the line, e.g. "Heybike Venus Pink",
         // the same way the shop already types colors into descriptions.
+        // Colors for bikes the website doesn't list, or extra colors the
+        // shop has sold. From past sales in the portal (bikes on file,
+        // 2026-10-05) and the maker's own colour list where checked
+        // (Ranger S: heybike.ca). Keyed "brand|model", lower case.
+        var KNOWN_BIKE_COLORS = {
+            'heybike|ranger s':       ['Blue', 'Gold', 'Silver', 'Merlot Red', 'Stone Blue', 'Shark Grey', 'Metallic Sand'],
+            'heybike|mars 2.0':       ['Silver', 'Smoke'],
+            'heybike|venus':          ['Grey', 'Pink', 'White'],
+            'heybike|horizon':        ['Black and Blue'],
+            'heybike|hybrid':         ['Black'],
+            'velotric|breeze 1':      ['Gray', 'Slate Grey', 'Purple', 'Lemons Blue'],
+            'velotric|discover 3':    ['Blue', 'Grey', 'Mint', 'Red'],
+            'velotric|discover m':    ['Silver'],
+            'velotric|nomad 2x':      ['Camo'],
+            'velotric|summit 2':      ['Ocean Blue'],
+            'velotric|tempo':         ['Silver', 'Green'],
+            'mooncool|tk2':           ['Blue', 'Light Blue'],
+            'mooncool|tk2 pro':       ['Blue Haze', 'Deep Magenta', 'Purple'],
+            'mooncool|cd1 youth trike': ['Pink'],
+            'mokwheel|basalt 2.0':    ['Camo']
+        };
         let bikeColorIndexPromise = null;
         function colorKey(s) { return String(s || '').toLowerCase().replace(/[^a-z0-9]/g, ''); }
         function loadBikeColorIndex() {
@@ -2939,10 +2974,30 @@
         }
 
         function bikeColorsFor(index, bike) {
-            const exact = index.byBrandName[colorKey(bike.brand) + '|' + colorKey(bike.name)];
-            if (exact) return exact;
-            const byName = index.byName[colorKey(bike.name)];
-            return Array.isArray(byName) ? byName : null;
+            let colors = index.byBrandName[colorKey(bike.brand) + '|' + colorKey(bike.name)];
+            if (!colors) {
+                const byName = index.byName[colorKey(bike.name)];
+                colors = Array.isArray(byName) ? byName : [];
+            }
+            colors = colors.slice();
+            // Add colors the shop has sold or the maker lists, skipping any
+            // the website already has (ignoring case and spacing).
+            let known = null;
+            Object.keys(KNOWN_BIKE_COLORS).forEach(k => {
+                const parts = k.split('|');
+                if (colorKey(parts[1]) !== colorKey(bike.name)) return;
+                if (bike.brand && colorKey(parts[0]) !== colorKey(bike.brand)) return;
+                known = KNOWN_BIKE_COLORS[k];
+            });
+            const have = {};
+            colors.forEach(c => { have[colorKey(c.label)] = true; });
+            (known || []).forEach(name => {
+                if (have[colorKey(name)]) return;
+                if (colors.some(c => colorKey(c.label).endsWith(colorKey(name)))) return;
+                have[colorKey(name)] = true;
+                colors.push({ label: name, hex: '' });
+            });
+            return colors.length ? colors : null;
         }
 
         function hideColorPicker() {
@@ -2962,8 +3017,7 @@
                 // The pick may have changed while the list loaded.
                 const nowIdx = parseInt(document.getElementById('itemPicker').value);
                 if (document.getElementById('categoryPicker').value !== 'bike' || nowIdx !== idx) return;
-                const colors = bikeColorsFor(index, bike);
-                if (!colors) return;
+                const colors = bikeColorsFor(index, bike) || [];
                 const cp = document.getElementById('colorPicker');
                 cp.innerHTML = '<option value="">Color…</option>';
                 colors.forEach(c => {
@@ -2972,6 +3026,10 @@
                     opt.textContent = c.label;
                     cp.appendChild(opt);
                 });
+                const other = document.createElement('option');
+                other.value = '__other';
+                other.textContent = 'Other (type it)…';
+                cp.appendChild(other);
                 cp.hidden = false;
                 cp.closest('.picker').classList.add('has-color');
             });
@@ -3030,7 +3088,8 @@
             let description = (cat === 'bike' && item.brand)
                 ? (item.brand + ' ' + item.name)
                 : item.name;
-            const color = cat === 'bike' ? document.getElementById('colorPicker').value : '';
+            let color = cat === 'bike' ? document.getElementById('colorPicker').value : '';
+            if (color === '__other') color = (window.prompt('Bike color:') || '').trim();
             if (color) description += ' ' + color;
             const price = item.price;
             const specs = (cat === 'bike') ? item.specs : null;
