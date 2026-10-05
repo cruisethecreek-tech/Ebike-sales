@@ -4,6 +4,8 @@ import { BrandBreakdownChart, type ModelBuyer } from './brand-breakdown-chart'
 import { KpiStats, type PendingInvoice } from './pending-revenue'
 import { isWixOrder } from '@/lib/invoice-source'
 import { STORE_URL } from '@/lib/constants'
+import { loadCatalog } from '@/lib/bike-catalog'
+import { baseModelName } from '@/lib/model-groups'
 import Link from 'next/link'
 
 export default async function AdminOverview() {
@@ -48,15 +50,20 @@ export default async function AdminOverview() {
     Heybike: '#C9A96E',  // Warm Gold/Tan
     Mooncool: '#6B8F71', // Sage Green
     Jasion: '#B47850',   // Copper/Rust
+    Mokwheel: '#6B4423', // Saddle Brown
     other: '#8A948E',    // Slate/Gray
   }
 
   const brandGroups = new Map<string, Array<{ model: string; count: number; buyers: ModelBuyer[] }>>()
   const brandCounts = new Map<string, number>()
+  // Sales group by base model ("Tempo"), not by each typed colour or size;
+  // the typed variant still shows next to each buyer.
+  const catalog = await loadCatalog()
 
   ;(bikes || []).forEach((b) => {
     const brand = b.brand || 'other'
-    const model = b.model || 'Standard'
+    const variant = b.model || 'Standard'
+    const model = baseModelName(catalog, brand, variant)
 
     brandCounts.set(brand, (brandCounts.get(brand) || 0) + 1)
 
@@ -68,6 +75,7 @@ export default async function AdminOverview() {
       customerId: b.customer_id,
       name: personName(b.customers),
       date: b.purchase_date ? new Date(`${b.purchase_date}T00:00:00`).toLocaleDateString() : '',
+      variant: variant.toLowerCase() === model.toLowerCase() ? null : variant,
     }
     const existing = modelList.find((m) => m.model.toLowerCase() === model.toLowerCase())
     if (existing) {
