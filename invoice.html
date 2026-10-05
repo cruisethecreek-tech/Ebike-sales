@@ -2588,56 +2588,122 @@
             }
         }
 
-        function loadCatalog() {
+        // Last good catalog is kept on this device so a slow or offline
+        // Apps Script still leaves bikes, accessories and apparel pickable.
+        var CATALOG_SAVE_KEY = 'ctc_invoice_catalog_v1';
+        var catalogLiveLoaded = false;
+
+        function catalogHasItems(data) {
+            return !!(data && ((data.bikes && data.bikes.length) ||
+                               (data.accessories && data.accessories.length) ||
+                               (data.apparel && data.apparel.length)));
+        }
+
+        function showCatalog(data, note) {
+            catalogCache.bikes = data.bikes || [];
+            catalogCache.accessories = data.accessories || [];
+            catalogCache.apparel = data.apparel || [];
             const statusEl = document.getElementById('pickerStatus');
-            statusEl.textContent = 'Loading catalog…';
-            statusEl.classList.remove('has-data');
+            statusEl.textContent = catalogCache.bikes.length + ' bikes  ·  ' +
+                                   catalogCache.accessories.length + ' accessories  ·  ' +
+                                   catalogCache.apparel.length + ' apparel' +
+                                   (note ? '  (' + note + ')' : '');
+            statusEl.classList.add('has-data');
+            const picker = document.getElementById('categoryPicker');
+            ['bike', 'accessory', 'apparel'].forEach(val => {
+                const opt = picker.querySelector('option[value="' + val + '"]');
+                if (opt) opt.style.display = catalogCache[val === 'bike' ? 'bikes' : val === 'accessory' ? 'accessories' : 'apparel'].length ? '' : 'none';
+            });
+        }
 
-            const callbackName = 'catalogCb_' + Date.now();
-            const timeoutMs = 10000;
+        // Apps Script failed: use the saved copy, else at least the bikes
+        // from the storefront's data/inventory.json, else go offline.
+        function useCatalogFallback(reason) {
+            console.warn('[invoice] catalog fetch failed:', reason);
+            let saved = null;
+            try { saved = JSON.parse(localStorage.getItem(CATALOG_SAVE_KEY) || 'null'); } catch (e) {}
+            if (catalogLiveLoaded) return;
+            if (saved && catalogHasItems(saved)) {
+                const when = saved.savedAt ? new Date(saved.savedAt).toLocaleDateString() : 'earlier';
+                showCatalog(saved, 'saved copy from ' + when + ', live catalog did not load');
+                return;
+            }
+            fetch('data/inventory.json', { cache: 'no-cache' })
+                .then(r => r.ok ? r.json() : Promise.reject(r.status))
+                .then(inv => {
+                    const bikes = (inv && Array.isArray(inv.bikes) ? inv.bikes : [])
+                        .filter(b => b && b.name)
+                        .map(b => ({ name: b.name, price: Number(b.price) || 0, brand: b.brand || '' }));
+                    if (!bikes.length) return Promise.reject('empty');
+                    if (catalogLiveLoaded) return;
+                    showCatalog({ bikes: bikes, accessories: [], apparel: [] },
+                                'bikes from website list, accessories and apparel did not load');
+                })
+                .catch(() => { if (!catalogLiveLoaded) markCatalogOffline(reason); });
+        }
 
-            const timeoutId = setTimeout(() => {
-                markCatalogOffline('Inventory catalog timed out');
-                cleanup();
-            }, timeoutMs);
-
-            function cleanup() {
-                if (window[callbackName]) delete window[callbackName];
-                if (script.parentNode) script.parentNode.removeChild(script);
+        function loadCatalog(attempt) {
+            attempt = attempt || 1;
+            if (attempt === 1) {
+                const statusEl = document.getElementById('pickerStatus');
+                statusEl.textContent = 'Loading catalog…';
+                statusEl.classList.remove('has-data');
             }
 
-            window[callbackName] = function(data) {
+            const callbackName = 'catalogCb_' + Date.now();
+            // Apps Script can take well over 10 s on a cold start. After the
+            // first miss the fallback shows right away while one more live
+            // try runs quietly; if it lands it replaces the fallback.
+            const timeoutMs = 20000;
+            let done = false;
+
+            function fail(reason) {
+                if (done) return;
+                done = true;
                 clearTimeout(timeoutId);
+                // Leave the callback defined as a no-op so a late reply
+                // doesn't throw, but drop the script tag.
+                window[callbackName] = function() {};
+                if (script.parentNode) script.parentNode.removeChild(script);
+                if (attempt < 2) {
+                    useCatalogFallback(reason);
+                    loadCatalog(attempt + 1);
+                } else {
+                    console.warn('[invoice] catalog retry failed:', reason);
+                }
+            }
+
+            const timeoutId = setTimeout(() => fail('Inventory catalog timed out'), timeoutMs);
+
+            window[callbackName] = function(data) {
+                if (done) return;
+                done = true;
+                clearTimeout(timeoutId);
+                delete window[callbackName];
+                if (script.parentNode) script.parentNode.removeChild(script);
                 try {
-                    if (data && data.status === 'ok' &&
-                        ((data.bikes && data.bikes.length) ||
-                         (data.accessories && data.accessories.length) ||
-                         (data.apparel && data.apparel.length))) {
-                        catalogCache.bikes = data.bikes || [];
-                        catalogCache.accessories = data.accessories || [];
-                        catalogCache.apparel = data.apparel || [];
-                        statusEl.textContent = catalogCache.bikes.length + ' bikes  ·  ' +
-                                               catalogCache.accessories.length + ' accessories  ·  ' +
-                                               catalogCache.apparel.length + ' apparel';
-                        statusEl.classList.add('has-data');
-                    } else {
-                        // Handler responded but with no usable data — same
-                        // user-visible result as offline (no items to pick).
-                        markCatalogOffline('Inventory catalog returned no items');
+                    if (data && data.status === 'ok' && catalogHasItems(data)) {
+                        catalogLiveLoaded = true;
+                        showCatalog(data);
+                        try {
+                            localStorage.setItem(CATALOG_SAVE_KEY, JSON.stringify({
+                                savedAt: Date.now(),
+                                bikes: data.bikes || [],
+                                accessories: data.accessories || [],
+                                apparel: data.apparel || []
+                            }));
+                        } catch (e) { /* storage full or blocked */ }
+                    } else if (attempt === 1) {
+                        useCatalogFallback('Inventory catalog returned no items');
                     }
                 } catch (err) {
-                    markCatalogOffline('Inventory catalog parse error');
+                    if (attempt === 1) useCatalogFallback('Inventory catalog parse error');
                 }
-                cleanup();
             };
 
             const script = document.createElement('script');
             script.src = AS_URL + '?action=getInvoiceCatalog&callback=' + encodeURIComponent(callbackName);
-            script.onerror = () => {
-                clearTimeout(timeoutId);
-                markCatalogOffline('Inventory catalog unavailable');
-                cleanup();
-            };
+            script.onerror = () => fail('Inventory catalog unavailable');
             document.head.appendChild(script);
         }
 

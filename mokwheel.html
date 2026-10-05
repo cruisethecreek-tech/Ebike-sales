@@ -553,7 +553,8 @@ window.ctcNextImage = function (img) {
                     </details>
                     <div class="checkbox-group">
                         <label class="checkbox-option"><input type="radio" name="creekguard_option" value="No CreekGuard (+$0)" checked><span class="checkbox-label">No thanks (+$0)</span></label>
-                        <label class="checkbox-option"><input type="radio" name="creekguard_option" value="Yes - CreekGuard GPS (+$149 install, then $5.99/mo or $64.69/yr)"><span class="checkbox-label">Yes - Add CreekGuard GPS (+$149 install, then $5.99/mo)</span></label>
+                        <label class="checkbox-option"><input type="radio" name="creekguard_option" value="Yes - CreekGuard GPS Monthly (+$149 install, then $5.99/mo)"><span class="checkbox-label">Yes - CreekGuard GPS Monthly (+$149 install, then $5.99/mo)</span></label>
+                        <label class="checkbox-option"><input type="radio" name="creekguard_option" value="Yes - CreekGuard GPS Yearly (+$149 install, then $64.69/yr)"><span class="checkbox-label">Yes - CreekGuard GPS Yearly (+$149 install, then $64.69/yr, save 10%)</span></label>
                     </div>
                 </div>
                 <div class="form-group"><label class="form-label">Additional Comments</label><textarea id="comments" class="form-textarea" placeholder="Any questions, special requests..."></textarea></div>
@@ -927,8 +928,10 @@ window.ctcNextImage = function (img) {
                 creekGuard: document.querySelector('input[name="creekguard_option"]:checked').value,
                 // The order sheet has no CreekGuard column yet, so a yes also
                 // rides at the top of the comments where staff will see it.
-                comments: (document.querySelector('input[name="creekguard_option"][value^="Yes"]:checked')
-                    ? '[CreekGuard GPS requested: $149 install + $5.99/mo or $64.69/yr]\n' : '')
+                comments: (document.querySelector('input[name="creekguard_option"][value*="Yearly"]:checked')
+                    ? '[CreekGuard GPS requested: $149 install + Yearly plan $64.69/yr]\n'
+                    : document.querySelector('input[name="creekguard_option"][value*="Monthly"]:checked')
+                    ? '[CreekGuard GPS requested: $149 install + Monthly plan $5.99/mo]\n' : '')
                     + document.getElementById('comments').value,
                 price: currentSelection.price
             };
