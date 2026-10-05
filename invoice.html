@@ -1192,6 +1192,7 @@
                             <option value="accessory">Accessory</option>
                             <option value="apparel">Apparel</option>
                             <option value="installation">Installation</option>
+                            <option value="creekguard">CreekGuard GPS</option>
                             <option value="delivery">Delivery</option>
                             <option value="custom">Custom (free text)</option>
                         </select>
@@ -2549,6 +2550,19 @@
         // ─── CATALOG / PICKER ─────────────────────────────────────────────
         var catalogCache = { bikes: [], accessories: [], apparel: [] };
 
+        // CreekGuard GPS tracking (creekguard.html). Fixed prices, so they
+        // live here rather than in the Sheet catalog and work offline. The
+        // monthly or yearly plan is not sold here: the customer signs up
+        // through the Stripe link on the CreekGuard page or in their portal,
+        // which bills it automatically. "CreekGuard" leads each name so the
+        // referral 25%-off-installation perk (lines starting "Install")
+        // does not stack on the already-discounted install.
+        var CREEKGUARD_ITEMS = [
+            { name: 'CreekGuard GPS Tracker + Install', price: 199.00 },
+            { name: 'CreekGuard GPS Tracker + Install (Cruise the Creek customer)', price: 149.00 },
+            { name: 'CreekGuard Free Bike Lock (included with CreekGuard)', price: 0.00 }
+        ];
+
         // When the JSONP catalog fetch fails (Project C handler is offline
         // or returning a stub instead of bikes/accessories/apparel),
         // hide the catalog-dependent picker options so the operator can't
@@ -2666,6 +2680,7 @@
             if (cat === 'bike') list = catalogCache.bikes;
             else if (cat === 'accessory') list = catalogCache.accessories;
             else if (cat === 'apparel') list = catalogCache.apparel;
+            else if (cat === 'creekguard') list = CREEKGUARD_ITEMS;
 
             if (list.length === 0) {
                 itemPicker.disabled = true;
@@ -2854,6 +2869,7 @@
             if (cat === 'bike') list = catalogCache.bikes;
             else if (cat === 'accessory') list = catalogCache.accessories;
             else if (cat === 'apparel') list = catalogCache.apparel;
+            else if (cat === 'creekguard') list = CREEKGUARD_ITEMS;
 
             const item = list[idx];
             if (!item) return;
