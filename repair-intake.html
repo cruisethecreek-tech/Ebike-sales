@@ -391,7 +391,7 @@ function updatePricingSection() {
     `;
   }
 
-  if (isMemberDiscount) {
+  if (isMemberDiscount && discountAmount > 0) {
     html += `
         <div style="display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px solid #eee; color:#15803D; font-size:0.92rem;">
           <div>
@@ -421,14 +421,14 @@ function updatePricingSection() {
   `;
 
   // Status Badge or Promo Entry
-  if (isMemberDiscount) {
+  if (isMemberDiscount && discountAmount > 0) {
     html += `
       <div style="background:#DCFCE7; border:1px solid #86EFAC; border-radius:8px; padding:10px 14px; font-size:0.82rem; color:#15803D; font-weight:700; display:flex; align-items:center; gap:8px;">
         <span style="font-size:1.2rem;">✅</span>
         <span>${isMemberRate ? '20% Member Pricing' : '20% Referral Pricing'} Confirmed: You save $${discountAmount.toFixed(2)} on this service!</span>
       </div>
     `;
-  } else {
+  } else if (!isMemberDiscount) {
     html += `
       <div style="background:#fff; border:1.5px dashed #C9A96E; border-radius:8px; padding:10px 12px; display:flex; gap:8px; align-items:center;">
         <input type="text" id="promo-code-input" placeholder="Have a Member Referral Code?" style="flex:1; padding:8px 10px; font-size:0.85rem; border:1px solid #ddd; border-radius:6px; text-transform:uppercase;">
