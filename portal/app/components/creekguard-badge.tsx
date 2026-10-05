@@ -45,13 +45,13 @@ const SIGN_UP_URL = `${STORE_URL.replace(/\/$/, '')}/creekguard.html`
 // Stripe Payment Links. Portal accounts are only made for people who bought
 // from us, so the customer ($149) install link lives here and not on the
 // public CreekGuard page, which sells the $199 install.
-const INSTALL_LINK_CUSTOMER = 'https://buy.stripe.com/4gMcN7b7V61CgWj0Nh8EM0q'
-const PLAN_LINK_MONTHLY = 'https://buy.stripe.com/6oU6oJ6RF3Tu0Xl3Zt8EM0o'
-const PLAN_LINK_YEARLY = 'https://buy.stripe.com/8x200l4JxgGgaxVfIb8EM0t'
+// Each link is one checkout: the $149 install plus the first plan payment.
+const SIGN_UP_LINK_MONTHLY = 'https://buy.stripe.com/cNiaEZb7V4Xy5dBbrV8EM0w'
+const SIGN_UP_LINK_YEARLY = 'https://buy.stripe.com/bJedRb3Ft89K0Xl7bF8EM0x'
 
 /**
  * The sign-up card: shown instead of "CreekGuard Protected" to customers
- * with no tracker yet. Pays the customer install and the plan through Stripe.
+ * with no tracker yet. Each button is one Stripe checkout for install + plan.
  */
 export function CreekGuardSignUp() {
   const btn = 'inline-flex items-center px-3 py-2 rounded-lg text-xs font-bold transition-colors'
@@ -67,14 +67,11 @@ export function CreekGuardSignUp() {
           Your customer install is $149, then $5.99 a month or $64.69 a year (save 10%).
         </span>
         <div className="flex flex-wrap gap-2 mt-3">
-          <a href={INSTALL_LINK_CUSTOMER} target="_blank" rel="noopener noreferrer" className={`${btn} bg-[#C9A96E] text-[#1A2E1C] hover:bg-[#d8b97f]`}>
-            1. Pay $149 install ↗
+          <a href={SIGN_UP_LINK_MONTHLY} target="_blank" rel="noopener noreferrer" className={`${btn} bg-[#C9A96E] text-[#1A2E1C] hover:bg-[#d8b97f]`}>
+            $149 install + $5.99/mo ↗
           </a>
-          <a href={PLAN_LINK_MONTHLY} target="_blank" rel="noopener noreferrer" className={`${btn} border border-[#C9A96E]/70 text-white hover:bg-white/10`}>
-            2. $5.99 monthly ↗
-          </a>
-          <a href={PLAN_LINK_YEARLY} target="_blank" rel="noopener noreferrer" className={`${btn} border border-[#C9A96E]/70 text-white hover:bg-white/10`}>
-            or $64.69 yearly ↗
+          <a href={SIGN_UP_LINK_YEARLY} target="_blank" rel="noopener noreferrer" className={`${btn} border border-[#C9A96E]/70 text-white hover:bg-white/10`}>
+            $149 install + $64.69/yr ↗
           </a>
           <a href={SIGN_UP_URL} target="_blank" rel="noopener noreferrer" className={`${btn} text-[#C9A96E] underline underline-offset-2 hover:text-[#d8b97f]`}>
             Learn more
