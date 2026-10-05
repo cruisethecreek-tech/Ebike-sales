@@ -32,11 +32,14 @@ export default async function BikesPage() {
   let trackerByBike = new Map<string, TrackerStatus>()
   let mileageByBike = new Map<string, BikeMileage>()
   let isStaff = false
+  const ownerNames = new Map<string, string>()
+  let realViewerId: string | null = null
   let catalog: CatalogModel[] = []
 
   try {
     const supabase = await createClient()
     const { userId, realUserId, viewingAs } = await getViewerContext()
+    realViewerId = realUserId
 
     // Staff get a colour picker, shop invoice link and delivery date on each
     // bike. The customer never does, so neither does a preview of their page.
@@ -46,12 +49,27 @@ export default async function BikesPage() {
     }
 
     if (userId) {
+      // Staff share the shop's own bikes: rental and demo bikes sit on one
+      // admin account, but every admin should see them here, not only the
+      // account that happens to own them. Customers see only their own.
+      let ownerIds = [userId]
+      if (isStaff) {
+        const { data: admins } = await supabase
+          .from('customers')
+          .select('id, first_name, last_name')
+          .eq('is_admin', true)
+        for (const a of admins ?? []) {
+          ownerNames.set(a.id, [a.first_name, a.last_name].filter(Boolean).join(' ') || 'Staff')
+        }
+        ownerIds = [...new Set([userId, ...ownerNames.keys()])]
+      }
+
       const { data, error } = await supabase
         .from('bikes')
         .select('*')
-        .eq('customer_id', userId)
+        .in('customer_id', ownerIds)
         .order('purchase_date', { ascending: false })
-      
+
       if (error) throw error
       bikes = data || []
 
@@ -207,7 +225,12 @@ export default async function BikesPage() {
                     )}
 
                     <div>
-                      {bike.color_name && (
+                      {isStaff && bike.customer_id !== realViewerId && (
+                      <p className="text-[11px] font-bold text-[#6B5B95] mb-0.5">
+                        Shop bike · on {ownerNames.get(bike.customer_id) ?? 'another staff'} account
+                      </p>
+                    )}
+                    {bike.color_name && (
                         <p className="flex items-center gap-1.5 text-xs text-[#1A2E1C] font-bold mb-0.5">
                           <span
                             className="inline-block w-3.5 h-3.5 rounded-full border border-black/20"
