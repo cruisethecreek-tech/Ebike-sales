@@ -167,7 +167,20 @@
             margin: -0.15rem 0 1rem;
             padding-bottom: 0.65rem;
             border-bottom: 1px dashed var(--op-border);
+            cursor: pointer;
+            user-select: none;
         }
+        /* Tap a section title to fold it away. */
+        .form-section > .section-title::after {
+            content: "▾";
+            margin-left: auto;
+            font-size: 0.9rem;
+            color: var(--op-text-dim);
+            transition: transform 0.15s;
+        }
+        .form-section.collapsed > .section-title { margin-bottom: 0; padding-bottom: 0; border-bottom: 0; }
+        .form-section.collapsed > .section-title::after { transform: rotate(-90deg); }
+        .form-section.collapsed > :not(.section-title) { display: none !important; }
 
         .section-title {
             font-family: 'JetBrains Mono', monospace;
@@ -1097,6 +1110,9 @@
                             </label>
                             <span id="custDirectoryBadge" style="font-size: 0.7rem; color: var(--op-ok-text);">Loading directory…</span>
                         </div>
+                        <input type="search" id="existingCustFilter" placeholder="Type a name, phone or email to narrow the list"
+                               oninput="filterExistingCustomers()" autocomplete="off" data-no-dirty
+                               style="width: 100%; margin-bottom: 6px; padding: 8px 10px; font-size: 0.85rem; border-radius: 6px; border: 1px solid #C9A96E; background: var(--op-input); color: var(--op-text);">
                         <select id="existingCustSelect" onchange="onExistingCustSelected()"
                                 style="width: 100%; padding: 8px 10px; font-size: 0.85rem; border-radius: 6px; border: 1px solid #C9A96E; background: var(--op-input); color: var(--op-text); cursor: pointer;">
                             <option value="">-- Choose existing customer to auto-fill --</option>
@@ -1204,6 +1220,7 @@
                     <div class="picker">
                         <select id="categoryPicker">
                             <option value="">Category…</option>
+                            <option value="custom">✏️ Custom (free text)</option>
                             <optgroup label="Product">
                                 <option value="bike">Bike</option>
                                 <option value="accessory">Accessories</option>
@@ -1217,9 +1234,6 @@
                                 <option value="repair">Bike Repair</option>
                                 <option value="tuneup">Bike Tune-Up</option>
                                 <option value="delivery">Delivery</option>
-                            </optgroup>
-                            <optgroup label="Other">
-                                <option value="custom">Custom (free text)</option>
                             </optgroup>
                         </select>
                         <select id="itemPicker" disabled>
@@ -2431,6 +2445,7 @@
             window[callbackName] = function(resp) {
                 if (resp && resp.ok) {
                     console.log('[addOrder] saved', resp.invoiceNumber || invoiceData.invoiceNumber);
+                    if (typeof markInvoiceClean === 'function') markInvoiceClean();
                     // Persist the internal supplier/warranty URL onto the now-saved
                     // row (separate call so the customer-facing addOrder schema is
                     // untouched). Sends even when blank so clearing it also saves.
@@ -2820,6 +2835,13 @@
 
             itemPicker.innerHTML = '<option value="">Select an item…</option>';
 
+            if (cat === 'bike') {
+                renderBikeBrands();
+                itemPicker.disabled = false;
+                addBtn.disabled = true;
+                return;
+            }
+
             if (cat === 'apparel') {
                 // Group apparel options by color into <optgroup>s with a
                 // colored unicode square in the label. Even on browsers
@@ -2950,8 +2972,48 @@
 
         function onItemChange() {
             const itemPicker = document.getElementById('itemPicker');
-            document.getElementById('addFromPickerBtn').disabled = (itemPicker.value === '');
+            const v = itemPicker.value;
+            if (document.getElementById('categoryPicker').value === 'bike') {
+                if (v === '__brands') { renderBikeBrands(); }
+                else if (v.indexOf('brand:') === 0) { renderBikesOfBrand(v.slice(6)); }
+            }
+            document.getElementById('addFromPickerBtn').disabled = isNaN(parseInt(itemPicker.value, 10)) &&
+                document.getElementById('categoryPicker').value !== 'custom';
             updateColorPicker();
+        }
+
+        // Bikes are picked in two steps: brand first, then that brand's
+        // bikes, so the list stays short on a phone.
+        function bikeBrandName(b) { return (b && b.brand) ? String(b.brand).trim() : 'Other'; }
+        function renderBikeBrands() {
+            const itemPicker = document.getElementById('itemPicker');
+            const counts = {}, order = [];
+            catalogCache.bikes.forEach(b => {
+                const br = bikeBrandName(b);
+                if (!(br in counts)) { counts[br] = 0; order.push(br); }
+                counts[br]++;
+            });
+            order.sort((a, b) => a.localeCompare(b));
+            itemPicker.innerHTML = '<option value="">Pick a brand…</option>';
+            order.forEach(br => {
+                const opt = document.createElement('option');
+                opt.value = 'brand:' + br;
+                opt.textContent = '▸ ' + br + ' (' + counts[br] + ')';
+                itemPicker.appendChild(opt);
+            });
+        }
+        function renderBikesOfBrand(brand) {
+            const itemPicker = document.getElementById('itemPicker');
+            itemPicker.innerHTML = '<option value="">' + brand + ': pick a bike…</option>' +
+                                   '<option value="__brands">◂ All brands</option>';
+            catalogCache.bikes.forEach((b, idx) => {
+                if (bikeBrandName(b) !== brand) return;
+                const opt = document.createElement('option');
+                opt.value = idx;
+                opt.textContent = b.name;
+                itemPicker.appendChild(opt);
+            });
+            itemPicker.value = '';
         }
 
         // ─── BIKE COLORS ──────────────────────────────────────────────────
@@ -3170,6 +3232,86 @@
 
         document.getElementById('categoryPicker').addEventListener('change', onCategoryChange);
         document.getElementById('itemPicker').addEventListener('change', onItemChange);
+
+        // ─── COLLAPSIBLE SECTIONS ─────────────────────────────────────────
+        // Tap a section title to fold it. Remembered per device; Business
+        // Info starts folded since it never changes.
+        (function setupCollapsibleSections() {
+            var KEY = 'ctc_invoice_collapsed_v1';
+            var saved = null;
+            try { saved = JSON.parse(localStorage.getItem(KEY) || 'null'); } catch (e) {}
+            if (!saved || typeof saved !== 'object') saved = { 'Business Info': true };
+            document.querySelectorAll('#invoiceForm .form-section > .section-title').forEach(function (t) {
+                var name = t.textContent.trim();
+                var sec = t.parentElement;
+                if (saved[name]) sec.classList.add('collapsed');
+                t.setAttribute('role', 'button');
+                t.setAttribute('tabindex', '0');
+                function toggle() {
+                    sec.classList.toggle('collapsed');
+                    saved[name] = sec.classList.contains('collapsed');
+                    try { localStorage.setItem(KEY, JSON.stringify(saved)); } catch (e) {}
+                }
+                t.addEventListener('click', toggle);
+                t.addEventListener('keydown', function (e) {
+                    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(); }
+                });
+            });
+        })();
+
+        // ─── UNSAVED CHANGES WARNING ──────────────────────────────────────
+        // Typing into the invoice marks it unsaved. Leaving the page (or the
+        // phone's Back button) then asks first. Saving, loading an invoice
+        // or starting a new one clears it.
+        var invoiceDirty = false;
+        var invoiceGuardPushed = false;
+        function markInvoiceClean() { invoiceDirty = false; }
+        function pushInvoiceGuard() {
+            if (invoiceGuardPushed) return;
+            try { history.pushState({ ctcInvoiceGuard: true }, ''); invoiceGuardPushed = true; } catch (e) {}
+        }
+        function markInvoiceDirty() {
+            invoiceDirty = true;
+            // An extra history entry lets the Back button land here first.
+            pushInvoiceGuard();
+        }
+        (function setupUnsavedGuard() {
+            var form = document.getElementById('invoiceForm');
+            function onEdit(e) {
+                if (!e.isTrusted || !e.target || e.target.closest('#invoiceLookup, [data-no-dirty]')) return;
+                markInvoiceDirty();
+            }
+            form.addEventListener('input', onEdit);
+            form.addEventListener('change', onEdit);
+            form.addEventListener('click', function (e) {
+                if (e.isTrusted && e.target.closest('#addFromPickerBtn, .add-line-btn, .remove-btn, .btn-add-delivery')) markInvoiceDirty();
+            });
+            window.addEventListener('beforeunload', function (e) {
+                if (!invoiceDirty) return;
+                e.preventDefault();
+                e.returnValue = '';
+            });
+            window.addEventListener('popstate', function (e) {
+                // Only react when Back stepped off our own guard entry.
+                if (!invoiceGuardPushed || (e.state && e.state.ctcInvoiceGuard)) return;
+                invoiceGuardPushed = false;
+                if (!invoiceDirty || confirm('This invoice has unsaved changes. Leave without saving?')) {
+                    invoiceDirty = false;
+                    history.back();
+                } else {
+                    pushInvoiceGuard();
+                }
+            });
+            ['populateFormFromInvoice', 'resetForm'].forEach(function (fn) {
+                var orig = window[fn];
+                if (typeof orig !== 'function') return;
+                window[fn] = function () {
+                    var r = orig.apply(this, arguments);
+                    markInvoiceClean();
+                    return r;
+                };
+            });
+        })();
 
         // ─── AUTO-INCREMENT INVOICE NUMBER ────────────────────────────────
         function loadNextInvoiceNumber() {
@@ -3560,11 +3702,27 @@
             return arr;
         }
 
+        // The filter box narrows the dropdown as staff type. Option values
+        // stay the customer's index in existingCustomersList.
+        function filterExistingCustomers() {
+            renderCustomerSelectOptions(existingCustomersList);
+        }
+
         function renderCustomerSelectOptions(list) {
             var select = document.getElementById('existingCustSelect');
             if (!select) return;
+            var f = document.getElementById('existingCustFilter');
+            var q = f ? f.value.trim().toLowerCase() : '';
+            var qDigits = q.replace(/\D/g, '');
+            var shown = 0;
             select.innerHTML = '<option value="">-- Choose existing customer to auto-fill --</option>';
             list.forEach(function(c, idx) {
+                if (q) {
+                    var hay = ((c.name || '') + ' ' + (c.email || '')).toLowerCase();
+                    var phone = String(c.phone || '').replace(/\D/g, '');
+                    if (hay.indexOf(q) === -1 && !(qDigits.length >= 3 && phone.indexOf(qDigits) !== -1)) return;
+                }
+                shown++;
                 var opt = document.createElement('option');
                 opt.value = String(idx);
                 var phonePart = c.phone ? ' (' + c.phone + ')' : '';
@@ -3572,6 +3730,9 @@
                 opt.textContent = c.name + phonePart + emailPart;
                 select.appendChild(opt);
             });
+            if (q) select.options[0].textContent = shown
+                ? '-- ' + shown + ' match' + (shown === 1 ? '' : 'es') + ', pick one --'
+                : '-- No customers match "' + q + '" --';
         }
 
         function onExistingCustSelected() {
