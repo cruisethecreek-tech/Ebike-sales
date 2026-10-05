@@ -128,7 +128,7 @@
       { label: 'Book Bears Den (Youngstown)', url: 'adventures.html' },
       { label: 'Book Kirk Road (Canfield)',   url: 'trailside.html' },
       { label: 'Book Long Term',              url: 'long-term-rental.html' },
-      { label: 'Apply for Rent-to-Own',       url: 'bridge-the-gap.html' },
+      { label: 'Apply for Rent-to-Own',       url: 'rent-to-own.html' },
     ]},
     { label: 'Shop', items: [
       { label: 'Shop E-Bikes',     url: 'shop.html' },
@@ -139,10 +139,10 @@
     ]},
     { label: 'Services', items: [
       { label: 'Creek Ready Package',  url: 'creek-ready.html' },
+      { label: 'CreekGuard GPS',       url: 'creekguard.html' },
       { label: 'Creek Ready Tune-Ups', url: 'tune-ups.html' },
       { label: 'Video Diagnostic',     url: 'video-diagnostics.html' },
       { label: 'Repair Intake',        url: 'repair-intake.html' },
-      { label: 'CreekGuard GPS',       url: 'creekguard.html' },
     ]},
     { label: 'Test Ride', url: 'test-ride.html' },
     { label: 'Creek Life', items: [
