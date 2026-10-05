@@ -43,6 +43,7 @@ export default function BikeForm() {
             <option value="Velotric">Velotric</option>
             <option value="Jasion">Jasion</option>
             <option value="Mooncool">Mooncool</option>
+            <option value="Mokwheel">Mokwheel</option>
             <option value="other">Other</option>
           </select>
         </div>
