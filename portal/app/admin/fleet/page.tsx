@@ -7,6 +7,7 @@ import {
   acknowledgeAlert,
   deleteTracker,
   lockTracker,
+  markCreekguardOff,
   registerTracker,
   restoreTracker,
   retireTracker,
@@ -18,11 +19,33 @@ export const metadata = {
   title: 'Fleet GPS — Cruise the Creek Admin',
 }
 
+type CreekguardPlan = {
+  stripe_subscription_id: string
+  email: string | null
+  name: string | null
+  customer_id: string | null
+  status: string
+  cancel_at: string | null
+  ended_at: string | null
+}
+
+const PLAN_STATUS: Record<string, string> = {
+  canceling: 'Cancelled, still running',
+  canceled: 'Plan ended',
+  past_due: 'Payment failing',
+  unpaid: 'Unpaid',
+  incomplete_expired: 'Never paid',
+}
+
+const shortDate = (iso: string | null) =>
+  iso ? new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'America/New_York' }) : ''
+
 type BikeRow = {
   id: string
   brand: string
   model: string
   serial_number: string | null
+  customer_id: string
   customers: { first_name: string; last_name: string } | null
 }
 
@@ -34,11 +57,11 @@ export default async function AdminFleet({
   const { error: formError, added, notice, manage_error: manageError } = await searchParams
   const supabase = await createClient()
 
-  const [gps, bikesRes, alertsRes, retiredRes] = await Promise.all([
+  const [gps, bikesRes, alertsRes, retiredRes, plansRes, activePlansRes] = await Promise.all([
     loadTrackerStatuses(supabase, { alertDays: 30 }),
     supabase
       .from('bikes')
-      .select('id, brand, model, serial_number, customers(first_name, last_name)')
+      .select('id, brand, model, serial_number, customer_id, customers(first_name, last_name)')
       .order('created_at', { ascending: false }),
     supabase
       .from('tracker_alerts')
@@ -51,6 +74,18 @@ export default async function AdminFleet({
       .select('*')
       .eq('active', false)
       .order('updated_at', { ascending: false }),
+    // CreekGuard plans that need staff to switch a tracker off (migration
+    // 00022, filled by the stripe-webhook function).
+    supabase
+      .from('creekguard_subscriptions')
+      .select('stripe_subscription_id, email, name, customer_id, status, cancel_at, ended_at')
+      .neq('status', 'active')
+      .is('tracker_off_at', null)
+      .order('updated_at', { ascending: false }),
+    supabase
+      .from('creekguard_subscriptions')
+      .select('stripe_subscription_id', { count: 'exact', head: true })
+      .eq('status', 'active'),
   ])
 
   const loadError = [
@@ -60,6 +95,11 @@ export default async function AdminFleet({
     retiredRes.error && `retired trackers: ${retiredRes.error.message}`,
   ].filter(Boolean).join(' · ') || null
   if (loadError) console.error('[admin fleet] query failed —', loadError)
+  // Before the CreekGuard migration is applied the table does not exist;
+  // the section just stays hidden rather than flagging the whole page.
+  if (plansRes.error) console.error('[admin fleet] creekguard plans —', plansRes.error.message)
+  const plans = plansRes.error ? null : ((plansRes.data ?? []) as CreekguardPlan[])
+  const activePlans = activePlansRes.error ? 0 : activePlansRes.count ?? 0
 
   const bikes = (bikesRes.data ?? []) as unknown as BikeRow[]
   const bikeById = new Map(bikes.map((b) => [b.id, b]))
@@ -113,6 +153,10 @@ export default async function AdminFleet({
     const c = bikeId ? bikeById.get(bikeId)?.customers : null
     return c ? `${c.first_name} ${c.last_name}` : '—'
   }
+
+  // The customer's tracked bikes, so a cancelled plan shows what to switch off.
+  const trackersForCustomer = (customerId: string | null) =>
+    customerId ? gps.statuses.filter((s) => s.tracker.bike_id && bikeById.get(s.tracker.bike_id)?.customer_id === customerId) : []
 
   const online = gps.statuses.filter((s) => s.latest && !isStale(s.latest.fix_time)).length
 
@@ -209,6 +253,78 @@ export default async function AdminFleet({
           </ul>
         )}
       </section>
+
+      {/* ── CreekGuard plans ── */}
+      {plans && (
+        <section id="creekguard" className="bg-white rounded-2xl p-5 border border-[#E5E5E5] shadow-sm space-y-3 scroll-mt-4">
+          <h2 className="uppercase tracking-wide text-xl text-[#1A2E1C]" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>
+            🛡️ CreekGuard Plans
+          </h2>
+          <p className="text-xs text-gray-500">
+            {activePlans} active {activePlans === 1 ? 'plan' : 'plans'} in Stripe. When a plan ends, retire the tracker here,
+            deactivate its SIM in the 1NCE portal, and disable the device in Traccar, then press Tracker Is Off.
+          </p>
+          {plans.length === 0 ? (
+            <p className="text-sm text-gray-500">No cancelled or unpaid plans.</p>
+          ) : (
+            <ul className="divide-y divide-gray-100">
+              {plans.map((plan) => {
+                const trackers = trackersForCustomer(plan.customer_id)
+                const ended = plan.status === 'canceled'
+                return (
+                  <li key={plan.stripe_subscription_id} className="py-3 space-y-2 text-sm">
+                    <div className="flex flex-wrap items-start justify-between gap-3">
+                      <div>
+                        <p className="font-bold text-[#1A2E1C]">{plan.name || plan.email || 'Unknown customer'}</p>
+                        <p className="text-xs text-gray-500">
+                          {plan.email && plan.name ? `${plan.email} · ` : ''}
+                          <span className={ended ? 'font-bold text-red-700' : 'font-bold text-amber-700'}>
+                            {PLAN_STATUS[plan.status] ?? plan.status}
+                          </span>
+                          {plan.status === 'canceling' && plan.cancel_at && ` · ends ${shortDate(plan.cancel_at)}`}
+                          {ended && plan.ended_at && ` ${shortDate(plan.ended_at)}`}
+                        </p>
+                      </div>
+                      <form action={markCreekguardOff}>
+                        <input type="hidden" name="id" value={plan.stripe_subscription_id} />
+                        <button type="submit" className="text-xs px-3 py-1.5 rounded-lg border border-[#2D4A32] text-[#2D4A32] font-bold hover:bg-[#F1F5F1] whitespace-nowrap">
+                          {ended || plan.status === 'canceling' ? 'Tracker Is Off' : 'Dismiss'}
+                        </button>
+                      </form>
+                    </div>
+                    {trackers.length > 0 ? (
+                      <ul className="space-y-1.5">
+                        {trackers.map(({ tracker }) => (
+                          <li key={tracker.id} className="flex flex-wrap items-center justify-between gap-2 bg-gray-50 rounded-lg px-3 py-2">
+                            <span className="text-xs">
+                              <span className="font-semibold">{tracker.label || bikeName(tracker.bike_id)}</span>
+                              <span className="text-gray-500"> · IMEI {tracker.imei}{tracker.sim_iccid ? ` · SIM ${tracker.sim_iccid}` : ''}</span>
+                            </span>
+                            {ended && (
+                              <form action={retireTracker}>
+                                <input type="hidden" name="id" value={tracker.id} />
+                                <button type="submit" className="text-xs px-3 py-1.5 rounded-lg border border-amber-600 text-amber-700 font-bold hover:bg-amber-50">
+                                  Retire Tracker
+                                </button>
+                              </form>
+                            )}
+                          </li>
+                        ))}
+                      </ul>
+                    ) : (
+                      <p className="text-xs text-gray-500">
+                        {plan.customer_id
+                          ? 'No active tracker on this customer\'s bikes.'
+                          : 'No portal account matches this Stripe email, so find their tracker under Manage Trackers.'}
+                      </p>
+                    )}
+                  </li>
+                )
+              })}
+            </ul>
+          )}
+        </section>
+      )}
 
       {/* ── Fleet map ── */}
       {fleetBikes.length > 0 && (

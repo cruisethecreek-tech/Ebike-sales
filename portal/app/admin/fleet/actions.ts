@@ -200,3 +200,21 @@ export async function unlockTracker(formData: FormData): Promise<void> {
 
   revalidatePath('/admin/fleet')
 }
+
+// A cancelled or unpaid CreekGuard plan has been dealt with (tracker retired,
+// SIM deactivated), so it leaves the list on Fleet GPS. The row stays as a
+// record.
+export async function markCreekguardOff(formData: FormData): Promise<void> {
+  await requireAdminUser()
+
+  const id = String(formData.get('id') ?? '')
+  if (!id) return
+
+  const supabase = await createClient()
+  await supabase
+    .from('creekguard_subscriptions')
+    .update({ tracker_off_at: new Date().toISOString() })
+    .eq('stripe_subscription_id', id)
+
+  revalidatePath('/admin/fleet')
+}
