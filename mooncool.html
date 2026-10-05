@@ -255,6 +255,14 @@ const SITE_CONFIG = {
         .addon-section{background:var(--cream);padding:1rem 1.2rem;border-radius:6px;
           border:1px solid rgba(0,0,0,.06);margin-bottom:1.2rem}
         .addon-section .form-label{margin-bottom:.7rem;color:var(--forest);font-size:.78rem}
+        .addon-info{margin:-.3rem 0 .75rem;font-size:.82rem;color:var(--forest)}
+        .addon-info summary{cursor:pointer;font-weight:700;list-style:none;display:inline-flex;align-items:center;gap:.35rem}
+        .addon-info summary::-webkit-details-marker{display:none}
+        .addon-info summary::before{content:"ⓘ";font-size:.95rem}
+        .addon-info[open] summary{margin-bottom:.45rem}
+        .addon-info ul{margin:.2rem 0 .45rem 1.1rem;line-height:1.55;color:#444}
+        .addon-info p{margin:0 0 .4rem;line-height:1.5;color:#444}
+        .addon-info a{color:var(--forest);font-weight:700}
         .checkbox-group{display:flex;flex-direction:column;gap:.5rem}
         .checkbox-option{display:flex;align-items:flex-start;gap:.6rem;cursor:pointer;
           padding:.6rem .8rem;background:#fff;border-radius:4px;
@@ -510,10 +518,41 @@ window.ctcNextImage = function (img) {
                 </div>
                 <div class="form-group addon-section">
                     <label class="form-label">Creek Ready Package?</label>
+                    <details class="addon-info">
+                        <summary>What is the Creek Ready Package?</summary>
+                        <p>We build your new e-bike for you, so it's ready to ride when you pick it up.</p>
+                        <ul>
+                            <li>Master assembly by our shop</li>
+                            <li>50-point safety check and test ride</li>
+                            <li>Rust-prevention treatment for Ohio roads</li>
+                            <li>Free break-in tune-up after your first 30 days</li>
+                            <li>We handle warranty claims with the manufacturer</li>
+                        </ul>
+                        <a href="assembly.html" target="_blank" rel="noopener">Learn more ↗</a>
+                    </details>
                     <div class="checkbox-group">
                         <label class="checkbox-option"><input type="radio" name="creek_ready" value="No - Pick-up and assemble myself (+$0)" checked><span class="checkbox-label">No - I will pick-up and assemble myself (+$0)</span></label>
                         <label class="checkbox-option"><input type="radio" name="creek_ready" value="No - Video call assistance (+$45 refundable)"><span class="checkbox-label">No - Video call assistance (+$45 refundable)</span></label>
                         <label class="checkbox-option"><input type="radio" name="creek_ready" value="Yes - Creek Ready Package (+$100)"><span class="checkbox-label">Yes - Creek Ready Package (+$100)</span></label>
+                    </div>
+                </div>
+                <div class="form-group addon-section">
+                    <label class="form-label">Add CreekGuard GPS Tracking?</label>
+                    <details class="addon-info">
+                        <summary>What is CreekGuard?</summary>
+                        <p>A GPS tracker our shop wires into your e-bike, so you can see where it is from your customer portal.</p>
+                        <ul>
+                            <li>Live location and ride history in your portal</li>
+                            <li>Our team helps you and the police if it's stolen</li>
+                            <li>Mileage-based tune-up reminders</li>
+                            <li>Free bike lock included</li>
+                            <li>$149 install for bikes bought from us, then $5.99/mo or $64.69/yr. Cancel anytime.</li>
+                        </ul>
+                        <a href="creekguard.html" target="_blank" rel="noopener">Learn more ↗</a>
+                    </details>
+                    <div class="checkbox-group">
+                        <label class="checkbox-option"><input type="radio" name="creekguard_option" value="No CreekGuard (+$0)" checked><span class="checkbox-label">No thanks (+$0)</span></label>
+                        <label class="checkbox-option"><input type="radio" name="creekguard_option" value="Yes - CreekGuard GPS (+$149 install, then $5.99/mo or $64.69/yr)"><span class="checkbox-label">Yes - Add CreekGuard GPS (+$149 install, then $5.99/mo)</span></label>
                     </div>
                 </div>
                 <div class="form-group"><label class="form-label">Additional Comments</label><textarea id="comments" name="comments" class="form-textarea" placeholder="Any questions, special requests..."></textarea></div>
@@ -1000,7 +1039,12 @@ window.ctcNextImage = function (img) {
                 riderHeight: document.getElementById('rider-height').value,
                 mirrorOption: document.querySelector('input[name="mirror_option"]:checked').value,
                 creekReady: document.querySelector('input[name="creek_ready"]:checked').value,
-                comments: document.getElementById('comments').value,
+                creekGuard: document.querySelector('input[name="creekguard_option"]:checked').value,
+                // The order sheet has no CreekGuard column yet, so a yes also
+                // rides at the top of the comments where staff will see it.
+                comments: (document.querySelector('input[name="creekguard_option"][value^="Yes"]:checked')
+                    ? '[CreekGuard GPS requested: $149 install + $5.99/mo or $64.69/yr]\n' : '')
+                    + document.getElementById('comments').value,
                 price: currentSelection.price
             };
             const orderParams = new URLSearchParams({action:'processOrder'});
@@ -1010,13 +1054,13 @@ window.ctcNextImage = function (img) {
                     // Apps Script may return non-JSON on redirect — treat any response as success
                     submitBtn.disabled = false;
                     submitBtn.textContent = 'Submit Order Request';
-                    showConfirmation();
+                    showSuccessModal();
                 })
                 .catch(function(e) {
                     // Even on network error, order likely went through — show confirmation
                     submitBtn.disabled = false;
                     submitBtn.textContent = 'Submit Order Request';
-                    showConfirmation();
+                    showSuccessModal();
                 });
         });
     </script>
