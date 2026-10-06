@@ -134,6 +134,13 @@ export default async function CustomerInvoiceDetailPage({ params }: PageProps) {
   const totalsDisagree = Math.abs(reconciled - Number(finalTotal)) > 0.02
   const isPaid = invoice.status === 'paid' || sheet?.status === 'paid'
 
+  // A deposit invoice: what the customer has paid and what is left. Shown
+  // only while something is still owed.
+  const amountPaid = num(sheet?.deposit) || num(invoice.amount_paid) || 0
+  const balanceDue = num(sheet?.balanceDue) ?? num(invoice.balance_due) ?? Number(finalTotal)
+  const showBalance = !isPaid && amountPaid > 0 && balanceDue > 0
+  const customerNotes = sheet?.customerNotes || ''
+
   // Format Date
   const rawDate = sheet?.invoiceDate || invoice.issued_at || invoice.created_at
   const formattedDate = rawDate
@@ -339,6 +346,19 @@ export default async function CustomerInvoiceDetailPage({ params }: PageProps) {
                 </div>
               )}
 
+              {showBalance && (
+                <>
+                  <div className="flex justify-between text-gray-600">
+                    <span>Paid so far</span>
+                    <span className="font-medium text-[#1A1A1A]">-${amountPaid.toFixed(2)}</span>
+                  </div>
+                  <div className="flex justify-between items-baseline">
+                    <span className="font-bold text-[#1A1A1A]">Balance Due</span>
+                    <span className="font-bold text-lg text-[#B3261E]">${balanceDue.toFixed(2)}</span>
+                  </div>
+                </>
+              )}
+
               {paymentMethod && (
                 <div className="flex justify-between text-gray-600 pt-1">
                   <span>Paid by</span>
@@ -352,6 +372,16 @@ export default async function CustomerInvoiceDetailPage({ params }: PageProps) {
               )}
             </div>
           </div>
+
+          {/* Notes for the customer: service performed, tips & tricks */}
+          {customerNotes && (
+            <div className="rounded-xl border border-[#C9A96E]/40 bg-[#FBF7EF] p-4">
+              <div className="text-xs font-bold uppercase tracking-wide text-[#8a6a2f] mb-1">
+                Service Notes &amp; Tips
+              </div>
+              <p className="text-sm text-[#1A1A1A] whitespace-pre-line leading-relaxed">{customerNotes}</p>
+            </div>
+          )}
 
           {/* Payment Status Stamp / Notice */}
           <div className="pt-4 border-t border-gray-100">

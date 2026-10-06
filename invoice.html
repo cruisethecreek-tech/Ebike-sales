@@ -2433,6 +2433,10 @@
                     paymentRef    : invoiceData.depositRef || '',
                     paymentMode   : invoiceData.paymentMode || 'full',
                     paymentLink   : paymentLink || '',
+                    // Carries "Referred by: CODE". Without it the portal never
+                    // learned who referred a customer, so no referral was ever
+                    // recorded and no referrer was ever told.
+                    paymentNotes  : invoiceData.paymentNotes || '',
                     quiet         : quiet === true,
                     status        : (invoiceData.paymentMode === 'paidInFullCash' || (parseFloat(invoiceData.balanceDue) || 0) <= 0) ? 'paid' : 'pending'
                 };
