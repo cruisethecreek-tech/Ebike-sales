@@ -169,7 +169,7 @@ export default async function AdminOverview() {
                 return (
                   <tr key={inv.id} className="border-b last:border-0 hover:bg-[#FBF7EF] transition-colors">
                     <td className="p-3.5 font-bold text-sm text-[#1A2E1C]">
-                      {inv.customers?.first_name} {inv.customers?.last_name}
+                      <CustomerNameLink inv={inv} />
                     </td>
                     <td className="p-3.5">
                       <a
@@ -228,7 +228,7 @@ export default async function AdminOverview() {
                       {inv.invoice_number} ↗
                     </a>
                     <p className="font-bold text-sm text-[#1A2E1C]">
-                      {inv.customers?.first_name} {inv.customers?.last_name}
+                      <CustomerNameLink inv={inv} />
                     </p>
                   </div>
                   <div className="text-right space-y-1">
@@ -252,6 +252,22 @@ export default async function AdminOverview() {
         </div>
       </div>
     </div>
+  )
+}
+
+// The name opens the customer's card (bikes, other invoices, status picker),
+// same as on the Invoices tab.
+function CustomerNameLink({ inv }: { inv: { customer_id?: string | null; customers?: NameParts | null } }) {
+  const name = `${inv.customers?.first_name || ''} ${inv.customers?.last_name || ''}`.trim() || 'Customer'
+  if (!inv.customer_id) return <>{name}</>
+  return (
+    <Link
+      href={`/admin/customers?customer=${inv.customer_id}`}
+      className="underline decoration-dotted underline-offset-2 hover:text-[#2D4A32]"
+      title="Open this customer's card"
+    >
+      {name}
+    </Link>
   )
 }
 
