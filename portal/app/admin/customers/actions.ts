@@ -7,6 +7,7 @@ import { canonicalInvoiceNumber } from '@/lib/invoice-number'
 import { findAuthUserByEmail } from '@/lib/find-auth-user'
 import { RIDE_PHOTOS_BUCKET } from '@/lib/ride-photos'
 import { cleanCustomerDetails, type CustomerDetailsInput } from '@/lib/customer-details'
+import { loadPurchaseSummary } from '@/lib/invite-personalization'
 
 // Admin-only: uses service role key to send invite emails
 function createAdminClient() {
@@ -58,9 +59,19 @@ export async function inviteCustomer(
   // customers — and anyone whose address was stored in a different case — it
   // reported "no account" and sent them down the invite-a-new-customer path,
   // which Supabase refuses because the account is right there.
-  const exists = !!(await findAuthUserByEmail(supabase, email))
+  const existing = await findAuthUserByEmail(supabase, email)
 
-  if (exists) {
+  if (existing) {
+    // The sign-in email greets them by name and mentions what they bought
+    // ({{ .Data.first_name }} and {{ .Data.purchase }} in the template), so
+    // put the current portal values on the account first. Supabase merges
+    // these keys into the existing metadata.
+    const purchase = await loadPurchaseSummary(supabase, existing.id)
+    const { error: metaError } = await supabase.auth.admin.updateUserById(existing.id, {
+      user_metadata: { first_name: firstName.trim(), purchase },
+    })
+    if (metaError) console.warn(`invite: could not personalise ${email}: ${metaError.message}`)
+
     // Already has an account — send a sign-in link that actually leaves the
     // building. This runs on the anon client because signInWithOtp is not an
     // admin call; the service-role client cannot send it.
