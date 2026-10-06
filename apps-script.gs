@@ -258,6 +258,94 @@ function handleDeleteInvoice(p) {
 }
 
 /**
+ * Send one email to a customer and record it in the portal's email log, so
+ * the admin customer card can show what was sent, when, and whether it was
+ * opened or a link in it was clicked (portal migration 00023_email_log).
+ *
+ * Takes the same message object as MailApp.sendEmail. The plain-text body is
+ * also sent as simple HTML carrying a 1x1 image from the portal (opened) and
+ * with links to the shop's sites or Stripe routed through the portal
+ * (clicked). The token and link rules match portal/lib/email-tracking.ts.
+ *
+ * Throws when the send fails, exactly like MailApp.sendEmail, so callers keep
+ * their own error handling. The log call never throws.
+ */
+function sendCustomerEmail_(message, kind, ref) {
+  var token = Utilities.getUuid().replace(/-/g, '').toLowerCase();
+  var out = {};
+  for (var k in message) out[k] = message[k];
+  if (!out.htmlBody && out.body) out.htmlBody = emailHtmlFromText_(String(out.body), token);
+
+  var sendError = null;
+  try {
+    MailApp.sendEmail(out);
+  } catch (err) {
+    sendError = err;
+  }
+  logCustomerEmail_({
+    token: token,
+    email: String(message.to || ''),
+    kind: kind,
+    subject: message.subject || '',
+    ref: ref ? String(ref) : '',
+    status: sendError ? 'failed' : 'sent',
+    error: sendError ? String(sendError) : '',
+  });
+  if (sendError) throw sendError;
+}
+
+function trackableEmailUrl_(url) {
+  var m = /^https:\/\/([^\/?#:@]+)(?:[\/?#]|$)/i.exec(url);
+  if (!m) return false;
+  var host = m[1].toLowerCase();
+  return host === 'cruisethecreek.com' || /\.cruisethecreek\.com$/.test(host) ||
+         host === 'stripe.com' || /\.stripe\.com$/.test(host);
+}
+
+function emailHtmlFromText_(text, token) {
+  var portal = 'https://portal.cruisethecreek.com';
+  var esc = function(v) {
+    return String(v).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  };
+  var html = '';
+  var re = /https?:\/\/[^\s<>"]+/g;
+  var last = 0, m;
+  while ((m = re.exec(text)) !== null) {
+    // Leave trailing punctuation outside the link.
+    var url = m[0].replace(/[.,;:!?)\]]+$/, '');
+    html += esc(text.slice(last, m.index));
+    var href = trackableEmailUrl_(url)
+      ? portal + '/api/email/click?t=' + token + '&u=' + encodeURIComponent(url)
+      : url;
+    html += '<a href="' + esc(href) + '" style="color: #2D4A32;">' + esc(url) + '</a>';
+    last = m.index + url.length;
+    re.lastIndex = last;
+  }
+  html += esc(text.slice(last));
+  return '<div style="font-family: Arial, Helvetica, sans-serif; font-size: 14px; line-height: 1.5; color: #222222; white-space: pre-wrap;">' +
+    html + '</div>' +
+    '<img src="' + portal + '/api/email/open?t=' + token + '" width="1" height="1" alt="" style="display: block; border: 0; width: 1px; height: 1px;">';
+}
+
+function logCustomerEmail_(entry) {
+  try {
+    var key = String(PropertiesService.getScriptProperties().getProperty('PORTAL_ADMIN_KEY') || '').trim();
+    if (!key || !entry.email) return;
+    var resp = UrlFetchApp.fetch('https://portal.cruisethecreek.com/api/email/log', {
+      method: 'post',
+      contentType: 'application/json',
+      headers: { 'x-ctc-admin-key': key },
+      payload: JSON.stringify(entry),
+      muteHttpExceptions: true,
+    });
+    var code = resp.getResponseCode();
+    if (code < 200 || code >= 300) console.warn('Email log returned ' + code);
+  } catch (err) {
+    console.warn('Email log failed: ' + err);
+  }
+}
+
+/**
  * Referral emails, sent when the customer portal asks (portal/lib/referral-email.ts):
  *   referralPaid  a friend this customer referred has made a paid purchase
  *   creditIssued  staff issued this customer's referral credit
@@ -323,13 +411,13 @@ function handleReferralEmail(p) {
   }
 
   try {
-    MailApp.sendEmail({
+    sendCustomerEmail_({
       to: to,
       replyTo: 'salesteam@cruisethecreek.com',
       subject: subject,
       name: 'Cruise the Creek',
       body: body,
-    });
+    }, p.type === 'creditIssued' ? 'referral_credit' : 'referral_paid', '');
   } catch (mailErr) {
     return json({ ok: false, error: 'send failed: ' + mailErr });
   }
@@ -469,7 +557,7 @@ function handleRepairIntake(p) {
     // Send the customer their signed waiver copy (PDF attached).
     if (row.email && waiver && waiver.pdfBlob) {
       try {
-        MailApp.sendEmail({
+        sendCustomerEmail_({
           to:      row.email,
           replyTo: 'salesteam@cruisethecreek.com',
           subject: 'Your Cruise the Creek service waiver — ' + row.id,
@@ -485,7 +573,7 @@ function handleRepairIntake(p) {
             '   Youngstown, OH',
           ].join('\n'),
           attachments: [waiver.pdfBlob],
-        });
+        }, 'repair_waiver', row.id);
       } catch (custErr) {
         console.warn('Repair waiver customer email failed: ' + custErr);
       }
@@ -1047,12 +1135,12 @@ function handleApparelOrder(p) {
           '— Cruise the Creek',
           '   Youngstown, OH',
         ].join('\n');
-        MailApp.sendEmail({
+        sendCustomerEmail_({
           to:      row.email,
           replyTo: 'salesteam@cruisethecreek.com',
           subject: 'Your Cruise the Creek apparel order — pay & confirm (' + row.id + ')',
           body:    customerBody,
-        });
+        }, 'apparel_order', row.id);
       } catch (mailErr) {
         console.warn('Apparel order customer email failed: ' + mailErr);
       }
@@ -1642,7 +1730,7 @@ function handleBridgeApplication(p) {
     // Send the applicant their agreement copy (PDF attached).
     if (row.email && agreement && agreement.pdfBlob) {
       try {
-        MailApp.sendEmail({
+        sendCustomerEmail_({
           to:      row.email,
           replyTo: 'salesteam@cruisethecreek.com',
           subject: 'Your Cruise the Creek Bridge the Gap agreement — ' + row.id,
@@ -1658,7 +1746,7 @@ function handleBridgeApplication(p) {
             '   Youngstown, OH',
           ].join('\n'),
           attachments: [agreement.pdfBlob],
-        });
+        }, 'bridge_agreement', row.id);
       } catch (custErr) {
         console.warn('Bridge applicant email failed: ' + custErr);
       }
@@ -2259,13 +2347,13 @@ function handleInvoiceCreated(p) {
           'cruisethecreek.com',
           'portal.cruisethecreek.com',
         ].filter(function(l){ return l !== ''; }).join('\n');
-        MailApp.sendEmail({
+        sendCustomerEmail_({
           to:      email,
           replyTo: 'salesteam@cruisethecreek.com',
           subject: 'Your Cruise the Creek invoice — ' + num,
           name:    'Cruise the Creek',
           body:    custBody,
-        });
+        }, 'invoice', num);
 
         // Sync customer and invoice to Cruise the Creek Customer Portal.
         // The portal's service-role routes require an admin key; set it once

@@ -2,6 +2,7 @@ import { findAuthUserByEmail, isAlreadyRegistered } from '@/lib/find-auth-user'
 import { canonicalInvoiceNumber, sameInvoiceNumber } from '@/lib/invoice-number'
 import { bikesOnInvoice, bikeModelKey } from '@/lib/detect-bike'
 import { purchaseSummary } from '@/lib/invite-personalization'
+import { logEmail, newEmailToken } from '@/lib/email-tracking'
 import { createClient } from '@supabase/supabase-js'
 import { notifyReferrerOfPaidPurchase } from '@/lib/referral-email'
 
@@ -162,6 +163,7 @@ export async function syncInvoice(body: any): Promise<SyncResult> {
 
     if (!user) {
       // Send official portal invite email
+      const emailToken = newEmailToken()
       const { data: inviteData, error: inviteErr } = await supabase.auth.admin.inviteUserByEmail(email, {
         redirectTo: redirectUrl,
         data: {
@@ -169,7 +171,16 @@ export async function syncInvoice(body: any): Promise<SyncResult> {
           last_name: lastName,
           // Read by the invite email template as {{ .Data.purchase }}.
           purchase: purchaseSummary(bikesOnInvoice(items)),
+          // The open-tracking image in the template; see lib/email-tracking.ts.
+          email_token: emailToken,
         },
+      })
+      await logEmail(supabase, {
+        token: emailToken,
+        email,
+        kind: 'invite',
+        status: inviteErr ? 'failed' : 'sent',
+        error: inviteErr?.message ?? null,
       })
 
       if (inviteErr) {
