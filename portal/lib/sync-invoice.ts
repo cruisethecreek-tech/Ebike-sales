@@ -1,6 +1,7 @@
 import { findAuthUserByEmail, isAlreadyRegistered } from '@/lib/find-auth-user'
 import { canonicalInvoiceNumber, sameInvoiceNumber } from '@/lib/invoice-number'
 import { bikesOnInvoice, bikeModelKey } from '@/lib/detect-bike'
+import { purchaseSummary } from '@/lib/invite-personalization'
 import { createClient } from '@supabase/supabase-js'
 import { notifyReferrerOfPaidPurchase } from '@/lib/referral-email'
 
@@ -166,6 +167,8 @@ export async function syncInvoice(body: any): Promise<SyncResult> {
         data: {
           first_name: firstName,
           last_name: lastName,
+          // Read by the invite email template as {{ .Data.purchase }}.
+          purchase: purchaseSummary(bikesOnInvoice(items)),
         },
       })
 
