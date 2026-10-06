@@ -487,6 +487,9 @@ export function CustomerDirectory({
   }, [selectedCustomerId])
 
   function selectCustomer(id: string) {
+    // The card opens above the list; bring it into view so a tap on a
+    // result far down the page visibly does something.
+    scrollOnArrival.current = true
     setSelectedCustomerId(id)
     try {
       localStorage.setItem('ctc_selected_customer_id', id)
@@ -717,7 +720,10 @@ export function CustomerDirectory({
             return (
               <button
                 key={letter}
-                onClick={() => setActiveLetter(letter)}
+                onClick={() => {
+                  setActiveLetter(letter)
+                  if (selectedCustomerId) clearSelection()
+                }}
                 className={`min-w-[28px] h-7 px-1.5 rounded-lg font-bold transition-all flex items-center justify-center ${
                   isSelected
                     ? 'bg-[#2D4A32] text-white shadow-xs scale-105'
@@ -735,7 +741,13 @@ export function CustomerDirectory({
           <input
             type="text"
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            onChange={(e) => {
+              setSearchQuery(e.target.value)
+              // Looking for someone means the open card is no longer the
+              // point. Close it so the matches sit right under the search box
+              // instead of below the whole card.
+              if (selectedCustomerId) clearSelection()
+            }}
             placeholder="Search by name, email, phone, bike (e.g. Discover 3), or ref code..."
             className="w-full px-3 py-2 rounded-lg border border-[#C9A96E] bg-white text-xs placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#2D4A32]"
           />

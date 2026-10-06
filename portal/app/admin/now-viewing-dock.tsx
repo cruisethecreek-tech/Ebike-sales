@@ -4,6 +4,7 @@ import { useState, useMemo, useEffect } from 'react'
 import Link from 'next/link'
 import { STORE_URL } from '@/lib/constants'
 import { ViewAsButton } from '@/app/admin/view-as-button'
+import { DockInviteButton } from './dock-invite-button'
 import {
   SELECTED_CARD,
   UNSELECTED_CARD,
@@ -364,7 +365,7 @@ export function NowViewingDock({ customers, dataError }: NowViewingDockProps) {
                     <span className="text-[11px] font-bold uppercase tracking-wider text-[#2D4A32] block">
                       ⚡ Action Hub for {selectedCustomer.first_name}:
                     </span>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-2 text-xs">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 text-xs">
                       {/* 1. Open Invoice Generator */}
                       <a
                         href={`${STORE_URL}/invoice.html?customer=${encodeURIComponent(
@@ -426,6 +427,9 @@ export function NowViewingDock({ customers, dataError }: NowViewingDockProps) {
                           📞 No phone
                         </div>
                       )}
+
+                      {/* Invite to the portal, or a fresh sign-in link if they already have an account */}
+                      <DockInviteButton key={selectedCustomer.id} customerId={selectedCustomer.id} />
 
                       {/* 4. Open their portal as they see it */}
                       <ViewAsButton
