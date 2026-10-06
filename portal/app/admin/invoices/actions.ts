@@ -114,6 +114,7 @@ export async function updateInvoiceStatus(
 
   // Marked paid here rather than in the generator: if this customer was
   // referred, this may be the purchase their referrer should hear about.
+  let referralNote = ''
   if (status === 'paid' && rows[0].customer_id) {
     const service = createServiceClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -122,6 +123,11 @@ export async function updateInvoiceStatus(
     )
     const outcome = await notifyReferrerOfPaidPurchase(service, String(rows[0].customer_id))
     if (outcome.startsWith('email failed')) console.warn(`[referral email] ${outcome}`)
+    // Say what happened to the referrer's email, so a failed one is not silent.
+    if (outcome === 'sent') referralNote = ' Their referrer was emailed a thank-you.'
+    else if (outcome.startsWith('email failed') || outcome === 'referrer has no email on file') {
+      referralNote = ` The referral thank-you to their referrer was not sent (${outcome}); save Paid again to retry.`
+    }
   }
 
   const invoiceNumber = String(rows[0].invoice_number || '')
@@ -129,6 +135,7 @@ export async function updateInvoiceStatus(
 
   revalidatePath('/admin/invoices')
   revalidatePath(`/admin/invoices/${invoiceId}`)
+  revalidatePath('/admin/customers')
   revalidatePath('/dashboard/invoices')
 
   if (!sheet.ok) {
@@ -141,11 +148,15 @@ export async function updateInvoiceStatus(
       message:
         `Portal updated to "${status}", but the Google Sheet was NOT updated ` +
         `(${sheet.error}). The Sheet is what bills, so ${invoiceNumber || 'this invoice'} ` +
-        `is not really ${status} yet — change it in the invoice generator, or retry.`,
+        `is not really ${status} yet — change it in the invoice generator, or retry.` + referralNote,
     }
   }
 
-  return { ok: true, sheetSynced: true, message: `${invoiceNumber} set to ${status} in both the portal and the Sheet.` }
+  return {
+    ok: true,
+    sheetSynced: true,
+    message: `${invoiceNumber} set to ${status} in both the portal and the Sheet.${referralNote}`,
+  }
 }
 
 /**

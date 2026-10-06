@@ -6,6 +6,7 @@ import { STORE_URL } from '@/lib/constants'
 import { canonicalInvoiceNumber } from '@/lib/invoice-number'
 import { adminUpdateBike, adminAddBike, adminDeleteBike } from './actions'
 import { DeleteInvoiceButton } from '../invoices/delete-invoice-button'
+import { CardInvoiceStatus } from './card-invoice-status'
 import { SendInviteButton } from './send-invite-button'
 import { EditCustomerDetails } from './edit-customer-details'
 import { ViewAsButton } from '@/app/admin/view-as-button'
@@ -1061,6 +1062,7 @@ export function CustomerDirectory({
                     <span className="ml-auto">
                       <DeleteInvoiceButton invoiceId={inv.id} invoiceNumber={inv.invoice_number || ''} />
                     </span>
+                    <CardInvoiceStatus key={`${inv.id}-${inv.status}`} invoiceId={inv.id} current={inv.status} />
                   </li>
                 ))}
               </ul>
