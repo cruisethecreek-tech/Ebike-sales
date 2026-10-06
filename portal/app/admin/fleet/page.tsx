@@ -145,9 +145,12 @@ export default async function AdminFleet({
   const openAlerts = (alertsRes.data ?? []) as TrackerAlert[]
   const trackerById = new Map(gps.statuses.map((s) => [s.tracker.id, s.tracker]))
 
-  const bikeName = (bikeId: string | null) => {
-    const bike = bikeId ? bikeById.get(bikeId) : undefined
-    return bike ? `${bike.brand} ${bike.model}` : 'Unassigned'
+  // One name per tracked bike: the bike's own name, the same one the owner
+  // sees on My Bikes. The tracker's label is only shown while it sits on the
+  // shelf with no bike, so the two can never disagree here.
+  const trackerName = (tracker: { label: string | null; bike_id: string | null } | undefined) => {
+    const bike = tracker?.bike_id ? bikeById.get(tracker.bike_id) : undefined
+    return bike ? bike.model : tracker?.label || 'Tracker on the shelf'
   }
   const ownerName = (bikeId: string | null) => {
     const c = bikeId ? bikeById.get(bikeId)?.customers : null
@@ -164,7 +167,7 @@ export default async function AdminFleet({
     latest
       ? [{
           trackerId: tracker.id,
-          name: tracker.label || bikeName(tracker.bike_id),
+          name: trackerName(tracker),
           owner: ownerName(tracker.bike_id),
           latitude: latest.latitude,
           longitude: latest.longitude,
@@ -230,7 +233,7 @@ export default async function AdminFleet({
                   <div>
                     <p className="font-bold text-red-700">{alertLabel(a)}</p>
                     <p className="text-xs text-gray-500">
-                      {tracker?.label || bikeName(tracker?.bike_id ?? null)} · {ownerName(tracker?.bike_id ?? null)} · {timeAgo(a.occurred_at)}
+                      {trackerName(tracker)} · {ownerName(tracker?.bike_id ?? null)} · {timeAgo(a.occurred_at)}
                       {a.latitude != null && a.longitude != null && (
                         <>
                           {' · '}
@@ -297,7 +300,7 @@ export default async function AdminFleet({
                         {trackers.map(({ tracker }) => (
                           <li key={tracker.id} className="flex flex-wrap items-center justify-between gap-2 bg-gray-50 rounded-lg px-3 py-2">
                             <span className="text-xs">
-                              <span className="font-semibold">{tracker.label || bikeName(tracker.bike_id)}</span>
+                              <span className="font-semibold">{trackerName(tracker)}</span>
                               <span className="text-gray-500"> · IMEI {tracker.imei}{tracker.sim_iccid ? ` · SIM ${tracker.sim_iccid}` : ''}</span>
                             </span>
                             {ended && (
@@ -368,7 +371,7 @@ export default async function AdminFleet({
                   return (
                     <tr key={tracker.id}>
                       <td className="py-2.5 pr-3">
-                        <p className="font-semibold text-[#1A2E1C]">{tracker.label || bikeName(tracker.bike_id)}</p>
+                        <p className="font-semibold text-[#1A2E1C]">{trackerName(tracker)}</p>
                         <p className="text-[11px] text-gray-500">IMEI {tracker.imei}</p>
                       </td>
                       <td className="py-2.5 pr-3">{ownerName(tracker.bike_id)}</td>
@@ -426,7 +429,8 @@ export default async function AdminFleet({
           🛠️ Manage Trackers
         </h2>
         <p className="text-xs text-gray-500">
-          Fix a label, SIM or IMEI typo, or move a tracker to another bike. A moved tracker starts fresh: the new
+          Rename a bike (the new name shows on the owner&apos;s My Bikes too), fix a SIM or IMEI typo, or move a
+          tracker to another bike. A moved tracker starts fresh: the new
           bike&apos;s owner only sees check-ins from after the move. If you fix an IMEI here, fix the Identifier in
           Traccar too. Device settings (geofences, commands) stay in Traccar.
         </p>
@@ -441,7 +445,7 @@ export default async function AdminFleet({
               <li key={tracker.id}>
                 <details className="border border-[#E5E5E5] rounded-xl">
                   <summary className="cursor-pointer px-4 py-3 text-sm flex justify-between gap-3">
-                    <span className="font-semibold text-[#1A2E1C]">{tracker.label || bikeName(tracker.bike_id)}</span>
+                    <span className="font-semibold text-[#1A2E1C]">{trackerName(tracker)}</span>
                     <span className="text-xs font-bold text-[#2D4A32] underline">Edit</span>
                   </summary>
                   <div className="px-4 pb-4 space-y-4">
@@ -459,8 +463,10 @@ export default async function AdminFleet({
                         </select>
                       </label>
                       <label className="space-y-1">
-                        <span className="text-xs font-bold text-gray-600">Label</span>
-                        <input name="label" defaultValue={tracker.label ?? ''} className="w-full border rounded-lg px-3 py-2" />
+                        <span className="text-xs font-bold text-gray-600">
+                          {tracker.bike_id ? 'Bike name (also changes it on My Bikes)' : 'Name'}
+                        </span>
+                        <input name="name" defaultValue={trackerName(tracker)} className="w-full border rounded-lg px-3 py-2" />
                       </label>
                       <label className="space-y-1">
                         <span className="text-xs font-bold text-gray-600">SIM ICCID</span>
@@ -557,10 +563,6 @@ export default async function AdminFleet({
               <option value="" disabled>Choose a bike…</option>
               {bikeOptions(untrackedBikes)}
             </select>
-          </label>
-          <label className="space-y-1">
-            <span className="text-xs font-bold text-gray-600">Label (optional)</span>
-            <input name="label" placeholder="Rental Ranger S #1" className="w-full border rounded-lg px-3 py-2" />
           </label>
           <label className="space-y-1">
             <span className="text-xs font-bold text-gray-600">SIM ICCID (optional)</span>

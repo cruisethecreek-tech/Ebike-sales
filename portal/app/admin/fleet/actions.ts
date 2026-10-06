@@ -1,6 +1,7 @@
 'use server'
 
 import { createClient } from '@/lib/supabase/server'
+import { createServiceClient } from '@/lib/supabase/service'
 import { requireAdminUser } from '@/lib/require-admin'
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
@@ -14,7 +15,6 @@ export async function registerTracker(formData: FormData): Promise<void> {
 
   const imei = String(formData.get('imei') ?? '').replace(/\s+/g, '')
   const bikeId = String(formData.get('bike_id') ?? '')
-  const label = String(formData.get('label') ?? '').trim() || null
   const simIccid = String(formData.get('sim_iccid') ?? '').replace(/\s+/g, '') || null
 
   if (!/^[0-9]{15}$/.test(imei)) {
@@ -27,7 +27,7 @@ export async function registerTracker(formData: FormData): Promise<void> {
   const supabase = await createClient()
   const { error } = await supabase
     .from('trackers')
-    .insert({ imei, bike_id: bikeId, label, sim_iccid: simIccid })
+    .insert({ imei, bike_id: bikeId, sim_iccid: simIccid })
 
   if (error) {
     const message = error.code === '23505'
@@ -59,21 +59,51 @@ export async function updateTracker(formData: FormData): Promise<void> {
   const id = String(formData.get('id') ?? '')
   const imei = String(formData.get('imei') ?? '').replace(/\s+/g, '')
   const bikeField = String(formData.get('bike_id') ?? '')
-  const label = String(formData.get('label') ?? '').trim() || null
+  const name = String(formData.get('name') ?? '').trim()
   const simIccid = String(formData.get('sim_iccid') ?? '').replace(/\s+/g, '') || null
 
   if (!id) fail('Missing tracker.')
   if (!/^[0-9]{15}$/.test(imei)) fail('IMEI must be exactly 15 digits (it is on the tracker label).')
   if (!bikeField) fail('Pick a bike, or "No bike" to keep it on the shelf.')
 
+  const bikeId = bikeField === 'none' ? null : bikeField
   const supabase = await createClient()
+  // Staff have no RLS update on bikes (owner only), so bike reads and the
+  // rename go through the service client, after requireAdminUser above.
+  const service = createServiceClient()
+
+  const { data: current } = await supabase.from('trackers').select('bike_id').eq('id', id).maybeSingle()
+  // On a bike, the name field is the bike's own name (bikes.model), so My
+  // Bikes and Fleet GPS show the same thing. It only renames the bike the
+  // tracker was already on: when moving a tracker, the field still shows the
+  // old bike's name and must not be copied onto the new one.
+  const renameBike = bikeId && bikeId === current?.bike_id ? name : ''
+
+  // The label copies the bike's name, so theft pushes (traccar-ingest reads
+  // the label first) and the retired list use it too. Off a bike, it is the
+  // only name the tracker has.
+  let label: string | null = name || null
+  if (bikeId && !renameBike) {
+    const { data: bike } = await service.from('bikes').select('model').eq('id', bikeId).maybeSingle()
+    label = bike?.model ?? null
+  }
+
   const { error } = await supabase
     .from('trackers')
-    .update({ imei, bike_id: bikeField === 'none' ? null : bikeField, label, sim_iccid: simIccid })
+    .update({ imei, bike_id: bikeId, label, sim_iccid: simIccid })
     .eq('id', id)
 
   if (error) {
     fail(error.code === '23505' ? 'Another tracker already has that IMEI or is on that bike.' : error.message)
+  }
+
+  if (renameBike && bikeId) {
+    const { error: bikeError } = await service
+      .from('bikes')
+      .update({ model: renameBike })
+      .eq('id', bikeId)
+      .neq('model', renameBike)
+    if (bikeError) fail(`Tracker saved, but the bike name was not changed: ${bikeError.message}`)
   }
   done('Tracker saved.')
 }
