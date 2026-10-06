@@ -107,6 +107,7 @@
               <p style="margin: 12px 0 0 0; font-size: 11px; color: #AAAAAA;">
                 © 2026 Cruise the Creek. All rights reserved.
               </p>
+              {{ if .Data.email_token }}<img src="https://portal.cruisethecreek.com/api/email/open?t={{ .Data.email_token }}" width="1" height="1" alt="" style="display: block; border: 0; width: 1px; height: 1px;">{{ end }}
             </td>
           </tr>
 

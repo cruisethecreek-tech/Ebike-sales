@@ -1,5 +1,6 @@
 'use server'
 
+import { logEmail, newEmailToken } from '@/lib/email-tracking'
 import { createClient } from '@supabase/supabase-js'
 import { requireAdminUser } from '@/lib/require-admin'
 import { revalidatePath } from 'next/cache'
@@ -66,9 +67,12 @@ export async function inviteCustomer(
     // ({{ .Data.first_name }} and {{ .Data.purchase }} in the template), so
     // put the current portal values on the account first. Supabase merges
     // these keys into the existing metadata.
+    // email_token is the open-tracking image in the template
+    // ({{ .Data.email_token }}); see lib/email-tracking.ts.
     const purchase = await loadPurchaseSummary(supabase, existing.id)
+    const token = newEmailToken()
     const { error: metaError } = await supabase.auth.admin.updateUserById(existing.id, {
-      user_metadata: { first_name: firstName.trim(), purchase },
+      user_metadata: { first_name: firstName.trim(), purchase, email_token: token },
     })
     if (metaError) console.warn(`invite: could not personalise ${email}: ${metaError.message}`)
 
@@ -90,6 +94,13 @@ export async function inviteCustomer(
       },
     })
 
+    await logEmail(supabase, {
+      token,
+      email,
+      kind: 'sign_in_link',
+      status: otpError ? 'failed' : 'sent',
+      error: otpError?.message ?? null,
+    })
     if (otpError) {
       return { ok: false, message: `Could not email ${email}: ${otpError.message}` }
     }
@@ -99,12 +110,21 @@ export async function inviteCustomer(
   }
 
   // Create auth user and send invite email
+  const token = newEmailToken()
   const { data: authData, error: authError } = await supabase.auth.admin.inviteUserByEmail(email, {
     redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://portal.cruisethecreek.com'}/auth/callback`,
     data: {
       first_name: firstName,
       last_name: lastName || '',
+      email_token: token,
     },
+  })
+  await logEmail(supabase, {
+    token,
+    email,
+    kind: 'invite',
+    status: authError ? 'failed' : 'sent',
+    error: authError?.message ?? null,
   })
 
   if (authError) {

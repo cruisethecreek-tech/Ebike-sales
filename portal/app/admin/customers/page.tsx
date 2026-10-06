@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { listAuthAccounts } from '@/lib/auth-accounts'
 import { InviteCustomerForm } from './invite-form'
 import { CustomerDirectory } from './customer-directory'
+import type { EmailSent } from './emails-sent'
 import Link from 'next/link'
 
 export default async function AdminCustomers() {
@@ -32,6 +33,20 @@ export default async function AdminCustomers() {
 
   // Who has actually signed in, and their email — neither is in `customers`.
   const { accounts, error: accountsError } = await listAuthAccounts()
+
+  // Emails the shop sent, matched to customers by address (email_log stores
+  // it lower case). Admin-only by RLS.
+  const { data: emailRows } = await supabase
+    .from('email_log')
+    .select('token, email, kind, subject, ref, status, error, sent_at, first_opened_at, last_opened_at, open_count, first_clicked_at, last_clicked_at, click_count')
+    .order('sent_at', { ascending: false })
+    .limit(5000)
+  const emailsByAddress = new Map<string, EmailSent[]>()
+  for (const row of emailRows || []) {
+    const list = emailsByAddress.get(row.email) || []
+    list.push(row as EmailSent)
+    emailsByAddress.set(row.email, list)
+  }
 
   const customersData = (customers || []).map((c) => {
     const custInvoices = (invoices || []).filter((i) => i.customer_id === c.id)
@@ -75,6 +90,7 @@ export default async function AdminCustomers() {
         issued_at: i.issued_at,
       })),
       latestPurchaseDate,
+      emails: account?.email ? emailsByAddress.get(account.email.toLowerCase()) || [] : [],
     }
   })
 

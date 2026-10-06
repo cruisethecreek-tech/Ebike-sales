@@ -12,6 +12,7 @@ import { ViewAsButton } from '@/app/admin/view-as-button'
 import { RemoveCustomer } from './remove-customer'
 import { BulkActions, type BulkCustomer } from './bulk-actions'
 import { CreekGuardBadge } from '@/app/components/creekguard-badge'
+import { EmailsSent, type EmailSent } from './emails-sent'
 import {
   SELECTED_ROW,
   UNSELECTED_ROW,
@@ -62,6 +63,8 @@ interface CustomerData {
   latestPurchaseDate?: string | null
   /** Set when hidden from the directory. Their data is untouched. */
   archived_at?: string | null
+  /** Emails the shop sent them, newest first (email_log). */
+  emails?: EmailSent[]
 }
 
 export function getGoogleVoiceUrls(phone?: string | null) {
@@ -1056,6 +1059,9 @@ export function CustomerDirectory({
               </p>
             )}
           </div>
+
+          {/* ── What the shop emailed them, and whether they opened it ── */}
+          <EmailsSent emails={selectedCustomer.emails || []} />
 
           {/* ── Removing them ── */}
           <div className="border-t border-[#E5E5E5] pt-3">
