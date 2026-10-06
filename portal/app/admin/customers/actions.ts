@@ -152,6 +152,37 @@ export async function inviteCustomer(
   return { ok: true, message: `Invite emailed to ${email}.` }
 }
 
+/**
+ * The same invite, from places that only know who the customer is, like the
+ * Find Customer panel at the bottom of every admin page. That panel has no
+ * email addresses (they live on the login, not in customers), so look the
+ * address up here instead of loading every login on every admin page.
+ */
+export async function inviteCustomerById(
+  prev: InviteResult | null,
+  formData: FormData,
+): Promise<InviteResult> {
+  await requireAdminUser()
+
+  const id = String(formData.get('customer_id') ?? '')
+  if (!id) return { ok: false, message: 'Missing customer.' }
+
+  const admin = createAdminClient()
+  const [{ data: account }, { data: customer }] = await Promise.all([
+    admin.auth.admin.getUserById(id),
+    admin.from('customers').select('first_name, last_name, phone').eq('id', id).maybeSingle(),
+  ])
+  const email = account?.user?.email
+  if (!email) return { ok: false, message: 'No email on file for this customer. Add one with Edit details first.' }
+
+  const form = new FormData()
+  form.set('email', email)
+  form.set('first_name', customer?.first_name || String(account?.user?.user_metadata?.first_name || '') || 'there')
+  form.set('last_name', customer?.last_name || '')
+  form.set('phone', customer?.phone || '')
+  return inviteCustomer(prev, form)
+}
+
 export interface CustomerDetailsResult {
   ok: boolean
   message: string
