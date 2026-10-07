@@ -34,10 +34,10 @@ export default async function AdminCustomers() {
   // Who has actually signed in, and their email — neither is in `customers`.
   const { accounts, error: accountsError } = await listAuthAccounts()
 
-  // Emails the shop sent, matched to customers by address (email_log stores
+  // Emails the shop sent, matched to customers by address (customer_email_log stores
   // it lower case). Admin-only by RLS.
   const { data: emailRows } = await supabase
-    .from('email_log')
+    .from('customer_email_log')
     .select('token, email, kind, subject, ref, status, error, sent_at, first_opened_at, last_opened_at, open_count, first_clicked_at, last_clicked_at, click_count')
     .order('sent_at', { ascending: false })
     .limit(5000)
