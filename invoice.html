@@ -4232,8 +4232,12 @@
                     if (window.history && window.history.replaceState) window.history.replaceState(null, '', window.location.pathname);
                     setTimeout(function () { window.location.reload(); }, 1200);
                 })
-                .catch(function (err) {
-                    renderDeleteInvoice(slot, invNum, false, 'Delete failed (' + (err && err.message || err) + ').');
+                .catch(function () {
+                    // No answer is not the same as not deleted: the portal may
+                    // have finished after the connection dropped. Deleting again
+                    // is safe and says what is left.
+                    renderDeleteInvoice(slot, invNum, false,
+                        'The portal did not answer, so it may have been deleted anyway. Tap Delete invoice again to check.');
                 });
         }
 

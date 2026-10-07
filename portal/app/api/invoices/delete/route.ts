@@ -5,6 +5,11 @@ import { createServiceClient } from '@/lib/supabase/service'
 import { removeInvoiceEverywhere } from '@/lib/invoice-removal'
 import { APPS_SCRIPT_CMS_URL } from '@/lib/constants'
 
+// The Sheet half waits on the Apps Script (up to 25 s, see invoice-removal).
+// Without this the platform's default limit could cut the request off first,
+// and the generator saw only "Failed to fetch" with no answer at all.
+export const maxDuration = 60
+
 export async function OPTIONS(req: Request) {
   return NextResponse.json({}, { headers: corsFor(req) })
 }
