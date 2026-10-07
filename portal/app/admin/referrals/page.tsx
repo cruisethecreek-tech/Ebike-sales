@@ -1,5 +1,13 @@
 import { createClient } from '@/lib/supabase/server'
 import { redeemCredit, approveAndIssueCredit } from './actions'
+import Link from 'next/link'
+
+function personName(c?: { first_name?: string | null; last_name?: string | null } | null): string {
+  if (!c) return 'Unknown customer'
+  const l = (c.last_name || '').trim()
+  const last = ['(none)', 'none', 'null'].includes(l.toLowerCase()) ? '' : l
+  return `${c.first_name || ''} ${last}`.trim() || 'Customer'
+}
 
 export default async function AdminReferrals() {
   const supabase = await createClient()
@@ -13,8 +21,20 @@ export default async function AdminReferrals() {
   // Fetch referred customers
   const { data: referredList } = await supabase
     .from('customers')
-    .select('id, first_name, last_name, referred_by, created_at')
+    .select('id, first_name, last_name, referred_by, created_at, referral_notified_at')
     .not('referred_by', 'is', null)
+    .order('created_at', { ascending: false })
+
+  // Their invoices, so each referral shows whether it turned into a sale.
+  const referredIds = (referredList || []).map((r) => r.id)
+  const { data: referredInvoices } = referredIds.length
+    ? await supabase
+        .from('invoices')
+        .select('customer_id, invoice_number, status, total_amount, issued_at')
+        .in('customer_id', referredIds)
+        .order('issued_at', { ascending: true })
+    : { data: [] as { customer_id: string; invoice_number: string | null; status: string | null; total_amount: number | null; issued_at: string | null }[] }
+  const customersById = new Map((allCustomers || []).map((c) => [c.id, c]))
 
   // Fetch all referral credits
   const { data: credits } = await supabase
@@ -57,6 +77,77 @@ export default async function AdminReferrals() {
             ${redeemedTotal.toFixed(2)}
           </p>
         </div>
+      </div>
+
+      {/* Who referred whom. The count alone said nothing about either. */}
+      <div className="space-y-3">
+        <h2
+          className="uppercase tracking-wide text-2xl text-[#1A2E1C]"
+          style={{ fontFamily: "'Bebas Neue', sans-serif" }}
+        >
+          Referrals ({referredList?.length || 0})
+        </h2>
+        {(!referredList || referredList.length === 0) ? (
+          <p className="text-xs text-gray-500 bg-white rounded-xl border border-[#E5E5E5] p-5 text-center">
+            No referrals recorded yet. A referral is saved when an invoice carries a Referred By code.
+          </p>
+        ) : (
+          <div className="space-y-2">
+            {referredList.map((r) => {
+              const referrer = r.referred_by ? customersById.get(r.referred_by) : null
+              const invs = (referredInvoices || []).filter((i) => i.customer_id === r.id)
+              const paid = invs.find((i) => i.status === 'paid')
+              const shown = paid || invs[0]
+              return (
+                <div key={r.id} className="bg-white rounded-xl border border-[#E5E5E5] p-3.5 text-xs space-y-1.5">
+                  <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                    <Link
+                      href={`/admin/customers?customer=${r.id}`}
+                      className="font-bold text-sm text-[#1A2E1C] underline decoration-dotted underline-offset-2"
+                    >
+                      {personName(r)}
+                    </Link>
+                    <span className="text-gray-500">was referred by</span>
+                    {referrer ? (
+                      <Link
+                        href={`/admin/customers?customer=${referrer.id}`}
+                        className="font-bold text-sm text-[#2D4A32] underline decoration-dotted underline-offset-2"
+                      >
+                        {personName(referrer)}
+                      </Link>
+                    ) : (
+                      <span className="font-bold text-gray-500">a customer no longer on file</span>
+                    )}
+                    {referrer?.referral_code && (
+                      <span className="font-mono text-[11px] px-1.5 py-0.5 rounded bg-[#F5F0E8] text-[#2D4A32]">
+                        {referrer.referral_code}
+                      </span>
+                    )}
+                  </div>
+                  <div className="flex flex-wrap gap-x-3 gap-y-1 text-gray-600">
+                    {shown ? (
+                      <span>
+                        🧾 {shown.invoice_number || 'Invoice'} · ${Number(shown.total_amount || 0).toFixed(2)} ·{' '}
+                        <span className={paid ? 'text-[#15803D] font-bold' : 'text-[#B45309] font-bold'}>
+                          {paid ? 'Paid' : (shown.status || 'pending')}
+                        </span>
+                      </span>
+                    ) : (
+                      <span>No invoice yet</span>
+                    )}
+                    <span>
+                      {r.referral_notified_at
+                        ? `✉️ ${referrer?.first_name || 'Referrer'} emailed ${new Date(r.referral_notified_at).toLocaleDateString()}`
+                        : paid
+                          ? '✉️ Referrer not emailed yet'
+                          : '✉️ Referrer is emailed once this is paid'}
+                    </span>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        )}
       </div>
 
       {/* Manual Referral Approval Form */}
