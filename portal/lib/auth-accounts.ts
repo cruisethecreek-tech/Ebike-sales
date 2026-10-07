@@ -15,8 +15,14 @@ export interface AuthAccount {
   invitedAt: string | null
   confirmedAt: string | null
   lastSignInAt: string | null
-  /** True once they have signed in at least once — i.e. really registered. */
+  /**
+   * True once they have signed in at least once with their current email,
+   * i.e. really registered. A sign-in from before staff changed the login
+   * email does not count: that was someone else's inbox.
+   */
   registered: boolean
+  /** When staff last changed the login email (user_metadata), if ever. */
+  loginEmailChangedAt: string | null
 }
 
 export interface AuthAccountsResult {
@@ -81,12 +87,15 @@ export async function listAuthAccounts(): Promise<AuthAccountsResult> {
     const users = data?.users || []
     for (const u of users) {
       const lastSignInAt = u.last_sign_in_at || null
+      const changed = u.user_metadata?.login_email_changed_at
+      const loginEmailChangedAt = typeof changed === 'string' ? changed : null
       accounts.set(u.id, {
         email: u.email || null,
         invitedAt: u.invited_at || null,
         confirmedAt: u.confirmed_at || u.email_confirmed_at || null,
         lastSignInAt,
-        registered: !!lastSignInAt,
+        registered: signedInSinceEmailChange(lastSignInAt, loginEmailChangedAt),
+        loginEmailChangedAt,
       })
     }
 
@@ -94,4 +103,11 @@ export async function listAuthAccounts(): Promise<AuthAccountsResult> {
   }
 
   return { accounts, error: null }
+}
+
+/** Signed in at least once, and not only before the login email changed. */
+export function signedInSinceEmailChange(lastSignInAt: string | null, emailChangedAt: string | null): boolean {
+  if (!lastSignInAt) return false
+  if (!emailChangedAt) return true
+  return new Date(lastSignInAt).getTime() > new Date(emailChangedAt).getTime()
 }

@@ -245,7 +245,14 @@ export async function adminUpdateCustomerDetails(
 
   const { error: updErr } = await admin.auth.admin.updateUserById(customerId, {
     ...(emailChanged ? { email: d.email, email_confirm: true } : {}),
-    user_metadata: { ...(authData.user.user_metadata || {}), first_name: d.firstName, last_name: d.lastName },
+    user_metadata: {
+      ...(authData.user.user_metadata || {}),
+      first_name: d.firstName,
+      last_name: d.lastName,
+      // A sign-in under the old address proves nothing about the new one, so
+      // the card stops calling them Registered until they sign in again.
+      ...(emailChanged ? { login_email_changed_at: new Date().toISOString() } : {}),
+    },
   })
 
   revalidatePath('/admin/customers')
@@ -269,7 +276,7 @@ export async function adminUpdateCustomerDetails(
     .sort()
   return {
     ok: true,
-    message: `Saved. They now sign in with ${d.email}.`,
+    message: `Saved. They now sign in with ${d.email}. Tap Send Portal Invite to email them a sign-in link.`,
     invoiceNumbers,
   }
 }
