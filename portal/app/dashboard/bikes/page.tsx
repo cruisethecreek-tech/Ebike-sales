@@ -384,7 +384,9 @@ export default async function BikesPage() {
 
                   <div className="pt-2 border-t border-gray-100 flex items-center gap-3">
                     <Link
-                      href={`/support?bikeId=${bike.id}`}
+                      href={warranty.creekReadyKind === 'break-in'
+                        ? `/support/break-in?bikeId=${bike.id}`
+                        : `/support?bikeId=${bike.id}`}
                       className="flex-1 text-center py-2.5 px-4 rounded-xl bg-[#2D4A32] text-white text-xs font-bold hover:bg-[#1A2E1C] transition-colors shadow-xs"
                     >
                       {warranty.creekReadyKind === 'break-in'
