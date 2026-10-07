@@ -336,13 +336,18 @@ main{flex:1;max-width:880px;margin:0 auto;padding:32px 24px 56px;width:100%}
     { listId: 'bears-bikes', match: /bear|both|all/i }
   ];
 
+  /** "Unavailable", "Not available", "No test ride" in the Test Ride column. */
+  function isUnavailable(b) {
+    return /unavailable|not available|no test ride/i.test(String(b.testRide || ''));
+  }
+
   function rebuildFromCatalog(bikes) {
     LOCATIONS.forEach(function (loc) {
       var ul = document.getElementById(loc.listId);
       if (!ul) return;
 
       var mine = bikes.filter(function (b) {
-        return loc.match.test(String(b.testRideLoc || ''));
+        return loc.match.test(String(b.testRideLoc || '')) && !isUnavailable(b);
       });
       if (!mine.length) return;           // column not filled in yet — keep the markup
 
@@ -578,6 +583,9 @@ main{flex:1;max-width:880px;margin:0 auto;padding:32px 24px 56px;width:100%}
              || byName[squash(li.dataset.name)]
              || byName[squash((li.dataset.name || '').replace(/^(heybike|velotric|jasion|mooncool|mokwheel)\s+/i, ''))];
         if (!b) return;                      // not in the catalog yet — keep the fallback
+        // The shop marks a demo bike out of action in the Sheet's Test Ride
+        // column, so it comes off this page without a code change.
+        if (isUnavailable(b)) { li.remove(); return; }
         var price = li.querySelector('.b-price');
         if (price && b.price) price.textContent = '$' + Number(b.price).toLocaleString();
         addPreview(li, b);
