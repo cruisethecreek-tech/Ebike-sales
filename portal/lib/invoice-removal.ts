@@ -89,7 +89,7 @@ export async function removeInvoiceEverywhere(
     }
   }
   if (!portalRemoved && !sheet.removed) {
-    return { ok: false, message: `${num} was not found in the portal or the Sheet.`, portalRemoved, sheetRemoved: 0 }
+    return { ok: false, message: `${num} was not found in the portal or the Sheet, so it is already deleted.`, portalRemoved, sheetRemoved: 0 }
   }
   return { ok: true, message: `${num} deleted.`, portalRemoved, sheetRemoved: sheet.removed }
 }
