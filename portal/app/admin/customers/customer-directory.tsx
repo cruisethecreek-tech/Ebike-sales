@@ -65,7 +65,7 @@ interface CustomerData {
   latestPurchaseDate?: string | null
   /** Set when hidden from the directory. Their data is untouched. */
   archived_at?: string | null
-  /** Emails the shop sent them, newest first (email_log). */
+  /** Emails the shop sent them, newest first (customer_email_log). */
   emails?: EmailSent[]
 }
 

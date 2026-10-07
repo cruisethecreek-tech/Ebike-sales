@@ -90,7 +90,7 @@ export function parseEmailLogEntry(body: unknown): EmailLogEntry | null {
 export async function logEmail(admin: SupabaseClient, entry: EmailLogEntry): Promise<void> {
   try {
     const { error } = await admin
-      .from('email_log')
+      .from('customer_email_log')
       .upsert({ ...entry, email: entry.email.trim().toLowerCase() }, { onConflict: 'token', ignoreDuplicates: true })
     if (error) console.warn(`email log: ${error.message}`)
   } catch (err) {

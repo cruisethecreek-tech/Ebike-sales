@@ -260,7 +260,7 @@ function handleDeleteInvoice(p) {
 /**
  * Send one email to a customer and record it in the portal's email log, so
  * the admin customer card can show what was sent, when, and whether it was
- * opened or a link in it was clicked (portal migration 00023_email_log).
+ * opened or a link in it was clicked (portal migration 00023_customer_email_log).
  *
  * Takes the same message object as MailApp.sendEmail. The plain-text body is
  * also sent as simple HTML carrying a 1x1 image from the portal (opened) and
