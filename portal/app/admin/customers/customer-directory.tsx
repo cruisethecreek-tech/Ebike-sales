@@ -782,6 +782,12 @@ export function CustomerDirectory({
               >
                 {formatCustomerName(selectedCustomer.first_name, selectedCustomer.last_name)}
               </h3>
+              {/* The badge's hover text never shows on a phone; say which
+                  login it is about and when it was last used. */}
+              <p className="text-[11px] text-gray-600 mt-0.5 break-all">
+                {selectedCustomer.email ? <>Login: {selectedCustomer.email}</> : 'No login email'}
+                {selectedCustomer.lastSignInAt && <> · last signed in {formatWhen(selectedCustomer.lastSignInAt)}</>}
+              </p>
             </div>
             <button
               onClick={clearSelection}
@@ -809,15 +815,14 @@ export function CustomerDirectory({
             </span>
 
             {/* The badge above says whether they have ever been written to.
-                Until now there was nothing here to act on it with. */}
-            {!selectedCustomer.registered && (
-              <SendInviteButton
-                email={selectedCustomer.email}
-                firstName={selectedCustomer.first_name}
-                lastName={selectedCustomer.last_name}
-                alreadyInvited={!!selectedCustomer.invitedAt}
-              />
-            )}
+                Registered customers get it too: a sign-in link is how to
+                help someone who lost theirs or whose email was corrected. */}
+            <SendInviteButton
+              email={selectedCustomer.email}
+              firstName={selectedCustomer.first_name}
+              lastName={selectedCustomer.last_name}
+              alreadyInvited={!!selectedCustomer.invitedAt || !!selectedCustomer.registered}
+            />
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-2 text-xs">
               {/* 1. Open Invoice Generator pre-filled */}
               <a
