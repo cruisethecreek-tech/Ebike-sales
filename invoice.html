@@ -3913,6 +3913,7 @@
                         renderCustomerSelectOptions(existingCustomersList);
                         renderReferrerOptions(existingCustomersList);
                         if (badge) badge.textContent = existingCustomersList.length + ' customers';
+                        selectCustomerFromLink();
                     }
                 })
                 .catch(function(err) {
@@ -3928,6 +3929,36 @@
                             if (badge) badge.textContent = '';
                         });
                 });
+        }
+
+        // Opened from a portal customer card (?name=&email=&phone=) on a new
+        // invoice: pick that customer in the directory once it loads, so the
+        // address on file and the portal link fill in as if chosen by hand.
+        // Fields the link already filled are left as they are.
+        function selectCustomerFromLink() {
+            var q = new URLSearchParams(window.location.search);
+            if (q.get('edit') || q.get('view') || q.get('invoice')) return;
+            var email = (q.get('email') || q.get('customerEmail') || '').trim().toLowerCase();
+            var digits = function (v) { return String(v || '').replace(/\D/g, '').slice(-10); };
+            var phone = digits(q.get('phone') || q.get('customerPhone'));
+            if (!email && phone.length < 10) return;
+            var idx = existingCustomersList.findIndex(function (c) {
+                if (email) return String(c.email || '').trim().toLowerCase() === email;
+                return digits(c.phone) === phone;
+            });
+            if (idx < 0) return;
+            var c = existingCustomersList[idx];
+            var select = document.getElementById('existingCustSelect');
+            if (select) select.value = String(idx);
+            var fill = function (id, v) { var el = document.getElementById(id); if (el && !el.value && v) el.value = v; };
+            fill('customerName', c.name);
+            fill('customerEmail', c.email);
+            fill('customerPhone', c.phone);
+            fill('customerAddress', c.address);
+            var notice = document.getElementById('custAutofillNotice');
+            if (notice) notice.style.display = 'block';
+            showCustomerPortalLink(c);
+            updateInvoicePreview();
         }
 
         function parseCustomersFromCsv(text) {
@@ -4671,13 +4702,16 @@
         const discountParam = urlParams.get('discount') || urlParams.get('promo');
         const refParam = urlParams.get('ref') || urlParams.get('code');
         const serviceParam = urlParams.get('service');
-        const nameParam = urlParams.get('name') || urlParams.get('customerName');
+        // The portal's customer card used to send ?customer= for the name;
+        // accept it too so a link opened from an older tab still fills it.
+        const nameParam = urlParams.get('name') || urlParams.get('customerName') || urlParams.get('customer');
         const emailParam = urlParams.get('email') || urlParams.get('customerEmail');
         const phoneParam = urlParams.get('phone') || urlParams.get('customerPhone');
 
         if (nameParam && document.getElementById('customerName')) document.getElementById('customerName').value = nameParam;
         if (emailParam && document.getElementById('customerEmail')) document.getElementById('customerEmail').value = emailParam;
         if (phoneParam && document.getElementById('customerPhone')) document.getElementById('customerPhone').value = phoneParam;
+        if ((nameParam || emailParam || phoneParam) && typeof updateInvoicePreview === 'function') updateInvoicePreview();
 
         if (discountParam && document.getElementById('discountPercent')) {
             document.getElementById('discountPercent').value = discountParam;
