@@ -34,6 +34,9 @@ export default async function SupportPage({
     .select('id, brand, model, purchase_date')
     .eq('customer_id', user.id)
 
+  // The bike is named by its foreign key: service_tickets has two keys to
+  // bikes (bike_id alone, and bike_id + customer_id), so a bare bikes(...)
+  // was ambiguous, the query errored, and every customer saw zero tickets.
   const { data: tickets } = await supabase
     .from('service_tickets')
     .select(`
@@ -43,7 +46,7 @@ export default async function SupportPage({
       description,
       created_at,
       bike_id,
-      bikes(brand, model)
+      bikes!service_tickets_bike_id_fkey(brand, model)
     `)
     .eq('customer_id', user.id)
     .order('created_at', { ascending: false })

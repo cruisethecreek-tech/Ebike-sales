@@ -9,6 +9,7 @@ const adminNav = [
   { href: '/admin/customers', label: 'Customers', icon: '👥' },
   { href: '/admin/invoices', label: 'Invoices', icon: '🧾' },
   { href: '/admin/referrals', label: 'Referrals', icon: '🎁' },
+  { href: '/admin/tickets', label: 'Tickets', icon: '🎫' },
   { href: '/admin/photos', label: 'Ride Photos', icon: '📸' },
   { href: '/admin/fleet', label: 'Fleet GPS', icon: '📍' },
 ]

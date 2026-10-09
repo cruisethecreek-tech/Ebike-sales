@@ -119,6 +119,7 @@ function doPost(e) {
     if (action === 'repairIntake') return handleRepairIntake(p);
     if (action === 'referralEmail') return handleReferralEmail(p);
     if (action === 'deleteInvoice') return handleDeleteInvoice(p);
+    if (action === 'serviceTicket') return handleServiceTicket(p);
     return json({ ok: false, error: 'Unknown POST action: ' + action });
   } catch (err) {
     console.error('doPost failed: ' + err);
@@ -255,6 +256,122 @@ function handleDeleteInvoice(p) {
     }
   }
   return json({ ok: true, removed: removed });
+}
+
+/**
+ * A customer opened a service ticket on the portal's Support page
+ * (portal/lib/ticket-email.ts). Email the shop the ticket, push it to
+ * Discord and the SMS gateway like a booking lead, and send the customer a
+ * short "we got it" copy.
+ *
+ * Key-checked like the other portal POSTs. Every part is best effort: the
+ * ticket is already saved in the portal, so one channel failing must not
+ * stop the others.
+ */
+function handleServiceTicket(p) {
+  var json = function(obj) {
+    return ContentService.createTextOutput(JSON.stringify(obj))
+      .setMimeType(ContentService.MimeType.JSON);
+  };
+  var expected = '';
+  try {
+    expected = String(PropertiesService.getScriptProperties().getProperty('PORTAL_ADMIN_KEY') || '').trim();
+  } catch (propErr) {
+    expected = '';
+  }
+  if (!expected || String(p.key || '').trim() !== expected) {
+    return json({ ok: false, error: 'not authorized' });
+  }
+
+  var clip = function(v, n) { return String(v || '').replace(/[\r\n]+/g, ' ').trim().slice(0, n); };
+  var name = (clip(p.firstName, 40) + ' ' + clip(p.lastName, 40)).trim() || 'A customer';
+  var type = clip(p.ticketType, 40) || 'ticket';
+  var bike = clip(p.bike, 80);
+  var phone = clip(p.phone, 30);
+  var email = clip(p.email, 120);
+  if (!/^[^\s@,;]+@[^\s@,;]+\.[^\s@,;]+$/.test(email)) email = '';
+  var description = String(p.description || '').trim().slice(0, 4000);
+  var ticketId = clip(p.ticketId, 40);
+  var adminUrl = 'https://portal.cruisethecreek.com/admin/tickets';
+  var staffSent = false;
+
+  try {
+    MailApp.sendEmail({
+      to:      'salesteam@cruisethecreek.com,info@cruisethecreek.com',
+      replyTo: email || 'salesteam@cruisethecreek.com',
+      subject: 'Service ticket (' + type + ') from ' + name,
+      body: [
+        'A customer opened a service ticket on the portal.',
+        '',
+        'Customer: ' + name,
+        'Phone:    ' + (phone || '(none on file)'),
+        'Email:    ' + (email || '(none on file)'),
+        'Type:     ' + type,
+        'Bike:     ' + (bike || '(none chosen)'),
+        '',
+        '— DESCRIPTION —',
+        description || '(blank)',
+        '',
+        'See and update it: ' + adminUrl,
+        'Ticket id: ' + ticketId,
+      ].join('\n'),
+    });
+    staffSent = true;
+  } catch (mailErr) {
+    console.warn('Service ticket staff email failed: ' + mailErr);
+  }
+
+  try {
+    postToDiscord_(
+      '🎫 New service ticket — ' + type,
+      2968114,
+      [
+        { name: '👤 Customer', value: name + (phone ? '\n📞 ' + phone : '') + (email ? '\n✉️ ' + email : ''), inline: false },
+        { name: '🚲 Bike', value: bike || '(none chosen)', inline: true },
+        { name: '📝 Description', value: description.slice(0, 1000) || '(blank)', inline: false },
+      ],
+      adminUrl
+    );
+  } catch (discordErr) { console.warn('Service ticket Discord post failed: ' + discordErr); }
+
+  try {
+    var smsTo = getSiteConfigValue_('lead_sms_gateway');
+    if (smsTo && String(smsTo).indexOf('@') !== -1) {
+      MailApp.sendEmail(String(smsTo).trim(), '',
+        ('New ' + type + ' ticket: ' + name + (phone ? ' | ' + phone : '') + ' | ' + description.replace(/\s+/g, ' ')).substring(0, 300));
+    }
+  } catch (smsErr) { console.warn('Service ticket SMS failed: ' + smsErr); }
+
+  var customerSent = false;
+  if (email) {
+    try {
+      sendCustomerEmail_({
+        to: email,
+        replyTo: 'salesteam@cruisethecreek.com',
+        name: 'Cruise the Creek',
+        subject: 'We got your ' + type + ' request',
+        body: [
+          'Hi ' + (clip(p.firstName, 40) || 'there') + ',',
+          '',
+          'Thanks for reaching out. Your ' + type + ' request is in, and Pat and Dru have been notified.',
+          'We will get back to you soon. For anything urgent, call or text 330-406-9681.',
+          '',
+          'What you sent:',
+          description,
+          '',
+          'You can see your tickets any time at https://portal.cruisethecreek.com/support',
+          '',
+          'Cruise the Creek',
+        ].join('\n'),
+      }, 'service_ticket', ticketId);
+      customerSent = true;
+    } catch (custErr) {
+      console.warn('Service ticket customer email failed: ' + custErr);
+    }
+  }
+
+  return json({ ok: staffSent, staffEmailed: staffSent, customerEmailed: customerSent,
+                error: staffSent ? undefined : 'the shop email did not send' });
 }
 
 /**
