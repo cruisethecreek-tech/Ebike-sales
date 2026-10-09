@@ -120,6 +120,7 @@ function doPost(e) {
     if (action === 'referralEmail') return handleReferralEmail(p);
     if (action === 'deleteInvoice') return handleDeleteInvoice(p);
     if (action === 'serviceTicket') return handleServiceTicket(p);
+    if (action === 'ticketReply') return handleTicketReply(p);
     return json({ ok: false, error: 'Unknown POST action: ' + action });
   } catch (err) {
     console.error('doPost failed: ' + err);
@@ -372,6 +373,115 @@ function handleServiceTicket(p) {
 
   return json({ ok: staffSent, staffEmailed: staffSent, customerEmailed: customerSent,
                 error: staffSent ? undefined : 'the shop email did not send' });
+}
+
+/**
+ * A new reply on a service ticket (portal/lib/ticket-email.ts
+ * sendTicketReplyEmail).
+ *   from 'staff':    the shop answered on Admin > Tickets; email the customer
+ *                    the reply (logged in Emails Sent as ticket_reply).
+ *   from 'customer': the customer answered on Support; alert the shop the
+ *                    same way a new ticket does (email, Discord, SMS gateway).
+ * Key-checked like the other portal POSTs; every channel is best effort.
+ */
+function handleTicketReply(p) {
+  var json = function(obj) {
+    return ContentService.createTextOutput(JSON.stringify(obj))
+      .setMimeType(ContentService.MimeType.JSON);
+  };
+  var expected = '';
+  try {
+    expected = String(PropertiesService.getScriptProperties().getProperty('PORTAL_ADMIN_KEY') || '').trim();
+  } catch (propErr) {
+    expected = '';
+  }
+  if (!expected || String(p.key || '').trim() !== expected) {
+    return json({ ok: false, error: 'not authorized' });
+  }
+
+  var clip = function(v, n) { return String(v || '').replace(/[\r\n]+/g, ' ').trim().slice(0, n); };
+  var first = clip(p.firstName, 40);
+  var name = (first + ' ' + clip(p.lastName, 40)).trim() || 'A customer';
+  var type = clip(p.ticketType, 40) || 'ticket';
+  var phone = clip(p.phone, 30);
+  var email = clip(p.email, 120);
+  if (!/^[^\s@,;]+@[^\s@,;]+\.[^\s@,;]+$/.test(email)) email = '';
+  var message = String(p.message || '').trim().slice(0, 4000);
+  var ticketId = clip(p.ticketId, 40);
+
+  if (String(p.from) === 'staff') {
+    if (!email) return json({ ok: false, error: 'no customer email' });
+    try {
+      sendCustomerEmail_({
+        to: email,
+        replyTo: 'salesteam@cruisethecreek.com',
+        name: 'Cruise the Creek',
+        subject: 'Re: your ' + type + ' request',
+        body: [
+          'Hi ' + (first || 'there') + ',',
+          '',
+          message,
+          '',
+          'You can see the whole conversation and reply at https://portal.cruisethecreek.com/support',
+          'For anything urgent, call or text 330-406-9681.',
+          '',
+          'Pat & Dru',
+          'Cruise the Creek',
+        ].join('\n'),
+      }, 'ticket_reply', ticketId);
+      return json({ ok: true });
+    } catch (custErr) {
+      console.warn('Ticket reply customer email failed: ' + custErr);
+      return json({ ok: false, error: 'the customer email did not send' });
+    }
+  }
+
+  var adminUrl = 'https://portal.cruisethecreek.com/admin/tickets';
+  var staffSent = false;
+  try {
+    MailApp.sendEmail({
+      to:      'salesteam@cruisethecreek.com,info@cruisethecreek.com',
+      replyTo: email || 'salesteam@cruisethecreek.com',
+      subject: 'Ticket reply (' + type + ') from ' + name,
+      body: [
+        name + ' replied on their ' + type + ' ticket.',
+        '',
+        'Phone: ' + (phone || '(none on file)'),
+        'Email: ' + (email || '(none on file)'),
+        '',
+        '— REPLY —',
+        message || '(blank)',
+        '',
+        'Answer it here: ' + adminUrl,
+        'Ticket id: ' + ticketId,
+      ].join('\n'),
+    });
+    staffSent = true;
+  } catch (mailErr) {
+    console.warn('Ticket reply staff email failed: ' + mailErr);
+  }
+
+  try {
+    postToDiscord_(
+      '💬 Ticket reply — ' + type,
+      2968114,
+      [
+        { name: '👤 Customer', value: name + (phone ? '\n📞 ' + phone : ''), inline: false },
+        { name: '📝 Reply', value: message.slice(0, 1000) || '(blank)', inline: false },
+      ],
+      adminUrl
+    );
+  } catch (discordErr) { console.warn('Ticket reply Discord post failed: ' + discordErr); }
+
+  try {
+    var smsTo = getSiteConfigValue_('lead_sms_gateway');
+    if (smsTo && String(smsTo).indexOf('@') !== -1) {
+      MailApp.sendEmail(String(smsTo).trim(), '',
+        ('Ticket reply from ' + name + (phone ? ' | ' + phone : '') + ' | ' + message.replace(/\s+/g, ' ')).substring(0, 300));
+    }
+  } catch (smsErr) { console.warn('Ticket reply SMS failed: ' + smsErr); }
+
+  return json({ ok: staffSent, error: staffSent ? undefined : 'the shop email did not send' });
 }
 
 /**

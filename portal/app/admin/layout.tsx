@@ -44,7 +44,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   // Columns are named rather than '*' for the same reason: the dock only uses
   // the fields in CustomerWithData, and invoices now carry a line-items blob
   // that nothing in the dock reads.
-  const [customersRes, bikesRes, invoicesRes] = await Promise.all([
+  const [customersRes, bikesRes, invoicesRes, waitingRes] = await Promise.all([
     supabase
       // No `email` here: public.customers has no such column — addresses live
       // on auth.users. Naming it made PostgREST reject the whole query, and
@@ -64,7 +64,11 @@ export default async function AdminLayout({ children }: { children: React.ReactN
       .from('invoices')
       .select('id, customer_id, invoice_number, total_amount, status, issued_at')
       .order('issued_at', { ascending: false }),
+    // Tickets waiting on a reply, for the badge on Tickets and the bell.
+    supabase.from('service_tickets').select('id', { count: 'exact', head: true }).eq('needs_reply', true),
   ])
+  // Before migration 00024 the column is missing and this errors; show no badge.
+  const ticketsWaiting = waitingRes.error ? 0 : waitingRes.count || 0
 
   // A failed query returns data: null, and `|| []` then turns a broken dock
   // into an empty one — silently. Naming columns is worth doing, but it only
@@ -99,12 +103,26 @@ export default async function AdminLayout({ children }: { children: React.ReactN
           >
             CTC Admin
           </span>
+          <div className="flex items-center gap-2">
+          <Link
+            href="/admin/tickets"
+            aria-label={ticketsWaiting > 0 ? `${ticketsWaiting} tickets waiting on a reply` : 'No tickets waiting'}
+            className="relative text-lg px-1.5"
+          >
+            🔔
+            {ticketsWaiting > 0 && (
+              <span className="absolute -top-1 -right-1 min-w-4 h-4 px-1 flex items-center justify-center rounded-full bg-[#D9534F] text-white text-[10px] font-bold">
+                {ticketsWaiting}
+              </span>
+            )}
+          </Link>
           <Link
             href="/dashboard"
             className="text-xs px-2.5 py-1 rounded bg-[#2D4A32] text-[#C9A96E] font-bold"
           >
             Portal →
           </Link>
+          </div>
         </div>
         <nav className="flex items-center gap-1 px-3 py-1.5 overflow-x-auto no-scrollbar">
           {adminNav.map((item) => (
@@ -114,6 +132,11 @@ export default async function AdminLayout({ children }: { children: React.ReactN
               className="flex-shrink-0 px-2.5 py-1 rounded-md text-xs font-semibold text-[#F5F0E8] hover:bg-[#2D4A32] whitespace-nowrap"
             >
               {item.icon} {item.label}
+              {item.href === '/admin/tickets' && ticketsWaiting > 0 && (
+                <span className="ml-1.5 inline-flex min-w-5 h-5 px-1.5 items-center justify-center rounded-full bg-[#D9534F] text-white text-[11px] font-bold align-middle">
+                  {ticketsWaiting}
+                </span>
+              )}
             </Link>
           ))}
         </nav>
@@ -139,6 +162,11 @@ export default async function AdminLayout({ children }: { children: React.ReactN
                 style={{ color: '#F5F0E8' }}
               >
                 {item.icon} {item.label}
+                {item.href === '/admin/tickets' && ticketsWaiting > 0 && (
+                  <span className="ml-1.5 inline-flex min-w-5 h-5 px-1.5 items-center justify-center rounded-full bg-[#D9534F] text-white text-[11px] font-bold align-middle">
+                    {ticketsWaiting}
+                  </span>
+                )}
               </Link>
             ))}
           </nav>
@@ -163,6 +191,18 @@ export default async function AdminLayout({ children }: { children: React.ReactN
               Admin Dashboard
             </h1>
             <div className="flex items-center gap-2">
+              <Link
+                href="/admin/tickets"
+                aria-label={ticketsWaiting > 0 ? `${ticketsWaiting} tickets waiting on a reply` : 'No tickets waiting'}
+                className="relative text-lg px-1.5"
+              >
+                🔔
+                {ticketsWaiting > 0 && (
+                  <span className="absolute -top-1 -right-1 min-w-4 h-4 px-1 flex items-center justify-center rounded-full bg-[#D9534F] text-white text-[10px] font-bold">
+                    {ticketsWaiting}
+                  </span>
+                )}
+              </Link>
               <a
                 href={`${STORE_URL}/salespro.html`}
                 target="_blank"

@@ -6,7 +6,7 @@ import { useState, useRef, useEffect } from 'react'
 import { signOut } from '@/app/auth/actions'
 import { useSeasonalTheme, SeasonKey } from '@/app/components/seasonal-theme-provider'
 
-export function Navbar() {
+export function Navbar({ supportBadge = 0 }: { supportBadge?: number }) {
   const pathname = usePathname()
   const [mobileOpen, setMobileOpen] = useState(false)
   const [themeDropdownOpen, setThemeDropdownOpen] = useState(false)
@@ -72,6 +72,11 @@ export function Navbar() {
                   }}
                 >
                   {link.label}
+                  {link.href === '/support' && supportBadge > 0 && (
+                    <span className="ml-1.5 inline-flex min-w-5 h-5 px-1.5 items-center justify-center rounded-full bg-[#D9534F] text-white text-[11px] font-bold align-middle">
+                      {supportBadge}
+                    </span>
+                  )}
                 </Link>
               )
             })}
@@ -176,9 +181,12 @@ export function Navbar() {
 
             <button
               onClick={() => setMobileOpen(!mobileOpen)}
-              className="text-white p-2"
-              aria-label="Toggle menu"
+              className="relative text-white p-2"
+              aria-label={supportBadge > 0 ? 'Toggle menu (new reply from the shop)' : 'Toggle menu'}
             >
+              {supportBadge > 0 && !mobileOpen && (
+                <span className="absolute top-1 right-1 w-2.5 h-2.5 rounded-full bg-[#D9534F]" />
+              )}
               {mobileOpen ? (
                 <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -212,6 +220,11 @@ export function Navbar() {
                   }}
                 >
                   {link.label}
+                  {link.href === '/support' && supportBadge > 0 && (
+                    <span className="ml-1.5 inline-flex min-w-5 h-5 px-1.5 items-center justify-center rounded-full bg-[#D9534F] text-white text-[11px] font-bold align-middle">
+                      {supportBadge}
+                    </span>
+                  )}
                 </Link>
               )
             })}

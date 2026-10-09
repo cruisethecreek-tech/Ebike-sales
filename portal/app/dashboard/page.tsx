@@ -19,6 +19,13 @@ export default async function DashboardPage() {
   // so the preview shows the real page rather than an approximation of it.
   const { userId: viewerId, viewingAs } = await getViewerContext()
 
+  // Shop replies on this customer's tickets they have not seen yet.
+  const { count: unreadReplies } = await supabase
+    .from('service_tickets')
+    .select('id', { count: 'exact', head: true })
+    .eq('customer_id', viewerId)
+    .eq('customer_unread', true)
+
   // Fetch customer profile
   let customer: any = null
   let bikes: any[] = []
@@ -103,6 +110,18 @@ export default async function DashboardPage() {
           </Link>
         )}
       </div>
+
+      {(unreadReplies || 0) > 0 && (
+        <Link
+          href="/support#tickets"
+          className="flex items-center justify-between gap-3 p-4 rounded-xl bg-[#E8F3EA] border border-[#6B8F71] text-[#1A2E1C] shadow-xs"
+        >
+          <span className="text-sm font-bold">
+            💬 Pat &amp; Dru replied to your support ticket{unreadReplies === 1 ? '' : 's'}
+          </span>
+          <span className="text-xs font-bold underline whitespace-nowrap">Read it →</span>
+        </Link>
+      )}
 
       {/* Stat cards */}
       <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">

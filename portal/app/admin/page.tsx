@@ -12,6 +12,22 @@ export default async function AdminOverview() {
   const supabase = await createClient()
 
   const { count: customersCount } = await supabase.from('customers').select('*', { count: 'exact', head: true })
+
+  // To-do: tickets waiting on a reply from the shop. Errors (e.g. before
+  // migration 00024) just hide the panel.
+  const { data: waitingRows } = await supabase
+    .from('service_tickets')
+    .select('id, ticket_type, description, created_at, customers(first_name, last_name)')
+    .eq('needs_reply', true)
+    .order('created_at', { ascending: true })
+    .limit(20)
+  const waiting = (waitingRows || []) as unknown as {
+    id: string
+    ticket_type: string
+    description: string
+    created_at: string
+    customers: { first_name: string | null; last_name: string | null } | null
+  }[]
   
   const { data: invoices } = await supabase
     .from('invoices')
@@ -116,6 +132,29 @@ export default async function AdminOverview() {
           ⚡ New Invoice / Generator ↗
         </a>
       </div>
+
+      {/* To-do: tickets waiting on the shop */}
+      {waiting.length > 0 && (
+        <div className="p-4 rounded-xl bg-white border border-[#E8A99F] shadow-sm space-y-3">
+          <div className="flex items-center justify-between gap-2">
+            <h3 className="font-bold text-[#1A2E1C]">📥 To do: {waiting.length} ticket{waiting.length === 1 ? '' : 's'} waiting on a reply</h3>
+            <Link href="/admin/tickets" className="text-xs font-bold underline text-[#2D4A32]">Open Tickets →</Link>
+          </div>
+          <ul className="divide-y divide-[#F0E8DA]">
+            {waiting.map((t) => (
+              <li key={t.id}>
+                <Link href={`/admin/tickets#ticket-${t.id}`} className="flex flex-wrap items-baseline gap-x-2 py-2 text-sm hover:bg-[#FBF7EF]">
+                  <span className="font-bold text-[#1A2E1C]">
+                    {`${t.customers?.first_name || ''} ${t.customers?.last_name || ''}`.trim() || 'Customer'}
+                  </span>
+                  <span className="text-[11px] font-bold uppercase text-[#4A4A4A]">{t.ticket_type}</span>
+                  <span className="text-xs text-[#4A4A4A] truncate max-w-full">{t.description}</span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
 
       {/* KPI Stat Cards (Pending Revenue opens the pending invoice list) */}
       <KpiStats

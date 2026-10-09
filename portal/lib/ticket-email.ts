@@ -26,14 +26,41 @@ export type TicketEmail = {
  * turn that into an error for the customer.
  */
 export async function sendTicketEmail(ticket: TicketEmail): Promise<{ ok: boolean; error?: string }> {
+  const customerEmail = ticket.email && !isPlaceholderEmail(ticket.email) ? ticket.email : ''
+  return postToMailer({ action: 'serviceTicket', ...ticket, email: customerEmail })
+}
+
+export type TicketReplyEmail = {
+  ticketId: string
+  ticketType: string
+  /** 'staff': the shop answered, so email the customer. 'customer': the customer answered, so alert the shop. */
+  from: 'staff' | 'customer'
+  message: string
+  firstName: string
+  lastName: string
+  email: string
+  phone: string
+}
+
+/**
+ * A new reply on a ticket. Staff replies go to the customer by email (logged
+ * in Emails Sent); customer replies alert the shop the same way a new ticket
+ * does (handleTicketReply in apps-script.gs). Never throws.
+ */
+export async function sendTicketReplyEmail(reply: TicketReplyEmail): Promise<{ ok: boolean; error?: string }> {
+  const customerEmail = reply.email && !isPlaceholderEmail(reply.email) ? reply.email : ''
+  if (reply.from === 'staff' && !customerEmail) return { ok: false, error: 'the customer has no real email on file' }
+  return postToMailer({ action: 'ticketReply', ...reply, email: customerEmail })
+}
+
+async function postToMailer(payload: Record<string, unknown>): Promise<{ ok: boolean; error?: string }> {
   const key = (process.env.ADMIN_API_KEY || '').trim()
   if (!key) return { ok: false, error: 'ADMIN_API_KEY is not set' }
-  const customerEmail = ticket.email && !isPlaceholderEmail(ticket.email) ? ticket.email : ''
   try {
     const res = await fetch(APPS_SCRIPT_CMS_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-      body: JSON.stringify({ action: 'serviceTicket', key, ...ticket, email: customerEmail }),
+      body: JSON.stringify({ ...payload, key }),
       redirect: 'follow',
       cache: 'no-store',
       signal: AbortSignal.timeout(25_000),

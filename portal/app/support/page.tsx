@@ -5,6 +5,8 @@ import { ConciergeChat } from './concierge-chat'
 import { TuneUpCard } from './tune-up-card'
 import { STORE_URL } from '@/lib/constants'
 import { redirect } from 'next/navigation'
+import { TicketThread, messagesByTicket, shopTime, type TicketMessage } from '@/app/components/ticket-thread'
+import { MarkRepliesRead, TicketReplyBox } from './ticket-reply'
 
 export const metadata = {
   title: 'Support & Concierge — Cruise the Creek',
@@ -46,10 +48,21 @@ export default async function SupportPage({
       description,
       created_at,
       bike_id,
+      customer_unread,
       bikes!service_tickets_bike_id_fkey(brand, model)
     `)
     .eq('customer_id', user.id)
     .order('created_at', { ascending: false })
+
+  const { data: messageRows } = tickets?.length
+    ? await supabase
+        .from('ticket_messages')
+        .select('id, ticket_id, from_staff, body, created_at')
+        .in('ticket_id', tickets.map((t) => t.id))
+        .order('created_at', { ascending: true })
+    : { data: [] as TicketMessage[] }
+  const threads = messagesByTicket(messageRows as TicketMessage[] | null)
+  const hasUnread = (tickets || []).some((t: any) => t.customer_unread)
 
   const customerName = customer ? `${customer.first_name} ${customer.last_name}` : 'Rider'
   const bikeSummary = (bikes || []).map(b => `${b.brand} ${b.model}`).join(', ')
@@ -136,7 +149,7 @@ export default async function SupportPage({
       </div>
 
       {/* ── Your Past Tickets ── */}
-      <div className="space-y-4">
+      <div id="tickets" className="space-y-4 scroll-mt-20">
         <h2
           className="uppercase tracking-wide text-2xl text-[#1A2E1C]"
           style={{ fontFamily: "'Bebas Neue', sans-serif" }}
@@ -149,33 +162,31 @@ export default async function SupportPage({
             No past tickets on file. Open one above whenever you need service or advice!
           </div>
         ) : (
-          <div className="bg-white rounded-xl shadow-sm border border-[#E5E5E5] overflow-x-auto">
-            <table className="w-full text-left border-collapse">
-              <thead className="bg-[#F5F0E8] text-[#1A2E1C]">
-                <tr>
-                  <th className="p-3.5 border-b font-semibold text-xs uppercase tracking-wider">Type</th>
-                  <th className="p-3.5 border-b font-semibold text-xs uppercase tracking-wider">Status</th>
-                  <th className="p-3.5 border-b font-semibold text-xs uppercase tracking-wider">Bike</th>
-                  <th className="p-3.5 border-b font-semibold text-xs uppercase tracking-wider">Description</th>
-                  <th className="p-3.5 border-b font-semibold text-xs uppercase tracking-wider">Date</th>
-                </tr>
-              </thead>
-              <tbody>
-                {tickets.map((t: any) => (
-                  <tr key={t.id} className="border-b last:border-0 hover:bg-[#FBF7EF] text-xs">
-                    <td className="p-3.5 font-bold uppercase text-[#1A2E1C]">{t.ticket_type}</td>
-                    <td className="p-3.5">
-                      <StatusBadge status={t.status} />
-                    </td>
-                    <td className="p-3.5 font-medium text-[#2D4A32]">
-                      {t.bikes?.brand ? `${t.bikes.brand} ${t.bikes.model}` : 'General / No bike'}
-                    </td>
-                    <td className="p-3.5 text-gray-600 max-w-sm truncate">{t.description}</td>
-                    <td className="p-3.5 text-gray-400">{new Date(t.created_at).toLocaleDateString()}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+          <div className="space-y-3">
+            {hasUnread && <MarkRepliesRead />}
+            {tickets.map((t: any) => (
+              <div
+                key={t.id}
+                className={`p-4 rounded-xl bg-white border shadow-sm space-y-3 ${t.customer_unread ? 'border-[#6B8F71]' : 'border-[#E5E5E5]'}`}
+              >
+                <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs">
+                  <span className="font-bold uppercase text-[#1A2E1C]">{t.ticket_type}</span>
+                  <StatusBadge status={t.status} />
+                  {t.customer_unread && (
+                    <span className="text-[11px] font-bold uppercase px-2 py-0.5 rounded-full bg-[#2D4A32] text-white">
+                      New reply
+                    </span>
+                  )}
+                  <span className="font-medium text-[#2D4A32]">
+                    {t.bikes?.brand ? `${t.bikes.brand} ${t.bikes.model}` : 'General / No bike'}
+                  </span>
+                  <span className="text-gray-400">{shopTime(t.created_at)}</span>
+                </div>
+                <p className="text-sm text-gray-700 whitespace-pre-wrap break-words">{t.description}</p>
+                <TicketThread messages={threads.get(t.id) || []} viewer="customer" />
+                <TicketReplyBox ticketId={t.id} />
+              </div>
+            ))}
           </div>
         )}
       </div>
