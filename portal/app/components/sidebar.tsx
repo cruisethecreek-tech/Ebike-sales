@@ -13,7 +13,7 @@ const navItems = [
   { href: '/support', label: 'Support', icon: '🛠️' },
 ]
 
-export function Sidebar({ isAdmin = false }: { isAdmin?: boolean }) {
+export function Sidebar({ isAdmin = false, supportBadge = 0 }: { isAdmin?: boolean; supportBadge?: number }) {
   const pathname = usePathname()
   const { season } = useSeasonalTheme()
 
@@ -66,6 +66,11 @@ export function Sidebar({ isAdmin = false }: { isAdmin?: boolean }) {
             >
               <span className="text-base">{item.icon}</span>
               <span>{item.label}</span>
+              {item.href === '/support' && supportBadge > 0 && (
+                <span className="ml-auto inline-flex min-w-5 h-5 px-1.5 items-center justify-center rounded-full bg-[#D9534F] text-white text-[11px] font-bold">
+                  {supportBadge}
+                </span>
+              )}
             </Link>
           )
         })}
