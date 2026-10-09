@@ -16,6 +16,7 @@ export const EMAIL_KIND_LABELS: Record<string, string> = {
   repair_waiver: 'Repair waiver',
   apparel_order: 'Apparel order',
   bridge_agreement: 'Bridge the Gap agreement',
+  service_ticket: 'Service ticket received',
 }
 
 export function newEmailToken(): string {
