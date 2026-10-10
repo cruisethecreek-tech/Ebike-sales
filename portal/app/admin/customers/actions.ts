@@ -183,6 +183,47 @@ export async function inviteCustomerById(
   return inviteCustomer(prev, form)
 }
 
+export interface SignInLinkResult {
+  ok: boolean
+  message: string
+  url?: string
+}
+
+/**
+ * A one-time sign-in link staff can text to a customer, for when email is
+ * the wrong channel (or the customer has only a shop placeholder address).
+ *
+ * admin.generateLink makes the link without emailing anybody. It points at
+ * /auth/confirm, which asks the customer to tap "Sign in" before using the
+ * token: text apps open links to draw previews, and a link that signed in on
+ * a plain GET would be used up by the preview before the customer saw it.
+ *
+ * Staff logins are refused, so this can never hand out admin access.
+ */
+export async function createSignInLink(customerId: string): Promise<SignInLinkResult> {
+  await requireAdminUser()
+  if (!customerId) return { ok: false, message: 'Missing customer.' }
+
+  const admin = createAdminClient()
+  const [{ data: account }, { data: customer }] = await Promise.all([
+    admin.auth.admin.getUserById(customerId),
+    admin.from('customers').select('is_admin').eq('id', customerId).maybeSingle(),
+  ])
+  const email = account?.user?.email
+  if (!email) return { ok: false, message: 'This customer has no portal login yet. Send a portal invite first.' }
+  if (customer?.is_admin) return { ok: false, message: 'Sign-in links are for customers, not staff logins.' }
+
+  const { data, error } = await admin.auth.admin.generateLink({ type: 'magiclink', email })
+  const hashed = data?.properties?.hashed_token
+  if (error || !hashed) {
+    return { ok: false, message: `Could not make a link: ${error?.message || 'no token returned'}` }
+  }
+
+  const site = process.env.NEXT_PUBLIC_SITE_URL || 'https://portal.cruisethecreek.com'
+  const url = `${site}/auth/confirm?token_hash=${encodeURIComponent(hashed)}&type=magiclink`
+  return { ok: true, message: 'Link copied. It works once and expires in about an hour.', url }
+}
+
 export interface CustomerDetailsResult {
   ok: boolean
   message: string
