@@ -10,6 +10,7 @@ import { FindYourRide } from '@/app/components/find-your-ride'
 import { BikeCare } from '@/app/components/bike-care'
 import { InstallAppCard } from '@/app/components/install-app-card'
 import { customerKind, serviceHistory } from '@/lib/customer-kind'
+import { STORE_URL } from '@/lib/constants'
 import { RepairProgress, eventsByTicket, type RepairEvent } from '@/app/components/repair-progress'
 import { RepairLiveRefresh } from '@/app/components/repair-live-refresh'
 
@@ -23,7 +24,7 @@ export default async function DashboardPage() {
   // Whose portal this is. Normally the signed-in user; while an admin is
   // previewing, the customer they chose. Everything below reads from `viewerId`
   // so the preview shows the real page rather than an approximation of it.
-  const { userId: viewerId, viewingAs } = await getViewerContext()
+  const { userId: viewerId, viewingAs, email: viewerEmail } = await getViewerContext()
 
   // Shop replies on this customer's tickets they have not seen yet.
   const { count: unreadReplies } = await supabase
@@ -110,6 +111,13 @@ export default async function DashboardPage() {
   const hasBikes = bikes.length > 0
   // bike / service (their own bike, worked on here) / gear / none
   const kind = customerKind(bikes.length, invoices)
+  // Member-priced tune-up booking with their details filled in.
+  const tuneUpHref =
+    `${STORE_URL}/repair-intake.html?service=tuneup&discount=20&promo=20OFF&member=1` +
+    `&firstName=${encodeURIComponent(customer?.first_name || '')}` +
+    `&lastName=${encodeURIComponent(customer?.last_name || '')}` +
+    `&phone=${encodeURIComponent(customer?.phone || '')}` +
+    `&email=${encodeURIComponent(viewerEmail || '')}`
 
   return (
     <div className="space-y-6 max-w-5xl mx-auto pb-12">
@@ -275,7 +283,7 @@ export default async function DashboardPage() {
       )}
 
       {/* ── Service customers: their own bike, serviced here, not on file ── */}
-      {kind === 'service' && <BikeCare history={serviceHistory(invoices)} />}
+      {kind === 'service' && <BikeCare history={serviceHistory(invoices)} tuneUpHref={tuneUpHref} />}
 
       {/* ── Gear only, or nothing yet: show them the way to a bike ── */}
       {(kind === 'gear' || kind === 'none') && <FindYourRide referralCode={customer?.referral_code} />}
