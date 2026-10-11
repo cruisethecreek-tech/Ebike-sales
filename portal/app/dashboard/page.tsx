@@ -7,6 +7,8 @@ import { getViewerContext } from '@/lib/view-as'
 import { CreekGuardBadge, CreekGuardSignUp } from '@/app/components/creekguard-badge'
 import { creekGuardBikeIds } from '@/lib/creekguard'
 import { FindYourRide } from '@/app/components/find-your-ride'
+import { BikeCare } from '@/app/components/bike-care'
+import { customerKind, serviceHistory } from '@/lib/customer-kind'
 
 // Per-customer data, and now also per-preview: an admin viewing as someone
 // else must never be served a page cached for anybody. Never static.
@@ -81,6 +83,8 @@ export default async function DashboardPage() {
   const pendingInvoices = invoices.filter((inv) => inv.status === 'pending')
   const firstName = customer?.first_name || 'Rider'
   const hasBikes = bikes.length > 0
+  // bike / service (their own bike, worked on here) / gear / none
+  const kind = customerKind(bikes.length, invoices)
 
   return (
     <div className="space-y-6 max-w-5xl mx-auto pb-12">
@@ -137,10 +141,10 @@ export default async function DashboardPage() {
             <span className="stat-cta">View bikes →</span>
           </Link>
         ) : (
-          <a href="#find-your-ride" className="stat-card stat-card-link">
+          <a href={kind === 'service' ? '#bike-care' : '#find-your-ride'} className="stat-card stat-card-link">
             <p className="stat-label">My Registered Bikes</p>
             <p className="stat-value">0</p>
-            <span className="stat-cta">Find your ride →</span>
+            <span className="stat-cta">{kind === 'service' ? 'Add my bike →' : 'Find your ride →'}</span>
           </a>
         )}
         <Link href="/dashboard/invoices" className="stat-card stat-card-link">
@@ -226,12 +230,15 @@ export default async function DashboardPage() {
         </div>
       )}
 
-      {/* ── No bike yet (gear, a gift card, a repair): show them the way in ── */}
-      {!hasBikes && <FindYourRide referralCode={customer?.referral_code} />}
+      {/* ── Service customers: their own bike, serviced here, not on file ── */}
+      {kind === 'service' && <BikeCare history={serviceHistory(invoices)} />}
+
+      {/* ── Gear only, or nothing yet: show them the way to a bike ── */}
+      {(kind === 'gear' || kind === 'none') && <FindYourRide referralCode={customer?.referral_code} />}
 
       {/* ── CreekGuard sign-up, until a tracker is on one of their bikes.
-          It protects a bike, so it waits until there is one. ── */}
-      {hasBikes && guarded.size === 0 && <CreekGuardSignUp />}
+          It protects a bike, so only riders who have one see it. ── */}
+      {(kind === 'bike' || kind === 'service') && guarded.size === 0 && <CreekGuardSignUp />}
 
       {/* ── Biometrics Activation Setup ── */}
       {/* Hidden while previewing. Passkey registration talks to the API as

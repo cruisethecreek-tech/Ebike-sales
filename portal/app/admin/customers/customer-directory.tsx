@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useMemo, useEffect, useRef } from 'react'
+import { CUSTOMER_KIND_LABEL, type CustomerKind } from '@/lib/customer-kind'
 import Link from 'next/link'
 import { STORE_URL } from '@/lib/constants'
 import { newInvoiceUrl } from '@/lib/generator-link'
@@ -61,6 +62,8 @@ interface CustomerData {
   bikes: Bike[]
   /** One of their bikes has an active GPS tracker. */
   creekGuard?: boolean
+  /** Bike owner, service only, gear only, or nothing bought (lib/customer-kind). */
+  kind?: CustomerKind
   /** This customer's invoices in the portal, newest first. */
   invoices?: { id: string; invoice_number: string | null; total_amount: number; status: string; issued_at: string | null }[]
   latestPurchaseDate?: string | null
@@ -401,6 +404,16 @@ function BikeAdminCard({
   )
 }
 
+/** Bike owner / service / gear, so staff can tell at a glance. */
+function KindBadge({ kind }: { kind?: CustomerKind }) {
+  if (!kind || kind === 'none') return null
+  return (
+    <span className="text-[10px] px-1.5 py-0.5 rounded bg-[#F5F0E8] border border-[#E5E5E5] font-bold text-[#2D4A32] whitespace-nowrap">
+      {CUSTOMER_KIND_LABEL[kind]}
+    </span>
+  )
+}
+
 export function CustomerDirectory({
   customers,
   knownInvoiceNumbers,
@@ -422,6 +435,7 @@ export function CustomerDirectory({
     [shopInvoiceByNumber],
   )
   const [activeLetter, setActiveLetter] = useState<string>('ALL')
+  const [kindFilter, setKindFilter] = useState<'ALL' | CustomerKind>('ALL')
   const [signupFilter, setSignupFilter] = useState<'ALL' | 'REGISTERED' | 'INVITED' | 'NOT_INVITED' | 'DUPLICATES'>('ALL')
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedCustomerId, setSelectedCustomerId] = useState<string | null>(null)
@@ -556,6 +570,9 @@ export function CustomerDirectory({
       if (signupFilter === 'NOT_INVITED' && (c.registered || c.invitedAt)) return false
       if (signupFilter === 'DUPLICATES' && !duplicateIds.has(c.id)) return false
 
+      // Customer type filter
+      if (kindFilter !== 'ALL' && c.kind !== kindFilter) return false
+
       // Search query filter
       if (!searchQuery.trim()) return true
 
@@ -573,7 +590,7 @@ export function CustomerDirectory({
         bikeMatch
       )
     })
-  }, [customers, activeLetter, signupFilter, searchQuery, showArchived, duplicateIds])
+  }, [customers, activeLetter, signupFilter, kindFilter, searchQuery, showArchived, duplicateIds])
 
   const archivedCount = useMemo(
     () => customers.filter((c) => c.archived_at).length,
@@ -594,6 +611,12 @@ export function CustomerDirectory({
       DUPLICATES: duplicateIds.size,
     }
   }, [customers, showArchived, duplicateIds])
+
+  const kindCounts = useMemo(() => {
+    const inScope = customers.filter((c) => Boolean(c.archived_at) === showArchived)
+    const count = (k: CustomerKind) => inScope.filter((c) => c.kind === k).length
+    return { ALL: inScope.length, bike: count('bike'), service: count('service'), gear: count('gear'), none: count('none') }
+  }, [customers, showArchived])
 
   const checkedCustomers: BulkCustomer[] = useMemo(
     () =>
@@ -706,6 +729,40 @@ export function CustomerDirectory({
         )}
       </div>
 
+      {/* ── Customer Type Filter ── */}
+      <div className="bg-white p-3 rounded-xl border border-[#E5E5E5] shadow-xs space-y-2">
+        <span className="text-xs font-bold uppercase tracking-wider text-[#4A4A4A]">
+          🏷️ Customer Type:
+        </span>
+        <div className="flex items-center gap-2 flex-wrap text-xs">
+          {([
+            { key: 'ALL', label: 'Everyone' },
+            { key: 'bike', label: CUSTOMER_KIND_LABEL.bike },
+            { key: 'service', label: CUSTOMER_KIND_LABEL.service },
+            { key: 'gear', label: CUSTOMER_KIND_LABEL.gear },
+            { key: 'none', label: CUSTOMER_KIND_LABEL.none },
+          ] as const).map(({ key, label }) => {
+            const isOn = kindFilter === key
+            return (
+              <button
+                key={key}
+                type="button"
+                aria-pressed={isOn}
+                onClick={() => setKindFilter(key)}
+                className={`px-3 py-1.5 rounded-lg font-bold transition-all ${
+                  isOn
+                    ? 'bg-[#2D4A32] text-white shadow-xs'
+                    : 'bg-[#F5F0E8] text-[#2D4A32] hover:bg-[#e8dfd1]'
+                }`}
+              >
+                {label}{' '}
+                <span className={isOn ? 'opacity-70' : 'opacity-50'}>{kindCounts[key]}</span>
+              </button>
+            )
+          })}
+        </div>
+      </div>
+
       {/* ── Alphabetical Quick-Filter Bar ── */}
       <div className="bg-white p-3 rounded-xl border border-[#E5E5E5] shadow-xs space-y-2">
         <div className="flex items-center justify-between flex-wrap gap-2">
@@ -770,6 +827,7 @@ export function CustomerDirectory({
                   👤 Currently Viewing & Active Customer
                 </span>
                 <SignupBadge customer={selectedCustomer} size="md" />
+                <KindBadge kind={selectedCustomer.kind} />
                 {selectedCustomer.creekGuard && <CreekGuardBadge compact />}
                 {selectedCustomer.is_admin && (
                   <span className="text-[10px] px-2 py-0.5 rounded bg-[#C9A96E] text-[#1A2E1C] font-bold">
@@ -1160,6 +1218,7 @@ export function CustomerDirectory({
                         </span>
                       )}
                       <SignupBadge customer={c} />
+                      <KindBadge kind={c.kind} />
                       {c.creekGuard && <CreekGuardBadge compact />}
                     </div>
                     <span className="block font-normal mt-0.5 space-x-2">
@@ -1243,6 +1302,7 @@ export function CustomerDirectory({
                       </span>
                     )}
                     <SignupBadge customer={c} />
+                    <KindBadge kind={c.kind} />
                     {c.creekGuard && <CreekGuardBadge compact />}
                   </p>
                   <p className="text-xs text-[#4A4A4A]">{c.phone || 'No phone'}</p>
