@@ -153,11 +153,13 @@
       { label: 'Join the Team',   url: 'join-the-team.html' },
       { label: 'FAQs',            url: 'faqs.html' },
     ]},
-    /* Customers only — accounts are created when someone buys a bike, so
-       this points at the explainer rather than straight at the sign-in.
-       Someone who has not bought from us needs to be told why there is no
-       sign-up form before they are dropped on a login screen. */
-    { label: 'Customer Portal', url: 'portal.html' },
+    /* Customers only — accounts are created when someone buys from us (a
+       bike, service or gear), so this points at the explainer rather than
+       straight at the sign-in. Someone who has not bought from us needs to be
+       told why there is no sign-up form before they are dropped on a login
+       screen. `feature` renders it as a gold button at the foot of the menu
+       so customers can find it. */
+    { label: 'Customer Portal', url: 'portal.html', feature: true },
   ];
 
 
@@ -388,6 +390,12 @@
     '.ctc-menu-group.is-expanded .ctc-menu-sublist{display:block}',
     '.ctc-menu-sub{display:block;padding:11px 12px;border-radius:7px;color:#1a1a1a;text-decoration:none;font-weight:600;font-size:.9rem;transition:background .15s ease,color .15s ease}',
     '.ctc-menu-sub.is-active,.ctc-menu-link.is-active{background:' + BRAND.forest + ';color:#fff}',
+    '.ctc-menu-feature{display:flex;align-items:center;gap:12px;margin:14px 0 4px;padding:14px 14px;border-radius:10px;background:#C9A96E;color:' + BRAND.dark + ';text-decoration:none;box-shadow:0 4px 14px rgba(201,169,110,.35);border:1px solid rgba(26,46,28,.15);transition:transform .15s ease,background .15s ease}',
+    '.ctc-menu-feature:hover{background:#d8b97f;transform:translateY(-1px)}',
+    '.ctc-menu-feature.is-active{outline:2px solid ' + BRAND.forest + ';outline-offset:2px}',
+    '.ctc-menu-feature-ico{font-size:1.4rem;line-height:1}',
+    '.ctc-menu-feature-label{display:block;font-weight:800;font-size:.98rem;letter-spacing:.02em}',
+    '.ctc-menu-feature-sub{display:block;font-size:.74rem;font-weight:600;opacity:.8;margin-top:2px}',
     /* Retire the legacy per-page navs — one shared menu drives navigation now. */
     '.top-nav,.ctc-top-nav,.nav-links,#navToggle,.nav-toggle,.ctc-nav-toggle,.mobile-toggle{display:none!important}',
 
@@ -455,6 +463,13 @@
     function extAttr(url){ return /^https?:/.test(url) ? ' target="_blank" rel="noopener"' : ''; }
 
     var html = NAV_MENU.map(function (entry) {
+      if (entry.url && entry.feature) {
+        var fActive = String(entry.url).toLowerCase() === cur ? ' is-active' : '';
+        return '<a class="ctc-menu-feature' + fActive + '" href="' + esc(entry.url) + '"' + extAttr(entry.url) + '>' +
+          '<span class="ctc-menu-feature-ico" aria-hidden="true">👤</span>' +
+          '<span><span class="ctc-menu-feature-label">' + esc(entry.label) + '</span>' +
+          '<span class="ctc-menu-feature-sub">Sign in · service &amp; rewards</span></span></a>';
+      }
       if (entry.url) {
         var active = String(entry.url).toLowerCase() === cur ? ' is-active' : '';
         return '<a class="ctc-menu-link' + active + '" href="' + esc(entry.url) + '"' + extAttr(entry.url) + '>' + esc(entry.label) + '</a>';
