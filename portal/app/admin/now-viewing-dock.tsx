@@ -6,6 +6,7 @@ import { STORE_URL } from '@/lib/constants'
 import { newInvoiceUrl } from '@/lib/generator-link'
 import { ViewAsButton } from '@/app/admin/view-as-button'
 import { DockInviteButton } from './dock-invite-button'
+import { CopySignInLink } from './customers/copy-sign-in-link'
 import {
   SELECTED_CARD,
   UNSELECTED_CARD,
@@ -431,6 +432,7 @@ export function NowViewingDock({ customers, dataError }: NowViewingDockProps) {
 
                       {/* Invite to the portal, or a fresh sign-in link if they already have an account */}
                       <DockInviteButton key={selectedCustomer.id} customerId={selectedCustomer.id} />
+                      <CopySignInLink key={`link-${selectedCustomer.id}`} customerId={selectedCustomer.id} />
 
                       {/* 4. Open their portal as they see it */}
                       <ViewAsButton
