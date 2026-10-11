@@ -339,6 +339,16 @@ const SITE_CONFIG = {
         .hero-tag{display:none}
 
         @keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+
+        /* Order summary above the submit button */
+        .order-summary{background:#FBF7EF;border:1px solid #E8DCC4;border-radius:10px;padding:16px 18px;margin:8px 0 18px;font-size:.95rem;color:#1A2E1C}
+        .order-summary .os-title{font-weight:800;text-transform:uppercase;letter-spacing:.08em;font-size:.78rem;color:#2D4A32;margin-bottom:8px}
+        .order-summary .os-row{display:flex;justify-content:space-between;gap:12px;padding:4px 0}
+        .order-summary .os-row span:last-child{white-space:nowrap;font-variant-numeric:tabular-nums}
+        .order-summary .os-total{border-top:1px solid #E8DCC4;margin-top:6px;padding-top:10px;font-weight:800;font-size:1.05rem}
+        .order-summary .os-recurring{margin-top:4px;font-size:.88rem;color:#4A4A4A}
+        .order-summary .os-note{margin-top:12px;padding:10px 12px;background:#fff;border-left:4px solid #C9A96E;border-radius:6px;font-size:.9rem;line-height:1.5;color:#4A4A4A}
+        .order-summary .os-note strong{color:#1A2E1C}
 </style>
 <script src="site-enhance.js?v=e396a0a9b9"></script>
 <meta property="og:title" content="Mooncool - Electric Trikes">
@@ -557,6 +567,15 @@ window.ctcNextImage = function (img) {
                     </div>
                 </div>
                 <div class="form-group"><label class="form-label">Additional Comments</label><textarea id="comments" name="comments" class="form-textarea" placeholder="Any questions, special requests..."></textarea></div>
+                <!-- Running total of what was picked, and plainly what happens next: a
+                     request is not a purchase. Kept up to date by updateOrderSummary(). -->
+                <div id="order-summary" class="order-summary" aria-live="polite">
+                    <div class="os-title">Your request</div>
+                    <div id="os-lines"></div>
+                    <div class="os-row os-total"><span>Estimated subtotal</span><span id="os-total">Pick a bike above</span></div>
+                    <p id="os-recurring" class="os-recurring" hidden></p>
+                    <p class="os-note"><strong>Nothing is charged today.</strong> This only sends us your request. We'll confirm availability, sizing and your final price (plus Ohio sales tax), then send you an invoice. You pay nothing until you approve it.</p>
+                </div>
                 <button type="submit" id="submit-btn" class="submit-btn">Submit Order Request</button>
             </form>
         </div>
@@ -1119,5 +1138,62 @@ window.ctcNextImage = function (img) {
 </script>
 <script src="cart.js" defer></script>
 <script src="chatbot.js" defer></script>
+
+    <script>
+    // Order summary: the bike price plus the add-ons picked, so a customer sees
+    // a subtotal before sending, and is told nothing is charged yet. Prices
+    // come from the radio values themselves ("(+$100)"), so the summary can't
+    // drift from what the form sends.
+    (function () {
+        var money = function (n) { return '$' + n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); };
+        var esc = function (s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); };
+        var upfront = function (v) { var m = /\(\+\$([\d,.]+)/.exec(v || ''); return m ? parseFloat(m[1].replace(/,/g, '')) : 0; };
+        var ADDONS = [
+            ['mirror_option', 'Mirror'],
+            ['creek_ready', 'Assembly'],
+            ['creekguard_option', 'CreekGuard GPS install']
+        ];
+        window.updateOrderSummary = function () {
+            var lines = document.getElementById('os-lines');
+            var totalEl = document.getElementById('os-total');
+            var recurring = document.getElementById('os-recurring');
+            if (!lines || !totalEl) return;
+            var sel = (typeof currentSelection !== 'undefined' && currentSelection) || {};
+            var bikePrice = parseFloat(String(sel.price || '').replace(/[^\d.]/g, ''));
+            var html = '';
+            var total = 0;
+            if (sel.bikeName && !isNaN(bikePrice)) {
+                html += '<div class="os-row"><span>' + esc(sel.bikeName) + '</span><span>' + money(bikePrice) + '</span></div>';
+                total += bikePrice;
+            }
+            ADDONS.forEach(function (a) {
+                var picked = document.querySelector('input[name="' + a[0] + '"]:checked');
+                var cost = picked ? upfront(picked.value) : 0;
+                if (cost > 0) {
+                    var label = a[0] === 'creek_ready' && /Video/.test(picked.value) ? 'Video assembly help (refundable)'
+                        : a[0] === 'creek_ready' ? 'Creek Ready Package' : a[1];
+                    html += '<div class="os-row"><span>' + label + '</span><span>' + money(cost) + '</span></div>';
+                    total += cost;
+                }
+            });
+            lines.innerHTML = html;
+            totalEl.textContent = sel.bikeName && !isNaN(bikePrice) ? money(total) : 'Pick a bike above';
+            var gps = document.querySelector('input[name="creekguard_option"]:checked');
+            var plan = gps && /Yearly/.test(gps.value) ? 'then $64.69/yr' : gps && /Monthly/.test(gps.value) ? 'then $5.99/mo' : '';
+            if (recurring) {
+                recurring.hidden = !plan;
+                recurring.textContent = plan ? 'CreekGuard plan: ' + plan + ', billed separately. Cancel anytime.' : '';
+            }
+        };
+        var form = document.getElementById('order-form');
+        if (form) form.addEventListener('change', window.updateOrderSummary);
+        // A bike pick and Clear both write the preview price; watch it.
+        var watch = document.getElementById('selected-bike-preview');
+        if (watch && window.MutationObserver) {
+            new MutationObserver(window.updateOrderSummary).observe(watch, { attributes: true, childList: true, subtree: true, characterData: true });
+        }
+        window.updateOrderSummary();
+    })();
+    </script>
 </body>
 </html>

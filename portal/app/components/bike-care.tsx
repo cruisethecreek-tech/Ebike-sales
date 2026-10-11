@@ -5,7 +5,6 @@ const SITE = 'https://www.cruisethecreek.com'
 // Next steps for someone who rides their own bike and has had it serviced
 // here. All are existing pages; this card only points to them.
 const TILES = [
-  { icon: '🛠️', title: 'Book a Tune-Up', blurb: 'Keep it running smooth between rides.', href: `${SITE}/tune-ups.html` },
   { icon: '📋', title: 'Start a Repair', blurb: 'Tell us what is wrong and drop it off.', href: `${SITE}/repair-intake.html` },
   { icon: '🌲', title: 'Creek Ready Plan', blurb: 'Yearly care for your bike at a set price.', href: `${SITE}/creek-ready.html` },
   { icon: '🚲', title: 'Test Ride an Upgrade', blurb: 'Curious what a new e-bike feels like?', href: `${SITE}/test-ride.html` },
@@ -25,7 +24,18 @@ function shortDate(d: string | null): string {
  * whose bike is not on their account: their service history and the ways to
  * book the next visit. Once a bike is on file they get the full bike view.
  */
-export function BikeCare({ history }: { history: ServiceLine[] }) {
+export function BikeCare({ history, tuneUpHref }: { history: ServiceLine[]; tuneUpHref: string }) {
+  // Booked from the portal, so it opens the intake form at the member
+  // price (member=1) with their details filled in, like the bike card does.
+  const tiles = [
+    {
+      icon: '🛠️',
+      title: 'Book a Tune-Up',
+      blurb: 'Member price $100 (20% off $125). Keep it running smooth.',
+      href: tuneUpHref,
+    },
+    ...TILES,
+  ]
   return (
     <div id="bike-care" className="bg-white rounded-2xl p-5 sm:p-6 border border-[#E5E5E5] shadow-xs space-y-4">
       <div>
@@ -54,7 +64,7 @@ export function BikeCare({ history }: { history: ServiceLine[] }) {
       )}
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-        {TILES.map((t) => (
+        {tiles.map((t) => (
           <a
             key={t.title}
             href={t.href}
