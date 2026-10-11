@@ -11,6 +11,7 @@ import { DeleteInvoiceButton } from '../invoices/delete-invoice-button'
 import { CardInvoiceStatus } from './card-invoice-status'
 import { SendInviteButton } from './send-invite-button'
 import { CopySignInLink } from './copy-sign-in-link'
+import { CheckInRepair } from './check-in-repair'
 import { EditCustomerDetails } from './edit-customer-details'
 import { ViewAsButton } from '@/app/admin/view-as-button'
 import { RemoveCustomer } from './remove-customer'
@@ -883,6 +884,12 @@ export function CustomerDirectory({
               alreadyInvited={!!selectedCustomer.invitedAt || !!selectedCustomer.registered}
             />
             <CopySignInLink key={selectedCustomer.id} customerId={selectedCustomer.id} />
+            <CheckInRepair
+              key={`repair-${selectedCustomer.id}`}
+              customerId={selectedCustomer.id}
+              firstName={selectedCustomer.first_name}
+              bikes={selectedCustomer.bikes}
+            />
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-2 text-xs">
               {/* 1. Open Invoice Generator pre-filled */}
               <a

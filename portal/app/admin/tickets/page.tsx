@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import Link from 'next/link'
 import { TicketStatusPicker } from './status-picker'
 import { TicketActions } from './ticket-actions'
+import { RepairStagePicker } from './repair-stage-picker'
 import { TicketThread, messagesByTicket, shopTime, type TicketMessage } from '@/app/components/ticket-thread'
 
 export const dynamic = 'force-dynamic'
@@ -15,6 +16,7 @@ type TicketRow = {
   created_at: string
   resolved_at: string | null
   needs_reply: boolean
+  repair_stage: string | null
   customers: { first_name: string | null; last_name: string | null; phone: string | null } | null
   bikes: { brand: string | null; model: string | null } | null
 }
@@ -42,7 +44,7 @@ export default async function AdminTickets() {
   const { data, error } = await supabase
     .from('service_tickets')
     .select(
-      'id, customer_id, ticket_type, status, description, created_at, resolved_at, needs_reply, ' +
+      'id, customer_id, ticket_type, status, description, created_at, resolved_at, needs_reply, repair_stage, ' +
         'customers(first_name, last_name, phone), bikes!service_tickets_bike_id_fkey(brand, model)',
     )
     .order('created_at', { ascending: false })
@@ -74,8 +76,9 @@ export default async function AdminTickets() {
           🎫 Service Tickets ({openCount} open)
         </h1>
         <p className="text-xs text-[#4A4A4A]">
-          Tickets customers open on the portal&apos;s Support page. Replies you send here are emailed to the
-          customer and show on their Support page.
+          Tickets customers open on the portal&apos;s Support page, and bikes checked in for repair from a
+          customer&apos;s card. Replies and repair stages you set here are emailed to the customer and show on
+          their portal.
         </p>
         {replyCount > 0 && (
           <p className="mt-2 inline-block text-xs font-bold px-2.5 py-1 rounded-full bg-[#FDECEA] text-[#B23B2E]">
@@ -128,6 +131,7 @@ export default async function AdminTickets() {
             <p id={`ticket-${t.id}`} className="text-sm text-[#1A2E1C] whitespace-pre-wrap break-words">{t.description}</p>
             <TicketThread messages={threads.get(t.id) || []} viewer="staff" />
             <TicketActions ticketId={t.id} needsReply={t.needs_reply} />
+            <RepairStagePicker ticketId={t.id} stage={t.repair_stage} />
             <TicketStatusPicker ticketId={t.id} status={t.status} />
           </div>
         ))}
