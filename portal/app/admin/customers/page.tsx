@@ -69,13 +69,24 @@ export default async function AdminCustomers() {
     const latestPurchaseDate = custBikes[0]?.purchase_date || custInvoices[0]?.issued_at || null
 
     const account = accounts.get(c.id)
+    const emails = account?.email ? emailsByAddress.get(account.email.toLowerCase()) || [] : []
+    // Supabase only stamps invited_at on accounts it created with an invite.
+    // Accounts made by the invoice import or sync get a sign-in link from
+    // Send Portal Invite instead, which never sets it, so the badge said
+    // "Not invited" right under "Sign-in link sent". Either email counts.
+    const lastPortalEmail =
+      emails.find((e) => (e.kind === 'invite' || e.kind === 'sign_in_link') && e.status === 'sent')?.sent_at ?? null
+    const invitedAt = [account?.invitedAt ?? null, lastPortalEmail]
+      .filter((d): d is string => !!d)
+      .sort((a, b) => Date.parse(a) - Date.parse(b))
+      .at(-1) ?? null
 
     return {
       ...c,
       email: account?.email ?? null,
       registered: account?.registered ?? false,
       lastSignInAt: account?.lastSignInAt ?? null,
-      invitedAt: account?.invitedAt ?? null,
+      invitedAt,
       invoiceCount: custInvoices.length,
       totalSpent: totalInvoiced,
       totalInvoiced,
@@ -92,7 +103,7 @@ export default async function AdminCustomers() {
         issued_at: i.issued_at,
       })),
       latestPurchaseDate,
-      emails: account?.email ? emailsByAddress.get(account.email.toLowerCase()) || [] : [],
+      emails,
     }
   })
 
