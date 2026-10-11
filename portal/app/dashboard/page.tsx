@@ -8,6 +8,7 @@ import { CreekGuardBadge, CreekGuardSignUp } from '@/app/components/creekguard-b
 import { creekGuardBikeIds } from '@/lib/creekguard'
 import { FindYourRide } from '@/app/components/find-your-ride'
 import { BikeCare } from '@/app/components/bike-care'
+import { InstallAppCard } from '@/app/components/install-app-card'
 import { customerKind, serviceHistory } from '@/lib/customer-kind'
 
 // Per-customer data, and now also per-preview: an admin viewing as someone
@@ -128,6 +129,10 @@ export default async function DashboardPage() {
           <span className="text-xs font-bold underline whitespace-nowrap">Read it →</span>
         </Link>
       )}
+
+      {/* Add to home screen. Hidden while previewing: it is about the device
+          in the admin's hand, not the customer's. */}
+      {!viewingAs && <InstallAppCard />}
 
       {/* Stat cards */}
       <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
