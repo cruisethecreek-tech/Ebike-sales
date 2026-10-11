@@ -42,7 +42,7 @@
           <tr>
             <td style="padding: 36px 32px 28px 32px; color: #1A1A1A;">
               <h2 style="margin: 0 0 16px 0; font-size: 20px; font-weight: 700; color: #2D4A32;">
-                {{ if .Data.purchase }}You're Invited to Your Portal 🌲{{ else }}Thanks for Riding With Us 🌲{{ end }}
+                {{ if .Data.purchase }}You're Invited to Your Portal 🌲{{ else if .Data.service_only }}Thanks for Trusting Us With Your Ride 🔧{{ else }}Thanks for Riding With Us 🌲{{ end }}
               </h2>
               <p style="margin: 0 0 18px 0; font-size: 15px; line-height: 1.6; color: #4A4A4A;">
                 {{ if .Data.first_name }}Hi {{ .Data.first_name }},{{ else }}Hello,{{ end }}
@@ -53,6 +53,13 @@
               </p>
               <p style="margin: 0 0 24px 0; font-size: 15px; line-height: 1.6; color: #4A4A4A;">
                 Click the gold button below to open your <strong>Creek Ready Customer Portal</strong> for the first time. From your portal, you can track registered e-bikes, check warranty status, manage invoices, share your referral code for $100 rewards, and book discounted tune-ups.
+              </p>
+              {{ else if .Data.service_only }}
+              <p style="margin: 0 0 18px 0; font-size: 15px; line-height: 1.6; color: #4A4A4A;">
+                Thank you for bringing your bike to Cruise the Creek. Your service record is waiting in your own <strong>Creek Ready Customer Portal</strong>.
+              </p>
+              <p style="margin: 0 0 24px 0; font-size: 15px; line-height: 1.6; color: #4A4A4A;">
+                Click the gold button below to open it. From your portal you can see the work we've done, book your next tune-up, start a repair, add your bike to your account, and share your referral code to earn shop credit.
               </p>
               {{ else }}
               <p style="margin: 0 0 18px 0; font-size: 15px; line-height: 1.6; color: #4A4A4A;">

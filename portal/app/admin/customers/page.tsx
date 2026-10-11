@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
+import { customerKind } from '@/lib/customer-kind'
 import { listAuthAccounts } from '@/lib/auth-accounts'
 import { InviteCustomerForm } from './invite-form'
 import { CustomerDirectory } from './customer-directory'
@@ -15,7 +16,7 @@ export default async function AdminCustomers() {
 
   const { data: invoices } = await supabase
     .from('invoices')
-    .select('customer_id, invoice_number, id, total_amount, status, issued_at, supplier_url')
+    .select('customer_id, invoice_number, id, total_amount, status, issued_at, supplier_url, items')
     .order('issued_at', { ascending: false })
 
   const { data: bikes } = await supabase
@@ -81,6 +82,7 @@ export default async function AdminCustomers() {
       totalPaid,
       totalOutstanding: Math.max(0, totalInvoiced - totalPaid),
       bikes: custBikes,
+      kind: customerKind(custBikes.length, custInvoices),
       creekGuard: custBikes.some((b) => guardedBikes.has(b.id)),
       invoices: custInvoices.map((i) => ({
         id: i.id,

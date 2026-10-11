@@ -2,6 +2,7 @@ import { findAuthUserByEmail, isAlreadyRegistered } from '@/lib/find-auth-user'
 import { canonicalInvoiceNumber, sameInvoiceNumber } from '@/lib/invoice-number'
 import { bikesOnInvoice, bikeModelKey } from '@/lib/detect-bike'
 import { purchaseSummary } from '@/lib/invite-personalization'
+import { customerKind } from '@/lib/customer-kind'
 import { logEmail, newEmailToken } from '@/lib/email-tracking'
 import { createClient } from '@supabase/supabase-js'
 import { notifyReferrerOfPaidPurchase } from '@/lib/referral-email'
@@ -171,6 +172,9 @@ export async function syncInvoice(body: any): Promise<SyncResult> {
           last_name: lastName,
           // Read by the invite email template as {{ .Data.purchase }}.
           purchase: purchaseSummary(bikesOnInvoice(items)),
+          // No bike, but the shop worked on theirs: the template's service
+          // version ({{ .Data.service_only }}). Gear-only buyers get neither.
+          service_only: customerKind(bikesOnInvoice(items).length, [{ items }]) === 'service',
           // The open-tracking image in the template; see lib/email-tracking.ts.
           email_token: emailToken,
         },
