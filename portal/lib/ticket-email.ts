@@ -75,3 +75,27 @@ async function postToMailer(payload: Record<string, unknown>): Promise<{ ok: boo
     return { ok: false, error: err instanceof Error ? err.message : String(err) }
   }
 }
+
+export type RepairStageEmail = {
+  ticketId: string
+  stage: string
+  stageLabel: string
+  /** What the stage means for the customer (lib/repair-stages blurb). */
+  blurb: string
+  /** Optional words from staff, e.g. "New brake pads ordered, due Thursday." */
+  note: string
+  bike: string
+  firstName: string
+  email: string
+}
+
+/**
+ * Tell the customer their bike moved to a new repair stage
+ * (handleRepairStage in apps-script.gs, logged in Emails Sent as
+ * repair_stage). Never throws: the stage is already saved.
+ */
+export async function sendRepairStageEmail(update: RepairStageEmail): Promise<{ ok: boolean; error?: string }> {
+  const customerEmail = update.email && !isPlaceholderEmail(update.email) ? update.email : ''
+  if (!customerEmail) return { ok: false, error: 'the customer has no real email on file' }
+  return postToMailer({ action: 'repairStage', ...update, email: customerEmail })
+}

@@ -121,6 +121,7 @@ function doPost(e) {
     if (action === 'deleteInvoice') return handleDeleteInvoice(p);
     if (action === 'serviceTicket') return handleServiceTicket(p);
     if (action === 'ticketReply') return handleTicketReply(p);
+    if (action === 'repairStage') return handleRepairStage(p);
     return json({ ok: false, error: 'Unknown POST action: ' + action });
   } catch (err) {
     console.error('doPost failed: ' + err);
@@ -373,6 +374,67 @@ function handleServiceTicket(p) {
 
   return json({ ok: staffSent, staffEmailed: staffSent, customerEmailed: customerSent,
                 error: staffSent ? undefined : 'the shop email did not send' });
+}
+
+/**
+ * A bike in the shop moved to a new repair stage (portal/lib/ticket-email.ts
+ * sendRepairStageEmail, from Admin > Tickets or Check In a Repair). Emails the
+ * customer what changed, logged in Emails Sent as repair_stage.
+ * Key-checked like the other portal POSTs.
+ */
+function handleRepairStage(p) {
+  var json = function(obj) {
+    return ContentService.createTextOutput(JSON.stringify(obj))
+      .setMimeType(ContentService.MimeType.JSON);
+  };
+  var expected = '';
+  try {
+    expected = String(PropertiesService.getScriptProperties().getProperty('PORTAL_ADMIN_KEY') || '').trim();
+  } catch (propErr) {
+    expected = '';
+  }
+  if (!expected || String(p.key || '').trim() !== expected) {
+    return json({ ok: false, error: 'not authorized' });
+  }
+
+  var clip = function(v, n) { return String(v || '').replace(/[\r\n]+/g, ' ').trim().slice(0, n); };
+  var first = clip(p.firstName, 40);
+  var email = clip(p.email, 120);
+  if (!/^[^\s@,;]+@[^\s@,;]+\.[^\s@,;]+$/.test(email)) return json({ ok: false, error: 'no customer email' });
+  var stage = clip(p.stage, 30);
+  var label = clip(p.stageLabel, 40) || 'Updated';
+  var blurb = clip(p.blurb, 300);
+  var note = String(p.note || '').trim().slice(0, 500);
+  var bike = clip(p.bike, 80);
+  var ticketId = clip(p.ticketId, 40);
+  var whose = bike ? 'Your ' + bike : 'Your bike';
+
+  var subject = stage === 'checked_in' ? whose + ' is checked in at Cruise the Creek'
+    : stage === 'ready' ? whose + ' is ready for pickup'
+    : stage === 'picked_up' ? 'Thanks for picking up ' + (bike ? 'your ' + bike : 'your bike')
+    : whose + ': ' + label;
+
+  var lines = ['Hi ' + (first || 'there') + ',', '', whose + ' is now: ' + label + '.'];
+  if (blurb) lines.push(blurb);
+  if (note) lines.push('', 'From the shop: ' + note);
+  if (stage !== 'picked_up') {
+    lines.push('', 'Follow along live at https://portal.cruisethecreek.com/dashboard');
+  }
+  lines.push('Questions? Call or text 330-406-9681.', '', 'Pat & Dru', 'Cruise the Creek');
+
+  try {
+    sendCustomerEmail_({
+      to: email,
+      replyTo: 'salesteam@cruisethecreek.com',
+      name: 'Cruise the Creek',
+      subject: subject,
+      body: lines.join('\n'),
+    }, 'repair_stage', ticketId);
+    return json({ ok: true });
+  } catch (err) {
+    console.warn('Repair stage email failed: ' + err);
+    return json({ ok: false, error: 'the customer email did not send' });
+  }
 }
 
 /**

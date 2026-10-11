@@ -7,6 +7,9 @@ import { STORE_URL } from '@/lib/constants'
 import { redirect } from 'next/navigation'
 import { TicketThread, messagesByTicket, shopTime, type TicketMessage } from '@/app/components/ticket-thread'
 import { MarkRepliesRead, TicketReplyBox } from './ticket-reply'
+import { RepairProgress, eventsByTicket, type RepairEvent } from '@/app/components/repair-progress'
+import { RepairLiveRefresh } from '@/app/components/repair-live-refresh'
+import { isActiveRepair } from '@/lib/repair-stages'
 
 export const metadata = {
   title: 'Support & Concierge — Cruise the Creek',
@@ -49,6 +52,7 @@ export default async function SupportPage({
       created_at,
       bike_id,
       customer_unread,
+      repair_stage,
       bikes!service_tickets_bike_id_fkey(brand, model)
     `)
     .eq('customer_id', user.id)
@@ -62,6 +66,16 @@ export default async function SupportPage({
         .order('created_at', { ascending: true })
     : { data: [] as TicketMessage[] }
   const threads = messagesByTicket(messageRows as TicketMessage[] | null)
+  const repairTickets = (tickets || []).filter((t) => t.repair_stage)
+  const { data: repairEventRows } = repairTickets.length
+    ? await supabase
+        .from('repair_stage_events')
+        .select('ticket_id, stage, note, created_at')
+        .in('ticket_id', repairTickets.map((t) => t.id))
+        .order('created_at', { ascending: true })
+    : { data: [] as RepairEvent[] }
+  const repairEvents = eventsByTicket(repairEventRows as RepairEvent[] | null)
+  const repairActive = repairTickets.some((t) => isActiveRepair(t.repair_stage))
   const hasUnread = (tickets || []).some((t: any) => t.customer_unread)
 
   const customerName = customer ? `${customer.first_name} ${customer.last_name}` : 'Rider'
@@ -164,6 +178,7 @@ export default async function SupportPage({
         ) : (
           <div className="space-y-3">
             {hasUnread && <MarkRepliesRead />}
+            {repairActive && <RepairLiveRefresh />}
             {tickets.map((t: any) => (
               <div
                 key={t.id}
@@ -183,6 +198,9 @@ export default async function SupportPage({
                   <span className="text-gray-400">{shopTime(t.created_at)}</span>
                 </div>
                 <p className="text-sm text-gray-700 whitespace-pre-wrap break-words">{t.description}</p>
+                {t.repair_stage && (
+                  <RepairProgress stage={t.repair_stage} events={repairEvents.get(t.id) || []} compact />
+                )}
                 <TicketThread messages={threads.get(t.id) || []} viewer="customer" />
                 <TicketReplyBox ticketId={t.id} />
               </div>

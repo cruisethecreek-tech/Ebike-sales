@@ -10,6 +10,8 @@ import { FindYourRide } from '@/app/components/find-your-ride'
 import { BikeCare } from '@/app/components/bike-care'
 import { InstallAppCard } from '@/app/components/install-app-card'
 import { customerKind, serviceHistory } from '@/lib/customer-kind'
+import { RepairProgress, eventsByTicket, type RepairEvent } from '@/app/components/repair-progress'
+import { RepairLiveRefresh } from '@/app/components/repair-live-refresh'
 
 // Per-customer data, and now also per-preview: an admin viewing as someone
 // else must never be served a page cached for anybody. Never static.
@@ -29,6 +31,28 @@ export default async function DashboardPage() {
     .select('id', { count: 'exact', head: true })
     .eq('customer_id', viewerId)
     .eq('customer_unread', true)
+
+  // Bikes in the shop right now, with how far along each one is.
+  const { data: repairRows } = await supabase
+    .from('service_tickets')
+    .select('id, repair_stage, bikes!service_tickets_bike_id_fkey(brand, model)')
+    .eq('customer_id', viewerId)
+    .not('repair_stage', 'is', null)
+    .neq('repair_stage', 'picked_up')
+    .order('created_at', { ascending: false })
+  const repairs = (repairRows || []) as unknown as {
+    id: string
+    repair_stage: string
+    bikes: { brand: string | null; model: string | null } | null
+  }[]
+  const { data: repairEventRows } = repairs.length
+    ? await supabase
+        .from('repair_stage_events')
+        .select('ticket_id, stage, note, created_at')
+        .in('ticket_id', repairs.map((r) => r.id))
+        .order('created_at', { ascending: true })
+    : { data: [] as RepairEvent[] }
+  const repairEvents = eventsByTicket(repairEventRows as RepairEvent[] | null)
 
   // Fetch customer profile
   let customer: any = null
@@ -128,6 +152,21 @@ export default async function DashboardPage() {
           </span>
           <span className="text-xs font-bold underline whitespace-nowrap">Read it →</span>
         </Link>
+      )}
+
+      {/* Live repair tracker: one card per bike in the shop. */}
+      {repairs.length > 0 && (
+        <div className="space-y-3">
+          {repairs.map((r) => (
+            <RepairProgress
+              key={r.id}
+              stage={r.repair_stage}
+              events={repairEvents.get(r.id) || []}
+              bike={r.bikes ? `${r.bikes.brand || ''} ${r.bikes.model || ''}`.trim() : undefined}
+            />
+          ))}
+          <RepairLiveRefresh />
+        </div>
       )}
 
       {/* Add to home screen. Hidden while previewing: it is about the device

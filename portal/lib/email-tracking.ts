@@ -18,6 +18,7 @@ export const EMAIL_KIND_LABELS: Record<string, string> = {
   bridge_agreement: 'Bridge the Gap agreement',
   service_ticket: 'Service ticket received',
   ticket_reply: 'Reply to service ticket',
+  repair_stage: 'Repair tracker update',
 }
 
 export function newEmailToken(): string {
