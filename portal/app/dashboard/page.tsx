@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { getViewerContext } from '@/lib/view-as'
 import { CreekGuardBadge, CreekGuardSignUp } from '@/app/components/creekguard-badge'
 import { creekGuardBikeIds } from '@/lib/creekguard'
+import { FindYourRide } from '@/app/components/find-your-ride'
 
 // Per-customer data, and now also per-preview: an admin viewing as someone
 // else must never be served a page cached for anybody. Never static.
@@ -79,6 +80,7 @@ export default async function DashboardPage() {
 
   const pendingInvoices = invoices.filter((inv) => inv.status === 'pending')
   const firstName = customer?.first_name || 'Rider'
+  const hasBikes = bikes.length > 0
 
   return (
     <div className="space-y-6 max-w-5xl mx-auto pb-12">
@@ -128,11 +130,19 @@ export default async function DashboardPage() {
         {/* The first two tiles each have a page behind them, so they are
             links. Pending Invoices stays a plain tile — it is a total across
             invoices, not a view of its own. */}
-        <Link href="/dashboard/bikes" className="stat-card stat-card-link">
-          <p className="stat-label">My Registered Bikes</p>
-          <p className="stat-value">{bikes.length}</p>
-          <span className="stat-cta">View bikes →</span>
-        </Link>
+        {hasBikes ? (
+          <Link href="/dashboard/bikes" className="stat-card stat-card-link">
+            <p className="stat-label">My Registered Bikes</p>
+            <p className="stat-value">{bikes.length}</p>
+            <span className="stat-cta">View bikes →</span>
+          </Link>
+        ) : (
+          <a href="#find-your-ride" className="stat-card stat-card-link">
+            <p className="stat-label">My Registered Bikes</p>
+            <p className="stat-value">0</p>
+            <span className="stat-cta">Find your ride →</span>
+          </a>
+        )}
         <Link href="/dashboard/invoices" className="stat-card stat-card-link">
           <p className="stat-label">Invoices on File</p>
           <p className="stat-value">{invoices.length}</p>
@@ -149,7 +159,7 @@ export default async function DashboardPage() {
       </div>
 
       {/* ── Registered Bikes & Warranty Status ── */}
-      {bikes.length > 0 && (
+      {hasBikes && (
         <div className="bg-white rounded-2xl p-5 sm:p-6 border border-[#E5E5E5] shadow-xs space-y-4">
           <div className="flex justify-between items-center flex-wrap gap-2">
             <h2
@@ -216,8 +226,12 @@ export default async function DashboardPage() {
         </div>
       )}
 
-      {/* ── CreekGuard sign-up, until a tracker is on one of their bikes ── */}
-      {guarded.size === 0 && <CreekGuardSignUp />}
+      {/* ── No bike yet (gear, a gift card, a repair): show them the way in ── */}
+      {!hasBikes && <FindYourRide referralCode={customer?.referral_code} />}
+
+      {/* ── CreekGuard sign-up, until a tracker is on one of their bikes.
+          It protects a bike, so it waits until there is one. ── */}
+      {hasBikes && guarded.size === 0 && <CreekGuardSignUp />}
 
       {/* ── Biometrics Activation Setup ── */}
       {/* Hidden while previewing. Passkey registration talks to the API as
