@@ -27,7 +27,7 @@ a{text-decoration:none;color:inherit}
 .brand-logo{height:38px;width:auto;display:block}
 
 /* HERO */
-.hero{position:relative;min-height:34vh;padding:64px 24px 48px;
+.hero{position:relative;min-height:26vh;padding:56px 24px 44px;
   display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;
   color:#fff;background:var(--forest);overflow:hidden;isolation:isolate}
 .hero-topo{position:absolute;inset:0;z-index:-1;opacity:.18;pointer-events:none;
@@ -43,13 +43,13 @@ a{text-decoration:none;color:inherit}
   max-width:520px;line-height:1.6}
 
 /* BREADCRUMB */
-.crumb{max-width:880px;margin:0 auto;padding:24px 24px 0;
+.crumb{max-width:1120px;margin:0 auto;padding:24px 24px 0;
   font-size:.75rem;letter-spacing:.1em;text-transform:uppercase;font-weight:700;color:var(--sage)}
 .crumb a{color:var(--ink-2)}
 .crumb a:hover{color:var(--forest)}
 .crumb .sep{color:rgba(0,0,0,.2);margin:0 8px}
 
-main{flex:1;max-width:880px;margin:0 auto;padding:32px 24px 56px;width:100%}
+main{flex:1;max-width:1120px;margin:0 auto;padding:32px 24px 56px;width:100%}
 
 /* SIGN IN */
 .signin{background:#fff;border-radius:10px;padding:32px 30px;text-align:center;
@@ -74,7 +74,7 @@ h2.sec{font-family:'Bebas Neue',sans-serif;font-size:1.7rem;letter-spacing:.02em
 .sec-sub{color:var(--ink-2);font-size:.98rem;margin-bottom:18px}
 
 /* CARD GRIDS */
-.grid{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
+.grid{display:grid;gap:14px;grid-template-columns:1fr}
 .card{background:#fff;border:1px solid rgba(0,0,0,.06);border-radius:8px;padding:20px 20px;
   box-shadow:0 2px 8px rgba(0,0,0,.03)}
 .card h3{font-size:1rem;font-weight:800;color:var(--forest);margin-bottom:6px;line-height:1.35}
@@ -106,6 +106,21 @@ footer{background:var(--dark);color:rgba(255,255,255,.65);padding:32px 24px;
   text-align:center;font-size:.85rem;letter-spacing:.02em}
 footer a{color:var(--tan);font-weight:500}
 footer a:hover{color:#fff}
+
+/* Wider screens: use the room instead of one narrow column. Sign-in and the
+   no-sign-up note sit side by side; the four cards never leave one alone. */
+@media(min-width:600px){
+  .grid{grid-template-columns:repeat(2,1fr)}
+}
+@media(min-width:900px){
+  .start{display:grid;grid-template-columns:3fr 2fr;gap:18px;align-items:stretch}
+  .start .invite{margin-top:0;display:flex;flex-direction:column;justify-content:center}
+  .start .signin{display:flex;flex-direction:column;align-items:center;justify-content:center}
+  .dealer ul{grid-template-columns:repeat(2,1fr);column-gap:28px}
+}
+@media(min-width:1040px){
+  .grid{grid-template-columns:repeat(4,1fr)}
+}
 
 @media(max-width:560px){
   .hero{padding:48px 16px 36px}
@@ -145,6 +160,7 @@ footer a:hover{color:#fff}
 
 <main>
 
+  <div class="start">
   <div class="signin">
     <h2>Already a customer?</h2>
     <p>Sign in with the email address on your receipt.</p>
@@ -163,6 +179,7 @@ footer a:hover{color:#fff}
     email you an invitation to the address on your receipt. Open it and you're in.</p>
     <p>If you've bought from us and never got that email, it's almost always the wrong address
     on file or a spam folder. Text us and we'll resend it.</p>
+  </div>
   </div>
 
   <h2 class="sec">What's in there</h2>
