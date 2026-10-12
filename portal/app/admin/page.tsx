@@ -7,6 +7,9 @@ import { STORE_URL } from '@/lib/constants'
 import { loadCatalog } from '@/lib/bike-catalog'
 import { baseModelName } from '@/lib/model-groups'
 import Link from 'next/link'
+import { listAuthAccounts } from '@/lib/auth-accounts'
+import { lastInviteAt, signupState, daysSince, REINVITE_AFTER_DAYS } from '@/lib/portal-invites'
+import { PortalSignups, type SignupTodo } from './portal-signups'
 
 export default async function AdminOverview() {
   const supabase = await createClient()
@@ -56,6 +59,51 @@ export default async function AdminOverview() {
 
   const { data: credits } = await supabase.from('referral_credits').select('amount, redeemed')
   const unredeemedCredits = credits?.filter(c => !c.redeemed).reduce((sum, c) => sum + Number(c.amount), 0) || 0
+
+  // Portal sign-ups and who is due an invite. Staff and archived customers
+  // are left out; a failed login lookup hides the panel rather than showing
+  // everyone as never invited.
+  const [{ data: signupCustomers }, { accounts, error: accountsError }, { data: inviteRows }] = await Promise.all([
+    supabase.from('customers').select('id, first_name, last_name, is_admin, archived_at'),
+    listAuthAccounts(),
+    supabase
+      .from('customer_email_log')
+      .select('email, kind, status, sent_at')
+      .in('kind', ['invite', 'sign_in_link'])
+      .eq('status', 'sent')
+      .order('sent_at', { ascending: false })
+      .limit(5000),
+  ])
+  const invitesByEmail = new Map<string, { kind: string; status: string; sent_at: string }[]>()
+  for (const r of inviteRows || []) {
+    const list = invitesByEmail.get(r.email) || []
+    list.push(r)
+    invitesByEmail.set(r.email, list)
+  }
+  const signupCounts = { signedIn: 0, invited: 0, due: 0, never: 0, noEmail: 0 }
+  const dueTodo: SignupTodo[] = []
+  const neverTodo: SignupTodo[] = []
+  for (const c of signupCustomers || []) {
+    if (c.is_admin || c.archived_at) continue
+    const account = accounts.get(c.id)
+    const email = account?.email ?? null
+    const invitedAt = lastInviteAt(account?.invitedAt, email ? invitesByEmail.get(email.toLowerCase()) || [] : [])
+    const state = signupState({ email, registered: account?.registered ?? false, invitedAt })
+    const name = `${c.first_name || ''} ${c.last_name || ''}`.trim() || 'Customer'
+    if (state === 'signed_in') signupCounts.signedIn++
+    else if (state === 'invited') signupCounts.invited++
+    else if (state === 'no_email') signupCounts.noEmail++
+    else if (state === 'reinvite_due') {
+      signupCounts.due++
+      dueTodo.push({ id: c.id, name, lastInviteAt: invitedAt, daysAgo: invitedAt ? daysSince(invitedAt) : null })
+    } else {
+      signupCounts.never++
+      neverTodo.push({ id: c.id, name, lastInviteAt: null, daysAgo: null })
+    }
+  }
+  // Longest waiting first, then the never-invited by name.
+  dueTodo.sort((a, b) => (b.daysAgo ?? 0) - (a.daysAgo ?? 0))
+  neverTodo.sort((a, b) => a.name.localeCompare(b.name))
 
   const recentInvoices = invoices?.slice(0, 10) || []
 
@@ -154,6 +202,15 @@ export default async function AdminOverview() {
             ))}
           </ul>
         </div>
+      )}
+
+      {/* Portal sign-ups, with the to-do list of who to (re)invite */}
+      {!accountsError && (
+        <PortalSignups
+          counts={signupCounts}
+          todo={[...dueTodo, ...neverTodo]}
+          reinviteDays={REINVITE_AFTER_DAYS}
+        />
       )}
 
       {/* KPI Stat Cards (Pending Revenue opens the pending invoice list) */}

@@ -108,6 +108,7 @@ export async function inviteCustomer(
     }
 
     revalidatePath('/admin/customers')
+    revalidatePath('/admin')
     return { ok: true, message: `Sign-in link sent to ${email}. They already had an account.` }
   }
 
@@ -151,6 +152,7 @@ export async function inviteCustomer(
   }
 
   revalidatePath('/admin/customers')
+  revalidatePath('/admin')
   return { ok: true, message: `Invite emailed to ${email}.` }
 }
 
@@ -247,6 +249,7 @@ export async function inviteCustomers(customerIds: string[]): Promise<BulkResult
   }
 
   revalidatePath('/admin/customers')
+  revalidatePath('/admin')
   return {
     ok: sent > 0,
     message: sent ? `Invite emailed to ${sent} customer${sent === 1 ? '' : 's'}.` : 'No invites were sent.',
