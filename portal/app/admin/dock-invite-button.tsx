@@ -4,7 +4,7 @@ import { useActionState } from 'react'
 import { inviteCustomerById, type InviteResult } from './customers/actions'
 
 /** Send Portal Invite from the Find Customer panel (see inviteCustomerById). */
-export function DockInviteButton({ customerId }: { customerId: string }) {
+export function DockInviteButton({ customerId, compact = false }: { customerId: string; compact?: boolean }) {
   const [state, action, pending] = useActionState<InviteResult | null, FormData>(inviteCustomerById, null)
 
   return (
@@ -13,9 +13,13 @@ export function DockInviteButton({ customerId }: { customerId: string }) {
       <button
         type="submit"
         disabled={pending}
-        className="w-full p-2.5 rounded-lg bg-[#2D4A32] text-white font-bold flex items-center justify-center gap-1.5 hover:bg-[#1A2E1C] shadow-xs disabled:opacity-60"
+        className={
+          compact
+            ? 'px-3 py-1.5 rounded-lg bg-[#2D4A32] text-white text-xs font-bold whitespace-nowrap hover:bg-[#1A2E1C] disabled:opacity-60'
+            : 'w-full p-2.5 rounded-lg bg-[#2D4A32] text-white font-bold flex items-center justify-center gap-1.5 hover:bg-[#1A2E1C] shadow-xs disabled:opacity-60'
+        }
       >
-        {pending ? 'Sending…' : '✉️ Send Portal Invite'}
+        {pending ? 'Sending…' : compact ? '✉️ Send' : '✉️ Send Portal Invite'}
       </button>
       {state && (
         <span className={`text-[11px] ${state.ok ? 'text-[#2D4A32] font-semibold' : 'text-[#9B2C2C]'}`}>

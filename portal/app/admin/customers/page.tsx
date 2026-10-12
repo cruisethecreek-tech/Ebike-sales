@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { customerKind } from '@/lib/customer-kind'
 import { listAuthAccounts } from '@/lib/auth-accounts'
+import { lastInviteAt } from '@/lib/portal-invites'
 import { InviteCustomerForm } from './invite-form'
 import { CustomerDirectory } from './customer-directory'
 import type { EmailSent } from './emails-sent'
@@ -70,16 +71,8 @@ export default async function AdminCustomers() {
 
     const account = accounts.get(c.id)
     const emails = account?.email ? emailsByAddress.get(account.email.toLowerCase()) || [] : []
-    // Supabase only stamps invited_at on accounts it created with an invite.
-    // Accounts made by the invoice import or sync get a sign-in link from
-    // Send Portal Invite instead, which never sets it, so the badge said
-    // "Not invited" right under "Sign-in link sent". Either email counts.
-    const lastPortalEmail =
-      emails.find((e) => (e.kind === 'invite' || e.kind === 'sign_in_link') && e.status === 'sent')?.sent_at ?? null
-    const invitedAt = [account?.invitedAt ?? null, lastPortalEmail]
-      .filter((d): d is string => !!d)
-      .sort((a, b) => Date.parse(a) - Date.parse(b))
-      .at(-1) ?? null
+    // Auth invited_at, or a sent invite / sign-in link in Emails Sent.
+    const invitedAt = lastInviteAt(account?.invitedAt, emails)
 
     return {
       ...c,
