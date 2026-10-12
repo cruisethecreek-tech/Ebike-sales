@@ -83,7 +83,12 @@ export function detectBike(itemDesc: string): { brand: string; model: string } |
   const subject = lineSubject(d) || d
   const lower = subject.toLowerCase()
 
-  if (NOT_A_BIKE.some((w) => lower.includes(w))) return null
+  // "Fat Tire" is a kind of bike, not a tire bought on its own. CTR-076's
+  // "Velotric Nomad 2 Fat Tire Step-Thru" was dropped on 'tire' and the
+  // customer showed as service-only. A real tire line still carries a size or
+  // 'tube' and no brand or bike word, so it is turned away further down.
+  const forExclusion = lower.replace(/\bfat[\s-]*(tire|tyre)s?\b/g, ' ')
+  if (NOT_A_BIKE.some((w) => forExclusion.includes(w))) return null
 
   // These must be values of the bike_brand enum and nothing else. The previous
   // list returned 'Aventon', 'Lectric' and 'Custom / Other', none of which
