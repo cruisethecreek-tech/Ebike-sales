@@ -9,8 +9,10 @@ import {
   restoreCustomers,
   deleteCustomersForever,
   mergeCustomers,
+  inviteCustomers,
   type MergeChoices,
 } from './actions'
+import { BULK_INVITE_LIMIT } from '@/lib/bulk-invite'
 
 type Outcome = { ok: boolean; message: string; problems?: string[]; invoiceNumbers?: string[] }
 
@@ -32,7 +34,8 @@ export interface BulkCustomer {
 /**
  * What can be done to the customers ticked in the directory.
  *
- * In the directory: archive them, or merge two. In the archive: restore them,
+ * In the directory: archive them, email them the portal invite, copy their
+ * emails or phones, or merge two. In the archive: restore them,
  * delete them permanently, or merge two. Deletion stays archive-only for the
  * same reason as the single delete — nobody reaches it from a list of people
  * they deal with every day.
@@ -46,7 +49,8 @@ export function BulkActions({
   inArchive: boolean
   onDone: () => void
 }) {
-  const [mode, setMode] = useState<'idle' | 'delete' | 'merge'>('idle')
+  const [mode, setMode] = useState<'idle' | 'delete' | 'merge' | 'invite'>('idle')
+  const [copied, setCopied] = useState<string | null>(null)
   const [typed, setTyped] = useState('')
   const [keepId, setKeepId] = useState<string | null>(null)
   const [picks, setPicks] = useState<Required<MergeChoices>>({ firstName: '', lastName: '', phone: '', email: '' })
@@ -100,6 +104,37 @@ export function BulkActions({
     if (k && o) setPicks(defaultPicks(k, o))
   }
 
+  // Who an invite would reach, and why the rest would be skipped. The server
+  // checks the same things again; this is so the button says the real number.
+  const skipReason = (c: BulkCustomer) =>
+    c.is_admin
+      ? 'staff login'
+      : !c.email
+        ? 'no email'
+        : isPlaceholderEmail(c.email)
+          ? 'shop placeholder email'
+          : c.registered
+            ? 'already signs in'
+            : null
+  const invitable = selected.filter((c) => !skipReason(c))
+  const skipped = selected.filter((c) => skipReason(c))
+
+  // For a group text or an email from your own inbox.
+  function copyList(kind: 'emails' | 'phones') {
+    const values = selected
+      .map((c) => (kind === 'emails' ? (isPlaceholderEmail(c.email) ? '' : c.email) : c.phone)?.trim() || '')
+      .filter(Boolean)
+    if (!values.length) {
+      setCopied(`None of them have ${kind === 'emails' ? 'a real email' : 'a phone number'}.`)
+      return
+    }
+    navigator.clipboard
+      .writeText(values.join(kind === 'emails' ? ', ' : '\n'))
+      .then(() => setCopied(`Copied ${values.length} ${kind === 'emails' ? 'email' : 'phone number'}${values.length === 1 ? '' : 's'}.`))
+      .catch(() => setCopied('Could not copy. Your browser blocked the clipboard.'))
+    setTimeout(() => setCopied(null), 3000)
+  }
+
   const keep = selected.find((c) => c.id === keepId)
   const other = selected.find((c) => c.id !== keepId)
 
@@ -145,6 +180,32 @@ export function BulkActions({
           </>
         )}
 
+        {!inArchive && (
+          <button
+            type="button"
+            disabled={pending}
+            onClick={() => { setMode(mode === 'invite' ? 'idle' : 'invite'); setResult(null) }}
+            className="px-3 py-1.5 rounded-lg bg-white text-[#1A2E1C] font-bold hover:bg-[#F5F0E8] disabled:opacity-60"
+          >
+            ✉️ Send invite{n === 1 ? '' : 's'}…
+          </button>
+        )}
+
+        <button
+          type="button"
+          onClick={() => copyList('emails')}
+          className="px-3 py-1.5 rounded-lg bg-white/10 border border-white/40 font-bold hover:bg-white/20"
+        >
+          📋 Copy emails
+        </button>
+        <button
+          type="button"
+          onClick={() => copyList('phones')}
+          className="px-3 py-1.5 rounded-lg bg-white/10 border border-white/40 font-bold hover:bg-white/20"
+        >
+          📋 Copy phones
+        </button>
+
         <button
           type="button"
           disabled={pending || n !== 2}
@@ -167,6 +228,42 @@ export function BulkActions({
           Clear
         </button>
       </div>
+      )}
+
+      {copied && <p className="text-[11px] text-[#B7E4C0] font-bold">{copied}</p>}
+
+      {mode === 'invite' && (
+        <div className="p-3 rounded-lg bg-[#F5F0E8] text-[#1A1A1A] space-y-2">
+          {invitable.length > 0 ? (
+            <p className="text-[11px]">
+              <span className="font-bold">Will be emailed:</span>{' '}
+              {invitable.map((c) => c.name).join(', ')}
+            </p>
+          ) : (
+            <p className="text-[11px] font-bold">None of the checked customers can be emailed an invite.</p>
+          )}
+          {skipped.length > 0 && (
+            <p className="text-[11px] text-gray-600">
+              <span className="font-bold">Skipped:</span>{' '}
+              {skipped.map((c) => `${c.name} (${skipReason(c)})`).join(', ')}
+            </p>
+          )}
+          {invitable.length > BULK_INVITE_LIMIT && (
+            <p className="text-[11px] text-[#9B2C2C] font-bold">
+              Check {BULK_INVITE_LIMIT} or fewer at a time.
+            </p>
+          )}
+          <button
+            type="button"
+            disabled={pending || !invitable.length || invitable.length > BULK_INVITE_LIMIT}
+            onClick={() => start(async () => finish(await inviteCustomers(invitable.map((c) => c.id))))}
+            className="px-3 py-1.5 rounded-lg bg-[#2D4A32] text-white text-[11px] font-bold hover:bg-[#1A2E1C] disabled:opacity-40"
+          >
+            {pending
+              ? 'Sending…'
+              : `Email ${invitable.length} invite${invitable.length === 1 ? '' : 's'}`}
+          </button>
+        </div>
       )}
 
       {mode === 'delete' && (

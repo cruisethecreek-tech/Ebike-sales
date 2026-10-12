@@ -9,6 +9,8 @@ import { findAuthUserByEmail } from '@/lib/find-auth-user'
 import { RIDE_PHOTOS_BUCKET } from '@/lib/ride-photos'
 import { cleanCustomerDetails, type CustomerDetailsInput } from '@/lib/customer-details'
 import { loadPurchaseSummary } from '@/lib/invite-personalization'
+import { isPlaceholderEmail } from '@/lib/placeholder-email'
+import { BULK_INVITE_LIMIT } from '@/lib/bulk-invite'
 
 // Admin-only: uses service role key to send invite emails
 function createAdminClient() {
@@ -181,6 +183,75 @@ export async function inviteCustomerById(
   form.set('last_name', customer?.last_name || '')
   form.set('phone', customer?.phone || '')
   return inviteCustomer(prev, form)
+}
+
+/**
+ * Send the portal invite to every checked customer, one at a time, through
+ * the same path as the single Send Portal Invite button (so each one is
+ * personalised and lands in Emails Sent).
+ *
+ * Skipped and named rather than failing the batch: staff logins, anyone with
+ * no email or only a shop placeholder address, and anyone who already signs
+ * in, since they need nothing from an invite.
+ */
+export async function inviteCustomers(customerIds: string[]): Promise<BulkResult> {
+  await requireAdminUser()
+  const ids = [...new Set(customerIds)].filter(Boolean)
+  if (!ids.length) return { ok: false, message: 'Nobody is checked.', problems: [] }
+  if (ids.length > BULK_INVITE_LIMIT) {
+    return {
+      ok: false,
+      message: `Check ${BULK_INVITE_LIMIT} or fewer at a time; ${ids.length} are checked.`,
+      problems: [],
+    }
+  }
+
+  const admin = createAdminClient()
+  const { data: rows, error } = await admin
+    .from('customers')
+    .select('id, first_name, last_name, phone, is_admin')
+    .in('id', ids)
+  if (error) return { ok: false, message: 'Could not read those customers: ' + error.message, problems: [] }
+
+  const problems: string[] = []
+  let sent = 0
+  for (const c of rows || []) {
+    const name = displayName(c)
+    if (c.is_admin) {
+      problems.push(`${name}: staff login, skipped.`)
+      continue
+    }
+    const { data: account } = await admin.auth.admin.getUserById(c.id)
+    const email = account?.user?.email
+    if (!email) {
+      problems.push(`${name}: no email on file. Add one with Edit details.`)
+      continue
+    }
+    if (isPlaceholderEmail(email)) {
+      problems.push(`${name}: only a shop placeholder email. Use Copy Sign-In Link to text them.`)
+      continue
+    }
+    if (account?.user?.last_sign_in_at) {
+      problems.push(`${name}: already signs in, skipped.`)
+      continue
+    }
+
+    const form = new FormData()
+    form.set('email', email)
+    form.set('first_name', c.first_name || String(account?.user?.user_metadata?.first_name || '') || 'there')
+    form.set('last_name', c.last_name || '')
+    form.set('phone', c.phone || '')
+    const r = await inviteCustomer(null, form)
+    if (r.ok) sent++
+    else problems.push(`${name}: ${r.message}`)
+  }
+
+  revalidatePath('/admin/customers')
+  return {
+    ok: sent > 0,
+    message: sent ? `Invite emailed to ${sent} customer${sent === 1 ? '' : 's'}.` : 'No invites were sent.',
+    problems,
+  }
 }
 
 export interface SignInLinkResult {

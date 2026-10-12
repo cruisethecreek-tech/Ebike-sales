@@ -87,6 +87,10 @@ export function NowViewingDock({ customers, dataError }: NowViewingDockProps) {
   const [query, setQuery] = useState('')
   const [selectedBrand, setSelectedBrand] = useState<string>('ALL')
   const [copiedCode, setCopiedCode] = useState(false)
+  // With someone already chosen, the full list under their card is noise: it
+  // pushed the card's actions off screen and made it unclear who was picked.
+  // It stays folded until asked for, or until a search is typed.
+  const [showAll, setShowAll] = useState(false)
 
   const brands = ['ALL', 'Heybike', 'Velotric', 'Mooncool', 'Jasion', 'Mokwheel']
 
@@ -121,6 +125,11 @@ export function NowViewingDock({ customers, dataError }: NowViewingDockProps) {
 
   function selectCustomer(id: string) {
     setSelectedId(id)
+    // Picking someone from the list closes the sheet so the floating bar comes
+    // back with their name on it; tapping the bar opens just their card.
+    setQuery('')
+    setShowAll(false)
+    setIsOpen(false)
     try {
       localStorage.setItem('ctc_selected_customer_id', id)
       window.dispatchEvent(new CustomEvent('ctc-select-customer', { detail: { id } }))
@@ -209,7 +218,7 @@ export function NowViewingDock({ customers, dataError }: NowViewingDockProps) {
       <div className="fixed bottom-0 inset-x-0 z-40 p-2 sm:p-4 pointer-events-none flex justify-center">
         <div className="pointer-events-auto w-full max-w-xl">
           <button
-            onClick={() => setIsOpen(true)}
+            onClick={() => { setShowAll(false); setIsOpen(true) }}
             className="w-full shadow-2xl rounded-2xl p-3 sm:p-3.5 flex items-center justify-between transition-all transform active:scale-[0.99] border border-[#6B8F71]/50"
             style={{
               backgroundColor: '#1A2E1C',
@@ -294,7 +303,7 @@ export function NowViewingDock({ customers, dataError }: NowViewingDockProps) {
               <div className="relative">
                 <input
                   type="text"
-                  autoFocus
+                  autoFocus={!selectedCustomer}
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
                   placeholder="Search by name, phone, bike (e.g. Discover 3), brand, CTR-..."
@@ -614,6 +623,15 @@ export function NowViewingDock({ customers, dataError }: NowViewingDockProps) {
               )}
 
               {/* Search Results List */}
+              {selectedCustomer && !query.trim() && !showAll ? (
+                <button
+                  type="button"
+                  onClick={() => setShowAll(true)}
+                  className="w-full p-3 rounded-xl border border-[#C9A96E] bg-white text-xs font-bold text-[#2D4A32] hover:bg-[#FAF3E4]"
+                >
+                  ▾ Show all customers ({filteredCustomers.length})
+                </button>
+              ) : (
               <div className="space-y-2">
                 <div className="text-xs font-bold uppercase text-[#4A4A4A] tracking-wider">
                   {query
@@ -672,6 +690,7 @@ export function NowViewingDock({ customers, dataError }: NowViewingDockProps) {
                   </div>
                 )}
               </div>
+              )}
             </div>
           </div>
         </div>
