@@ -327,6 +327,12 @@
        look gone). Falling back to a hard nav across pages eliminates
        both the console error and the blank-render symptom. */
 
+    /* Most pages make body a full-height flex column (html,body{height:100%}).
+       Once the page is taller than the screen its sections are squeezed back
+       toward their min-height, and a hero with overflow:hidden loses the top
+       of its headline under the header ("Your Adventure" on a phone). Pages
+       scroll, so nothing in the column should ever shrink. */
+    'body>*{flex-shrink:0}',
     /* Animated topo drift on hero backgrounds. */
     '.hero-topo{animation:hero-topo-drift 80s ease-in-out infinite alternate;will-change:transform}',
     '@keyframes hero-topo-drift{0%{transform:translate3d(0,0,0)}100%{transform:translate3d(-2.5%,1%,0)}}',
@@ -705,7 +711,7 @@
       '  100% { transform: translate3d(80px, 100vh, 0) rotate(360deg); opacity: 0; }',
       '}',
       '.ctc-particle { position: fixed; top: -30px; pointer-events: none; z-index: 999; user-select: none; font-size: 1.2rem; animation: ctc-particle-fall linear infinite; }',
-      '.ctc-season-banner { position: relative; z-index: 110; background: linear-gradient(135deg, #1A2E1C 0%, #2D4A32 100%); color: #F5F0E8; border-bottom: 2px solid ' + current.color + '; padding: 7px 16px; font-size: 0.78rem; font-weight: 700; display: flex; align-items: center; justify-content: center; text-align: center; gap: 8px; font-family: "DM Sans", system-ui, sans-serif; box-shadow: 0 2px 8px rgba(0,0,0,0.12); }',
+      '.ctc-season-banner { position: relative; z-index: 110; align-self: stretch; background: linear-gradient(135deg, #1A2E1C 0%, #2D4A32 100%); color: #F5F0E8; border-bottom: 2px solid ' + current.color + '; padding: 7px 16px; font-size: 0.78rem; font-weight: 700; display: flex; align-items: center; justify-content: center; text-align: center; gap: 8px; font-family: "DM Sans", system-ui, sans-serif; box-shadow: 0 2px 8px rgba(0,0,0,0.12); }',
       '.ctc-season-banner a { color: ' + current.color + '; text-decoration: underline; margin-left: 6px; }',
       '.ctc-season-banner-close { background: none; border: none; color: rgba(255,255,255,0.7); cursor: pointer; padding: 2px 6px; font-size: 1rem; line-height: 1; margin-left: 8px; }',
       '.ctc-season-banner-close:hover { color: #fff; }',
