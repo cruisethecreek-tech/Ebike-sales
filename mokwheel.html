@@ -957,17 +957,20 @@ window.ctcNextImage = function (img) {
             const orderParams = new URLSearchParams({action:'processOrder'});
             Object.keys(orderData).forEach(k => orderParams.append(k, orderData[k]||''));
             fetch(AS_URL + '?' + orderParams.toString(), {redirect:'follow'})
-                .then(function(r) {
-                    // Apps Script may return non-JSON on redirect — treat any response as success
+                .then(function(r) { return r.json(); })
+                .then(function(res) {
+                    // Only a saved request ({ok:true}) gets the confirmation.
+                    // For months every request was lost while this page still
+                    // said thanks, so a failure must reach the customer.
+                    if (!res || res.ok !== true) throw new Error((res && res.error) || 'not saved');
                     submitBtn.disabled = false;
                     submitBtn.textContent = 'Submit Order Request';
                     showSuccessModal();
                 })
                 .catch(function(e) {
-                    // Even on network error, order likely went through — show confirmation
                     submitBtn.disabled = false;
                     submitBtn.textContent = 'Submit Order Request';
-                    showSuccessModal();
+                    alert('Sorry, your order request did not go through. Please try again, or call us at 330-406-9681 and we will set it up for you.');
                 });
         });
     

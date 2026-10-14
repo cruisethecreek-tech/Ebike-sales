@@ -913,6 +913,12 @@ function _doGetInner(e, action) {
   if (action === 'getStock'            && typeof handleGetStock            === 'function') return handleGetStock(e);
   if (action === 'inventoryVersion'    && typeof handleInventoryVersion    === 'function') return handleInventoryVersion(e);
 
+  // Bike order requests from the five brand pages (heybike, velotric, jasion,
+  // mooncool, mokwheel). They have always been sent here, but no handler
+  // existed in either project, so every request fell through to the CMS read
+  // and was lost while the page showed the customer a confirmation.
+  if (action === 'processOrder') return handleProcessOrder(e.parameter || {});
+
   // ── Ebike invoices + catalog (consolidated from the old "Project C").
   // These reach the ebike Inventory Sheet by ID (see bottom of file). ──
   if (action === 'getInvoiceCatalog')    return getInvoiceCatalog(e);
@@ -1753,6 +1759,115 @@ function _createDraftInvoiceFromCart_(cartId, now, customer, items, subtotal) {
   sh.appendRow(row);
 
   return 'https://www.cruisethecreek.com/invoice.html?edit=' + encodeURIComponent(cartId);
+}
+
+
+/**
+ * Bike order request from a brand page's "Submit Order Request" form.
+ *   1. Appends a row to the Bike_Orders tab (created on first use).
+ *   2. Emails salesteam@ and info@cruisethecreek.com.
+ *   3. Posts to Discord, like the other order handlers.
+ * Nothing is charged; staff follow up with the customer.
+ * Returns {ok, id} or {ok:false, error}; the page shows an error and the shop
+ * phone number when ok is not true.
+ */
+function handleProcessOrder(p) {
+  const json = function(obj) {
+    return ContentService
+      .createTextOutput(JSON.stringify(obj))
+      .setMimeType(ContentService.MimeType.JSON);
+  };
+  const v = function(k) { return String(p[k] || '').trim(); };
+
+  try {
+    const now = new Date();
+    const id  = 'BO-' + Utilities.formatDate(now, 'America/New_York', 'yyMMdd-HHmmss');
+    const o = {
+      first: v('firstName'), last: v('lastName'), email: v('email'), phone: v('phone'),
+      bike: v('bikeModel'), style: v('style'), size: v('size'), color: v('color'),
+      riderHeight: v('riderHeight'), mirror: v('mirrorOption'),
+      creekReady: v('creekReady'), creekGuard: v('creekGuard'),
+      comments: v('comments'), price: parseFloat(p.price) || 0,
+    };
+    if (!o.first && !o.last && !o.email && !o.phone) {
+      return json({ ok: false, error: 'No contact details in the request.' });
+    }
+
+    // The Pricing and Orders project is not bound to the shop spreadsheet, so
+    // open it by ID when inventory.gs is present (INV_SHEET_ID); the CMS
+    // project is bound to it, so the active spreadsheet works there.
+    const ss = (typeof INV_SHEET_ID !== 'undefined' && INV_SHEET_ID)
+      ? SpreadsheetApp.openById(INV_SHEET_ID)
+      : SpreadsheetApp.getActiveSpreadsheet();
+    const headers = ['id','timestamp','first','last','email','phone','bike','style',
+                     'size','color','price','riderHeight','mirror','creekReady',
+                     'creekGuard','comments'];
+    let sh = ss.getSheetByName('Bike_Orders');
+    if (!sh) {
+      sh = ss.insertSheet('Bike_Orders');
+      sh.appendRow(headers);
+      sh.getRange(1, 1, 1, headers.length).setFontWeight('bold');
+    }
+    sh.appendRow([id, now, o.first, o.last, o.email, o.phone, o.bike, o.style,
+                  o.size, o.color, o.price, o.riderHeight, o.mirror, o.creekReady,
+                  o.creekGuard, o.comments]);
+
+    const config = [o.style, o.size, o.color].filter(function(x){ return x; }).join(' / ');
+    try {
+      MailApp.sendEmail({
+        to:      'salesteam@cruisethecreek.com,info@cruisethecreek.com',
+        replyTo: o.email || 'salesteam@cruisethecreek.com',
+        subject: 'Bike order request ' + id + ' — ' + (o.bike || 'bike') +
+                 (o.price ? ', $' + o.price.toFixed(0) : ''),
+        body: [
+          'New bike order request — ' + id,
+          '',
+          'Customer: ' + o.first + ' ' + o.last,
+          'Email:    ' + (o.email || '(none — call by phone)'),
+          'Phone:    ' + (o.phone || '(none — email only)'),
+          '',
+          'Bike:     ' + (o.bike || '(not chosen)') + (config ? ' (' + config + ')' : ''),
+          'Price:    ' + (o.price ? '$' + o.price.toFixed(2) : '(not shown)'),
+          'Rider height: ' + (o.riderHeight || '(not given)'),
+          'Mirror:   ' + (o.mirror || '-'),
+          'Creek Ready: ' + (o.creekReady || '-'),
+          'CreekGuard:  ' + (o.creekGuard || '-'),
+          '',
+          'Comments: ' + (o.comments || '(none)'),
+          '',
+          'Logged:   ' + now,
+          'Nothing was charged. Follow up to confirm and send a payment link.',
+        ].join('\n'),
+      });
+    } catch (mailErr) {
+      console.warn('Bike order email failed (row still saved): ' + mailErr);
+    }
+
+    try {
+      postToDiscord_(
+        '🚲 New bike order request — ' + id,
+        13215086,
+        [
+          { name: '👤 Customer', value:
+              ((o.first + ' ' + o.last).trim() || '(no name)') +
+              (o.phone ? '\n📞 ' + o.phone : '') +
+              (o.email ? '\n✉️ ' + o.email : ''), inline: false },
+          { name: '🚲 Bike', value: ((o.bike || '(not chosen)') + (config ? ' (' + config + ')' : '')).substring(0, 1000), inline: false },
+          { name: '💵 Price', value: o.price ? '$' + o.price.toFixed(2) : '(not shown)', inline: true },
+          { name: '🛡️ CreekGuard', value: o.creekGuard || '-', inline: true },
+          { name: '📝 Comments', value: (o.comments || '(none)').substring(0, 1000), inline: false },
+        ],
+        'Follow up to confirm and send a payment link'
+      );
+    } catch (discordErr) {
+      console.warn('Bike order Discord post failed: ' + discordErr);
+    }
+
+    return json({ ok: true, id: id });
+  } catch (err) {
+    console.error('handleProcessOrder failed: ' + err);
+    return json({ ok: false, error: String(err) });
+  }
 }
 
 /**
