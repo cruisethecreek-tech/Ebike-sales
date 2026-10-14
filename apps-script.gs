@@ -897,6 +897,22 @@ function handleRepairIntake(p) {
 
 function _doGetInner(e, action) {
 
+  // ── Bike inventory (inventory.gs, from apps-script-inventory.snippet.gs).
+  // The "Pricing and Orders" project serves the inventory URL (…8Nd_gFLobsBE)
+  // and runs THIS file as its Code.gs. Pasting this file in without these
+  // lines sends getBikeInventory to the CMS page read below, which answers
+  // {"page":"home",…}; the daily inventory sync then fails and every price on
+  // the site freezes (Sept 28 to Oct 2026). The typeof checks keep the same
+  // file safe in a project that has no inventory.gs. ──
+  if (action === 'getBikeInventory'    && typeof handleGetBikeInventory    === 'function') return handleGetBikeInventory(e);
+  if (action === 'getSidebarInventory' && typeof handleGetSidebarInventory === 'function') return handleGetSidebarInventory(e);
+  if (action === 'setDiscontinued'     && typeof handleSetDiscontinued     === 'function') return handleSetDiscontinued(e);
+  if (action === 'updatePrice'         && typeof handleUpdatePrice         === 'function') return handleUpdatePrice(e);
+  if (action === 'saveColors'          && typeof handleSaveColors          === 'function') return handleSaveColors(e);
+  if (action === 'saveSizeGuide'       && typeof handleSaveSizeGuide       === 'function') return handleSaveSizeGuide(e);
+  if (action === 'getStock'            && typeof handleGetStock            === 'function') return handleGetStock(e);
+  if (action === 'inventoryVersion'    && typeof handleInventoryVersion    === 'function') return handleInventoryVersion(e);
+
   // ── Ebike invoices + catalog (consolidated from the old "Project C").
   // These reach the ebike Inventory Sheet by ID (see bottom of file). ──
   if (action === 'getInvoiceCatalog')    return getInvoiceCatalog(e);
