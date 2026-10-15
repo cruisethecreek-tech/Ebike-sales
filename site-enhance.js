@@ -134,6 +134,7 @@
       { label: 'Shop E-Bikes',     url: 'shop.html' },
       { label: 'E-Bike Quiz',      url: 'quiz.html' },
       { label: 'Shop Accessories', url: 'accessories.html' },
+      { label: 'Shop Bike Racks',  url: 'cravot.html' },
       { label: 'Shop Apparel',     url: 'apparel.html' },
       { label: 'Ownership Options', url: 'ownership-options.html' },
     ]},
