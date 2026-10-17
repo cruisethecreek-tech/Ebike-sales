@@ -3,10 +3,9 @@
 // This repo talks to TWO separate Apps Script projects, and the source of
 // only one of them is checked in. That gap is not theoretical: processOrder
 // is the customer "Submit Order Request" on all five brand pages, and its
-// handler exists in neither .gs file here. Pointing those pages at the other
-// project — which is what "consolidate the deployments" means — would have
-// silently killed every bike order, and nothing in the repo would have said
-// so beforehand.
+// handler turned out to exist in NEITHER project. Every bike order request
+// was lost while the pages showed a confirmation, until handleProcessOrder
+// was added to apps-script.gs (October 2026).
 //
 // So: enumerate the actions the HTML sends, enumerate the handlers the .gs
 // files define, and fail on anything sent but not handled unless it is listed
@@ -21,7 +20,6 @@ const ok = (n, c, e = '') => { console.log((c ? 'PASS  ' : 'FAIL  ') + n + (e ? 
 // Shrinking this map is the point of the consolidation; adding to it without
 // a reason is how the gap got here.
 const ONLY_IN_LIVE_PROJECT = {
-  processOrder:    'Bike order submission — brand pages. Lives in the inventory project only. MUST be copied before those pages can move.',
   addBike:         'Adds a row from salespro. Lives in the inventory project only, if at all — no evidence it was ever written.',
   sendBalanceLink: 'Emails a balance link from balance.html. Lives in the CMS project only.'
 };
@@ -70,8 +68,8 @@ const orphan = Object.keys(ONLY_IN_LIVE_PROJECT).filter(a => !sentBy.has(a));
 ok('the live-project map has no orphan entries', orphan.length === 0, orphan.join(', '));
 
 // --- the specific hazard, named -----------------------------------------
-ok('processOrder is still flagged as unported',
-   'processOrder' in ONLY_IN_LIVE_PROJECT && !handled.has('processOrder'));
+ok('processOrder has a handler in the repo',
+   handled.has('processOrder') && !('processOrder' in ONLY_IN_LIVE_PROJECT));
 ok('processOrder is still sent by all five brand pages',
    sentBy.has('processOrder') && sentBy.get('processOrder').size === 5,
    [...(sentBy.get('processOrder') || [])].join(', '));
