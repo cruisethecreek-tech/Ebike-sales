@@ -280,6 +280,13 @@ main{flex:1;width:100%}
 .t-creek-life .tile-photo{background:linear-gradient(135deg,#34618a 0%,#6B8F71 100%)}
 
 /* ── TRUST STRIP ── */
+.seen{max-width:1032px;margin:28px auto 0;padding:16px 22px;display:flex;align-items:center;justify-content:center;
+  gap:10px 18px;flex-wrap:wrap;text-align:center;background:#fff;border:1px solid rgba(0,0,0,.06);border-radius:8px}
+@media(max-width:1080px){.seen{margin:28px 24px 0}}
+.seen-label{font-size:.7rem;letter-spacing:.18em;text-transform:uppercase;font-weight:700;color:var(--ink-2)}
+.seen-outlets{font-family:'Bebas Neue',sans-serif;font-size:1.5rem;letter-spacing:.06em;color:var(--forest)}
+.seen-dot{color:var(--tan)}
+.seen-go{font-size:.8rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:#a98843}
 .trust{max-width:1080px;margin:24px auto 0;padding:0 24px}
 .trust-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
 @media(min-width:720px){.trust-grid{grid-template-columns:repeat(4,1fr);gap:18px}}
@@ -476,7 +483,7 @@ footer{background:var(--dark);color:rgba(255,255,255,.75);padding:40px 24px 32px
   .hero-scroll{animation:none}
 }
 </style>
-<script src="site-enhance.js?v=66ab1c9eb3"></script>
+<script src="site-enhance.js?v=06e37b0036"></script>
 <meta property="og:title" content="Cruise the Creek | Electric Bike Adventures">
 <meta property="og:description" content="Cruise the Creek — Adventures, Rentals, Shop, Services, Test Rides, and Creek Life.">
 <meta property="og:image" content="https://www.cruisethecreek.com/cityrunblackblack.jpg">
@@ -628,6 +635,13 @@ footer{background:var(--dark);color:rgba(255,255,255,.75);padding:40px 24px 32px
     </div>
     <div class="reviews-grid" id="reviewsGrid"></div>
   </section>
+
+  <!-- ── AS SEEN ON (static; stories live on in-the-news.html) ── -->
+  <a class="seen fade-in" href="in-the-news.html">
+    <span class="seen-label">As seen on</span>
+    <span class="seen-outlets">WKBN 27 <span class="seen-dot">&middot;</span> WFMJ 21</span>
+    <span class="seen-go">Read the stories &rarr;</span>
+  </a>
 
   <!-- ── CTA STRIP ── -->
   <div class="cta fade-in">

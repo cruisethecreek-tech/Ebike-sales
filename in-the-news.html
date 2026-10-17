@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>In the News | Cruise the Creek</title>
+<meta name="description" content="WKBN 27 and WFMJ 21 news coverage of Cruise the Creek: e-bike rentals at Mill Creek MetroParks, trail safety and the 15 mph Bikeway limit.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --sage:#6B8F71;--forest:#2D4A32;--forest-l:#3a5d40;--dark:#1a2e1c;
+  --tan:#C9A96E;--tan-d:#a98843;--cream:#F5F0E8;--cream-w:#fbf7ef;
+  --ink:#1a1a1a;--ink-2:#4a4a4a;--ink-3:#7a7a7a;
+}
+html,body{height:100%}
+html{scroll-behavior:smooth}
+body{font-family:'DM Sans',sans-serif;color:var(--ink);background:var(--cream);
+  min-height:100vh;display:flex;flex-direction:column;line-height:1.6}
+a{color:inherit;text-decoration:none;transition:color .2s ease}
+button{font-family:inherit;cursor:pointer;border:none;background:none}
+
+.topbar{background:rgba(255,255,255,.95);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+  color:var(--dark);padding:16px 24px;display:flex;align-items:center;justify-content:space-between;
+  position:sticky;top:0;z-index:100;border-bottom:1px solid rgba(0,0,0,.05)}
+.brand-logo{height:38px;width:auto;display:block}
+
+/* HERO */
+.post-hero{position:relative;min-height:42vh;padding:80px 24px 60px;
+  display:flex;flex-direction:column;align-items:center;justify-content:flex-end;text-align:center;
+  color:#fff;background:var(--forest);overflow:hidden;isolation:isolate}
+.post-hero-bg{position:absolute;inset:0;z-index:-2;background-size:cover;background-position:center;filter:brightness(.55);
+  background-image:url('media/low%20trail.jpg')}
+.post-hero-overlay{position:absolute;inset:0;z-index:-1;
+  background:linear-gradient(180deg,rgba(26,46,28,.4) 0%,rgba(26,46,28,.85) 100%)}
+.post-hero-meta{font-size:.72rem;letter-spacing:.18em;text-transform:uppercase;font-weight:700;
+  color:var(--tan);margin-bottom:12px;display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap}
+.post-hero-meta .dot{opacity:.5}
+.post-hero h1{font-family:'Bebas Neue',sans-serif;font-size:clamp(2.2rem,6vw,3.6rem);
+  letter-spacing:.02em;line-height:1.05;max-width:780px;margin:0 auto 14px}
+.post-hero-author{font-size:.86rem;color:rgba(255,255,255,.78);letter-spacing:.04em}
+.post-hero-author strong{color:var(--tan);font-weight:700}
+
+.crumb{max-width:780px;margin:0 auto;padding:18px 24px 0;
+  font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;font-weight:700;color:var(--sage)}
+.crumb a{color:var(--ink-2)}.crumb a:hover{color:var(--forest)}
+.crumb .sep{color:rgba(0,0,0,.2);margin:0 8px}
+
+main{flex:1;width:100%;max-width:780px;margin:0 auto;padding:32px 24px 64px}
+
+/* POST BODY TYPOGRAPHY */
+.post-body{font-size:1.05rem;line-height:1.75;color:var(--ink-2)}
+.post-body > *:first-child{margin-top:0}
+.post-body p{margin:0 0 1.1em}
+.post-body h1,.post-body h2,.post-body h3,.post-body h4{
+  font-family:'DM Sans',sans-serif;color:var(--forest);
+  font-weight:800;letter-spacing:-.01em;line-height:1.2;
+  margin:1.8em 0 .6em}
+.post-body h2{font-size:clamp(1.4rem,3.5vw,1.7rem)}
+.post-body h3{font-size:clamp(1.2rem,3vw,1.4rem);color:var(--forest-l)}
+.post-body h4{font-size:1.05rem}
+.post-body strong,.post-body b{color:var(--ink);font-weight:800}
+.post-body em,.post-body i{color:var(--ink)}
+.post-body a{color:var(--tan-d);font-weight:700;border-bottom:1px solid rgba(169,136,67,.3);
+  transition:border-color .15s ease}
+.post-body a:hover{border-bottom-color:var(--tan-d)}
+.post-body ul,.post-body ol{margin:0 0 1.1em 1.4em;padding:0}
+.post-body li{margin-bottom:.4em}
+.post-body blockquote{margin:1.4em 0;padding:14px 22px;
+  border-left:3px solid var(--tan);background:#fff;border-radius:0 6px 6px 0;
+  color:var(--ink);font-style:italic;font-size:1.05em;line-height:1.6}
+.post-body hr{border:0;height:1px;background:rgba(0,0,0,.1);margin:2em 0}
+
+
+.post-sign strong{color:var(--forest);font-weight:800}
+.post-sign em{color:var(--ink-3);font-style:italic}
+
+/* TAGS */
+.post-tags{margin-top:2.5em;padding-top:1.6em;border-top:1px solid rgba(0,0,0,.08);
+  display:flex;flex-wrap:wrap;gap:8px}
+.post-tag{padding:6px 12px;background:#fff;border:1px solid rgba(45,74,50,.12);
+  border-radius:99px;font-size:.78rem;font-weight:700;letter-spacing:.04em;
+  color:var(--forest);text-transform:lowercase}
+
+.back-blog{display:inline-flex;align-items:center;gap:8px;margin-top:1.6em;
+  padding:11px 20px;background:var(--forest);color:#fff;border-radius:5px;
+  font-weight:700;font-size:.84rem;letter-spacing:.04em;text-transform:uppercase;transition:background .2s ease}
+.back-blog:hover{background:var(--dark)}
+.back-blog svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2.5}
+
+footer{background:var(--dark);color:rgba(255,255,255,.7);padding:32px 24px;
+  text-align:center;font-size:.85rem;letter-spacing:.02em;border-top:2px solid var(--tan)}
+footer a{color:var(--tan);font-weight:500}footer a:hover{color:#fff}
+
+@media(max-width:480px){
+  .topbar{padding:12px 16px}.brand-logo{height:32px}
+  .post-hero{padding:62px 18px 44px}
+  .crumb{padding:14px 16px 0}
+  main{padding:24px 16px 48px}
+  .post-body{font-size:1rem;line-height:1.7}
+}
+
+/* NEWS CARDS */
+.intro{font-size:1.05rem;color:var(--ink-2);margin:0 0 1.6em}
+.news{display:grid;gap:16px}
+.story{display:block;background:#fff;border:1px solid rgba(45,74,50,.12);border-radius:10px;padding:18px 20px;
+  transition:border-color .2s ease,box-shadow .2s ease}
+.story:hover{border-color:var(--tan);box-shadow:0 4px 14px rgba(0,0,0,.07)}
+.story-meta{font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;font-weight:800;color:var(--sage);margin-bottom:6px}
+.story-meta .outlet{color:var(--tan-d)}
+.story h2{font-size:1.2rem;line-height:1.3;color:var(--forest);font-weight:800;margin:0 0 6px}
+.story p{font-size:.95rem;color:var(--ink-2);line-height:1.6;margin:0 0 10px}
+.story .go{font-size:.8rem;font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:var(--tan-d)}
+.press-note{margin-top:2em;padding:18px 20px;background:var(--cream-w);border:1px dashed rgba(45,74,50,.25);border-radius:10px;font-size:.95rem;color:var(--ink-2)}
+.press-note strong{color:var(--forest)}
+.press-note a{color:var(--tan-d);font-weight:700}
+</style>
+<script src="site-enhance.js?v=06e37b0036"></script>
+<meta property="og:title" content="Cruise the Creek in the News">
+<meta property="og:description" content="WKBN 27 and WFMJ 21 news coverage of Cruise the Creek: e-bike rentals at Mill Creek MetroParks, trail safety and the 15 mph Bikeway limit.">
+<meta property="og:image" content="https://www.cruisethecreek.com/media/low%20trail.jpg">
+<meta property="og:url" content="https://www.cruisethecreek.com/in-the-news.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Cruise the Creek">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="canonical" href="https://www.cruisethecreek.com/in-the-news.html">
+</head>
+<body>
+
+<header class="topbar">
+  <a href="index.html" aria-label="Cruise the Creek home"><img class="brand-logo" src="BlackonTransparent.png" alt="Cruise the Creek"></a>
+</header>
+
+<section class="post-hero">
+  <div class="post-hero-bg"></div>
+  <div class="post-hero-overlay"></div>
+  <div class="post-hero-meta"><span>As seen on WKBN 27 &amp; WFMJ 21</span></div>
+  <h1>Cruise the Creek in the News</h1>
+</section>
+
+<nav class="crumb"><a href="index.html">Home</a><span class="sep">/</span> Creek Life <span class="sep">/</span> In the News</nav>
+
+<main>
+  <p class="intro">Local news has followed us from our first rentals at Mill Creek MetroParks to the safety conversations happening on the Bikeway today. Each story opens on the station's own site.</p>
+  <div class="news">
+    <a class="story" href="https://www.wfmj.com/news/local-news/youngstown/speed-signs-help-bikers-maintain-safety-at-mill-creek-bike-trail/article_c4e8c603-3dfb-41ad-b520-3396cd266c64.html" target="_blank" rel="noopener">
+      <div class="story-meta"><span class="outlet">WFMJ 21</span> &middot; June 17, 2026</div>
+      <h2>Speed signs help bikers maintain safety at Mill Creek Bike Trail</h2>
+      <p>A new radar sign near mile six reminds riders of the Bikeway's 15 mph limit. Patrick Simms, owner of Cruise the Creek, explains why the rule applies to every rider on the trail, not only e-bikes.</p>
+      <span class="go">Read on WFMJ &rarr;</span>
+    </a>
+    <a class="story" href="https://www.wkbn.com/news/local-news/rising-popularity-of-e-bikes-raises-safety-concerns/" target="_blank" rel="noopener">
+      <div class="story-meta"><span class="outlet">WKBN 27</span> &middot; August 8, 2025</div>
+      <h2>Rising popularity of e-bikes raises safety concerns</h2>
+      <p>As more people buy e-bikes online, WKBN talked with Pat Simms about why new riders need to learn how their bike works before they ride. WKBN pointed to Cruise the Creek as a local place to buy, rent and learn.</p>
+      <span class="go">Read on WKBN &rarr;</span>
+    </a>
+    <a class="story" href="https://www.wfmj.com/story/50777892/ebikes-are-now-available-at-mill-creek-metroparks" target="_blank" rel="noopener">
+      <div class="story-meta"><span class="outlet">WFMJ 21</span> &middot; May 13, 2024</div>
+      <h2>E-Bikes are Now Available at Mill Creek MetroParks</h2>
+      <p>Hourly e-bike rentals open at the Kirk Road Trailhead in Canfield through Cruise the Creek's partnership with Mill Creek MetroParks.</p>
+      <span class="go">Read on WFMJ &rarr;</span>
+    </a>
+    <a class="story" href="https://www.wkbn.com/news/local-news/canfield-news/local-park-system-to-offer-electric-bike-rentals/" target="_blank" rel="noopener">
+      <div class="story-meta"><span class="outlet">WKBN 27</span> &middot; April 24, 2024</div>
+      <h2>Local park system to offer electric bike rentals</h2>
+      <p>Mill Creek MetroParks announces e-bike rentals on the Bikeway, with reservations made through Cruise the Creek.</p>
+      <span class="go">Read on WKBN &rarr;</span>
+    </a>
+    <a class="story" href="https://www.wfmj.com/story/50708707/electric-bike-service-to-launch-next-week-at-mill-creek-park" target="_blank" rel="noopener">
+      <div class="story-meta"><span class="outlet">WFMJ 21</span> &middot; April 24, 2024</div>
+      <h2>Electric bike service to launch next week at Mill Creek Park</h2>
+      <p>WFMJ previews Cruise the Creek's new hourly rental service at the Kirk Road Trail Head.</p>
+      <span class="go">Read on WFMJ &rarr;</span>
+    </a>
+    <a class="story" href="https://www.wkbn.com/video/when-e-bikes-are-coming-to-mill-creek/9544537/" target="_blank" rel="noopener">
+      <div class="story-meta"><span class="outlet">WKBN 27</span> &middot; March 24, 2024</div>
+      <h2>When e-bikes are coming to Mill Creek</h2>
+      <p>WKBN visits as Cruise the Creek expands to a second spot off the Kirk Road Trailhead, alongside the Bikeway.</p>
+      <span class="go">Watch on WKBN &rarr;</span>
+    </a>
+  </div>
+
+  <div class="press-note"><strong>Media inquiries:</strong> text us at <a href="sms:3304069686">330-406-9686</a>. We're happy to talk e-bike safety, trail etiquette and riding in the Mahoning Valley.</div>
+</main>
+
+<footer>
+  &copy; 2026 <a href="index.html">Cruise the Creek</a> &middot; <a href="creek-life-blog.html">Creek Life Blog</a>
+  &middot; <a href="portal.html">Customer Portal</a>
+</footer>
+
+<script src="chatbot.js" defer></script>
+</body>
+</html>

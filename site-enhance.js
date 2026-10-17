@@ -172,6 +172,7 @@
     { label: 'Creek Life', items: [
       { label: 'Creek Life Blog', url: 'creek-life-blog.html' },
       { label: 'Our Story',       url: 'our-story.html' },
+      { label: 'In the News',     url: 'in-the-news.html' },
       { label: 'Events',          url: 'events.html' },
       { label: 'Donate',          url: 'donate.html' },
       { label: 'Join the Team',   url: 'join-the-team.html' },
