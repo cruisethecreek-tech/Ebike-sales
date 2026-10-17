@@ -62,6 +62,30 @@
   window.gtag('config', MID);
 })();
 
+/* Lead clicks. Most sales start as a call, a text or a test-ride booking
+ * (Peek), not the cart, and Enhanced Measurement doesn't name those. One
+ * delegated listener sends a named GA4 event for each so they can be
+ * marked as key events and imported into Google Ads as conversions. */
+(function trackLeadClicks() {
+  if (typeof document === 'undefined') return;
+  document.addEventListener('click', function(e) {
+    if (typeof window.gtag !== 'function') return;
+    var a = e.target && e.target.closest && e.target.closest('a[href]');
+    if (!a) return;
+    var href = a.getAttribute('href') || '';
+    var name = /^tel:/i.test(href) ? 'click_to_call'
+      : /^sms:/i.test(href) ? 'click_to_text'
+      : /book\.peek\.com/i.test(href) ? 'book_test_ride'
+      : '';
+    if (!name) return;
+    window.gtag('event', name, {
+      link_url: href,
+      page_path: location.pathname,
+      transport_type: 'beacon'
+    });
+  }, true);
+})();
+
 /* ─────────────────────────────────────────────────────────────────
  * Discontinued-bike safety net.
  *
