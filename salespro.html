@@ -172,7 +172,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--cream);min-height:100vh;p
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
         <div>
           <div class="disp" style="font-size:1.6rem;color:#fbbf24;line-height:1;">⚠️ ERROR CODES</div>
-          <div style="font-size:10px;color:#86efac;font-weight:700;letter-spacing:3px;margin-top:2px;">HEYBIKE · VELOTRIC · JASION DIAGNOSTIC GUIDE</div>
+          <div style="font-size:10px;color:#86efac;font-weight:700;letter-spacing:3px;margin-top:2px;">ALL BRANDS DIAGNOSTIC GUIDE</div>
         </div>
         <div style="display:flex;gap:8px;align-items:center;">
           <button onclick="toggleTroubleshooting()" id="tsToggleBtn" style="background:rgba(255,165,0,.15);border:2px solid rgba(255,165,0,.3);border-radius:10px;padding:7px 12px;color:#fbbf24;font-size:11px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;">🔧 GUIDE</button>
@@ -180,11 +180,13 @@ body{font-family:'DM Sans',sans-serif;background:var(--cream);min-height:100vh;p
         </div>
       </div>
       <input type="text" id="errSearch" oninput="renderErrors()" placeholder="Search code, description, symptom..." style="width:100%;padding:10px 14px;border-radius:12px;border:none;font-size:14px;font-weight:500;outline:none;font-family:'DM Sans',sans-serif;margin-bottom:10px;">
-      <div style="display:flex;gap:8px;">
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
         <button class="fp on" onclick="setErrFilter('all',this)">All</button>
         <button class="fp" onclick="setErrFilter('Heybike',this)">Heybike</button>
         <button class="fp" onclick="setErrFilter('Velotric',this)">Velotric</button>
         <button class="fp" onclick="setErrFilter('Jasion',this)">Jasion</button>
+        <button class="fp" onclick="setErrFilter('Mokwheel',this)">Mokwheel</button>
+        <button class="fp" onclick="setErrFilter('Mooncool',this)">Mooncool</button>
       </div>
     </div>
   </header>
@@ -3081,6 +3083,209 @@ const ERROR_CODES = [
     symptom:'Bus voltage too high — typically during high-speed coasting or with non-Velotric battery.',
     steps:['No action needed in most cases.','Note: Typically occurs during high-speed coasting or with non-Velotric/illegal batteries or external power supply.']
   },
+  // ── MOKWHEEL (official named faults) ─────────────────
+  // Mokwheel does not publish numbered codes. Its displays name the fault
+  // instead; this list and the fixes come from Mokwheel's own guide:
+  // https://www.mokwheel.com/pages/troubleshooting ("Error Code Diagnosis").
+  {
+    brand:'Mokwheel', code:'BRAKE', label:'Brake Error',
+    category:'Brakes',
+    symptom:'Display shows a brake error; motor assist cuts out.',
+    note:'Mokwheel official fix (mokwheel.com/pages/troubleshooting).',
+    steps:[
+      'Check whether the brake cable is loose or damaged.',
+      'If there is no damage, replace the brake or the brake lever and cable.'
+    ],
+    models:'All Mokwheel models',
+    source:'https://www.mokwheel.com/pages/troubleshooting'
+  },
+  {
+    brand:'Mokwheel', code:'PAS', label:'Power-Assist Sensor Error',
+    category:'Motor / PAS',
+    symptom:'Pedal assist does not engage or is erratic.',
+    note:'Mokwheel official fix (mokwheel.com/pages/troubleshooting).',
+    steps:[
+      'Check whether the sensor cable is loose or has fallen off.',
+      'If the cable is fine, the power-assist sensor may be damaged. Remove and replace the power-assist sensor.'
+    ],
+    models:'All Mokwheel models',
+    source:'https://www.mokwheel.com/pages/troubleshooting'
+  },
+  {
+    brand:'Mokwheel', code:'WALK', label:'Walk Cruise Mode Error',
+    category:'Motor Controller',
+    symptom:'Walk assist mode shows an error or will not work.',
+    note:'Mokwheel official fix (mokwheel.com/pages/troubleshooting).',
+    steps:[
+      'Shut down and restart the e-bike.',
+      'If the error comes back, consider replacing the controller.'
+    ],
+    models:'All Mokwheel models',
+    source:'https://www.mokwheel.com/pages/troubleshooting'
+  },
+  {
+    brand:'Mokwheel', code:'R-TIME', label:'Real-Time Mode Error',
+    category:'Motor Controller',
+    symptom:'Display shows a real-time mode error.',
+    note:'Mokwheel official fix (mokwheel.com/pages/troubleshooting).',
+    steps:[
+      'Shut down and restart the e-bike.',
+      'If the error comes back, consider replacing the controller.'
+    ],
+    models:'All Mokwheel models',
+    source:'https://www.mokwheel.com/pages/troubleshooting'
+  },
+  {
+    brand:'Mokwheel', code:'LOW V', label:'Low Voltage Error',
+    category:'Battery',
+    symptom:'Display shows low voltage; bike loses power.',
+    note:'Mokwheel official fix (mokwheel.com/pages/troubleshooting).',
+    steps:[
+      'Remove the battery and check that it has enough charge.',
+      'Charge the battery fully.',
+      'If the error persists after both steps, Mokwheel says it may indicate motor damage. Replace the motor.'
+    ],
+    models:'All Mokwheel models',
+    source:'https://www.mokwheel.com/pages/troubleshooting'
+  },
+  {
+    brand:'Mokwheel', code:'MOTOR', label:'Motor Error',
+    category:'Motor',
+    symptom:'Motor will not run or runs roughly.',
+    note:'Mokwheel official fix. Most common after a rear wheel was removed: check the quick-disconnect under the black spiral wrap.',
+    steps:[
+      'Check whether the motor connecting cable is loose, has fallen off, or is plugged in backward.',
+      'To reseat: remove the battery, hold the power button 10 seconds to discharge, unwrap the black spiral cover, pull the connector straight apart (no twisting), then plug it back in firmly.',
+      'If the cable is fine, the motor may be damaged. Consider replacing the motor.'
+    ],
+    models:'All Mokwheel models',
+    source:'https://www.mokwheel.com/pages/troubleshooting'
+  },
+  {
+    brand:'Mokwheel', code:'THROTTLE', label:'Throttle Error',
+    category:'Throttle',
+    symptom:'Throttle does not respond.',
+    note:'Mokwheel official fix. Their guide says thumb throttle on one page and twist throttle on another; the fix is the same.',
+    steps:[
+      'Check whether the throttle connecting cable is loose or has fallen off.',
+      'If the cable is fine, the throttle may be damaged. Replace the throttle.'
+    ],
+    models:'All Mokwheel models',
+    source:'https://www.mokwheel.com/pages/troubleshooting'
+  },
+  {
+    brand:'Mokwheel', code:'FAULT QUERY', label:'Color Display: Read the Fault by Name',
+    category:'Display',
+    symptom:'Newer color displays (e.g. Asphalt) show faults by name under Settings, Fault Query.',
+    note:'From the Asphalt owner manual fault table. Mokwheel lists the names only, with no numbers or fixes. Match the name to the cards above, or call Mokwheel support.',
+    steps:[
+      'Open Settings on the display and choose Fault Query to see the active fault.',
+      'Motor faults: Motor Overheat Protection, Motor Phase Loss, Hall Sensor Fault. Let the motor cool; for phase or hall faults reseat the motor cable (see MOTOR).',
+      'Controller and sensors: Controller Overtemperature Protection, Throttle Fault, Brake Lever Fault, Torque Sensor Error, Communication Fault, Turn Signal Error. Let it cool, then reseat the matching connector.',
+      'Battery faults: Battery Fault, Charging Overcurrent, Total Voltage Undervoltage or Overvoltage, Charging or Discharge Overtemperature, Charging or Discharge Low Temperature, Discharging Overcurrent, Excessive Voltage Difference. Bring the battery to room temperature, charge with the Mokwheel charger, and call support if it returns.',
+      'Factory Reset is in the same Settings menu if a setting change caused the problem.'
+    ],
+    models:'Asphalt, Asphalt ST and other color-display models',
+    source:'https://cdn.shopify.com/s/files/1/0774/3350/3979/files/Asphalt_EN.pdf'
+  },
+
+  // ── MOONCOOL (King Meter KD21C / KD826 display) ───────
+  // Mooncool's own blog says its trikes use King Meter KD21C or KD826 LCDs
+  // (mooncool.com/blogs/journey/effective-trike-maintenance-for-common-electrical-issues)
+  // but Mooncool does not publish a code table. These are King Meter's
+  // standard codes for that display family (Ride1Up KD21C support page,
+  // Big Cat King Meter guide). Same numbering Heybike uses.
+  {
+    brand:'Mooncool', code:'21', label:'Current Abnormality',
+    category:'Motor Controller',
+    symptom:'Power cuts out or display will not stay on; often after a long climb with little pedaling.',
+    note:'King Meter standard code. Mooncool does not publish its own code table.',
+    steps:[
+      'Safely stop, turn the trike off, and wait 5 minutes before turning it back on.',
+      'Remove the battery, then reconnect any loose connectors between battery, controller and motor.',
+      'If it returns, test with a new controller, then a new motor.'
+    ],
+    models:'Mooncool trikes with KD21C / KD826 display',
+    source:'https://support.ride1up.com/support/solutions/articles/65000167603'
+  },
+  {
+    brand:'Mooncool', code:'22', label:'Throttle Abnormality',
+    category:'Throttle',
+    symptom:'Throttle does nothing, or it sticks.',
+    note:'King Meter standard code. Mooncool does not publish its own code table.',
+    steps:[
+      'Check that the throttle springs back to its rest position and nothing is blocking it.',
+      'Check the throttle cable for cuts, fraying, or a loose connector, and reconnect it.',
+      'Test: unplug the throttle and try walk mode (hold the minus button). If the trike runs, the throttle is bad. Replace it.'
+    ],
+    models:'Mooncool trikes with KD21C / KD826 display',
+    source:'https://bigcatbikes.com/pages/king-meter-lcd-display-troubleshooting-guide'
+  },
+  {
+    brand:'Mooncool', code:'23', label:'Motor Phase Loss (Open Phase)',
+    category:'Motor',
+    symptom:'Motor stutters, vibrates, or will not run. Common after a wheel was removed.',
+    note:'King Meter standard code. Mooncool does not publish its own code table.',
+    steps:[
+      'Find the motor cable connector near the hub motor.',
+      'Disconnect it, clean out any grit, line up the arrows, and reconnect firmly.',
+      'If it returns, test with a new motor.'
+    ],
+    models:'Mooncool trikes with KD21C / KD826 display',
+    source:'https://support.ride1up.com/support/solutions/articles/65000167603'
+  },
+  {
+    brand:'Mooncool', code:'24', label:'Motor Hall Signal Abnormality',
+    category:'Motor',
+    symptom:'Motor will not start or jerks at low speed.',
+    note:'King Meter standard code. Mooncool does not publish its own code table.',
+    steps:[
+      'Reconnect the motor quick-disconnect cable and inspect it for damage near the axle.',
+      'Reconnect the motor wires at the controller end.',
+      'If it returns, test with a new motor (hall sensors are inside the motor).'
+    ],
+    models:'Mooncool trikes with KD21C / KD826 display',
+    source:'https://bigcatbikes.com/pages/king-meter-lcd-display-troubleshooting-guide'
+  },
+  {
+    brand:'Mooncool', code:'25', label:'Brake Abnormality',
+    category:'Brakes',
+    symptom:'Motor will not engage; a brake cutoff sensor is stuck on. Common after a tip-over.',
+    note:'King Meter standard code. Mooncool does not publish its own code table.',
+    steps:[
+      'Make sure both brake levers fully return and are not bent.',
+      'Unplug the left brake sensor and restart. If 25 clears, that lever needs replacing.',
+      'If not, plug it back in, unplug the right one, and repeat.'
+    ],
+    models:'Mooncool trikes with KD21C / KD826 display',
+    source:'https://bigcatbikes.com/pages/king-meter-lcd-display-troubleshooting-guide'
+  },
+  {
+    brand:'Mooncool', code:'26', label:'Low Voltage',
+    category:'Battery',
+    symptom:'Battery is supplying too little voltage.',
+    note:'King Meter KD21C code per Ride1Up. Not on every King Meter list.',
+    steps:[
+      'Charge the battery fully with the Mooncool charger.',
+      'Check the battery terminals and the battery cradle for dirt or damage.',
+      'If it returns on a full charge, test with another battery or call Mooncool support (681-412-2200).'
+    ],
+    models:'Mooncool trikes with KD21C / KD826 display',
+    source:'https://support.ride1up.com/support/solutions/articles/65000167603'
+  },
+  {
+    brand:'Mooncool', code:'30', label:'Communication Abnormality',
+    category:'System / Communication',
+    symptom:'Display and controller cannot talk; no assist.',
+    note:'King Meter standard code. Mooncool does not publish its own code table.',
+    steps:[
+      'Turn off, remove the battery, and reconnect each quick-disconnect cable between display and controller.',
+      'Check the display cable for tears, pinches, or corrosion. Replace the cable if damaged.',
+      'If it still shows 30, replace the display or the controller.'
+    ],
+    models:'Mooncool trikes with KD21C / KD826 display',
+    source:'https://bigcatbikes.com/pages/king-meter-lcd-display-troubleshooting-guide'
+  },
 ];
 
 
@@ -3194,7 +3399,7 @@ function renderErrors() {
   document.getElementById('errCount').textContent =
     filtered.length + ' CODE' + (filtered.length !== 1 ? 'S' : '') + ' SHOWN';
 
-  const brandColor = b => b === 'Heybike' ? {bg:'#e8f0e9',color:'#2D4A32',border:'#6B8F71'} : b === 'Jasion' ? {bg:'#fce7e7',color:'#7f1d1d',border:'#f87171'} : {bg:'#fdf3e0',color:'#7a5a20',border:'#C9A96E'};
+  const brandColor = b => b === 'Heybike' ? {bg:'#e8f0e9',color:'#2D4A32',border:'#6B8F71'} : b === 'Jasion' ? {bg:'#fce7e7',color:'#7f1d1d',border:'#f87171'} : b === 'Mokwheel' ? {bg:'#f3e8ff',color:'#581c87',border:'#c084fc'} : b === 'Mooncool' ? {bg:'#e0f2fe',color:'#0c4a6e',border:'#38bdf8'} : {bg:'#fdf3e0',color:'#7a5a20',border:'#C9A96E'};
   const catIcon = c => ({
     'Motor':'⚙️','Motor Controller':'🔌','Throttle':'🕹️','Brakes':'🛑',
     'Battery':'🔋','Display':'🖥️','Display / Communication':'🖥️',
@@ -3211,6 +3416,7 @@ function renderErrors() {
       </div>`
     ).join('');
     const noteHTML = e.note ? `<div style="background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:8px 12px;font-size:11px;color:#92400e;font-weight:600;margin-bottom:10px;">📌 ${e.note}</div>` : '';
+    const sourceHTML = e.source ? `<div style="font-size:10px;color:#94a3b8;font-weight:600;margin-top:4px;">Source: <a href="${e.source}" target="_blank" rel="noopener" style="color:#64748b;">${e.source.replace(/^https?:\/\/(www\.)?/,'').split('?')[0]}</a></div>` : '';
     const modelsHTML = e.models ? `<div style="font-size:10px;color:#94a3b8;font-weight:600;margin-top:10px;padding-top:10px;border-top:1px solid #f1f5f9;">Models: ${e.models}</div>` : '';
 
     return `<div style="background:white;border-radius:16px;border:1px solid #e2e8f0;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.05);">
@@ -3233,6 +3439,7 @@ function renderErrors() {
         ${noteHTML}
         ${stepsHTML}
         ${modelsHTML}
+        ${sourceHTML}
       </div>
     </div>`;
   }).join('');
