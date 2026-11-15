@@ -117,6 +117,7 @@ function doPost(e) {
     }
     var action = String(p.action || (e && e.parameter && e.parameter.action) || '').trim();
     if (action === 'repairIntake') return handleRepairIntake(p);
+    if (action === 'giftCardRequest') return handleGiftCardRequest(p);
     if (action === 'referralEmail') return handleReferralEmail(p);
     if (action === 'deleteInvoice') return handleDeleteInvoice(p);
     return json({ ok: false, error: 'Unknown POST action: ' + action });
@@ -545,6 +546,9 @@ function _doGetInner(e, action) {
   }
   if (action === 'bookingLead') {
     return handleBookingLead(e.parameter || {});
+  }
+  if (action === 'giftCardRequest') {
+    return handleGiftCardRequest(e.parameter || {});
   }
   if (action === 'bridgeApplication') {
     return handleBridgeApplication(e.parameter || {});
@@ -1376,6 +1380,154 @@ function _createDraftInvoiceFromCart_(cartId, now, customer, items, subtotal) {
  * Optional:
  *   time, experience, notes, peek_link
  */
+/**
+ * E-Bike Holiday Gift Card / Off-Season Reservation Request.
+ * Handled from gift-cards.html. Logs a row to Gift_Cards sheet tab,
+ * notifies the staff, and sends a confirmation email to the buyer.
+ */
+function handleGiftCardRequest(p) {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const json = function(obj) {
+    return ContentService.createTextOutput(JSON.stringify(obj))
+      .setMimeType(ContentService.MimeType.JSON);
+  };
+
+  try {
+    const now = new Date();
+    const id = 'GC-' + Utilities.formatDate(now, 'America/New_York', 'yyMMdd-HHmmss');
+    const row = {
+      id: id,
+      timestamp: now,
+      buyerName: String(p.buyerName || '').trim(),
+      buyerPhone: String(p.buyerPhone || '').trim(),
+      buyerEmail: String(p.buyerEmail || '').trim(),
+      recipientName: String(p.recipientName || '').trim(),
+      occasion: String(p.occasion || 'Holiday').trim(),
+      message: String(p.message || '').trim(),
+      tier: String(p.tier || '').trim(),
+      amount: parseFloat(p.amount) || 0,
+      bonusPerks: String(p.bonusPerks || '').trim(),
+      deliveryMethod: String(p.deliveryMethod || 'digital').trim(),
+      springTarget: String(p.springTarget || 'Spring 2027').trim(),
+      bikeInterests: String(p.bikeInterests || '').trim(),
+      termsAgreed: (p.termsAgreed === true || String(p.termsAgreed).toLowerCase() === 'true') ? 'Yes' : 'No',
+      status: 'pending_payment'
+    };
+
+    let sh = ss.getSheetByName('Gift_Cards');
+    if (!sh) {
+      sh = ss.insertSheet('Gift_Cards');
+      sh.appendRow(['id', 'timestamp', 'buyerName', 'buyerPhone', 'buyerEmail',
+                    'recipientName', 'occasion', 'message', 'tier', 'amount',
+                    'bonusPerks', 'deliveryMethod', 'springTarget', 'bikeInterests',
+                    'termsAgreed', 'status']);
+      sh.getRange(1, 1, 1, 16).setFontWeight('bold');
+    }
+    sh.appendRow([row.id, row.timestamp, row.buyerName, row.buyerPhone, row.buyerEmail,
+                  row.recipientName, row.occasion, row.message, row.tier, row.amount,
+                  row.bonusPerks, row.deliveryMethod, row.springTarget, row.bikeInterests,
+                  row.termsAgreed, row.status]);
+
+    // Email notification to staff
+    try {
+      const body = [
+        '🎁 NEW HOLIDAY E-BIKE GIFT CARD REQUEST — ' + row.id,
+        '=====================================================',
+        'AMOUNT / TIER: $' + row.amount + ' (' + row.tier + ')',
+        'BONUS INCLUDED: ' + row.bonusPerks,
+        '',
+        'BUYER INFORMATION:',
+        '  Name:  ' + row.buyerName,
+        '  Phone: ' + row.buyerPhone,
+        '  Email: ' + row.buyerEmail,
+        '',
+        'RECIPIENT & GIFT DETAILS:',
+        '  For:            ' + (row.recipientName || '(Not specified)'),
+        '  Occasion:       ' + row.occasion,
+        '  Message:        ' + (row.message || '(None)'),
+        '  Presentation:   ' + (row.deliveryMethod === 'physical' ? 'Deluxe Presentation Envelope (Pickup/Mailed)' : 'Digital Printable PDF'),
+        '  Spring Rollout: ' + row.springTarget,
+        '  Bike Interests: ' + (row.bikeInterests || '(None)'),
+        '  Terms Accepted: ' + row.termsAgreed + ' (Active manufacturer spring pricing applies)',
+        '',
+        'ACTION REQUIRED:',
+        'Text or email ' + row.buyerName + ' (' + row.buyerPhone + ') a Stripe payment link for $' + row.amount + '.',
+        'Once paid, issue certificate code ' + row.id + ' with Spring-Start warranty activation.'
+      ].join('\n');
+
+      MailApp.sendEmail({
+        to: 'info@cruisethecreek.com,salesteam@cruisethecreek.com',
+        replyTo: row.buyerEmail || 'info@cruisethecreek.com',
+        subject: '🎁 New E-Bike Gift Card Request: $' + row.amount + ' from ' + row.buyerName,
+        body: body
+      });
+    } catch (mailErr) {
+      console.warn('Gift card staff email failed: ' + mailErr);
+    }
+
+    // Confirmation email to the customer
+    if (row.buyerEmail) {
+      try {
+        const custBody = [
+          'Hi ' + row.buyerName + ',',
+          '',
+          'Thank you for reserving a Cruise the Creek E-Bike Holiday Gift Certificate!',
+          '',
+          'YOUR RESERVATION DETAILS (' + row.id + '):',
+          '• Value: $' + row.amount + ' toward any e-bike',
+          '• Included Perks: ' + row.bonusPerks,
+          '• Spring-Start Guarantee: Factory warranty activation is frozen until your spring rollout (' + row.springTarget + ')!',
+          '• Recipient: ' + (row.recipientName || 'Gift Recipient'),
+          '',
+          'WHAT HAPPENS NEXT:',
+          '1. Our team will review your gift details.',
+          '2. We will text or email you a secure Stripe payment link to complete the purchase.',
+          '3. As soon as payment is confirmed, we will dispatch your custom gift certificate (' + (row.deliveryMethod === 'physical' ? 'Deluxe Presentation Envelope' : 'Printable Digital PDF') + ').',
+          '',
+          'Please note: Your gift certificate retains 100% of its cash face value and all Cruise the Creek shop bonuses. In spring, bike selection and purchase will reflect active manufacturer retail/promotional pricing at the time of redemption.',
+          '',
+          'Questions or need it rushed for a holiday deadline? Text or call us directly at 330-406-9686.',
+          '',
+          'Warmly,',
+          'The Cruise the Creek Team',
+          '6685 Kirk Rd, Canfield, OH 44406',
+          'cruisethecreek.com'
+        ].join('\n');
+
+        MailApp.sendEmail({
+          to: row.buyerEmail,
+          replyTo: 'info@cruisethecreek.com',
+          subject: 'We received your E-Bike Gift Certificate Request — Cruise the Creek (' + row.id + ')',
+          body: custBody
+        });
+      } catch (custMailErr) {
+        console.warn('Customer gift card confirmation email failed: ' + custMailErr);
+      }
+    }
+
+    if (typeof postToDiscord_ === 'function') {
+      postToDiscord_(
+        '🎁 New E-Bike Gift Card Request — ' + row.id,
+        13203822, // gold 0xC9A96E
+        [
+          { name: '👤 Buyer', value: row.buyerName + '\n📞 ' + row.buyerPhone + '\n✉️ ' + row.buyerEmail, inline: false },
+          { name: '💵 Amount', value: '$' + row.amount + ' (' + row.tier + ')', inline: true },
+          { name: '🎁 Recipient', value: row.recipientName || '(Not specified)', inline: true },
+          { name: '⭐ Included Perks', value: row.bonusPerks, inline: false },
+          { name: '🌸 Spring Rollout', value: row.springTarget, inline: true },
+          { name: '📦 Presentation', value: row.deliveryMethod, inline: true }
+        ],
+        'Send Stripe payment link to customer to lock it in'
+      );
+    }
+
+    return json({ ok: true, id: row.id, amount: row.amount });
+  } catch (err) {
+    console.error('handleGiftCardRequest failed: ' + err);
+    return json({ ok: false, error: String(err) });
+  }
+}
+
 function handleBookingLead(p) {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
   const json = function(obj) {
