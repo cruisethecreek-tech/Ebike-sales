@@ -901,7 +901,7 @@ html,body{
           <div class="play-row">
             <button type="button" class="play-btn-circle" id="playBtn" onclick="togglePlay()">▶</button>
             <div class="time-display">
-              <span id="curTime">00:00</span> / <span id="totalTime">01:10</span>
+              <span id="curTime">00:00</span> / <span id="totalTime">01:00</span>
               <div class="audio-meter" id="audioMeter">
                 <span class="meter-bar"></span>
                 <span class="meter-bar"></span>
@@ -958,6 +958,8 @@ html,body{
   <img id="imgFamily" src="media/FamilyRiding.jpg" alt="">
   <img id="imgLantermans" src="media/Lantermans Falls.jpg" alt="">
 
+  <!-- Master ElevenLabs Studio Voiceover Track (Continuous 60s) -->
+  <audio id="elevenLabsMasterAudio" src="media/gift-card-voiceover-elevenlabs.mp3" preload="auto"></audio>
   <!-- Pre-rendered Studio Voiceover Audio Clips for Each Act -->
   <audio id="voiceAct0" src="media/voice-act0.wav" preload="auto"></audio>
   <audio id="voiceAct1" src="media/voice-act1.wav" preload="auto"></audio>
@@ -1001,6 +1003,19 @@ html,body{
           <input type="radio" name="voiceModeOption" value="custom" onchange="changeVoiceMode(this.value)">
           🎵 Custom ElevenLabs Audio (URL / File)
         </label>
+      </div>
+
+      <!-- Master Audio Track Preview -->
+      <div style="background:rgba(201,169,110,.12);border:1px solid var(--gold);border-radius:8px;padding:10px 14px;margin-top:12px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">
+        <div>
+          <div style="font-size:.76rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--gold)">
+            ★ Master Audio Track (Loaded & Active)
+          </div>
+          <div style="font-size:.82rem;color:rgba(255,255,255,.9);margin-top:2px">
+            ElevenLabs Studio Master · Marcus Voice ID · 59.6s Continuous Film Cut
+          </div>
+        </div>
+        <audio controls src="media/gift-card-voiceover-elevenlabs.mp3" style="height:32px;border-radius:99px"></audio>
       </div>
 
       <!-- Custom Audio Loader Row (visible if custom selected) -->
@@ -1220,14 +1235,14 @@ Cruise the Creek freezes your warranty until spring and includes free profession
    Cruise the Creek · Holiday E-Bike Certificates
    ========================================================================= */
 
-const TOTAL_DURATION = 70; // 70 seconds total run time
+const TOTAL_DURATION = 60; // 60 seconds total run time (Synced to ElevenLabs Master)
 
-// ACTS TIMELINE CONFIGURATION WITH SPOKEN VOICEOVER CUES
+// ACTS TIMELINE CONFIGURATION WITH EXACT ELEVENLABS AUDIO SYNC
 const ACTS = [
   {
     id: 0,
     startTime: 0,
-    endTime: 12,
+    endTime: 9,
     badge: 'ACT I · THE OHIO WINTER',
     title: 'THE TRAILS GO QUIET.',
     sub: 'December in Northeast Ohio. The snow falls, and holiday shoppers face an agonizing question...',
@@ -1242,12 +1257,12 @@ const ACTS = [
   },
   {
     id: 1,
-    startTime: 12,
-    endTime: 24,
+    startTime: 9,
+    endTime: 19,
     badge: 'ACT II · THE LOST WARRANTY',
     title: 'WHY BUY AN E-BIKE NOW...',
-    sub: '...when it sits in a freezing garage until April? 5 months of factory warranty ticking away into nothing.',
-    voiceScript: 'Why buy an e-bike for Christmas when it just sits in a freezing garage until April? Five months of factory warranty... ticking away into nothing.',
+    sub: '...when it sits in a freezing garage until April? 5 months of factory warranty, ticking away into nothing.',
+    voiceScript: 'Why buy an electric bike for Christmas, when it just sits in a freezing garage until April? Five months of factory warranty, ticking away into nothing.',
     audioElementId: 'voiceAct1',
     mediaType: 'image',
     mediaId: 'imgCloseup',
@@ -1258,12 +1273,12 @@ const ACTS = [
   },
   {
     id: 2,
-    startTime: 24,
-    endTime: 36,
+    startTime: 19,
+    endTime: 28,
     badge: 'ACT III · THE BREAKTHROUGH',
     title: 'THIS YEAR, WE CHANGED THE RULES.',
-    sub: 'Introducing the Cruise the Creek Holiday Certificate. Give the thrill under the tree — with zero lost time.',
-    voiceScript: 'This year, we changed the rules. Introducing the Cruise the Creek Holiday Certificate. Give the thrill under the tree... with zero lost time.',
+    sub: 'Introducing the Cruise the Creek Holiday Certificate. Give the thrill under the tree with zero lost time.',
+    voiceScript: 'This year, we change the rules. Introducing the Cruise the Creek holiday certificate. Give the thrill under the tree with zero loss time.',
     audioElementId: 'voiceAct2',
     mediaType: 'video',
     mediaId: 'vidKRC',
@@ -1274,13 +1289,13 @@ const ACTS = [
   },
   {
     id: 3,
-    startTime: 36,
-    endTime: 48,
+    startTime: 28,
+    endTime: 40,
     badge: 'ACT IV · THE SPRING-START GUARANTEE',
     title: 'WARRANTY: FROZEN IN TIME.',
-    sub: 'Your factory warranty clock DOES NOT TICK until your spring rollout date (April 1st). 100% of your coverage, intact.',
+    sub: 'With our exclusive Spring-Start Guarantee, your factory warranty clock DOES NOT TICK until your spring delivery date. 100% intact.',
     features: ['★ Spring-Start Warranty Lock', '★ Zero Winter Coverage Lost', '★ 1 to 5+ Year Brand Protection'],
-    voiceScript: 'With our Spring-Start Guarantee, your factory warranty is frozen in time. The clock does not tick until spring delivery. One hundred percent of your coverage, intact.',
+    voiceScript: 'With our exclusive spring start guarantee, your factory warranty is frozen in time. The clock does not tick until your spring delivery date. 100% of your coverage, completely intact.',
     audioElementId: 'voiceAct3',
     mediaType: 'video',
     mediaId: 'vidMHB',
@@ -1291,13 +1306,13 @@ const ACTS = [
   },
   {
     id: 4,
-    startTime: 48,
-    endTime: 60,
+    startTime: 40,
+    endTime: 51,
     badge: 'ACT V · THE UNMATCHED VALUE',
     title: 'FREE $125+ CREEK READY™ BUILD',
-    sub: 'Included free with every $1,500+ holiday card. 20-point mechanical build, heated indoor storage, and zero guesswork on fit or color.',
+    sub: 'Full professional Creek Ready assembly and 20-point safety inspection. Heated indoor winter storage, battery care, and zero guesswork on frame size or color.',
     features: ['$1,500 The Trailblazer', '$2,000 The VIP Adventure', 'Free 1st Annual Tune-Up Included'],
-    voiceScript: 'Every certificate includes our full professional Creek Ready assembly and safety inspection. Heated indoor storage, battery care, and zero guesswork on frame size or color.',
+    voiceScript: 'Every certificate includes our full professional Creek-ready assembly and 20-point safety inspection. Heated indoor winter storage, battery care, and zero guesswork on frame size or color.',
     audioElementId: 'voiceAct4',
     mediaType: 'video',
     mediaId: 'vidNGW',
@@ -1308,11 +1323,11 @@ const ACTS = [
   },
   {
     id: 5,
-    startTime: 60,
-    endTime: 70,
+    startTime: 51,
+    endTime: 60,
     badge: 'FINALE · RESERVE TODAY',
     title: 'GIVE THE RIDE THIS HOLIDAY.',
-    sub: 'The adventure starts in spring. Reserve your certificate today with your personal Creek consultation.',
+    sub: 'The adventure starts in spring. Reserve your certificate today at Cruise the Creek.',
     ctas: true,
     voiceScript: 'Give the gift of the ride this holiday. The adventure starts in spring. Reserve your certificate today at Cruise the Creek.',
     audioElementId: 'voiceAct5',
@@ -1374,8 +1389,8 @@ function initAudio() {
     voiceGain.gain.setValueAtTime(1.0, audioCtx.currentTime);
     voiceGain.connect(masterGain);
 
-    // Route bundled studio audio clips into voiceGain
-    ['voiceAct0', 'voiceAct1', 'voiceAct2', 'voiceAct3', 'voiceAct4', 'voiceAct5', 'customVoiceAudio'].forEach(id => {
+    // Route bundled studio audio clips and master ElevenLabs track into voiceGain
+    ['elevenLabsMasterAudio', 'voiceAct0', 'voiceAct1', 'voiceAct2', 'voiceAct3', 'voiceAct4', 'voiceAct5', 'customVoiceAudio'].forEach(id => {
       const el = document.getElementById(id);
       if (el) {
         try {
@@ -1439,35 +1454,40 @@ function setVoiceIndicator(speaking) {
 // ── VOICEOVER PLAYBACK DISPATCHER ──
 function playVoiceForAct(actIndex) {
   if (!voiceoverEnabled || !soundEnabled) return;
-  stopVoice();
-
   const act = ACTS[actIndex];
   if (!act) return;
 
   if (voiceoverMode === 'studio') {
-    const audioEl = document.getElementById(act.audioElementId);
-    if (audioEl) {
-      currentVoiceAudio = audioEl;
-      audioEl.currentTime = 0;
+    const masterEl = document.getElementById('elevenLabsMasterAudio');
+    if (masterEl) {
+      currentVoiceAudio = masterEl;
+      if (Math.abs(masterEl.currentTime - currentTime) > 0.4) {
+        masterEl.currentTime = currentTime;
+      }
       duckMusic();
-      audioEl.play().then(() => {
-        audioEl.onended = () => { unduckMusic(); currentVoiceAudio = null; };
-      }).catch(err => {
-        // Fallback to Live TTS if audio file cannot be loaded
-        speakLiveTts(act.voiceScript);
-      });
-    } else {
-      speakLiveTts(act.voiceScript);
+      if (masterEl.paused && isPlaying) {
+        masterEl.play().catch(err => {
+          // Fallback to per-act clip or Live TTS
+          const actEl = document.getElementById(act.audioElementId);
+          if (actEl) actEl.play().catch(() => speakLiveTts(act.voiceScript));
+          else speakLiveTts(act.voiceScript);
+        });
+      }
     }
   } else if (voiceoverMode === 'liveTTS') {
+    stopVoice();
     speakLiveTts(act.voiceScript);
   } else if (voiceoverMode === 'custom') {
     const customEl = document.getElementById('customVoiceAudio');
     if (customEl && customEl.src) {
       currentVoiceAudio = customEl;
-      customEl.currentTime = act.startTime;
+      if (Math.abs(customEl.currentTime - currentTime) > 0.4) {
+        customEl.currentTime = currentTime;
+      }
       duckMusic();
-      customEl.play().catch(() => {});
+      if (customEl.paused && isPlaying) {
+        customEl.play().catch(() => {});
+      }
     } else {
       speakLiveTts(act.voiceScript);
     }
@@ -1488,10 +1508,13 @@ function speakLiveTts(text) {
 }
 
 function stopVoice() {
+  const masterEl = document.getElementById('elevenLabsMasterAudio');
+  if (masterEl) masterEl.pause();
+  const customEl = document.getElementById('customVoiceAudio');
+  if (customEl) customEl.pause();
   if (currentVoiceAudio) {
     try {
       currentVoiceAudio.pause();
-      currentVoiceAudio.currentTime = 0;
     } catch(e) {}
     currentVoiceAudio = null;
   }
@@ -1821,8 +1844,25 @@ function playFilm() {
   document.getElementById('playBtn').textContent = '⏸';
   document.getElementById('audioMeter').classList.add('is-active');
   if (currentVideoElement) currentVideoElement.play().catch(() => {});
-  if (currentVoiceAudio) currentVoiceAudio.play().catch(() => {});
-  else playVoiceForAct(currentActIndex >= 0 ? currentActIndex : 0);
+  if (voiceoverEnabled && soundEnabled) {
+    if (voiceoverMode === 'studio') {
+      const masterEl = document.getElementById('elevenLabsMasterAudio');
+      if (masterEl) {
+        masterEl.currentTime = currentTime;
+        masterEl.play().catch(() => {});
+        duckMusic();
+      }
+    } else if (voiceoverMode === 'custom') {
+      const customEl = document.getElementById('customVoiceAudio');
+      if (customEl && customEl.src) {
+        customEl.currentTime = currentTime;
+        customEl.play().catch(() => {});
+        duckMusic();
+      }
+    } else if (voiceoverMode === 'liveTTS') {
+      playVoiceForAct(currentActIndex >= 0 ? currentActIndex : 0);
+    }
+  }
 }
 
 function pauseFilm() {
@@ -1830,12 +1870,20 @@ function pauseFilm() {
   document.getElementById('playBtn').textContent = '▶';
   document.getElementById('audioMeter').classList.remove('is-active');
   if (currentVideoElement) currentVideoElement.pause();
+  const masterEl = document.getElementById('elevenLabsMasterAudio');
+  if (masterEl) masterEl.pause();
+  const customEl = document.getElementById('customVoiceAudio');
+  if (customEl) customEl.pause();
   stopVoice();
 }
 
 function jumpToAct(index) {
   initAudio();
   currentTime = ACTS[index].startTime;
+  const masterEl = document.getElementById('elevenLabsMasterAudio');
+  if (masterEl) masterEl.currentTime = currentTime;
+  const customEl = document.getElementById('customVoiceAudio');
+  if (customEl && customEl.src) customEl.currentTime = currentTime;
   stopVoice();
   setAct(index);
   updateTimelineUI();
@@ -1848,9 +1896,17 @@ function seekTimeline(e) {
   const rect = bar.getBoundingClientRect();
   const pos = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
   currentTime = pos * TOTAL_DURATION;
+  const masterEl = document.getElementById('elevenLabsMasterAudio');
+  if (masterEl) masterEl.currentTime = currentTime;
+  const customEl = document.getElementById('customVoiceAudio');
+  if (customEl && customEl.src) customEl.currentTime = currentTime;
   stopVoice();
   checkAct(currentTime);
   updateTimelineUI();
+  if (isPlaying) {
+    if (voiceoverMode === 'studio' && masterEl) masterEl.play().catch(() => {});
+    else if (voiceoverMode === 'custom' && customEl) customEl.play().catch(() => {});
+  }
 }
 
 function updateTimelineUI() {
