@@ -927,6 +927,9 @@ function _doGetInner(e, action) {
   if (action === 'giftCardRequest') {
     return handleGiftCardRequest(e.parameter || {});
   }
+  if (action === 'verifyGiftCard') {
+    return handleVerifyGiftCard(e.parameter || {});
+  }
   if (action === 'bridgeApplication') {
     return handleBridgeApplication(e.parameter || {});
   }
@@ -1901,6 +1904,85 @@ function handleGiftCardRequest(p) {
     return json({ ok: true, id: row.id, amount: row.amount });
   } catch (err) {
     console.error('handleGiftCardRequest failed: ' + err);
+    return json({ ok: false, error: String(err) });
+  }
+}
+
+/**
+ * Gift Card & Certificate Verification Endpoint.
+ * Looks up certificate code in the Gift_Cards sheet tab.
+ * Validates whether the card is paid, pending, redeemed, or void.
+ */
+function handleVerifyGiftCard(p) {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const json = function(obj) {
+    return ContentService.createTextOutput(JSON.stringify(obj))
+      .setMimeType(ContentService.MimeType.JSON);
+  };
+
+  try {
+    const rawCode = String(p.code || p.id || '').trim().toUpperCase();
+    if (!rawCode) {
+      return json({ ok: false, found: false, message: 'Please provide a valid certificate code.' });
+    }
+
+    const sh = ss.getSheetByName('Gift_Cards');
+    if (!sh) {
+      return json({ ok: true, found: false, message: 'Gift card registry not initialized.' });
+    }
+
+    const data = sh.getDataRange().getValues();
+    if (data.length <= 1) {
+      return json({ ok: true, found: false, message: 'No certificate records found.' });
+    }
+
+    const headers = data[0];
+    const idCol = headers.indexOf('id');
+    const statusCol = headers.indexOf('status');
+    const amountCol = headers.indexOf('amount');
+    const tierCol = headers.indexOf('tier');
+    const buyerCol = headers.indexOf('buyerName');
+    const recipientCol = headers.indexOf('recipientName');
+    const springCol = headers.indexOf('springTarget');
+    const perksCol = headers.indexOf('bonusPerks');
+    const occasionCol = headers.indexOf('occasion');
+    const messageCol = headers.indexOf('message');
+    const timeCol = headers.indexOf('timestamp');
+
+    for (let i = 1; i < data.length; i++) {
+      const rowId = String(data[i][idCol] || '').trim().toUpperCase();
+      if (rowId === rawCode) {
+        const rawStatus = String(data[i][statusCol] || 'pending_payment').trim().toLowerCase();
+        let normalizedStatus = 'pending_payment';
+        if (rawStatus === 'paid' || rawStatus === 'active') {
+          normalizedStatus = 'paid';
+        } else if (rawStatus === 'redeemed' || rawStatus === 'used') {
+          normalizedStatus = 'redeemed';
+        } else if (rawStatus === 'cancelled' || rawStatus === 'void') {
+          normalizedStatus = 'cancelled';
+        }
+
+        return json({
+          ok: true,
+          found: true,
+          id: data[i][idCol],
+          status: normalizedStatus, // 'paid', 'pending_payment', 'redeemed', 'cancelled'
+          amount: parseFloat(data[i][amountCol]) || 0,
+          tier: data[i][tierCol] || 'Holiday E-Bike Certificate',
+          buyerName: data[i][buyerCol] || 'Verified Purchaser',
+          recipientName: data[i][recipientCol] || 'Valued Cyclist',
+          springTarget: data[i][springCol] || 'Spring 2027',
+          bonusPerks: data[i][perksCol] || 'Free Creek Ready™ Professional Assembly',
+          occasion: data[i][occasionCol] || 'Holiday',
+          message: data[i][messageCol] || '',
+          timestamp: data[i][timeCol]
+        });
+      }
+    }
+
+    return json({ ok: true, found: false, message: 'Certificate code not found in Cruise the Creek registry.' });
+  } catch (err) {
+    console.error('handleVerifyGiftCard error: ' + err);
     return json({ ok: false, error: String(err) });
   }
 }

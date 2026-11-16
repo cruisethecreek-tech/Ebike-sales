@@ -35,9 +35,9 @@ const ok = (n, c, e = '') => { console.log((c ? 'PASS  ' : 'FAIL  ') + n + (e ? 
 
 // Staff-only tools. Not public pages, so they get no customer portal link.
 const STAFF = new Set(['analytics.html', 'balance.html', 'invoice.html',
-                       'salespro.html', 'migrate-images.html']);
+                       'salespro.html', 'migrate-images.html', 'gift-card-templates.html']);
 // Pages with neither the shared menu nor a footer to hang a link on.
-const NO_CHROME = new Set(['goodcall-knowledge.html', 'poles.html', 'quiz.html']);
+const NO_CHROME = new Set(['goodcall-knowledge.html', 'poles.html', 'quiz.html', 'gift-card-launch.html']);
 
 const pages = fs.readdirSync('.').filter(f => f.endsWith('.html'));
 const read = f => fs.readFileSync(f, 'utf8');

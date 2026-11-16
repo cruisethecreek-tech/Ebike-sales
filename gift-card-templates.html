@@ -1132,6 +1132,7 @@ body{
                   <li><span>✓</span> Includes Free Creek Ready™ assembly &amp; safety inspection.</li>
                   <li><span>✓</span> Manufacturer warranty clock is frozen until spring delivery.</li>
                   <li><span>✓</span> Free heated indoor winter storage &amp; battery care.</li>
+                  <li><span>⚠️</span> <strong>Zero cash value until activated in registry upon verified payment.</strong></li>
                 </ul>
 
                 <div class="signature-box">
@@ -1143,7 +1144,7 @@ body{
 
               <div class="back-qr-col">
                 <div class="qr-box" id="qrContainer"></div>
-                <div class="qr-caption">Scan to Redeem<br>cruisethecreek.com</div>
+                <div class="qr-caption">Scan to Verify<br>cruisethecreek.com/verify</div>
               </div>
             </div>
           </div>
@@ -1208,7 +1209,7 @@ body{
         <div class="cert-footer">
           <div class="cert-footer-meta">
             <div>Certificate ID: <strong id="certSerial" style="color:#fff">CTC-2026-7842</strong> · PIN: <strong id="certPin" style="color:#fff">4819</strong></div>
-            <div>Redeemable at Cruise the Creek · (330) 406-9686 · cruisethecreek.com</div>
+            <div>Carries $0 cash value until activated upon payment · Verify at cruisethecreek.com/verify</div>
           </div>
           <div class="cert-seal">
             OFFICIAL<br>CREEK<br>SEAL
@@ -1255,7 +1256,7 @@ function initQrCode() {
   const container = document.getElementById('qrContainer');
   container.innerHTML = '';
   new QRCode(container, {
-    text: 'https://www.cruisethecreek.com/gift-cards?cert=' + currentSerial,
+    text: 'https://www.cruisethecreek.com/verify.html?code=' + encodeURIComponent(currentSerial),
     width: 70,
     height: 70,
     colorDark: '#1a2e1c',

@@ -73,8 +73,8 @@
       '0%,100%{transform:scale(1);opacity:.85}' +
       '50%{transform:scale(1.1);opacity:1}}' +
       '@media (max-width:480px){' +
-      '.cms-loader{bottom:12px;right:12px;padding:6px 12px 6px 6px;font-size:.68rem}' +
-      '.cms-loader img{width:22px;height:22px}}' +
+      '.cms-loader{top:68px;bottom:auto;right:12px;padding:5px 10px 5px 6px;font-size:.68rem}' +
+      '.cms-loader img{width:20px;height:20px}}' +
       '@media (prefers-reduced-motion:reduce){' +
       '.cms-loader{transition:opacity .15s linear;transform:none}' +
       '.cms-loader.is-show{transform:none}' +
