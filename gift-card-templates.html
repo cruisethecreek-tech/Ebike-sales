@@ -1,0 +1,1581 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Physical Gift Card Templates & Print Studio | Cruise the Creek</title>
+<meta name="description" content="Design and print physical Cruise the Creek Holiday E-Bike Certificates and wallet gift cards. 4 custom designs, 300 DPI export, and 8.5x11 printable sheets.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Cinzel:wght@600;700;800;900&family=DM+Sans:ital,wght@0,400;0,500;0,700;0,800;1,400;1,700&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet">
+<!-- QRCode.js library for scannable dynamic QR codes -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --forest:#1a2e1c;
+  --forest-dark:#0f1c11;
+  --forest-light:#2d4a32;
+  --gold:#C9A96E;
+  --gold-bright:#edd5a1;
+  --gold-dark:#9c7839;
+  --gold-grad:linear-gradient(135deg, #f7e0aa 0%, #c9a96e 50%, #997531 100%);
+  --cream:#F5F0E8;
+  --cream-soft:#ded7cb;
+  --white:#ffffff;
+}
+
+body{
+  background:#0d130f;
+  color:#f5f0e8;
+  font-family:'DM Sans',sans-serif;
+  min-height:100vh;
+  display:flex;
+  flex-direction:column;
+}
+
+/* ── HEADER ── */
+.studio-header{
+  background:#141f17;
+  border-bottom:1px solid rgba(201,169,110,.25);
+  padding:14px 28px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  flex-wrap:wrap;
+  gap:16px;
+  position:sticky;
+  top:0;
+  z-index:50;
+  box-shadow:0 4px 20px rgba(0,0,0,.5);
+}
+.header-left{
+  display:flex;
+  align-items:center;
+  gap:16px;
+}
+.header-logo{
+  height:36px;
+  width:auto;
+  filter:brightness(0) invert(1);
+}
+.header-title-block h1{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:1.45rem;
+  letter-spacing:.06em;
+  color:var(--gold-bright);
+  line-height:1;
+}
+.header-title-block p{
+  font-size:.76rem;
+  color:rgba(255,255,255,.65);
+  letter-spacing:.05em;
+  text-transform:uppercase;
+  margin-top:3px;
+}
+.header-actions{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  flex-wrap:wrap;
+}
+.btn-studio{
+  background:var(--gold-grad);
+  color:#1a2e1c;
+  border:none;
+  padding:9px 18px;
+  border-radius:8px;
+  font-family:'Bebas Neue',sans-serif;
+  font-size:1.1rem;
+  letter-spacing:.06em;
+  cursor:pointer;
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  font-weight:700;
+  box-shadow:0 4px 16px rgba(201,169,110,.3);
+  transition:all .2s ease;
+  text-decoration:none;
+}
+.btn-studio:hover{
+  transform:translateY(-1px);
+  box-shadow:0 6px 22px rgba(201,169,110,.5);
+  color:#0f1c11;
+}
+.btn-studio-outline{
+  background:rgba(255,255,255,.08);
+  border:1px solid rgba(255,255,255,.2);
+  color:#fff;
+  padding:8px 16px;
+  border-radius:8px;
+  font-size:.82rem;
+  font-weight:700;
+  letter-spacing:.06em;
+  cursor:pointer;
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  text-decoration:none;
+  transition:all .2s ease;
+}
+.btn-studio-outline:hover{
+  background:rgba(201,169,110,.2);
+  border-color:var(--gold);
+  color:var(--gold-bright);
+}
+
+/* ── MAIN STUDIO LAYOUT ── */
+.studio-layout{
+  display:flex;
+  flex:1;
+  position:relative;
+  min-height:calc(100vh - 66px);
+}
+
+/* ── SIDEBAR CONTROLS ── */
+.studio-sidebar{
+  width:380px;
+  background:#111913;
+  border-right:1px solid rgba(201,169,110,.2);
+  padding:24px 20px;
+  overflow-y:auto;
+  max-height:calc(100vh - 66px);
+  display:flex;
+  flex-direction:column;
+  gap:24px;
+}
+.panel-section{
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+}
+.section-label{
+  font-size:.72rem;
+  font-weight:800;
+  letter-spacing:.15em;
+  text-transform:uppercase;
+  color:var(--gold);
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+}
+
+/* Theme Chooser Grid */
+.theme-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px;
+}
+.theme-card{
+  background:#17221a;
+  border:1.5px solid rgba(255,255,255,.1);
+  border-radius:8px;
+  padding:10px;
+  cursor:pointer;
+  transition:all .2s ease;
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+}
+.theme-card:hover{
+  border-color:rgba(201,169,110,.5);
+}
+.theme-card.is-active{
+  border-color:var(--gold);
+  background:rgba(201,169,110,.12);
+  box-shadow:0 0 14px rgba(201,169,110,.25);
+}
+.theme-swatch{
+  height:28px;
+  border-radius:4px;
+  width:100%;
+}
+.theme-swatch.theme-forest{background:linear-gradient(135deg, #152718 0%, #2d4a32 50%, #c9a96e 100%)}
+.theme-swatch.theme-frost{background:linear-gradient(135deg, #0b1a20 0%, #173847 50%, #9fc7d8 100%)}
+.theme-swatch.theme-sunset{background:linear-gradient(135deg, #3d2314 0%, #874922 50%, #e88c3a 100%)}
+.theme-swatch.theme-stealth{background:linear-gradient(135deg, #101010 0%, #242424 50%, #b27a4b 100%)}
+.theme-name{
+  font-size:.78rem;
+  font-weight:700;
+  color:#fff;
+}
+
+/* Format Switcher Pills */
+.format-pills{
+  display:flex;
+  gap:6px;
+  background:#0a0f0b;
+  padding:4px;
+  border-radius:8px;
+  border:1px solid rgba(255,255,255,.1);
+}
+.format-pill{
+  flex:1;
+  background:none;
+  border:none;
+  color:rgba(255,255,255,.7);
+  padding:7px 8px;
+  border-radius:6px;
+  font-size:.74rem;
+  font-weight:700;
+  cursor:pointer;
+  transition:all .15s ease;
+  text-align:center;
+}
+.format-pill.is-active{
+  background:var(--gold-grad);
+  color:#1a2e1c;
+}
+
+/* Tier Selector Pills */
+.tier-pills{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:6px;
+}
+.tier-btn{
+  background:#17221a;
+  border:1px solid rgba(255,255,255,.12);
+  border-radius:6px;
+  padding:10px 8px;
+  color:#fff;
+  cursor:pointer;
+  transition:all .15s ease;
+  text-align:center;
+}
+.tier-btn:hover{
+  border-color:rgba(201,169,110,.4);
+}
+.tier-btn.is-active{
+  border-color:var(--gold);
+  background:rgba(201,169,110,.15);
+}
+.tier-val{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:1.35rem;
+  line-height:1;
+  color:var(--gold-bright);
+}
+.tier-sub{
+  font-size:.66rem;
+  color:rgba(255,255,255,.65);
+  margin-top:2px;
+}
+
+/* Form Fields */
+.field-group{
+  display:flex;
+  flex-direction:column;
+  gap:4px;
+}
+.field-label{
+  font-size:.7rem;
+  font-weight:700;
+  color:rgba(255,255,255,.7);
+  text-transform:uppercase;
+  letter-spacing:.06em;
+}
+.field-input, .field-textarea{
+  background:#0a0e0b;
+  border:1px solid rgba(255,255,255,.18);
+  border-radius:6px;
+  padding:9px 12px;
+  color:#fff;
+  font-size:.85rem;
+  font-family:inherit;
+  transition:border-color .15s ease;
+}
+.field-input:focus, .field-textarea:focus{
+  outline:none;
+  border-color:var(--gold);
+}
+
+/* ── STAGE / PREVIEW CANVAS ── */
+.studio-stage{
+  flex:1;
+  background:#090d0a;
+  padding:40px 30px;
+  overflow-y:auto;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:flex-start;
+  gap:30px;
+}
+
+/* Stage Top Toolbar */
+.stage-toolbar{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  width:100%;
+  max-width:960px;
+}
+.view-tabs{
+  display:flex;
+  background:#141f17;
+  border:1px solid rgba(201,169,110,.3);
+  padding:3px;
+  border-radius:8px;
+  gap:4px;
+}
+.view-tab-btn{
+  background:none;
+  border:none;
+  color:rgba(255,255,255,.7);
+  font-size:.78rem;
+  font-weight:700;
+  padding:6px 14px;
+  border-radius:6px;
+  cursor:pointer;
+  transition:all .15s ease;
+}
+.view-tab-btn.is-active{
+  background:var(--gold-grad);
+  color:#1a2e1c;
+}
+
+/* ── CARD DISPLAY AREA ── */
+.cards-showcase{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:36px;
+  width:100%;
+  max-width:960px;
+}
+
+/* 3.375" x 2.125" CR80 Standard Ratio (1.588) */
+.card-wrapper{
+  perspective:1200px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:12px;
+}
+.card-label{
+  font-size:.72rem;
+  font-weight:800;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+  color:rgba(255,255,255,.6);
+}
+
+/* THE CARD ITSELF */
+.gift-card-cr80{
+  width:508px;
+  height:320px;
+  border-radius:18px;
+  position:relative;
+  overflow:hidden;
+  box-shadow:0 18px 50px rgba(0,0,0,.85), 0 0 25px rgba(201,169,110,.15);
+  border:1px solid rgba(201,169,110,.4);
+  transition:transform .2s ease, box-shadow .2s ease;
+  user-select:none;
+}
+.gift-card-cr80:hover{
+  transform:translateY(-3px);
+  box-shadow:0 24px 60px rgba(0,0,0,.9), 0 0 35px rgba(201,169,110,.3);
+}
+
+/* ── THEME STYLING: FOREST HERITAGE (THEME 1) ── */
+.theme-forest-card{
+  background:radial-gradient(circle at 80% 20%, #2d4a32 0%, #152718 60%, #0d190f 100%);
+  color:#fff;
+}
+.theme-forest-card .topo-pattern{
+  position:absolute;
+  inset:0;
+  opacity:.18;
+  background-image:radial-gradient(#c9a96e 1px, transparent 1px), radial-gradient(#c9a96e 1px, transparent 1px);
+  background-size:24px 24px;
+  background-position:0 0, 12px 12px;
+  pointer-events:none;
+}
+
+/* ── THEME STYLING: WINTER FROST (THEME 2) ── */
+.theme-frost-card{
+  background:radial-gradient(circle at 20% 20%, #1a3c4a 0%, #0c1e28 55%, #071219 100%);
+  color:#fff;
+  border-color:rgba(159,199,216,.5);
+}
+.theme-frost-card .topo-pattern{
+  position:absolute;
+  inset:0;
+  opacity:.15;
+  background:radial-gradient(circle, rgba(255,255,255,.2) 1px, transparent 1px);
+  background-size:20px 20px;
+  pointer-events:none;
+}
+
+/* ── THEME STYLING: SUNSET TRAIL (THEME 3) ── */
+.theme-sunset-card{
+  background:linear-gradient(135deg, #422114 0%, #261b17 40%, #16241a 100%);
+  color:#fff;
+  border-color:rgba(232,140,58,.5);
+}
+.theme-sunset-card .topo-pattern{
+  position:absolute;
+  inset:0;
+  opacity:.12;
+  background-image:linear-gradient(45deg, #e88c3a 1px, transparent 1px);
+  background-size:16px 16px;
+  pointer-events:none;
+}
+
+/* ── THEME STYLING: STEALTH OBSIDIAN (THEME 4) ── */
+.theme-stealth-card{
+  background:#101010;
+  color:#fff;
+  border-color:rgba(178,122,75,.5);
+}
+.theme-stealth-card .topo-pattern{
+  position:absolute;
+  inset:0;
+  opacity:.08;
+  background:repeating-linear-gradient(45deg, #fff, #fff 1px, transparent 1px, transparent 6px);
+  pointer-events:none;
+}
+
+/* CARD FRONT CONTENT */
+.card-front{
+  width:100%;
+  height:100%;
+  padding:24px 28px;
+  display:flex;
+  flex-direction:column;
+  justify-content:space-between;
+  position:relative;
+  z-index:2;
+}
+.front-top{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+}
+.card-logo-wrap{
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+.card-logo-wrap img{
+  height:32px;
+  width:auto;
+  filter:brightness(0) invert(1);
+}
+.card-brand-text{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:1.15rem;
+  letter-spacing:.08em;
+  color:#fff;
+  line-height:1;
+}
+.card-brand-sub{
+  font-size:.62rem;
+  color:var(--gold-bright);
+  letter-spacing:.12em;
+  text-transform:uppercase;
+  margin-top:2px;
+}
+.warranty-chip{
+  background:rgba(0,0,0,.45);
+  border:1px solid var(--gold);
+  border-radius:99px;
+  padding:4px 10px;
+  font-size:.65rem;
+  font-weight:800;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  color:var(--gold-bright);
+  display:flex;
+  align-items:center;
+  gap:4px;
+}
+
+.front-center{
+  display:flex;
+  align-items:baseline;
+  justify-content:space-between;
+  margin:10px 0;
+}
+.tier-hero{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:4.2rem;
+  line-height:.88;
+  letter-spacing:.02em;
+  background:var(--gold-grad);
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+  filter:drop-shadow(0 2px 8px rgba(0,0,0,.6));
+}
+.tier-cur{
+  font-size:2.4rem;
+  vertical-align:top;
+  margin-right:2px;
+}
+.tier-title-badge{
+  text-align:right;
+}
+.tier-name-label{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:1.35rem;
+  letter-spacing:.08em;
+  color:#fff;
+  line-height:1;
+}
+.tier-perk-sub{
+  font-size:.68rem;
+  color:var(--gold-bright);
+  letter-spacing:.04em;
+  margin-top:3px;
+  font-weight:700;
+}
+
+.front-bottom{
+  display:flex;
+  align-items:flex-end;
+  justify-content:space-between;
+  padding-top:10px;
+  border-top:1px solid rgba(255,255,255,.15);
+}
+.card-meta-left{
+  display:flex;
+  flex-direction:column;
+  gap:2px;
+}
+.meta-recipient{
+  font-size:.78rem;
+  font-weight:700;
+  color:#fff;
+}
+.meta-note{
+  font-size:.64rem;
+  color:rgba(255,255,255,.75);
+  font-style:italic;
+  max-width:280px;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.card-serial-code{
+  font-family:'JetBrains Mono',monospace;
+  font-size:.72rem;
+  letter-spacing:.12em;
+  background:rgba(0,0,0,.5);
+  padding:3px 8px;
+  border-radius:4px;
+  border:1px solid rgba(201,169,110,.4);
+  color:var(--gold-bright);
+}
+
+/* CARD BACK CONTENT */
+.card-back{
+  width:100%;
+  height:100%;
+  display:flex;
+  flex-direction:column;
+  justify-content:space-between;
+  position:relative;
+  z-index:2;
+}
+.mag-stripe{
+  width:100%;
+  height:44px;
+  background:#141414;
+  margin-top:20px;
+  border-top:1px solid rgba(255,255,255,.08);
+  border-bottom:1px solid rgba(255,255,255,.08);
+  box-shadow:inset 0 2px 6px rgba(0,0,0,.8);
+}
+.back-body{
+  padding:12px 24px 20px;
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-end;
+  flex:1;
+}
+.back-terms-col{
+  flex:1;
+  padding-right:20px;
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+}
+.terms-title{
+  font-size:.65rem;
+  font-weight:800;
+  letter-spacing:.1em;
+  text-transform:uppercase;
+  color:var(--gold-bright);
+}
+.terms-bullets{
+  list-style:none;
+  display:flex;
+  flex-direction:column;
+  gap:3px;
+  font-size:.62rem;
+  color:rgba(255,255,255,.8);
+  line-height:1.35;
+}
+.terms-bullets li{
+  display:flex;
+  align-items:flex-start;
+  gap:4px;
+}
+.terms-bullets li span{
+  color:var(--gold);
+}
+.signature-box{
+  background:#fff;
+  color:#111;
+  border-radius:3px;
+  padding:4px 8px;
+  font-size:.65rem;
+  font-family:'JetBrains Mono',monospace;
+  margin-top:6px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+.sig-label{
+  color:#666;
+  font-size:.56rem;
+  text-transform:uppercase;
+}
+
+.back-qr-col{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:4px;
+}
+.qr-box{
+  background:#fff;
+  padding:6px;
+  border-radius:6px;
+  width:82px;
+  height:82px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  box-shadow:0 4px 12px rgba(0,0,0,.4);
+}
+.qr-box img{
+  width:100%;
+  height:100%;
+}
+.qr-caption{
+  font-size:.55rem;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  color:rgba(255,255,255,.6);
+  text-align:center;
+}
+
+/* ── 5" x 7" DELUXE CERTIFICATE MODE ── */
+.certificate-wrapper{
+  display:none;
+  flex-direction:column;
+  align-items:center;
+  gap:16px;
+}
+.gift-cert-5x7{
+  width:560px;
+  height:784px;
+  border-radius:12px;
+  position:relative;
+  box-shadow:0 24px 60px rgba(0,0,0,.9), 0 0 35px rgba(201,169,110,.25);
+  border:2px solid var(--gold);
+  padding:36px 40px;
+  display:flex;
+  flex-direction:column;
+  justify-content:space-between;
+  text-align:center;
+  overflow:hidden;
+}
+.cert-guilloche{
+  position:absolute;
+  inset:10px;
+  border:1px solid rgba(201,169,110,.4);
+  border-radius:6px;
+  pointer-events:none;
+}
+.cert-header-tag{
+  font-size:.74rem;
+  font-weight:800;
+  letter-spacing:.25em;
+  text-transform:uppercase;
+  color:var(--gold);
+}
+.cert-title{
+  font-family:'Cinzel',serif;
+  font-size:2.2rem;
+  letter-spacing:.06em;
+  color:#fff;
+  margin:6px 0 2px;
+}
+.cert-sub{
+  font-size:.82rem;
+  color:rgba(255,255,255,.75);
+}
+.cert-hero-amount{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:5.5rem;
+  line-height:.9;
+  letter-spacing:.02em;
+  background:var(--gold-grad);
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+  margin:18px 0;
+  filter:drop-shadow(0 4px 12px rgba(0,0,0,.7));
+}
+.cert-recipient-block{
+  background:rgba(0,0,0,.35);
+  border:1px solid rgba(201,169,110,.3);
+  border-radius:8px;
+  padding:14px;
+  margin:12px 0;
+}
+.cert-for{
+  font-size:.72rem;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+  color:var(--gold);
+  font-weight:800;
+}
+.cert-name{
+  font-family:'Cinzel',serif;
+  font-size:1.6rem;
+  color:#fff;
+  margin:4px 0 6px;
+}
+.cert-personal-note{
+  font-size:.84rem;
+  color:rgba(255,255,255,.85);
+  font-style:italic;
+  line-height:1.45;
+}
+.cert-perks-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px;
+  text-align:left;
+  margin:14px 0;
+  font-size:.74rem;
+}
+.cert-perk-item{
+  background:rgba(26,46,28,.6);
+  border:1px solid rgba(201,169,110,.25);
+  border-radius:6px;
+  padding:8px 10px;
+  color:rgba(255,255,255,.9);
+}
+.cert-perk-item strong{
+  color:var(--gold-bright);
+}
+.cert-footer{
+  display:flex;
+  align-items:flex-end;
+  justify-content:space-between;
+  border-top:1px solid rgba(201,169,110,.3);
+  padding-top:14px;
+  text-align:left;
+}
+.cert-footer-meta{
+  font-size:.7rem;
+  color:rgba(255,255,255,.6);
+}
+.cert-seal{
+  width:64px;
+  height:64px;
+  border-radius:50%;
+  border:2px solid var(--gold);
+  background:radial-gradient(circle, #f7e0aa 0%, #c9a96e 50%, #997531 100%);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:#1a2e1c;
+  font-family:'Bebas Neue',sans-serif;
+  font-size:.85rem;
+  text-align:center;
+  line-height:1;
+  font-weight:800;
+  box-shadow:0 4px 15px rgba(201,169,110,.4);
+}
+
+/* ── 8.5" x 11" PRINT SHEET PREVIEW (8-UP) ── */
+.sheet-wrapper{
+  display:none;
+  flex-direction:column;
+  align-items:center;
+  gap:16px;
+  width:100%;
+}
+.sheet-page{
+  width:816px; /* 8.5in at 96dpi screen preview */
+  height:1056px; /* 11in */
+  background:#fff;
+  color:#111;
+  padding:40px;
+  box-shadow:0 20px 60px rgba(0,0,0,.9);
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  grid-template-rows:repeat(4, 1fr);
+  gap:18px;
+  position:relative;
+}
+.sheet-card-mini{
+  border:1px dashed #bbb;
+  border-radius:8px;
+  position:relative;
+  overflow:hidden;
+  transform:scale(0.72);
+  transform-origin:top left;
+  width:508px;
+  height:320px;
+}
+.crop-mark{
+  position:absolute;
+  font-size:10px;
+  color:#999;
+}
+
+/* ── COMMERCIAL PRINT SPECS DRAWER ── */
+.specs-card{
+  background:#141f17;
+  border:1px solid rgba(201,169,110,.25);
+  border-radius:10px;
+  padding:16px;
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+}
+.specs-table{
+  width:100%;
+  font-size:.76rem;
+  border-collapse:collapse;
+}
+.specs-table td{
+  padding:5px 0;
+  border-bottom:1px solid rgba(255,255,255,.08);
+}
+.specs-table td:last-child{
+  text-align:right;
+  font-weight:700;
+  color:var(--gold-bright);
+}
+
+/* Hidden canvas for high-res PNG export */
+#exportCanvas{
+  display:none;
+}
+
+/* ── PRINT MEDIA STYLES ── */
+@media print{
+  body{
+    background:#fff !important;
+    color:#000 !important;
+  }
+  .studio-header, .studio-sidebar, .stage-toolbar, .card-label, .btn-studio, .btn-studio-outline{
+    display:none !important;
+  }
+  .studio-layout{
+    display:block !important;
+    min-height:auto !important;
+  }
+  .studio-stage{
+    background:none !important;
+    padding:0 !important;
+    margin:0 !important;
+    display:block !important;
+  }
+  .cards-showcase, .sheet-wrapper, .certificate-wrapper{
+    max-width:none !important;
+    display:block !important;
+  }
+  .gift-card-cr80{
+    box-shadow:none !important;
+    page-break-inside:avoid;
+    margin:0.25in auto !important;
+    -webkit-print-color-adjust:exact !important;
+    print-color-adjust:exact !important;
+  }
+  .sheet-page{
+    box-shadow:none !important;
+    padding:0.25in !important;
+    margin:0 !important;
+    width:100% !important;
+    height:auto !important;
+    page-break-after:always;
+  }
+}
+</style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<header class="studio-header">
+  <div class="header-left">
+    <a href="gift-cards.html" style="display:flex;align-items:center;gap:12px;text-decoration:none">
+      <img src="BlackonTransparent.png" alt="Cruise the Creek" class="header-logo">
+      <div class="header-title-block">
+        <h1>Physical Gift Card Print Studio</h1>
+        <p>Cruise the Creek · Canfield, Ohio</p>
+      </div>
+    </a>
+  </div>
+
+  <div class="header-actions">
+    <button type="button" class="btn-studio-outline" onclick="exportCardPng('front')">
+      📥 Export Front PNG (300 DPI)
+    </button>
+    <button type="button" class="btn-studio-outline" onclick="exportCardPng('back')">
+      📥 Export Back PNG
+    </button>
+    <button type="button" class="btn-studio" onclick="window.print()">
+      🖨️ Print Cards / Sheet
+    </button>
+    <a href="gift-cards.html" class="btn-studio-outline">
+      ← Back to Gift Cards
+    </a>
+  </div>
+</header>
+
+<div class="studio-layout">
+
+  <!-- SIDEBAR: LIVE CUSTOMIZER -->
+  <aside class="studio-sidebar">
+
+    <!-- 1. THEME SELECTION -->
+    <div class="panel-section">
+      <div class="section-label">1. Select Design Theme</div>
+      <div class="theme-grid">
+        <div class="theme-card is-active" onclick="setTheme('forest', this)">
+          <div class="theme-swatch theme-forest"></div>
+          <div class="theme-name">🌲 Forest Topo</div>
+        </div>
+        <div class="theme-card" onclick="setTheme('frost', this)">
+          <div class="theme-swatch theme-frost"></div>
+          <div class="theme-name">❄️ Winter Frost</div>
+        </div>
+        <div class="theme-card" onclick="setTheme('sunset', this)">
+          <div class="theme-swatch theme-sunset"></div>
+          <div class="theme-name">🌅 Sunset Trail</div>
+        </div>
+        <div class="theme-card" onclick="setTheme('stealth', this)">
+          <div class="theme-swatch theme-stealth"></div>
+          <div class="theme-name">🖤 Stealth Bronze</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. CARD FORMAT -->
+    <div class="panel-section">
+      <div class="section-label">2. Card Format</div>
+      <div class="format-pills">
+        <button type="button" class="format-pill is-active" onclick="setFormat('wallet', this)">💳 Wallet Card</button>
+        <button type="button" class="format-pill" onclick="setFormat('certificate', this)">📜 5"×7" Certificate</button>
+        <button type="button" class="format-pill" onclick="setFormat('sheet', this)">📄 8-Up Print Sheet</button>
+      </div>
+    </div>
+
+    <!-- 3. PACKAGE / AMOUNT -->
+    <div class="panel-section">
+      <div class="section-label">3. Certificate Value</div>
+      <div class="tier-pills">
+        <div class="tier-btn" onclick="setTier('1500', 'The Trailblazer', '+$125 Creek Ready Build', this)">
+          <div class="tier-val">$1,500</div>
+          <div class="tier-sub">The Trailblazer</div>
+        </div>
+        <div class="tier-btn is-active" onclick="setTier('2000', 'The VIP Adventure', '+$250 Free Shop Services', this)">
+          <div class="tier-val">$2,000</div>
+          <div class="tier-sub">The VIP Adventure</div>
+        </div>
+        <div class="tier-btn" onclick="setTier('1000', 'Ride Credit', 'Partial Bike Deposit', this)">
+          <div class="tier-val">$1,000</div>
+          <div class="tier-sub">Custom Credit</div>
+        </div>
+        <div class="tier-btn" onclick="setTier('500', 'Gear & Tune Credit', 'Tune-ups & Gear', this)">
+          <div class="tier-val">$500</div>
+          <div class="tier-sub">Shop Credit</div>
+        </div>
+      </div>
+
+      <div class="field-group" style="margin-top:4px">
+        <label class="field-label" for="customValInput">Or Custom Dollar Amount ($)</label>
+        <input type="number" id="customValInput" class="field-input" placeholder="e.g. 2500" oninput="onCustomAmountChange(this.value)">
+      </div>
+    </div>
+
+    <!-- 4. RECIPIENT & PERSONALIZATION -->
+    <div class="panel-section">
+      <div class="section-label">4. Personalization</div>
+      
+      <div class="field-group">
+        <label class="field-label" for="recipientInput">Recipient Name</label>
+        <input type="text" id="recipientInput" class="field-input" value="Sarah Miller" oninput="updateRecipient(this.value)">
+      </div>
+
+      <div class="field-group">
+        <label class="field-label" for="buyerInput">From / Purchaser Name</label>
+        <input type="text" id="buyerInput" class="field-input" value="Mike Miller" oninput="updateBuyer(this.value)">
+      </div>
+
+      <div class="field-group">
+        <label class="field-label" for="noteInput">Personal Gift Message</label>
+        <textarea id="noteInput" class="field-textarea" rows="2" oninput="updateNote(this.value)">Merry Christmas! Let's ride the Mill Creek trails together this spring.</textarea>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <div class="field-group">
+          <label class="field-label" for="serialInput">Certificate Code</label>
+          <input type="text" id="serialInput" class="field-input" value="CTC-2026-7842" oninput="updateSerial(this.value)">
+        </div>
+        <div class="field-group">
+          <label class="field-label" for="pinInput">Security PIN</label>
+          <input type="text" id="pinInput" class="field-input" value="4819" oninput="updatePin(this.value)">
+        </div>
+      </div>
+    </div>
+
+    <!-- 5. PRINT SPECS & INSTRUCTIONS -->
+    <div class="panel-section">
+      <div class="section-label">Commercial Print Specs</div>
+      <div class="specs-card">
+        <table class="specs-table">
+          <tr><td>Card Size (CR80)</td><td>3.375" × 2.125"</td></tr>
+          <tr><td>Bleed Size (Full)</td><td>3.625" × 2.375" (1/8")</td></tr>
+          <tr><td>Safe Zone</td><td>3.125" × 1.875"</td></tr>
+          <tr><td>Resolution</td><td>300 DPI (1013 × 638 px)</td></tr>
+          <tr><td>Stock Recommendation</td><td>30 mil Plastic or 16 pt Velvet Matte</td></tr>
+        </table>
+      </div>
+    </div>
+
+  </aside>
+
+  <!-- STAGE / PREVIEW AREA -->
+  <main class="studio-stage">
+
+    <div class="stage-toolbar">
+      <div class="view-tabs" id="viewTabs">
+        <button type="button" class="view-tab-btn is-active" onclick="setViewMode('both', this)">Both Sides</button>
+        <button type="button" class="view-tab-btn" onclick="setViewMode('frontOnly', this)">Front Only</button>
+        <button type="button" class="view-tab-btn" onclick="setViewMode('backOnly', this)">Back Only</button>
+      </div>
+      <div style="font-size:.76rem;color:rgba(255,255,255,.6)">
+        Standard Wallet CR80 (85.6mm × 54mm)
+      </div>
+    </div>
+
+    <!-- 1. WALLET CARD PREVIEW (CR80) -->
+    <div class="cards-showcase" id="walletShowcase">
+      
+      <!-- FRONT CARD -->
+      <div class="card-wrapper" id="frontWrap">
+        <div class="card-label">Card Front · 3.375" × 2.125"</div>
+        <div class="gift-card-cr80 theme-forest-card" id="cardFrontEl">
+          <div class="topo-pattern"></div>
+          
+          <div class="card-front">
+            <div class="front-top">
+              <div class="card-logo-wrap">
+                <img src="BlackonTransparent.png" alt="Cruise the Creek">
+                <div>
+                  <div class="card-brand-text">CRUISE THE CREEK</div>
+                  <div class="card-brand-sub">Holiday E-Bike Certificate</div>
+                </div>
+              </div>
+
+              <div class="warranty-chip">
+                <span>★</span> Spring-Start Locked
+              </div>
+            </div>
+
+            <div class="front-center">
+              <div class="tier-hero">
+                <span class="tier-cur">$</span><span id="cardAmountDisplay">2,000</span>
+              </div>
+              <div class="tier-title-badge">
+                <div class="tier-name-label" id="cardTierName">The VIP Adventure</div>
+                <div class="tier-perk-sub" id="cardPerkSub">★ $250+ Free Professional Shop Services</div>
+              </div>
+            </div>
+
+            <div class="front-bottom">
+              <div class="card-meta-left">
+                <div class="meta-recipient" id="cardRecipientDisplay">Presented To: Sarah Miller</div>
+                <div class="meta-note" id="cardNoteDisplay">"Merry Christmas! Let's ride the Mill Creek trails together this spring."</div>
+              </div>
+
+              <div class="card-serial-code" id="cardSerialDisplay">CTC-2026-7842</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- BACK CARD -->
+      <div class="card-wrapper" id="backWrap">
+        <div class="card-label">Card Back · Terms, Security PIN & QR Scan</div>
+        <div class="gift-card-cr80 theme-forest-card" id="cardBackEl">
+          <div class="topo-pattern"></div>
+
+          <div class="card-back">
+            <div class="mag-stripe"></div>
+
+            <div class="back-body">
+              <div class="back-terms-col">
+                <div class="terms-title">Cruise the Creek Guarantee &amp; Terms</div>
+                <ul class="terms-bullets">
+                  <li><span>✓</span> Holds 100% of cash face value toward any electric bike.</li>
+                  <li><span>✓</span> Includes Free Creek Ready™ assembly &amp; safety inspection.</li>
+                  <li><span>✓</span> Manufacturer warranty clock is frozen until spring delivery.</li>
+                  <li><span>✓</span> Free heated indoor winter storage &amp; battery care.</li>
+                </ul>
+
+                <div class="signature-box">
+                  <span class="sig-label">Authorized Sign-off:</span>
+                  <span id="backBuyerDisplay">Purchased by: Mike Miller</span>
+                  <span style="color:#888">PIN: <strong id="backPinDisplay" style="color:#111">4819</strong></span>
+                </div>
+              </div>
+
+              <div class="back-qr-col">
+                <div class="qr-box" id="qrContainer"></div>
+                <div class="qr-caption">Scan to Redeem<br>cruisethecreek.com</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- 2. DELUXE 5" x 7" PRESENTATION CERTIFICATE -->
+    <div class="certificate-wrapper" id="certShowcase">
+      <div class="card-label">Deluxe 5" × 7" Gift Box Presentation Certificate</div>
+      
+      <div class="gift-cert-5x7 theme-forest-card" id="cert5x7El">
+        <div class="topo-pattern"></div>
+        <div class="cert-guilloche"></div>
+
+        <div>
+          <div class="cert-header-tag">Cruise the Creek · Official Holiday Certificate</div>
+          <div class="cert-title">Gift of the Ride</div>
+          <div class="cert-sub">Specialized Electric Bike Adventures · Canfield, Ohio</div>
+        </div>
+
+        <div>
+          <div class="cert-hero-amount">
+            <span style="font-size:3rem;vertical-align:top">$</span><span id="certAmount">2,000</span>
+          </div>
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:1.6rem;color:var(--gold-bright);letter-spacing:.08em" id="certTierTitle">
+            The VIP Adventure Certificate
+          </div>
+        </div>
+
+        <div class="cert-recipient-block">
+          <div class="cert-for">Presented In Honor Of</div>
+          <div class="cert-name" id="certRecipient">Sarah Miller</div>
+          <div class="cert-personal-note" id="certNote">
+            "Merry Christmas! Let's ride the Mill Creek trails together this spring."
+          </div>
+          <div style="font-size:.72rem;color:var(--gold);margin-top:6px" id="certBuyer">
+            With love from Mike Miller
+          </div>
+        </div>
+
+        <div class="cert-perks-grid">
+          <div class="cert-perk-item">
+            <strong>★ "Spring-Start" Warranty Lock</strong><br>
+            Warranty clock frozen until spring rollout!
+          </div>
+          <div class="cert-perk-item">
+            <strong>★ Creek Ready™ Assembly ($125 Value)</strong><br>
+            20-point mechanical build included free.
+          </div>
+          <div class="cert-perk-item">
+            <strong>★ Free Heated Winter Storage</strong><br>
+            Climate controlled shop battery conditioning.
+          </div>
+          <div class="cert-perk-item">
+            <strong>★ Zero Guesswork Guarantee</strong><br>
+            Recipient chooses frame size &amp; color in spring!
+          </div>
+        </div>
+
+        <div class="cert-footer">
+          <div class="cert-footer-meta">
+            <div>Certificate ID: <strong id="certSerial" style="color:#fff">CTC-2026-7842</strong> · PIN: <strong id="certPin" style="color:#fff">4819</strong></div>
+            <div>Redeemable at Cruise the Creek · (330) 406-9686 · cruisethecreek.com</div>
+          </div>
+          <div class="cert-seal">
+            OFFICIAL<br>CREEK<br>SEAL
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- 3. 8.5" x 11" PRINT SHEET (8-UP) -->
+    <div class="sheet-wrapper" id="sheetShowcase">
+      <div class="card-label">8.5" × 11" Cardstock Multi-Print Sheet (Fronts &amp; Backs with Crop Marks)</div>
+      
+      <div class="sheet-page" id="sheetPrintArea">
+        <!-- 8 cloned cards will render here dynamically -->
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- OFFSCREEN CANVAS FOR 300 DPI PNG EXPORT -->
+<canvas id="exportCanvas" width="1013" height="638"></canvas>
+
+<script>
+/* =========================================================================
+   PHYSICAL GIFT CARD STUDIO ENGINE
+   Cruise the Creek · Holiday E-Bike Certificates
+   ========================================================================= */
+
+let currentTheme = 'forest';
+let currentFormat = 'wallet';
+let currentAmount = 2000;
+let currentTierName = 'The VIP Adventure';
+let currentPerkSub = '★ $250+ Free Professional Shop Services';
+let currentRecipient = 'Sarah Miller';
+let currentBuyer = 'Mike Miller';
+let currentNote = "Merry Christmas! Let's ride the Mill Creek trails together this spring.";
+let currentSerial = 'CTC-2026-7842';
+let currentPin = '4819';
+
+// Initialize QR code on Card Back
+function initQrCode() {
+  const container = document.getElementById('qrContainer');
+  container.innerHTML = '';
+  new QRCode(container, {
+    text: 'https://www.cruisethecreek.com/gift-cards?cert=' + currentSerial,
+    width: 70,
+    height: 70,
+    colorDark: '#1a2e1c',
+    colorLight: '#ffffff',
+    correctLevel: QRCode.CorrectLevel.M
+  });
+}
+
+// ── THEME SWITCHER ──
+function setTheme(theme, btn) {
+  currentTheme = theme;
+  document.querySelectorAll('.theme-card').forEach(c => c.classList.remove('is-active'));
+  btn.classList.add('is-active');
+
+  const front = document.getElementById('cardFrontEl');
+  const back = document.getElementById('cardBackEl');
+  const cert = document.getElementById('cert5x7El');
+
+  const themeClasses = ['theme-forest-card', 'theme-frost-card', 'theme-sunset-card', 'theme-stealth-card'];
+  [front, back, cert].forEach(el => {
+    if (el) themeClasses.forEach(cls => el.classList.remove(cls));
+  });
+
+  const targetClass = `theme-${theme}-card`;
+  [front, back, cert].forEach(el => {
+    if (el) el.classList.add(targetClass);
+  });
+
+  renderSheetCards();
+}
+
+// ── FORMAT SWITCHER ──
+function setFormat(fmt, btn) {
+  currentFormat = fmt;
+  document.querySelectorAll('.format-pill').forEach(p => p.classList.remove('is-active'));
+  btn.classList.add('is-active');
+
+  document.getElementById('walletShowcase').style.display = fmt === 'wallet' ? 'flex' : 'none';
+  document.getElementById('certShowcase').style.display = fmt === 'certificate' ? 'flex' : 'none';
+  document.getElementById('sheetShowcase').style.display = fmt === 'sheet' ? 'flex' : 'none';
+  document.getElementById('viewTabs').style.display = fmt === 'wallet' ? 'flex' : 'none';
+
+  if (fmt === 'sheet') renderSheetCards();
+}
+
+// ── VIEW MODE (Front / Back / Both) ──
+function setViewMode(mode, btn) {
+  document.querySelectorAll('.view-tab-btn').forEach(b => b.classList.remove('is-active'));
+  btn.classList.add('is-active');
+
+  const frontWrap = document.getElementById('frontWrap');
+  const backWrap = document.getElementById('backWrap');
+
+  if (mode === 'both') {
+    frontWrap.style.display = 'flex';
+    backWrap.style.display = 'flex';
+  } else if (mode === 'frontOnly') {
+    frontWrap.style.display = 'flex';
+    backWrap.style.display = 'none';
+  } else if (mode === 'backOnly') {
+    frontWrap.style.display = 'none';
+    backWrap.style.display = 'flex';
+  }
+}
+
+// ── TIER / VALUE UPDATES ──
+function setTier(amount, name, perk, btn) {
+  currentAmount = amount;
+  currentTierName = name;
+  currentPerkSub = perk;
+
+  document.querySelectorAll('.tier-btn').forEach(b => b.classList.remove('is-active'));
+  if (btn) btn.classList.add('is-active');
+  document.getElementById('customValInput').value = '';
+
+  syncCardValues();
+}
+
+function onCustomAmountChange(val) {
+  if (val && !isNaN(val) && val > 0) {
+    currentAmount = val;
+    currentTierName = 'Custom Ride Credit';
+    currentPerkSub = '★ Full Cash Face Value Toward Any E-Bike';
+    document.querySelectorAll('.tier-btn').forEach(b => b.classList.remove('is-active'));
+    syncCardValues();
+  }
+}
+
+function syncCardValues() {
+  const formatted = parseInt(currentAmount).toLocaleString();
+  document.getElementById('cardAmountDisplay').textContent = formatted;
+  document.getElementById('certAmount').textContent = formatted;
+  document.getElementById('cardTierName').textContent = currentTierName;
+  document.getElementById('certTierTitle').textContent = currentTierName + ' Certificate';
+  document.getElementById('cardPerkSub').textContent = currentPerkSub;
+  renderSheetCards();
+}
+
+// ── PERSONALIZATION INPUTS ──
+function updateRecipient(val) {
+  currentRecipient = val;
+  document.getElementById('cardRecipientDisplay').textContent = 'Presented To: ' + val;
+  document.getElementById('certRecipient').textContent = val;
+  renderSheetCards();
+}
+
+function updateBuyer(val) {
+  currentBuyer = val;
+  document.getElementById('backBuyerDisplay').textContent = 'Purchased by: ' + val;
+  document.getElementById('certBuyer').textContent = 'With love from ' + val;
+  renderSheetCards();
+}
+
+function updateNote(val) {
+  currentNote = val;
+  document.getElementById('cardNoteDisplay').textContent = '"' + val + '"';
+  document.getElementById('certNote').textContent = '"' + val + '"';
+  renderSheetCards();
+}
+
+function updateSerial(val) {
+  currentSerial = val;
+  document.getElementById('cardSerialDisplay').textContent = val;
+  document.getElementById('certSerial').textContent = val;
+  initQrCode();
+  renderSheetCards();
+}
+
+function updatePin(val) {
+  currentPin = val;
+  document.getElementById('backPinDisplay').textContent = val;
+  document.getElementById('certPin').textContent = val;
+  renderSheetCards();
+}
+
+// ── SHEET PRINT TILER (8-UP) ──
+function renderSheetCards() {
+  if (currentFormat !== 'sheet') return;
+  const area = document.getElementById('sheetPrintArea');
+  area.innerHTML = '';
+
+  const frontHtml = document.getElementById('cardFrontEl').outerHTML;
+  const backHtml = document.getElementById('cardBackEl').outerHTML;
+
+  // Lay out 4 Fronts and 4 Backs for standard 2-sided or foldable sheet
+  for (let i = 0; i < 4; i++) {
+    const slotF = document.createElement('div');
+    slotF.className = 'sheet-card-mini';
+    slotF.innerHTML = frontHtml;
+    area.appendChild(slotF);
+
+    const slotB = document.createElement('div');
+    slotB.className = 'sheet-card-mini';
+    slotB.innerHTML = backHtml;
+    area.appendChild(slotB);
+  }
+}
+
+// ── HIGH-RES PNG EXPORT (300 DPI - 1013 x 638 px) ──
+function exportCardPng(side) {
+  const canvas = document.getElementById('exportCanvas');
+  const ctx = canvas.getContext('2d');
+  const w = 1013;
+  const h = 638;
+  canvas.width = w;
+  canvas.height = h;
+
+  // Background Gradient based on Theme
+  ctx.save();
+  let bgGrad;
+  if (currentTheme === 'forest') {
+    bgGrad = ctx.createRadialGradient(w * 0.8, h * 0.2, 50, w * 0.5, h * 0.5, w * 0.8);
+    bgGrad.addColorStop(0, '#2d4a32');
+    bgGrad.addColorStop(0.6, '#152718');
+    bgGrad.addColorStop(1, '#0d190f');
+  } else if (currentTheme === 'frost') {
+    bgGrad = ctx.createRadialGradient(w * 0.2, h * 0.2, 50, w * 0.5, h * 0.5, w * 0.8);
+    bgGrad.addColorStop(0, '#1a3c4a');
+    bgGrad.addColorStop(0.6, '#0c1e28');
+    bgGrad.addColorStop(1, '#071219');
+  } else if (currentTheme === 'sunset') {
+    bgGrad = ctx.createLinearGradient(0, 0, w, h);
+    bgGrad.addColorStop(0, '#422114');
+    bgGrad.addColorStop(0.4, '#261b17');
+    bgGrad.addColorStop(1, '#16241a');
+  } else {
+    bgGrad = ctx.createLinearGradient(0, 0, w, h);
+    bgGrad.addColorStop(0, '#161616');
+    bgGrad.addColorStop(1, '#0c0c0c');
+  }
+
+  // Draw rounded card background with border
+  const r = 36;
+  ctx.beginPath();
+  ctx.moveTo(r, 0);
+  ctx.lineTo(w - r, 0);
+  ctx.quadraticCurveTo(w, 0, w, r);
+  ctx.lineTo(w, h - r);
+  ctx.quadraticCurveTo(w, h, w - r, h);
+  ctx.lineTo(r, h);
+  ctx.quadraticCurveTo(0, h, 0, h - r);
+  ctx.lineTo(0, r);
+  ctx.quadraticCurveTo(0, 0, r, 0);
+  ctx.closePath();
+  ctx.fillStyle = bgGrad;
+  ctx.fill();
+
+  ctx.lineWidth = 4;
+  ctx.strokeStyle = '#c9a96e';
+  ctx.stroke();
+
+  if (side === 'front') {
+    // ── DRAW FRONT ──
+    ctx.fillStyle = '#ffffff';
+    ctx.font = 'bold 36px "Bebas Neue", sans-serif';
+    ctx.fillText('CRUISE THE CREEK', 60, 80);
+
+    ctx.fillStyle = '#edd5a1';
+    ctx.font = 'bold 18px "DM Sans", sans-serif';
+    ctx.fillText('HOLIDAY E-BIKE CERTIFICATE', 60, 110);
+
+    // Warranty Badge
+    ctx.fillStyle = '#0f1c11';
+    ctx.fillRect(w - 320, 50, 260, 44);
+    ctx.strokeStyle = '#c9a96e';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(w - 320, 50, 260, 44);
+    ctx.fillStyle = '#edd5a1';
+    ctx.font = 'bold 16px "DM Sans", sans-serif';
+    ctx.fillText('★ SPRING-START LOCKED', w - 290, 78);
+
+    // Big Hero Price
+    ctx.fillStyle = '#f7e0aa';
+    ctx.font = 'bold 130px "Bebas Neue", sans-serif';
+    ctx.fillText('$' + parseInt(currentAmount).toLocaleString(), 60, 310);
+
+    // Tier Title
+    ctx.fillStyle = '#ffffff';
+    ctx.font = 'bold 44px "Bebas Neue", sans-serif';
+    ctx.fillText(currentTierName.toUpperCase(), 60, 390);
+
+    ctx.fillStyle = '#edd5a1';
+    ctx.font = 'bold 22px "DM Sans", sans-serif';
+    ctx.fillText(currentPerkSub, 60, 430);
+
+    // Footer divider
+    ctx.strokeStyle = 'rgba(255,255,255,0.2)';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(60, 490);
+    ctx.lineTo(w - 60, 490);
+    ctx.stroke();
+
+    // Recipient & Note
+    ctx.fillStyle = '#ffffff';
+    ctx.font = 'bold 24px "DM Sans", sans-serif';
+    ctx.fillText('Presented To: ' + currentRecipient, 60, 535);
+
+    ctx.fillStyle = 'rgba(255,255,255,0.7)';
+    ctx.font = 'italic 18px "DM Sans", sans-serif';
+    ctx.fillText('"' + currentNote + '"', 60, 575);
+
+    // Serial
+    ctx.fillStyle = '#0a0e0b';
+    ctx.fillRect(w - 320, 520, 260, 46);
+    ctx.strokeRect(w - 320, 520, 260, 46);
+    ctx.fillStyle = '#edd5a1';
+    ctx.font = 'bold 20px "JetBrains Mono", monospace';
+    ctx.fillText(currentSerial, w - 290, 550);
+
+  } else {
+    // ── DRAW BACK ──
+    // Mag stripe
+    ctx.fillStyle = '#141414';
+    ctx.fillRect(0, 50, w, 88);
+
+    ctx.fillStyle = '#edd5a1';
+    ctx.font = 'bold 20px "DM Sans", sans-serif';
+    ctx.fillText('CRUISE THE CREEK GUARANTEE & TERMS', 60, 195);
+
+    ctx.fillStyle = '#ffffff';
+    ctx.font = '18px "DM Sans", sans-serif';
+    ctx.fillText('• 100% of cash face value applies toward any electric bike.', 60, 235);
+    ctx.fillText('• Free Creek Ready™ assembly, safety tuning, and 20-point inspection.', 60, 275);
+    ctx.fillText('• Manufacturer warranty clock is completely frozen until spring delivery.', 60, 315);
+    ctx.fillText('• Free heated indoor winter storage and battery conditioning included.', 60, 355);
+
+    // Signature box
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(60, 420, 580, 70);
+    ctx.fillStyle = '#333333';
+    ctx.font = 'bold 18px "DM Sans", sans-serif';
+    ctx.fillText('Purchased By: ' + currentBuyer, 80, 462);
+
+    ctx.fillStyle = '#111111';
+    ctx.font = 'bold 18px "JetBrains Mono", monospace';
+    ctx.fillText('PIN: ' + currentPin, 510, 462);
+
+    // Footer contact
+    ctx.fillStyle = 'rgba(255,255,255,0.7)';
+    ctx.font = '16px "DM Sans", sans-serif';
+    ctx.fillText('Redeemable at Cruise the Creek · (330) 406-9686 · cruisethecreek.com', 60, 560);
+  }
+
+  ctx.restore();
+
+  // Trigger Download
+  const url = canvas.toDataURL('image/png');
+  const a = document.createElement('a');
+  a.download = `Cruise-The-Creek-GiftCard-${side.toUpperCase()}-${currentSerial}.png`;
+  a.href = url;
+  a.click();
+}
+
+// Initial Boot
+window.addEventListener('DOMContentLoaded', () => {
+  initQrCode();
+  syncCardValues();
+});
+</script>
+
+</body>
+</html>
