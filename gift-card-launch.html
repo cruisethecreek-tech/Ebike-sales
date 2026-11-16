@@ -7,7 +7,7 @@
 <meta name="description" content="Watch the cinematic launch film for Cruise the Creek's Holiday E-Bike Gift Cards. The Spring-Start Warranty Guarantee, free professional assembly, and zero winter warranty loss.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,400;0,600;0,700;0,900;1,400;1,700&family=Cinzel:wght@600;800;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,400;0,600;0,700;0,900;1,400;1,700&family=Cinzel:wght@600;800;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 :root{
@@ -338,13 +338,15 @@ html,body{
   display:flex;
   flex-direction:column;
   justify-content:space-between;
-  padding:20px 24px;
+  padding:18px 22px;
 }
 .hud-top{
   display:flex;
   align-items:center;
   justify-content:space-between;
   pointer-events:auto;
+  flex-wrap:wrap;
+  gap:10px;
 }
 .hud-logo{
   display:flex;
@@ -352,7 +354,7 @@ html,body{
   gap:12px;
 }
 .hud-logo img{
-  height:36px;
+  height:34px;
   width:auto;
   filter:brightness(0) invert(1);
 }
@@ -366,15 +368,16 @@ html,body{
 .hud-actions{
   display:flex;
   align-items:center;
-  gap:10px;
+  gap:8px;
+  flex-wrap:wrap;
 }
 .hud-btn{
-  background:rgba(0,0,0,.65);
+  background:rgba(0,0,0,.68);
   border:1px solid rgba(255,255,255,.2);
   color:#fff;
-  padding:8px 14px;
+  padding:7px 13px;
   border-radius:6px;
-  font-size:.78rem;
+  font-size:.76rem;
   font-weight:700;
   letter-spacing:.08em;
   text-transform:uppercase;
@@ -384,6 +387,7 @@ html,body{
   cursor:pointer;
   backdrop-filter:blur(8px);
   transition:all .2s ease;
+  text-decoration:none;
 }
 .hud-btn:hover{
   background:rgba(201,169,110,.25);
@@ -394,6 +398,24 @@ html,body{
   background:var(--gold);
   color:#1a2e1c;
   border-color:var(--gold);
+}
+.hud-btn.voice-btn.is-speaking{
+  border-color:#ecd299;
+  box-shadow:0 0 12px rgba(201,169,110,.6);
+  animation:voicePulse 1.2s infinite ease-in-out;
+}
+@keyframes voicePulse{
+  0%,100%{transform:scale(1)}
+  50%{transform:scale(1.04);background:rgba(201,169,110,.35)}
+}
+.hud-btn.studio-btn{
+  background:linear-gradient(135deg, rgba(201,169,110,.25) 0%, rgba(26,46,28,.8) 100%);
+  border:1px solid var(--gold);
+  color:var(--gold-bright);
+}
+.hud-btn.studio-btn:hover{
+  background:var(--gold-grad);
+  color:#1a2e1c;
 }
 .hud-btn.record-btn{
   background:#b93838;
@@ -410,12 +432,12 @@ html,body{
   pointer-events:auto;
   display:flex;
   flex-direction:column;
-  gap:12px;
+  gap:10px;
 }
 .timeline-bar{
   position:relative;
   width:100%;
-  height:6px;
+  height:7px;
   background:rgba(255,255,255,.2);
   border-radius:99px;
   cursor:pointer;
@@ -442,11 +464,11 @@ html,body{
 .play-row{
   display:flex;
   align-items:center;
-  gap:14px;
+  gap:12px;
 }
 .play-btn-circle{
-  width:44px;
-  height:44px;
+  width:42px;
+  height:42px;
   border-radius:50%;
   background:var(--gold-grad);
   color:#1a2e1c;
@@ -467,18 +489,48 @@ html,body{
   font-size:1.15rem;
   letter-spacing:.08em;
   color:rgba(255,255,255,.8);
+  display:flex;
+  align-items:center;
+  gap:8px;
 }
+
+/* Audio Meter / Equalizer Bars */
+.audio-meter{
+  display:flex;
+  align-items:flex-end;
+  gap:3px;
+  height:18px;
+  padding:0 4px;
+}
+.meter-bar{
+  width:3px;
+  background:var(--gold);
+  border-radius:2px;
+  height:3px;
+  transition:height .08s ease;
+}
+.audio-meter.is-active .meter-bar:nth-child(1){animation:eq1 .45s infinite alternate ease-in-out}
+.audio-meter.is-active .meter-bar:nth-child(2){animation:eq2 .35s infinite alternate ease-in-out}
+.audio-meter.is-active .meter-bar:nth-child(3){animation:eq3 .55s infinite alternate ease-in-out}
+.audio-meter.is-active .meter-bar:nth-child(4){animation:eq4 .38s infinite alternate ease-in-out}
+.audio-meter.is-active .meter-bar:nth-child(5){animation:eq5 .48s infinite alternate ease-in-out}
+@keyframes eq1{0%{height:4px}100%{height:16px}}
+@keyframes eq2{0%{height:6px}100%{height:18px}}
+@keyframes eq3{0%{height:3px}100%{height:14px}}
+@keyframes eq4{0%{height:5px}100%{height:17px}}
+@keyframes eq5{0%{height:4px}100%{height:13px}}
+
 .act-nav-pills{
   display:flex;
-  gap:6px;
+  gap:5px;
   flex-wrap:wrap;
 }
 .act-nav-pill{
-  background:rgba(0,0,0,.5);
+  background:rgba(0,0,0,.55);
   border:1px solid rgba(255,255,255,.15);
   border-radius:4px;
-  padding:4px 10px;
-  font-size:.68rem;
+  padding:5px 9px;
+  font-size:.67rem;
   font-weight:700;
   letter-spacing:.06em;
   text-transform:uppercase;
@@ -497,7 +549,7 @@ html,body{
   position:absolute;
   inset:0;
   z-index:50;
-  background:rgba(10,14,11,.92);
+  background:rgba(10,14,11,.93);
   backdrop-filter:blur(14px);
   display:flex;
   flex-direction:column;
@@ -522,7 +574,7 @@ html,body{
   color:rgba(255,255,255,.85);
   max-width:620px;
   line-height:1.6;
-  margin-bottom:30px;
+  margin-bottom:26px;
 }
 .big-start-btn{
   background:var(--gold-grad);
@@ -549,7 +601,7 @@ html,body{
   letter-spacing:.1em;
   text-transform:uppercase;
   color:rgba(255,255,255,.5);
-  margin-top:16px;
+  margin-top:14px;
 }
 
 /* ── RECORDING STATUS BANNER ── */
@@ -580,17 +632,20 @@ html,body{
   100%{opacity:1}
 }
 
-/* ── MODAL INTAKE SLIDEOUT ── */
-#intakeModal{
+/* ── MODALS (INTAKE & ELEVENLABS STUDIO) ── */
+.modal-backdrop{
   position:fixed;
   inset:0;
   z-index:100;
   background:rgba(0,0,0,.85);
-  backdrop-filter:blur(10px);
+  backdrop-filter:blur(12px);
   display:none;
   align-items:center;
   justify-content:center;
   padding:20px;
+}
+.modal-backdrop.is-open{
+  display:flex;
 }
 .modal-card{
   background:#fff;
@@ -618,6 +673,151 @@ html,body{
   display:flex;
   align-items:center;
   justify-content:center;
+  transition:all .15s ease;
+}
+.modal-close:hover{
+  background:rgba(0,0,0,.15);
+}
+
+/* Dark Studio Modal for ElevenLabs */
+.modal-card-studio{
+  background:#0d1410;
+  color:#f5f0e8;
+  border:1px solid rgba(201,169,110,.4);
+  max-width:860px;
+  box-shadow:0 25px 70px rgba(0,0,0,.95), 0 0 30px rgba(201,169,110,.2);
+}
+.modal-card-studio .modal-close{
+  background:rgba(255,255,255,.1);
+  color:#fff;
+}
+.modal-card-studio .modal-close:hover{
+  background:rgba(201,169,110,.3);
+  color:var(--gold-bright);
+}
+
+/* Studio Tabs */
+.studio-tabs{
+  display:flex;
+  gap:8px;
+  border-bottom:1px solid rgba(255,255,255,.15);
+  margin:18px 0 20px;
+  padding-bottom:2px;
+  overflow-x:auto;
+}
+.studio-tab-btn{
+  background:none;
+  border:none;
+  color:rgba(255,255,255,.6);
+  font-size:.82rem;
+  font-weight:700;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  padding:8px 14px;
+  cursor:pointer;
+  border-bottom:2px solid transparent;
+  transition:all .2s ease;
+  white-space:nowrap;
+}
+.studio-tab-btn.is-active{
+  color:var(--gold);
+  border-bottom-color:var(--gold);
+}
+.studio-tab-content{
+  display:none;
+}
+.studio-tab-content.is-active{
+  display:block;
+}
+
+/* Script Box & Code Cards */
+.script-box{
+  background:#141f17;
+  border:1px solid rgba(201,169,110,.25);
+  border-radius:10px;
+  padding:16px;
+  margin-bottom:16px;
+}
+.script-header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  margin-bottom:10px;
+}
+.script-tag{
+  font-size:.72rem;
+  font-weight:800;
+  letter-spacing:.15em;
+  text-transform:uppercase;
+  color:var(--gold);
+}
+.script-copy-btn{
+  background:rgba(201,169,110,.18);
+  border:1px solid var(--gold);
+  color:var(--gold-bright);
+  padding:4px 10px;
+  border-radius:4px;
+  font-size:.72rem;
+  font-weight:700;
+  cursor:pointer;
+  transition:all .15s ease;
+}
+.script-copy-btn:hover{
+  background:var(--gold);
+  color:#1a2e1c;
+}
+.script-text{
+  font-family:'JetBrains Mono',monospace;
+  font-size:.84rem;
+  line-height:1.65;
+  color:rgba(255,255,255,.9);
+  white-space:pre-wrap;
+  background:rgba(0,0,0,.35);
+  padding:12px;
+  border-radius:6px;
+}
+.voice-settings-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit, minmax(220px, 1fr));
+  gap:12px;
+  margin-bottom:16px;
+}
+.setting-card{
+  background:#141f17;
+  border:1px solid rgba(255,255,255,.1);
+  border-radius:8px;
+  padding:12px;
+}
+.setting-label{
+  font-size:.7rem;
+  font-weight:800;
+  text-transform:uppercase;
+  letter-spacing:.1em;
+  color:rgba(255,255,255,.6);
+  margin-bottom:4px;
+}
+.setting-val{
+  font-size:.95rem;
+  font-weight:700;
+  color:var(--gold-bright);
+}
+
+/* Toast */
+#studioToast{
+  position:fixed;
+  bottom:30px;
+  left:50%;
+  transform:translateX(-50%);
+  background:#2d4a32;
+  color:#fff;
+  border:1px solid var(--gold);
+  padding:10px 24px;
+  border-radius:99px;
+  font-size:.85rem;
+  font-weight:700;
+  box-shadow:0 8px 30px rgba(0,0,0,.7);
+  display:none;
+  z-index:200;
 }
 </style>
 </head>
@@ -672,6 +872,12 @@ html,body{
           <span class="hud-film-title">HOLIDAY LAUNCH FILM</span>
         </div>
         <div class="hud-actions">
+          <button type="button" class="hud-btn voice-btn is-active" id="voiceBtn" onclick="toggleVoiceover()">
+            <span id="voiceIcon">🎙️</span> <span id="voiceLabel">Voiceover On</span>
+          </button>
+          <button type="button" class="hud-btn studio-btn" id="studioBtn" onclick="openStudioModal()">
+            <span>✨</span> ElevenLabs Studio
+          </button>
           <button type="button" class="hud-btn" id="soundBtn" onclick="toggleSound()">
             <span id="soundIcon">🔊</span> <span id="soundLabel">Sound On</span>
           </button>
@@ -681,7 +887,7 @@ html,body{
           <button type="button" class="hud-btn record-btn" id="recordBtn" onclick="toggleRecording()">
             <span>🔴</span> <span id="recordLabel">Record MP4</span>
           </button>
-          <a href="gift-cards.html" class="hud-btn">← Gift Cards Page</a>
+          <a href="gift-cards.html" class="hud-btn">← Gift Cards</a>
         </div>
       </div>
 
@@ -694,7 +900,16 @@ html,body{
         <div class="hud-controls-row">
           <div class="play-row">
             <button type="button" class="play-btn-circle" id="playBtn" onclick="togglePlay()">▶</button>
-            <div class="time-display"><span id="curTime">00:00</span> / <span id="totalTime">01:10</span></div>
+            <div class="time-display">
+              <span id="curTime">00:00</span> / <span id="totalTime">01:10</span>
+              <div class="audio-meter" id="audioMeter">
+                <span class="meter-bar"></span>
+                <span class="meter-bar"></span>
+                <span class="meter-bar"></span>
+                <span class="meter-bar"></span>
+                <span class="meter-bar"></span>
+              </div>
+            </div>
           </div>
 
           <div class="act-nav-pills">
@@ -713,25 +928,25 @@ html,body{
     <div id="startScreen">
       <h2>GIVE THE <span>RIDE</span>.</h2>
       <p>
-        The adventure starts in spring. Experience the cinematic story behind Cruise the Creek's Holiday E-Bike Gift Program and the <strong>Spring-Start Warranty Guarantee</strong>.
+        The adventure starts in spring. Experience the cinematic story behind Cruise the Creek's Holiday E-Bike Certificates, complete with full voiceover narration and the <strong>Spring-Start Warranty Guarantee</strong>.
       </p>
       <button type="button" class="big-start-btn" onclick="startFilm()">
         <span>▶</span> Watch Launch Film
       </button>
-      <div class="audio-hint">Best experienced with sound enabled</div>
+      <div class="audio-hint">Best experienced with sound & voiceover enabled</div>
     </div>
 
     <!-- RECORDING BANNER -->
     <div id="recordBanner">
-      <span>●</span> RECORDING CINEMATIC CUT (DOWNLOADING ON FINISH)
+      <span>●</span> RECORDING FULL PRODUCTION CUT (INCLUDES SYNTH & VOICEOVER)
     </div>
 
   </div>
 </div>
 
-<!-- PRELOADED MEDIA REPOSITORY -->
+<!-- PRELOADED MEDIA & AUDIO REPOSITORY -->
 <div id="hiddenMedia" style="display:none">
-  <!-- Real footage from Cruise the Creek library -->
+  <!-- Video clips from Cruise the Creek archives -->
   <video id="vidKRC" src="media/KRC.mp4" playsinline muted preload="auto" class="source-video"></video>
   <video id="vidMHB" src="media/MHB.mp4" playsinline muted preload="auto" class="source-video"></video>
   <video id="vidMPF" src="media/MPF.mp4" playsinline muted preload="auto" class="source-video"></video>
@@ -742,10 +957,206 @@ html,body{
   <img id="imgCloseup" src="media/BikeCloseupindoors.jpg" alt="">
   <img id="imgFamily" src="media/FamilyRiding.jpg" alt="">
   <img id="imgLantermans" src="media/Lantermans Falls.jpg" alt="">
+
+  <!-- Pre-rendered Studio Voiceover Audio Clips for Each Act -->
+  <audio id="voiceAct0" src="media/voice-act0.wav" preload="auto"></audio>
+  <audio id="voiceAct1" src="media/voice-act1.wav" preload="auto"></audio>
+  <audio id="voiceAct2" src="media/voice-act2.wav" preload="auto"></audio>
+  <audio id="voiceAct3" src="media/voice-act3.wav" preload="auto"></audio>
+  <audio id="voiceAct4" src="media/voice-act4.wav" preload="auto"></audio>
+  <audio id="voiceAct5" src="media/voice-act5.wav" preload="auto"></audio>
+  <!-- Custom Uploaded or URL Voiceover Element -->
+  <audio id="customVoiceAudio" preload="auto"></audio>
+</div>
+
+<!-- ELEVENLABS PRODUCTION STUDIO MODAL -->
+<div id="studioModal" class="modal-backdrop" onclick="if(event.target===this)closeStudioModal()">
+  <div class="modal-card modal-card-studio">
+    <button class="modal-close" onclick="closeStudioModal()">✕</button>
+    <div style="font-size:.74rem;font-weight:800;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);margin-bottom:6px">
+      ✨ Production Suite · ElevenLabs Voice Studio
+    </div>
+    <h3 style="font-family:'Bebas Neue',sans-serif;font-size:2.2rem;color:#fff;line-height:1;margin-bottom:10px">
+      Cinematic Voiceover & Narration Engine
+    </h3>
+    <p style="font-size:.9rem;color:rgba(255,255,255,.75);line-height:1.5">
+      Select your preferred voiceover engine below, or grab the exact ElevenLabs prompts, timecodes, and SSML tags to generate or customize your own studio voice track.
+    </p>
+
+    <!-- Voiceover Source Selector -->
+    <div style="background:#141f17;border:1px solid rgba(201,169,110,.3);border-radius:10px;padding:14px;margin:16px 0">
+      <div style="font-size:.72rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);margin-bottom:8px">
+        Active Voiceover Mode
+      </div>
+      <div style="display:flex;gap:12px;flex-wrap:wrap">
+        <label style="display:flex;align-items:center;gap:6px;font-size:.85rem;font-weight:700;cursor:pointer">
+          <input type="radio" name="voiceModeOption" value="studio" checked onchange="changeVoiceMode(this.value)">
+          🎙️ Studio Master Audio (Bundled)
+        </label>
+        <label style="display:flex;align-items:center;gap:6px;font-size:.85rem;font-weight:700;cursor:pointer">
+          <input type="radio" name="voiceModeOption" value="liveTTS" onchange="changeVoiceMode(this.value)">
+          🤖 Live Browser AI Speech (Web Speech API)
+        </label>
+        <label style="display:flex;align-items:center;gap:6px;font-size:.85rem;font-weight:700;cursor:pointer">
+          <input type="radio" name="voiceModeOption" value="custom" onchange="changeVoiceMode(this.value)">
+          🎵 Custom ElevenLabs Audio (URL / File)
+        </label>
+      </div>
+
+      <!-- Custom Audio Loader Row (visible if custom selected) -->
+      <div id="customAudioLoaderRow" style="display:none;margin-top:12px;padding-top:12px;border-top:1px solid rgba(255,255,255,.1)">
+        <div style="font-size:.75rem;color:rgba(255,255,255,.7);margin-bottom:6px">Load Custom Audio Track:</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <input type="text" id="customAudioUrl" placeholder="Paste ElevenLabs / MP3 audio URL..." style="flex:1;min-width:240px;padding:8px 12px;background:#0a0e0b;border:1px solid rgba(255,255,255,.2);border-radius:6px;color:#fff;font-size:.82rem">
+          <button type="button" class="script-copy-btn" onclick="applyCustomAudioUrl()">Apply URL</button>
+          <label class="script-copy-btn" style="cursor:pointer;display:inline-flex;align-items:center">
+            Upload File
+            <input type="file" id="customAudioFileInput" accept="audio/*" style="display:none" onchange="handleAudioFileUpload(event)">
+          </label>
+        </div>
+        <div id="customAudioStatus" style="font-size:.75rem;color:var(--gold-bright);margin-top:6px"></div>
+      </div>
+    </div>
+
+    <!-- Studio Tabs -->
+    <div class="studio-tabs">
+      <button class="studio-tab-btn is-active" onclick="switchStudioTab('tab70s', this)">70s Master Trailer</button>
+      <button class="studio-tab-btn" onclick="switchStudioTab('tab30s', this)">30s Social Cut</button>
+      <button class="studio-tab-btn" onclick="switchStudioTab('tab15s', this)">15s Reel Hook</button>
+      <button class="studio-tab-btn" onclick="switchStudioTab('tabSettings', this)">Voice IDs & Settings</button>
+    </div>
+
+    <!-- TAB 1: 70s MASTER SCRIPT -->
+    <div id="tab70s" class="studio-tab-content is-active">
+      <div class="script-box">
+        <div class="script-header">
+          <span class="script-tag">Master 70-Second Director's Cut with SSML Pauses</span>
+          <button class="script-copy-btn" onclick="copyText('script70sText', 'Master 70s Script')">📋 Copy Script</button>
+        </div>
+        <pre class="script-text" id="script70sText">&lt;speak&gt;
+  &lt;!-- ACT I: THE WINTER DILEMMA (0:00 - 0:12) --&gt;
+  December in Northeast Ohio. The trails go quiet. The snow falls... 
+  &lt;break time="1.5s"/&gt;
+  And holiday shoppers face an agonizing question.
+  &lt;break time="3.0s"/&gt;
+
+  &lt;!-- ACT II: THE LOST TIME (0:12 - 0:24) --&gt;
+  Why buy an electric bike for Christmas... 
+  &lt;break time="1.0s"/&gt;
+  when it just sits in a freezing garage until April? 
+  &lt;break time="1.2s"/&gt;
+  Five months of factory warranty... ticking away into nothing.
+  &lt;break time="2.8s"/&gt;
+
+  &lt;!-- ACT III: THE BREAKTHROUGH (0:24 - 0:36) --&gt;
+  This year, we changed the rules. 
+  &lt;break time="1.2s"/&gt;
+  Introducing the Cruise the Creek Holiday Certificate. 
+  &lt;break time="1.0s"/&gt;
+  Give the thrill under the tree... with zero lost time.
+  &lt;break time="2.8s"/&gt;
+
+  &lt;!-- ACT IV: THE SPRING-START GUARANTEE (0:36 - 0:48) --&gt;
+  With our exclusive Spring-Start Guarantee, your factory warranty is frozen in time. 
+  &lt;break time="1.0s"/&gt;
+  The clock does not tick until your spring delivery date. 
+  &lt;break time="1.0s"/&gt;
+  One hundred percent of your coverage, completely intact.
+  &lt;break time="2.8s"/&gt;
+
+  &lt;!-- ACT V: THE UNMATCHED VALUE (0:48 - 1:00) --&gt;
+  Every certificate includes our full professional Creek Ready assembly and twenty-point safety inspection. 
+  &lt;break time="1.0s"/&gt;
+  Heated indoor winter storage, battery care, and zero guesswork on frame size or color.
+  &lt;break time="2.8s"/&gt;
+
+  &lt;!-- ACT VI: THE FINALE (1:00 - 1:10) --&gt;
+  Give the gift of the ride this holiday. 
+  &lt;break time="1.0s"/&gt;
+  The adventure starts in spring. 
+  &lt;break time="1.0s"/&gt;
+  Reserve your certificate today at Cruise the Creek.
+&lt;/speak&gt;</pre>
+      </div>
+    </div>
+
+    <!-- TAB 2: 30s SOCIAL CUT -->
+    <div id="tab30s" class="studio-tab-content">
+      <div class="script-box">
+        <div class="script-header">
+          <span class="script-tag">30-Second Commercial Cutdown (Instagram Ads & FB Reels)</span>
+          <button class="script-copy-btn" onclick="copyText('script30sText', '30s Social Script')">📋 Copy Script</button>
+        </div>
+        <pre class="script-text" id="script30sText">Thinking of buying an e-bike this holiday, but worried about five months of warranty ticking away in a freezing garage?
+
+Cruise the Creek solved it. With our exclusive Spring-Start Warranty Guarantee, your factory warranty is completely frozen until you roll out in April!
+
+Plus, every holiday card includes free professional assembly, winter storage, and zero guesswork on frame size or color.
+
+Give the ride this Christmas. Reserve your certificate now at Cruise The Creek dot com!</pre>
+      </div>
+    </div>
+
+    <!-- TAB 3: 15s REEL HOOK -->
+    <div id="tab15s" class="studio-tab-content">
+      <div class="script-box">
+        <div class="script-header">
+          <span class="script-tag">15-Second High-Conversion TikTok & Reel Hook</span>
+          <button class="script-copy-btn" onclick="copyText('script15sText', '15s Reel Hook Script')">📋 Copy Script</button>
+        </div>
+        <pre class="script-text" id="script15sText">The number one mistake people make buying an e-bike for Christmas... is letting five months of factory warranty expire in their cold garage before they ever ride it!
+
+Cruise the Creek freezes your warranty until spring and includes free professional assembly. Tap the link in bio to lock yours in!</pre>
+      </div>
+    </div>
+
+    <!-- TAB 4: SETTINGS & ELEVENLABS IDS -->
+    <div id="tabSettings" class="studio-tab-content">
+      <div class="voice-settings-grid">
+        <div class="setting-card">
+          <div class="setting-label">Recommended Voice ID</div>
+          <div class="setting-val">Marcus (Trailer Narrator)</div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:.72rem;color:rgba(255,255,255,.5);margin-top:4px">FGY2WhTYpPnrIDTdsKH5</div>
+        </div>
+        <div class="setting-card">
+          <div class="setting-label">Alternative Voice ID</div>
+          <div class="setting-val">Adam (Warm Storyteller)</div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:.72rem;color:rgba(255,255,255,.5);margin-top:4px">pNInz6obpgDQGcFmaJgB</div>
+        </div>
+        <div class="setting-card">
+          <div class="setting-label">Voice Model</div>
+          <div class="setting-val">Eleven Multilingual v2</div>
+          <div style="font-size:.72rem;color:rgba(255,255,255,.5);margin-top:4px">Or Eleven Turbo v2.5</div>
+        </div>
+        <div class="setting-card">
+          <div class="setting-label">Stability & Clarity</div>
+          <div class="setting-val">45% / 85%</div>
+          <div style="font-size:.72rem;color:rgba(255,255,255,.5);margin-top:4px">Style Exaggeration: 18%</div>
+        </div>
+      </div>
+
+      <div class="script-box">
+        <div class="script-header">
+          <span class="script-tag">ElevenLabs API Payload (JSON)</span>
+          <button class="script-copy-btn" onclick="copyText('jsonConfigText', 'JSON Settings')">📋 Copy JSON</button>
+        </div>
+        <pre class="script-text" id="jsonConfigText">{
+  "model_id": "eleven_multilingual_v2",
+  "voice_settings": {
+    "stability": 0.45,
+    "similarity_boost": 0.85,
+    "style": 0.18,
+    "use_speaker_boost": true
+  }
+}</pre>
+      </div>
+    </div>
+
+  </div>
 </div>
 
 <!-- INTAKE POPUP MODAL -->
-<div id="intakeModal" onclick="if(event.target===this)closeReserve()">
+<div id="intakeModal" class="modal-backdrop" onclick="if(event.target===this)closeReserve()">
   <div class="modal-card">
     <button class="modal-close" onclick="closeReserve()">✕</button>
     <div style="font-size:.78rem;font-weight:800;letter-spacing:.15em;text-transform:uppercase;color:var(--forest);margin-bottom:6px">
@@ -801,15 +1212,17 @@ html,body{
   </div>
 </div>
 
+<div id="studioToast"></div>
+
 <script>
 /* =========================================================================
-   CINEMATIC LAUNCH FILM ENGINE
+   CINEMATIC LAUNCH FILM ENGINE — FULL PRODUCTION SUITE
    Cruise the Creek · Holiday E-Bike Certificates
    ========================================================================= */
 
 const TOTAL_DURATION = 70; // 70 seconds total run time
 
-// ACTS TIMELINE CONFIGURATION
+// ACTS TIMELINE CONFIGURATION WITH SPOKEN VOICEOVER CUES
 const ACTS = [
   {
     id: 0,
@@ -818,6 +1231,8 @@ const ACTS = [
     badge: 'ACT I · THE OHIO WINTER',
     title: 'THE TRAILS GO QUIET.',
     sub: 'December in Northeast Ohio. The snow falls, and holiday shoppers face an agonizing question...',
+    voiceScript: 'December in Northeast Ohio. The trails go quiet. The snow falls... and holiday shoppers face an agonizing question.',
+    audioElementId: 'voiceAct0',
     mediaType: 'image',
     mediaId: 'imgLoneBike',
     zoomSpeed: 0.0003,
@@ -832,6 +1247,8 @@ const ACTS = [
     badge: 'ACT II · THE LOST WARRANTY',
     title: 'WHY BUY AN E-BIKE NOW...',
     sub: '...when it sits in a freezing garage until April? 5 months of factory warranty ticking away into nothing.',
+    voiceScript: 'Why buy an e-bike for Christmas when it just sits in a freezing garage until April? Five months of factory warranty... ticking away into nothing.',
+    audioElementId: 'voiceAct1',
     mediaType: 'image',
     mediaId: 'imgCloseup',
     zoomSpeed: 0.0005,
@@ -846,6 +1263,8 @@ const ACTS = [
     badge: 'ACT III · THE BREAKTHROUGH',
     title: 'THIS YEAR, WE CHANGED THE RULES.',
     sub: 'Introducing the Cruise the Creek Holiday Certificate. Give the thrill under the tree — with zero lost time.',
+    voiceScript: 'This year, we changed the rules. Introducing the Cruise the Creek Holiday Certificate. Give the thrill under the tree... with zero lost time.',
+    audioElementId: 'voiceAct2',
     mediaType: 'video',
     mediaId: 'vidKRC',
     videoStart: 2,
@@ -861,6 +1280,8 @@ const ACTS = [
     title: 'WARRANTY: FROZEN IN TIME.',
     sub: 'Your factory warranty clock DOES NOT TICK until your spring rollout date (April 1st). 100% of your coverage, intact.',
     features: ['★ Spring-Start Warranty Lock', '★ Zero Winter Coverage Lost', '★ 1 to 5+ Year Brand Protection'],
+    voiceScript: 'With our Spring-Start Guarantee, your factory warranty is frozen in time. The clock does not tick until spring delivery. One hundred percent of your coverage, intact.',
+    audioElementId: 'voiceAct3',
     mediaType: 'video',
     mediaId: 'vidMHB',
     videoStart: 4,
@@ -876,6 +1297,8 @@ const ACTS = [
     title: 'FREE $125+ CREEK READY™ BUILD',
     sub: 'Included free with every $1,500+ holiday card. 20-point mechanical build, heated indoor storage, and zero guesswork on fit or color.',
     features: ['$1,500 The Trailblazer', '$2,000 The VIP Adventure', 'Free 1st Annual Tune-Up Included'],
+    voiceScript: 'Every certificate includes our full professional Creek Ready assembly and safety inspection. Heated indoor storage, battery care, and zero guesswork on frame size or color.',
+    audioElementId: 'voiceAct4',
     mediaType: 'video',
     mediaId: 'vidNGW',
     videoStart: 6,
@@ -891,6 +1314,8 @@ const ACTS = [
     title: 'GIVE THE RIDE THIS HOLIDAY.',
     sub: 'The adventure starts in spring. Reserve your certificate today with your personal Creek consultation.',
     ctas: true,
+    voiceScript: 'Give the gift of the ride this holiday. The adventure starts in spring. Reserve your certificate today at Cruise the Creek.',
+    audioElementId: 'voiceAct5',
     mediaType: 'video',
     mediaId: 'vidMPF',
     videoStart: 8,
@@ -900,7 +1325,7 @@ const ACTS = [
   }
 ];
 
-// Canvas & WebGL / 2D contexts
+// Canvas & 2D contexts
 const canvas = document.getElementById('mediaCanvas');
 const ctx = canvas.getContext('2d');
 const pCanvas = document.getElementById('particleCanvas');
@@ -912,41 +1337,184 @@ let lastTimestamp = 0;
 let currentActIndex = -1;
 let currentVideoElement = null;
 let soundEnabled = true;
+let voiceoverEnabled = true;
+let voiceoverMode = 'studio'; // 'studio' | 'liveTTS' | 'custom'
 
-// Web Audio API Synthesizer (Cinematic Score & Sound FX)
+// Audio nodes & state
 let audioCtx = null;
 let masterGain = null;
-let ambientOsc = null;
-let clockInterval = null;
+let musicGain = null;
+let voiceGain = null;
+let currentVoiceAudio = null;
+let isVoiceSpeaking = false;
+let ttsVoice = null;
+let customAudioTrack = null;
 
+// Initialize Web Audio Engine & Audio Nodes
 function initAudio() {
-  if (audioCtx) return;
+  if (audioCtx) {
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+    return;
+  }
   try {
     const AudioContext = window.AudioContext || window.webkitAudioContext;
     audioCtx = new AudioContext();
+
+    // Master bus
     masterGain = audioCtx.createGain();
-    masterGain.gain.setValueAtTime(0.65, audioCtx.currentTime);
+    masterGain.gain.setValueAtTime(soundEnabled ? 1.0 : 0, audioCtx.currentTime);
     masterGain.connect(audioCtx.destination);
+
+    // Sub-buses
+    musicGain = audioCtx.createGain();
+    musicGain.gain.setValueAtTime(0.65, audioCtx.currentTime);
+    musicGain.connect(masterGain);
+
+    voiceGain = audioCtx.createGain();
+    voiceGain.gain.setValueAtTime(1.0, audioCtx.currentTime);
+    voiceGain.connect(masterGain);
+
+    // Route bundled studio audio clips into voiceGain
+    ['voiceAct0', 'voiceAct1', 'voiceAct2', 'voiceAct3', 'voiceAct4', 'voiceAct5', 'customVoiceAudio'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) {
+        try {
+          const srcNode = audioCtx.createMediaElementSource(el);
+          srcNode.connect(voiceGain);
+        } catch(e) {}
+      }
+    });
+
+    initTtsVoices();
   } catch(e) {
-    console.warn('AudioContext not supported');
+    console.warn('Web Audio initialization error:', e);
   }
 }
 
-// Particle System
+// Browser Web Speech API setup
+function initTtsVoices() {
+  if (!('speechSynthesis' in window)) return;
+  const loadVoices = () => {
+    const list = window.speechSynthesis.getVoices();
+    // Prioritize natural deep English voice
+    ttsVoice = list.find(v => v.lang.startsWith('en') && (v.name.includes('Natural') || v.name.includes('David') || v.name.includes('Daniel') || v.name.includes('Guy') || v.name.includes('Male')))
+      || list.find(v => v.lang.startsWith('en'))
+      || list[0];
+  };
+  loadVoices();
+  if (window.speechSynthesis.onvoiceschanged !== undefined) {
+    window.speechSynthesis.onvoiceschanged = loadVoices;
+  }
+}
+
+// ── AUDIO DUCKING (Smooth background music dip when voice speaks) ──
+function duckMusic() {
+  if (!musicGain || !audioCtx) return;
+  musicGain.gain.cancelScheduledValues(audioCtx.currentTime);
+  musicGain.gain.linearRampToValueAtTime(0.18, audioCtx.currentTime + 0.35);
+  setVoiceIndicator(true);
+}
+
+function unduckMusic() {
+  if (!musicGain || !audioCtx) return;
+  musicGain.gain.cancelScheduledValues(audioCtx.currentTime);
+  musicGain.gain.linearRampToValueAtTime(0.65, audioCtx.currentTime + 0.6);
+  setVoiceIndicator(false);
+}
+
+function setVoiceIndicator(speaking) {
+  isVoiceSpeaking = speaking;
+  const btn = document.getElementById('voiceBtn');
+  const meter = document.getElementById('audioMeter');
+  if (btn) {
+    if (speaking && voiceoverEnabled) btn.classList.add('is-speaking');
+    else btn.classList.remove('is-speaking');
+  }
+  if (meter) {
+    if (isPlaying && soundEnabled) meter.classList.add('is-active');
+    else meter.classList.remove('is-active');
+  }
+}
+
+// ── VOICEOVER PLAYBACK DISPATCHER ──
+function playVoiceForAct(actIndex) {
+  if (!voiceoverEnabled || !soundEnabled) return;
+  stopVoice();
+
+  const act = ACTS[actIndex];
+  if (!act) return;
+
+  if (voiceoverMode === 'studio') {
+    const audioEl = document.getElementById(act.audioElementId);
+    if (audioEl) {
+      currentVoiceAudio = audioEl;
+      audioEl.currentTime = 0;
+      duckMusic();
+      audioEl.play().then(() => {
+        audioEl.onended = () => { unduckMusic(); currentVoiceAudio = null; };
+      }).catch(err => {
+        // Fallback to Live TTS if audio file cannot be loaded
+        speakLiveTts(act.voiceScript);
+      });
+    } else {
+      speakLiveTts(act.voiceScript);
+    }
+  } else if (voiceoverMode === 'liveTTS') {
+    speakLiveTts(act.voiceScript);
+  } else if (voiceoverMode === 'custom') {
+    const customEl = document.getElementById('customVoiceAudio');
+    if (customEl && customEl.src) {
+      currentVoiceAudio = customEl;
+      customEl.currentTime = act.startTime;
+      duckMusic();
+      customEl.play().catch(() => {});
+    } else {
+      speakLiveTts(act.voiceScript);
+    }
+  }
+}
+
+function speakLiveTts(text) {
+  if (!('speechSynthesis' in window)) return;
+  window.speechSynthesis.cancel();
+  const utter = new SpeechSynthesisUtterance(text);
+  if (ttsVoice) utter.voice = ttsVoice;
+  utter.rate = 0.92;  // Deliberate cinematic pace
+  utter.pitch = 0.88; // Deep resonant tone
+  utter.onstart = () => duckMusic();
+  utter.onend = () => unduckMusic();
+  utter.onerror = () => unduckMusic();
+  window.speechSynthesis.speak(utter);
+}
+
+function stopVoice() {
+  if (currentVoiceAudio) {
+    try {
+      currentVoiceAudio.pause();
+      currentVoiceAudio.currentTime = 0;
+    } catch(e) {}
+    currentVoiceAudio = null;
+  }
+  if ('speechSynthesis' in window) {
+    window.speechSynthesis.cancel();
+  }
+  unduckMusic();
+}
+
+// ── PARTICLE SIMULATION ENGINE ──
 let particles = [];
 function initParticles() {
   particles = [];
-  const count = 75;
+  const count = 90;
   for (let i = 0; i < count; i++) {
     particles.push({
       x: Math.random() * pCanvas.width,
       y: Math.random() * pCanvas.height,
-      radius: Math.random() * 3 + 1,
-      speedY: Math.random() * 1.5 + 0.5,
-      speedX: (Math.random() - 0.5) * 1.2,
+      radius: Math.random() * 2.5 + 1,
+      speedY: Math.random() * 0.9 + 0.3,
+      speedX: (Math.random() - 0.5) * 0.4,
       opacity: Math.random() * 0.7 + 0.3,
-      spin: Math.random() * 6.28,
-      type: 'snow'
+      spin: Math.random() * Math.PI
     });
   }
 }
@@ -1060,8 +1628,11 @@ function setAct(index) {
   const act = ACTS[index];
   scaleFactor = 1.0;
 
-  // Sound cue triggers
+  // Sound cues and Voiceover Narration triggers
   triggerAudioForAct(act.audioTone);
+  if (isPlaying) {
+    playVoiceForAct(index);
+  }
 
   // Update Media
   if (currentVideoElement) {
@@ -1078,12 +1649,7 @@ function setAct(index) {
     }
   }
 
-  // Light leak effect
-  const leak = document.getElementById('lightLeak');
-  if (act.lightLeak) leak.classList.add('active');
-  else leak.classList.remove('active');
-
-  // Text Animation (Fade out then in)
+  // Update On-Screen Overlay Typography
   const overlay = document.getElementById('overlayLayer');
   overlay.classList.remove('is-visible');
 
@@ -1092,41 +1658,38 @@ function setAct(index) {
     document.getElementById('cineTitle').innerHTML = act.title;
     document.getElementById('cineSub').innerHTML = act.sub;
 
-    // Feature pills
     const featContainer = document.getElementById('cineFeatures');
     featContainer.innerHTML = '';
     if (act.features) {
       act.features.forEach(f => {
-        const p = document.createElement('div');
-        p.className = 'cine-pill';
-        p.textContent = f;
-        featContainer.appendChild(p);
+        const pill = document.createElement('div');
+        pill.className = 'cine-pill';
+        pill.innerHTML = `<span>★</span> ${f.replace(/^[★\s]+/, '')}`;
+        featContainer.appendChild(pill);
       });
     }
 
-    // CTAs
     const ctas = document.getElementById('cineCtas');
-    if (act.ctas) {
-      ctas.style.display = 'flex';
-      document.getElementById('brandStrip').style.display = 'none';
-    } else {
-      ctas.style.display = 'none';
-      document.getElementById('brandStrip').style.display = 'flex';
-    }
+    ctas.style.display = act.ctas ? 'flex' : 'none';
 
-    // Highlight active nav pill
-    document.querySelectorAll('.act-nav-pill').forEach((btn, i) => {
-      btn.classList.toggle('is-active', i === index);
+    // Light leak toggle
+    const leak = document.getElementById('lightLeak');
+    if (act.lightLeak) leak.classList.add('active');
+    else leak.classList.remove('active');
+
+    // Update navigation pill active state
+    document.querySelectorAll('.act-nav-pill').forEach((p, idx) => {
+      if (idx === index) p.classList.add('is-active');
+      else p.classList.remove('is-active');
     });
 
     overlay.classList.add('is-visible');
   }, 350);
 }
 
-// ── SYNTHESIZED CINEMATIC AUDIO SOUNDTRACK ──
+// ── SYNTHESIZED CINEMATIC AUDIO SOUNDTRACK (Background Score & SFX) ──
 function triggerAudioForAct(tone) {
   if (!soundEnabled || !audioCtx) return;
-  const t = audioCtx.currentTime;
 
   if (tone === 'winter') {
     playWinterWind();
@@ -1148,7 +1711,7 @@ function triggerAudioForAct(tone) {
 }
 
 function playCinematicBoom(freqStart, freqEnd, duration) {
-  if (!audioCtx) return;
+  if (!audioCtx || !musicGain) return;
   const osc = audioCtx.createOscillator();
   const gain = audioCtx.createGain();
   osc.type = 'sine';
@@ -1159,13 +1722,13 @@ function playCinematicBoom(freqStart, freqEnd, duration) {
   gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
 
   osc.connect(gain);
-  gain.connect(masterGain);
+  gain.connect(musicGain);
   osc.start();
   osc.stop(audioCtx.currentTime + duration);
 }
 
 function playChords(freqs, duration) {
-  if (!audioCtx) return;
+  if (!audioCtx || !musicGain) return;
   freqs.forEach(f => {
     const osc = audioCtx.createOscillator();
     const g = audioCtx.createGain();
@@ -1175,14 +1738,14 @@ function playChords(freqs, duration) {
     g.gain.linearRampToValueAtTime(0.12, audioCtx.currentTime + 1.2);
     g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
     osc.connect(g);
-    g.connect(masterGain);
+    g.connect(musicGain);
     osc.start();
     osc.stop(audioCtx.currentTime + duration);
   });
 }
 
 function playWinterWind() {
-  if (!audioCtx) return;
+  if (!audioCtx || !musicGain) return;
   const osc = audioCtx.createOscillator();
   const g = audioCtx.createGain();
   osc.type = 'sine';
@@ -1193,13 +1756,13 @@ function playWinterWind() {
   g.gain.linearRampToValueAtTime(0.08, audioCtx.currentTime + 2);
   g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 10);
   osc.connect(g);
-  g.connect(masterGain);
+  g.connect(musicGain);
   osc.start();
   osc.stop(audioCtx.currentTime + 10);
 }
 
 function playClockTick() {
-  if (!audioCtx) return;
+  if (!audioCtx || !musicGain) return;
   for (let i = 0; i < 6; i++) {
     setTimeout(() => {
       if (!isPlaying || currentActIndex !== 1) return;
@@ -1210,7 +1773,7 @@ function playClockTick() {
       g.gain.setValueAtTime(0.04, audioCtx.currentTime);
       g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.04);
       osc.connect(g);
-      g.connect(masterGain);
+      g.connect(musicGain);
       osc.start();
       osc.stop(audioCtx.currentTime + 0.05);
     }, i * 1400);
@@ -1218,7 +1781,7 @@ function playClockTick() {
 }
 
 function playArpeggios() {
-  if (!audioCtx) return;
+  if (!audioCtx || !musicGain) return;
   const notes = [220, 277, 330, 440, 554, 440, 330, 277];
   notes.forEach((f, idx) => {
     setTimeout(() => {
@@ -1230,7 +1793,7 @@ function playArpeggios() {
       g.gain.setValueAtTime(0.06, audioCtx.currentTime);
       g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.35);
       osc.connect(g);
-      g.connect(masterGain);
+      g.connect(musicGain);
       osc.start();
       osc.stop(audioCtx.currentTime + 0.4);
     }, idx * 280);
@@ -1247,78 +1810,164 @@ function startFilm() {
 
 function togglePlay() {
   if (isPlaying) pauseFilm();
-  else playFilm();
+  else {
+    initAudio();
+    playFilm();
+  }
 }
 
 function playFilm() {
   isPlaying = true;
-  lastTimestamp = 0;
   document.getElementById('playBtn').textContent = '⏸';
+  document.getElementById('audioMeter').classList.add('is-active');
   if (currentVideoElement) currentVideoElement.play().catch(() => {});
-  if (currentTime >= TOTAL_DURATION) {
-    currentTime = 0;
-    setAct(0);
-  }
+  if (currentVoiceAudio) currentVoiceAudio.play().catch(() => {});
+  else playVoiceForAct(currentActIndex >= 0 ? currentActIndex : 0);
 }
 
 function pauseFilm() {
   isPlaying = false;
   document.getElementById('playBtn').textContent = '▶';
+  document.getElementById('audioMeter').classList.remove('is-active');
   if (currentVideoElement) currentVideoElement.pause();
+  stopVoice();
 }
 
-function seekTimeline(e) {
-  const bar = document.getElementById('timelineBar');
-  const rect = bar.getBoundingClientRect();
-  const ratio = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
-  currentTime = ratio * TOTAL_DURATION;
+function jumpToAct(index) {
+  initAudio();
+  currentTime = ACTS[index].startTime;
+  stopVoice();
+  setAct(index);
   updateTimelineUI();
-  checkAct(currentTime);
-}
-
-function jumpToAct(idx) {
-  if (idx < 0 || idx >= ACTS.length) return;
-  currentTime = ACTS[idx].startTime;
-  updateTimelineUI();
-  setAct(idx);
   if (!isPlaying) playFilm();
 }
 
-function updateTimelineUI() {
-  const ratio = (currentTime / TOTAL_DURATION) * 100;
-  document.getElementById('timelineFill').style.width = ratio + '%';
-
-  const mins = Math.floor(currentTime / 60);
-  const secs = Math.floor(currentTime % 60);
-  document.getElementById('curTime').textContent = `${String(mins).padStart(2,'0')}:${String(secs).padStart(2,'0')}`;
+function seekTimeline(e) {
+  initAudio();
+  const bar = document.getElementById('timelineBar');
+  const rect = bar.getBoundingClientRect();
+  const pos = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+  currentTime = pos * TOTAL_DURATION;
+  stopVoice();
+  checkAct(currentTime);
+  updateTimelineUI();
 }
 
+function updateTimelineUI() {
+  const pct = (currentTime / TOTAL_DURATION) * 100;
+  document.getElementById('timelineFill').style.width = pct + '%';
+
+  const m = Math.floor(currentTime / 60);
+  const s = Math.floor(currentTime % 60);
+  document.getElementById('curTime').textContent = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+}
+
+// ── AUDIO & FORMAT TOGGLES ──
 function toggleSound() {
   soundEnabled = !soundEnabled;
   document.getElementById('soundIcon').textContent = soundEnabled ? '🔊' : '🔇';
   document.getElementById('soundLabel').textContent = soundEnabled ? 'Sound On' : 'Muted';
   if (masterGain && audioCtx) {
-    masterGain.gain.setValueAtTime(soundEnabled ? 0.65 : 0, audioCtx.currentTime);
+    masterGain.gain.setValueAtTime(soundEnabled ? 1.0 : 0, audioCtx.currentTime);
+  }
+  if (!soundEnabled) stopVoice();
+  else if (isPlaying) playVoiceForAct(currentActIndex);
+}
+
+function toggleVoiceover() {
+  voiceoverEnabled = !voiceoverEnabled;
+  const btn = document.getElementById('voiceBtn');
+  document.getElementById('voiceIcon').textContent = voiceoverEnabled ? '🎙️' : '🔇';
+  document.getElementById('voiceLabel').textContent = voiceoverEnabled ? 'Voiceover On' : 'Voice Muted';
+  if (voiceoverEnabled) {
+    btn.classList.add('is-active');
+    if (isPlaying) playVoiceForAct(currentActIndex);
+  } else {
+    btn.classList.remove('is-active', 'is-speaking');
+    stopVoice();
   }
 }
 
 function toggleFormat() {
   const vp = document.getElementById('viewport');
-  const isCine = vp.classList.contains('mode-cinematic');
-  if (isCine) {
+  const btn = document.getElementById('formatBtn');
+  const label = document.getElementById('formatLabel');
+
+  if (vp.classList.contains('mode-cinematic')) {
     vp.classList.remove('mode-cinematic');
     vp.classList.add('mode-vertical');
-    document.getElementById('formatIcon').textContent = '📱';
-    document.getElementById('formatLabel').textContent = '9:16 Vertical';
+    label.textContent = '9:16 Reel';
+    btn.classList.add('is-active');
   } else {
     vp.classList.remove('mode-vertical');
     vp.classList.add('mode-cinematic');
-    document.getElementById('formatIcon').textContent = '📺';
-    document.getElementById('formatLabel').textContent = '21:9 Cinema';
+    label.textContent = '21:9 Cinema';
+    btn.classList.remove('is-active');
   }
 }
 
-// ── 🔴 REAL-TIME VIDEO RECORDER & EXPORTER ──
+// ── ELEVENLABS PRODUCTION STUDIO MODAL ──
+function openStudioModal() {
+  pauseFilm();
+  document.getElementById('studioModal').classList.add('is-open');
+}
+
+function closeStudioModal() {
+  document.getElementById('studioModal').classList.remove('is-open');
+}
+
+function switchStudioTab(tabId, btn) {
+  document.querySelectorAll('.studio-tab-content').forEach(c => c.classList.remove('is-active'));
+  document.querySelectorAll('.studio-tab-btn').forEach(b => b.classList.remove('is-active'));
+  document.getElementById(tabId).classList.add('is-active');
+  btn.classList.add('is-active');
+}
+
+function changeVoiceMode(mode) {
+  voiceoverMode = mode;
+  document.getElementById('customAudioLoaderRow').style.display = mode === 'custom' ? 'block' : 'none';
+  showStudioToast(`Voiceover mode set to: ${mode === 'studio' ? 'Studio Master (Bundled)' : mode === 'liveTTS' ? 'Live Browser AI' : 'Custom Audio'}`);
+}
+
+function applyCustomAudioUrl() {
+  const url = document.getElementById('customAudioUrl').value.trim();
+  if (!url) return;
+  const el = document.getElementById('customVoiceAudio');
+  el.src = url;
+  el.load();
+  document.getElementById('customAudioStatus').textContent = '✓ Custom audio URL loaded: ' + url.split('/').pop();
+  showStudioToast('Custom audio track loaded!');
+}
+
+function handleAudioFileUpload(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const url = URL.createObjectURL(file);
+  const el = document.getElementById('customVoiceAudio');
+  el.src = url;
+  el.load();
+  document.getElementById('customAudioStatus').textContent = `✓ Uploaded file loaded: ${file.name} (${(file.size/1024/1024).toFixed(2)} MB)`;
+  showStudioToast('Audio file loaded successfully!');
+}
+
+function copyText(elementId, label) {
+  const el = document.getElementById(elementId);
+  const text = el.innerText || el.textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    showStudioToast(`✓ ${label} copied to clipboard!`);
+  }).catch(() => {
+    showStudioToast('Failed to copy. Please select text manually.');
+  });
+}
+
+function showStudioToast(msg) {
+  const toast = document.getElementById('studioToast');
+  toast.textContent = msg;
+  toast.style.display = 'block';
+  setTimeout(() => { toast.style.display = 'none'; }, 3000);
+}
+
+// ── FULL PRODUCTION RECORDING & EXPORT ENGINE ──
 let mediaRecorder = null;
 let recordedChunks = [];
 let isRecording = false;
@@ -1343,7 +1992,7 @@ function startRecording() {
     // Capture visual stream from canvas
     const stream = canvas.captureStream(30);
 
-    // Capture audio if available
+    // Capture combined master audio stream (Soundtrack + Voiceover Narration)
     if (audioCtx && masterGain) {
       const dest = audioCtx.createMediaStreamDestination();
       masterGain.connect(dest);
@@ -1354,7 +2003,7 @@ function startRecording() {
       ? 'video/webm;codecs=vp9'
       : (MediaRecorder.isTypeSupported('video/webm') ? 'video/webm' : 'video/mp4');
 
-    mediaRecorder = new MediaRecorder(stream, { mimeType: mime, videoBitsPerSecond: 6000000 });
+    mediaRecorder = new MediaRecorder(stream, { mimeType: mime, videoBitsPerSecond: 8000000 });
     mediaRecorder.ondataavailable = e => { if (e.data.size > 0) recordedChunks.push(e.data); };
     mediaRecorder.onstop = exportVideoFile;
     mediaRecorder.start();
@@ -1402,11 +2051,11 @@ function openReserve(tier) {
   document.getElementById('modalTierTitle').textContent = tier === '2000'
     ? 'Reserve $2,000 VIP Adventure Certificate'
     : 'Reserve $1,500 Trailblazer Certificate';
-  document.getElementById('intakeModal').style.display = 'flex';
+  document.getElementById('intakeModal').classList.add('is-open');
 }
 
 function closeReserve() {
-  document.getElementById('intakeModal').style.display = 'none';
+  document.getElementById('intakeModal').classList.remove('is-open');
 }
 
 async function submitModalForm(e) {
@@ -1420,24 +2069,19 @@ async function submitModalForm(e) {
   const name = document.getElementById('mBuyerName').value.trim();
   const phone = document.getElementById('mBuyerPhone').value.trim();
   const email = document.getElementById('mBuyerEmail').value.trim();
-  const recipient = document.getElementById('mRecipientName').value.trim();
+  const rec = document.getElementById('mRecipientName').value.trim();
   const notes = document.getElementById('mNotes').value.trim();
 
   const payload = {
     action: 'giftCardRequest',
     tier: tier === '2000' ? 'The VIP Adventure ($2,000)' : 'The Trailblazer ($1,500)',
-    amount: parseFloat(tier),
-    bonusPerks: tier === '2000'
-      ? 'FREE Creek Ready™ Assembly ($125) + FREE 1st Annual Tune-Up ($125) + Spring-Start Warranty Lock'
-      : 'FREE Creek Ready™ Assembly ($125) + Spring-Start Warranty Lock',
+    amount: tier,
     buyerName: name,
     buyerPhone: phone,
     buyerEmail: email,
-    recipientName: recipient,
-    message: notes,
-    deliveryMethod: 'digital',
-    springTarget: 'Spring 2027',
-    termsAgreed: true
+    recipientName: rec,
+    giftMessage: notes,
+    source: 'cinematic_launch_film'
   };
 
   try {
@@ -1445,25 +2089,26 @@ async function submitModalForm(e) {
       method: 'POST',
       headers: { 'Content-Type': 'text/plain;charset=utf-8' },
       body: JSON.stringify(payload),
-      redirect: 'follow'
+      mode: 'no-cors'
     });
 
+    btn.textContent = '✓ Request Submitted!';
+    btn.style.background = '#2D4A32';
+    btn.style.color = '#fff';
     msg.style.display = 'block';
-    msg.style.color = '#2e7d32';
-    msg.innerHTML = `<strong>✓ Request Received!</strong> We've logged your reservation. Our team will text your Stripe payment link to ${phone} shortly.`;
-    btn.textContent = 'Request Received ✓';
-    setTimeout(() => { closeReserve(); }, 3500);
+    msg.style.color = '#2D4A32';
+    msg.innerHTML = '<strong>Thank you!</strong> Your reservation has been sent to Cruise the Creek. We will text or email your Stripe payment link shortly!';
   } catch(err) {
-    msg.style.display = 'block';
-    msg.style.color = '#b93838';
-    msg.textContent = 'Connection error. Please call/text (330) 406-9686 directly to lock it in!';
     btn.disabled = false;
     btn.textContent = 'Submit Reservation Request →';
+    msg.style.display = 'block';
+    msg.style.color = '#b93838';
+    msg.textContent = 'Unable to send request online. Please text us directly at (330) 406-9686!';
   }
 }
 
-// Start frame rendering immediately on load
-window.addEventListener('load', () => {
+// ── INITIAL BOOTSTRAP ──
+window.addEventListener('DOMContentLoaded', () => {
   initParticles();
   checkAct(0);
   requestAnimationFrame(render);
