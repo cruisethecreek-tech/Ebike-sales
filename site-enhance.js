@@ -148,18 +148,21 @@
    * containing the current page auto-expands. Edit here only. */
   var NAV_MENU = [
     { label: 'Home', url: 'index.html' },
+    { label: '🎁 Holiday Gift Cards', url: 'gift-cards.html' },
     { label: 'Rentals', items: [
       { label: 'Book Bears Den (Youngstown)', url: 'adventures.html' },
       { label: 'Book Kirk Road (Canfield)',   url: 'trailside.html' },
       { label: 'Book Long Term',              url: 'long-term-rental.html' },
       { label: 'Apply for Rent-to-Own',       url: 'rent-to-own.html' },
+      { label: 'Rental Gift Cards',           url: 'gift-cards.html' },
     ]},
     { label: 'Shop', items: [
-      { label: 'Shop E-Bikes',     url: 'shop.html' },
-      { label: 'E-Bike Quiz',      url: 'quiz.html' },
-      { label: 'Shop Accessories', url: 'accessories.html' },
-      { label: 'Shop Apparel',     url: 'apparel.html' },
-      { label: 'Ownership Options', url: 'ownership-options.html' },
+      { label: 'Shop E-Bikes',            url: 'shop.html' },
+      { label: '🎁 Holiday Gift Cards',   url: 'gift-cards.html' },
+      { label: 'E-Bike Quiz',             url: 'quiz.html' },
+      { label: 'Shop Accessories',        url: 'accessories.html' },
+      { label: 'Shop Apparel',            url: 'apparel.html' },
+      { label: 'Ownership Options',       url: 'ownership-options.html' },
     ]},
     { label: 'Services', items: [
       { label: 'Creek Ready Package',  url: 'creek-ready.html' },
