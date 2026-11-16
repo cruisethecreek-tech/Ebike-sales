@@ -1,0 +1,1474 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Cinematic Launch Film | Holiday E-Bike Certificates | Cruise the Creek</title>
+<meta name="description" content="Watch the cinematic launch film for Cruise the Creek's Holiday E-Bike Gift Cards. The Spring-Start Warranty Guarantee, free professional assembly, and zero winter warranty loss.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,400;0,600;0,700;0,900;1,400;1,700&family=Cinzel:wght@600;800;900&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --forest:#1a2e1c;
+  --forest-deep:#0f1c11;
+  --gold:#C9A96E;
+  --gold-bright:#ecd299;
+  --gold-dark:#9c7839;
+  --gold-grad:linear-gradient(135deg, #f7dfa9 0%, #c9a96e 50%, #997531 100%);
+  --cream:#F5F0E8;
+  --cream-soft:#ded7cb;
+  --white:#ffffff;
+  --red:#b93838;
+}
+html,body{
+  width:100%;
+  height:100%;
+  background:#0a0e0b;
+  color:#fff;
+  font-family:'DM Sans',sans-serif;
+  overflow:hidden;
+  user-select:none;
+}
+
+/* ── CINEMATIC STAGE CONTAINER ── */
+#cinemaContainer{
+  position:relative;
+  width:100%;
+  height:100%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:#000;
+  transition:all .3s ease;
+}
+
+/* 16:9 / 21:9 Viewport */
+#viewport{
+  position:relative;
+  width:100%;
+  max-width:1920px;
+  height:100%;
+  background:#0a0f0b;
+  overflow:hidden;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+#viewport.mode-cinematic{
+  aspect-ratio:21/9;
+  height:auto;
+  max-height:100vh;
+  box-shadow:0 0 100px rgba(0,0,0,.9);
+}
+#viewport.mode-vertical{
+  aspect-ratio:9/16;
+  width:auto;
+  max-width:100vw;
+  height:100%;
+  box-shadow:0 0 80px rgba(201,169,110,.15);
+}
+
+/* Letterbox Cinema Bars */
+.cinema-bars{
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  z-index:20;
+  display:flex;
+  flex-direction:column;
+  justify-content:space-between;
+}
+.cinema-bar-top, .cinema-bar-bot{
+  width:100%;
+  height:7.5%;
+  background:#000;
+  transition:height .4s cubic-bezier(.16,1,.3,1);
+}
+#viewport.mode-vertical .cinema-bars{display:none}
+
+/* Canvas / Video Layer */
+#mediaCanvas{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  z-index:1;
+}
+
+/* Video Elements (Preloaded & Hidden, Drawn onto Canvas) */
+.source-video{
+  display:none;
+}
+
+/* Film Grain & Atmosphere Overlays */
+.film-grain{
+  position:absolute;
+  inset:0;
+  background-image:radial-gradient(rgba(0,0,0,0) 60%, rgba(0,0,0,.75) 100%);
+  pointer-events:none;
+  z-index:5;
+}
+.light-leak{
+  position:absolute;
+  inset:0;
+  background:radial-gradient(circle at 15% 15%, rgba(201,169,110,.25) 0%, transparent 60%);
+  opacity:0;
+  pointer-events:none;
+  z-index:6;
+  mix-blend-mode:screen;
+  transition:opacity 1.2s ease;
+}
+.light-leak.active{
+  opacity:1;
+}
+
+/* Particle Canvas (Snow / Golden Dust / Petals) */
+#particleCanvas{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  pointer-events:none;
+  z-index:7;
+}
+
+/* ── CINEMATIC OVERLAYS & GRAPHICS ── */
+#overlayLayer{
+  position:absolute;
+  inset:0;
+  z-index:10;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  padding:4vw;
+  text-align:center;
+  pointer-events:none;
+}
+
+/* Act Tag */
+.act-badge{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:clamp(0.85rem, 1.8vw, 1.3rem);
+  letter-spacing:.3em;
+  text-transform:uppercase;
+  color:var(--gold);
+  margin-bottom:14px;
+  opacity:0;
+  transform:translateY(15px);
+  transition:all .8s cubic-bezier(.16,1,.3,1);
+  text-shadow:0 2px 10px rgba(0,0,0,.9);
+}
+
+/* Main Cinematic Headline */
+.cine-title{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:clamp(2.4rem, 6.2vw, 6.4rem);
+  letter-spacing:.03em;
+  line-height:.96;
+  color:#fff;
+  opacity:0;
+  transform:scale(.92) translateY(20px);
+  transition:all .9s cubic-bezier(.16,1,.3,1);
+  text-shadow:0 4px 30px rgba(0,0,0,.95), 0 2px 10px rgba(0,0,0,.8);
+  max-width:1100px;
+}
+.cine-title em{
+  font-style:normal;
+  background:var(--gold-grad);
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+  display:block;
+}
+
+/* Cinematic Subtitle / Voiceover Text */
+.cine-sub{
+  font-family:'DM Sans',sans-serif;
+  font-size:clamp(0.95rem, 2.2vw, 1.6rem);
+  color:rgba(255,255,255,.94);
+  max-width:850px;
+  line-height:1.5;
+  margin-top:16px;
+  opacity:0;
+  transform:translateY(15px);
+  transition:all .8s cubic-bezier(.16,1,.3,1);
+  text-shadow:0 2px 15px rgba(0,0,0,.9);
+}
+.cine-sub strong{
+  color:var(--gold);
+  font-weight:700;
+}
+
+/* Highlights Box / Pill Grid */
+.cine-feature-grid{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:16px;
+  margin-top:24px;
+  flex-wrap:wrap;
+  opacity:0;
+  transform:translateY(20px);
+  transition:all .8s cubic-bezier(.16,1,.3,1);
+}
+.cine-pill{
+  background:rgba(26,46,28,.85);
+  border:1.5px solid var(--gold);
+  border-radius:99px;
+  padding:10px 22px;
+  font-family:'Bebas Neue',sans-serif;
+  font-size:clamp(1.1rem, 2.2vw, 1.7rem);
+  letter-spacing:.08em;
+  color:#fff;
+  box-shadow:0 8px 24px rgba(0,0,0,.6);
+  backdrop-filter:blur(8px);
+}
+.cine-pill span{
+  color:var(--gold);
+  margin-right:6px;
+}
+
+/* Brand Logos Watermark */
+.brand-strip{
+  position:absolute;
+  bottom:10%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:24px;
+  opacity:0;
+  transform:translateY(10px);
+  transition:all .8s ease;
+}
+.brand-tag{
+  font-size:.82rem;
+  letter-spacing:.18em;
+  text-transform:uppercase;
+  color:rgba(255,255,255,.6);
+  font-weight:700;
+}
+
+/* Active State for Elements */
+.is-visible .act-badge{
+  opacity:1;
+  transform:translateY(0);
+}
+.is-visible .cine-title{
+  opacity:1;
+  transform:scale(1) translateY(0);
+}
+.is-visible .cine-sub{
+  opacity:1;
+  transform:translateY(0);
+}
+.is-visible .cine-feature-grid{
+  opacity:1;
+  transform:translateY(0);
+}
+.is-visible .brand-strip{
+  opacity:1;
+  transform:translateY(0);
+}
+
+/* ── FINAL ACT CTA BUTTONS (INTERACTIVE) ── */
+.cine-cta-group{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:18px;
+  margin-top:28px;
+  opacity:0;
+  transform:translateY(25px);
+  transition:all .8s cubic-bezier(.16,1,.3,1);
+  pointer-events:auto;
+}
+.is-visible .cine-cta-group{
+  opacity:1;
+  transform:translateY(0);
+}
+.cta-gold{
+  background:var(--gold-grad);
+  color:#1a2e1c;
+  font-family:'Bebas Neue',sans-serif;
+  font-size:clamp(1.2rem, 2.4vw, 1.8rem);
+  letter-spacing:.06em;
+  padding:14px 34px;
+  border-radius:10px;
+  text-decoration:none;
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  box-shadow:0 10px 30px rgba(201,169,110,.4);
+  transition:all .2s ease;
+  font-weight:700;
+}
+.cta-gold:hover{
+  transform:translateY(-2px);
+  box-shadow:0 15px 40px rgba(201,169,110,.6);
+  color:#0f1c11;
+}
+.cta-glass{
+  background:rgba(255,255,255,.12);
+  color:#fff;
+  border:1.5px solid rgba(255,255,255,.4);
+  font-family:'Bebas Neue',sans-serif;
+  font-size:clamp(1.2rem, 2.4vw, 1.8rem);
+  letter-spacing:.06em;
+  padding:14px 28px;
+  border-radius:10px;
+  text-decoration:none;
+  backdrop-filter:blur(8px);
+  transition:all .2s ease;
+}
+.cta-glass:hover{
+  background:rgba(255,255,255,.25);
+  border-color:#fff;
+  transform:translateY(-2px);
+}
+
+/* ── HUD CONTROLS & DOCK ── */
+#hudLayer{
+  position:absolute;
+  inset:0;
+  z-index:30;
+  pointer-events:none;
+  display:flex;
+  flex-direction:column;
+  justify-content:space-between;
+  padding:20px 24px;
+}
+.hud-top{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  pointer-events:auto;
+}
+.hud-logo{
+  display:flex;
+  align-items:center;
+  gap:12px;
+}
+.hud-logo img{
+  height:36px;
+  width:auto;
+  filter:brightness(0) invert(1);
+}
+.hud-film-title{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:1.15rem;
+  letter-spacing:.12em;
+  color:var(--gold);
+}
+
+.hud-actions{
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+.hud-btn{
+  background:rgba(0,0,0,.65);
+  border:1px solid rgba(255,255,255,.2);
+  color:#fff;
+  padding:8px 14px;
+  border-radius:6px;
+  font-size:.78rem;
+  font-weight:700;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  cursor:pointer;
+  backdrop-filter:blur(8px);
+  transition:all .2s ease;
+}
+.hud-btn:hover{
+  background:rgba(201,169,110,.25);
+  border-color:var(--gold);
+  color:var(--gold-bright);
+}
+.hud-btn.is-active{
+  background:var(--gold);
+  color:#1a2e1c;
+  border-color:var(--gold);
+}
+.hud-btn.record-btn{
+  background:#b93838;
+  border-color:#e25353;
+  color:#fff;
+}
+.hud-btn.record-btn:hover{
+  background:#d32f2f;
+  border-color:#ff6b6b;
+}
+
+/* Timeline & Scrubber Bar */
+.hud-bottom{
+  pointer-events:auto;
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+}
+.timeline-bar{
+  position:relative;
+  width:100%;
+  height:6px;
+  background:rgba(255,255,255,.2);
+  border-radius:99px;
+  cursor:pointer;
+  overflow:hidden;
+}
+.timeline-fill{
+  position:absolute;
+  top:0;
+  left:0;
+  height:100%;
+  width:0%;
+  background:var(--gold-grad);
+  border-radius:99px;
+  box-shadow:0 0 10px rgba(201,169,110,.8);
+  transition:width .1s linear;
+}
+.hud-controls-row{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  flex-wrap:wrap;
+  gap:12px;
+}
+.play-row{
+  display:flex;
+  align-items:center;
+  gap:14px;
+}
+.play-btn-circle{
+  width:44px;
+  height:44px;
+  border-radius:50%;
+  background:var(--gold-grad);
+  color:#1a2e1c;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  cursor:pointer;
+  border:none;
+  box-shadow:0 4px 16px rgba(0,0,0,.6);
+  font-size:1.1rem;
+  transition:transform .15s ease;
+}
+.play-btn-circle:hover{
+  transform:scale(1.08);
+}
+.time-display{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:1.15rem;
+  letter-spacing:.08em;
+  color:rgba(255,255,255,.8);
+}
+.act-nav-pills{
+  display:flex;
+  gap:6px;
+  flex-wrap:wrap;
+}
+.act-nav-pill{
+  background:rgba(0,0,0,.5);
+  border:1px solid rgba(255,255,255,.15);
+  border-radius:4px;
+  padding:4px 10px;
+  font-size:.68rem;
+  font-weight:700;
+  letter-spacing:.06em;
+  text-transform:uppercase;
+  color:rgba(255,255,255,.7);
+  cursor:pointer;
+  transition:all .15s ease;
+}
+.act-nav-pill:hover, .act-nav-pill.is-active{
+  border-color:var(--gold);
+  color:var(--gold);
+  background:rgba(26,46,28,.8);
+}
+
+/* ── START SCREEN PROMPT ── */
+#startScreen{
+  position:absolute;
+  inset:0;
+  z-index:50;
+  background:rgba(10,14,11,.92);
+  backdrop-filter:blur(14px);
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  padding:24px;
+  text-align:center;
+}
+#startScreen h2{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:clamp(2.5rem, 6vw, 4.5rem);
+  letter-spacing:.04em;
+  line-height:1;
+  color:#fff;
+  margin-bottom:10px;
+}
+#startScreen h2 span{
+  color:var(--gold);
+}
+#startScreen p{
+  font-size:clamp(1rem, 2vw, 1.25rem);
+  color:rgba(255,255,255,.85);
+  max-width:620px;
+  line-height:1.6;
+  margin-bottom:30px;
+}
+.big-start-btn{
+  background:var(--gold-grad);
+  color:#1a2e1c;
+  font-family:'Bebas Neue',sans-serif;
+  font-size:1.6rem;
+  letter-spacing:.08em;
+  padding:16px 48px;
+  border-radius:12px;
+  border:none;
+  cursor:pointer;
+  box-shadow:0 12px 36px rgba(201,169,110,.4);
+  transition:all .2s ease;
+  display:inline-flex;
+  align-items:center;
+  gap:10px;
+}
+.big-start-btn:hover{
+  transform:translateY(-2px) scale(1.02);
+  box-shadow:0 18px 48px rgba(201,169,110,.6);
+}
+.audio-hint{
+  font-size:.76rem;
+  letter-spacing:.1em;
+  text-transform:uppercase;
+  color:rgba(255,255,255,.5);
+  margin-top:16px;
+}
+
+/* ── RECORDING STATUS BANNER ── */
+#recordBanner{
+  position:absolute;
+  top:24px;
+  left:50%;
+  transform:translateX(-50%);
+  background:rgba(185,56,56,.95);
+  border:1px solid #ff7b7b;
+  color:#fff;
+  padding:8px 20px;
+  border-radius:99px;
+  font-size:.82rem;
+  font-weight:800;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+  display:none;
+  align-items:center;
+  gap:8px;
+  z-index:60;
+  box-shadow:0 4px 20px rgba(0,0,0,.6);
+  animation:pulseRec 1.5s infinite;
+}
+@keyframes pulseRec{
+  0%{opacity:1}
+  50%{opacity:.6}
+  100%{opacity:1}
+}
+
+/* ── MODAL INTAKE SLIDEOUT ── */
+#intakeModal{
+  position:fixed;
+  inset:0;
+  z-index:100;
+  background:rgba(0,0,0,.85);
+  backdrop-filter:blur(10px);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+}
+.modal-card{
+  background:#fff;
+  color:#1a1a1a;
+  border-radius:16px;
+  max-width:680px;
+  width:100%;
+  max-height:90vh;
+  overflow-y:auto;
+  padding:32px 28px;
+  position:relative;
+  box-shadow:0 20px 60px rgba(0,0,0,.8);
+}
+.modal-close{
+  position:absolute;
+  top:18px;
+  right:18px;
+  background:rgba(0,0,0,.08);
+  border:none;
+  width:32px;
+  height:32px;
+  border-radius:50%;
+  font-size:1.2rem;
+  cursor:pointer;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+</style>
+</head>
+<body>
+
+<div id="cinemaContainer">
+  <!-- VIEWPORT -->
+  <div id="viewport" class="mode-cinematic">
+    
+    <!-- CANVAS DRAWING ENGINE -->
+    <canvas id="mediaCanvas" width="1920" height="1080"></canvas>
+    
+    <!-- ATMOSPHERE OVERLAYS -->
+    <div class="film-grain"></div>
+    <div class="light-leak" id="lightLeak"></div>
+    <canvas id="particleCanvas" width="1920" height="1080"></canvas>
+
+    <!-- LETTERBOX BARS -->
+    <div class="cinema-bars">
+      <div class="cinema-bar-top"></div>
+      <div class="cinema-bar-bot"></div>
+    </div>
+
+    <!-- CINEMATIC OVERLAY LAYER -->
+    <div id="overlayLayer">
+      <div class="act-badge" id="actBadge">PROLOGUE</div>
+      <h1 class="cine-title" id="cineTitle">THE WINTER DILEMMA</h1>
+      <p class="cine-sub" id="cineSub">Why wait until spring to give the ultimate gift?</p>
+      
+      <div class="cine-feature-grid" id="cineFeatures"></div>
+
+      <div class="cine-cta-group" id="cineCtas" style="display:none">
+        <a href="#reserve1500" class="cta-gold" onclick="openReserve('1500')">🎁 Reserve $1,500 Certificate</a>
+        <a href="#reserve2000" class="cta-glass" onclick="openReserve('2000')">★ $2,000 VIP Adventure</a>
+      </div>
+
+      <div class="brand-strip" id="brandStrip">
+        <span class="brand-tag">VELOTRIC</span>
+        <span class="brand-tag">HEYBIKE</span>
+        <span class="brand-tag">MOKWHEEL</span>
+        <span class="brand-tag">MOONCOOL</span>
+        <span class="brand-tag">JASION</span>
+      </div>
+    </div>
+
+    <!-- HUD LAYER -->
+    <div id="hudLayer">
+      <!-- HUD TOP -->
+      <div class="hud-top">
+        <div class="hud-logo">
+          <img src="BlackonTransparent.png" alt="Cruise the Creek">
+          <span class="hud-film-title">HOLIDAY LAUNCH FILM</span>
+        </div>
+        <div class="hud-actions">
+          <button type="button" class="hud-btn" id="soundBtn" onclick="toggleSound()">
+            <span id="soundIcon">🔊</span> <span id="soundLabel">Sound On</span>
+          </button>
+          <button type="button" class="hud-btn" id="formatBtn" onclick="toggleFormat()">
+            <span id="formatIcon">📺</span> <span id="formatLabel">21:9 Cinema</span>
+          </button>
+          <button type="button" class="hud-btn record-btn" id="recordBtn" onclick="toggleRecording()">
+            <span>🔴</span> <span id="recordLabel">Record MP4</span>
+          </button>
+          <a href="gift-cards.html" class="hud-btn">← Gift Cards Page</a>
+        </div>
+      </div>
+
+      <!-- HUD BOTTOM -->
+      <div class="hud-bottom">
+        <div class="timeline-bar" id="timelineBar" onclick="seekTimeline(event)">
+          <div class="timeline-fill" id="timelineFill"></div>
+        </div>
+
+        <div class="hud-controls-row">
+          <div class="play-row">
+            <button type="button" class="play-btn-circle" id="playBtn" onclick="togglePlay()">▶</button>
+            <div class="time-display"><span id="curTime">00:00</span> / <span id="totalTime">01:10</span></div>
+          </div>
+
+          <div class="act-nav-pills">
+            <button type="button" class="act-nav-pill" onclick="jumpToAct(0)">1. Winter</button>
+            <button type="button" class="act-nav-pill" onclick="jumpToAct(1)">2. Lost Time</button>
+            <button type="button" class="act-nav-pill" onclick="jumpToAct(2)">3. Breakthrough</button>
+            <button type="button" class="act-nav-pill" onclick="jumpToAct(3)">4. Spring-Start</button>
+            <button type="button" class="act-nav-pill" onclick="jumpToAct(4)">5. Free Perks</button>
+            <button type="button" class="act-nav-pill" onclick="jumpToAct(5)">6. Launch</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- START SCREEN -->
+    <div id="startScreen">
+      <h2>GIVE THE <span>RIDE</span>.</h2>
+      <p>
+        The adventure starts in spring. Experience the cinematic story behind Cruise the Creek's Holiday E-Bike Gift Program and the <strong>Spring-Start Warranty Guarantee</strong>.
+      </p>
+      <button type="button" class="big-start-btn" onclick="startFilm()">
+        <span>▶</span> Watch Launch Film
+      </button>
+      <div class="audio-hint">Best experienced with sound enabled</div>
+    </div>
+
+    <!-- RECORDING BANNER -->
+    <div id="recordBanner">
+      <span>●</span> RECORDING CINEMATIC CUT (DOWNLOADING ON FINISH)
+    </div>
+
+  </div>
+</div>
+
+<!-- PRELOADED MEDIA REPOSITORY -->
+<div id="hiddenMedia" style="display:none">
+  <!-- Real footage from Cruise the Creek library -->
+  <video id="vidKRC" src="media/KRC.mp4" playsinline muted preload="auto" class="source-video"></video>
+  <video id="vidMHB" src="media/MHB.mp4" playsinline muted preload="auto" class="source-video"></video>
+  <video id="vidMPF" src="media/MPF.mp4" playsinline muted preload="auto" class="source-video"></video>
+  <video id="vidNGW" src="media/NGW.mp4" playsinline muted preload="auto" class="source-video"></video>
+  <video id="vidWG" src="media/WG.mp4" playsinline muted preload="auto" class="source-video"></video>
+  <!-- Background Photo Fallbacks -->
+  <img id="imgLoneBike" src="media/Lone Bike Wilderness.jpg" alt="">
+  <img id="imgCloseup" src="media/BikeCloseupindoors.jpg" alt="">
+  <img id="imgFamily" src="media/FamilyRiding.jpg" alt="">
+  <img id="imgLantermans" src="media/Lantermans Falls.jpg" alt="">
+</div>
+
+<!-- INTAKE POPUP MODAL -->
+<div id="intakeModal" onclick="if(event.target===this)closeReserve()">
+  <div class="modal-card">
+    <button class="modal-close" onclick="closeReserve()">✕</button>
+    <div style="font-size:.78rem;font-weight:800;letter-spacing:.15em;text-transform:uppercase;color:var(--forest);margin-bottom:6px">
+      Cruise the Creek · Holiday Reservation
+    </div>
+    <h3 style="font-family:'Bebas Neue',sans-serif;font-size:2.2rem;color:var(--forest);line-height:1;margin-bottom:12px" id="modalTierTitle">
+      Reserve Your Holiday E-Bike Certificate
+    </h3>
+    <p style="font-size:.92rem;color:#4a4a4a;margin-bottom:20px;line-height:1.5">
+      We operate on a personal consultation model (no automated e-commerce cart). Submit your contact details below; we will review your gift request and text/email your secure Stripe payment link to lock in your <strong>Spring-Start Warranty Guarantee</strong>!
+    </p>
+
+    <form id="modalForm" onsubmit="submitModalForm(event)">
+      <input type="hidden" id="modalTierVal" value="1500">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
+        <div>
+          <label style="display:block;font-size:.72rem;font-weight:800;text-transform:uppercase;color:#4a4a4a;margin-bottom:4px">Your Name</label>
+          <input type="text" id="mBuyerName" required style="width:100%;padding:10px;border:1px solid #ccc;border-radius:6px;font-size:.95rem">
+        </div>
+        <div>
+          <label style="display:block;font-size:.72rem;font-weight:800;text-transform:uppercase;color:#4a4a4a;margin-bottom:4px">Your Phone (SMS link)</label>
+          <input type="tel" id="mBuyerPhone" required style="width:100%;padding:10px;border:1px solid #ccc;border-radius:6px;font-size:.95rem">
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
+        <div>
+          <label style="display:block;font-size:.72rem;font-weight:800;text-transform:uppercase;color:#4a4a4a;margin-bottom:4px">Your Email</label>
+          <input type="email" id="mBuyerEmail" required style="width:100%;padding:10px;border:1px solid #ccc;border-radius:6px;font-size:.95rem">
+        </div>
+        <div>
+          <label style="display:block;font-size:.72rem;font-weight:800;text-transform:uppercase;color:#4a4a4a;margin-bottom:4px">Recipient Name</label>
+          <input type="text" id="mRecipientName" placeholder="e.g. Spouse / Parent" style="width:100%;padding:10px;border:1px solid #ccc;border-radius:6px;font-size:.95rem">
+        </div>
+      </div>
+
+      <div style="margin-bottom:16px">
+        <label style="display:block;font-size:.72rem;font-weight:800;text-transform:uppercase;color:#4a4a4a;margin-bottom:4px">Gift Note / Bike Interests (Optional)</label>
+        <textarea id="mNotes" style="width:100%;padding:10px;border:1px solid #ccc;border-radius:6px;font-size:.9rem;height:65px" placeholder="Looking at Velotric Discover 2, Heybike folding, etc."></textarea>
+      </div>
+
+      <div style="background:#f4f7f4;padding:12px;border-radius:8px;font-size:.82rem;color:#2d4a32;margin-bottom:18px;line-height:1.4">
+        ✓ <strong>Guaranteed:</strong> Full $1,500 / $2,000 cash face value toward any e-bike.<br>
+        ✓ <strong>Service Included:</strong> Free $125+ Creek Ready™ Professional Assembly.<br>
+        ✓ <strong>Warranty Protected:</strong> Manufacturer warranty clock frozen until spring rollout!
+      </div>
+
+      <button type="submit" id="mSubmitBtn" style="width:100%;background:var(--gold-grad);color:#1a2e1c;font-family:'Bebas Neue',sans-serif;font-size:1.4rem;padding:14px;border:none;border-radius:8px;cursor:pointer;font-weight:700">
+        Submit Reservation Request →
+      </button>
+      <div id="mStatusMsg" style="margin-top:10px;font-size:.85rem;text-align:center;display:none"></div>
+    </form>
+  </div>
+</div>
+
+<script>
+/* =========================================================================
+   CINEMATIC LAUNCH FILM ENGINE
+   Cruise the Creek · Holiday E-Bike Certificates
+   ========================================================================= */
+
+const TOTAL_DURATION = 70; // 70 seconds total run time
+
+// ACTS TIMELINE CONFIGURATION
+const ACTS = [
+  {
+    id: 0,
+    startTime: 0,
+    endTime: 12,
+    badge: 'ACT I · THE OHIO WINTER',
+    title: 'THE TRAILS GO QUIET.',
+    sub: 'December in Northeast Ohio. The snow falls, and holiday shoppers face an agonizing question...',
+    mediaType: 'image',
+    mediaId: 'imgLoneBike',
+    zoomSpeed: 0.0003,
+    particles: 'snow',
+    lightLeak: false,
+    audioTone: 'winter'
+  },
+  {
+    id: 1,
+    startTime: 12,
+    endTime: 24,
+    badge: 'ACT II · THE LOST WARRANTY',
+    title: 'WHY BUY AN E-BIKE NOW...',
+    sub: '...when it sits in a freezing garage until April? 5 months of factory warranty ticking away into nothing.',
+    mediaType: 'image',
+    mediaId: 'imgCloseup',
+    zoomSpeed: 0.0005,
+    particles: 'snow',
+    lightLeak: false,
+    audioTone: 'ticking'
+  },
+  {
+    id: 2,
+    startTime: 24,
+    endTime: 36,
+    badge: 'ACT III · THE BREAKTHROUGH',
+    title: 'THIS YEAR, WE CHANGED THE RULES.',
+    sub: 'Introducing the Cruise the Creek Holiday Certificate. Give the thrill under the tree — with zero lost time.',
+    mediaType: 'video',
+    mediaId: 'vidKRC',
+    videoStart: 2,
+    particles: 'gold',
+    lightLeak: true,
+    audioTone: 'swell'
+  },
+  {
+    id: 3,
+    startTime: 36,
+    endTime: 48,
+    badge: 'ACT IV · THE SPRING-START GUARANTEE',
+    title: 'WARRANTY: FROZEN IN TIME.',
+    sub: 'Your factory warranty clock DOES NOT TICK until your spring rollout date (April 1st). 100% of your coverage, intact.',
+    features: ['★ Spring-Start Warranty Lock', '★ Zero Winter Coverage Lost', '★ 1 to 5+ Year Brand Protection'],
+    mediaType: 'video',
+    mediaId: 'vidMHB',
+    videoStart: 4,
+    particles: 'gold',
+    lightLeak: true,
+    audioTone: 'driving'
+  },
+  {
+    id: 4,
+    startTime: 48,
+    endTime: 60,
+    badge: 'ACT V · THE UNMATCHED VALUE',
+    title: 'FREE $125+ CREEK READY™ BUILD',
+    sub: 'Included free with every $1,500+ holiday card. 20-point mechanical build, heated indoor storage, and zero guesswork on fit or color.',
+    features: ['$1,500 The Trailblazer', '$2,000 The VIP Adventure', 'Free 1st Annual Tune-Up Included'],
+    mediaType: 'video',
+    mediaId: 'vidNGW',
+    videoStart: 6,
+    particles: 'petals',
+    lightLeak: true,
+    audioTone: 'triumph'
+  },
+  {
+    id: 5,
+    startTime: 60,
+    endTime: 70,
+    badge: 'FINALE · RESERVE TODAY',
+    title: 'GIVE THE RIDE THIS HOLIDAY.',
+    sub: 'The adventure starts in spring. Reserve your certificate today with your personal Creek consultation.',
+    ctas: true,
+    mediaType: 'video',
+    mediaId: 'vidMPF',
+    videoStart: 8,
+    particles: 'gold',
+    lightLeak: true,
+    audioTone: 'grand'
+  }
+];
+
+// Canvas & WebGL / 2D contexts
+const canvas = document.getElementById('mediaCanvas');
+const ctx = canvas.getContext('2d');
+const pCanvas = document.getElementById('particleCanvas');
+const pCtx = pCanvas.getContext('2d');
+
+let isPlaying = false;
+let currentTime = 0;
+let lastTimestamp = 0;
+let currentActIndex = -1;
+let currentVideoElement = null;
+let soundEnabled = true;
+
+// Web Audio API Synthesizer (Cinematic Score & Sound FX)
+let audioCtx = null;
+let masterGain = null;
+let ambientOsc = null;
+let clockInterval = null;
+
+function initAudio() {
+  if (audioCtx) return;
+  try {
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    audioCtx = new AudioContext();
+    masterGain = audioCtx.createGain();
+    masterGain.gain.setValueAtTime(0.65, audioCtx.currentTime);
+    masterGain.connect(audioCtx.destination);
+  } catch(e) {
+    console.warn('AudioContext not supported');
+  }
+}
+
+// Particle System
+let particles = [];
+function initParticles() {
+  particles = [];
+  const count = 75;
+  for (let i = 0; i < count; i++) {
+    particles.push({
+      x: Math.random() * pCanvas.width,
+      y: Math.random() * pCanvas.height,
+      radius: Math.random() * 3 + 1,
+      speedY: Math.random() * 1.5 + 0.5,
+      speedX: (Math.random() - 0.5) * 1.2,
+      opacity: Math.random() * 0.7 + 0.3,
+      spin: Math.random() * 6.28,
+      type: 'snow'
+    });
+  }
+}
+
+function updateParticles(type) {
+  pCtx.clearRect(0, 0, pCanvas.width, pCanvas.height);
+  for (let p of particles) {
+    p.y += p.speedY;
+    p.x += p.speedX;
+    p.spin += 0.02;
+
+    if (p.y > pCanvas.height) { p.y = -10; p.x = Math.random() * pCanvas.width; }
+    if (p.x > pCanvas.width) p.x = 0;
+    if (p.x < 0) p.x = pCanvas.width;
+
+    pCtx.save();
+    pCtx.translate(p.x, p.y);
+    pCtx.rotate(p.spin);
+
+    if (type === 'snow') {
+      pCtx.fillStyle = `rgba(255, 255, 255, ${p.opacity * 0.7})`;
+      pCtx.beginPath();
+      pCtx.arc(0, 0, p.radius * 1.2, 0, Math.PI * 2);
+      pCtx.fill();
+    } else if (type === 'gold') {
+      pCtx.fillStyle = `rgba(201, 169, 110, ${p.opacity})`;
+      pCtx.beginPath();
+      pCtx.arc(0, 0, p.radius * 1.5, 0, Math.PI * 2);
+      pCtx.fill();
+    } else { // Petals / spring
+      pCtx.fillStyle = `rgba(224, 185, 120, ${p.opacity * 0.8})`;
+      pCtx.beginPath();
+      pCtx.ellipse(0, 0, p.radius * 2.2, p.radius, p.spin, 0, Math.PI * 2);
+      pCtx.fill();
+    }
+    pCtx.restore();
+  }
+}
+
+// ── RENDER LOOP ──
+let scaleFactor = 1;
+function render(timestamp) {
+  if (!lastTimestamp) lastTimestamp = timestamp;
+  const delta = (timestamp - lastTimestamp) / 1000;
+  lastTimestamp = timestamp;
+
+  if (isPlaying) {
+    currentTime += delta;
+    if (currentTime >= TOTAL_DURATION) {
+      currentTime = TOTAL_DURATION;
+      pauseFilm();
+    }
+    updateTimelineUI();
+    checkAct(currentTime);
+  }
+
+  // Draw current scene onto canvas
+  drawScene(delta);
+
+  // Animate particle layer
+  const currentAct = ACTS[currentActIndex] || ACTS[0];
+  updateParticles(currentAct.particles);
+
+  requestAnimationFrame(render);
+}
+
+function drawScene(delta) {
+  const currentAct = ACTS[currentActIndex] || ACTS[0];
+  ctx.save();
+  ctx.fillStyle = '#0a0f0b';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  if (currentAct.mediaType === 'video' && currentVideoElement && currentVideoElement.readyState >= 2) {
+    // Render live video frame
+    ctx.drawImage(currentVideoElement, 0, 0, canvas.width, canvas.height);
+  } else {
+    // Render still image with cinematic Ken Burns zoom
+    const img = document.getElementById(currentAct.mediaId);
+    if (img && img.complete) {
+      scaleFactor += (currentAct.zoomSpeed || 0.0003);
+      const w = canvas.width * scaleFactor;
+      const h = canvas.height * scaleFactor;
+      const x = (canvas.width - w) / 2;
+      const y = (canvas.height - h) / 2;
+      ctx.drawImage(img, x, y, w, h);
+    }
+  }
+
+  // Cinematic color grading vignette
+  const grad = ctx.createRadialGradient(canvas.width / 2, canvas.height / 2, canvas.width * 0.28, canvas.width / 2, canvas.height / 2, canvas.width * 0.72);
+  grad.addColorStop(0, 'rgba(0,0,0,0)');
+  grad.addColorStop(1, 'rgba(0,0,0,0.72)');
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  ctx.restore();
+}
+
+// ── ACT SWITCHING & TEXT ANIMATION ──
+function checkAct(time) {
+  let foundIndex = ACTS.findIndex(a => time >= a.startTime && time < a.endTime);
+  if (foundIndex === -1 && time >= TOTAL_DURATION) foundIndex = ACTS.length - 1;
+
+  if (foundIndex !== -1 && foundIndex !== currentActIndex) {
+    setAct(foundIndex);
+  }
+}
+
+function setAct(index) {
+  currentActIndex = index;
+  const act = ACTS[index];
+  scaleFactor = 1.0;
+
+  // Sound cue triggers
+  triggerAudioForAct(act.audioTone);
+
+  // Update Media
+  if (currentVideoElement) {
+    currentVideoElement.pause();
+    currentVideoElement = null;
+  }
+
+  if (act.mediaType === 'video') {
+    const v = document.getElementById(act.mediaId);
+    if (v) {
+      currentVideoElement = v;
+      if (act.videoStart != null) v.currentTime = act.videoStart;
+      v.play().catch(() => {});
+    }
+  }
+
+  // Light leak effect
+  const leak = document.getElementById('lightLeak');
+  if (act.lightLeak) leak.classList.add('active');
+  else leak.classList.remove('active');
+
+  // Text Animation (Fade out then in)
+  const overlay = document.getElementById('overlayLayer');
+  overlay.classList.remove('is-visible');
+
+  setTimeout(() => {
+    document.getElementById('actBadge').textContent = act.badge;
+    document.getElementById('cineTitle').innerHTML = act.title;
+    document.getElementById('cineSub').innerHTML = act.sub;
+
+    // Feature pills
+    const featContainer = document.getElementById('cineFeatures');
+    featContainer.innerHTML = '';
+    if (act.features) {
+      act.features.forEach(f => {
+        const p = document.createElement('div');
+        p.className = 'cine-pill';
+        p.textContent = f;
+        featContainer.appendChild(p);
+      });
+    }
+
+    // CTAs
+    const ctas = document.getElementById('cineCtas');
+    if (act.ctas) {
+      ctas.style.display = 'flex';
+      document.getElementById('brandStrip').style.display = 'none';
+    } else {
+      ctas.style.display = 'none';
+      document.getElementById('brandStrip').style.display = 'flex';
+    }
+
+    // Highlight active nav pill
+    document.querySelectorAll('.act-nav-pill').forEach((btn, i) => {
+      btn.classList.toggle('is-active', i === index);
+    });
+
+    overlay.classList.add('is-visible');
+  }, 350);
+}
+
+// ── SYNTHESIZED CINEMATIC AUDIO SOUNDTRACK ──
+function triggerAudioForAct(tone) {
+  if (!soundEnabled || !audioCtx) return;
+  const t = audioCtx.currentTime;
+
+  if (tone === 'winter') {
+    playWinterWind();
+  } else if (tone === 'ticking') {
+    playClockTick();
+  } else if (tone === 'swell') {
+    playCinematicBoom(180, 45, 1.8);
+    playChords([220, 277, 330, 440], 4.5); // A Major warm chord
+  } else if (tone === 'driving') {
+    playCinematicBoom(220, 55, 1.2);
+    playArpeggios();
+  } else if (tone === 'triumph') {
+    playChords([293, 370, 440, 554], 5.0); // D Major uplifting
+    playCinematicBoom(140, 40, 1.5);
+  } else if (tone === 'grand') {
+    playChords([220, 277, 330, 440, 554], 7.0); // Full Grand A Major
+    playCinematicBoom(110, 35, 2.5);
+  }
+}
+
+function playCinematicBoom(freqStart, freqEnd, duration) {
+  if (!audioCtx) return;
+  const osc = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+  osc.type = 'sine';
+  osc.frequency.setValueAtTime(freqStart, audioCtx.currentTime);
+  osc.frequency.exponentialRampToValueAtTime(freqEnd, audioCtx.currentTime + duration);
+
+  gain.gain.setValueAtTime(0.8, audioCtx.currentTime);
+  gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+
+  osc.connect(gain);
+  gain.connect(masterGain);
+  osc.start();
+  osc.stop(audioCtx.currentTime + duration);
+}
+
+function playChords(freqs, duration) {
+  if (!audioCtx) return;
+  freqs.forEach(f => {
+    const osc = audioCtx.createOscillator();
+    const g = audioCtx.createGain();
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(f, audioCtx.currentTime);
+    g.gain.setValueAtTime(0.01, audioCtx.currentTime);
+    g.gain.linearRampToValueAtTime(0.12, audioCtx.currentTime + 1.2);
+    g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+    osc.connect(g);
+    g.connect(masterGain);
+    osc.start();
+    osc.stop(audioCtx.currentTime + duration);
+  });
+}
+
+function playWinterWind() {
+  if (!audioCtx) return;
+  const osc = audioCtx.createOscillator();
+  const g = audioCtx.createGain();
+  osc.type = 'sine';
+  osc.frequency.setValueAtTime(90, audioCtx.currentTime);
+  osc.frequency.linearRampToValueAtTime(140, audioCtx.currentTime + 4);
+  osc.frequency.linearRampToValueAtTime(80, audioCtx.currentTime + 8);
+  g.gain.setValueAtTime(0.001, audioCtx.currentTime);
+  g.gain.linearRampToValueAtTime(0.08, audioCtx.currentTime + 2);
+  g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 10);
+  osc.connect(g);
+  g.connect(masterGain);
+  osc.start();
+  osc.stop(audioCtx.currentTime + 10);
+}
+
+function playClockTick() {
+  if (!audioCtx) return;
+  for (let i = 0; i < 6; i++) {
+    setTimeout(() => {
+      if (!isPlaying || currentActIndex !== 1) return;
+      const osc = audioCtx.createOscillator();
+      const g = audioCtx.createGain();
+      osc.type = 'square';
+      osc.frequency.setValueAtTime(1200, audioCtx.currentTime);
+      g.gain.setValueAtTime(0.04, audioCtx.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.04);
+      osc.connect(g);
+      g.connect(masterGain);
+      osc.start();
+      osc.stop(audioCtx.currentTime + 0.05);
+    }, i * 1400);
+  }
+}
+
+function playArpeggios() {
+  if (!audioCtx) return;
+  const notes = [220, 277, 330, 440, 554, 440, 330, 277];
+  notes.forEach((f, idx) => {
+    setTimeout(() => {
+      if (!isPlaying || currentActIndex !== 3) return;
+      const osc = audioCtx.createOscillator();
+      const g = audioCtx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(f, audioCtx.currentTime);
+      g.gain.setValueAtTime(0.06, audioCtx.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.35);
+      osc.connect(g);
+      g.connect(masterGain);
+      osc.start();
+      osc.stop(audioCtx.currentTime + 0.4);
+    }, idx * 280);
+  });
+}
+
+// ── PLAYBACK CONTROLS ──
+function startFilm() {
+  document.getElementById('startScreen').style.display = 'none';
+  initAudio();
+  initParticles();
+  playFilm();
+}
+
+function togglePlay() {
+  if (isPlaying) pauseFilm();
+  else playFilm();
+}
+
+function playFilm() {
+  isPlaying = true;
+  lastTimestamp = 0;
+  document.getElementById('playBtn').textContent = '⏸';
+  if (currentVideoElement) currentVideoElement.play().catch(() => {});
+  if (currentTime >= TOTAL_DURATION) {
+    currentTime = 0;
+    setAct(0);
+  }
+}
+
+function pauseFilm() {
+  isPlaying = false;
+  document.getElementById('playBtn').textContent = '▶';
+  if (currentVideoElement) currentVideoElement.pause();
+}
+
+function seekTimeline(e) {
+  const bar = document.getElementById('timelineBar');
+  const rect = bar.getBoundingClientRect();
+  const ratio = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+  currentTime = ratio * TOTAL_DURATION;
+  updateTimelineUI();
+  checkAct(currentTime);
+}
+
+function jumpToAct(idx) {
+  if (idx < 0 || idx >= ACTS.length) return;
+  currentTime = ACTS[idx].startTime;
+  updateTimelineUI();
+  setAct(idx);
+  if (!isPlaying) playFilm();
+}
+
+function updateTimelineUI() {
+  const ratio = (currentTime / TOTAL_DURATION) * 100;
+  document.getElementById('timelineFill').style.width = ratio + '%';
+
+  const mins = Math.floor(currentTime / 60);
+  const secs = Math.floor(currentTime % 60);
+  document.getElementById('curTime').textContent = `${String(mins).padStart(2,'0')}:${String(secs).padStart(2,'0')}`;
+}
+
+function toggleSound() {
+  soundEnabled = !soundEnabled;
+  document.getElementById('soundIcon').textContent = soundEnabled ? '🔊' : '🔇';
+  document.getElementById('soundLabel').textContent = soundEnabled ? 'Sound On' : 'Muted';
+  if (masterGain && audioCtx) {
+    masterGain.gain.setValueAtTime(soundEnabled ? 0.65 : 0, audioCtx.currentTime);
+  }
+}
+
+function toggleFormat() {
+  const vp = document.getElementById('viewport');
+  const isCine = vp.classList.contains('mode-cinematic');
+  if (isCine) {
+    vp.classList.remove('mode-cinematic');
+    vp.classList.add('mode-vertical');
+    document.getElementById('formatIcon').textContent = '📱';
+    document.getElementById('formatLabel').textContent = '9:16 Vertical';
+  } else {
+    vp.classList.remove('mode-vertical');
+    vp.classList.add('mode-cinematic');
+    document.getElementById('formatIcon').textContent = '📺';
+    document.getElementById('formatLabel').textContent = '21:9 Cinema';
+  }
+}
+
+// ── 🔴 REAL-TIME VIDEO RECORDER & EXPORTER ──
+let mediaRecorder = null;
+let recordedChunks = [];
+let isRecording = false;
+
+function toggleRecording() {
+  if (isRecording) {
+    stopRecording();
+  } else {
+    startRecording();
+  }
+}
+
+function startRecording() {
+  try {
+    initAudio();
+    isRecording = true;
+    recordedChunks = [];
+    document.getElementById('recordBtn').classList.add('is-active');
+    document.getElementById('recordLabel').textContent = 'Stop & Save';
+    document.getElementById('recordBanner').style.display = 'flex';
+
+    // Capture visual stream from canvas
+    const stream = canvas.captureStream(30);
+
+    // Capture audio if available
+    if (audioCtx && masterGain) {
+      const dest = audioCtx.createMediaStreamDestination();
+      masterGain.connect(dest);
+      dest.stream.getAudioTracks().forEach(track => stream.addTrack(track));
+    }
+
+    const mime = MediaRecorder.isTypeSupported('video/webm;codecs=vp9')
+      ? 'video/webm;codecs=vp9'
+      : (MediaRecorder.isTypeSupported('video/webm') ? 'video/webm' : 'video/mp4');
+
+    mediaRecorder = new MediaRecorder(stream, { mimeType: mime, videoBitsPerSecond: 6000000 });
+    mediaRecorder.ondataavailable = e => { if (e.data.size > 0) recordedChunks.push(e.data); };
+    mediaRecorder.onstop = exportVideoFile;
+    mediaRecorder.start();
+
+    // Reset film to start and play
+    currentTime = 0;
+    setAct(0);
+    playFilm();
+  } catch(err) {
+    alert('Browser screen/canvas recording not supported on this device: ' + err.message);
+    document.getElementById('recordBanner').style.display = 'none';
+    isRecording = false;
+  }
+}
+
+function stopRecording() {
+  isRecording = false;
+  document.getElementById('recordBtn').classList.remove('is-active');
+  document.getElementById('recordLabel').textContent = 'Record MP4';
+  document.getElementById('recordBanner').style.display = 'none';
+  if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+    mediaRecorder.stop();
+  }
+}
+
+function exportVideoFile() {
+  const blob = new Blob(recordedChunks, { type: 'video/webm' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.style.display = 'none';
+  a.href = url;
+  a.download = `Cruise-The-Creek-Holiday-Launch-${Date.now()}.webm`;
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(() => {
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(url);
+  }, 100);
+}
+
+// ── RESERVATION MODAL LOGIC ──
+function openReserve(tier) {
+  pauseFilm();
+  document.getElementById('modalTierVal').value = tier;
+  document.getElementById('modalTierTitle').textContent = tier === '2000'
+    ? 'Reserve $2,000 VIP Adventure Certificate'
+    : 'Reserve $1,500 Trailblazer Certificate';
+  document.getElementById('intakeModal').style.display = 'flex';
+}
+
+function closeReserve() {
+  document.getElementById('intakeModal').style.display = 'none';
+}
+
+async function submitModalForm(e) {
+  e.preventDefault();
+  const btn = document.getElementById('mSubmitBtn');
+  const msg = document.getElementById('mStatusMsg');
+  btn.disabled = true;
+  btn.textContent = 'Submitting Request…';
+
+  const tier = document.getElementById('modalTierVal').value;
+  const name = document.getElementById('mBuyerName').value.trim();
+  const phone = document.getElementById('mBuyerPhone').value.trim();
+  const email = document.getElementById('mBuyerEmail').value.trim();
+  const recipient = document.getElementById('mRecipientName').value.trim();
+  const notes = document.getElementById('mNotes').value.trim();
+
+  const payload = {
+    action: 'giftCardRequest',
+    tier: tier === '2000' ? 'The VIP Adventure ($2,000)' : 'The Trailblazer ($1,500)',
+    amount: parseFloat(tier),
+    bonusPerks: tier === '2000'
+      ? 'FREE Creek Ready™ Assembly ($125) + FREE 1st Annual Tune-Up ($125) + Spring-Start Warranty Lock'
+      : 'FREE Creek Ready™ Assembly ($125) + Spring-Start Warranty Lock',
+    buyerName: name,
+    buyerPhone: phone,
+    buyerEmail: email,
+    recipientName: recipient,
+    message: notes,
+    deliveryMethod: 'digital',
+    springTarget: 'Spring 2027',
+    termsAgreed: true
+  };
+
+  try {
+    const res = await fetch('https://script.google.com/macros/s/AKfycbwXv6r6Me-mdp9WFjCHQYDHcgEKbny-9_K8TX-yGgW40yTONhz6kAs3H96xM0tEDAhcJA/exec', {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify(payload),
+      redirect: 'follow'
+    });
+
+    msg.style.display = 'block';
+    msg.style.color = '#2e7d32';
+    msg.innerHTML = `<strong>✓ Request Received!</strong> We've logged your reservation. Our team will text your Stripe payment link to ${phone} shortly.`;
+    btn.textContent = 'Request Received ✓';
+    setTimeout(() => { closeReserve(); }, 3500);
+  } catch(err) {
+    msg.style.display = 'block';
+    msg.style.color = '#b93838';
+    msg.textContent = 'Connection error. Please call/text (330) 406-9686 directly to lock it in!';
+    btn.disabled = false;
+    btn.textContent = 'Submit Reservation Request →';
+  }
+}
+
+// Start frame rendering immediately on load
+window.addEventListener('load', () => {
+  initParticles();
+  checkAct(0);
+  requestAnimationFrame(render);
+});
+</script>
+
+</body>
+</html>
