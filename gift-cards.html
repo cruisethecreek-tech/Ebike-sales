@@ -397,11 +397,11 @@ footer .foot-links{margin:12px 0 6px;display:flex;justify-content:center;gap:16p
           </div>
           <ul class="tier-perks">
             <li><span class="check">✓</span> <strong>$2,000 credit</strong> toward any e-bike model</li>
-            <li class="bonus"><span class="check">★</span> <strong>FREE Creek Ready™ Assembly &amp; Tune-up</strong> ($125 Value)</li>
-            <li class="bonus"><span class="check">★</span> <strong>FREE Essential Gear Pack</strong>: Certified Helmet + Heavy-Duty U-Lock ($120 Value)</li>
-            <li class="bonus"><span class="check">★</span> <strong>FREE White-Glove Local Spring Delivery</strong> ($50 Value)</li>
+            <li class="bonus"><span class="check">★</span> <strong>FREE Creek Ready™ Assembly &amp; Safety Tune-up</strong> ($125 Value)</li>
+            <li class="bonus"><span class="check">★</span> <strong>FREE 1st Annual Creek Ready™ Tune-Up</strong> ($125 Value)</li>
             <li><span class="check">✓</span> <strong>"Spring-Start" Warranty Lock</strong> (starts April 1)</li>
-            <li><span class="check">✓</span> <strong>Total Bonus Value: Over $295 FREE</strong></li>
+            <li><span class="check">✓</span> Free heated indoor winter storage &amp; battery care</li>
+            <li><span class="check">✓</span> <strong>Total Bonus Value: $250+ in Free Shop Services</strong></li>
           </ul>
           <button type="button" class="tier-btn btn-gold" onclick="selectTier('2000', 'The VIP Adventure ($2,000)')">Choose $2,000 VIP Certificate →</button>
         </div>
@@ -479,7 +479,7 @@ footer .foot-links{margin:12px 0 6px;display:flex;justify-content:center;gap:16p
               <input type="radio" name="tierOption" value="2000" onchange="onTierPillChange()">
               <div class="pill-val">$2,000</div>
               <div class="pill-lbl">The VIP Adventure</div>
-              <div class="pill-perk">★ $295+ Free Perks</div>
+              <div class="pill-perk">★ $250+ Free Service</div>
             </label>
 
             <label class="tier-pill" id="pill-custom">
@@ -788,7 +788,7 @@ giftForm.addEventListener('submit', async function(e) {
   } else if (tierVal === '2000') {
     finalAmount = 2000;
     tierName = 'The VIP Adventure ($2,000)';
-    bonusPerks = 'FREE Creek Ready™ Assembly ($125) + FREE Helmet & U-Lock ($120) + FREE White-Glove Spring Delivery ($50) = $295+ FREE Perks';
+    bonusPerks = 'FREE Creek Ready™ Assembly ($125) + FREE 1st Annual Tune-Up ($125) + Spring-Start Warranty Lock ($250+ Free Service Value)';
   } else {
     const custVal = parseFloat(document.getElementById('customAmount').value);
     if (isNaN(custVal) || custVal <= 0) {
