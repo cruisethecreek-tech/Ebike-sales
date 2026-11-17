@@ -133,6 +133,7 @@ html,body{
   height:100%;
   pointer-events:none;
   z-index:7;
+  opacity:0; /* Rendered directly onto mediaCanvas so recording captures snow */
 }
 
 /* ── CINEMATIC OVERLAYS & GRAPHICS ── */
@@ -1751,12 +1752,12 @@ function render(timestamp) {
     updateHolidayCaptions(currentTime);
   }
 
-  // Draw current scene onto canvas
-  drawScene(delta);
-
-  // Animate particle layer
+  // Animate particle layer first so pCanvas has the current snow frame
   const currentAct = ACTS[currentActIndex] || ACTS[0];
   updateParticles(currentAct.particles);
+
+  // Draw current scene onto canvas (compositing pCanvas snow and text)
+  drawScene(delta);
 
   requestAnimationFrame(render);
 }
@@ -1789,6 +1790,38 @@ function drawScene(delta) {
   grad.addColorStop(1, 'rgba(0,0,0,0.72)');
   ctx.fillStyle = grad;
   ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  // Composite particle layer (SNOW, GOLD DUST, SPRING PETALS) onto mediaCanvas!
+  ctx.drawImage(pCanvas, 0, 0);
+
+  // Burn-in Cinematic Titles & Badges when recording MP4
+  if (isRecording) {
+    ctx.save();
+    // 1. Act Badge
+    ctx.font = 'bold 30px "Bebas Neue", sans-serif';
+    ctx.fillStyle = '#c9a96e';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.shadowColor = 'rgba(0,0,0,0.95)';
+    ctx.shadowBlur = 16;
+    ctx.fillText(currentAct.badge, canvas.width / 2, canvas.height * 0.36);
+
+    // 2. Main Title
+    ctx.font = 'bold 84px "Bebas Neue", sans-serif';
+    ctx.fillStyle = '#ffffff';
+    ctx.shadowColor = 'rgba(0,0,0,0.95)';
+    ctx.shadowBlur = 24;
+    ctx.fillText(currentAct.title, canvas.width / 2, canvas.height * 0.45);
+
+    // 3. Subtitle / Voiceover text
+    ctx.font = '500 30px "DM Sans", sans-serif';
+    ctx.fillStyle = 'rgba(255,255,255,0.94)';
+    ctx.shadowColor = 'rgba(0,0,0,0.9)';
+    ctx.shadowBlur = 14;
+    wrapCanvasText(ctx, currentAct.sub, canvas.width / 2, canvas.height * 0.53, 1200, 42);
+
+    ctx.restore();
+  }
 
   // Burn-in Holiday Captions when recording MP4
   if (isRecording && holidayCaptionsEnabled) {
@@ -1838,6 +1871,25 @@ function drawScene(delta) {
   }
 
   ctx.restore();
+}
+
+function wrapCanvasText(ctx, text, x, y, maxWidth, lineHeight) {
+  if (!text) return;
+  const words = text.split(' ');
+  let line = '';
+  let curY = y;
+  for (let n = 0; n < words.length; n++) {
+    const testLine = line + words[n] + ' ';
+    const metrics = ctx.measureText(testLine);
+    if (metrics.width > maxWidth && n > 0) {
+      ctx.fillText(line.trim(), x, curY);
+      line = words[n] + ' ';
+      curY += lineHeight;
+    } else {
+      line = testLine;
+    }
+  }
+  ctx.fillText(line.trim(), x, curY);
 }
 
 // ── ACT SWITCHING & TEXT ANIMATION ──
