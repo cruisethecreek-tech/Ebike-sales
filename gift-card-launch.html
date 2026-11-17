@@ -544,6 +544,124 @@ html,body{
   background:rgba(26,46,28,.8);
 }
 
+/* ── FESTIVE HOLIDAY OVERLAY CAPTIONS & WATERMARK ── */
+.hud-btn.holiday-btn{
+  background:linear-gradient(135deg, rgba(21,39,24,.9) 0%, rgba(13,26,16,.85) 100%);
+  border:1px solid rgba(201,169,110,.6);
+  color:var(--gold-bright);
+}
+.hud-btn.holiday-btn.is-active{
+  background:var(--gold-grad);
+  color:#152718;
+  border-color:#dfc188;
+  box-shadow:0 0 14px rgba(201,169,110,.5);
+}
+
+.holiday-top-watermark{
+  position:absolute;
+  top:78px;
+  left:50%;
+  transform:translateX(-50%);
+  z-index:22;
+  font-family:'JetBrains Mono',monospace;
+  font-size:clamp(0.68rem, 1.2vw, 0.82rem);
+  letter-spacing:.22em;
+  text-transform:uppercase;
+  color:var(--gold-bright);
+  background:rgba(13,26,16,.8);
+  border:1px solid rgba(201,169,110,.5);
+  border-radius:999px;
+  padding:5px 18px;
+  pointer-events:none;
+  backdrop-filter:blur(8px);
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  box-shadow:0 4px 20px rgba(0,0,0,.6);
+  transition:all .35s ease;
+}
+.holiday-top-watermark span{
+  font-size:.95rem;
+  filter:drop-shadow(0 0 6px rgba(255,255,255,.6));
+}
+
+#holidayCaptionBar{
+  position:absolute;
+  bottom:92px;
+  left:50%;
+  transform:translateX(-50%);
+  z-index:25;
+  width:min(90%, 860px);
+  pointer-events:none;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:8px;
+  transition:all .35s cubic-bezier(.16,1,.3,1);
+}
+#holidayCaptionBar.is-hidden{
+  opacity:0;
+  transform:translate(-50%, 16px);
+  pointer-events:none;
+}
+
+.holiday-ribbon-tag{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  background:linear-gradient(135deg, rgba(21,39,24,.94) 0%, rgba(13,26,16,.96) 100%);
+  border:1.5px solid rgba(201,169,110,.75);
+  border-radius:999px;
+  padding:4px 18px;
+  font-family:'Bebas Neue',sans-serif;
+  font-size:clamp(0.85rem, 1.6vw, 1.15rem);
+  letter-spacing:.18em;
+  color:var(--gold-bright);
+  text-shadow:0 0 12px rgba(201,169,110,.6);
+  box-shadow:0 4px 20px rgba(0,0,0,.6);
+  backdrop-filter:blur(10px);
+}
+.holiday-ribbon-tag span{
+  font-size:1.05rem;
+}
+
+.holiday-caption-box{
+  background:linear-gradient(135deg, rgba(13,26,16,.94) 0%, rgba(26,46,28,.90) 100%);
+  border:1.5px solid rgba(201,169,110,.6);
+  box-shadow:0 8px 32px rgba(0,0,0,.85), 0 0 24px rgba(201,169,110,.2);
+  backdrop-filter:blur(16px);
+  border-radius:14px;
+  padding:12px 24px;
+  text-align:center;
+  width:100%;
+}
+.holiday-caption-text{
+  font-family:'DM Sans',sans-serif;
+  font-size:clamp(0.98rem, 2.1vw, 1.35rem);
+  font-weight:500;
+  color:#ffffff;
+  line-height:1.45;
+  text-shadow:0 2px 10px rgba(0,0,0,.9);
+}
+.holiday-caption-text em{
+  font-style:normal;
+  color:var(--gold-bright);
+  font-weight:700;
+  text-shadow:0 0 10px rgba(201,169,110,.7);
+}
+.holiday-caption-text .caption-icon{
+  margin:0 6px;
+  display:inline-block;
+  vertical-align:middle;
+}
+
+@media(max-width:600px){
+  .holiday-top-watermark{top:62px;font-size:.62rem;padding:3px 10px}
+  #holidayCaptionBar{bottom:74px;width:95%}
+  .holiday-caption-box{padding:8px 14px}
+  .holiday-ribbon-tag{font-size:.78rem;padding:3px 10px}
+}
+
 /* ── START SCREEN PROMPT ── */
 #startScreen{
   position:absolute;
@@ -863,6 +981,23 @@ html,body{
       </div>
     </div>
 
+    <!-- FESTIVE SEASONAL WATERMARK -->
+    <div class="holiday-top-watermark" id="holidayWatermark">
+      <span>🎄</span> CRUISE THE CREEK · 2026 HOLIDAY PRESENTATION <span>❄️</span>
+    </div>
+
+    <!-- HOLIDAY OVERLAY CAPTIONS BAR -->
+    <div id="holidayCaptionBar">
+      <div class="holiday-ribbon-tag" id="holidayRibbonTag" data-current-start="0">
+        <span>❄️</span> <span>WINTER IN NORTHEAST OHIO</span> <span>❄️</span>
+      </div>
+      <div class="holiday-caption-box">
+        <div class="holiday-caption-text" id="holidayCaptionText">
+          <span class="caption-icon">❄️</span> “<em>December</em> in Northeast Ohio... The trails go quiet.” <span class="caption-icon">❄️</span>
+        </div>
+      </div>
+    </div>
+
     <!-- HUD LAYER -->
     <div id="hudLayer">
       <!-- HUD TOP -->
@@ -872,6 +1007,9 @@ html,body{
           <span class="hud-film-title">HOLIDAY LAUNCH FILM</span>
         </div>
         <div class="hud-actions">
+          <button type="button" class="hud-btn holiday-btn is-active" id="captionBtn" onclick="toggleHolidayCaptions()" title="Toggle Holiday Overlay Captions">
+            <span id="captionIcon">🎄</span> <span id="captionLabel">Holiday CC On</span>
+          </button>
           <button type="button" class="hud-btn voice-btn is-active" id="voiceBtn" onclick="toggleVoiceover()">
             <span id="voiceIcon">🎙️</span> <span id="voiceLabel">Voiceover On</span>
           </button>
@@ -1243,7 +1381,7 @@ const ACTS = [
     id: 0,
     startTime: 0,
     endTime: 9,
-    badge: 'ACT I · THE OHIO WINTER',
+    badge: '❄️ ACT I · THE OHIO WINTER ❄️',
     title: 'THE TRAILS GO QUIET.',
     sub: 'December in Northeast Ohio. The snow falls, and holiday shoppers face an agonizing question...',
     voiceScript: 'December in Northeast Ohio. The trails go quiet. The snow falls... and holiday shoppers face an agonizing question.',
@@ -1259,7 +1397,7 @@ const ACTS = [
     id: 1,
     startTime: 9,
     endTime: 19,
-    badge: 'ACT II · THE LOST WARRANTY',
+    badge: '🎄 ACT II · THE LOST WARRANTY 🎄',
     title: 'WHY BUY AN E-BIKE NOW...',
     sub: '...when it sits in a freezing garage until April? 5 months of factory warranty, ticking away into nothing.',
     voiceScript: 'Why buy an electric bike for Christmas, when it just sits in a freezing garage until April? Five months of factory warranty, ticking away into nothing.',
@@ -1275,7 +1413,7 @@ const ACTS = [
     id: 2,
     startTime: 19,
     endTime: 28,
-    badge: 'ACT III · THE BREAKTHROUGH',
+    badge: '✨ ACT III · THE HOLIDAY BREAKTHROUGH ✨',
     title: 'THIS YEAR, WE CHANGED THE RULES.',
     sub: 'Introducing the Cruise the Creek Holiday Certificate. Give the thrill under the tree with zero lost time.',
     voiceScript: 'This year, we change the rules. Introducing the Cruise the Creek holiday certificate. Give the thrill under the tree with zero loss time.',
@@ -1291,7 +1429,7 @@ const ACTS = [
     id: 3,
     startTime: 28,
     endTime: 40,
-    badge: 'ACT IV · THE SPRING-START GUARANTEE',
+    badge: '🔒 ACT IV · THE SPRING-START GUARANTEE ❄️',
     title: 'WARRANTY: FROZEN IN TIME.',
     sub: 'With our exclusive Spring-Start Guarantee, your factory warranty clock DOES NOT TICK until your spring delivery date. 100% intact.',
     features: ['★ Spring-Start Warranty Lock', '★ Zero Winter Coverage Lost', '★ 1 to 5+ Year Brand Protection'],
@@ -1308,7 +1446,7 @@ const ACTS = [
     id: 4,
     startTime: 40,
     endTime: 51,
-    badge: 'ACT V · THE UNMATCHED VALUE',
+    badge: '🎁 ACT V · THE UNMATCHED VALUE 🎁',
     title: 'FREE $125+ CREEK READY™ BUILD',
     sub: 'Full professional Creek Ready assembly and 20-point safety inspection. Heated indoor winter storage, battery care, and zero guesswork on frame size or color.',
     features: ['$1,500 The Trailblazer', '$2,000 The VIP Adventure', 'Free 1st Annual Tune-Up Included'],
@@ -1325,7 +1463,7 @@ const ACTS = [
     id: 5,
     startTime: 51,
     endTime: 60,
-    badge: 'FINALE · RESERVE TODAY',
+    badge: '⭐ FINALE · GIVE THE RIDE THIS HOLIDAY 🎄',
     title: 'GIVE THE RIDE THIS HOLIDAY.',
     sub: 'The adventure starts in spring. Reserve your certificate today at Cruise the Creek.',
     ctas: true,
@@ -1339,6 +1477,24 @@ const ACTS = [
     audioTone: 'grand'
   }
 ];
+
+// HIGH-RESOLUTION HOLIDAY OVERLAY CAPTIONS (Synced to ElevenLabs Audio Timeline)
+const HOLIDAY_CAPTIONS = [
+  { start: 0.0, end: 4.5, badge: 'WINTER IN NORTHEAST OHIO', icon: '❄️', text: 'December in Northeast Ohio... The trails go quiet.' },
+  { start: 4.5, end: 9.0, badge: 'THE HOLIDAY SHOPPING QUESTION', icon: '🎄', text: 'The snow falls... and holiday shoppers face an agonizing question.' },
+  { start: 9.0, end: 14.0, badge: 'THE CHRISTMAS MORNING DILEMMA', icon: '❄️', text: 'Why buy an electric bike for Christmas...' },
+  { start: 14.0, end: 19.0, badge: '5 MONTHS OF LOST WARRANTY', icon: '⏳', text: '...when it just sits in a freezing garage until April? Five months of factory warranty, ticking away.' },
+  { start: 19.0, end: 23.5, badge: 'A NEW HOLIDAY TRADITION', icon: '✨', text: 'This year, we change the rules at Cruise the Creek.' },
+  { start: 23.5, end: 28.0, badge: 'THE PERFECT GIFT UNDER THE TREE', icon: '🎁', text: 'Introducing the Holiday Certificate: Give the thrill under the tree with zero lost time.' },
+  { start: 28.0, end: 34.0, badge: 'EXCLUSIVE "SPRING-START" GUARANTEE', icon: '🔒', text: 'With our exclusive Spring-Start Guarantee, your factory warranty is frozen in time.' },
+  { start: 34.0, end: 40.0, badge: '100% COVERAGE INTACT UNTIL SPRING', icon: '🛡️', text: 'The clock does not tick until your spring delivery date. 100% of your coverage, completely intact.' },
+  { start: 40.0, end: 45.5, badge: 'FREE $125+ CREEK READY™ BUILD', icon: '🔧', text: 'Every certificate includes our full professional Creek Ready™ assembly and 20-point safety inspection.' },
+  { start: 45.5, end: 51.0, badge: 'HEATED WINTER STORAGE & BATTERY CARE', icon: '🔋', text: 'Heated indoor winter storage, battery care, and zero guesswork on frame size or color.' },
+  { start: 51.0, end: 55.5, badge: 'THE ULTIMATE HOLIDAY GIFT', icon: '🎄', text: 'Give the gift of the ride this holiday season.' },
+  { start: 55.5, end: 60.5, badge: 'RESERVE TODAY · CRUISE THE CREEK', icon: '⭐', text: 'The adventure starts in spring. Reserve your certificate today at Cruise the Creek.' }
+];
+
+let holidayCaptionsEnabled = true;
 
 // Canvas & 2D contexts
 const canvas = document.getElementById('mediaCanvas');
@@ -1592,6 +1748,7 @@ function render(timestamp) {
     }
     updateTimelineUI();
     checkAct(currentTime);
+    updateHolidayCaptions(currentTime);
   }
 
   // Draw current scene onto canvas
@@ -1632,6 +1789,53 @@ function drawScene(delta) {
   grad.addColorStop(1, 'rgba(0,0,0,0.72)');
   ctx.fillStyle = grad;
   ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  // Burn-in Holiday Captions when recording MP4
+  if (isRecording && holidayCaptionsEnabled) {
+    const cap = HOLIDAY_CAPTIONS.find(c => currentTime >= c.start && currentTime < c.end)
+             || HOLIDAY_CAPTIONS[HOLIDAY_CAPTIONS.length - 1];
+    if (cap && currentTime > 0.2) {
+      ctx.save();
+      const boxW = Math.min(canvas.width * 0.88, 1400);
+      const boxH = 74;
+      const boxX = (canvas.width - boxW) / 2;
+      const boxY = canvas.height - 145;
+
+      ctx.fillStyle = 'rgba(12, 24, 15, 0.88)';
+      ctx.strokeStyle = 'rgba(201, 169, 110, 0.7)';
+      ctx.lineWidth = 2.5;
+      ctx.beginPath();
+      if (ctx.roundRect) ctx.roundRect(boxX, boxY, boxW, boxH, 16);
+      else ctx.rect(boxX, boxY, boxW, boxH);
+      ctx.fill();
+      ctx.stroke();
+
+      const badgeW = 440;
+      const badgeH = 30;
+      const badgeX = (canvas.width - badgeW) / 2;
+      const badgeY = boxY - 17;
+      ctx.fillStyle = 'rgba(21, 39, 24, 0.95)';
+      ctx.strokeStyle = 'rgba(201, 169, 110, 0.85)';
+      ctx.lineWidth = 1.8;
+      ctx.beginPath();
+      if (ctx.roundRect) ctx.roundRect(badgeX, badgeY, badgeW, badgeH, 15);
+      else ctx.rect(badgeX, badgeY, badgeW, badgeH);
+      ctx.fill();
+      ctx.stroke();
+
+      ctx.font = 'bold 20px "Bebas Neue", sans-serif';
+      ctx.fillStyle = '#dfc188';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(`${cap.icon}  ${cap.badge}  ${cap.icon}`, canvas.width / 2, badgeY + badgeH / 2);
+
+      ctx.font = '500 27px "DM Sans", sans-serif';
+      ctx.fillStyle = '#ffffff';
+      ctx.fillText(`“${cap.text}”`, canvas.width / 2, boxY + boxH / 2 + 3);
+
+      ctx.restore();
+    }
+  }
 
   ctx.restore();
 }
@@ -1707,6 +1911,7 @@ function setAct(index) {
     });
 
     overlay.classList.add('is-visible');
+    updateHolidayCaptions(currentTime);
   }, 350);
 }
 
@@ -1716,20 +1921,24 @@ function triggerAudioForAct(tone) {
 
   if (tone === 'winter') {
     playWinterWind();
+    playHolidayChimes();
   } else if (tone === 'ticking') {
     playClockTick();
   } else if (tone === 'swell') {
     playCinematicBoom(180, 45, 1.8);
     playChords([220, 277, 330, 440], 4.5); // A Major warm chord
+    playHolidayChimes();
   } else if (tone === 'driving') {
     playCinematicBoom(220, 55, 1.2);
     playArpeggios();
   } else if (tone === 'triumph') {
     playChords([293, 370, 440, 554], 5.0); // D Major uplifting
     playCinematicBoom(140, 40, 1.5);
+    playHolidayChimes();
   } else if (tone === 'grand') {
     playChords([220, 277, 330, 440, 554], 7.0); // Full Grand A Major
     playCinematicBoom(110, 35, 2.5);
+    playHolidayChimes();
   }
 }
 
@@ -1823,11 +2032,79 @@ function playArpeggios() {
   });
 }
 
+function playHolidayChimes() {
+  if (!audioCtx || !musicGain) return;
+  const now = audioCtx.currentTime;
+  const bellNotes = [1567.98, 1975.53, 2349.32, 3135.96]; // G6, B6, D7, G7 crystalline holiday bells
+  bellNotes.forEach((f, idx) => {
+    const osc = audioCtx.createOscillator();
+    const g = audioCtx.createGain();
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(f, now + idx * 0.12);
+    g.gain.setValueAtTime(0.08, now + idx * 0.12);
+    g.gain.exponentialRampToValueAtTime(0.0001, now + idx * 0.12 + 1.2);
+    osc.connect(g);
+    g.connect(musicGain);
+    osc.start(now + idx * 0.12);
+    osc.stop(now + idx * 0.12 + 1.25);
+  });
+}
+
+// ── HOLIDAY OVERLAY CAPTIONS CONTROLLER ──
+function toggleHolidayCaptions() {
+  holidayCaptionsEnabled = !holidayCaptionsEnabled;
+  const bar = document.getElementById('holidayCaptionBar');
+  const watermark = document.getElementById('holidayWatermark');
+  const btn = document.getElementById('captionBtn');
+  const label = document.getElementById('captionLabel');
+
+  if (holidayCaptionsEnabled) {
+    if (bar) bar.classList.remove('is-hidden');
+    if (watermark) watermark.style.opacity = '1';
+    if (btn) btn.classList.add('is-active');
+    if (label) label.textContent = 'Holiday CC On';
+    updateHolidayCaptions(currentTime);
+  } else {
+    if (bar) bar.classList.add('is-hidden');
+    if (watermark) watermark.style.opacity = '0';
+    if (btn) btn.classList.remove('is-active');
+    if (label) label.textContent = 'Holiday CC Off';
+  }
+}
+
+function updateHolidayCaptions(time) {
+  if (!holidayCaptionsEnabled) return;
+  const bar = document.getElementById('holidayCaptionBar');
+  if (!bar) return;
+
+  const cap = HOLIDAY_CAPTIONS.find(c => time >= c.start && time < c.end) 
+           || HOLIDAY_CAPTIONS[HOLIDAY_CAPTIONS.length - 1];
+  if (!cap) return;
+
+  const ribbonEl = document.getElementById('holidayRibbonTag');
+  const textEl = document.getElementById('holidayCaptionText');
+
+  if (ribbonEl && textEl && ribbonEl.dataset.currentStart !== String(cap.start)) {
+    ribbonEl.dataset.currentStart = String(cap.start);
+    ribbonEl.innerHTML = `<span>${cap.icon}</span> <span>${cap.badge}</span> <span>${cap.icon}</span>`;
+    textEl.innerHTML = `<span class="caption-icon">${cap.icon}</span> “${highlightHolidayWords(cap.text)}” <span class="caption-icon">${cap.icon}</span>`;
+  }
+}
+
+function highlightHolidayWords(str) {
+  return str
+    .replace(/(Christmas|holiday season|holiday shoppers|holiday certificate|holiday|December)/gi, '<em>$1</em>')
+    .replace(/(Spring-Start Guarantee|frozen in time|100% of your coverage)/gi, '<em>$1</em>')
+    .replace(/(Creek Ready™|Cruise the Creek)/gi, '<em>$1</em>')
+    .replace(/(under the tree|gift of the ride)/gi, '<em>$1</em>');
+}
+
 // ── PLAYBACK CONTROLS ──
 function startFilm() {
   document.getElementById('startScreen').style.display = 'none';
   initAudio();
   initParticles();
+  updateHolidayCaptions(0);
   playFilm();
 }
 
@@ -1887,6 +2164,7 @@ function jumpToAct(index) {
   stopVoice();
   setAct(index);
   updateTimelineUI();
+  updateHolidayCaptions(currentTime);
   if (!isPlaying) playFilm();
 }
 
@@ -1903,6 +2181,7 @@ function seekTimeline(e) {
   stopVoice();
   checkAct(currentTime);
   updateTimelineUI();
+  updateHolidayCaptions(currentTime);
   if (isPlaying) {
     if (voiceoverMode === 'studio' && masterEl) masterEl.play().catch(() => {});
     else if (voiceoverMode === 'custom' && customEl) customEl.play().catch(() => {});
