@@ -185,22 +185,9 @@ html,body{
   display:block;
 }
 
-/* Cinematic Subtitle / Voiceover Text */
+/* Cinematic Subtitle / Voiceover Text (Hidden to keep center uncluttered; captions display in holiday bar below) */
 .cine-sub{
-  font-family:'DM Sans',sans-serif;
-  font-size:clamp(0.95rem, 2.2vw, 1.6rem);
-  color:rgba(255,255,255,.94);
-  max-width:850px;
-  line-height:1.5;
-  margin-top:16px;
-  opacity:0;
-  transform:translateY(15px);
-  transition:all .8s cubic-bezier(.16,1,.3,1);
-  text-shadow:0 2px 15px rgba(0,0,0,.9);
-}
-.cine-sub strong{
-  color:var(--gold);
-  font-weight:700;
+  display:none !important;
 }
 
 /* Highlights Box / Pill Grid */
@@ -262,8 +249,7 @@ html,body{
   transform:scale(1) translateY(0);
 }
 .is-visible .cine-sub{
-  opacity:1;
-  transform:translateY(0);
+  display:none !important;
 }
 .is-visible .cine-feature-grid{
   opacity:1;
@@ -1804,21 +1790,16 @@ function drawScene(delta) {
     ctx.textBaseline = 'middle';
     ctx.shadowColor = 'rgba(0,0,0,0.95)';
     ctx.shadowBlur = 16;
-    ctx.fillText(currentAct.badge, canvas.width / 2, canvas.height * 0.36);
+    ctx.fillText(currentAct.badge, canvas.width / 2, canvas.height * 0.40);
 
     // 2. Main Title
-    ctx.font = 'bold 84px "Bebas Neue", sans-serif';
+    ctx.font = 'bold 88px "Bebas Neue", sans-serif';
     ctx.fillStyle = '#ffffff';
     ctx.shadowColor = 'rgba(0,0,0,0.95)';
     ctx.shadowBlur = 24;
-    ctx.fillText(currentAct.title, canvas.width / 2, canvas.height * 0.45);
+    ctx.fillText(currentAct.title, canvas.width / 2, canvas.height * 0.48);
 
-    // 3. Subtitle / Voiceover text
-    ctx.font = '500 30px "DM Sans", sans-serif';
-    ctx.fillStyle = 'rgba(255,255,255,0.94)';
-    ctx.shadowColor = 'rgba(0,0,0,0.9)';
-    ctx.shadowBlur = 14;
-    wrapCanvasText(ctx, currentAct.sub, canvas.width / 2, canvas.height * 0.53, 1200, 42);
+    // Note: Center subtitle text omitted per user request to keep center uncluttered; festive captions show in holiday caption bar below.
 
     ctx.restore();
   }
