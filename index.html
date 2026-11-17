@@ -482,6 +482,240 @@ footer{background:var(--dark);color:rgba(255,255,255,.75);padding:40px 24px 32px
   .tile,.hero-content{animation:none;opacity:1;transform:none}
   .hero-scroll{animation:none}
 }
+
+/* ── FULL-SIZE HORIZONTAL GIFT CARD PROMO BANNER ── */
+.gift-card-hero-banner{
+  background:linear-gradient(135deg, #0d1e12 0%, #152718 45%, #233e29 100%);
+  color:#fff;
+  border-top:2px solid var(--tan,#c9a96e);
+  border-bottom:2px solid var(--tan,#c9a96e);
+  position:relative;
+  overflow:hidden;
+  padding:48px 24px;
+}
+.gift-card-hero-banner::before{
+  content:'';
+  position:absolute;
+  inset:0;
+  background-image:radial-gradient(rgba(201,169,110,.14) 1px, transparent 1px);
+  background-size:24px 24px;
+  pointer-events:none;
+}
+.banner-inner{
+  max-width:1200px;
+  margin:0 auto;
+  position:relative;
+  z-index:2;
+}
+.banner-badge{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  background:rgba(201,169,110,.18);
+  border:1px solid rgba(201,169,110,.5);
+  border-radius:99px;
+  padding:6px 18px;
+  font-size:.76rem;
+  font-weight:800;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  color:var(--tan,#dfc188);
+  margin-bottom:16px;
+}
+.banner-grid{
+  display:grid;
+  grid-template-columns:1.2fr 0.8fr;
+  gap:40px;
+  align-items:center;
+}
+.banner-title{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:clamp(2.2rem, 4.4vw, 3.8rem);
+  line-height:.96;
+  letter-spacing:.02em;
+  color:#fff;
+  margin:0 0 14px;
+}
+.banner-title em{
+  font-style:normal;
+  background:linear-gradient(135deg, #dfc188 0%, #c9a96e 100%);
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+  display:block;
+}
+.banner-desc{
+  font-size:clamp(.92rem, 1.3vw, 1.05rem);
+  line-height:1.55;
+  color:rgba(255,255,255,.9);
+  max-width:620px;
+  margin-bottom:20px;
+}
+.banner-perks{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+  margin-bottom:26px;
+}
+.banner-perk{
+  font-size:.9rem;
+  color:rgba(255,255,255,.94);
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+}
+.banner-perk strong{
+  color:var(--tan,#dfc188);
+}
+.banner-actions{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  flex-wrap:wrap;
+}
+.banner-btn-primary{
+  background:linear-gradient(135deg, #dfc188 0%, #c9a96e 100%);
+  color:#152718;
+  font-family:'DM Sans',sans-serif;
+  font-weight:800;
+  font-size:.92rem;
+  letter-spacing:.03em;
+  padding:13px 26px;
+  border-radius:6px;
+  text-decoration:none;
+  box-shadow:0 6px 20px rgba(201,169,110,.35);
+  transition:all .2s ease;
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+}
+.banner-btn-primary:hover{
+  transform:translateY(-2px);
+  box-shadow:0 8px 26px rgba(201,169,110,.5);
+  color:#152718;
+}
+.banner-btn-secondary{
+  background:rgba(0,0,0,.45);
+  color:#fff;
+  border:1.5px solid var(--tan,#c9a96e);
+  font-family:'DM Sans',sans-serif;
+  font-weight:700;
+  font-size:.88rem;
+  padding:12px 20px;
+  border-radius:6px;
+  text-decoration:none;
+  transition:all .2s ease;
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+}
+.banner-btn-secondary:hover{
+  background:rgba(201,169,110,.22);
+  color:var(--tan,#dfc188);
+}
+.banner-btn-ghost{
+  color:rgba(255,255,255,.8);
+  font-size:.84rem;
+  text-decoration:none;
+  padding:10px 14px;
+}
+.banner-btn-ghost:hover{
+  color:#fff;
+  text-decoration:underline;
+}
+
+/* Right Mockup Card */
+.banner-visual{
+  display:flex;
+  justify-content:center;
+}
+.banner-card-mockup{
+  display:block;
+  text-decoration:none;
+  background:linear-gradient(145deg, #1b3220 0%, #0d1a10 100%);
+  border:2px solid var(--tan,#c9a96e);
+  border-radius:18px;
+  padding:28px 24px;
+  box-shadow:0 20px 50px rgba(0,0,0,.65), 0 0 30px rgba(201,169,110,.25);
+  width:100%;
+  max-width:390px;
+  position:relative;
+  transition:all .25s ease;
+}
+.banner-card-mockup:hover{
+  transform:translateY(-4px) scale(1.02);
+  box-shadow:0 26px 60px rgba(0,0,0,.75), 0 0 42px rgba(201,169,110,.4);
+  border-color:#dfc188;
+}
+.mockup-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:12px;
+}
+.mockup-logo{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:1.15rem;
+  letter-spacing:.12em;
+  color:#fff;
+}
+.mockup-tag{
+  font-size:.65rem;
+  font-weight:800;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+  color:var(--tan,#dfc188);
+  background:rgba(201,169,110,.18);
+  padding:3px 8px;
+  border-radius:4px;
+}
+.mockup-value{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:3.8rem;
+  line-height:.95;
+  background:linear-gradient(135deg, #dfc188 0%, #c9a96e 100%);
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+  margin-bottom:4px;
+}
+.mockup-tier{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:1.25rem;
+  letter-spacing:.06em;
+  color:#fff;
+  margin-bottom:12px;
+}
+.mockup-guarantee{
+  font-size:.76rem;
+  font-weight:800;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  color:var(--tan,#dfc188);
+  background:rgba(0,0,0,.5);
+  border:1px solid rgba(201,169,110,.4);
+  padding:8px 10px;
+  border-radius:6px;
+  text-align:center;
+  margin-bottom:16px;
+}
+.mockup-footer{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  font-size:.74rem;
+  color:rgba(255,255,255,.75);
+  border-top:1px solid rgba(255,255,255,.12);
+  padding-top:10px;
+}
+.mockup-cta{
+  color:var(--tan,#dfc188);
+  font-weight:800;
+}
+
+@media(max-width:860px){
+  .banner-grid{grid-template-columns:1fr;gap:24px}
+  .banner-card-mockup{max-width:100%}
+  .gift-card-hero-banner{padding:34px 18px}
+}
 </style>
 <script src="site-enhance.js?v=0e6f87fa1c"></script>
 <meta property="og:title" content="Cruise the Creek | Electric Bike Adventures">
@@ -605,6 +839,54 @@ footer{background:var(--dark);color:rgba(255,255,255,.75);padding:40px 24px 32px
     Explore
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
   </a>
+</section>
+
+<!-- ── HOLIDAY E-BIKE GIFT CARD FULL-SIZE HORIZONTAL BANNER ── -->
+<section class="gift-card-hero-banner" id="holiday-banner">
+  <div class="banner-inner">
+    <div class="banner-badge">
+      <span>🎄</span>
+      <span>HOLIDAY 2026 E-BIKE CERTIFICATES · THE "SPRING-START" GUARANTEE</span>
+      <span>❄️</span>
+    </div>
+    <div class="banner-grid">
+      <div class="banner-content">
+        <h2 class="banner-title">
+          GIVE THE RIDE THIS HOLIDAY.
+          <em>THE ADVENTURE STARTS IN SPRING.</em>
+        </h2>
+        <p class="banner-desc">
+          Don't let freezing winter weather waste 5 months of factory warranty. Lock in an E-Bike Holiday Gift Certificate today: your factory warranty clock is <strong>frozen in time</strong> until spring rollout. Includes free professional assembly, indoor winter battery care, and white-glove delivery.
+        </p>
+        <div class="banner-perks">
+          <span class="banner-perk">🛡️ <strong>Zero Wasted Warranty:</strong> Frozen until spring rollout</span>
+          <span class="banner-perk">🔧 <strong>Free Creek Ready™ Build:</strong> $125 20-point mechanical build included</span>
+          <span class="banner-perk">🎁 <strong>Luxury Presentation:</strong> Custom keepsake envelope under the tree</span>
+        </div>
+        <div class="banner-actions">
+          <a href="gift-cards.html" class="banner-btn-primary">🎁 Reserve a Certificate →</a>
+          <a href="gift-cards.html#launch-video" class="banner-btn-secondary">🎬 Watch 60-Sec Film</a>
+          <a href="sms:3304069686" class="banner-btn-ghost">💬 Text Shop (330) 406-9686</a>
+        </div>
+      </div>
+
+      <div class="banner-visual">
+        <a href="gift-cards.html" class="banner-card-mockup" title="Explore Holiday Gift Packages">
+          <div class="mockup-header">
+            <span class="mockup-logo">CRUISE THE CREEK</span>
+            <span class="mockup-tag">OFFICIAL CERTIFICATE</span>
+          </div>
+          <div class="mockup-value">$2,000</div>
+          <div class="mockup-tier">THE VIP ADVENTURE CERTIFICATE</div>
+          <div class="mockup-guarantee">🔒 FACTORY WARRANTY FROZEN UNTIL SPRING ❄️</div>
+          <div class="mockup-footer">
+            <span>Free Creek Ready™ Build Included</span>
+            <span class="mockup-cta">Explore Packages →</span>
+          </div>
+        </a>
+      </div>
+    </div>
+  </div>
 </section>
 
 <!-- ── SECTION HEAD ── -->

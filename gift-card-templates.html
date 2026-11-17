@@ -804,6 +804,193 @@ body{
   box-shadow:0 4px 15px rgba(201,169,110,.4);
 }
 
+/* ── 8.5" x 3.5" FULL-SIZE HORIZONTAL BANNER VOUCHER ── */
+.banner-wrapper{
+  display:none;
+  flex-direction:column;
+  align-items:center;
+  gap:16px;
+  width:100%;
+}
+.gift-banner-horizontal{
+  width:880px;
+  height:350px;
+  border-radius:12px;
+  position:relative;
+  box-shadow:0 24px 60px rgba(0,0,0,.9), 0 0 35px rgba(201,169,110,.25);
+  border:2px solid var(--gold);
+  display:grid;
+  grid-template-columns:1fr 270px;
+  overflow:hidden;
+}
+.banner-main-col{
+  padding:26px 30px;
+  display:flex;
+  flex-direction:column;
+  justify-content:space-between;
+  position:relative;
+  z-index:2;
+}
+.banner-header-row{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+}
+.banner-logo-group{
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+.banner-logo{
+  height:32px;
+  width:auto;
+  filter:brightness(0) invert(1);
+}
+.banner-brand-title{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:1.3rem;
+  letter-spacing:.12em;
+  color:#fff;
+  line-height:1;
+}
+.banner-brand-sub{
+  font-size:.66rem;
+  letter-spacing:.15em;
+  text-transform:uppercase;
+  color:var(--gold);
+}
+.banner-badge-tag{
+  background:rgba(201,169,110,.18);
+  border:1px solid rgba(201,169,110,.4);
+  padding:4px 10px;
+  border-radius:99px;
+  font-size:.68rem;
+  font-weight:800;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+  color:var(--gold-bright);
+}
+.banner-val-row{
+  display:flex;
+  align-items:baseline;
+  gap:14px;
+  margin:6px 0;
+}
+.banner-hero-amount{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:4.6rem;
+  line-height:.9;
+  letter-spacing:.02em;
+  background:var(--gold-grad);
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+  filter:drop-shadow(0 3px 10px rgba(0,0,0,.7));
+}
+.banner-tier-info{
+  display:flex;
+  flex-direction:column;
+  gap:2px;
+}
+.banner-tier-name{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:1.6rem;
+  letter-spacing:.06em;
+  color:#fff;
+}
+.banner-tier-sub{
+  font-size:.78rem;
+  color:var(--gold-bright);
+  font-weight:700;
+}
+.banner-recipient-box{
+  background:rgba(0,0,0,.35);
+  border:1px solid rgba(201,169,110,.3);
+  border-radius:8px;
+  padding:10px 14px;
+}
+.banner-for-line{
+  display:flex;
+  justify-content:space-between;
+  align-items:baseline;
+  font-size:.72rem;
+  color:var(--gold);
+  font-weight:800;
+  letter-spacing:.1em;
+  text-transform:uppercase;
+}
+.banner-rec-name{
+  font-family:'Cinzel',serif;
+  font-size:1.35rem;
+  color:#fff;
+  margin:2px 0;
+}
+.banner-personal-note{
+  font-size:.78rem;
+  color:rgba(255,255,255,.85);
+  font-style:italic;
+  line-height:1.4;
+}
+.banner-stub-col{
+  background:rgba(0,0,0,.38);
+  border-left:2px dashed rgba(201,169,110,.5);
+  padding:22px 18px;
+  display:flex;
+  flex-direction:column;
+  justify-content:space-between;
+  text-align:center;
+  position:relative;
+  z-index:2;
+}
+.banner-stub-tag{
+  font-size:.66rem;
+  font-weight:800;
+  letter-spacing:.2em;
+  text-transform:uppercase;
+  color:var(--gold);
+}
+.banner-stub-qr{
+  width:88px;
+  height:88px;
+  background:#fff;
+  border-radius:6px;
+  padding:4px;
+  margin:0 auto;
+}
+.banner-stub-qr img{
+  width:100%;
+  height:100%;
+}
+.banner-stub-meta{
+  font-size:.68rem;
+  color:rgba(255,255,255,.75);
+  line-height:1.35;
+}
+.banner-stub-serial{
+  font-family:'JetBrains Mono',monospace;
+  font-weight:800;
+  color:#fff;
+  font-size:.82rem;
+  letter-spacing:.08em;
+  margin-top:2px;
+}
+.banner-seal{
+  width:52px;
+  height:52px;
+  border-radius:50%;
+  border:1.5px solid var(--gold);
+  background:radial-gradient(circle, #f7e0aa 0%, #c9a96e 50%, #997531 100%);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:#1a2e1c;
+  font-family:'Bebas Neue',sans-serif;
+  font-size:.72rem;
+  text-align:center;
+  line-height:1;
+  font-weight:800;
+  margin:0 auto;
+}
+
 /* ── 8.5" x 11" PRINT SHEET PREVIEW (8-UP) ── */
 .sheet-wrapper{
   display:none;
@@ -927,11 +1114,14 @@ body{
   </div>
 
   <div class="header-actions">
-    <button type="button" class="btn-studio-outline" onclick="exportCardPng('front')">
+    <button type="button" class="btn-studio-outline" id="exportFrontBtn" onclick="exportCardPng('front')">
       📥 Export Front PNG (300 DPI)
     </button>
-    <button type="button" class="btn-studio-outline" onclick="exportCardPng('back')">
+    <button type="button" class="btn-studio-outline" id="exportBackBtn" onclick="exportCardPng('back')">
       📥 Export Back PNG
+    </button>
+    <button type="button" class="btn-studio-outline" id="exportBannerBtn" style="display:none" onclick="exportBannerPng()">
+      📥 Export Banner PNG (300 DPI)
     </button>
     <button type="button" class="btn-studio" onclick="window.print()">
       🖨️ Print Cards / Sheet
@@ -975,8 +1165,9 @@ body{
       <div class="section-label">2. Card Format</div>
       <div class="format-pills">
         <button type="button" class="format-pill is-active" onclick="setFormat('wallet', this)">💳 Wallet Card</button>
+        <button type="button" class="format-pill" onclick="setFormat('banner', this)">🏷️ Horizontal Banner</button>
         <button type="button" class="format-pill" onclick="setFormat('certificate', this)">📜 5"×7" Certificate</button>
-        <button type="button" class="format-pill" onclick="setFormat('sheet', this)">📄 8-Up Print Sheet</button>
+        <button type="button" class="format-pill" onclick="setFormat('sheet', this)">📄 8-Up Sheet</button>
       </div>
     </div>
 
@@ -1219,7 +1410,68 @@ body{
       </div>
     </div>
 
-    <!-- 3. 8.5" x 11" PRINT SHEET (8-UP) -->
+    <!-- 3. FULL-SIZE 8.5" x 3.5" HORIZONTAL BANNER VOUCHER -->
+    <div class="banner-wrapper" id="bannerShowcase">
+      <div class="card-label">Full-Size 8.5" × 3.5" Horizontal Banner Certificate (Voucher Presentation)</div>
+      
+      <div class="gift-banner-horizontal theme-forest-card" id="bannerEl">
+        <div class="topo-pattern"></div>
+
+        <!-- MAIN VOUCHER BODY -->
+        <div class="banner-main-col">
+          <div class="banner-header-row">
+            <div class="banner-logo-group">
+              <img src="BlackonTransparent.png" alt="Cruise the Creek" class="banner-logo">
+              <div>
+                <div class="banner-brand-title">CRUISE THE CREEK</div>
+                <div class="banner-brand-sub">Holiday E-Bike Certificate</div>
+              </div>
+            </div>
+            <div class="banner-badge-tag">🔒 Spring-Start Guaranteed</div>
+          </div>
+
+          <div class="banner-val-row">
+            <div class="banner-hero-amount">
+              <span style="font-size:2.8rem;vertical-align:top">$</span><span id="bannerAmount">2,000</span>
+            </div>
+            <div class="banner-tier-info">
+              <div class="banner-tier-name" id="bannerTierTitle">The VIP Adventure Certificate</div>
+              <div class="banner-tier-sub">★ Free $125 Creek Ready™ Assembly &amp; Delivery Included</div>
+            </div>
+          </div>
+
+          <div class="banner-recipient-box">
+            <div class="banner-for-line">
+              <span>Presented To</span>
+              <span id="bannerBuyer" style="color:var(--gold);font-size:.68rem">With love from Mike Miller</span>
+            </div>
+            <div class="banner-rec-name" id="bannerRecipient">Sarah Miller</div>
+            <div class="banner-personal-note" id="bannerNote">
+              "Merry Christmas! Let's ride the Mill Creek trails together this spring."
+            </div>
+          </div>
+        </div>
+
+        <!-- STUB & VERIFICATION COLUMN -->
+        <div class="banner-stub-col">
+          <div class="banner-stub-tag">VERIFICATION STUB</div>
+
+          <div class="banner-stub-qr" id="bannerQrContainer"></div>
+
+          <div class="banner-stub-meta">
+            <div>Certificate ID:</div>
+            <div class="banner-stub-serial" id="bannerSerial">CTC-2026-7842</div>
+            <div style="font-size:.62rem;color:#888;margin-top:2px">PIN: <strong id="bannerPin" style="color:#fff">4819</strong></div>
+          </div>
+
+          <div class="banner-seal">
+            CREEK<br>READY<br>SEAL
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4. 8.5" x 11" PRINT SHEET (8-UP) -->
     <div class="sheet-wrapper" id="sheetShowcase">
       <div class="card-label">8.5" × 11" Cardstock Multi-Print Sheet (Fronts &amp; Backs with Crop Marks)</div>
       
@@ -1251,18 +1503,32 @@ let currentNote = "Merry Christmas! Let's ride the Mill Creek trails together th
 let currentSerial = 'CTC-2026-7842';
 let currentPin = '4819';
 
-// Initialize QR code on Card Back
+// Initialize QR code on Card Back and Banner Stub
 function initQrCode() {
   const container = document.getElementById('qrContainer');
-  container.innerHTML = '';
-  new QRCode(container, {
-    text: 'https://www.cruisethecreek.com/verify.html?code=' + encodeURIComponent(currentSerial),
-    width: 70,
-    height: 70,
-    colorDark: '#1a2e1c',
-    colorLight: '#ffffff',
-    correctLevel: QRCode.CorrectLevel.M
-  });
+  if (container) {
+    container.innerHTML = '';
+    new QRCode(container, {
+      text: 'https://www.cruisethecreek.com/verify.html?code=' + encodeURIComponent(currentSerial),
+      width: 70,
+      height: 70,
+      colorDark: '#1a2e1c',
+      colorLight: '#ffffff',
+      correctLevel: QRCode.CorrectLevel.M
+    });
+  }
+  const bannerContainer = document.getElementById('bannerQrContainer');
+  if (bannerContainer) {
+    bannerContainer.innerHTML = '';
+    new QRCode(bannerContainer, {
+      text: 'https://www.cruisethecreek.com/verify.html?code=' + encodeURIComponent(currentSerial),
+      width: 80,
+      height: 80,
+      colorDark: '#1a2e1c',
+      colorLight: '#ffffff',
+      correctLevel: QRCode.CorrectLevel.M
+    });
+  }
 }
 
 // ── THEME SWITCHER ──
@@ -1274,14 +1540,15 @@ function setTheme(theme, btn) {
   const front = document.getElementById('cardFrontEl');
   const back = document.getElementById('cardBackEl');
   const cert = document.getElementById('cert5x7El');
+  const banner = document.getElementById('bannerEl');
 
   const themeClasses = ['theme-forest-card', 'theme-frost-card', 'theme-sunset-card', 'theme-stealth-card'];
-  [front, back, cert].forEach(el => {
+  [front, back, cert, banner].forEach(el => {
     if (el) themeClasses.forEach(cls => el.classList.remove(cls));
   });
 
   const targetClass = `theme-${theme}-card`;
-  [front, back, cert].forEach(el => {
+  [front, back, cert, banner].forEach(el => {
     if (el) el.classList.add(targetClass);
   });
 
@@ -1295,11 +1562,20 @@ function setFormat(fmt, btn) {
   btn.classList.add('is-active');
 
   document.getElementById('walletShowcase').style.display = fmt === 'wallet' ? 'flex' : 'none';
+  document.getElementById('bannerShowcase').style.display = fmt === 'banner' ? 'flex' : 'none';
   document.getElementById('certShowcase').style.display = fmt === 'certificate' ? 'flex' : 'none';
   document.getElementById('sheetShowcase').style.display = fmt === 'sheet' ? 'flex' : 'none';
   document.getElementById('viewTabs').style.display = fmt === 'wallet' ? 'flex' : 'none';
 
+  const exportBannerBtn = document.getElementById('exportBannerBtn');
+  const exportFrontBtn = document.getElementById('exportFrontBtn');
+  const exportBackBtn = document.getElementById('exportBackBtn');
+  if (exportBannerBtn) exportBannerBtn.style.display = fmt === 'banner' ? 'inline-flex' : 'none';
+  if (exportFrontBtn) exportFrontBtn.style.display = fmt === 'wallet' ? 'inline-flex' : 'none';
+  if (exportBackBtn) exportBackBtn.style.display = fmt === 'wallet' ? 'inline-flex' : 'none';
+
   if (fmt === 'sheet') renderSheetCards();
+  if (fmt === 'banner') initQrCode();
 }
 
 // ── VIEW MODE (Front / Back / Both) ──
@@ -1349,8 +1625,14 @@ function syncCardValues() {
   const formatted = parseInt(currentAmount).toLocaleString();
   document.getElementById('cardAmountDisplay').textContent = formatted;
   document.getElementById('certAmount').textContent = formatted;
+  const bannerAmt = document.getElementById('bannerAmount');
+  if (bannerAmt) bannerAmt.textContent = formatted;
+
   document.getElementById('cardTierName').textContent = currentTierName;
   document.getElementById('certTierTitle').textContent = currentTierName + ' Certificate';
+  const bannerTier = document.getElementById('bannerTierTitle');
+  if (bannerTier) bannerTier.textContent = currentTierName + ' Certificate';
+
   document.getElementById('cardPerkSub').textContent = currentPerkSub;
   renderSheetCards();
 }
@@ -1360,6 +1642,8 @@ function updateRecipient(val) {
   currentRecipient = val;
   document.getElementById('cardRecipientDisplay').textContent = 'Presented To: ' + val;
   document.getElementById('certRecipient').textContent = val;
+  const bannerRec = document.getElementById('bannerRecipient');
+  if (bannerRec) bannerRec.textContent = val;
   renderSheetCards();
 }
 
@@ -1367,6 +1651,8 @@ function updateBuyer(val) {
   currentBuyer = val;
   document.getElementById('backBuyerDisplay').textContent = 'Purchased by: ' + val;
   document.getElementById('certBuyer').textContent = 'With love from ' + val;
+  const bannerBuyer = document.getElementById('bannerBuyer');
+  if (bannerBuyer) bannerBuyer.textContent = 'With love from ' + val;
   renderSheetCards();
 }
 
@@ -1374,6 +1660,8 @@ function updateNote(val) {
   currentNote = val;
   document.getElementById('cardNoteDisplay').textContent = '"' + val + '"';
   document.getElementById('certNote').textContent = '"' + val + '"';
+  const bannerNote = document.getElementById('bannerNote');
+  if (bannerNote) bannerNote.textContent = '"' + val + '"';
   renderSheetCards();
 }
 
@@ -1381,6 +1669,8 @@ function updateSerial(val) {
   currentSerial = val;
   document.getElementById('cardSerialDisplay').textContent = val;
   document.getElementById('certSerial').textContent = val;
+  const bannerSerial = document.getElementById('bannerSerial');
+  if (bannerSerial) bannerSerial.textContent = val;
   initQrCode();
   renderSheetCards();
 }
@@ -1389,6 +1679,8 @@ function updatePin(val) {
   currentPin = val;
   document.getElementById('backPinDisplay').textContent = val;
   document.getElementById('certPin').textContent = val;
+  const bannerPin = document.getElementById('bannerPin');
+  if (bannerPin) bannerPin.textContent = val;
   renderSheetCards();
 }
 
@@ -1567,6 +1859,190 @@ function exportCardPng(side) {
   const url = canvas.toDataURL('image/png');
   const a = document.createElement('a');
   a.download = `Cruise-The-Creek-GiftCard-${side.toUpperCase()}-${currentSerial}.png`;
+  a.href = url;
+  a.click();
+}
+
+// ── HIGH-RES HORIZONTAL BANNER PNG EXPORT (300 DPI - 2640 x 1050 px) ──
+function exportBannerPng() {
+  const canvas = document.getElementById('exportCanvas');
+  const ctx = canvas.getContext('2d');
+  const w = 2640;
+  const h = 1050;
+  canvas.width = w;
+  canvas.height = h;
+
+  ctx.save();
+  // Background Gradient
+  let bgGrad;
+  if (currentTheme === 'forest') {
+    bgGrad = ctx.createLinearGradient(0, 0, w, h);
+    bgGrad.addColorStop(0, '#0d190f');
+    bgGrad.addColorStop(0.4, '#152718');
+    bgGrad.addColorStop(1, '#2d4a32');
+  } else if (currentTheme === 'frost') {
+    bgGrad = ctx.createLinearGradient(0, 0, w, h);
+    bgGrad.addColorStop(0, '#071219');
+    bgGrad.addColorStop(0.5, '#0c1e28');
+    bgGrad.addColorStop(1, '#1a3c4a');
+  } else if (currentTheme === 'sunset') {
+    bgGrad = ctx.createLinearGradient(0, 0, w, h);
+    bgGrad.addColorStop(0, '#16241a');
+    bgGrad.addColorStop(0.5, '#261b17');
+    bgGrad.addColorStop(1, '#422114');
+  } else {
+    bgGrad = ctx.createLinearGradient(0, 0, w, h);
+    bgGrad.addColorStop(0, '#0c0c0c');
+    bgGrad.addColorStop(1, '#1a1a1a');
+  }
+
+  // Rounded outer banner container
+  const r = 36;
+  ctx.beginPath();
+  ctx.moveTo(r, 0);
+  ctx.lineTo(w - r, 0);
+  ctx.quadraticCurveTo(w, 0, w, r);
+  ctx.lineTo(w, h - r);
+  ctx.quadraticCurveTo(w, h, w - r, h);
+  ctx.lineTo(r, h);
+  ctx.quadraticCurveTo(0, h, 0, h - r);
+  ctx.lineTo(0, r);
+  ctx.quadraticCurveTo(0, 0, r, 0);
+  ctx.closePath();
+  ctx.fillStyle = bgGrad;
+  ctx.fill();
+
+  ctx.lineWidth = 6;
+  ctx.strokeStyle = '#c9a96e';
+  ctx.stroke();
+
+  // Stub separator line (dashed)
+  const stubX = w - 800;
+  ctx.save();
+  ctx.setLineDash([16, 12]);
+  ctx.strokeStyle = 'rgba(201, 169, 110, 0.6)';
+  ctx.lineWidth = 4;
+  ctx.beginPath();
+  ctx.moveTo(stubX, 20);
+  ctx.lineTo(stubX, h - 20);
+  ctx.stroke();
+  ctx.restore();
+
+  // Stub background shading
+  ctx.fillStyle = 'rgba(0, 0, 0, 0.35)';
+  ctx.fillRect(stubX, 0, 800, h);
+
+  // ── LEFT MAIN SECTION ──
+  // Header
+  ctx.fillStyle = '#ffffff';
+  ctx.font = 'bold 58px "Bebas Neue", sans-serif';
+  ctx.fillText('CRUISE THE CREEK', 90, 120);
+
+  ctx.fillStyle = '#dfc188';
+  ctx.font = 'bold 24px "DM Sans", sans-serif';
+  ctx.fillText('HOLIDAY E-BIKE CERTIFICATE', 90, 165);
+
+  // Spring Start Guarantee Badge
+  ctx.fillStyle = '#102213';
+  ctx.fillRect(stubX - 440, 75, 360, 60);
+  ctx.strokeStyle = '#c9a96e';
+  ctx.lineWidth = 2.5;
+  ctx.strokeRect(stubX - 440, 75, 360, 60);
+  ctx.fillStyle = '#dfc188';
+  ctx.font = 'bold 22px "DM Sans", sans-serif';
+  ctx.fillText('🔒 SPRING-START GUARANTEED', stubX - 410, 113);
+
+  // Big Hero Amount
+  ctx.fillStyle = '#f7e0aa';
+  ctx.font = 'bold 190px "Bebas Neue", sans-serif';
+  ctx.fillText('$' + parseInt(currentAmount).toLocaleString(), 90, 420);
+
+  // Tier Title & Sub
+  ctx.fillStyle = '#ffffff';
+  ctx.font = 'bold 56px "Bebas Neue", sans-serif';
+  ctx.fillText(currentTierName.toUpperCase() + ' CERTIFICATE', 90, 520);
+
+  ctx.fillStyle = '#edd5a1';
+  ctx.font = 'bold 26px "DM Sans", sans-serif';
+  ctx.fillText('★ Includes $125 Free Creek Ready™ Build, Battery Conditioning & Spring Rollout', 90, 575);
+
+  // Recipient Box
+  ctx.fillStyle = 'rgba(0, 0, 0, 0.4)';
+  ctx.fillRect(90, 640, stubX - 180, 290);
+  ctx.strokeStyle = 'rgba(201, 169, 110, 0.35)';
+  ctx.lineWidth = 2;
+  ctx.strokeRect(90, 640, stubX - 180, 290);
+
+  ctx.fillStyle = '#c9a96e';
+  ctx.font = 'bold 24px "DM Sans", sans-serif';
+  ctx.fillText('PRESENTED IN HONOR OF', 130, 700);
+
+  ctx.fillStyle = '#ffffff';
+  ctx.font = 'bold 54px "Cinzel", serif';
+  ctx.fillText(currentRecipient, 130, 775);
+
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+  ctx.font = 'italic 28px "DM Sans", sans-serif';
+  ctx.fillText('“' + currentNote + '”', 130, 845);
+
+  ctx.fillStyle = '#dfc188';
+  ctx.font = 'bold 22px "DM Sans", sans-serif';
+  ctx.fillText('With love from ' + currentBuyer, 130, 895);
+
+  // ── RIGHT STUB SECTION ──
+  ctx.fillStyle = '#c9a96e';
+  ctx.font = 'bold 28px "Bebas Neue", sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('VERIFICATION & REDEMPTION STUB', stubX + 400, 110);
+
+  // QR Code placeholder / draw
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(stubX + 275, 170, 250, 250);
+  const qrImg = document.querySelector('#bannerQrContainer img');
+  if (qrImg && qrImg.complete) {
+    ctx.drawImage(qrImg, stubX + 285, 180, 230, 230);
+  } else {
+    ctx.fillStyle = '#111111';
+    ctx.font = 'bold 22px "DM Sans", sans-serif';
+    ctx.fillText('SCAN TO VERIFY', stubX + 400, 305);
+  }
+
+  // Serial & PIN
+  ctx.fillStyle = '#ffffff';
+  ctx.font = 'bold 24px "DM Sans", sans-serif';
+  ctx.fillText('Certificate ID:', stubX + 400, 480);
+
+  ctx.fillStyle = '#dfc188';
+  ctx.font = 'bold 36px "JetBrains Mono", monospace';
+  ctx.fillText(currentSerial, stubX + 400, 530);
+
+  ctx.fillStyle = '#aaaaaa';
+  ctx.font = 'bold 24px "JetBrains Mono", monospace';
+  ctx.fillText('PIN: ' + currentPin, stubX + 400, 580);
+
+  // Guarantee Seal
+  ctx.fillStyle = '#c9a96e';
+  ctx.beginPath();
+  ctx.arc(stubX + 400, 720, 75, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = '#152718';
+  ctx.font = 'bold 24px "Bebas Neue", sans-serif';
+  ctx.fillText('OFFICIAL', stubX + 400, 700);
+  ctx.fillText('CREEK READY', stubX + 400, 725);
+  ctx.fillText('SEAL', stubX + 400, 750);
+
+  // Footer terms
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+  ctx.font = '20px "DM Sans", sans-serif';
+  ctx.fillText('Canfield, Ohio · (330) 406-9686', stubX + 400, 850);
+  ctx.fillText('cruisethecreek.com/verify', stubX + 400, 885);
+
+  ctx.restore();
+
+  // Download Trigger
+  const url = canvas.toDataURL('image/png');
+  const a = document.createElement('a');
+  a.download = `Cruise-The-Creek-GiftCard-Banner-${currentSerial}.png`;
   a.href = url;
   a.click();
 }
