@@ -44,33 +44,42 @@ html,body{
   transition:all .3s ease;
 }
 
-/* 16:9 / 21:9 Viewport */
+/* 16:9 / 21:9 / 9:16 Responsive Viewport */
 #viewport{
   position:relative;
-  width:100%;
-  max-width:1920px;
-  height:100%;
   background:#0a0f0b;
   overflow:hidden;
   display:flex;
   align-items:center;
   justify-content:center;
+  transition:aspect-ratio .3s ease, width .3s ease, height .3s ease, box-shadow .3s ease;
+}
+#viewport.mode-standard{
+  aspect-ratio:16/9;
+  width:min(100vw, calc(100vh * (16 / 9)));
+  height:min(100vh, calc(100vw * (9 / 16)));
+  max-width:1920px;
+  max-height:1080px;
+  box-shadow:0 0 80px rgba(0,0,0,.9);
 }
 #viewport.mode-cinematic{
   aspect-ratio:21/9;
-  height:auto;
-  max-height:100vh;
-  box-shadow:0 0 100px rgba(0,0,0,.9);
+  width:min(100vw, calc(100vh * (21 / 9)));
+  height:min(100vh, calc(100vw * (9 / 21)));
+  max-width:2560px;
+  max-height:1080px;
+  box-shadow:0 0 100px rgba(0,0,0,.95);
 }
 #viewport.mode-vertical{
   aspect-ratio:9/16;
-  width:auto;
-  max-width:100vw;
-  height:100%;
-  box-shadow:0 0 80px rgba(201,169,110,.15);
+  width:min(100vw, calc(94vh * (9 / 16)));
+  height:min(94vh, calc(100vw * (16 / 9)));
+  box-shadow:0 0 80px rgba(201,169,110,.25);
+  border:1.5px solid rgba(201,169,110,.35);
+  border-radius:18px;
 }
 
-/* Letterbox Cinema Bars */
+/* Letterbox Cinema Bars (shown only in 16:9 standard mode) */
 .cinema-bars{
   position:absolute;
   inset:0;
@@ -86,7 +95,41 @@ html,body{
   background:#000;
   transition:height .4s cubic-bezier(.16,1,.3,1);
 }
-#viewport.mode-vertical .cinema-bars{display:none}
+#viewport.mode-vertical .cinema-bars,
+#viewport.mode-cinematic .cinema-bars{
+  display:none;
+}
+
+/* Format specific element adjustments */
+#viewport.mode-vertical .cine-title{
+  font-size:clamp(1.9rem, 4.8vh, 3.4rem);
+  max-width:92%;
+}
+#viewport.mode-vertical .act-badge{
+  font-size:clamp(0.75rem, 1.8vh, 1.05rem);
+  margin-bottom:8px;
+}
+#viewport.mode-vertical .brand-strip{
+  bottom:15%;
+  gap:12px;
+}
+#viewport.mode-vertical .brand-tag{
+  font-size:0.68rem;
+}
+#viewport.mode-vertical #holidayCaptionBar{
+  bottom:84px;
+  width:94%;
+}
+#viewport.mode-vertical .holiday-top-watermark{
+  top:68px;
+  font-size:0.68rem;
+  padding:4px 12px;
+}
+
+#viewport.mode-cinematic #holidayCaptionBar{
+  bottom:40px;
+  width:86%;
+}
 
 /* Canvas / Video Layer */
 #mediaCanvas{
@@ -412,6 +455,46 @@ html,body{
 .hud-btn.record-btn:hover{
   background:#d32f2f;
   border-color:#ff6b6b;
+}
+
+/* Aspect Ratio Segmented Selector */
+.hud-format-group{
+  display:inline-flex;
+  align-items:center;
+  background:rgba(0,0,0,.72);
+  border:1px solid rgba(201,169,110,.45);
+  border-radius:6px;
+  padding:2px;
+  gap:2px;
+  backdrop-filter:blur(8px);
+}
+.hud-format-btn{
+  background:transparent;
+  border:none;
+  color:rgba(255,255,255,.8);
+  padding:5px 9px;
+  border-radius:4px;
+  font-family:'DM Sans',sans-serif;
+  font-size:.72rem;
+  font-weight:700;
+  letter-spacing:.05em;
+  text-transform:uppercase;
+  cursor:pointer;
+  transition:all .18s ease;
+  white-space:nowrap;
+  display:inline-flex;
+  align-items:center;
+  gap:4px;
+}
+.hud-format-btn:hover{
+  color:var(--gold-bright);
+  background:rgba(201,169,110,.2);
+}
+.hud-format-btn.is-active{
+  background:var(--gold-grad);
+  color:#152718;
+  font-weight:800;
+  box-shadow:0 0 10px rgba(201,169,110,.4);
 }
 
 /* Timeline & Scrubber Bar */
@@ -1006,9 +1089,12 @@ html,body{
           <button type="button" class="hud-btn" id="soundBtn" onclick="toggleSound()">
             <span id="soundIcon">🔊</span> <span id="soundLabel">Sound On</span>
           </button>
-          <button type="button" class="hud-btn" id="formatBtn" onclick="toggleFormat()">
-            <span id="formatIcon">📺</span> <span id="formatLabel">21:9 Cinema</span>
-          </button>
+          <!-- ASPECT RATIO FORMAT SELECTOR -->
+          <div class="hud-format-group" id="formatGroup" title="Video Aspect Ratio for Playback & MP4 Recording">
+            <button type="button" class="hud-format-btn" id="fmt169" data-format="16:9" onclick="setFormat('16:9')" title="16:9 Standard HD (1920×1080 - YouTube, TV, Desktop)">📺 16:9</button>
+            <button type="button" class="hud-format-btn is-active" id="fmt219" data-format="21:9" onclick="setFormat('21:9')" title="21:9 Ultrawide Cinema (2560×1080 - Widescreen Scope)">🎬 21:9 Cinema</button>
+            <button type="button" class="hud-format-btn" id="fmt916" data-format="9:16" onclick="setFormat('9:16')" title="9:16 Vertical Reel (1080×1920 - TikTok, IG Reels, Shorts)">📱 9:16 Reel</button>
+          </div>
           <button type="button" class="hud-btn record-btn" id="recordBtn" onclick="toggleRecording()">
             <span>🔴</span> <span id="recordLabel">Record MP4</span>
           </button>
@@ -1748,6 +1834,31 @@ function render(timestamp) {
   requestAnimationFrame(render);
 }
 
+function drawMediaCover(targetCtx, media, destW, destH, zoom = 1.0) {
+  const srcW = media.videoWidth || media.naturalWidth || media.width || destW;
+  const srcH = media.videoHeight || media.naturalHeight || media.height || destH;
+  if (!srcW || !srcH) return;
+
+  const srcAspect = srcW / srcH;
+  const destAspect = destW / destH;
+
+  let drawW, drawH;
+  if (srcAspect > destAspect) {
+    // Source is wider than destination -> match height, crop width
+    drawH = destH * zoom;
+    drawW = destH * srcAspect * zoom;
+  } else {
+    // Source is taller than destination -> match width, crop height
+    drawW = destW * zoom;
+    drawH = (destW / srcAspect) * zoom;
+  }
+
+  const drawX = (destW - drawW) / 2;
+  const drawY = (destH - drawH) / 2;
+
+  targetCtx.drawImage(media, drawX, drawY, drawW, drawH);
+}
+
 function drawScene(delta) {
   const currentAct = ACTS[currentActIndex] || ACTS[0];
   ctx.save();
@@ -1755,18 +1866,14 @@ function drawScene(delta) {
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
   if (currentAct.mediaType === 'video' && currentVideoElement && currentVideoElement.readyState >= 2) {
-    // Render live video frame
-    ctx.drawImage(currentVideoElement, 0, 0, canvas.width, canvas.height);
+    // Render live video frame with center crop / cover
+    drawMediaCover(ctx, currentVideoElement, canvas.width, canvas.height, 1.0);
   } else {
-    // Render still image with cinematic Ken Burns zoom
+    // Render still image with cinematic Ken Burns zoom and cover
     const img = document.getElementById(currentAct.mediaId);
     if (img && img.complete) {
       scaleFactor += (currentAct.zoomSpeed || 0.0003);
-      const w = canvas.width * scaleFactor;
-      const h = canvas.height * scaleFactor;
-      const x = (canvas.width - w) / 2;
-      const y = (canvas.height - h) / 2;
-      ctx.drawImage(img, x, y, w, h);
+      drawMediaCover(ctx, img, canvas.width, canvas.height, scaleFactor);
     }
   }
 
@@ -1783,21 +1890,26 @@ function drawScene(delta) {
   // Burn-in Cinematic Titles & Badges when recording MP4
   if (isRecording) {
     ctx.save();
+    const isVertical = currentFormat === '9:16';
+    const scale = Math.max(0.65, Math.min(1.4, canvas.width / 1920));
+
     // 1. Act Badge
-    ctx.font = 'bold 30px "Bebas Neue", sans-serif';
+    const badgeFontSize = Math.round((isVertical ? 26 : 30) * scale);
+    ctx.font = `bold ${badgeFontSize}px "Bebas Neue", sans-serif`;
     ctx.fillStyle = '#c9a96e';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.shadowColor = 'rgba(0,0,0,0.95)';
     ctx.shadowBlur = 16;
-    ctx.fillText(currentAct.badge, canvas.width / 2, canvas.height * 0.40);
+    ctx.fillText(currentAct.badge, canvas.width / 2, canvas.height * (isVertical ? 0.38 : 0.40));
 
     // 2. Main Title
-    ctx.font = 'bold 88px "Bebas Neue", sans-serif';
+    const titleFontSize = Math.round((isVertical ? 74 : 88) * scale);
+    ctx.font = `bold ${titleFontSize}px "Bebas Neue", sans-serif`;
     ctx.fillStyle = '#ffffff';
     ctx.shadowColor = 'rgba(0,0,0,0.95)';
     ctx.shadowBlur = 24;
-    ctx.fillText(currentAct.title, canvas.width / 2, canvas.height * 0.48);
+    ctx.fillText(currentAct.title, canvas.width / 2, canvas.height * (isVertical ? 0.45 : 0.48));
 
     // Note: Center subtitle text omitted per user request to keep center uncluttered; festive captions show in holiday caption bar below.
 
@@ -1810,10 +1922,11 @@ function drawScene(delta) {
              || HOLIDAY_CAPTIONS[HOLIDAY_CAPTIONS.length - 1];
     if (cap && currentTime > 0.2) {
       ctx.save();
-      const boxW = Math.min(canvas.width * 0.88, 1400);
-      const boxH = 74;
+      const isVertical = currentFormat === '9:16';
+      const boxW = Math.min(canvas.width * (isVertical ? 0.92 : 0.88), 1400);
+      const boxH = isVertical ? 96 : 74;
       const boxX = (canvas.width - boxW) / 2;
-      const boxY = canvas.height - 145;
+      const boxY = canvas.height - (isVertical ? 230 : 145);
 
       ctx.fillStyle = 'rgba(12, 24, 15, 0.88)';
       ctx.strokeStyle = 'rgba(201, 169, 110, 0.7)';
@@ -1824,7 +1937,7 @@ function drawScene(delta) {
       ctx.fill();
       ctx.stroke();
 
-      const badgeW = 440;
+      const badgeW = Math.min(440, boxW * 0.75);
       const badgeH = 30;
       const badgeX = (canvas.width - badgeW) / 2;
       const badgeY = boxY - 17;
@@ -1841,11 +1954,22 @@ function drawScene(delta) {
       ctx.fillStyle = '#dfc188';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
+      ctx.shadowColor = 'rgba(0,0,0,0.8)';
+      ctx.shadowBlur = 6;
       ctx.fillText(`${cap.icon}  ${cap.badge}  ${cap.icon}`, canvas.width / 2, badgeY + badgeH / 2);
 
-      ctx.font = '500 27px "DM Sans", sans-serif';
+      const capFontSize = isVertical ? 23 : 27;
+      ctx.font = `500 ${capFontSize}px "DM Sans", sans-serif`;
       ctx.fillStyle = '#ffffff';
-      ctx.fillText(`“${cap.text}”`, canvas.width / 2, boxY + boxH / 2 + 3);
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.shadowColor = 'rgba(0,0,0,0.95)';
+      ctx.shadowBlur = 10;
+      if (isVertical) {
+        wrapCanvasText(ctx, `“${cap.text}”`, canvas.width / 2, boxY + boxH / 2, boxW - 40, 28, true);
+      } else {
+        ctx.fillText(`“${cap.text}”`, canvas.width / 2, boxY + boxH / 2 + 3);
+      }
 
       ctx.restore();
     }
@@ -1854,23 +1978,31 @@ function drawScene(delta) {
   ctx.restore();
 }
 
-function wrapCanvasText(ctx, text, x, y, maxWidth, lineHeight) {
+function wrapCanvasText(ctx, text, x, y, maxWidth, lineHeight, centerBlock = false) {
   if (!text) return;
   const words = text.split(' ');
+  const lines = [];
   let line = '';
-  let curY = y;
   for (let n = 0; n < words.length; n++) {
     const testLine = line + words[n] + ' ';
     const metrics = ctx.measureText(testLine);
     if (metrics.width > maxWidth && n > 0) {
-      ctx.fillText(line.trim(), x, curY);
+      lines.push(line.trim());
       line = words[n] + ' ';
-      curY += lineHeight;
     } else {
       line = testLine;
     }
   }
-  ctx.fillText(line.trim(), x, curY);
+  lines.push(line.trim());
+
+  let startY = y;
+  if (centerBlock) {
+    const totalH = (lines.length - 1) * lineHeight;
+    startY = y - totalH / 2;
+  }
+  for (let i = 0; i < lines.length; i++) {
+    ctx.fillText(lines[i], x, startY + (i * lineHeight));
+  }
 }
 
 // ── ACT SWITCHING & TEXT ANIMATION ──
@@ -2256,21 +2388,65 @@ function toggleVoiceover() {
   }
 }
 
-function toggleFormat() {
-  const vp = document.getElementById('viewport');
-  const btn = document.getElementById('formatBtn');
-  const label = document.getElementById('formatLabel');
+// ── ASPECT RATIO FORMAT CONTROLLER ──
+let currentFormat = '21:9';
 
-  if (vp.classList.contains('mode-cinematic')) {
-    vp.classList.remove('mode-cinematic');
+function setFormat(format) {
+  currentFormat = format;
+  const vp = document.getElementById('viewport');
+  if (!vp) return;
+
+  vp.classList.remove('mode-standard', 'mode-cinematic', 'mode-vertical');
+
+  document.querySelectorAll('.hud-format-btn').forEach(btn => {
+    btn.classList.toggle('is-active', btn.dataset.format === format);
+  });
+
+  let w = 2560, h = 1080;
+  let label = '🎬 21:9 Ultrawide Cinema (2560×1080 Scope)';
+
+  if (format === '9:16') {
     vp.classList.add('mode-vertical');
-    label.textContent = '9:16 Reel';
-    btn.classList.add('is-active');
+    w = 1080;
+    h = 1920;
+    label = '📱 9:16 Vertical Reel (1080×1920 for TikTok / Reels)';
+  } else if (format === '16:9') {
+    vp.classList.add('mode-standard');
+    w = 1920;
+    h = 1080;
+    label = '📺 16:9 Standard HD (1920×1080 for YouTube / TV)';
   } else {
-    vp.classList.remove('mode-vertical');
     vp.classList.add('mode-cinematic');
-    label.textContent = '21:9 Cinema';
-    btn.classList.remove('is-active');
+    w = 2560;
+    h = 1080;
+    label = '🎬 21:9 Ultrawide Cinema (2560×1080 Scope)';
+  }
+
+  // Update canvas internal buffer dimensions
+  canvas.width = w;
+  canvas.height = h;
+  pCanvas.width = w;
+  pCanvas.height = h;
+
+  // Re-seed snow / particle engine across new canvas dimensions
+  initParticles();
+
+  // If a recording was in progress, stop it cleanly
+  if (isRecording) {
+    stopRecording();
+    showStudioToast(`Recording stopped. Format changed to ${label}. Ready to record!`);
+  } else {
+    showStudioToast(`Format set: ${label}`);
+  }
+}
+
+function toggleFormat() {
+  if (currentFormat === '21:9') {
+    setFormat('9:16');
+  } else if (currentFormat === '9:16') {
+    setFormat('16:9');
+  } else {
+    setFormat('21:9');
   }
 }
 
@@ -2339,6 +2515,7 @@ function showStudioToast(msg) {
 let mediaRecorder = null;
 let recordedChunks = [];
 let isRecording = false;
+let recordedMime = 'video/webm';
 
 function toggleRecording() {
   if (isRecording) {
@@ -2357,7 +2534,11 @@ function startRecording() {
     document.getElementById('recordLabel').textContent = 'Stop & Save';
     document.getElementById('recordBanner').style.display = 'flex';
 
-    // Capture visual stream from canvas
+    const fmtDesc = currentFormat === '9:16' ? '9:16 VERTICAL REEL (1080×1920)'
+      : (currentFormat === '21:9' ? '21:9 ULTRAWIDE CINEMA (2560×1080)' : '16:9 LANDSCAPE (1920×1080)');
+    document.getElementById('recordBanner').innerHTML = `<span>●</span> RECORDING ${fmtDesc} MASTER (30 FPS)`;
+
+    // Capture visual stream from canvas (matches exact format: 1080x1920, 2560x1080, or 1920x1080)
     const stream = canvas.captureStream(30);
 
     // Capture combined master audio stream (Soundtrack + Voiceover Narration)
@@ -2367,11 +2548,19 @@ function startRecording() {
       dest.stream.getAudioTracks().forEach(track => stream.addTrack(track));
     }
 
-    const mime = MediaRecorder.isTypeSupported('video/webm;codecs=vp9')
-      ? 'video/webm;codecs=vp9'
-      : (MediaRecorder.isTypeSupported('video/webm') ? 'video/webm' : 'video/mp4');
+    if (MediaRecorder.isTypeSupported('video/mp4;codecs=avc1.42E01E,mp4a.40.2')) {
+      recordedMime = 'video/mp4;codecs=avc1.42E01E,mp4a.40.2';
+    } else if (MediaRecorder.isTypeSupported('video/mp4')) {
+      recordedMime = 'video/mp4';
+    } else if (MediaRecorder.isTypeSupported('video/webm;codecs=vp9,opus')) {
+      recordedMime = 'video/webm;codecs=vp9,opus';
+    } else if (MediaRecorder.isTypeSupported('video/webm;codecs=vp9')) {
+      recordedMime = 'video/webm;codecs=vp9';
+    } else {
+      recordedMime = 'video/webm';
+    }
 
-    mediaRecorder = new MediaRecorder(stream, { mimeType: mime, videoBitsPerSecond: 8000000 });
+    mediaRecorder = new MediaRecorder(stream, { mimeType: recordedMime, videoBitsPerSecond: 9000000 });
     mediaRecorder.ondataavailable = e => { if (e.data.size > 0) recordedChunks.push(e.data); };
     mediaRecorder.onstop = exportVideoFile;
     mediaRecorder.start();
@@ -2398,12 +2587,15 @@ function stopRecording() {
 }
 
 function exportVideoFile() {
-  const blob = new Blob(recordedChunks, { type: 'video/webm' });
+  const ext = recordedMime.includes('mp4') ? 'mp4' : 'webm';
+  const tag = currentFormat === '9:16' ? '9x16-Vertical'
+    : (currentFormat === '21:9' ? '21x9-Cinema' : '16x9-Landscape');
+  const blob = new Blob(recordedChunks, { type: recordedMime });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.style.display = 'none';
   a.href = url;
-  a.download = `Cruise-The-Creek-Holiday-Launch-${Date.now()}.webm`;
+  a.download = `Cruise-The-Creek-Holiday-Launch-${tag}-${Date.now()}.${ext}`;
   document.body.appendChild(a);
   a.click();
   setTimeout(() => {
@@ -2477,7 +2669,7 @@ async function submitModalForm(e) {
 
 // ── INITIAL BOOTSTRAP ──
 window.addEventListener('DOMContentLoaded', () => {
-  initParticles();
+  setFormat('21:9');
   checkAct(0);
   requestAnimationFrame(render);
 });
