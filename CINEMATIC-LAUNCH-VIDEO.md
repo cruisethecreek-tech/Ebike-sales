@@ -6,6 +6,7 @@
 ### Executive Overview
 * **Product**: Cruise the Creek Holiday E-Bike Certificates ($1,500 Trailblazer, $2,000 VIP Adventure, Custom Amount).
 * **The Core Hook**: **The "Spring-Start" Warranty Lock**. Completely eliminates the single biggest obstacle to winter e-bike purchases: *losing 5 months of factory warranty while the bike sits in a freezing garage*.
+* **Official YouTube Release**: [https://youtu.be/gUUpTCb_mqE](https://youtu.be/gUUpTCb_mqE)
 * **Interactive Web Film**: Available directly on the web at `cruisethecreek.com/gift-card-launch.html` (with 21:9 Widescreen Cinema, 9:16 Vertical Reel Mode, and real-time **🔴 Record & Export to MP4**).
 
 ---
