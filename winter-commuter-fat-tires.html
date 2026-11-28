@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Fair-Weather Crowd Is Done. The Real Riders Are Just Clocking In. | Cruise the Creek</title>
+<meta name="description" content="Why winter belongs to the have-to-ride commuters: how a 4-inch fat tire floats over slush and plow ridges, and the real cost of a battery charge versus a tank of gas.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --sage:#6B8F71;--forest:#2D4A32;--forest-l:#3a5d40;--dark:#1a2e1c;
+  --tan:#C9A96E;--tan-d:#a98843;--cream:#F5F0E8;--cream-w:#fbf7ef;
+  --ink:#1a1a1a;--ink-2:#4a4a4a;--ink-3:#7a7a7a;
+}
+html,body{height:100%}
+html{scroll-behavior:smooth}
+body{font-family:'DM Sans',sans-serif;color:var(--ink);background:var(--cream);
+  min-height:100vh;display:flex;flex-direction:column;line-height:1.6}
+a{color:inherit;text-decoration:none;transition:color .2s ease}
+button{font-family:inherit;cursor:pointer;border:none;background:none}
+
+.topbar{background:rgba(255,255,255,.95);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+  color:var(--dark);padding:16px 24px;display:flex;align-items:center;justify-content:space-between;
+  position:sticky;top:0;z-index:100;border-bottom:1px solid rgba(0,0,0,.05)}
+.brand-logo{height:38px;width:auto;display:block}
+
+/* HERO */
+.post-hero{position:relative;min-height:42vh;padding:80px 24px 60px;
+  display:flex;flex-direction:column;align-items:center;justify-content:flex-end;text-align:center;
+  color:#fff;background:var(--forest);overflow:hidden;isolation:isolate}
+.post-hero-bg{position:absolute;inset:0;z-index:-2;background-size:cover;background-position:center;filter:brightness(.55);
+  background-image:url('media/Bikeonroad.jpg')}
+.post-hero.winter .post-hero-bg{filter:brightness(.4) saturate(.25) contrast(1.05)}
+.post-hero.winter::after{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;opacity:.55;
+  background-image:radial-gradient(circle,#fff 1.2px,transparent 1.6px),radial-gradient(circle,rgba(255,255,255,.8) 1px,transparent 1.4px);
+  background-size:46px 46px,29px 29px;background-position:0 0,13px 19px}
+.post-hero-overlay{position:absolute;inset:0;z-index:-1;
+  background:linear-gradient(180deg,rgba(26,46,28,.4) 0%,rgba(26,46,28,.85) 100%)}
+.post-hero-meta{font-size:.72rem;letter-spacing:.18em;text-transform:uppercase;font-weight:700;
+  color:var(--tan);margin-bottom:12px;display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap}
+.post-hero-meta .dot{opacity:.5}
+.post-hero h1{font-family:'Bebas Neue',sans-serif;font-size:clamp(2.2rem,6vw,3.6rem);
+  letter-spacing:.02em;line-height:1.05;max-width:780px;margin:0 auto 14px}
+.post-hero-author{font-size:.86rem;color:rgba(255,255,255,.78);letter-spacing:.04em}
+.post-hero-author strong{color:var(--tan);font-weight:700}
+
+.crumb{max-width:780px;margin:0 auto;padding:18px 24px 0;
+  font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;font-weight:700;color:var(--sage)}
+.crumb a{color:var(--ink-2)}.crumb a:hover{color:var(--forest)}
+.crumb .sep{color:rgba(0,0,0,.2);margin:0 8px}
+
+main{flex:1;width:100%;max-width:780px;margin:0 auto;padding:32px 24px 64px}
+
+/* POST BODY TYPOGRAPHY */
+.post-body{font-size:1.05rem;line-height:1.75;color:var(--ink-2)}
+.post-body > *:first-child{margin-top:0}
+.post-body p{margin:0 0 1.1em}
+.post-body h1,.post-body h2,.post-body h3,.post-body h4{
+  font-family:'DM Sans',sans-serif;color:var(--forest);
+  font-weight:800;letter-spacing:-.01em;line-height:1.2;
+  margin:1.8em 0 .6em}
+.post-body h2{font-size:clamp(1.4rem,3.5vw,1.7rem)}
+.post-body h3{font-size:clamp(1.2rem,3vw,1.4rem);color:var(--forest-l)}
+.post-body h4{font-size:1.05rem}
+.post-body strong,.post-body b{color:var(--ink);font-weight:800}
+.post-body em,.post-body i{color:var(--ink)}
+.post-body a{color:var(--tan-d);font-weight:700;border-bottom:1px solid rgba(169,136,67,.3);
+  transition:border-color .15s ease}
+.post-body a:hover{border-bottom-color:var(--tan-d)}
+.post-body ul,.post-body ol{margin:0 0 1.1em 1.4em;padding:0}
+.post-body li{margin-bottom:.4em}
+.post-body blockquote{margin:1.4em 0;padding:14px 22px;
+  border-left:3px solid var(--tan);background:#fff;border-radius:0 6px 6px 0;
+  color:var(--ink);font-style:italic;font-size:1.05em;line-height:1.6}
+.post-body hr{border:0;height:1px;background:rgba(0,0,0,.1);margin:2em 0}
+
+
+.post-sign strong{color:var(--forest);font-weight:800}
+.post-sign em{color:var(--ink-3);font-style:italic}
+
+/* TAGS */
+.post-tags{margin-top:2.5em;padding-top:1.6em;border-top:1px solid rgba(0,0,0,.08);
+  display:flex;flex-wrap:wrap;gap:8px}
+.post-tag{padding:6px 12px;background:#fff;border:1px solid rgba(45,74,50,.12);
+  border-radius:99px;font-size:.78rem;font-weight:700;letter-spacing:.04em;
+  color:var(--forest);text-transform:lowercase}
+
+.back-blog{display:inline-flex;align-items:center;gap:8px;margin-top:1.6em;
+  padding:11px 20px;background:var(--forest);color:#fff;border-radius:5px;
+  font-weight:700;font-size:.84rem;letter-spacing:.04em;text-transform:uppercase;transition:background .2s ease}
+.back-blog:hover{background:var(--dark)}
+.back-blog svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2.5}
+
+footer{background:var(--dark);color:rgba(255,255,255,.7);padding:32px 24px;
+  text-align:center;font-size:.85rem;letter-spacing:.02em;border-top:2px solid var(--tan)}
+footer a{color:var(--tan);font-weight:500}footer a:hover{color:#fff}
+
+@media(max-width:480px){
+  .topbar{padding:12px 16px}.brand-logo{height:32px}
+  .post-hero{padding:62px 18px 44px}
+  .crumb{padding:14px 16px 0}
+  main{padding:24px 16px 48px}
+  .post-body{font-size:1rem;line-height:1.7}
+}
+
+/* SIGNATURE */
+.post-sign{margin-top:1.4em;line-height:1.5}
+
+/* LISTEN */
+.listen{background:#fff;border:1px solid rgba(45,74,50,.12);border-radius:10px;padding:14px 16px;margin:0 0 1.8em}
+.listen p{margin:0 0 8px;font-weight:800;font-size:.9rem;color:var(--forest)}
+.listen audio{width:100%;display:block}
+.post-body .listen-alt{display:inline-block;margin-top:8px;font-size:.8rem;font-weight:700;color:var(--ink-3);border-bottom:0}
+
+/* VIDEO */
+.video{position:relative;width:100%;aspect-ratio:16/9;margin:0 0 1.8em;border-radius:10px;overflow:hidden;background:#000;box-shadow:0 2px 10px rgba(0,0,0,.08)}
+.video iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+
+/* INFOGRAPHICS */
+.post-body figure{margin:1.6em 0}
+.post-body figure a{border:0;display:block}
+.post-body figure img{display:block;width:100%;height:auto;border-radius:10px;box-shadow:0 2px 10px rgba(0,0,0,.08)}
+.post-body figcaption{font-size:.82rem;color:var(--ink-3);margin-top:8px;text-align:center}
+
+/* RIDE CARDS */
+.ride{background:#fff;border:1px solid rgba(45,74,50,.12);border-radius:10px;padding:2px 20px 6px;margin:1.2em 0}
+.post-body .ride h3{margin-top:.9em}
+.post-body .ride.car h3{color:#9b2c1f}
+
+/* TABLE */
+.table-wrap{overflow-x:auto;margin:1em 0;-webkit-overflow-scrolling:touch}
+.post-body table{width:100%;min-width:520px;border-collapse:collapse;font-size:.88rem;line-height:1.4;background:#fff}
+.post-body th,.post-body td{text-align:left;padding:9px 10px;border-bottom:1px solid rgba(0,0,0,.08)}
+.post-body th{background:var(--forest);color:#fff;font-weight:700}
+.post-body tr.car td{color:#9b2c1f;font-weight:700}
+.post-body .note{font-size:.85rem;color:var(--ink-3)}
+
+/* MATH CARD */
+.math{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:1.4em 0}
+.math-card{background:#fff;border:1px solid rgba(45,74,50,.12);border-radius:10px;padding:16px 18px}
+.math-card.car{border-color:rgba(155,44,31,.25)}
+.math-label{font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;font-weight:800;color:var(--sage)}
+.math-card.car .math-label{color:#9b2c1f}
+.math-big{font-family:'Bebas Neue',sans-serif;font-size:2.4rem;line-height:1;color:var(--forest);margin:6px 0 4px}
+.math-card.car .math-big{color:#9b2c1f}
+.post-body .math-card p{margin:0;font-size:.88rem;line-height:1.45;color:var(--ink-2)}
+@media(max-width:560px){.math{grid-template-columns:1fr}}
+</style>
+
+<script src="site-enhance.js?v=06e37b0036"></script>
+<meta property="og:title" content="The Fair-Weather Crowd Is Done. The Real Riders Are Just Clocking In.">
+<meta property="og:description" content="Why winter belongs to the have-to-ride commuters: how a 4-inch fat tire floats over slush and plow ridges, and the real cost of a battery charge versus a tank of gas.">
+<meta property="og:image" content="https://www.cruisethecreek.com/media/Bikeonroad.jpg">
+<meta property="og:url" content="https://www.cruisethecreek.com/winter-commuter-fat-tires.html">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Cruise the Creek">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="The Fair-Weather Crowd Is Done. The Real Riders Are Just Clocking In.">
+<meta name="twitter:description" content="Why winter belongs to the have-to-ride commuters: how a 4-inch fat tire floats over slush and plow ridges, and the real cost of a battery charge versus a tank of gas.">
+<meta name="twitter:image" content="https://www.cruisethecreek.com/media/Bikeonroad.jpg">
+<link rel="canonical" href="https://www.cruisethecreek.com/winter-commuter-fat-tires.html">
+</head>
+<body>
+
+<header class="topbar">
+  <a href="index.html" aria-label="Cruise the Creek home"><img class="brand-logo" src="BlackonTransparent.png" alt="Cruise the Creek"></a>
+</header>
+
+<section class="post-hero winter">
+  <div class="post-hero-bg"></div>
+  <div class="post-hero-overlay"></div>
+  <div class="post-hero-meta">
+    <span>November 6, 2026</span>
+    <span class="dot">&middot;</span>
+    <span>5 min read</span>
+  </div>
+  <h1>The Fair-Weather Crowd Is Done. The Real Riders Are Just Clocking In.</h1>
+  <div class="post-hero-author">By <strong>Pat</strong></div>
+</section>
+
+<nav class="crumb"><a href="index.html">Home</a><span class="sep">/</span> Creek Life <span class="sep">/</span><a href="creek-life-blog.html">Blog</a><span class="sep">/</span> Winter Commuters</nav>
+
+<main>
+  <article class="post-body">
+
+<p>The shift happens every November. The temperature drops, the first flurries hit, and garages across town swallow up the road bikes and cruisers until May. The Bikeway gets quiet.</p>
+<p>Nothing wrong with that. Sunny Sunday rides are half the reason we opened this shop, and we'll be thrilled to see that crowd again in the spring.</p>
+<p>But a different breed of rider stays on the road all winter: the <strong>have-to-ride commuters</strong>. They're clocking in for early shifts, running errands, picking up groceries and skipping the gas pump. For them, a bike isn't a summer hobby. It's how they get to work. And when winter arrives, a fat-tire bike stops being a novelty and becomes a utility vehicle.</p>
+
+<h2>Fair Weather vs. Real Life</h2>
+<p>If you commute on two wheels, your schedule doesn't freeze just because the temperature did. You've still got shifts to cover and bills to pay. With gas running $3.50 to $4 a gallon, feeding a car's tank to crawl through traffic in the dark isn't very appealing either.</p>
+<p>The only thing that really stops people from riding through winter isn't the cold. You can dress for 25&deg;F in layers. What you can't dress for is a front tire washing out on that salted, brown-sugar slush the plows leave behind.</p>
+<p>That's where fat tires draw the line.</p>
+<blockquote>Winter riding isn't about being brave. It's about having the right machine for the job.</blockquote>
+
+<h2>The Physics of a Fat Tire (Why 4 Inches Changes Everything)</h2>
+<p>A skinny tire is pumped hard and narrow, so it slices <em>into</em> whatever it's rolling on. On frozen ruts it gets trapped and steers you, and on wet slush it knifes through to the slick layer underneath. A 4-inch fat tire run at low pressure does the opposite. Here's why.</p>
+
+<section class="ride">
+<h3>1. Low pressure means a bigger footprint &#128099;</h3>
+<p>A tire's contact patch is roughly the weight on it divided by its air pressure. Put about 130 lbs on a rear wheel (a typical e-bike plus rider) and run it at 12 PSI, and the tire spreads out over roughly <strong>10 square inches</strong> of ground. A road tire at 80 PSI carrying the same load touches about <strong>2 square inches</strong>. That's around five times more rubber gripping the street.</p>
+</section>
+
+<section class="ride">
+<h3>2. Spread-out weight floats instead of sinking &#10052;&#65039;</h3>
+<p>The same weight over five times the area means far less pressure pushing down on any one spot. In snow, that's the difference between floating on top of packed snow and plowing a trench into it. It's the same reason snowshoes work.</p>
+</section>
+
+<section class="ride">
+<h3>3. Big volume rolls over the plow ridge &#128667;</h3>
+<p>Plows leave a ridge of chunky slush, gravel and ice along the shoulder, right where you ride. A narrow tire tends to get grabbed and deflected by it. A tall, wide, soft tire has enough volume to <strong>roll up and over</strong> the debris and absorb the hit, so the bike stays pointed where you're steering.</p>
+</section>
+
+<section class="ride">
+<h3>4. Knobby tread bites into snowpack &#129470;</h3>
+<p>Deep, widely spaced knobs dig into packed snow and clear themselves as they turn, instead of packing up into a slick, smooth ring.</p>
+</section>
+
+<p><strong>A quick word on tire pressure:</strong> 10 to 12 PSI is a good starting point for snow and slush, but <strong>never go below the minimum printed on your tire's sidewall</strong>. Many e-bike fat tires are rated for higher pressures than mountain fat tires, and running too soft on a heavy e-bike can pinch the tube or ding the rim on a pothole. On dry, cleared pavement, pump back up toward the normal range. Not sure what yours should be? Stop by and we'll set it for you.</p>
+<p><strong>And an honest one about ice:</strong> fat tires are a huge upgrade on snow, slush and ruts, but no rubber grips glare ice or black ice well. If your route ices over, studded fat tires are the answer, and slowing down still is too.</p>
+
+<h2>The Commuter's Math</h2>
+<p>When the forecast turns gray, most people accept the routine: warm up the car for 15 minutes, scrape the windshield, and keep feeding the tank. The daily e-bike commuter runs a different calculation.</p>
+<p>Take a 10-mile commute each way, five days a week. That's about 100 miles.</p>
+
+<div class="math">
+  <div class="math-card car">
+    <div class="math-label">By car</div>
+    <div class="math-big">~$16 / week</div>
+    <p>About 4 gallons at 25 mpg and $3.60 a gallon, plus roughly half a gallon burned warming up in the driveway. That's around $70 a month before parking, wear and winter tires.</p>
+  </div>
+  <div class="math-card">
+    <div class="math-label">By fat-tire e-bike</div>
+    <div class="math-big">~55&cent; / week</div>
+    <p>About 3 kWh from the wall outlet at around 19&cent; per kWh. That's roughly $2.40 a month.</p>
+  </div>
+</div>
+
+<p>Charging a full 700 to 800 Wh battery, the size on most fat-tire e-bikes we carry, costs <strong>about 15 cents</strong> at local electric rates. On a mild day that charge is good for <strong>30 to 45 miles</strong> with moderate pedal assist. In the 20s, plan on less: cold batteries give up some of their capacity and soft tires in slush take more effort, so <strong>20 to 35 miles</strong> is a safer winter estimate. For most commutes, that's still a couple of days per charge.</p>
+<p>You don't park your car because it rains. You don't have to park your ride because it snows.</p>
+
+<h2>Winter Commuter Checklist</h2>
+<ul>
+<li><strong>Bring the battery inside.</strong> Store it at room temperature, and let a cold battery warm up for an hour or so before you charge it. Lithium batteries shouldn't be charged below freezing.</li>
+<li><strong>Light up both ends.</strong> It's dark on both sides of most shifts. Run a bright front light and a red rear light every ride.</li>
+<li><strong>Rinse off the salt.</strong> A quick wipe-down of the chain, brakes and frame after salty rides, plus fresh chain lube, saves you a lot of money in the spring.</li>
+<li><strong>Brake earlier.</strong> Stopping distances grow on wet and snowy roads. Give yourself more room and squeeze the brakes gently.</li>
+<li><strong>Dress in layers.</strong> Windproof shell, warm gloves or pogies, and something over your ears under the helmet. You'll warm up faster than you think.</li>
+</ul>
+
+<h2>Built for the Grind</h2>
+<p>We carry fat-tire e-bikes made for exactly this kind of riding, including the <a href="velotric.html">Velotric Nomad 2, GoMad and Nomad 2X</a> and the <a href="mooncool.html">Mooncool TK1</a>. Want to feel the difference a 4-inch tire makes before the snow really flies? <a href="test-ride.html">Book a test ride</a>, or bring in the bike you already have for a <a href="tune-ups.html">winter tune-up</a>.</p>
+<p>Summer riders chase the sun. Commuters just get the job done. If that's you, we'll see you out there.</p>
+
+<p class="post-sign"><strong>&mdash; Patrick T. Simms</strong><br>
+<em>Owner &amp; Operator, Cruise the Creek Adventures</em></p>
+  </article>
+
+  <div class="post-tags">
+    <span class="post-tag">e-bikes</span>
+    <span class="post-tag">fat tire</span>
+    <span class="post-tag">winter riding</span>
+    <span class="post-tag">commuting</span>
+    <span class="post-tag">how it works</span>
+  </div>
+
+  <a class="back-blog" href="creek-life-blog.html"><svg viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg> All posts</a>
+</main>
+
+<footer>
+  &copy; 2026 <a href="index.html">Cruise the Creek</a> &middot; <a href="creek-life-blog.html">All posts</a>
+  &middot; <a href="portal.html">Customer Portal</a>
+</footer>
+
+<script src="chatbot.js" defer></script>
+</body>
+</html>
